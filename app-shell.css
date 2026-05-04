@@ -1584,3 +1584,57 @@ tr.clickable:hover td { background: var(--panel-hover); }
     opacity: 0.6;
     margin-right: 12px;
 }
+
+/* ============================================================
+   Responsive — collapse sidebar below 860px and turn it into
+   a horizontal scroll-pill nav at the top of the main area
+   ============================================================ */
+@media (max-width: 860px) {
+    .app-body { grid-template-columns: 1fr; }
+    .app-side-shell {
+        grid-row: 1;
+        position: sticky;
+        top: 56px;
+        z-index: 90;
+        background: var(--panel-0);
+    }
+    .app-side {
+        height: auto;
+        padding: 8px 12px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        border-bottom: 1px solid var(--panel-2);
+    }
+    .app-side .group { display: none; }
+    .app-side > div, .app-side nav, .app-side > section {
+        display: inline-flex;
+        gap: 4px;
+        flex-wrap: nowrap;
+    }
+    .app-side a {
+        display: inline-flex;
+        margin: 0 2px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: var(--panel-2);
+        font-size: 12px;
+    }
+    .app-side a.active { background: var(--panel-accent); color: var(--panel-accent-fg); }
+    .app-topbar { padding: 0 12px; gap: 8px; }
+    .app-topbar .brand { font-size: 13px; }
+    .app-topbar input[type=search] { min-width: 120px !important; max-width: 180px; }
+    .app-main { padding: 12px 14px 80px 14px; }
+    .app-crumb { padding: 6px 14px; }
+}
+
+@media (max-width: 480px) {
+    .app-topbar .brand .leaf { display: none; }
+    .app-topbar input[type=search] { display: none; }
+    .app-main { padding: 10px 10px 80px 10px; }
+    .panel-body { padding: 10px 12px; }
+    .row { grid-template-columns: 60px 1fr auto; gap: 8px; padding: 8px 12px; font-size: 12px; }
+    .row .meta { font-size: 10px; }
+    h1 { font-size: 22px !important; }
+}
