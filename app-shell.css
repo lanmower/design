@@ -1638,3 +1638,8 @@ tr.clickable:hover td { background: var(--panel-hover); }
     .row .meta { font-size: 10px; }
     h1 { font-size: 22px !important; }
 }
+
+/* file-browser stage + utility surfaces — replaces inline style strings in kit/fsbrowse */
+.ds-file-stage { padding: var(--space-4) var(--space-5); }
+.ds-meta-mono { color: var(--panel-text-3); font-family: var(--ff-mono); font-size: var(--fs-xs); }
+.ds-error-banner { background: var(--flame); color: var(--ink); padding: var(--space-2) var(--space-3); border-radius: var(--r-3); margin-bottom: var(--space-3); cursor: pointer; }

@@ -135,7 +135,7 @@ function pickFiles() {
 }
 
 function App() {
-    const main = h('div', { style: 'padding: 20px 28px' },
+    const main = h('div', { class: 'ds-file-stage' },
         h('h1', {}, 'file browser'),
         h('p', { class: 'lede' },
             'static demo of the 247420 file-browser primitives. drop files to fake-upload, click rows to preview, ',
@@ -167,7 +167,7 @@ function App() {
                 }, children: '+ folder' })
             ],
             right: [
-                h('span', { class: 'meta', style: 'color:var(--panel-text-3);font-family:var(--ff-mono);font-size:12px' },
+                h('span', { class: 'meta ds-meta-mono' },
                     String(state.files.length).padStart(2, '0') + ' items'
                 )
             ]
