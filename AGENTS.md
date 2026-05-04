@@ -51,6 +51,15 @@ When a portfolio repo has legacy `docs/*.html` pages with their own `<style>`/`<
 - **Inline styles ban**: no new inline `style="..."` strings in components. Add a `.ds-<thing>` class to `app-shell.css` instead — the build prefixes with `.ds-247420`.
 - **marked v15 + html-passthrough**: lines that contain raw HTML tags become text-passthrough — markdown emphasis around an inline `<script>` tag won't parse. Security holds (DOMPurify still strips dangerous tags); cosmetic blast on mixed input is expected.
 
+## file-browser primitives — non-obvious caveats
+
+- File-type values are the canonical seven plus three: `dir`, `image`, `video`, `audio`, `code`, `text`, `archive`, `document`, `symlink`, `other`. Anything outside that set falls through to the neutral rail and the `◌` glyph.
+- Rail color comes from `data-file-type` on the row. Never hand-apply `.rail-green`, `.rail-sun`, etc. to file rows — the CSS owns the mapping and applying both makes one rule silently lose to the other.
+- `FileViewer` portal-renders to `<body>` via `Backdrop` (z-index above the topbar). The viewer's head AND body both carry `data-file-type` so the rail color propagates inside the modal — set both, not just one, or the inside of the viewer falls back to neutral.
+- `DropZone` only previews local-file UI; the real upload still needs `preventDefault` registered on `document`, not just on the zone, or the browser will navigate to the dropped file the moment it hits any non-zone region.
+- `UploadProgress` reads `data-pct` on `.ds-upload-fill` to drive the bar width — write a string number 0–100, not a percent string.
+- `BreadcrumbPath` calls `onNav(0)` for the root and `onNav(i+1)` for each segment after; the index is "how many segments to keep", not "which segment was clicked".
+
 ## webjsx applyDiff — Mixed Keyed/Primitive Children Crash
 
 The vendored webjsx `applyDiff` (vendor/webjsx/applyDiff.js:43) throws `Cannot read properties of undefined (reading 'key')` when a parent's children array mixes keyed VElements with primitive (string) siblings. The keyed-map iteration assumes every oldVNode has `.props`. Fix: wrap raw text segments in a keyed `<span>` so all children are VElements. Affects every SDK consumer that interleaves text fragments with keyed component children.

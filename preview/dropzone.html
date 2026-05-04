@@ -1,0 +1,30 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../app-shell.css">
+<style>body{padding:20px;background:var(--panel-0);color:var(--panel-text);} .row-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:880px}</style><script defer src="./motion-default.js"></script>
+</head><body>
+<div class="dateline"><span>247420 // FILE-BROWSER // DROPZONE</span><span class="spread"></span><span>TONAL TARGET · NO DASHED BORDERS</span></div>
+<div class="row-2" style="margin-top:14px">
+  <div>
+    <div class="t-meta" style="margin-bottom:6px">idle</div>
+    <div class="ds-dropzone">
+      <div class="ds-dropzone-inner">
+        <span class="ds-dropzone-glyph">⇪</span>
+        <span class="ds-dropzone-label">drop files here to upload</span>
+        <a class="btn">pick files</a>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="t-meta" style="margin-bottom:6px">dragover</div>
+    <div class="ds-dropzone dragover">
+      <div class="ds-dropzone-inner">
+        <span class="ds-dropzone-glyph">⇪</span>
+        <span class="ds-dropzone-label">release to upload</span>
+        <a class="btn">pick files</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="t-meta" style="margin-top:12px">dropzone is a tonal panel that swaps to <code>--panel-select</code> on dragover. <strong>preventDefault must run on document, not just the zone</strong> or the browser will navigate to the dropped file.</div>
+</body></html>

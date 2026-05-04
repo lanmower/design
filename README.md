@@ -47,6 +47,16 @@ mount(document.getElementById('app'), () => C.AppShell({
 
 `mount` automatically adds `.ds-247420` to your root.
 
+## what's in the box
+
+- **chrome** — `Topbar`, `Crumb`, `Side`, `Status`, `AppShell`, `Brand`, `Chip`, `Btn`, `Glyph`, `Heading`, `Lede`
+- **content** — `Panel`, `Row`, `RowLink`, `Hero`, `Install`, `Receipt`, `Changelog`, `WorksList`, `WritingList`, `Manifesto`, `Section`, `Kpi`, `Table`, `HomeView`, `ProjectView`
+- **chat** — `Chat`, `ChatMessage`, `ChatComposer`, `AICat`, `AICatPortrait`
+- **file browser** — `FileRow`, `FileGrid`, `FileToolbar`, `FileIcon`, `DropZone`, `UploadProgress`, `EmptyState`, `BreadcrumbPath`, plus modal pieces `FileViewer`, `FilePreviewMedia`, `FilePreviewCode`, `FilePreviewText`, `ConfirmDialog`, `PromptDialog`
+- **ui_kits** — `homepage`, `project_page`, `docs`, `blog`, `chat`, `aicat`, `file_browser`. Each is a fully-working buildless example loading the SDK from this repo.
+
+The file-browser surface (rails by file type, drop-zone upload, modal preview) ships its canonical real-world wiring at [`fsbrowse`](https://github.com/lanmower/fsbrowse) — Express + busboy backend, the SDK frontend.
+
 ## use it from a buildless flatspace project
 
 A canonical example lives at `c:\dev\flatspace-demo`. It has **no `package.json`**. It has a `flatspace.config.mjs`, YAML pages under `config/`, and a `src/theme.mjs` that turns each page into HTML at build-time. CI runs `npx --yes flatspace@latest build` and deploys `dist/`.

@@ -154,6 +154,19 @@ async function runBrowser() {
     eq('index: chat row',               idx.chatRow, true);
     eq('index: aicat row',              idx.aicatRow, true);
 
+    await page.goto(`http://127.0.0.1:${PORT}/ui_kits/file_browser/`, { waitUntil: 'load' });
+    await page.waitForSelector('.ds-file-row', { timeout: 6000 });
+    const fb = await page.evaluate(() => ({
+        rows: document.querySelectorAll('.ds-file-row').length,
+        types: new Set([...document.querySelectorAll('.ds-file-row')].map(r => r.getAttribute('data-file-type'))).size,
+        dz: !!document.querySelector('.ds-dropzone'),
+        tb: !!document.querySelector('.ds-file-toolbar'),
+        cr: !!document.querySelector('.ds-crumb-path')
+    }));
+    ge('file_browser: rows',  fb.rows, 6);
+    ge('file_browser: types', fb.types, 6);
+    ok('file_browser: dropzone+toolbar+crumb', fb.dz && fb.tb && fb.cr);
+
     eq('console errors clean',          errors.filter(e => !/x:1.*404|404.*\/x\b/.test(e)).length, 0);
 
     await browser.close();
@@ -165,6 +178,14 @@ try {
     eq('http: aicat 200', await probe(`http://127.0.0.1:${PORT}/ui_kits/aicat/`), 200);
     eq('http: slides 200',await probe(`http://127.0.0.1:${PORT}/slides/`),        200);
     eq('http: index 200', await probe(`http://127.0.0.1:${PORT}/`),               200);
+    eq('http: file_browser 200', await probe(`http://127.0.0.1:${PORT}/ui_kits/file_browser/`), 200);
+    const distJs = fs.readFileSync(path.join(ROOT, 'dist/247420.js'), 'utf8');
+    const distCss = fs.readFileSync(path.join(ROOT, 'dist/247420.css'), 'utf8');
+    ok('dist: FileRow exported',     distJs.includes('FileRow'));
+    ok('dist: FileGrid exported',    distJs.includes('FileGrid'));
+    ok('dist: DropZone exported',    distJs.includes('DropZone'));
+    ok('dist: FileViewer exported',  distJs.includes('FileViewer'));
+    ok('dist: ds-file-row scoped',   distCss.includes('.ds-247420 .ds-file-row'));
     await runBrowser();
 } finally {
     srv.close();

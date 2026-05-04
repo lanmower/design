@@ -75,6 +75,16 @@ function Decks() {
   });
 }
 
+function FileBrowser() {
+  if (!home.file_browser || !home.file_browser.items || !home.file_browser.items.length) return null;
+  return C.Panel({
+    title: home.file_browser.heading || 'file browser',
+    count: home.file_browser.count || home.file_browser.items.length,
+    style: 'margin:8px',
+    children: rowsFromItems(home.file_browser.items, 'fb')
+  });
+}
+
 function Docs() {
   if (!home.docs || !home.docs.items || !home.docs.items.length) return null;
   return C.Panel({
@@ -226,6 +236,7 @@ const App = C.AppShell({
     Hero(),
     Tabs(),
     Kits(),
+    FileBrowser(),
     DesktopOS(),
     WebComponents(),
     ApiExports(),
