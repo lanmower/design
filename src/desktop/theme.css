@@ -81,16 +81,21 @@ html, body {
 .os-btn .ic svg { width: 16px; height: 16px; display: block; fill: none; stroke: currentColor; }
 
 .os-menu {
+    position: absolute;
     background: var(--os-bg-1);
     border: 1px solid var(--os-bg-3);
     border-radius: var(--os-radius);
-    box-shadow: none;
     padding: 6px;
     min-width: 220px;
     top: calc(var(--os-bar-h) + 4px);
     left: 8px;
     z-index: 9500;
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    pointer-events: auto;
 }
+.os-menu.open { display: flex; }
 .os-menu .os-btn {
     width: 100%;
     text-align: left;
@@ -119,6 +124,9 @@ html, body {
     max-width: 200px;
     cursor: pointer;
     outline: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .os-task:hover { background: var(--os-bg-3); }
 .os-task.focused {
@@ -272,6 +280,7 @@ html, body {
 .os-menubar [data-role="home"] { display: none; }
 .os-root { position: fixed; inset: 0; display: flex; flex-direction: column; pointer-events: none; z-index: 8000; }
 .os-menubar, .os-taskbar { pointer-events: auto; flex: 0 0 auto; }
+.os-taskbar { margin-top: auto; }
 .wm-root { top: var(--os-bar-h) !important; bottom: var(--os-bar-h) !important; inset: var(--os-bar-h) 0 var(--os-bar-h) 0 !important; }
 
 .app-pane { padding: 14px; font: 13px var(--os-font); color: var(--os-fg); line-height: 1.55; overflow: auto; height: 100%; box-sizing: border-box; }
