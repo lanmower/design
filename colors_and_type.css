@@ -601,3 +601,25 @@ pre code { background: transparent; padding: 0; }
 *, *::before, *::after { box-sizing: border-box; border: 0 !important; outline: 0 !important; }
 :focus-visible { outline: 2px solid var(--panel-accent) !important; outline-offset: 2px; }
 html, body { margin: 0; padding: 0; }
+
+/* Base element padding — browser UA stylesheets strip padding on button/textarea
+   in some reset contexts; restore sane defaults so raw elements look right. */
+button {
+  padding: 8px 18px;
+  border-radius: var(--r-2);
+  font-family: var(--ff-ui);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  background: var(--bg-2);
+  color: var(--fg);
+}
+textarea {
+  padding: 10px 12px;
+  border-radius: var(--r-2);
+  font-family: var(--ff-ui);
+  font-size: var(--fs-sm);
+  background: var(--bg-2);
+  color: var(--fg);
+  resize: vertical;
+}
+textarea::placeholder { color: var(--fg-3); }
