@@ -1,7 +1,8 @@
 // AnEntrypoint design-system theme for flatspace.
-// Renders site chrome via anentrypoint-design SDK using REAL SDK components.
-// theme.mjs emits HTML shell + bootstrap that consumes YAML baked into <script id="__site__">.
-// SDK provides ALL styling via installStyles(); plus a tiny inline body-margin reset.
+// Renders the full landing via the anentrypoint-design SDK — Topbar + Side
+// (sidebar bins / labels / more) + Crumb + main panels (hero, kits, decks,
+// docs, previews, features, quickstart, examples) + Status. No hand-rolled
+// HTML inside #app; every node comes from window.ds (C.* components).
 
 const escapeHtml = (s) => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -26,24 +27,83 @@ const { site, nav, home } = data;
 
 function Hero() {
   if (!home || !home.hero) return null;
+  const hero = home.hero;
   return C.Panel({
     style: 'margin:8px',
     children: h('div', { style: 'padding:24px 22px' },
-      C.Heading({ level: 1, style: 'margin:0 0 8px 0', children: home.hero.heading || site.title }),
-      home.hero.subheading ? C.Lede({ children: home.hero.subheading }) : null,
-      home.hero.body ? h('p', { style: 'margin:8px 0 16px 0;color:var(--panel-text-2);max-width:64ch' }, home.hero.body) : null,
-      (home.hero.badges && home.hero.badges.length) ? h('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px 0' },
-        ...home.hero.badges.map((b, i) => C.Chip({ key: 'b' + i, children: b.label }))
+      C.Heading({ level: 1, style: 'margin:0 0 8px 0', children: hero.heading || site.title }),
+      hero.subheading ? C.Lede({ children: hero.subheading }) : null,
+      hero.body ? h('p', { style: 'margin:8px 0 16px 0;color:var(--panel-text-2);max-width:64ch' }, hero.body) : null,
+      (hero.badges && hero.badges.length) ? h('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px 0' },
+        ...hero.badges.map((b, i) => C.Chip({ key: 'b' + i, children: b.label }))
       ) : null,
-      (home.hero.ctas && home.hero.ctas.length) ? h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap' },
-        ...home.hero.ctas.map((c, i) => C.Btn({ key: 'c' + i, href: c.href, primary: c.primary, children: c.label }))
+      (hero.ctas && hero.ctas.length) ? h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap' },
+        ...hero.ctas.map((c, i) => C.Btn({ key: 'c' + i, href: c.href, primary: c.primary, children: c.label }))
       ) : null
     )
   });
 }
 
+function rowsFromItems(items, prefix) {
+  return items.map((it, i) => C.RowLink({
+    key: prefix + i,
+    code: it.code || String(i + 1).padStart(2, '0'),
+    title: it.title || it.name,
+    sub: it.sub || it.desc || '',
+    meta: it.cta || it.meta || 'open ↗',
+    href: it.href || '#'
+  }));
+}
+
+function Kits() {
+  if (!home.kits || !home.kits.items || !home.kits.items.length) return null;
+  return C.Panel({
+    title: home.kits.heading || 'ui kits',
+    count: home.kits.count || home.kits.items.length,
+    style: 'margin:8px',
+    children: rowsFromItems(home.kits.items, 'k')
+  });
+}
+
+function Decks() {
+  if (!home.decks || !home.decks.items || !home.decks.items.length) return null;
+  return C.Panel({
+    title: home.decks.heading || 'decks',
+    style: 'margin:8px',
+    children: rowsFromItems(home.decks.items, 'd')
+  });
+}
+
+function Docs() {
+  if (!home.docs || !home.docs.items || !home.docs.items.length) return null;
+  return C.Panel({
+    title: home.docs.heading || 'docs',
+    style: 'margin:8px',
+    children: rowsFromItems(home.docs.items, 'doc')
+  });
+}
+
+function Previews() {
+  if (!home.previews || !home.previews.items || !home.previews.items.length) return null;
+  const base = home.previews.base || './preview/';
+  const rows = home.previews.items.map((name, i) => C.RowLink({
+    key: 'p' + i,
+    code: String(i + 1).padStart(2, '0'),
+    title: String(name).replace(/-/g, ' '),
+    sub: 'preview · ' + name + '.html',
+    meta: 'open ↗',
+    href: base + name + '.html'
+  }));
+  return C.Panel({
+    title: home.previews.heading || 'previews',
+    count: rows.length,
+    style: 'margin:8px',
+    children: rows
+  });
+}
+
 function Features() {
-  if (!home || !home.features || !home.features.items || !home.features.items.length) return null;
+  if (!home.features || !home.features.items || !home.features.items.length) return null;
   const rows = home.features.items.map((it, i) => C.RowLink({
     key: 'f' + i,
     code: String(i + 1).padStart(2, '0'),
@@ -53,74 +113,96 @@ function Features() {
     href: it.href || '#'
   }));
   return C.Panel({
-    title: home.features.heading || 'features',
+    title: home.features.heading || 'why design',
     style: 'margin:8px',
     children: rows
   });
 }
 
 function Quickstart() {
-  if (!home || !home.quickstart || !home.quickstart.lines || !home.quickstart.lines.length) return null;
-  const lineNodes = home.quickstart.lines.map((l, i) => {
-    const isComment = l.kind === 'cmt';
-    return h('div', { key: 'q' + i, class: 'cli' },
-      h('span', { class: 'prompt' }, isComment ? '#' : '$'),
-      h('span', { class: 'cmd' }, l.text)
-    );
-  });
+  if (!home.quickstart || !home.quickstart.lines || !home.quickstart.lines.length) return null;
+  const lineNodes = home.quickstart.lines.map((l, i) => h('div', { key: 'q' + i, class: 'cli' },
+    h('span', { class: 'prompt' }, l.kind === 'cmt' ? '#' : '$'),
+    h('span', { class: 'cmd' }, l.text)
+  ));
   return C.Panel({
     title: home.quickstart.heading || 'quick start',
     style: 'margin:8px',
-    children: h('div', { style: 'padding:16px 22px' }, ...lineNodes)
+    children: h('div', { style: 'padding:16px 22px;display:flex;flex-direction:column;gap:6px' }, ...lineNodes)
   });
 }
 
 function Examples() {
-  if (!home || !home.examples || !home.examples.items || !home.examples.items.length) return null;
-  const rows = home.examples.items.map((it, i) => C.RowLink({
-    key: 'e' + i,
-    title: it.name,
-    sub: it.desc || '',
-    meta: it.cta || 'open',
-    href: it.href || '#'
-  }));
+  if (!home.examples || !home.examples.items || !home.examples.items.length) return null;
   return C.Panel({
-    title: home.examples.heading || 'examples',
+    title: home.examples.heading || 'live examples',
+    count: home.examples.items.length,
     style: 'margin:8px',
-    children: rows
+    children: rowsFromItems(home.examples.items, 'e')
   });
 }
 
-function Footer() {
-  return h('footer', { class: 'app-status' },
-    h('span', { class: 'item' }, 'styled with '),
-    h('a', { class: 'item', href: 'https://anentrypoint.github.io/design/' }, 'anentrypoint-design'),
-    h('span', { class: 'item' }, '·'),
-    h('a', { class: 'item', href: 'https://247420.xyz' }, '247420.xyz'),
-    h('span', { class: 'spread' }),
-    site.repo ? h('a', { class: 'item', href: site.repo }, 'source ↗') : null
+function buildSide() {
+  const sb = home.sidebar || {};
+  const sections = [];
+  if (sb.fab) {
+    sections.push({
+      group: 'open',
+      items: [{ glyph: sb.fab.glyph || '✦', label: sb.fab.label || 'open', href: sb.fab.href || '#' }]
+    });
+  }
+  if (sb.bins && sb.bins.length) {
+    sections.push({ group: 'bins', items: sb.bins });
+  }
+  if (sb.labels && sb.labels.length) {
+    sections.push({ group: sb.labels_group || 'labels', items: sb.labels });
+  }
+  if (sb.more && sb.more.length) {
+    sections.push({ group: sb.more_group || 'more', items: sb.more });
+  }
+  return C.Side({ sections });
+}
+
+function Tabs() {
+  if (!home.tabs || !home.tabs.length) return null;
+  return h('div', { class: 'tabs', role: 'tablist', style: 'margin:8px' },
+    ...home.tabs.map((t, i) => h('a', {
+      key: 't' + i,
+      href: t.href || '#',
+      class: t.active ? 'active' : '',
+      role: 'tab'
+    },
+      t.glyph ? h('span', { class: 'glyph' }, t.glyph) : null,
+      h('span', {}, t.label)
+    ))
   );
 }
 
 const navItems = (nav && nav.links ? nav.links : []).map(l => [String(l.label || ''), l.href]);
 
+const statusLeft = home.status_left || ['main', '• utf-8', '• lf'];
+const statusRight = home.status_right || ['247420 / mmxxvi', '• probably emerging'];
+
 const App = C.AppShell({
   topbar: C.Topbar({
     brand: '247420',
-    leaf: site.title || '',
+    leaf: site.title || 'design',
     items: navItems
   }),
-  crumb: C.Crumb({
-    trail: ['247420'],
-    leaf: site.title || ''
-  }),
+  crumb: C.Crumb({ trail: ['247420'], leaf: site.title || 'design' }),
+  side: buildSide(),
   main: h('div', {},
     Hero(),
+    Tabs(),
+    Kits(),
+    Decks(),
+    Docs(),
+    Previews(),
     Features(),
     Quickstart(),
     Examples()
   ),
-  status: Footer()
+  status: C.Status({ left: statusLeft, right: statusRight })
 });
 
 applyDiff(document.getElementById('app'), [App]);
@@ -169,11 +251,7 @@ const html = ({ site, nav, home }) => {
   <meta name="keywords" content="${keywords}" />
   <meta name="author" content="${author}" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
-  <meta name="googlebot" content="index, follow" />
-  <meta name="bingbot" content="index, follow" />
-  <meta name="rating" content="general" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <meta name="format-detection" content="telephone=no" />
   <meta name="generator" content="anentrypoint-design" />
   <meta name="theme-color" content="#247420" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#3A9A34" media="(prefers-color-scheme: dark)" />
@@ -231,7 +309,7 @@ export default {
     const site = ctx.readGlobal('site') || {};
     const nav = ctx.readGlobal('navigation') || { links: [] };
     const homeDoc = ctx.read('pages').docs.find(p => p.id === 'home');
-    if (!homeDoc) throw new Error('config/pages/home.yaml missing or has no id: home');
+    if (!homeDoc) throw new Error('site/content/pages/home.yaml missing or has no id: home');
 
     return [{
       path: 'index.html',

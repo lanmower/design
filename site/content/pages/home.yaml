@@ -1,5 +1,6 @@
 id: home
 title: Home
+
 hero:
   heading: "design"
   subheading: "247420 design system"
@@ -11,23 +12,117 @@ hero:
   ctas:
     - { label: "GitHub", href: "https://github.com/AnEntrypoint/design", primary: true }
     - { label: "247420", href: "https://247420.xyz" }
-features:
-  heading: "Why design"
+
+sidebar:
+  fab:
+    label: "open"
+    glyph: "✦"
+    href: "./ui_kits/homepage/"
+  bins:
+    - { glyph: "▣", label: "everything", href: "#all", count: 23, active: true }
+    - { glyph: "★", label: "starred",    href: "#starred", count: 5 }
+    - { glyph: "◐", label: "shipped",    href: "#shipped", count: 12 }
+    - { glyph: "◌", label: "drafts",     href: "#drafts",  count: 6 }
+  labels_group: "labels"
+  labels:
+    - { glyph: "●", label: "ui kits",  href: "#kits",     count: 4,  color: "var(--panel-accent)" }
+    - { glyph: "●", label: "decks",    href: "#decks",    count: 1,  color: "var(--mascot,#e0a200)" }
+    - { glyph: "●", label: "previews", href: "#previews", count: 20, color: "var(--purple,#8856b3)" }
+    - { glyph: "●", label: "docs",     href: "#docs",     count: 3,  color: "var(--panel-text-3)" }
+  more_group: "more"
+  more:
+    - { glyph: "§", label: "readme",  href: "https://github.com/AnEntrypoint/design/blob/main/README.md" }
+    - { glyph: "§", label: "skill",   href: "https://github.com/AnEntrypoint/design/blob/main/SKILL.md" }
+    - { glyph: "⌘", label: "tokens",  href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css" }
+    - { glyph: "↗", label: "source",  href: "https://github.com/AnEntrypoint/design" }
+
+tabs:
+  - { glyph: "▣", label: "everything", href: "#all", active: true }
+  - { glyph: "◎", label: "kits",       href: "#kits" }
+  - { glyph: "▰", label: "decks",      href: "#decks" }
+  - { glyph: "§", label: "previews",   href: "#previews" }
+
+kits:
+  heading: "ui kits"
+  count: "06 of 06"
   items:
-    - { name: "design-system", desc: "flagship trait of design." }
-    - { name: "tokens", desc: "core capability of design." }
-examples:
-  heading: "Live examples"
+    - { code: "01", title: "homepage",     sub: "marquee + works grid",                  desc: "editorial banner over a quiet shell",                href: "./ui_kits/homepage/" }
+    - { code: "02", title: "project page", sub: "hero · receipt · install · changelog",  desc: "shippable case-study template",                      href: "./ui_kits/project_page/" }
+    - { code: "03", title: "docs",         sub: "long-form prose chrome",                desc: "sidebar nav, mono headings, code blocks",            href: "./ui_kits/docs/" }
+    - { code: "04", title: "blog",         sub: "dated index + reading view",            desc: "typographic, no clutter",                            href: "./ui_kits/blog/" }
+    - { code: "05", title: "chat",         sub: "message thread + composer",             desc: "pill bubbles, monospace timestamps, room sidebar",   href: "./ui_kits/chat/" }
+    - { code: "06", title: "aicat",        sub: "ai assistant with cat persona",         desc: "ascii portrait, thinking dots, mood-swapping face",  href: "./ui_kits/aicat/" }
+
+decks:
+  heading: "decks"
   items:
-    - { name: "index shell", desc: "full navigation shell with tabs, filters, and row interactions.", href: "./index.html", cta: "open index" }
-    - { name: "homepage kit", desc: "hero + works layout and updated readable type scale.", href: "./ui_kits/homepage/", cta: "open kit" }
-    - { name: "project page kit", desc: "overview, install, receipt, and changelog template.", href: "./ui_kits/project_page/", cta: "open kit" }
-    - { name: "docs kit", desc: "technical documentation layout with sidebar and prose.", href: "./ui_kits/docs/", cta: "open docs" }
-    - { name: "blog kit", desc: "long-form writing layout tuned for readability.", href: "./ui_kits/blog/", cta: "open writing" }
-    - { name: "slide deck", desc: "16:9 deck stage with improved presenter controls text.", href: "./slides/", cta: "open slides" }
-    - { name: "preview samples", desc: "design previews and component samples.", href: "./preview/buttons.html", cta: "open previews" }
+    - { code: "01", title: "deck template", sub: "16:9 stage with auto-fit", desc: "title, lede, code, comparison, manifesto", href: "./slides/" }
+
+docs:
+  heading: "docs"
+  items:
+    - { code: "md",  title: "readme", sub: "overview, manifesto, conventions",   desc: "start here",                          href: "https://github.com/AnEntrypoint/design/blob/main/README.md" }
+    - { code: "md",  title: "skill",  sub: "authoring rules for the agent",      desc: "editorial · zine · surface modes",    href: "https://github.com/AnEntrypoint/design/blob/main/SKILL.md" }
+    - { code: "css", title: "tokens", sub: "colors, type, panel surface tokens", desc: "canonical source of truth",           href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css" }
+
+previews:
+  heading: "previews"
+  base: "./preview/"
+  items:
+    - buttons
+    - colors-core
+    - colors-lore
+    - colors-semantic
+    - dateline
+    - header
+    - icons-unicode
+    - index-row
+    - inputs
+    - manifesto
+    - rules
+    - spacing
+    - stamps
+    - stamps-lore
+    - theme-ink
+    - type-display
+    - type-mono
+    - type-prose
+    - type-scale
+    - wordmarks
+
 quickstart:
-  heading: Quick start
+  heading: "quick start"
   lines:
-    - { kind: "cmt", text: "# source" }
+    - { kind: "cmt", text: "# install via importmap (no bundler)" }
+    - { kind: "cmd", text: "<script type='importmap'>{\"imports\":{\"anentrypoint-design\":\"https://unpkg.com/anentrypoint-design@latest/dist/247420.js\"}}</script>" }
+    - { kind: "cmt", text: "# or clone the source" }
     - { kind: "cmd", text: "git clone https://github.com/AnEntrypoint/design.git" }
+
+features:
+  heading: "why design"
+  items:
+    - { name: "layered surfaces", desc: "panel-on-panel rhythm; loud content sits inside quiet chrome." }
+    - { name: "monospace labels", desc: "mono only for codes/labels/CLI; sans for everything legible." }
+    - { name: "indicator rails",  desc: "color-coded inset rails for category separation, never borders." }
+    - { name: "tokens-only",      desc: "every surface, type ramp, accent driven by --panel-* / --fs-* tokens." }
+
+examples:
+  heading: "live examples"
+  items:
+    - { name: "index shell",      desc: "full navigation shell with tabs, filters, and row interactions.", href: "./index.html",           cta: "open index" }
+    - { name: "homepage kit",     desc: "hero + works layout and updated readable type scale.",            href: "./ui_kits/homepage/",     cta: "open kit" }
+    - { name: "project page kit", desc: "overview, install, receipt, and changelog template.",              href: "./ui_kits/project_page/", cta: "open kit" }
+    - { name: "docs kit",         desc: "technical documentation layout with sidebar and prose.",           href: "./ui_kits/docs/",         cta: "open docs" }
+    - { name: "blog kit",         desc: "long-form writing layout tuned for readability.",                  href: "./ui_kits/blog/",         cta: "open writing" }
+    - { name: "chat kit",         desc: "message thread + composer with pill bubbles and room sidebar.",    href: "./ui_kits/chat/",         cta: "open chat" }
+    - { name: "aicat kit",        desc: "ai assistant with cat persona — ascii portrait + mood face.",      href: "./ui_kits/aicat/",        cta: "open aicat" }
+    - { name: "slide deck",       desc: "16:9 deck stage with improved presenter controls text.",           href: "./slides/",               cta: "open slides" }
+    - { name: "preview samples",  desc: "design previews and component samples.",                           href: "./preview/buttons.html",  cta: "open previews" }
+
+status_left:
+  - "main"
+  - "• utf-8"
+  - "• lf"
+status_right:
+  - "247420 / mmxxvi"
+  - "• probably emerging"
