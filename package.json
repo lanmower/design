@@ -12,6 +12,18 @@
     },
     "./app": "./dist/247420.app.js",
     "./css": "./dist/247420.css",
+    "./desktop": {
+      "import": "./src/desktop/index.js",
+      "default": "./src/desktop/index.js"
+    },
+    "./desktop/theme.css": "./src/desktop/theme.css",
+    "./desktop/icons.js": "./src/desktop/icons.js",
+    "./desktop/shell.js": "./src/desktop/shell.js",
+    "./page-html": {
+      "import": "./src/page-html.js",
+      "default": "./src/page-html.js"
+    },
+    "./src/page-html.js": "./src/page-html.js",
     "./package.json": "./package.json"
   },
   "files": [
