@@ -557,6 +557,33 @@ html, body {
 }
 .cli .copy:hover { background: var(--panel-hover); color: var(--panel-text); }
 
+/* Base input element styles — text-like inputs get tonal padding to match btn/textarea */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="number"],
+input:not([type]) {
+    padding: 8px 12px;
+    background: var(--panel-2);
+    color: var(--panel-text);
+    font-family: var(--ff-ui);
+    font-size: 14px;
+    border-radius: 10px;
+    border: 0;
+    outline: 0;
+    transition: background 80ms ease;
+}
+input[type="text"]:hover, input[type="text"]:focus,
+input[type="email"]:hover, input[type="email"]:focus,
+input[type="password"]:hover, input[type="password"]:focus,
+input[type="search"]:hover, input[type="search"]:focus,
+input[type="number"]:hover, input[type="number"]:focus,
+input:not([type]):hover, input:not([type]):focus { background: var(--panel-3); }
+input[type="text"]::placeholder, input[type="email"]::placeholder,
+input[type="password"]::placeholder, input[type="search"]::placeholder,
+input[type="number"]::placeholder, input:not([type])::placeholder { color: var(--panel-text-2); }
+
 /* Buttons */
 .btn {
     display: inline-flex;

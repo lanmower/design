@@ -1,3 +1,6 @@
+
+## [unreleased]
+- Add base padding (8px 12px), border-radius 10px, Nunito font, and tonal background to bare input elements (text/email/password/search/number) in app-shell.css to match button and textarea styling
 # Changelog
 
 ## Unreleased
