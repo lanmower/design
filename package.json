@@ -17,6 +17,8 @@
       "default": "./src/desktop/index.js"
     },
     "./desktop/theme.css": "./src/desktop/theme.css",
+    "./desktop/wm.css": "./src/desktop/wm.css",
+    "./desktop/launcher.css": "./src/desktop/launcher.css",
     "./desktop/icons.js": "./src/desktop/icons.js",
     "./desktop/shell.js": "./src/desktop/shell.js",
     "./page-html": {

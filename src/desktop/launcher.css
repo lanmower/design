@@ -1,0 +1,39 @@
+/* ============================================================
+   Launcher dock — paired with createLauncher() (validation harness path)
+   ============================================================ */
+
+.launcher-dock {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 56px;
+    background: var(--os-bg-1);
+    border-right: 1px solid var(--os-bg-3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0;
+    gap: 8px;
+    z-index: 10000;
+    pointer-events: auto;
+    font: 11px var(--os-mono);
+    color: var(--os-fg);
+}
+
+.launcher-btn {
+    width: 40px; height: 40px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    border-radius: var(--os-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font: inherit;
+    transition: background 80ms ease, color 80ms ease;
+}
+.launcher-btn:hover { background: var(--os-accent); color: var(--panel-accent-fg, #000); }
+.launcher-btn.active { background: var(--os-accent); color: var(--panel-accent-fg, #000); }
+.launcher-add { font-size: 20px; }
+
+.launcher-dock + .wm-root { left: 56px !important; }

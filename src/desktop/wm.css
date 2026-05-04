@@ -1,0 +1,102 @@
+/* ============================================================
+   Window Manager visuals — paired with createWM() behavior
+   Tokens: --os-* (defined by desktop/theme.css)
+   ============================================================ */
+
+.wm-root {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9000;
+}
+
+.wm-win {
+    position: absolute;
+    min-width: 200px;
+    min-height: 120px;
+    background: var(--os-bg-1);
+    color: var(--os-fg);
+    border: 1px solid var(--os-bg-3);
+    border-radius: var(--os-radius);
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+    overflow: hidden;
+}
+.wm-win.wm-focused { border-color: var(--os-accent); }
+
+.wm-bar {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    background: var(--os-bg-2);
+    cursor: move;
+    user-select: none;
+    gap: 8px;
+    touch-action: none;
+}
+.wm-title {
+    flex: 1;
+    font: 12px var(--os-font);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wm-btns { display: flex; gap: 4px; }
+.wm-btn {
+    width: 14px;
+    height: 14px;
+    border: 1px solid currentColor;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    font: 9px var(--os-font);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+}
+.wm-btn:hover { background: var(--os-accent); color: var(--panel-accent-fg, #000); }
+
+.wm-body {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+    background: var(--os-bg-1);
+}
+
+.wm-resize {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 18px;
+    height: 18px;
+    cursor: nwse-resize;
+    background: var(--os-bg-3);
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    touch-action: none;
+}
+
+.wm-win.wm-min .wm-body,
+.wm-win.wm-min .wm-resize { display: none; }
+
+.wm-win.wm-max {
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0;
+}
+
+@media (max-width: 767px) {
+    .wm-win {
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 0;
+        border: none;
+    }
+    .wm-resize { display: none; }
+}
