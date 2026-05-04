@@ -358,6 +358,6 @@ html, body {
     .wm-bar .wm-title { pointer-events: auto; font-size: 13px !important; }
     .wm-bar .wm-btns { pointer-events: auto; }
     .wm-btns .wm-btn:nth-child(1), .wm-btns .wm-btn:nth-child(2) { display: none !important; }
-    .wm-btns .wm-btn:nth-child(3) { width: 28px !important; height: 28px !important; border-radius: 50% !important; }
+    .wm-btns .wm-btn:nth-child(3) { width: 44px !important; height: 44px !important; border-radius: 50% !important; }
     .wm-resize { display: none !important; }
 }
