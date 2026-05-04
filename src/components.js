@@ -11,6 +11,7 @@ export {
     Panel, Row, RowLink,
     Hero, Install, Receipt, Changelog,
     WorksList, WritingList, Manifesto, Section,
+    Kpi, Table,
     HomeView, ProjectView
 } from './components/content.js';
 

@@ -1490,3 +1490,95 @@ input[type="number"]::placeholder, input:not([type])::placeholder { color: var(-
     .app-body { grid-template-columns: 360px 1fr; }
 }
 .ds-preview-truncated { color: var(--panel-text-3); font-style: italic; padding: var(--space-2) 0 0 0; }
+
+
+/* ============================================================
+   KPI grid · row form · rails+dots · chip tones · empty · table clickable
+   Moved from consumer (freddie dashboard + theme) — generic 247420 primitives.
+   ============================================================ */
+
+.kpi {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1px;
+    background: var(--panel-2);
+    padding: 1px;
+    border-radius: 20px;
+    overflow: hidden;
+}
+.kpi-card { background: var(--panel-1); padding: 14px 18px; }
+.kpi-card .num {
+    font-size: 1.75rem;
+    color: var(--panel-text);
+    font-weight: 400;
+    font-family: var(--ff-mono);
+}
+.kpi-card .lbl {
+    font-size: 0.75rem;
+    color: var(--panel-text-2);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+}
+
+.row-form {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.row-form input { flex: 1; min-width: 140px; padding: 10px 12px; }
+
+.chip.ok   { background: var(--green); color: #fff; }
+.chip.miss { background: var(--warn);  color: #fff; }
+
+.empty { color: var(--panel-text-3); padding: 12px 0; }
+
+tr.clickable { cursor: pointer; }
+tr.clickable:hover td { background: var(--panel-hover); }
+
+.rail-green  { box-shadow: inset 4px 0 0 var(--green); }
+.rail-purple { box-shadow: inset 4px 0 0 var(--purple); }
+.rail-mascot { box-shadow: inset 4px 0 0 var(--mascot); }
+.rail-sun    { box-shadow: inset 4px 0 0 var(--sun); }
+.rail-flame  { box-shadow: inset 4px 0 0 var(--flame); }
+.rail-sky    { box-shadow: inset 4px 0 0 var(--sky); }
+.dot-green  { color: var(--green); }
+.dot-purple { color: var(--purple); }
+.dot-mascot { color: var(--mascot); }
+.dot-sun    { color: var(--sun); }
+.dot-flame  { color: var(--flame); }
+.dot-sky    { color: var(--sky); }
+
+.ds-section {
+    margin: 32px 0;
+    padding: 18px 22px;
+    background: var(--panel-1);
+    border-radius: 20px;
+}
+.ds-section .ds-section-title { margin-top: 0; }
+.ds-section .ds-lede { opacity: 0.8; max-width: 60ch; }
+.ds-section .row {
+    border-radius: 10px;
+    margin: 6px 0;
+    padding: 10px 14px;
+    background: var(--panel-2);
+}
+.ds-section .row .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+    background: currentColor;
+    opacity: 0.8;
+}
+.ds-section .row-benefit { opacity: 0.75; margin-top: 4px; font-style: italic; }
+.ds-section .row .sub { opacity: 0.85; margin-top: 4px; }
+.ds-section a.row { display: block; text-decoration: none; color: inherit; }
+.ds-section a.row .code {
+    font-family: var(--ff-mono);
+    opacity: 0.6;
+    margin-right: 12px;
+}

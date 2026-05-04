@@ -123,6 +123,25 @@ export function Manifesto({ paragraphs = [], maxWidth = 820 }) {
     });
 }
 
+export function Kpi({ items = [] }) {
+    return h('div', { class: 'kpi' }, ...items.map(([n, l]) =>
+        h('div', { class: 'kpi-card' },
+            h('div', { class: 'num' }, String(n)),
+            h('div', { class: 'lbl' }, l))));
+}
+
+export function Table({ headers = [], rows = [], onRowClick, emptyText = 'no rows' }) {
+    if (!rows || rows.length === 0) {
+        return h('div', { class: 'empty' }, emptyText);
+    }
+    return h('table', {},
+        h('thead', {}, h('tr', {}, ...headers.map(hd => h('th', {}, hd)))),
+        h('tbody', {}, ...rows.map((row, i) => h('tr', {
+            class: onRowClick ? 'clickable' : '',
+            onclick: onRowClick ? () => onRowClick(i) : null
+        }, ...row.map(c => h('td', {}, c == null ? '' : String(c)))))));
+}
+
 export function Section({ title, children }) {
     return h('div', { class: 'ds-section' },
         title ? h('h3', {}, title) : null,

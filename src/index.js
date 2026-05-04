@@ -6,6 +6,7 @@ import * as motion from './motion.js';
 import * as debug from './debug.js';
 import { renderMarkdown, ensureReady as ensureMarkdownReady } from './markdown.js';
 import { ensurePrism, highlightAllUnder } from './highlight.js';
+import { renderPageHtml } from './page-html.js';
 import { mountKit } from './bootstrap.js';
 import { registerChatElement } from './web-components/ds-chat.js';
 
@@ -43,12 +44,13 @@ export {
     components, motion, debug, mountKit,
     renderMarkdown, ensureMarkdownReady,
     ensurePrism, highlightAllUnder,
-    registerChatElement
+    registerChatElement,
+    renderPageHtml
 };
 export const h = webjsx.createElement;
 export const applyDiff = webjsx.applyDiff;
 export default {
     webjsx, loadCss, scope, installStyles, mount, h, applyDiff,
     registerDeckStage, getDeckStage, components, motion, debug, mountKit,
-    renderMarkdown, ensurePrism, registerChatElement
+    renderMarkdown, ensurePrism, registerChatElement, renderPageHtml
 };
