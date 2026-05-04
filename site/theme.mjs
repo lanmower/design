@@ -1,7 +1,8 @@
 // AnEntrypoint design-system theme for flatspace.
 // Renders the full landing via the anentrypoint-design SDK — Topbar + Side
-// (sidebar bins / labels / more) + Crumb + main panels (hero, kits, decks,
-// docs, previews, features, quickstart, examples) + Status. No hand-rolled
+// (sidebar bins / labels / more) + Crumb + main panels (hero, kits, desktop_os,
+// web_components, api_exports, decks, docs, previews, features, quickstart,
+// examples) + Status. No hand-rolled
 // HTML inside #app; every node comes from window.ds (C.* components).
 
 const escapeHtml = (s) => String(s ?? '')
@@ -132,6 +133,36 @@ function Quickstart() {
   });
 }
 
+function DesktopOS() {
+  if (!home.desktop_os || !home.desktop_os.items || !home.desktop_os.items.length) return null;
+  return C.Panel({
+    title: home.desktop_os.heading || 'desktop os shell',
+    count: home.desktop_os.count || home.desktop_os.items.length,
+    style: 'margin:8px',
+    children: rowsFromItems(home.desktop_os.items, 'os')
+  });
+}
+
+function WebComponents() {
+  if (!home.web_components || !home.web_components.items || !home.web_components.items.length) return null;
+  return C.Panel({
+    title: home.web_components.heading || 'web components',
+    count: home.web_components.count || home.web_components.items.length,
+    style: 'margin:8px',
+    children: rowsFromItems(home.web_components.items, 'wc')
+  });
+}
+
+function ApiExports() {
+  if (!home.api_exports || !home.api_exports.items || !home.api_exports.items.length) return null;
+  return C.Panel({
+    title: home.api_exports.heading || 'public api',
+    count: home.api_exports.count || home.api_exports.items.length,
+    style: 'margin:8px',
+    children: rowsFromItems(home.api_exports.items, 'api')
+  });
+}
+
 function Examples() {
   if (!home.examples || !home.examples.items || !home.examples.items.length) return null;
   return C.Panel({
@@ -195,6 +226,9 @@ const App = C.AppShell({
     Hero(),
     Tabs(),
     Kits(),
+    DesktopOS(),
+    WebComponents(),
+    ApiExports(),
     Decks(),
     Docs(),
     Previews(),

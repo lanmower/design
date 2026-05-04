@@ -98,6 +98,36 @@ quickstart:
     - { kind: "cmt", text: "# or clone the source" }
     - { kind: "cmd", text: "git clone https://github.com/AnEntrypoint/design.git" }
 
+desktop_os:
+  heading: "desktop os shell"
+  count: "in-page wm"
+  items:
+    - { code: "os", title: "createDesktopShell", sub: "menubar · apps launcher · taskbar · window manager",  desc: "in-page desktop OS chrome — mount any app registry into a draggable wm",   href: "https://github.com/AnEntrypoint/design/blob/main/src/desktop/shell.js",   cta: "shell.js ↗" }
+    - { code: "os", title: "icons set",          sub: "svg glyphs for menubar + taskbar",                    desc: "home, apps, search, settings — used by the shell and exposed for apps",   href: "https://github.com/AnEntrypoint/design/blob/main/src/desktop/icons.js",   cta: "icons.js ↗" }
+    - { code: "os", title: "theme.css",          sub: "os chrome tokens · menubar · launcher · wm",          desc: "scoped css module loaded by the shell — keeps desktop visuals isolated",  href: "https://github.com/AnEntrypoint/design/blob/main/src/desktop/theme.css", cta: "theme.css ↗" }
+    - { code: "os", title: "import path",        sub: "anentrypoint-design/desktop",                         desc: "subpath export; no bundler needed — pulls icons + createDesktopShell",    href: "https://github.com/AnEntrypoint/design/blob/main/package.json",          cta: "exports ↗" }
+
+web_components:
+  heading: "web components"
+  count: "1 element"
+  items:
+    - { code: "wc", title: "<ds-chat>",           sub: "auto-registers when the sdk loads in a browser", desc: "set el.messages = [...] or pass json via attribute; listen for 'send' event",      href: "https://github.com/AnEntrypoint/design/blob/main/src/web-components/ds-chat.js", cta: "ds-chat.js ↗" }
+    - { code: "wc", title: "registerChatElement", sub: "manual register helper",                         desc: "exported from the sdk root for ssr / late-mount when customElements is gated",     href: "https://github.com/AnEntrypoint/design/blob/main/src/index.js",                  cta: "source ↗" }
+
+api_exports:
+  heading: "public api"
+  count: "sdk surface"
+  items:
+    - { code: "api", title: "h / applyDiff",                  sub: "webjsx createElement + diff",       desc: "build vnodes with h(), render with applyDiff(root, [vnode]) — no jsx pragma needed",       href: "https://github.com/AnEntrypoint/design/blob/main/src/index.js",      cta: "index.js ↗" }
+    - { code: "api", title: "installStyles / scope",          sub: "ds-247420 css scope + bootstrap",   desc: "installStyles() injects the prefixed css; scope = '.ds-247420' for selector composition",  href: "https://github.com/AnEntrypoint/design/blob/main/src/styles.js",     cta: "styles.js ↗" }
+    - { code: "api", title: "loadCss",                        sub: "fetch the bundled css string",      desc: "useful for shadow roots or custom style injection paths",                                  href: "https://github.com/AnEntrypoint/design/blob/main/src/styles.js",     cta: "styles.js ↗" }
+    - { code: "api", title: "mount / mountKit",               sub: "ds shell + ui_kit bootstrap",       desc: "mount(root, viewFn) wires applyDiff + motion; mountKit({root,view,screen}) wires a kit",   href: "https://github.com/AnEntrypoint/design/blob/main/src/bootstrap.js",  cta: "bootstrap.js ↗" }
+    - { code: "api", title: "registerDeckStage / getDeckStage", sub: "16:9 deck stage api",             desc: "register custom deck stages and fetch the active stage for slide transitions",             href: "https://github.com/AnEntrypoint/design/blob/main/src/deck-stage.js", cta: "deck-stage.js ↗" }
+    - { code: "api", title: "renderMarkdown",                 sub: "marked v15 + dompurify lazy stack", desc: "lazy-loads marked + dompurify from jsdelivr; only xss gate for chat html",                 href: "https://github.com/AnEntrypoint/design/blob/main/src/markdown.js",   cta: "markdown.js ↗" }
+    - { code: "api", title: "ensurePrism / highlightAllUnder", sub: "prism core + per-language",         desc: "injects prism on first use; CodeNode ref-callback highlights inside any subtree",         href: "https://github.com/AnEntrypoint/design/blob/main/src/highlight.js",  cta: "highlight.js ↗" }
+    - { code: "api", title: "renderPageHtml",                 sub: "static page html template",         desc: "shared head/body wrapper for kit pages — meta, importmap, ds-247420 scope",                href: "https://github.com/AnEntrypoint/design/blob/main/src/page-html.js",  cta: "page-html.js ↗" }
+    - { code: "api", title: "components / motion / debug",    sub: "namespaces from the default export", desc: "components.* are the C.* primitives; motion.animateTree, debug.window.__debug registry",  href: "https://github.com/AnEntrypoint/design/blob/main/src/components.js", cta: "components.js ↗" }
+
 features:
   heading: "why design"
   items:
