@@ -268,7 +268,9 @@ html, body {
     align-items: center;
     gap: 12px;
 }
-.panel-body { padding: 0; background: var(--panel-1); }
+.panel-body { padding: 12px 16px; background: var(--panel-1); }
+.panel-body > .row, .panel-body > div > .row { border-radius: 0; margin-bottom: 0; }
+.panel-body > .row-form, .panel-body > form.row-form { margin-bottom: 0; }
 
 /* Row — airy list item, tonal hover/select */
 .row {
