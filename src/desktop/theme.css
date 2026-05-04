@@ -1,25 +1,26 @@
 :root {
-    --os-accent: #3FA93A;
-    --os-accent-2: #79e872;
-    --os-accent-soft: rgba(63, 169, 58, 0.16);
-    --os-bg-0: #0b0d10;
-    --os-bg-1: #14181d;
-    --os-bg-2: #1a1f26;
-    --os-bg-3: #222831;
-    --os-fg: #e7ecf2;
-    --os-fg-2: #93a0ad;
-    --os-fg-3: #5a6571;
-    --os-red: #d04444;
-    --os-amber: #c0a02f;
-    --os-green: #3FA93A;
-    --os-radius: 6px;
-    --os-radius-sm: 4px;
-    --os-bar-h: 40px;
-    --os-bar-h-mobile: 48px;
+    --os-accent: var(--panel-accent, #3F8A4A);
+    --os-accent-2: var(--panel-accent-2, #2B6B36);
+    --os-accent-soft: var(--panel-select, #D8ECCB);
+    --os-bg-0: var(--panel-0, #F5F0E4);
+    --os-bg-1: var(--panel-1, #FBF6EB);
+    --os-bg-2: var(--panel-2, #F0E9DA);
+    --os-bg-3: var(--panel-3, #E3DAC7);
+    --os-fg: var(--panel-text, #1F1B16);
+    --os-fg-2: var(--panel-text-2, #5A5246);
+    --os-fg-3: var(--panel-text-3, #857B6C);
+    --os-red: var(--warn, #FF6B4A);
+    --os-amber: var(--sun, #FFD86B);
+    --os-green: var(--green, #3F8A4A);
+    --os-radius: var(--r-2, 10px);
+    --os-radius-sm: var(--r-1, 6px);
+    --os-bar-h: 44px;
+    --os-bar-h-mobile: 52px;
     --os-rail-w: 64px;
     --os-tap: 44px;
-    --os-font: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
-    --os-mono: "SF Mono", ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace;
+    --os-font: var(--ff-ui, 'Nunito', 'Inter', system-ui, sans-serif);
+    --os-display: var(--ff-display, 'Archivo Black', 'Archivo', 'Nunito', system-ui, sans-serif);
+    --os-mono: var(--ff-mono, 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace);
 }
 
 html, body {
@@ -45,8 +46,10 @@ html, body {
 
 .os-brand {
     color: var(--os-fg);
-    font-weight: 600;
-    letter-spacing: 0.01em;
+    font-family: var(--os-display);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    font-size: 15px;
     margin-right: 14px;
     display: inline-flex;
     align-items: center;
@@ -62,21 +65,22 @@ html, body {
 
 .os-btn {
     background: transparent;
-    color: var(--os-fg);
+    color: var(--os-fg-2);
     border: none;
-    padding: 6px 12px;
+    padding: 7px 14px;
     cursor: pointer;
     font: inherit;
-    border-radius: var(--os-radius-sm);
-    transition: background 100ms ease, color 100ms ease;
+    font-size: 13px;
+    border-radius: 999px;
+    transition: background 80ms ease, color 80ms ease;
     display: inline-flex;
     align-items: center;
     gap: 6px;
     outline: none;
 }
-.os-btn:hover { background: var(--os-bg-2); color: var(--os-accent-2); }
-.os-btn.active, .os-btn[aria-pressed="true"] { background: var(--os-accent-soft); color: var(--os-accent-2); }
-.os-btn:focus-visible { background: var(--os-bg-2); }
+.os-btn:hover { background: var(--panel-hover, var(--os-bg-2)); color: var(--os-fg); }
+.os-btn.active, .os-btn[aria-pressed="true"] { background: var(--os-accent); color: var(--panel-accent-fg, #fff); }
+.os-btn:focus-visible { background: var(--panel-hover, var(--os-bg-2)); }
 .os-btn .ic { color: var(--os-accent); display: inline-flex; width: 16px; height: 16px; }
 .os-btn .ic svg { width: 16px; height: 16px; display: block; fill: none; stroke: currentColor; }
 
@@ -116,11 +120,12 @@ html, body {
 .os-task {
     border: none;
     background: var(--os-bg-2);
-    color: var(--os-fg);
-    border-radius: var(--os-radius-sm);
-    padding: 6px 10px;
+    color: var(--os-fg-2);
+    border-radius: 999px;
+    padding: 6px 14px;
     font-size: 12px;
-    transition: background 100ms ease, color 100ms ease;
+    font-family: var(--os-font);
+    transition: background 80ms ease, color 80ms ease;
     max-width: 200px;
     cursor: pointer;
     outline: none;
@@ -128,10 +133,11 @@ html, body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.os-task:hover { background: var(--os-bg-3); }
+.os-task:hover { background: var(--panel-hover, var(--os-bg-3)); color: var(--os-fg); }
 .os-task.focused {
-    background: var(--os-accent-soft);
-    color: var(--os-accent-2);
+    background: var(--os-accent);
+    color: var(--panel-accent-fg, #fff);
+    font-weight: 500;
 }
 
 .wm-win {
@@ -153,10 +159,11 @@ html, body {
     gap: 10px !important;
 }
 .wm-title {
-    font: 12px var(--os-font) !important;
+    font: 13px var(--os-font) !important;
     color: var(--os-fg-2) !important;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.005em;
     text-align: center;
+    font-weight: 500;
 }
 .wm-btns { gap: 6px !important; order: -1; }
 .wm-btn {
@@ -235,7 +242,7 @@ html, body {
     height: 56px;
     box-sizing: border-box;
 }
-.os-drawer-title { color: var(--os-fg); font: 17px var(--os-font); font-weight: 600; }
+.os-drawer-title { color: var(--os-fg); font-family: var(--os-display); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
 .os-drawer-close {
     width: 44px; height: 44px;
     border: none; background: transparent;
@@ -258,18 +265,19 @@ html, body {
 }
 .os-drawer-tile {
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-    padding: 16px 8px;
+    padding: 18px 8px;
     background: var(--os-bg-1);
     border: none;
     color: var(--os-fg);
     font: 13px var(--os-font);
-    min-height: 96px;
+    min-height: 100px;
     cursor: pointer;
-    transition: background 100ms ease;
+    transition: background 80ms ease;
     outline: none;
-    border-radius: var(--os-radius);
+    border-radius: var(--r-3, 18px);
 }
-.os-drawer-tile:active { background: var(--os-accent-soft); }
+.os-drawer-tile:hover { background: var(--panel-hover, var(--os-bg-2)); }
+.os-drawer-tile:active { background: var(--panel-select, var(--os-bg-3)); }
 .os-drawer-tile .ic { color: var(--os-accent); display: inline-flex; }
 .os-drawer-tile .ic svg { width: 32px; height: 32px; fill: none; stroke: currentColor; }
 .os-drawer-tile .lbl { color: var(--os-fg); font-weight: 500; }
@@ -283,20 +291,20 @@ html, body {
 .os-taskbar { margin-top: auto; }
 .wm-root { top: var(--os-bar-h) !important; bottom: var(--os-bar-h) !important; inset: var(--os-bar-h) 0 var(--os-bar-h) 0 !important; }
 
-.app-pane { padding: 14px; font: 13px var(--os-font); color: var(--os-fg); line-height: 1.55; overflow: auto; height: 100%; box-sizing: border-box; }
-.app-pane h2 { margin: 0 0 10px 0; color: var(--os-fg); font-size: 16px; font-weight: 600; }
+.app-pane { padding: 16px 18px; font: 14px var(--os-font); color: var(--os-fg); line-height: 1.55; overflow: auto; height: 100%; box-sizing: border-box; background: var(--os-bg-1); }
+.app-pane h2 { margin: 0 0 10px 0; color: var(--os-fg); font-family: var(--os-display); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.15; }
 .app-pane p { margin: 0 0 10px 0; color: var(--os-fg-2); }
 .app-pane ul { padding-left: 18px; margin: 6px 0 12px; color: var(--os-fg-2); }
 .app-pane li { padding: 2px 0; }
-.app-pane code { font: 12px var(--os-mono); background: var(--os-bg-2); padding: 1px 5px; border-radius: 3px; color: var(--os-fg); }
+.app-pane code { font: 12px var(--os-mono); background: var(--os-bg-2); padding: 1px 6px; border-radius: var(--r-1, 6px); color: var(--os-fg); }
 .app-pane a { color: var(--os-accent); text-decoration: none; }
-.app-pane a:hover { color: var(--os-accent-2); }
+.app-pane a:hover { text-decoration: underline; text-underline-offset: 2px; }
 .app-pane .meta { color: var(--os-fg-3); font-size: 12px; }
-.app-pane.mono { font: 12px var(--os-mono); padding: 10px; }
-.app-pane.mono .row { padding: 4px 6px; cursor: pointer; border-radius: 3px; }
-.app-pane.mono .row:hover { background: var(--os-bg-2); }
-.app-pane.mono .head { color: var(--os-accent); margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--os-bg-3); font-weight: 600; }
-.app-pane.mono pre { background: var(--os-bg-2); padding: 8px; margin: 8px 0 0 0; max-height: 200px; overflow: auto; white-space: pre-wrap; font: 11px var(--os-mono); border-radius: 3px; color: var(--os-fg); border: none; }
+.app-pane.mono { font: 12.5px var(--os-mono); padding: 12px; background: var(--os-bg-1); }
+.app-pane.mono .row { padding: 5px 8px; cursor: pointer; border-radius: var(--r-1, 6px); }
+.app-pane.mono .row:hover { background: var(--panel-hover, var(--os-bg-2)); }
+.app-pane.mono .head { color: var(--os-accent); margin-bottom: 8px; padding-bottom: 6px; font-weight: 600; letter-spacing: 0.02em; }
+.app-pane.mono pre { background: var(--os-bg-2); padding: 10px 12px; margin: 8px 0 0 0; max-height: 220px; overflow: auto; white-space: pre-wrap; font: 11.5px var(--os-mono); border-radius: var(--r-1, 6px); color: var(--os-fg); border: none; }
 .app-canvas { width: 100%; height: 100%; background: var(--os-bg-0); }
 .app-frame { width: 100%; height: 100%; border: 0; background: var(--os-bg-0); }
 @media (max-width: 1023px) and (min-width: 768px) {
