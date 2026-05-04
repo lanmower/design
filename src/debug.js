@@ -27,8 +27,13 @@ export function snapshotAll() {
 
 function expose() {
     if (typeof window === 'undefined') return;
-    const api = { list, snapshot, snapshotAll, register, unregister };
-    Object.defineProperty(window, '__debug', { value: api, configurable: true, writable: false });
+    const existing = (window.__debug && typeof window.__debug === 'object') ? window.__debug : {};
+    Object.assign(existing, { list, snapshot, snapshotAll, register, unregister });
+    try {
+        Object.defineProperty(window, '__debug', { value: existing, configurable: true, writable: true });
+    } catch {
+        try { window.__debug = existing; } catch {}
+    }
 }
 
 expose();
