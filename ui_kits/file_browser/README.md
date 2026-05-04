@@ -37,7 +37,7 @@ the rail color comes from `data-file-type` on the row — never apply `.rail-*` 
 
 ## from a real backend
 
-swap `SAMPLE` for an api response and route `onAction('delete' | 'rename' | 'download', file)` to your endpoints. the canonical wiring is in [`fsbrowse`](https://github.com/lanmower/fsbrowse) — Express + busboy backend, this exact frontend.
+swap `SAMPLE` for an api response and route `onAction('delete' | 'rename' | 'download', file)` to your endpoints. the canonical wiring is in [`fsbrowse`](https://github.com/AnEntrypoint/fsbrowse) — Express + busboy backend, this exact frontend.
 
 ## run locally
 

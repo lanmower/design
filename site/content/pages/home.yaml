@@ -106,7 +106,7 @@ file_browser:
     - { code: "fb", title: "DropZone",           sub: "tonal upload target",            desc: "swap to --panel-select on dragover; preventDefault on document, not just zone", href: "./preview/dropzone.html", cta: "preview ↗" }
     - { code: "fb", title: "FileViewer",         sub: "modal preview · keyed head",     desc: "head + body both carry data-file-type so rails propagate inside the modal", href: "./preview/file-viewer.html", cta: "preview ↗" }
     - { code: "fb", title: "FileToolbar",        sub: "actions · breadcrumb · upload",  desc: "left-aligned actions, right-aligned count; UploadProgress sits underneath", href: "./preview/file-toolbar.html", cta: "preview ↗" }
-    - { code: "fb", title: "fsbrowse",           sub: "Express + busboy backend",       desc: "canonical real-world wiring — same SDK, real filesystem operations",     href: "https://github.com/lanmower/fsbrowse", cta: "source ↗" }
+    - { code: "fb", title: "fsbrowse",           sub: "Express + busboy backend",       desc: "canonical real-world wiring — same SDK, real filesystem operations",     href: "https://github.com/AnEntrypoint/fsbrowse", cta: "source ↗" }
 
 quickstart:
   heading: "quick start"

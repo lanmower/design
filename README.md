@@ -55,7 +55,7 @@ mount(document.getElementById('app'), () => C.AppShell({
 - **file browser** — `FileRow`, `FileGrid`, `FileToolbar`, `FileIcon`, `DropZone`, `UploadProgress`, `EmptyState`, `BreadcrumbPath`, plus modal pieces `FileViewer`, `FilePreviewMedia`, `FilePreviewCode`, `FilePreviewText`, `ConfirmDialog`, `PromptDialog`
 - **ui_kits** — `homepage`, `project_page`, `docs`, `blog`, `chat`, `aicat`, `file_browser`. Each is a fully-working buildless example loading the SDK from this repo.
 
-The file-browser surface (rails by file type, drop-zone upload, modal preview) ships its canonical real-world wiring at [`fsbrowse`](https://github.com/lanmower/fsbrowse) — Express + busboy backend, the SDK frontend.
+The file-browser surface (rails by file type, drop-zone upload, modal preview) ships its canonical real-world wiring at [`fsbrowse`](https://github.com/AnEntrypoint/fsbrowse) — Express + busboy backend, the SDK frontend.
 
 ## use it from a buildless flatspace project
 
