@@ -22,6 +22,7 @@
     "./desktop/validate.css": "./src/desktop/validate.css",
     "./desktop/icons.js": "./src/desktop/icons.js",
     "./desktop/shell.js": "./src/desktop/shell.js",
+    "./desktop/freddie-dashboard.js": "./src/desktop/freddie-dashboard.js",
     "./page-html": {
       "import": "./src/page-html.js",
       "default": "./src/page-html.js"
