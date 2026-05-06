@@ -28,46 +28,6 @@ function el(tag, cls, attrs) {
     return e;
 }
 
-function ensureStyles() {
-    if (document.getElementById('freddie-dashboard-style')) return;
-    const s = document.createElement('style');
-    s.id = 'freddie-dashboard-style';
-    s.textContent = `
-.fdash { display: flex; height: 100%; font-family: var(--ff-ui, Nunito, sans-serif); color: var(--ink, #1F1B16); }
-.fdash-side { flex: 0 0 180px; background: var(--panel-1, #ECE6D5); border-right: 1px solid var(--panel-2, #DDD3BC); padding: 8px 0; overflow-y: auto; }
-.fdash-nav { display: flex; flex-direction: column; gap: 2px; }
-.fdash-nav button { text-align: left; padding: 6px 12px; background: transparent; color: inherit; border: 0; cursor: pointer; font-family: inherit; font-size: 12px; border-left: 4px solid transparent; }
-.fdash-nav button:hover { background: var(--panel-hover, rgba(0,0,0,0.04)); }
-.fdash-nav button.active { background: var(--panel-select, #C8E4CA); border-left-color: var(--panel-accent, #3F8A4A); font-weight: 600; }
-.fdash-nav .glyph { display: inline-block; width: 16px; opacity: 0.7; font-family: var(--ff-mono, JetBrains Mono, monospace); }
-.fdash-main { flex: 1; padding: 12px 16px; overflow: auto; min-width: 0; }
-.fdash-h { font-size: 14px; font-weight: 700; margin: 0 0 8px; }
-.fdash-kpi { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
-.fdash-kpi .k { background: var(--panel-2, #DDD3BC); padding: 6px 12px; border-radius: var(--r-1, 6px); min-width: 80px; }
-.fdash-kpi .k .v { font-size: 18px; font-weight: 700; font-family: var(--ff-mono, JetBrains Mono, monospace); }
-.fdash-kpi .k .l { font-size: 10px; opacity: 0.7; text-transform: uppercase; }
-.fdash-panel { background: var(--panel-1, #ECE6D5); border-radius: var(--r-1, 6px); padding: 8px 12px; margin-bottom: 8px; }
-.fdash-panel h3 { font-size: 12px; font-weight: 700; margin: 0 0 6px; opacity: 0.8; text-transform: uppercase; }
-.fdash-panel pre { font-family: var(--ff-mono, JetBrains Mono, monospace); font-size: 11px; white-space: pre-wrap; word-break: break-all; margin: 0; max-height: 280px; overflow: auto; }
-.fdash-panel table { width: 100%; border-collapse: collapse; font-size: 12px; }
-.fdash-panel th, .fdash-panel td { padding: 4px 8px; text-align: left; border-bottom: 1px solid var(--panel-2, #DDD3BC); }
-.fdash-panel th { font-weight: 600; opacity: 0.7; font-size: 10px; text-transform: uppercase; }
-.fdash-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 12px; }
-.fdash-row .code { font-family: var(--ff-mono, JetBrains Mono, monospace); opacity: 0.6; }
-.fdash-row .meta { margin-left: auto; opacity: 0.5; font-size: 11px; }
-.fdash-form { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
-.fdash-form input, .fdash-form textarea, .fdash-form select { font: inherit; padding: 4px 8px; border: 1px solid var(--panel-2, #DDD3BC); border-radius: var(--r-1, 6px); background: var(--panel-0, #F5F0E4); color: inherit; }
-.fdash-form button { padding: 4px 12px; background: var(--panel-accent, #3F8A4A); color: #fff; border: 0; border-radius: var(--r-1, 6px); cursor: pointer; }
-.fdash-form button.danger { background: #c44; }
-.fdash-chip { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; margin: 2px; }
-.fdash-chip.ok { background: var(--panel-select, #C8E4CA); }
-.fdash-chip.miss { background: var(--panel-2, #DDD3BC); opacity: 0.6; }
-.fdash-empty { padding: 20px; text-align: center; opacity: 0.5; font-size: 12px; }
-@media (max-width: 600px) { .fdash-side { flex: 0 0 56px; } .fdash-nav button .label { display: none; } }
-`;
-    document.head.appendChild(s);
-}
-
 function kpi(items) {
     const c = el('div', 'fdash-kpi');
     for (const [v, l] of items) {
@@ -115,8 +75,7 @@ function table(headers, rows) {
 
 function pre(obj) { return el('pre', null, { text: typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2) }); }
 
-export function createFreddieDashboard({ instance, bootHost }) {
-    ensureStyles();
+export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
     const root = el('div', 'fdash');
     const side = el('div', 'fdash-side');
     const nav = el('div', 'fdash-nav');
@@ -133,12 +92,29 @@ export function createFreddieDashboard({ instance, bootHost }) {
         render();
     }
 
-    for (const r of ROUTES) {
+    const OS_ROUTES = osSurfaces ? [
+        { path: 'os-instances', label: 'instances', glyph: '◫' },
+        { path: 'os-windows',   label: 'windows',   glyph: '▭' },
+        { path: 'os-x',         label: 'x-server',  glyph: '✕' },
+        { path: 'os-fs',        label: 'fs',        glyph: '📁' },
+    ] : [];
+
+    function navHead(text) {
+        const h = el('div', 'group-head', { text });
+        nav.appendChild(h);
+    }
+    function navBtn(r) {
         const b = el('button', null, { 'data-path': r.path, on: { click: () => setActive(r.path) } });
         b.appendChild(el('span', 'glyph', { text: r.glyph }));
         b.appendChild(document.createTextNode(' '));
         b.appendChild(el('span', 'label', { text: r.label }));
         nav.appendChild(b);
+    }
+    navHead('freddie');
+    for (const r of ROUTES) navBtn(r);
+    if (OS_ROUTES.length) {
+        navHead('os');
+        for (const r of OS_ROUTES) navBtn(r);
     }
 
     async function ensureHost() {
@@ -380,6 +356,40 @@ export function createFreddieDashboard({ instance, bootHost }) {
                 panel('platforms', table(['name', 'enabled', 'note'], platforms.map(p => [p.name, p.enabled ? 'yes' : 'no', p.note])), platforms.length),
             ];
         },
+        async ['os-instances']() {
+            const list = (osSurfaces && osSurfaces.instances && osSurfaces.instances()) || [];
+            const activeId = osSurfaces && osSurfaces.activeInstanceId && osSurfaces.activeInstanceId();
+            return [
+                kpi([[list.length, 'instances'], [activeId || '—', 'active']]),
+                panel('instances', table(['id', 'active', 'shells', 'windows'],
+                    list.map(i => [i.id, i.id === activeId ? '●' : '', String((i.shells || []).length), String((i.windows || []).length)])), list.length),
+            ];
+        },
+        async ['os-windows']() {
+            const wins = (osSurfaces && osSurfaces.wm && osSurfaces.wm.list && osSurfaces.wm.list()) || [];
+            const focused = osSurfaces && osSurfaces.wm && osSurfaces.wm.focused;
+            return [
+                kpi([[wins.length, 'windows'], [focused ? (focused.id || focused.title || '?') : '—', 'focused']]),
+                panel('windows', table(['id', 'title', 'min', 'max', 'pos'],
+                    wins.map(w => [w.id || '?', w.title || '', w.min ? '●' : '', w.max ? '●' : '',
+                        (w.el ? `${w.el.offsetLeft},${w.el.offsetTop} ${w.el.offsetWidth}×${w.el.offsetHeight}` : '')])), wins.length),
+            ];
+        },
+        async ['os-x']() {
+            const x = osSurfaces && osSurfaces.xServer && osSurfaces.xServer();
+            if (!x) return [el('div', 'fdash-empty', { text: 'x-server not running in this instance' })];
+            return [
+                kpi([[x.windows, 'windows'], [x.pixmaps, 'pixmaps'], [x.gcs, 'gcs'], [x.atoms, 'atoms'], [x.cursors, 'cursors']]),
+                panel('display', pre(x)),
+            ];
+        },
+        async ['os-fs']() {
+            const list = await instance.fs.list('/');
+            return [
+                kpi([[list.length, 'paths'], [instance.id, 'instance']]),
+                panel('paths', el('pre', null, { text: list.join('\n') }), list.length),
+            ];
+        },
     };
 
     setActive('home');
@@ -388,7 +398,7 @@ export function createFreddieDashboard({ instance, bootHost }) {
         window.__debug = window.__debug || {};
         window.__debug.instances = window.__debug.instances || {};
         window.__debug.instances[instance.id] = window.__debug.instances[instance.id] || {};
-        window.__debug.instances[instance.id].dashboard = { root, routes: ROUTES.map(r => r.path), setActive, get active() { return active; } };
+        window.__debug.instances[instance.id].dashboard = { root, routes: [...ROUTES, ...OS_ROUTES].map(r => r.path), setActive, get active() { return active; } };
     }
 
     return { node: root, dispose() {} };

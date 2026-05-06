@@ -23,6 +23,7 @@
     "./desktop/icons.js": "./src/desktop/icons.js",
     "./desktop/shell.js": "./src/desktop/shell.js",
     "./desktop/freddie-dashboard.js": "./src/desktop/freddie-dashboard.js",
+    "./desktop/freddie-dashboard.css": "./src/desktop/freddie-dashboard.css",
     "./page-html": {
       "import": "./src/page-html.js",
       "default": "./src/page-html.js"
