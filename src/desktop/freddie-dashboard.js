@@ -1,3 +1,13 @@
+import * as webjsx from '../../vendor/webjsx/index.js';
+import * as components from '../components.js';
+
+const h = webjsx.createElement;
+const {
+    AppShell, Topbar, Side, Crumb, Status, Brand, Glyph,
+    Panel, Row, RowLink, Hero, Receipt, Kpi, Table, Section,
+    EmptyState, Chip,
+} = components;
+
 const ROUTES = [
     { path: 'projects',  label: 'projects',  glyph: '◆' },
     { path: 'home',      label: 'home',      glyph: '⌂' },
@@ -16,106 +26,40 @@ const ROUTES = [
     { path: 'gateway',   label: 'gateway',   glyph: '⇌' },
 ];
 
-function el(tag, cls, attrs) {
-    const e = document.createElement(tag);
-    if (cls) e.className = cls;
-    if (attrs) for (const k of Object.keys(attrs)) {
-        if (k === 'on' && attrs.on) for (const ev of Object.keys(attrs.on)) e.addEventListener(ev, attrs.on[ev]);
-        else if (k === 'html') e.innerHTML = attrs.html;
-        else if (k === 'text') e.textContent = attrs.text;
-        else e.setAttribute(k, attrs[k]);
-    }
-    return e;
+const OS_ROUTE_DEFS = [
+    { path: 'os-instances', label: 'instances', glyph: '◫' },
+    { path: 'os-windows',   label: 'windows',   glyph: '▭' },
+    { path: 'os-x',         label: 'x-server',  glyph: '✕' },
+    { path: 'os-fs',        label: 'fs',        glyph: '📁' },
+];
+
+function pre(obj) {
+    return h('pre', { class: 'fd-pre' }, typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2));
 }
 
-function kpi(items) {
-    const c = el('div', 'fdash-kpi');
-    for (const [v, l] of items) {
-        const k = el('div', 'k');
-        k.appendChild(el('div', 'v', { text: String(v) }));
-        k.appendChild(el('div', 'l', { text: String(l) }));
-        c.appendChild(k);
-    }
-    return c;
+function form(opts) {
+    const { fields = [], submit = 'submit', onSubmit } = opts;
+    return h('form', { class: 'row-form', onsubmit: (ev) => { ev.preventDefault(); onSubmit && onSubmit(ev); } },
+        ...fields.map(f => f.kind === 'textarea'
+            ? h('textarea', { name: f.name, placeholder: f.placeholder || '', rows: f.rows || 4 })
+            : h('input', { name: f.name, type: f.type || 'text', placeholder: f.placeholder || '', value: f.value || '', required: f.required ? 'true' : null })),
+        h('button', { type: 'submit', class: 'btn-primary' }, submit));
 }
-
-function panel(title, body, count) {
-    const p = el('div', 'fdash-panel');
-    const h = el('h3'); h.textContent = title + (count != null ? ' · ' + count : '');
-    p.appendChild(h);
-    if (body instanceof Node) p.appendChild(body);
-    else if (Array.isArray(body)) for (const n of body) if (n) p.appendChild(n);
-    else if (typeof body === 'string') { const pre = el('pre'); pre.textContent = body; p.appendChild(pre); }
-    return p;
-}
-
-function row(opts) {
-    const r = el('div', 'fdash-row');
-    if (opts.code) r.appendChild(el('span', 'code', { text: opts.code }));
-    r.appendChild(el('span', 'title', { text: opts.title || '' }));
-    if (opts.sub) r.appendChild(el('span', 'sub', { text: ' — ' + opts.sub }));
-    if (opts.meta) r.appendChild(el('span', 'meta', { text: opts.meta }));
-    return r;
-}
-
-function table(headers, rows) {
-    const t = el('table');
-    const thead = el('thead'); const trh = el('tr');
-    for (const h of headers) trh.appendChild(el('th', null, { text: h }));
-    thead.appendChild(trh); t.appendChild(thead);
-    const tb = el('tbody');
-    for (const r of rows) {
-        const tr = el('tr');
-        for (const c of r) tr.appendChild(el('td', null, { text: String(c) }));
-        tb.appendChild(tr);
-    }
-    t.appendChild(tb);
-    return t;
-}
-
-function pre(obj) { return el('pre', null, { text: typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2) }); }
 
 export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
-    const root = el('div', 'fdash');
-    const side = el('div', 'fdash-side');
-    const nav = el('div', 'fdash-nav');
-    const main = el('div', 'fdash-main');
-    side.appendChild(nav);
-    root.appendChild(side); root.appendChild(main);
+    const root = document.createElement('div');
+    root.className = 'app-fd ds-247420';
+    root.style.cssText = 'height:100%;overflow:hidden;display:flex;flex-direction:column;';
 
-    let active = 'home';
+    const state = {
+        active: 'home',
+        ts: new Date().toLocaleTimeString(),
+        body: null,
+        error: null,
+    };
     let host = instance.host || null;
 
-    function setActive(p) {
-        active = p;
-        for (const b of nav.querySelectorAll('button')) b.classList.toggle('active', b.dataset.path === p);
-        render();
-    }
-
-    const OS_ROUTES = osSurfaces ? [
-        { path: 'os-instances', label: 'instances', glyph: '◫' },
-        { path: 'os-windows',   label: 'windows',   glyph: '▭' },
-        { path: 'os-x',         label: 'x-server',  glyph: '✕' },
-        { path: 'os-fs',        label: 'fs',        glyph: '📁' },
-    ] : [];
-
-    function navHead(text) {
-        const h = el('div', 'group-head', { text });
-        nav.appendChild(h);
-    }
-    function navBtn(r) {
-        const b = el('button', null, { 'data-path': r.path, on: { click: () => setActive(r.path) } });
-        b.appendChild(el('span', 'glyph', { text: r.glyph }));
-        b.appendChild(document.createTextNode(' '));
-        b.appendChild(el('span', 'label', { text: r.label }));
-        nav.appendChild(b);
-    }
-    navHead('freddie');
-    for (const r of ROUTES) navBtn(r);
-    if (OS_ROUTES.length) {
-        navHead('os');
-        for (const r of OS_ROUTES) navBtn(r);
-    }
+    const allRoutes = osSurfaces ? [...ROUTES, ...OS_ROUTE_DEFS] : ROUTES;
 
     async function ensureHost() {
         if (host) return host;
@@ -124,281 +68,362 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
         return host;
     }
 
-    async function render() {
-        main.innerHTML = '';
-        main.appendChild(el('h2', 'fdash-h', { text: 'freddie · ' + instance.id + ' · ' + active }));
-        const h = await ensureHost();
-        const page = PAGES[active] || PAGES.home;
+    function setActive(p) {
+        state.active = p;
+        rerender();
+    }
+
+    function buildSide() {
+        const sections = [{
+            group: 'FREDDIE',
+            items: ROUTES.map(r => ({
+                glyph: r.glyph, label: r.label, href: '#fd-' + r.path,
+                active: state.active === r.path,
+                onClick: (ev) => { ev.preventDefault(); setActive(r.path); },
+            })),
+        }];
+        if (osSurfaces) sections.push({
+            group: 'OS',
+            items: OS_ROUTE_DEFS.map(r => ({
+                glyph: r.glyph, label: r.label, href: '#fd-' + r.path,
+                active: state.active === r.path,
+                onClick: (ev) => { ev.preventDefault(); setActive(r.path); },
+            })),
+        });
+        return Side({ sections });
+    }
+
+    function view() {
+        const route = allRoutes.find(r => r.path === state.active) || ROUTES[1];
+        return AppShell({
+            topbar: Topbar({ brand: 'freddie', leaf: 'dashboard', items: [], active: '' }),
+            crumb: Crumb({ trail: ['freddie', instance.id], leaf: route.path, right: state.error ? Chip({ tone: 'miss', children: 'error' }) : Chip({ tone: 'ok', children: 'live' }) }),
+            side: buildSide(),
+            main: state.body || EmptyState({ text: 'loading…', glyph: '◌' }),
+            status: Status({ left: ['ds-247420 · webjsx · ' + allRoutes.length + ' routes', 'instance=' + instance.id], right: [state.ts] }),
+        });
+    }
+
+    function rerender() {
+        webjsx.applyDiff(root, view());
+        loadActive();
+    }
+
+    async function loadActive() {
         try {
-            const body = await page(h, instance);
-            const arr = Array.isArray(body) ? body : [body];
-            for (const n of arr) if (n) main.appendChild(n);
+            const h0 = await ensureHost();
+            const page = PAGES[state.active] || PAGES.home;
+            state.body = await page(h0, instance);
+            state.error = null;
         } catch (e) {
-            main.appendChild(panel('error', el('pre', null, { text: String(e && e.stack || e) })));
+            state.error = String(e && e.stack || e);
+            state.body = Panel({ title: 'error', children: pre(state.error) });
         }
+        state.ts = new Date().toLocaleTimeString();
+        webjsx.applyDiff(root, view());
     }
 
     const PAGES = {
-        async projects(h) {
-            const list = h.pi.projects.list();
-            const active = h.pi.projects.active();
-            const form = el('form', 'fdash-form', { on: { submit: (ev) => {
-                ev.preventDefault();
-                try { h.pi.projects.create({ name: ev.target.elements.name.value, path: ev.target.elements.path.value }); render(); }
-                catch (e) { alert(e.message); }
-            } } });
-            form.appendChild(el('input', null, { name: 'name', placeholder: 'project name', required: 'true' }));
-            form.appendChild(el('input', null, { name: 'path', placeholder: '/path' }));
-            form.appendChild(el('button', null, { type: 'submit', text: 'add' }));
-            const rows = list.map(p => {
-                const r = el('div', 'fdash-row');
-                r.appendChild(el('span', 'code', { text: p.name === active?.name ? '●' : '○' }));
-                r.appendChild(el('span', null, { text: p.name + (p.name === active?.name ? '  (active)' : '') }));
-                r.appendChild(el('span', 'meta', { text: p.path }));
-                if (p.name !== 'default') {
-                    const del = el('button', null, { type: 'button', text: 'remove', on: { click: () => { try { h.pi.projects.remove(p.name); render(); } catch (e) { alert(e.message); } } } });
-                    r.appendChild(del);
-                }
-                if (p.name !== active?.name) {
-                    const sw = el('button', null, { type: 'button', text: 'switch', on: { click: () => { h.pi.projects.setActive(p.name); render(); } } });
-                    r.appendChild(sw);
-                }
-                return r;
-            });
+        async projects(h0) {
+            const list = h0.pi.projects.list();
+            const activeProj = (typeof h0.pi.projects.active === 'function') ? h0.pi.projects.active() : null;
+            const rows = list.map(p => Row({
+                key: p.name,
+                code: p.name === activeProj?.name ? '●' : '○',
+                title: p.name + (p.name === activeProj?.name ? '  (active)' : ''),
+                meta: p.path,
+                onClick: () => { if (p.name !== activeProj?.name) try { h0.pi.projects.setActive(p.name); rerender(); } catch (e) { alert(e.message); } },
+            }));
             return [
-                kpi([[list.length, 'projects'], [active?.name || '—', 'active'], [active?.path || '—', 'path']]),
-                panel('add a project', form),
-                panel('all projects', rows, list.length),
+                Hero({ title: 'projects', body: 'each project is its own ~/.freddie home: separate sessions, agents, skills, config, env, cron, batches.', accent: activeProj ? 'active · ' + activeProj.name : 'no active project' }),
+                Kpi({ items: [[list.length, 'projects'], [activeProj?.name || '—', 'active'], [activeProj?.path?.length > 30 ? '…' + activeProj.path.slice(-28) : (activeProj?.path || '—'), 'path']] }),
+                Panel({ title: 'add a project', children: form({
+                    fields: [{ name: 'name', placeholder: 'project name', required: true }, { name: 'path', placeholder: '/abs/path' }],
+                    submit: 'add',
+                    onSubmit: (ev) => { try { h0.pi.projects.create({ name: ev.target.elements.name.value, path: ev.target.elements.path.value }); rerender(); } catch (e) { alert(e.message); } },
+                }) }),
+                Panel({ title: 'all projects', count: list.length, children: rows.length ? rows : EmptyState({ text: 'no projects', glyph: '◆' }) }),
+                Panel({ title: 'how encapsulation works', children: Receipt({ rows: [
+                    ['sessions db', '<project>/sessions.db'],
+                    ['config', '<project>/config.json'],
+                    ['skills', '<project>/skills/'],
+                    ['plugins', '<project>/plugins/'],
+                    ['cron', '<project>/cron.db'],
+                    ['batches', '<project>/batches/'],
+                    ['logs', '<project>/logs/'],
+                    ['auth', '<project>/auth.json'],
+                ] }) }),
             ];
         },
-        async home(h) {
-            const sessions = await h.pi.sessions.list();
-            const tools = h.pi.tools.size;
-            const skills = h.pi.skills.size;
-            const health = h.pi.health();
+        async home(h0) {
+            const sessions = await h0.pi.sessions.list();
+            const tools = h0.pi.tools.size;
+            const skills = h0.pi.skills.size;
+            const health = (typeof h0.pi.health === 'function') ? h0.pi.health() : { ok: true };
             return [
-                kpi([[sessions.length, 'sessions'], [tools, 'tools'], [skills, 'skills']]),
-                panel('quick start', table(['action', 'how'], [
-                    ['open chat', "click 'chat' in sidebar"],
-                    ['list tools', '/tools in chat or → tools tab'],
-                    ['list skills', '/skills in chat or → skills tab'],
-                    ['set api key', '→ keys tab → set ENV var'],
-                ])),
-                panel('host', table(['key', 'value'], Object.entries(health))),
+                Hero({ title: 'freddie', body: 'open js agent harness — pi-mono · xstate · floosie · anentrypoint-design.', accent: h0.version || 'web' }),
+                Kpi({ items: [[sessions.length, 'sessions'], [tools, 'tools'], [skills, 'skills']] }),
+                Panel({ title: 'quick start', children: Receipt({ rows: [
+                    ['open chat',   "click 'chat' in sidebar"],
+                    ['list tools',  '/tools in chat → tools tab'],
+                    ['list skills', '/skills → skills tab'],
+                    ['set api key', 'keys tab → click chip'],
+                    ['add cron',    'cron tab → form'],
+                ] }) }),
+                Panel({ title: 'host', children: Receipt({ rows: Object.entries(health).map(([k, v]) => [k, String(v)]) }) }),
             ];
         },
-        async chat(h, instance) {
-            const note = el('div', 'fdash-empty', { text: 'chat lives in its own thebird app — opening chat window…' });
-            try {
-                if (window.__debug?.shell?.openApp) window.__debug.shell.openApp('chat');
-            } catch {}
-            return [panel('chat', note), panel('cli surface', table(['command', 'description'], [...h.pi.cli.values()].map(c => [c.name, c.description])))];
-        },
-        async sessions(h) {
-            const list = await h.pi.sessions.list();
+        async chat(h0) {
+            try { if (typeof window !== 'undefined' && window.__debug?.shell?.openApp) window.__debug.shell.openApp('chat'); } catch {}
             return [
-                kpi([[list.length, 'total sessions']]),
-                panel('recent sessions', list.length === 0
-                    ? el('div', 'fdash-empty', { text: 'no sessions yet — start a chat' })
-                    : table(['id', 'title', 'platform', 'model', 'turns'], list.map(s => [(s.id || '').slice(0, 8), s.title || '—', s.platform, s.model || '—', s.turn_count])), list.length),
+                Panel({ title: 'chat', children: EmptyState({ text: 'opening chat window — chat lives in its own thebird app.', glyph: '⌨' }) }),
+                Panel({ title: 'cli surface', count: h0.pi.cli.size,
+                    children: Table({ headers: ['command', 'description'], rows: [...h0.pi.cli.values()].map(c => [c.name, c.description || '']) }) }),
             ];
         },
-        async agents(h) {
-            const a = await h.pi.agents();
+        async sessions(h0) {
+            const list = await h0.pi.sessions.list();
             return [
-                kpi([[a.count, 'active'], [a.turns, 'turns']]),
-                panel('overview', table(['key', 'value'], [
-                    ['total turns', String(a.turns)],
+                Kpi({ items: [[list.length, 'sessions']] }),
+                Panel({ title: 'recent sessions', count: list.length, children: list.length === 0
+                    ? EmptyState({ text: 'no sessions yet — start a chat', glyph: '✉' })
+                    : Table({ headers: ['id', 'title', 'platform', 'model', 'turns'],
+                        rows: list.map(s => [(s.id || '').slice(0, 8), s.title || '—', s.platform || '—', s.model || '—', s.turn_count || 0]) }) }),
+            ];
+        },
+        async agents(h0) {
+            const a = (typeof h0.pi.agents === 'function') ? await h0.pi.agents() : { count: 0, turns: 0, active: null };
+            return [
+                Kpi({ items: [[a.count || 0, 'active'], [a.turns || 0, 'turns']] }),
+                Panel({ title: 'agent overview', children: Receipt({ rows: [
+                    ['total turns', String(a.turns || 0)],
                     ['active session', a.active || '(none)'],
                     ['last activity', a.last_activity ? new Date(a.last_activity).toLocaleString() : '—'],
-                ])),
+                ] }) }),
             ];
         },
-        async analytics(h) {
-            const list = await h.pi.sessions.list();
-            const tools = [...h.pi.tools.values()];
+        async analytics(h0) {
+            const list = await h0.pi.sessions.list();
+            const tools = [...h0.pi.tools.values()];
             const byPlatform = list.reduce((a, s) => { const k = s.platform || '?'; a[k] = (a[k] || 0) + 1; return a; }, {});
             const byModel = list.reduce((a, s) => { const k = s.model || '?'; a[k] = (a[k] || 0) + 1; return a; }, {});
+            const byToolset = tools.reduce((a, t) => { (a[t.toolset || 'core'] = a[t.toolset || 'core'] || []).push(t.name); return a; }, {});
             return [
-                kpi([[list.length, 'sessions'], [tools.length, 'tools']]),
-                panel('sessions by platform', Object.keys(byPlatform).length === 0 ? el('div', 'fdash-empty', { text: 'no data' }) : table(['platform', 'count'], Object.entries(byPlatform))),
-                panel('sessions by model', Object.keys(byModel).length === 0 ? el('div', 'fdash-empty', { text: 'no data' }) : table(['model', 'count'], Object.entries(byModel))),
-                panel('tools', table(['name', 'description'], tools.map(t => [t.name, (t.description || '').slice(0, 80)]))),
+                Kpi({ items: [[list.length, 'sessions'], [tools.length, 'tools']] }),
+                Panel({ title: 'sessions by platform', children: Object.keys(byPlatform).length === 0
+                    ? EmptyState({ text: 'no data', glyph: '◉' })
+                    : Table({ headers: ['platform', 'count'], rows: Object.entries(byPlatform).sort((a, b) => b[1] - a[1]) }) }),
+                Panel({ title: 'sessions by model', children: Object.keys(byModel).length === 0
+                    ? EmptyState({ text: 'no data', glyph: '◎' })
+                    : Table({ headers: ['model', 'count'], rows: Object.entries(byModel).sort((a, b) => b[1] - a[1]) }) }),
+                Panel({ title: 'tool distribution', children: Table({ headers: ['toolset', 'count', 'tools'],
+                    rows: Object.entries(byToolset).map(([k, v]) => [k, v.length, v.slice(0, 4).join(', ') + (v.length > 4 ? '…' : '')]) }) }),
             ];
         },
-        async models(h) {
-            const cfg = h.pi.config.load();
+        async models(h0) {
+            const cfg = (typeof h0.pi.config?.load === 'function') ? await h0.pi.config.load() : {};
             const agent = cfg.agent || {};
-            const form = el('form', 'fdash-form', { on: { submit: (ev) => {
-                ev.preventDefault();
-                h.pi.config.saveValue('agent.provider', ev.target.elements.provider.value);
-                h.pi.config.saveValue('agent.model', ev.target.elements.model.value);
-                render();
-            } } });
-            form.appendChild(el('input', null, { name: 'provider', placeholder: 'provider', value: agent.provider || '' }));
-            form.appendChild(el('input', null, { name: 'model', placeholder: 'model id', value: agent.model || '' }));
-            form.appendChild(el('button', null, { type: 'submit', text: 'update' }));
             return [
-                kpi([[agent.provider || '—', 'provider'], [agent.model || '—', 'model']]),
-                panel('active model', table(['key', 'value'], [
+                Kpi({ items: [[agent.provider || '—', 'provider'], [agent.model || '—', 'model']] }),
+                Panel({ title: 'active model', children: Receipt({ rows: [
                     ['provider', agent.provider || '(unset)'],
                     ['model', agent.model || '(unset)'],
                     ['max_iterations', String(agent.max_iterations || '—')],
-                ])),
-                panel('change model', form),
+                    ['max_tokens', String(agent.max_tokens || '—')],
+                    ['temperature', String(agent.temperature ?? '—')],
+                ] }) }),
+                Panel({ title: 'change model', children: form({
+                    fields: [{ name: 'provider', placeholder: 'provider', value: agent.provider || '' }, { name: 'model', placeholder: 'model id', value: agent.model || '' }],
+                    submit: 'update',
+                    onSubmit: async (ev) => {
+                        await h0.pi.config.saveValue('agent.provider', ev.target.elements.provider.value);
+                        await h0.pi.config.saveValue('agent.model', ev.target.elements.model.value);
+                        rerender();
+                    },
+                }) }),
             ];
         },
-        async logs(h) {
-            const dbg = h.pi.debug();
+        async logs(h0) {
+            const dbg = (typeof h0.pi.debug === 'function') ? h0.pi.debug() : { note: 'no debug surface' };
+            return [Panel({ title: 'host debug snapshot', children: pre(dbg) })];
+        },
+        async cron(h0) {
+            const list = await h0.pi.cron.list();
             return [
-                panel('host debug snapshot', pre(dbg)),
+                Kpi({ items: [[list.length, 'cron jobs']] }),
+                Panel({ title: 'add job', children: form({
+                    fields: [{ name: 'cron', placeholder: '* * * * *', required: true }, { name: 'prompt', placeholder: 'prompt', required: true }],
+                    submit: 'create',
+                    onSubmit: async (ev) => { try { await h0.pi.cron.create({ cron: ev.target.elements.cron.value, prompt: ev.target.elements.prompt.value }); rerender(); } catch (e) { alert(e.message); } },
+                }) }),
+                Panel({ title: 'scheduled jobs', count: list.length, children: list.length === 0
+                    ? EmptyState({ text: 'no cron jobs — add one above', glyph: '◷' })
+                    : Table({ headers: ['id', 'cron', 'prompt', 'enabled'],
+                        rows: list.map(j => [j.id, j.cron, (j.prompt || '').slice(0, 40), j.enabled ? 'yes' : 'no']) }) }),
             ];
         },
-        async cron(h) {
-            const list = await h.pi.cron.list();
-            const form = el('form', 'fdash-form', { on: { submit: async (ev) => {
-                ev.preventDefault();
-                try { await h.pi.cron.create({ cron: ev.target.elements.cron.value, prompt: ev.target.elements.prompt.value }); render(); }
-                catch (e) { alert(e.message); }
-            } } });
-            form.appendChild(el('input', null, { name: 'cron', placeholder: '* * * * *', required: 'true' }));
-            form.appendChild(el('input', null, { name: 'prompt', placeholder: 'prompt', required: 'true' }));
-            form.appendChild(el('button', null, { type: 'submit', text: 'create' }));
-            const tbl = list.length === 0
-                ? el('div', 'fdash-empty', { text: 'no cron jobs' })
-                : table(['id', 'cron', 'prompt', 'enabled'], list.map(j => [j.id, j.cron, (j.prompt || '').slice(0, 40), j.enabled ? 'yes' : 'no']));
-            return [
-                kpi([[list.length, 'cron jobs']]),
-                panel('add job', form),
-                panel('jobs', tbl, list.length),
-            ];
-        },
-        async skills(h) {
-            const list = [...h.pi.skills.values()];
+        async skills(h0) {
+            const list = [...h0.pi.skills.values()];
             const byCat = list.reduce((a, s) => { (a[s.category || 'other'] = a[s.category || 'other'] || []).push(s); return a; }, {});
-            const out = [kpi([[list.length, 'skills'], [Object.keys(byCat).length, 'categories']])];
-            for (const [cat, ss] of Object.entries(byCat)) {
-                out.push(panel(cat, table(['name', 'description'], ss.map(s => [s.shortName || s.name, (s.description || '').slice(0, 80)])), ss.length));
-            }
-            return out;
-        },
-        async config(h) {
-            const cfg = h.pi.config.load();
-            const profiles = h.pi.profiles.list();
-            const commands = h.pi.commands.list();
-            const form = el('form', 'fdash-form', { on: { submit: (ev) => {
-                ev.preventDefault();
-                let v = ev.target.elements.value.value;
-                try { v = JSON.parse(v); } catch {}
-                h.pi.config.saveValue(ev.target.elements.key.value, v);
-                render();
-            } } });
-            form.appendChild(el('input', null, { name: 'key', placeholder: 'dotted.key', required: 'true' }));
-            form.appendChild(el('input', null, { name: 'value', placeholder: 'value (json or string)', required: 'true' }));
-            form.appendChild(el('button', null, { type: 'submit', text: 'save' }));
             return [
-                kpi([[profiles.length, 'profiles'], [commands.length, 'commands'], [cfg._config_version || 0, 'config version']]),
-                panel('set value', form),
-                panel('commands', table(['name', 'category', 'description'], commands.map(c => [c.name, c.category, c.description])), commands.length),
-                panel('active config', pre(cfg)),
+                Kpi({ items: [[list.length, 'skills'], [Object.keys(byCat).length, 'categories']] }),
+                ...Object.entries(byCat).map(([cat, ss]) => Panel({ title: cat, count: ss.length,
+                    children: ss.length === 0 ? EmptyState({ text: 'none', glyph: '◈' })
+                        : Table({ headers: ['name', 'description'], rows: ss.map(s => [s.shortName || s.name, (s.description || '').slice(0, 100)]) }) })),
             ];
         },
-        async env(h) {
-            const list = h.pi.env.list();
+        async config(h0) {
+            const cfg = (typeof h0.pi.config?.load === 'function') ? await h0.pi.config.load() : {};
+            const profiles = (typeof h0.pi.profiles?.list === 'function') ? h0.pi.profiles.list() : [];
+            const commands = (typeof h0.pi.commands?.list === 'function') ? h0.pi.commands.list() : [];
+            return [
+                Kpi({ items: [[profiles.length, 'profiles'], [commands.length, 'commands'], [cfg._config_version || 0, 'config version']] }),
+                Panel({ title: 'set config value', children: form({
+                    fields: [{ name: 'key', placeholder: 'dotted.key (e.g. agent.model)', required: true }, { name: 'value', placeholder: 'value (json or string)', required: true }],
+                    submit: 'save',
+                    onSubmit: async (ev) => {
+                        let v = ev.target.elements.value.value;
+                        try { v = JSON.parse(v); } catch {}
+                        await h0.pi.config.saveValue(ev.target.elements.key.value, v);
+                        rerender();
+                    },
+                }) }),
+                Panel({ title: 'commands', count: commands.length,
+                    children: Table({ headers: ['name', 'category', 'description'], rows: commands.map(c => [c.name, c.category || '', c.description || '']) }) }),
+                Panel({ title: 'active config', children: pre(cfg) }),
+            ];
+        },
+        async env(h0) {
+            const list = (typeof h0.pi.env?.list === 'function') ? h0.pi.env.list() : [];
             const setCount = list.filter(k => k.set).length;
-            const chips = el('div');
-            for (const k of list) {
-                const c = el('span', 'fdash-chip ' + (k.set ? 'ok' : 'miss'), { text: k.key + (k.set ? ' ✓' : '') });
-                c.addEventListener('click', () => {
-                    const v = prompt('set ' + k.key + ' (empty to unset):');
-                    if (v == null) return;
-                    h.pi.env.set(k.key, v);
-                    render();
-                });
-                chips.appendChild(c);
-            }
+            const chipNodes = list.map(k => h(
+                'span',
+                {
+                    key: k.key,
+                    onclick: () => {
+                        const v = prompt('set ' + k.key + ' (empty to unset):');
+                        if (v == null) return;
+                        if (typeof h0.pi.env.set === 'function') { h0.pi.env.set(k.key, v); rerender(); }
+                    },
+                    style: 'cursor:pointer',
+                },
+                Chip({ tone: k.set ? 'ok' : 'miss', children: k.key + (k.set ? ' ✓' : ' ·') })
+            ));
             return [
-                kpi([[setCount, 'set'], [list.length - setCount, 'missing'], [list.length, 'total known']]),
-                panel('environment variables (click to set/unset)', chips),
+                Kpi({ items: [[setCount, 'set'], [list.length - setCount, 'missing'], [list.length, 'total known']] }),
+                Panel({
+                    title: 'environment variables',
+                    right: h('span', {}, Chip({ tone: 'ok', children: setCount + ' set' }), ' ', Chip({ tone: 'miss', children: (list.length - setCount) + ' missing' })),
+                    children: h('div', { style: 'padding:8px 4px;display:flex;flex-wrap:wrap;gap:6px' }, ...chipNodes),
+                }),
             ];
         },
-        async tools(h) {
-            const list = [...h.pi.tools.values()];
+        async tools(h0) {
+            const list = [...h0.pi.tools.values()];
+            const byToolset = list.reduce((a, t) => { (a[t.toolset || 'core'] = a[t.toolset || 'core'] || []).push(t); return a; }, {});
             return [
-                kpi([[list.length, 'tools']]),
-                panel('all tools', table(['name', 'description'], list.map(t => [t.name, (t.description || '').slice(0, 100)])), list.length),
+                Kpi({ items: [[list.length, 'tools'], [Object.keys(byToolset).length, 'toolsets']] }),
+                ...Object.entries(byToolset).map(([ts, items]) => Panel({ title: 'toolset · ' + ts, count: items.length,
+                    children: items.map(t => Row({ key: t.name, code: '⚒', title: t.name, sub: (t.description || (t.schema && t.schema.description) || '').slice(0, 80) })) })),
             ];
         },
-        async batch(h) {
-            const out = el('div');
-            const form = el('form', 'fdash-form', { on: { submit: async (ev) => {
-                ev.preventDefault();
-                const prompts = ev.target.elements.prompts.value.split('\n').map(s => s.trim()).filter(Boolean);
-                if (!prompts.length) return;
-                out.textContent = 'running…';
-                try { const r = await h.pi.batch.run({ prompts, concurrency: Number(ev.target.elements.conc.value) || 4 });
-                    out.innerHTML = ''; out.appendChild(pre(r));
-                } catch (e) { out.textContent = 'error: ' + (e.message || e); }
-            } } });
-            const ta = el('textarea', null, { name: 'prompts', rows: '5', placeholder: 'one prompt per line' });
-            form.appendChild(ta);
-            form.appendChild(el('input', null, { name: 'conc', type: 'number', value: '4' }));
-            form.appendChild(el('button', null, { type: 'submit', text: 'run' }));
+        async batch(h0) {
+            const out = h('div', { id: 'fd-batch-out' });
             return [
-                panel('run prompts', form),
-                panel('results', out),
+                Section({ title: '// batch runner', children: [
+                    Panel({ title: 'run prompts', children: form({
+                        fields: [{ name: 'prompts', kind: 'textarea', placeholder: 'one prompt per line' }, { name: 'concurrency', type: 'number', value: '4' }],
+                        submit: 'run',
+                        onSubmit: async (ev) => {
+                            const prompts = ev.target.elements.prompts.value.split('\n').map(s => s.trim()).filter(Boolean);
+                            if (!prompts.length) return;
+                            const node = root.querySelector('#fd-batch-out');
+                            if (node) node.textContent = 'running…';
+                            try {
+                                const r = await h0.pi.batch.run({ prompts, concurrency: Number(ev.target.elements.concurrency.value) || 4 });
+                                if (node) { node.innerHTML = ''; node.appendChild(document.createTextNode(JSON.stringify(r, null, 2))); }
+                            } catch (e) { if (node) node.textContent = 'error: ' + (e.message || e); }
+                        },
+                    }) }),
+                    Panel({ title: 'results', children: out }),
+                    Panel({ title: 'cli usage', children: Receipt({ rows: [
+                        ['run batch file', 'freddie batch prompts.txt'],
+                        ['set concurrency', 'freddie batch prompts.txt --concurrency 8'],
+                        ['jsonl output', 'freddie batch prompts.txt > out.jsonl'],
+                    ] }) }),
+                ] }),
             ];
         },
-        async gateway(h) {
-            const platforms = h.pi.gateway.platforms();
+        async gateway(h0) {
+            const platforms = (typeof h0.pi.gateway?.platforms === 'function') ? h0.pi.gateway.platforms() : [];
+            const active = platforms.filter(p => p.enabled);
             return [
-                kpi([[platforms.length, 'platforms'], [platforms.filter(p => p.enabled).length, 'active']]),
-                panel('platforms', table(['name', 'enabled', 'note'], platforms.map(p => [p.name, p.enabled ? 'yes' : 'no', p.note])), platforms.length),
+                Kpi({ items: [[platforms.length, 'platforms'], [active.length, 'active']] }),
+                Panel({ title: 'platforms', count: platforms.length,
+                    right: active.length > 0 ? Chip({ tone: 'ok', children: active.length + ' active' }) : Chip({ tone: 'miss', children: 'none active' }),
+                    children: platforms.length === 0 ? EmptyState({ text: 'no platforms registered', glyph: '⇌' })
+                        : platforms.map(p => Row({ key: p.name, code: p.enabled ? '●' : '○', title: p.name, sub: p.note || '', meta: p.enabled ? 'enabled' : '' })) }),
+                Panel({ title: 'start gateway', children: Receipt({ rows: [
+                    ['webhook + api_server', 'freddie gateway --port 3000'],
+                    ['specific platform', 'TELEGRAM_BOT_TOKEN=… freddie gateway'],
+                    ['all platforms', 'set env vars per platform, then freddie gateway'],
+                ] }) }),
             ];
         },
         async ['os-instances']() {
             const list = (osSurfaces && osSurfaces.instances && osSurfaces.instances()) || [];
             const activeId = osSurfaces && osSurfaces.activeInstanceId && osSurfaces.activeInstanceId();
             return [
-                kpi([[list.length, 'instances'], [activeId || '—', 'active']]),
-                panel('instances', table(['id', 'active', 'shells', 'windows'],
-                    list.map(i => [i.id, i.id === activeId ? '●' : '', String((i.shells || []).length), String((i.windows || []).length)])), list.length),
+                Kpi({ items: [[list.length, 'instances'], [activeId || '—', 'active']] }),
+                Panel({ title: 'instances', count: list.length, children: list.length === 0
+                    ? EmptyState({ text: 'no instances', glyph: '◫' })
+                    : Table({ headers: ['id', 'active', 'shells', 'windows'],
+                        rows: list.map(i => [i.id, i.id === activeId ? '●' : '', String((i.shells || []).length), String((i.windows || []).length)]) }) }),
             ];
         },
         async ['os-windows']() {
             const wins = (osSurfaces && osSurfaces.wm && osSurfaces.wm.list && osSurfaces.wm.list()) || [];
             const focused = osSurfaces && osSurfaces.wm && osSurfaces.wm.focused;
             return [
-                kpi([[wins.length, 'windows'], [focused ? (focused.id || focused.title || '?') : '—', 'focused']]),
-                panel('windows', table(['id', 'title', 'min', 'max', 'pos'],
-                    wins.map(w => [w.id || '?', w.title || '', w.min ? '●' : '', w.max ? '●' : '',
-                        (w.el ? `${w.el.offsetLeft},${w.el.offsetTop} ${w.el.offsetWidth}×${w.el.offsetHeight}` : '')])), wins.length),
+                Kpi({ items: [[wins.length, 'windows'], [focused ? (focused.id || focused.title || '?') : '—', 'focused']] }),
+                Panel({ title: 'windows', count: wins.length, children: wins.length === 0
+                    ? EmptyState({ text: 'no windows open', glyph: '▭' })
+                    : Table({ headers: ['id', 'title', 'min', 'max', 'pos'],
+                        rows: wins.map(w => [w.id || '?', w.title || '', w.min ? '●' : '', w.max ? '●' : '',
+                            (w.el ? `${w.el.offsetLeft},${w.el.offsetTop} ${w.el.offsetWidth}×${w.el.offsetHeight}` : '')]) }) }),
             ];
         },
         async ['os-x']() {
             const x = osSurfaces && osSurfaces.xServer && osSurfaces.xServer();
-            if (!x) return [el('div', 'fdash-empty', { text: 'x-server not running in this instance' })];
+            if (!x) return [Panel({ title: 'x-server', children: EmptyState({ text: 'x-server not running in this instance', glyph: '✕' }) })];
             return [
-                kpi([[x.windows, 'windows'], [x.pixmaps, 'pixmaps'], [x.gcs, 'gcs'], [x.atoms, 'atoms'], [x.cursors, 'cursors']]),
-                panel('display', pre(x)),
+                Kpi({ items: [[x.windows, 'windows'], [x.pixmaps, 'pixmaps'], [x.gcs, 'gcs'], [x.atoms, 'atoms'], [x.cursors, 'cursors']] }),
+                Panel({ title: 'display', children: pre(x) }),
             ];
         },
         async ['os-fs']() {
             const list = await instance.fs.list('/');
             return [
-                kpi([[list.length, 'paths'], [instance.id, 'instance']]),
-                panel('paths', el('pre', null, { text: list.join('\n') }), list.length),
+                Kpi({ items: [[list.length, 'paths'], [instance.id, 'instance']] }),
+                Panel({ title: 'paths', count: list.length, children: list.length === 0
+                    ? EmptyState({ text: 'empty fs', glyph: '📁' })
+                    : pre(list.join('\n')) }),
             ];
         },
     };
 
-    setActive('home');
+    rerender();
 
     if (typeof window !== 'undefined') {
         window.__debug = window.__debug || {};
         window.__debug.instances = window.__debug.instances || {};
         window.__debug.instances[instance.id] = window.__debug.instances[instance.id] || {};
-        window.__debug.instances[instance.id].dashboard = { root, routes: [...ROUTES, ...OS_ROUTES].map(r => r.path), setActive, get active() { return active; } };
+        window.__debug.instances[instance.id].dashboard = {
+            root,
+            routes: allRoutes.map(r => r.path),
+            setActive,
+            get active() { return state.active; },
+        };
     }
 
     return { node: root, dispose() {} };
