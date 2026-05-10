@@ -26,6 +26,9 @@
     "./desktop/shell.js": "./src/desktop/shell.js",
     "./desktop/freddie-dashboard.js": "./src/desktop/freddie-dashboard.js",
     "./desktop/freddie-dashboard.css": "./src/desktop/freddie-dashboard.css",
+    "./desktop/files-app.js": "./src/desktop/files-app.js",
+    "./desktop/monitor-app.js": "./src/desktop/monitor-app.js",
+    "./desktop/about-app.js": "./src/desktop/about-app.js",
     "./colors_and_type.css": "./colors_and_type.css",
     "./app-shell.css": "./app-shell.css",
     "./page-html": {
