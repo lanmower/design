@@ -140,11 +140,23 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
     const clockTimer = setInterval(tickClock, 30000);
 
     let activeContext = null;
+    let activeInstanceId = null;
     function setContext(ctx) { activeContext = ctx; }
+
+    function applyInstanceFilter() {
+        if (!activeInstanceId) return;
+        for (const wEl of document.querySelectorAll('.wm-win[data-instance-id]')) {
+            const wInst = wEl.dataset.instanceId;
+            wEl.style.display = (wInst === activeInstanceId) ? '' : 'none';
+        }
+    }
 
     function refreshTaskbar() {
         taskbar.innerHTML = '';
         for (const w of wm.list()) {
+            const wEl = document.querySelector('.wm-win[data-id="' + w.id + '"]');
+            const wInst = wEl && wEl.dataset.instanceId;
+            if (activeInstanceId && wInst && wInst !== activeInstanceId) continue;
             const t = document.createElement('button');
             t.className = 'os-task' + (w.focused ? ' focused' : '');
             t.type = 'button';
@@ -153,6 +165,15 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
             t.addEventListener('click', () => wm.focus(w.id));
             taskbar.appendChild(t);
         }
+    }
+
+    function setActiveInstance(id) {
+        activeInstanceId = id;
+        for (const btn of instSwitch.querySelectorAll('.os-btn')) {
+            btn.classList.toggle('active', btn.dataset.instanceId === id);
+        }
+        applyInstanceFilter();
+        refreshTaskbar();
     }
 
     function openApp(appId) {
@@ -165,6 +186,11 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
             const titlePrefix = (activeContext && activeContext.titlePrefix) ? activeContext.titlePrefix + ' · ' : '';
             const win = wm.open({ title: titlePrefix + app.name, body: r.node, kind: appId, width: sz.w, height: sz.h, x: 100 + (wm.count * 28) % 240, y: 80 + (wm.count * 22) % 180 });
             win._app = { id: appId, dispose: r.dispose };
+            if (activeInstanceId && win.el) {
+                win.el.dataset.instanceId = activeInstanceId;
+                win.instanceId = activeInstanceId;
+            }
+            win.appId = appId;
             refreshTaskbar();
             return win;
         };
@@ -176,8 +202,9 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
     const taskTimer = setInterval(refreshTaskbar, 500);
 
     const api = {
-        wm, registry, openApp, setContext, refreshTaskbar,
+        wm, registry, openApp, setContext, refreshTaskbar, setActiveInstance,
         openDrawer, closeDrawer, openMenu, closeMenu,
+        get activeInstanceId() { return activeInstanceId; },
         elements: { osRoot, menubar, taskbar, appsMenu, sideRail, drawer, instSwitch, homeBtn, appsBtn },
         dispose() { clearInterval(clockTimer); clearInterval(taskTimer); osRoot.remove(); sideRail.remove(); drawer.remove(); },
     };
