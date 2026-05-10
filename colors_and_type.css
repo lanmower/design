@@ -521,7 +521,8 @@ pre code { background: transparent; padding: 0; }
   }
 }
 
-[data-theme="dark"] {
+[data-theme="dark"],
+[data-theme="ink"] {
   --panel-0:       #1A1B1E;
   --panel-1:       #232428;
   --panel-2:       #2B2D31;
@@ -569,7 +570,8 @@ pre code { background: transparent; padding: 0; }
     --bg-2: var(--panel-2);
   }
 }
-[data-theme="dark"]  { --fg: var(--panel-text); --fg-3: var(--panel-text-3); --bg: var(--panel-0); --bg-2: var(--panel-2); }
+[data-theme="dark"],
+[data-theme="ink"]   { --fg: var(--panel-text); --fg-3: var(--panel-text-3); --bg: var(--panel-0); --bg-2: var(--panel-2); }
 [data-theme="light"] { --fg: var(--panel-text); --fg-3: var(--panel-text-3); --bg: var(--panel-0); --bg-2: var(--panel-2); }
 
 /* Contrast safety on any acid/lime/mint surface — text must be ink,
@@ -602,16 +604,14 @@ pre code { background: transparent; padding: 0; }
 :focus-visible { outline: 2px solid var(--panel-accent) !important; outline-offset: 2px; }
 html, body { margin: 0; padding: 0; }
 
-/* Base element padding — browser UA stylesheets strip padding on button/textarea
-   in some reset contexts; restore sane defaults so raw elements look right. */
+/* Button base reset — bare <button> is unstyled; use .btn/.btn-primary/.btn-ghost for styled buttons. */
 button {
-  padding: 8px 18px;
-  border-radius: var(--r-2);
+  padding: 0;
+  background: none;
   font-family: var(--ff-ui);
   font-size: var(--fs-sm);
   cursor: pointer;
-  background: var(--bg-2);
-  color: var(--fg);
+  color: inherit;
 }
 textarea {
   padding: 10px 12px;
