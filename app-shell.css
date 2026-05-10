@@ -13,10 +13,11 @@ html, body {
 }
 
 .app {
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     background: var(--panel-0);
+    overflow: hidden;
 }
 
 /* Top bar — sticky chrome, elevated via shadow so content doesn't bleed under */
@@ -178,6 +179,7 @@ html, body {
     background: var(--panel-0);
     padding: 16px 20px 72px 20px;
     overflow-y: auto;
+    min-height: 0;
 }
 .app-main.narrow { max-width: 820px; }
 .app-main.centered { margin: 0 auto; }

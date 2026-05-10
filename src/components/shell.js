@@ -86,9 +86,6 @@ export function Status({ left = [], right = [] } = {}) {
 
 export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
     const hasSide = Boolean(side);
-    const sideMotionClass = hasSide
-        ? ' animate__animated animate__fadeInLeft'
-        : ' animate__animated animate__fadeOutLeft';
     const sideNode = hasSide
         ? side
         : h('aside', { class: 'app-side', 'aria-hidden': 'true' });
@@ -97,7 +94,7 @@ export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
         topbar || null,
         crumb || null,
         h('div', { class: 'app-body' + (hasSide ? '' : ' no-side') },
-            h('div', { class: 'app-side-shell' + sideMotionClass }, sideNode),
+            h('div', { class: 'app-side-shell' }, sideNode),
             h('main', { class: 'app-main' + (narrow ? ' narrow' : '') }, ...(Array.isArray(main) ? main : [main]))
         ),
         status || null
