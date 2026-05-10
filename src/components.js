@@ -12,7 +12,7 @@ export {
     Hero, Install, Receipt, Changelog,
     WorksList, WritingList, Manifesto, Section,
     Kpi, Table,
-    HomeView, ProjectView
+    HomeView, ProjectView, Form
 } from './components/content.js';
 
 export {
