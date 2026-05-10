@@ -44,7 +44,7 @@ tabs:
 
 kits:
   heading: "ui kits"
-  count: "06 of 06"
+  count: "14 surfaces"
   items:
     - { code: "01", title: "homepage",     sub: "marquee + works grid",                  desc: "editorial banner over a quiet shell",                href: "./ui_kits/homepage/" }
     - { code: "02", title: "project page", sub: "hero · receipt · install · changelog",  desc: "shippable case-study template",                      href: "./ui_kits/project_page/" }
@@ -53,6 +53,13 @@ kits:
     - { code: "05", title: "chat",         sub: "message thread + composer",             desc: "pill bubbles, monospace timestamps, room sidebar",   href: "./ui_kits/chat/" }
     - { code: "06", title: "aicat",        sub: "ai assistant with cat persona",         desc: "ascii portrait, thinking dots, mood-swapping face",  href: "./ui_kits/aicat/" }
     - { code: "07", title: "file browser", sub: "rails by file type · drop · preview",   desc: "static demo wired to fsbrowse — every file-row primitive in one surface", href: "./ui_kits/file_browser/" }
+    - { code: "08", title: "dashboard",    sub: "kpis · tables · receipts · changelog",  desc: "every content primitive in one operations surface", href: "./ui_kits/dashboard/" }
+    - { code: "09", title: "terminal",     sub: "cli prompt · command lines · log view", desc: "five line kinds — cmt cmd out ok warn — over a tonal panel", href: "./ui_kits/terminal/" }
+    - { code: "10", title: "settings",     sub: "sectioned forms · toggles · save bar",  desc: "every input primitive — fields, segmented buttons, danger panel", href: "./ui_kits/settings/" }
+    - { code: "11", title: "signin",       sub: "auth · providers · magic link",         desc: "narrow shell + tone-on-tone form, no shadows, no spinners", href: "./ui_kits/signin/" }
+    - { code: "12", title: "search",       sub: "topbar query · faceted filters · rows", desc: "ranked results reuse the same RowLink primitive every list does", href: "./ui_kits/search/" }
+    - { code: "13", title: "404",          sub: "empty-state hero · suggested routes",   desc: "narrow shell, oversized mono code, three CTAs",      href: "./ui_kits/error_404/" }
+    - { code: "14", title: "gallery",      sub: "visual grid · tonal cards · lightbox",  desc: "tiles share the panel tokens; lightbox reuses the same surface", href: "./ui_kits/gallery/" }
 
 decks:
   heading: "decks"
@@ -165,6 +172,13 @@ examples:
     - { name: "chat kit",         desc: "message thread + composer with pill bubbles and room sidebar.",    href: "./ui_kits/chat/",         cta: "open chat" }
     - { name: "aicat kit",        desc: "ai assistant with cat persona — ascii portrait + mood face.",      href: "./ui_kits/aicat/",        cta: "open aicat" }
     - { name: "slide deck",       desc: "16:9 deck stage with improved presenter controls text.",           href: "./slides/",               cta: "open slides" }
+    - { name: "dashboard kit",    desc: "kpis, tables, receipts, changelog — operations surface.",          href: "./ui_kits/dashboard/",    cta: "open dashboard" }
+    - { name: "terminal kit",     desc: "cli prompt, command lines, log viewer.",                           href: "./ui_kits/terminal/",     cta: "open terminal" }
+    - { name: "settings kit",     desc: "sectioned forms, toggles, segmented buttons, save bar.",           href: "./ui_kits/settings/",     cta: "open settings" }
+    - { name: "signin kit",       desc: "auth panel, providers, magic link.",                               href: "./ui_kits/signin/",       cta: "open signin" }
+    - { name: "search kit",       desc: "query bar, faceted filters, ranked results.",                      href: "./ui_kits/search/",       cta: "open search" }
+    - { name: "404 kit",          desc: "empty-state hero with suggested routes.",                          href: "./ui_kits/error_404/",    cta: "open 404" }
+    - { name: "gallery kit",      desc: "visual grid + lightbox over tonal cards.",                         href: "./ui_kits/gallery/",      cta: "open gallery" }
     - { name: "preview samples",  desc: "design previews and component samples.",                           href: "./preview/buttons.html",  cta: "open previews" }
 
 status_left:
