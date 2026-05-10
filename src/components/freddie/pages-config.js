@@ -2,7 +2,7 @@ import * as webjsx from '../../../vendor/webjsx/index.js';
 import { Panel, Row, Hero, Receipt, Kpi, Table, Form } from '../content.js';
 import { Chip } from '../shell.js';
 import { EmptyState } from '../files.js';
-import { skillLabel, renderConfigSections } from './helpers.js';
+import { skillLabel } from './helpers.js';
 const h = webjsx.createElement;
 
 export async function models(h0) {
@@ -77,25 +77,6 @@ export async function skills(h0) {
         list.length === 0 ? EmptyState({ text: 'no skills — add SKILL.md files to ~/.freddie/skills/', glyph: '◈' }) : null,
         ...Object.entries(byCat).map(([cat, ss]) => Panel({ title: cat, count: ss.length, children: Table({ headers: ['name','description'], rows: ss.map(s => [skillLabel(s), (s.description||'').slice(0,120)]) }) }))
     ].filter(Boolean);
-}
-
-export async function config(h0) {
-    const cfg = typeof h0.pi.config?.load === 'function' ? await h0.pi.config.load() : {};
-    const commands = typeof h0.pi.cli?.values === 'function' ? [...h0.pi.cli.values()] : [];
-    return [
-        Hero({ title: 'config', body: 'live ~/.freddie/config.yaml. dotted keys, json or string values.', accent: 'v'+(cfg._config_version||0) }),
-        Kpi({ items: [[commands.length,'commands'],[cfg._config_version||0,'config version']] }),
-        Panel({ title: 'set config value', children: Form({ fields: [
-            { name: 'key', placeholder: 'dotted.key', required: true },
-            { name: 'value', placeholder: 'value (json or string)', required: true }
-        ], submit: 'save', onSubmit: async ev => {
-            let v = ev.target.elements.value.value;
-            try { v = JSON.parse(v); } catch {}
-            await h0.pi.config.saveValue(ev.target.elements.key.value, v);
-        } }) }),
-        Panel({ title: 'commands', count: commands.length, children: Table({ headers: ['name','description'], rows: commands.map(c => [c.name, c.description||'']) }) }),
-        ...renderConfigSections(cfg)
-    ];
 }
 
 export async function env(h0) {

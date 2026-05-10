@@ -2009,3 +2009,16 @@ tr.clickable:hover td { background: var(--panel-hover); }
 .fd-tool-kv td { padding: 3px 8px; vertical-align: top; }
 .fd-tool-kv td:first-child { color: var(--panel-text-2); white-space: nowrap; font-family: var(--ff-mono); font-size: 11.5px; }
 .fd-msg-tool { padding-left: 4px; }
+
+/* freddie config inline editor */
+.fd-cfg-row { display: grid; grid-template-columns: minmax(220px, 280px) 1fr; gap: 12px; align-items: center; padding: 8px 4px; border-bottom: 1px solid var(--panel-border, rgba(127,127,127,0.15)); }
+.fd-cfg-row:last-child { border-bottom: none; }
+.fd-cfg-label { display: flex; flex-direction: column; gap: 2px; font-weight: 500; }
+.fd-cfg-key { font-family: var(--ff-mono); font-size: 11px; color: var(--panel-text-2); font-weight: 400; }
+.fd-cfg-control { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.fd-cfg-control input, .fd-cfg-control select { padding: 5px 8px; font-family: var(--ff-mono); font-size: 12.5px; min-width: 220px; background: var(--panel-1, transparent); color: var(--panel-text); border: 1px solid var(--panel-border, rgba(127,127,127,0.3)); border-radius: 4px; }
+.fd-cfg-control input:focus, .fd-cfg-control select:focus { outline: 2px solid var(--accent, #FFA500); outline-offset: -1px; }
+.fd-cfg-meta { display: inline-flex; gap: 6px; align-items: center; font-size: 11.5px; }
+.fd-cfg-details { margin-top: 12px; padding: 8px 0; }
+.fd-cfg-details > summary { cursor: pointer; padding: 6px 0; font-weight: 500; user-select: none; }
+.fd-cfg-details > summary:hover { color: var(--accent, #FFA500); }
