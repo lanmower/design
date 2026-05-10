@@ -1,5 +1,6 @@
 
 ## [unreleased]
+- Strip `text-transform: uppercase` from `.kpi-card .lbl` and tighten letter-spacing — the bible forbids all-caps chrome and every freddie route was shouting via the Kpi component. Lowercase the four chat composer labels in `src/components/freddie/pages-chat.js` (working directory / skill / provider / model). Remove `border-bottom` from `.fd-cfg-row` and the static 1px border on `.fd-cfg-control input/select`; replace with tonal zebra (`panel-2` on even rows) and `panel-3` control fill. Loosen `.fd-label` letter-spacing now that labels read lowercase. Witnessed across all 14 freddie dashboard routes.
 - Add base padding (8px 12px), border-radius 10px, Nunito font, and tonal background to bare input elements (text/email/password/search/number) in app-shell.css to match button and textarea styling
 # Changelog
 
