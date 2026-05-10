@@ -73,25 +73,25 @@ export async function chat(h0) {
         Hero({ title: 'chat', body: 'talk to the agent. pick a working dir, optional skill, optional provider.', accent: cs.sessionId ? 'session '+cs.sessionId.slice(0,8) : 'new session' }),
         Panel({ title: 'chat', right: h('button', { class: 'btn-primary', onclick: ev => { ev.preventDefault(); newSession(); } }, '+ new'), children: [
             h('form', { class: 'fd-chat-form', onsubmit: sendChat },
-                h('label', { class: 'fd-label' }, 'WORKING DIRECTORY'),
+                h('label', { class: 'fd-label' }, 'working directory'),
                 h('input', { name: 'cwd', type: 'text', placeholder: 'e.g. C:/dev/myproject', value: cs.cwd, oninput: ev => { cs.cwd = ev.target.value; } }),
                 h('div', { class: 'fd-row' },
                     h('div', { class: 'fd-col' },
-                        h('label', { class: 'fd-label' }, 'SKILL'),
+                        h('label', { class: 'fd-label' }, 'skill'),
                         h('select', { name: 'skill', onchange: ev => { cs.skill = ev.target.value; } },
                             h('option', { value: '' }, '— no skill —'),
                             ...Object.entries(byCat).map(([cat, ss]) => h('optgroup', { label: cat }, ...ss.map(s => h('option', { value: s.name, selected: cs.skill === s.name ? 'true' : null }, skillLabel(s)))))
                         )
                     ),
                     h('div', { class: 'fd-col' },
-                        h('label', { class: 'fd-label' }, 'PROVIDER'),
+                        h('label', { class: 'fd-label' }, 'provider'),
                         h('select', { name: 'provider', onchange: ev => { cs.provider = ev.target.value; } },
                             h('option', { value: '' }, configured.length ? '— auto —' : '— none configured —'),
                             ...configured.map(p => h('option', { value: p.name, selected: cs.provider === p.name ? 'true' : null }, (p.available ? '● ' : '○ ') + p.name))
                         )
                     ),
                     h('div', { class: 'fd-col' },
-                        h('label', { class: 'fd-label' }, 'MODEL'),
+                        h('label', { class: 'fd-label' }, 'model'),
                         h('input', { name: 'model', type: 'text', placeholder: 'default', value: cs.model, oninput: ev => { cs.model = ev.target.value; } })
                     )
                 ),
