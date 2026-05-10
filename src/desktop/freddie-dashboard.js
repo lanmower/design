@@ -46,19 +46,58 @@ function form(opts) {
         h('button', { type: 'submit', class: 'btn-primary' }, submit));
 }
 
+function getRecentPaths() {
+    try { return JSON.parse(localStorage.getItem('fd_recent_cwds') || '[]'); } catch { return []; }
+}
+
+function saveRecentPath(p) {
+    if (!p) return;
+    try {
+        const prev = getRecentPaths().filter(x => x !== p);
+        localStorage.setItem('fd_recent_cwds', JSON.stringify([p, ...prev].slice(0, 5)));
+    } catch {}
+}
+
+function skillLabel(s) {
+    if (s.shortName) return s.shortName;
+    const n = s.name || '';
+    return n.replace(/^gm:/, '').replace(/^software-development$/, 'software dev').replace(/-/g, ' ');
+}
+
+function renderChatMessages(container, messages) {
+    if (!container) return;
+    container.innerHTML = '';
+    for (const m of messages) {
+        if (m.role === 'tool') {
+            const det = document.createElement('details');
+            det.style.cssText = 'margin:4px 0;padding:4px 8px;background:rgba(0,0,0,0.18);border-radius:4px;font-family:monospace;font-size:0.85em;';
+            const sum = document.createElement('summary');
+            sum.style.cssText = 'cursor:pointer;color:var(--color-warn,#fc9);padding:2px 0;';
+            sum.textContent = '⚒ ' + m.name + (m.argsSummary ? ' ' + m.argsSummary : '');
+            det.appendChild(sum);
+            const body = document.createElement('pre');
+            body.style.cssText = 'margin:4px 0 0;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto;';
+            body.textContent = m.content || '';
+            det.appendChild(body);
+            container.appendChild(det);
+        } else {
+            const el = document.createElement('div');
+            el.style.cssText = 'padding:6px 10px;border-bottom:1px solid rgba(128,128,128,0.15);white-space:pre-wrap;word-break:break-word;';
+            el.style.color = m.role === 'assistant' ? 'var(--color-accent,#7c9)' : 'inherit';
+            el.textContent = (m.role === 'assistant' ? '◈ ' : '▷ ') + (m.content || '');
+            container.appendChild(el);
+        }
+    }
+    container.scrollTop = container.scrollHeight;
+}
+
 export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
     const root = document.createElement('div');
     root.className = 'app-fd ds-247420';
     root.style.cssText = 'height:100%;overflow:hidden;display:flex;flex-direction:column;';
 
-    const state = {
-        active: 'home',
-        ts: new Date().toLocaleTimeString(),
-        body: null,
-        error: null,
-    };
+    const state = { active: 'home', ts: new Date().toLocaleTimeString(), body: null, error: null };
     let host = instance.host || null;
-
     const allRoutes = osSurfaces ? [...ROUTES, ...OS_ROUTE_DEFS] : ROUTES;
 
     async function ensureHost() {
@@ -68,10 +107,9 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
         return host;
     }
 
-    function setActive(p) {
-        state.active = p;
-        rerender();
-    }
+    function setActive(p) { state.active = p; rerender(); }
+
+    if (typeof window !== 'undefined') window.__fd_nav = setActive;
 
     function buildSide() {
         const sections = [{
@@ -104,10 +142,7 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
         });
     }
 
-    function rerender() {
-        webjsx.applyDiff(root, view());
-        loadActive();
-    }
+    function rerender() { webjsx.applyDiff(root, view()); loadActive(); }
 
     async function loadActive() {
         try {
@@ -164,10 +199,11 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
                 Hero({ title: 'freddie', body: 'open js agent harness — pi-mono · xstate · floosie · anentrypoint-design.', accent: h0.version || 'web' }),
                 Kpi({ items: [[sessions.length, 'sessions'], [tools, 'tools'], [skills, 'skills']] }),
                 Panel({ title: 'quick start', children: Receipt({ rows: [
-                    ['open chat',   "click 'chat' in sidebar"],
+                    ['open chat',   "click 'chat' in sidebar — set a working directory and pick a skill"],
+                    ['pick skill',  "software dev, research, planning — shown with descriptions"],
+                    ['pick model',  "select a configured provider + model in the chat bar"],
                     ['list tools',  '/tools in chat → tools tab'],
-                    ['list skills', '/skills → skills tab'],
-                    ['set api key', 'keys tab → click chip'],
+                    ['set api key', 'keys tab → click chip to set value'],
                     ['add cron',    'cron tab → form'],
                 ] }) }),
                 Panel({ title: 'host', children: Receipt({ rows: Object.entries(health).map(([k, v]) => [k, String(v)]) }) }),
@@ -175,88 +211,203 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
         },
         async chat(h0) {
             const skills = [...h0.pi.skills.values()];
-            const chatState = window.__fd_chatState = window.__fd_chatState || { cwd: 'C:/dev/penguins', skill: '', messages: [], busy: false };
+            const providers = await fetch('/api/providers').then(r => r.json()).catch(() => []);
+            const configuredProviders = providers.filter(p => p.configured);
 
-            function renderMessages() {
-                const container = root.querySelector('#fd-chat-msgs');
-                if (!container) return;
-                container.innerHTML = '';
-                for (const m of chatState.messages) {
-                    const el = document.createElement('div');
-                    el.style.cssText = 'padding:6px 10px;border-bottom:1px solid rgba(128,128,128,0.15);white-space:pre-wrap;word-break:break-word;';
-                    el.style.color = m.role === 'assistant' ? 'var(--color-accent,#7c9)' : 'inherit';
-                    el.textContent = (m.role === 'assistant' ? '◈ ' : '▷ ') + m.content;
-                    container.appendChild(el);
-                }
-                container.scrollTop = container.scrollHeight;
+            const chatState = window.__fd_chatState = window.__fd_chatState || {
+                cwd: '', skill: '', provider: '', model: '', messages: [], busy: false, sessionId: null,
+            };
+            if (!chatState.cwd) chatState.cwd = (getRecentPaths()[0] || '');
+
+            function getMsgsContainer() { return root.querySelector('#fd-chat-msgs'); }
+
+            function newSession() {
+                if (chatState.busy) return;
+                chatState.messages = [];
+                chatState.sessionId = null;
+                renderChatMessages(getMsgsContainer(), chatState.messages);
             }
 
-            const msgs = h('div', { id: 'fd-chat-msgs', style: 'max-height:360px;overflow-y:auto;background:rgba(0,0,0,0.12);border-radius:4px;padding:4px;' });
+            const parseSseEvents = (text) => {
+                const events = [];
+                let curEvent = null, curData = '';
+                for (const line of text.split('\n')) {
+                    if (line.startsWith('event: ')) { curEvent = line.slice(7).trim(); }
+                    else if (line.startsWith('data: ')) { curData = line.slice(6).trim(); }
+                    else if (line === '' && curEvent) {
+                        try { events.push({ event: curEvent, data: JSON.parse(curData) }); } catch {}
+                        curEvent = null; curData = '';
+                    }
+                }
+                return events;
+            };
 
             const sendChat = async (ev) => {
                 ev.preventDefault();
                 if (chatState.busy) return;
-                const form = ev.target;
-                const promptEl = form.elements.prompt;
+                const promptEl = ev.target.elements.prompt;
                 const prompt = promptEl.value.trim();
                 if (!prompt) return;
                 chatState.messages.push({ role: 'user', content: prompt });
                 promptEl.value = '';
+                promptEl.style.height = 'auto';
                 chatState.busy = true;
-                renderMessages();
+                saveRecentPath(chatState.cwd);
+                renderChatMessages(getMsgsContainer(), chatState.messages);
                 try {
-                    const resp = await fetch('/api/chat', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt, cwd: chatState.cwd, skill: chatState.skill || undefined }) });
+                    const body = { prompt, cwd: chatState.cwd || undefined, skill: chatState.skill || undefined, provider: chatState.provider || undefined, model: chatState.model || undefined, sessionId: chatState.sessionId || undefined };
+                    const resp = await fetch('/api/chat', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
                     const text = await resp.text();
-                    const lines = text.split('\n');
-                    let content = '';
-                    for (const line of lines) {
-                        if (!line.startsWith('data:')) continue;
-                        try {
-                            const d = JSON.parse(line.slice(5).trim());
-                            if (d.result) content = d.result;
-                            if (d.content) content = (content ? content + '\n' : '') + d.content;
-                        } catch {}
+                    const events = parseSseEvents(text);
+                    let assistantContent = '';
+                    for (const { event, data } of events) {
+                        if (event === 'start' && data.sessionId) chatState.sessionId = data.sessionId;
+                        if (event === 'done' && data.sessionId) chatState.sessionId = data.sessionId;
+                        if (event === 'message') {
+                            const role = data.role;
+                            if (role === 'assistant') {
+                                const content = Array.isArray(data.content) ? data.content : [{ type: 'text', text: String(data.content || '') }];
+                                for (const block of content) {
+                                    if (block.type === 'text') assistantContent += block.text;
+                                    if (block.type === 'tool_use') {
+                                        if (assistantContent) { chatState.messages.push({ role: 'assistant', content: assistantContent }); assistantContent = ''; }
+                                        const argsSummary = JSON.stringify(block.input || {}).slice(0, 60);
+                                        chatState.messages.push({ role: 'tool', name: block.name, argsSummary, content: JSON.stringify(block.input || {}, null, 2) });
+                                    }
+                                }
+                            } else if (role === 'tool') {
+                                const tc = Array.isArray(data.content) ? data.content[0] : data;
+                                chatState.messages.push({ role: 'tool', name: 'result', argsSummary: '', content: String(tc?.content || tc?.text || JSON.stringify(tc)) });
+                            }
+                        }
+                        if (event === 'done' && data.result) {
+                            if (!assistantContent) assistantContent = data.result;
+                        }
+                        if (event === 'error') assistantContent = 'error: ' + (data.error || 'unknown');
                     }
-                    if (!content) content = text.slice(0, 500);
-                    chatState.messages.push({ role: 'assistant', content: content || '(no response)' });
+                    if (assistantContent) chatState.messages.push({ role: 'assistant', content: assistantContent });
+                    if (!events.length) chatState.messages.push({ role: 'assistant', content: '(no response)' });
                 } catch (e) {
                     chatState.messages.push({ role: 'assistant', content: 'error: ' + e.message });
                 }
                 chatState.busy = false;
-                renderMessages();
+                renderChatMessages(getMsgsContainer(), chatState.messages);
             };
 
-            setTimeout(renderMessages, 50);
+            const recentPaths = getRecentPaths();
+            const datalistId = 'fd-cwd-list';
+            const byCat = skills.reduce((a, s) => { const c = s.category || 'other'; (a[c] = a[c] || []).push(s); return a; }, {});
+
+            setTimeout(() => renderChatMessages(getMsgsContainer(), chatState.messages), 50);
 
             return [
-                Panel({ title: 'chat', children: [
-                    h('form', { class: 'row-form', style: 'display:flex;flex-direction:column;gap:8px;', onsubmit: sendChat },
-                        h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;' },
-                            h('input', { name: 'cwd', type: 'text', placeholder: 'working directory', value: chatState.cwd, style: 'flex:2;', oninput: (ev) => { chatState.cwd = ev.target.value; } }),
-                            h('select', { name: 'skill', style: 'flex:1;', onchange: (ev) => { chatState.skill = ev.target.value; } },
-                                h('option', { value: '' }, '— no skill —'),
-                                ...skills.map(s => h('option', { value: s.name, selected: chatState.skill === s.name ? 'true' : null }, s.name))
+                Panel({
+                    title: 'chat',
+                    right: h('button', {
+                        class: 'btn-primary', style: 'padding:2px 10px;font-size:0.8em;',
+                        onclick: (ev) => { ev.preventDefault(); newSession(); },
+                        disabled: chatState.busy ? 'true' : null,
+                    }, '+ new session'),
+                    children: [
+                        h('datalist', { id: datalistId }, ...recentPaths.map(p => h('option', { value: p }))),
+                        h('form', { class: 'row-form', style: 'display:flex;flex-direction:column;gap:8px;', onsubmit: sendChat },
+                            h('div', { style: 'display:flex;flex-direction:column;gap:4px;' },
+                                h('label', { style: 'font-size:0.75em;opacity:0.7;letter-spacing:0.05em;' }, 'WORKING DIRECTORY'),
+                                h('input', {
+                                    name: 'cwd', type: 'text', placeholder: 'e.g. C:/dev/myproject or /home/user/project',
+                                    value: chatState.cwd, list: datalistId,
+                                    style: 'width:100%;box-sizing:border-box;',
+                                    oninput: (ev) => { chatState.cwd = ev.target.value; },
+                                })
+                            ),
+                            h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;' },
+                                h('div', { style: 'display:flex;flex-direction:column;gap:4px;flex:2;min-width:160px;' },
+                                    h('label', { style: 'font-size:0.75em;opacity:0.7;letter-spacing:0.05em;' }, 'SKILL'),
+                                    h('select', { name: 'skill', onchange: (ev) => { chatState.skill = ev.target.value; } },
+                                        h('option', { value: '' }, '— no skill —'),
+                                        ...Object.entries(byCat).map(([cat, ss]) =>
+                                            h('optgroup', { label: cat },
+                                                ...ss.map(s => h('option', {
+                                                    value: s.name,
+                                                    selected: chatState.skill === s.name ? 'true' : null,
+                                                    title: s.description || s.name,
+                                                }, skillLabel(s)))
+                                            )
+                                        )
+                                    )
+                                ),
+                                h('div', { style: 'display:flex;flex-direction:column;gap:4px;flex:2;min-width:140px;' },
+                                    h('label', { style: 'font-size:0.75em;opacity:0.7;letter-spacing:0.05em;' }, 'PROVIDER'),
+                                    h('select', { name: 'provider', onchange: (ev) => { chatState.provider = ev.target.value; } },
+                                        h('option', { value: '' }, configuredProviders.length ? '— auto —' : '— no providers configured —'),
+                                        ...configuredProviders.map(p => h('option', {
+                                            value: p.name,
+                                            selected: chatState.provider === p.name ? 'true' : null,
+                                        }, (p.available ? '● ' : '○ ') + p.name))
+                                    )
+                                ),
+                                h('div', { style: 'display:flex;flex-direction:column;gap:4px;flex:2;min-width:120px;' },
+                                    h('label', { style: 'font-size:0.75em;opacity:0.7;letter-spacing:0.05em;' }, 'MODEL (optional)'),
+                                    h('input', {
+                                        name: 'model', type: 'text',
+                                        placeholder: configuredProviders.find(p => p.name === chatState.provider)?.defaultModel || 'default',
+                                        value: chatState.model,
+                                        oninput: (ev) => { chatState.model = ev.target.value; },
+                                    })
+                                )
+                            ),
+                            h('div', { style: 'display:flex;gap:8px;align-items:flex-end;' },
+                                h('textarea', {
+                                    name: 'prompt', placeholder: 'describe what you want to do in the working directory…',
+                                    rows: 4, style: 'flex:1;resize:none;min-height:80px;',
+                                    oninput: (ev) => {
+                                        ev.target.style.height = 'auto';
+                                        ev.target.style.height = Math.min(ev.target.scrollHeight, 240) + 'px';
+                                    },
+                                }),
+                                h('button', {
+                                    type: 'submit', class: 'btn-primary', style: 'align-self:flex-end;',
+                                    disabled: chatState.busy ? 'true' : null,
+                                }, chatState.busy ? '…' : 'send')
                             )
                         ),
-                        h('div', { style: 'display:flex;gap:8px;' },
-                            h('textarea', { name: 'prompt', placeholder: 'send a message…', rows: 3, style: 'flex:1;resize:vertical;' }),
-                            h('button', { type: 'submit', class: 'btn-primary', style: 'align-self:flex-end;', disabled: chatState.busy ? 'true' : null }, chatState.busy ? '…' : 'send')
-                        )
-                    ),
-                    msgs,
-                ] }),
-                Panel({ title: 'cli surface', count: h0.pi.cli.size,
-                    children: Table({ headers: ['command', 'description'], rows: [...h0.pi.cli.values()].map(c => [c.name, c.description || '']) }) }),
+                        h('div', { id: 'fd-chat-msgs', style: 'max-height:420px;overflow-y:auto;background:rgba(0,0,0,0.12);border-radius:4px;padding:4px;margin-top:8px;' }),
+                    ],
+                }),
+                configuredProviders.length === 0
+                    ? Panel({ title: 'no providers configured', children: Receipt({ rows: [
+                        ['set API key', 'go to keys tab, click a provider chip to set its key'],
+                        ['then reload', 'refresh this page to see providers here'],
+                        ['or use acptoapi', 'run acptoapi server on localhost:4800 for local LLMs'],
+                    ] }) })
+                    : Panel({ title: 'configured providers', children: h('div', { style: 'display:flex;flex-wrap:wrap;gap:6px;padding:8px 4px;' },
+                        ...providers.map(p => Chip({ tone: p.configured ? (p.available ? 'ok' : 'warn') : 'miss', children: p.name + (p.configured ? (p.available ? ' ●' : ' ○') : '') }))
+                    ) }),
             ];
         },
         async sessions(h0) {
             const list = await h0.pi.sessions.list();
+            const rows = list.map(s => {
+                const cont = h('button', {
+                    class: 'btn-primary', style: 'padding:2px 8px;font-size:0.8em;',
+                    onclick: async () => {
+                        const msgs = await h0.pi.sessions.getMessages(s.id);
+                        const cs = window.__fd_chatState = window.__fd_chatState || { messages: [], busy: false, sessionId: null, cwd: '', skill: '', provider: '', model: '' };
+                        cs.sessionId = s.id;
+                        cs.messages = msgs.map(m => ({ role: m.role, content: String(m.content || '') }));
+                        if (s.cwd) cs.cwd = s.cwd;
+                        if (s.skill) cs.skill = s.skill;
+                        if (typeof window.__fd_nav === 'function') window.__fd_nav('chat');
+                    },
+                }, 'continue');
+                return [(s.id || '').slice(0, 8), s.title || '—', s.platform || '—', s.model || '—', s.cwd ? s.cwd.slice(-30) : '—', s.skill ? skillLabel({ name: s.skill }) : '—', cont];
+            });
             return [
                 Kpi({ items: [[list.length, 'sessions']] }),
                 Panel({ title: 'recent sessions', count: list.length, children: list.length === 0
-                    ? EmptyState({ text: 'no sessions yet — start a chat', glyph: '✉' })
-                    : Table({ headers: ['id', 'title', 'platform', 'model', 'turns'],
-                        rows: list.map(s => [(s.id || '').slice(0, 8), s.title || '—', s.platform || '—', s.model || '—', s.turn_count || 0]) }) }),
+                    ? EmptyState({ text: 'no sessions yet — open chat and send a message', glyph: '✉' })
+                    : Table({ headers: ['id', 'title', 'platform', 'model', 'cwd', 'skill', ''],
+                        rows }) }),
             ];
         },
         async agents(h0) {
@@ -291,6 +442,7 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
         async models(h0) {
             const cfg = (typeof h0.pi.config?.load === 'function') ? await h0.pi.config.load() : {};
             const agent = cfg.agent || {};
+            const providers = await fetch('/api/providers').then(r => r.json()).catch(() => []);
             return [
                 Kpi({ items: [[agent.provider || '—', 'provider'], [agent.model || '—', 'model']] }),
                 Panel({ title: 'active model', children: Receipt({ rows: [
@@ -309,6 +461,9 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
                         rerender();
                     },
                 }) }),
+                Panel({ title: 'provider availability', children: h('div', { style: 'display:flex;flex-wrap:wrap;gap:6px;padding:8px 4px;' },
+                    ...providers.map(p => Chip({ tone: p.configured ? (p.available ? 'ok' : 'warn') : 'miss', children: p.name + (p.configured ? (p.available ? ' ●' : ' ○') : ' ·') }))
+                ) }),
             ];
         },
         async logs(h0) {
@@ -335,10 +490,11 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
             const byCat = list.reduce((a, s) => { (a[s.category || 'other'] = a[s.category || 'other'] || []).push(s); return a; }, {});
             return [
                 Kpi({ items: [[list.length, 'skills'], [Object.keys(byCat).length, 'categories']] }),
+                list.length === 0 ? EmptyState({ text: 'no skills loaded — add SKILL.md files to ~/.freddie/skills/', glyph: '◈' }) : null,
                 ...Object.entries(byCat).map(([cat, ss]) => Panel({ title: cat, count: ss.length,
                     children: ss.length === 0 ? EmptyState({ text: 'none', glyph: '◈' })
-                        : Table({ headers: ['name', 'description'], rows: ss.map(s => [s.shortName || s.name, (s.description || '').slice(0, 100)]) }) })),
-            ];
+                        : Table({ headers: ['name', 'description'], rows: ss.map(s => [skillLabel(s), (s.description || '').slice(0, 120)]) }) })),
+            ].filter(Boolean);
         },
         async config(h0) {
             const cfg = (typeof h0.pi.config?.load === 'function') ? await h0.pi.config.load() : {};
