@@ -1,6 +1,6 @@
 {
   "name": "anentrypoint-design",
-  "version": "0.0.68",
+  "version": "0.0.69",
   "description": "247420 design system SDK — webjsx + modified ripple-ui, single-file ESM bundle for reproducible use of the AnEntrypoint design.",
   "type": "module",
   "main": "./dist/247420.js",
@@ -24,6 +24,8 @@
     "./desktop/shell.js": "./src/desktop/shell.js",
     "./desktop/freddie-dashboard.js": "./src/desktop/freddie-dashboard.js",
     "./desktop/freddie-dashboard.css": "./src/desktop/freddie-dashboard.css",
+    "./colors_and_type.css": "./colors_and_type.css",
+    "./app-shell.css": "./app-shell.css",
     "./page-html": {
       "import": "./src/page-html.js",
       "default": "./src/page-html.js"
@@ -34,6 +36,8 @@
   "files": [
     "dist",
     "src",
+    "colors_and_type.css",
+    "app-shell.css",
     "README.md"
   ],
   "scripts": {
