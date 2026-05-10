@@ -15,7 +15,7 @@ export function flattenKv(obj, prefix='') {
         const key = prefix ? prefix+'.'+k : k;
         if (v === null || v === undefined) rows.push([key, '—']);
         else if (typeof v === 'object' && !Array.isArray(v)) rows.push(...flattenKv(v, key));
-        else if (Array.isArray(v)) rows.push([key, v.length === 0 ? '[]' : v.map(x => typeof x === 'object' ? '{…}' : String(x)).join(', ')]);
+        else if (Array.isArray(v)) rows.push([key, v.length === 0 ? '—' : v.map(x => typeof x === 'object' ? '{…}' : String(x)).join(', ')]);
         else rows.push([key, String(v)]);
     }
     return rows;

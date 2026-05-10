@@ -1,5 +1,5 @@
 import * as webjsx from '../../../vendor/webjsx/index.js';
-import { Panel, Receipt } from '../content.js';
+import { Panel, Hero, Receipt } from '../content.js';
 import { Chip } from '../shell.js';
 import { skillLabel, getRecentPaths, saveRecentPath, renderChatMessages } from './helpers.js';
 const h = webjsx.createElement;
@@ -71,6 +71,7 @@ export async function chat(h0) {
     const byCat = skills.reduce((a, s) => { const c = s.category || 'other'; (a[c] = a[c] || []).push(s); return a; }, {});
     setTimeout(() => renderChatMessages(getMsgs(), cs.messages), 50);
     return [
+        Hero({ title: 'chat', body: 'talk to the agent. pick a working dir, optional skill, optional provider.', accent: cs.sessionId ? 'session '+cs.sessionId.slice(0,8) : 'new session' }),
         Panel({ title: 'chat', right: h('button', { class: 'btn-primary', onclick: ev => { ev.preventDefault(); newSession(); } }, '+ new'), children: [
             h('form', { class: 'fd-chat-form', onsubmit: sendChat },
                 h('label', { class: 'fd-label' }, 'WORKING DIRECTORY'),

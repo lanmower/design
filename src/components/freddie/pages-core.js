@@ -35,6 +35,7 @@ export async function sessions(h0) {
         return [(s.id||'').slice(0,8), s.title||'—', s.platform||'—', s.model||'—', s.cwd?s.cwd.slice(-30):'—', s.skill?skillLabel({name:s.skill}):'—', cont];
     });
     return [
+        Hero({ title: 'sessions', body: 'every chat turn lives here.', accent: list.length+' total' }),
         Kpi({ items: [[list.length,'sessions']] }),
         Panel({ title: 'sessions', count: list.length, children: list.length === 0 ? EmptyState({ text: 'no sessions yet', glyph: '✉' }) : Table({ headers: ['id','title','platform','model','cwd','skill',''], rows }) })
     ];
@@ -67,6 +68,7 @@ export async function agents(h0) {
     const sList = await h0.pi.sessions.list();
     const recent = sList.slice(0, 10);
     return [
+        Hero({ title: 'agents', body: 'agent state machine snapshot. one xstate per turn.', accent: (a.count||0)+' active' }),
         Kpi({ items: [[a.count||0,'active'],[a.turns||0,'turns'],[sList.length,'total sessions']] }),
         Panel({ title: 'current agent', children: Receipt({ rows: [
             ['active session', a.active || '(none)'],
@@ -94,6 +96,7 @@ export async function analytics(h0) {
         : Table({ headers: ['name','count'], rows: sortDesc(obj) })
     });
     return [
+        Hero({ title: 'analytics', body: 'shape of work — what platforms, what models, what tools.' }),
         Kpi({ items: [[list.length,'sessions'],[tools.length,'tools'],[skills.length,'skills']] }),
         mkPanel('by platform', byPlat, '◉'),
         mkPanel('by model', byModel, '◎'),

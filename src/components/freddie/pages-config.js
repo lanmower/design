@@ -1,5 +1,5 @@
 import * as webjsx from '../../../vendor/webjsx/index.js';
-import { Panel, Row, Receipt, Kpi, Table, Form } from '../content.js';
+import { Panel, Row, Hero, Receipt, Kpi, Table, Form } from '../content.js';
 import { Chip } from '../shell.js';
 import { EmptyState } from '../files.js';
 import { skillLabel, renderConfigSections } from './helpers.js';
@@ -18,15 +18,21 @@ export async function models(h0) {
         }));
         if (typeof window.__fd_nav === 'function') window.__fd_nav('models');
     }
-    const modelPanels = configured.map(p => {
-        const models = Array.isArray(probeState[p.name]) ? probeState[p.name] : p.models;
+    const probedPanels = [];
+    const unprobedRows = [];
+    for (const p of configured) {
+        const ms = Array.isArray(probeState[p.name]) ? probeState[p.name] : p.models;
         const loading = probeState[p.name] === 'loading';
-        const children = loading ? h('span', {}, 'probing…')
-            : models && models.length > 0 ? Table({ headers: ['model id'], rows: models.map(m => [m]) })
-            : h('span', { class: 'fd-muted' }, p.modelsError ? 'error: '+p.modelsError : 'not probed — click "probe all"');
-        return Panel({ title: p.name + (p.available ? ' ●' : ' ○'), children });
-    });
+        if (loading) probedPanels.push(Panel({ title: p.name + ' ⏳', children: h('span', { class: 'fd-muted' }, 'probing…') }));
+        else if (ms && ms.length > 0) probedPanels.push(Panel({ title: p.name + (p.available ? ' ●' : ' ○'), count: ms.length, children: Table({ headers: ['model id'], rows: ms.map(m => [m]) }) }));
+        else unprobedRows.push([p.name, p.available ? 'available' : 'unavailable', p.modelsError ? 'error: '+p.modelsError : 'click "probe all"']);
+    }
+    const modelPanels = [
+        ...probedPanels,
+        unprobedRows.length ? Panel({ title: 'unprobed providers', count: unprobedRows.length, children: Table({ headers: ['provider','status','note'], rows: unprobedRows }) }) : null
+    ].filter(Boolean);
     return [
+        Hero({ title: 'models', body: 'pick a provider, pick a model. probe to list available models.', accent: configured.length+' configured' }),
         Kpi({ items: [[configured.length,'configured'],[providers.filter(p => p.available).length,'available']] }),
         Panel({ title: 'change active model', children: Form({ fields: [
             { name: 'provider', placeholder: 'provider', value: cfg.agent?.provider || '' },
@@ -45,6 +51,7 @@ export async function models(h0) {
 export async function cron(h0) {
     const list = await h0.pi.cron.list();
     return [
+        Hero({ title: 'cron', body: 'scheduled prompts. cron syntax, fired by freddie.', accent: list.length+' jobs' }),
         Kpi({ items: [[list.length,'jobs']] }),
         Panel({ title: 'add job', children: Form({ fields: [
             { name: 'cron', placeholder: '* * * * *', required: true },
@@ -58,6 +65,7 @@ export async function skills(h0) {
     const list = [...h0.pi.skills.values()];
     const byCat = list.reduce((a, s) => { (a[s.category||'other'] = a[s.category||'other'] || []).push(s); return a; }, {});
     return [
+        Hero({ title: 'skills', body: 'SKILL.md bundles loaded from ~/.freddie/skills + plugins.', accent: list.length+' loaded' }),
         Kpi({ items: [[list.length,'skills'],[Object.keys(byCat).length,'categories']] }),
         list.length === 0 ? EmptyState({ text: 'no skills — add SKILL.md files to ~/.freddie/skills/', glyph: '◈' }) : null,
         ...Object.entries(byCat).map(([cat, ss]) => Panel({ title: cat, count: ss.length, children: Table({ headers: ['name','description'], rows: ss.map(s => [skillLabel(s), (s.description||'').slice(0,120)]) }) }))
@@ -68,6 +76,7 @@ export async function config(h0) {
     const cfg = typeof h0.pi.config?.load === 'function' ? await h0.pi.config.load() : {};
     const commands = typeof h0.pi.cli?.values === 'function' ? [...h0.pi.cli.values()] : [];
     return [
+        Hero({ title: 'config', body: 'live ~/.freddie/config.yaml. dotted keys, json or string values.', accent: 'v'+(cfg._config_version||0) }),
         Kpi({ items: [[commands.length,'commands'],[cfg._config_version||0,'config version']] }),
         Panel({ title: 'set config value', children: Form({ fields: [
             { name: 'key', placeholder: 'dotted.key', required: true },
@@ -93,6 +102,7 @@ export async function env(h0) {
     }
     const sortedGroups = Object.entries(groups).sort((a,b) => b[1].length - a[1].length);
     return [
+        Hero({ title: 'keys', body: 'env vars freddie reads. grouped by service prefix. click a chip to set.', accent: setCount+' / '+list.length+' set' }),
         Kpi({ items: [[setCount,'set'],[list.length-setCount,'missing'],[list.length,'total'],[sortedGroups.length,'groups']] }),
         list.length === 0 ? EmptyState({ text: 'no env keys registered', glyph: '⚿' }) : null,
         ...sortedGroups.map(([g, keys]) => {
@@ -109,6 +119,7 @@ export async function tools(h0) {
     const envIsSet = k => typeof h0.pi.env?.isSet === 'function' ? h0.pi.env.isSet(k) : false;
     const bySet = list.reduce((a, t) => { (a[t.toolset||'core'] = a[t.toolset||'core'] || []).push(t); return a; }, {});
     return [
+        Hero({ title: 'tools', body: 'every tool the agent can call. param count + required env per row.', accent: list.length+' tools' }),
         Kpi({ items: [[list.length,'tools'],[Object.keys(bySet).length,'toolsets']] }),
         ...Object.entries(bySet).map(([ts, items]) => Panel({ title: 'toolset · '+ts, count: items.length, children: items.map(t => {
             const params = t.schema?.parameters?.properties ? Object.keys(t.schema.parameters.properties).length : 0;
@@ -143,6 +154,7 @@ export async function batch(h0) {
         : results.length === 0 ? Panel({ title: 'results', children: EmptyState({ text: 'no results yet', glyph: '⊞' }) })
         : Panel({ title: 'results', count: results.length, children: Table({ headers: ['#','prompt','result','status'], rows: results.map((it, i) => [String(i+1), (it.prompt||'').slice(0,60), (it.result||it.error||'').slice(0,120), it.error ? 'error' : 'ok']) }) });
     return [
+        Hero({ title: 'batch', body: 'run many prompts in parallel. one per line.', accent: results.length ? results.length+' results' : 'idle' }),
         Panel({ title: 'run batch', children: Form({ fields: [
             { name: 'prompts', kind: 'textarea', placeholder: 'one prompt per line', rows: 6 },
             { name: 'concurrency', type: 'number', value: '4' }
@@ -156,6 +168,7 @@ export async function gateway(h0) {
     const active = platforms.filter(p => p.enabled);
     const envIsSet = k => typeof h0.pi.env?.isSet === 'function' ? h0.pi.env.isSet(k) : false;
     return [
+        Hero({ title: 'gateway', body: 'webhook + bot platforms. each adapter declares required env keys.', accent: active.length+' / '+platforms.length+' active' }),
         Kpi({ items: [[platforms.length,'platforms'],[active.length,'active']] }),
         Panel({ title: 'platforms', count: platforms.length, right: active.length > 0 ? Chip({ tone: 'ok', children: active.length+' active' }) : Chip({ tone: 'miss', children: 'none active' }),
             children: platforms.length === 0 ? EmptyState({ text: 'no platforms registered', glyph: '⇌' }) : platforms.map(p => {

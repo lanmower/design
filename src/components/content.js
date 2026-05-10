@@ -139,7 +139,7 @@ export function Table({ headers = [], rows = [], onRowClick, emptyText = 'no row
         h('tbody', {}, ...rows.map((row, i) => h('tr', {
             class: onRowClick ? 'clickable' : '',
             onclick: onRowClick ? () => onRowClick(i) : null
-        }, ...row.map(c => h('td', {}, c == null ? '' : String(c)))))));
+        }, ...row.map(c => h('td', {}, c == null ? '' : (typeof c === 'object' ? c : String(c))))))));
 }
 
 export function Section({ title, children }) {
