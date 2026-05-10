@@ -174,9 +174,77 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
             ];
         },
         async chat(h0) {
-            try { if (typeof window !== 'undefined' && window.__debug?.shell?.openApp) window.__debug.shell.openApp('chat'); } catch {}
+            const skills = [...h0.pi.skills.values()];
+            const chatState = window.__fd_chatState = window.__fd_chatState || { cwd: 'C:/dev/penguins', skill: '', messages: [], busy: false };
+
+            function renderMessages() {
+                const container = root.querySelector('#fd-chat-msgs');
+                if (!container) return;
+                container.innerHTML = '';
+                for (const m of chatState.messages) {
+                    const el = document.createElement('div');
+                    el.style.cssText = 'padding:6px 10px;border-bottom:1px solid rgba(128,128,128,0.15);white-space:pre-wrap;word-break:break-word;';
+                    el.style.color = m.role === 'assistant' ? 'var(--color-accent,#7c9)' : 'inherit';
+                    el.textContent = (m.role === 'assistant' ? '◈ ' : '▷ ') + m.content;
+                    container.appendChild(el);
+                }
+                container.scrollTop = container.scrollHeight;
+            }
+
+            const msgs = h('div', { id: 'fd-chat-msgs', style: 'max-height:360px;overflow-y:auto;background:rgba(0,0,0,0.12);border-radius:4px;padding:4px;' });
+
+            const sendChat = async (ev) => {
+                ev.preventDefault();
+                if (chatState.busy) return;
+                const form = ev.target;
+                const promptEl = form.elements.prompt;
+                const prompt = promptEl.value.trim();
+                if (!prompt) return;
+                chatState.messages.push({ role: 'user', content: prompt });
+                promptEl.value = '';
+                chatState.busy = true;
+                renderMessages();
+                try {
+                    const resp = await fetch('/api/chat', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt, cwd: chatState.cwd, skill: chatState.skill || undefined }) });
+                    const text = await resp.text();
+                    const lines = text.split('\n');
+                    let content = '';
+                    for (const line of lines) {
+                        if (!line.startsWith('data:')) continue;
+                        try {
+                            const d = JSON.parse(line.slice(5).trim());
+                            if (d.result) content = d.result;
+                            if (d.content) content = (content ? content + '\n' : '') + d.content;
+                        } catch {}
+                    }
+                    if (!content) content = text.slice(0, 500);
+                    chatState.messages.push({ role: 'assistant', content: content || '(no response)' });
+                } catch (e) {
+                    chatState.messages.push({ role: 'assistant', content: 'error: ' + e.message });
+                }
+                chatState.busy = false;
+                renderMessages();
+            };
+
+            setTimeout(renderMessages, 50);
+
             return [
-                Panel({ title: 'chat', children: EmptyState({ text: 'opening chat window — chat lives in its own thebird app.', glyph: '⌨' }) }),
+                Panel({ title: 'chat', children: [
+                    h('form', { class: 'row-form', style: 'display:flex;flex-direction:column;gap:8px;', onsubmit: sendChat },
+                        h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;' },
+                            h('input', { name: 'cwd', type: 'text', placeholder: 'working directory', value: chatState.cwd, style: 'flex:2;', oninput: (ev) => { chatState.cwd = ev.target.value; } }),
+                            h('select', { name: 'skill', style: 'flex:1;', onchange: (ev) => { chatState.skill = ev.target.value; } },
+                                h('option', { value: '' }, '— no skill —'),
+                                ...skills.map(s => h('option', { value: s.name, selected: chatState.skill === s.name ? 'true' : null }, s.name))
+                            )
+                        ),
+                        h('div', { style: 'display:flex;gap:8px;' },
+                            h('textarea', { name: 'prompt', placeholder: 'send a message…', rows: 3, style: 'flex:1;resize:vertical;' }),
+                            h('button', { type: 'submit', class: 'btn-primary', style: 'align-self:flex-end;', disabled: chatState.busy ? 'true' : null }, chatState.busy ? '…' : 'send')
+                        )
+                    ),
+                    msgs,
+                ] }),
                 Panel({ title: 'cli surface', count: h0.pi.cli.size,
                     children: Table({ headers: ['command', 'description'], rows: [...h0.pi.cli.values()].map(c => [c.name, c.description || '']) }) }),
             ];
