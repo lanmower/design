@@ -31,3 +31,16 @@ export {
     ConfirmDialog, PromptDialog,
     FilePreviewMedia, FilePreviewCode, FilePreviewText, FileViewer
 } from './components/files-modals.js';
+
+export {
+    ServerIcon, ServerRail,
+    ChannelItem, ChannelCategory,
+    VoiceUser, UserPanel, ChannelSidebar,
+    MemberItem, MemberList,
+    ChatHeader, VoiceStrip, CommunityShell
+} from './components/community.js';
+
+export {
+    home, chat, sessions, projects, agents, analytics, models, cron, skills, config, env, tools, batch, gateway,
+    skillLabel, getRecentPaths, saveRecentPath, renderChatMessages, FREDDIE_PAGES
+} from './components/freddie.js';
