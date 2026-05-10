@@ -49,6 +49,7 @@ export {
 };
 export const h = webjsx.createElement;
 export const applyDiff = webjsx.applyDiff;
+export { FREDDIE_PAGES, home, chat, sessions, projects, agents, analytics, models, cron, skills, config, env, tools, batch, gateway, skillLabel, getRecentPaths, saveRecentPath, renderChatMessages } from './components.js';
 export default {
     webjsx, loadCss, scope, installStyles, mount, h, applyDiff,
     registerDeckStage, getDeckStage, components, motion, debug, mountKit,
