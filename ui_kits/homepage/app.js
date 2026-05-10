@@ -1,4 +1,5 @@
 import * as webjsx from 'webjsx';
+import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
 
 const state = { route: 'works', opened: 0 };
@@ -164,9 +165,5 @@ function App() {
     );
 }
 
-function render() {
-    ensureMotion();
-    webjsx.applyDiff(root, App());
-    requestAnimationFrame(() => animateAll(root));
-}
-render();
+const kit = mountKit({ root, view: App, screen: '01 Homepage' });
+function render() { kit.schedule(); }
