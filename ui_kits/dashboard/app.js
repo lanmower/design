@@ -6,10 +6,10 @@ const h = webjsx.createElement;
 const root = document.getElementById('root');
 
 const kpis = [
-    { label: 'requests', value: '24,891', delta: '+12.4%', meta: 'last 24h' },
-    { label: 'avg latency', value: '184ms', delta: '-8ms', meta: 'p50' },
-    { label: 'error rate', value: '0.42%', delta: '-0.06%', meta: '5xx + 4xx' },
-    { label: 'cache hit', value: '94.7%', delta: '+1.2%', meta: 'edge' }
+    ['24,891', 'requests · 24h'],
+    ['184ms',  'avg latency · p50'],
+    ['0.42%',  'error rate · 5xx+4xx'],
+    ['94.7%',  'cache hit · edge']
 ];
 
 const tableHeaders = ['endpoint', 'rps', 'p95', 'errors', 'status'];
@@ -31,9 +31,9 @@ const receipt = [
 ];
 
 const changelog = [
-    { v: 'v0.4.12', date: '2026-05-10', notes: ['fix homepage kit motion ref', 'add dashboard kit', 'tune panel shadows'] },
-    { v: 'v0.4.11', date: '2026-05-09', notes: ['cache warmup on cold start', 'lower retry interval'] },
-    { v: 'v0.4.10', date: '2026-05-07', notes: ['migrate session store', 'add p99 to /metrics'] }
+    { date: '2026-05-10', ver: 'v0.4.12', msg: 'fix homepage kit motion ref · add dashboard kit · tune panel shadows' },
+    { date: '2026-05-09', ver: 'v0.4.11', msg: 'cache warmup on cold start · lower retry interval' },
+    { date: '2026-05-07', ver: 'v0.4.10', msg: 'migrate session store · add p99 to /metrics' }
 ];
 
 const events = [
