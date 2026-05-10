@@ -38,6 +38,7 @@
   "files": [
     "dist",
     "src",
+    "vendor/webjsx",
     "colors_and_type.css",
     "app-shell.css",
     "README.md"
