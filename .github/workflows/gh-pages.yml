@@ -27,7 +27,7 @@ jobs:
             [ -d "$d" ] && cp -R "$d" dist/ || true
           done
           # Copy static root files
-          for f in app.html app-shell.css colors_and_type.css favicon.svg robots.txt sitemap.xml .nojekyll; do
+          for f in app.html os-gui-demo.html app-shell.css colors_and_type.css favicon.svg robots.txt sitemap.xml .nojekyll; do
             [ -e "$f" ] && cp -f "$f" dist/ || true
           done
       - uses: actions/configure-pages@v5

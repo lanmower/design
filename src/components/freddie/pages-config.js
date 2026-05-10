@@ -25,7 +25,7 @@ export async function models(h0) {
         const loading = probeState[p.name] === 'loading';
         if (loading) probedPanels.push(Panel({ title: p.name + ' ⏳', children: h('span', { class: 'fd-muted' }, 'probing…') }));
         else if (ms && ms.length > 0) probedPanels.push(Panel({ title: p.name + (p.available ? ' ●' : ' ○'), count: ms.length, children: Table({ headers: ['model id'], rows: ms.map(m => [m]) }) }));
-        else unprobedRows.push([p.name, p.available ? 'available' : 'unavailable', p.modelsError ? 'error: '+p.modelsError : 'click "probe all"']);
+        else unprobedRows.push([p.name, p.available ? 'available' : 'unavailable', p.modelsError ? 'error: '+p.modelsError : '—']);
     }
     const modelPanels = [
         ...probedPanels,
@@ -33,7 +33,7 @@ export async function models(h0) {
     ].filter(Boolean);
     return [
         Hero({ title: 'models', body: 'pick a provider, pick a model. probe to list available models.', accent: configured.length+' configured' }),
-        Kpi({ items: [[configured.length,'configured'],[providers.filter(p => p.available).length,'available']] }),
+        Kpi({ items: [[configured.length,'configured'],[probedPanels.length,'probed'],[providers.length-configured.length,'unconfigured']] }),
         Panel({ title: 'change active model', children: Form({ fields: [
             { name: 'provider', placeholder: 'provider', value: cfg.agent?.provider || '' },
             { name: 'model', placeholder: 'model id', value: cfg.agent?.model || '' }
@@ -52,12 +52,19 @@ export async function cron(h0) {
     const list = await h0.pi.cron.list();
     return [
         Hero({ title: 'cron', body: 'scheduled prompts. cron syntax, fired by freddie.', accent: list.length+' jobs' }),
-        Kpi({ items: [[list.length,'jobs']] }),
+        Kpi({ items: [[list.length,'jobs'],[list.filter(j => j.enabled).length,'enabled']] }),
         Panel({ title: 'add job', children: Form({ fields: [
-            { name: 'cron', placeholder: '* * * * *', required: true },
-            { name: 'prompt', placeholder: 'prompt', required: true }
-        ], submit: 'create', onSubmit: async ev => { await h0.pi.cron.create({ cron: ev.target.elements.cron.value, prompt: ev.target.elements.prompt.value }); } }) }),
-        Panel({ title: 'jobs', count: list.length, children: list.length === 0 ? EmptyState({ text: 'no cron jobs', glyph: '◷' }) : Table({ headers: ['id','cron','prompt','enabled'], rows: list.map(j => [j.id, j.cron, (j.prompt||'').slice(0,40), j.enabled ? 'yes' : 'no']) }) })
+            { name: 'cron', placeholder: '0 * * * *  (m h dom mon dow)', required: true },
+            { name: 'prompt', placeholder: 'prompt to run', required: true }
+        ], submit: 'create', onSubmit: async ev => { await h0.pi.cron.create({ cron: ev.target.elements.cron.value, prompt: ev.target.elements.prompt.value }); if (typeof window.__fd_nav === 'function') window.__fd_nav('cron'); } }) }),
+        Panel({ title: 'cron syntax', children: Receipt({ rows: [
+            ['every minute', '* * * * *'],
+            ['every hour (top)', '0 * * * *'],
+            ['daily 09:00', '0 9 * * *'],
+            ['weekdays 18:00', '0 18 * * 1-5'],
+            ['every 15 min', '*/15 * * * *']
+        ] }) }),
+        Panel({ title: 'jobs', count: list.length, children: list.length === 0 ? EmptyState({ text: 'no cron jobs — add one with the form above', glyph: '◷' }) : Table({ headers: ['id','cron','prompt','enabled'], rows: list.map(j => [j.id, j.cron, (j.prompt||'').slice(0,40), j.enabled ? 'yes' : 'no']) }) })
     ];
 }
 
@@ -117,10 +124,15 @@ export async function env(h0) {
 export async function tools(h0) {
     const list = [...h0.pi.tools.values()];
     const envIsSet = k => typeof h0.pi.env?.isSet === 'function' ? h0.pi.env.isSet(k) : false;
-    const bySet = list.reduce((a, t) => { (a[t.toolset||'core'] = a[t.toolset||'core'] || []).push(t); return a; }, {});
+    const f = window.__fd_toolFilter = window.__fd_toolFilter || { q: '' };
+    const q = (f.q || '').toLowerCase();
+    const filtered = q ? list.filter(t => (t.name||'').toLowerCase().includes(q) || (t.description||'').toLowerCase().includes(q) || (t.toolset||'').toLowerCase().includes(q)) : list;
+    const bySet = filtered.reduce((a, t) => { (a[t.toolset||'core'] = a[t.toolset||'core'] || []).push(t); return a; }, {});
+    const search = h('input', { type: 'search', placeholder: 'filter tools…', value: f.q, oninput: ev => { f.q = ev.target.value; if (typeof window.__fd_nav === 'function') window.__fd_nav('tools'); }, class: 'fd-search' });
     return [
         Hero({ title: 'tools', body: 'every tool the agent can call. param count + required env per row.', accent: list.length+' tools' }),
-        Kpi({ items: [[list.length,'tools'],[Object.keys(bySet).length,'toolsets']] }),
+        Kpi({ items: [[list.length,'tools'],[filtered.length,'shown'],[Object.keys(bySet).length,'toolsets']] }),
+        Panel({ title: 'filter', right: search, children: filtered.length === 0 ? EmptyState({ text: 'no matches for "'+f.q+'"', glyph: '⌕' }) : h('span', { class: 'fd-muted' }, filtered.length+' / '+list.length+' tools shown') }),
         ...Object.entries(bySet).map(([ts, items]) => Panel({ title: 'toolset · '+ts, count: items.length, children: items.map(t => {
             const params = t.schema?.parameters?.properties ? Object.keys(t.schema.parameters.properties).length : 0;
             const reqEnv = Array.isArray(t.requiresEnv) ? t.requiresEnv : [];

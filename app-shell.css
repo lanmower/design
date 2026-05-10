@@ -1986,6 +1986,9 @@ tr.clickable:hover td { background: var(--panel-hover); }
 .fd-col { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 120px; }
 .fd-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 4px; }
 .fd-chip-wrap { cursor: pointer; }
+.fd-search { background: var(--panel-2); border: 0; border-radius: 8px; padding: 4px 10px; font: inherit; font-size: 12.5px; color: var(--panel-text); min-width: 220px; }
+.fd-search:focus { outline: 2px solid var(--panel-accent); outline-offset: 1px; }
+.fd-muted { color: var(--panel-text-2); font-size: 12.5px; }
 .fd-chat-thread { max-height: 50vh; overflow-y: auto; border-radius: 10px; padding: 4px; margin-top: 8px; background: rgba(0,0,0,0.08); }
 .fd-msg { padding: 6px 10px; border-bottom: 1px solid rgba(128,128,128,0.1); white-space: pre-wrap; word-break: break-word; }
 .fd-msg-assistant { opacity: 0.9; }

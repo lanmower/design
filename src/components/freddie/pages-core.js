@@ -7,6 +7,11 @@ const h = webjsx.createElement;
 export async function home(h0) {
     const sessions = await h0.pi.sessions.list();
     const health = h0.pi.health();
+    const fmt = (k, v) => {
+        if (k === 'ts' && typeof v === 'number') { const d = new Date(v); return d.toISOString().replace('T', ' ').slice(0, 19) + ' UTC'; }
+        if (typeof v === 'boolean') return v ? '✓' : '✗';
+        return String(v);
+    };
     return [
         Hero({ title: 'freddie', body: 'open js agent harness.', accent: h0.version || 'web' }),
         Kpi({ items: [[sessions.length,'sessions'],[h0.pi.tools.size,'tools'],[h0.pi.skills.size,'skills']] }),
@@ -16,13 +21,16 @@ export async function home(h0) {
             ['set api key','keys tab → click chip'],
             ['add cron','cron tab → form']
         ] }) }),
-        Panel({ title: 'host', children: Receipt({ rows: Object.entries(health).map(([k,v]) => [k, String(v)]) }) })
+        Panel({ title: 'system status', children: Receipt({ rows: Object.entries(health).map(([k,v]) => [k, fmt(k, v)]) }) })
     ];
 }
 
 export async function sessions(h0) {
     const list = await h0.pi.sessions.list();
-    const rows = list.map(s => {
+    const f = window.__fd_sessFilter = window.__fd_sessFilter || { q: '' };
+    const q = (f.q || '').toLowerCase();
+    const filtered = q ? list.filter(s => (s.title||'').toLowerCase().includes(q) || (s.id||'').includes(q) || (s.platform||'').toLowerCase().includes(q) || (s.cwd||'').toLowerCase().includes(q)) : list;
+    const rows = filtered.map(s => {
         const cont = h('button', { class: 'btn-primary', onclick: async () => {
             const msgs = await h0.pi.sessions.getMessages(s.id);
             const cs = window.__fd_chatState = window.__fd_chatState || { messages: [], busy: false, sessionId: null, cwd: '', skill: '', provider: '', model: '' };
@@ -34,10 +42,11 @@ export async function sessions(h0) {
         } }, 'continue');
         return [(s.id||'').slice(0,8), s.title||'—', s.platform||'—', s.model||'—', s.cwd?s.cwd.slice(-30):'—', s.skill?skillLabel({name:s.skill}):'—', cont];
     });
+    const search = h('input', { type: 'search', placeholder: 'filter by title / id / platform / cwd…', value: f.q, oninput: ev => { f.q = ev.target.value; if (typeof window.__fd_nav === 'function') window.__fd_nav('sessions'); }, class: 'fd-search' });
     return [
         Hero({ title: 'sessions', body: 'every chat turn lives here.', accent: list.length+' total' }),
-        Kpi({ items: [[list.length,'sessions']] }),
-        Panel({ title: 'sessions', count: list.length, children: list.length === 0 ? EmptyState({ text: 'no sessions yet', glyph: '✉' }) : Table({ headers: ['id','title','platform','model','cwd','skill',''], rows }) })
+        Kpi({ items: [[list.length,'sessions'],[filtered.length,'shown']] }),
+        Panel({ title: 'sessions', count: filtered.length, right: search, children: list.length === 0 ? EmptyState({ text: 'no sessions yet — start one in /chat', glyph: '✉' }) : filtered.length === 0 ? EmptyState({ text: 'no matches for "'+f.q+'"', glyph: '⌕' }) : Table({ headers: ['id','title','platform','model','cwd','skill',''], rows }) })
     ];
 }
 
@@ -67,16 +76,19 @@ export async function agents(h0) {
     const a = typeof h0.pi.agents === 'function' ? await h0.pi.agents() : { count: 0, turns: 0, active: null };
     const sList = await h0.pi.sessions.list();
     const recent = sList.slice(0, 10);
+    const idle = !a.count;
     return [
-        Hero({ title: 'agents', body: 'agent state machine snapshot. one xstate per turn.', accent: (a.count||0)+' active' }),
-        Kpi({ items: [[a.count||0,'active'],[a.turns||0,'turns'],[sList.length,'total sessions']] }),
-        Panel({ title: 'current agent', children: Receipt({ rows: [
-            ['active session', a.active || '(none)'],
-            ['total turns', String(a.turns || 0)],
-            ['count', String(a.count || 0)]
-        ] }) }),
+        Hero({ title: 'agents', body: 'agent state machine snapshot. one xstate per turn.', accent: idle ? 'idle' : (a.count+' active') }),
+        Kpi({ items: [[a.count||0,'active'],[a.turns||0,'turns total'],[sList.length,'sessions in store']] }),
+        idle
+            ? Panel({ title: 'no agent running', children: EmptyState({ text: 'start an agent by sending a prompt in /chat', glyph: '◌' }) })
+            : Panel({ title: 'current agent', children: Receipt({ rows: [
+                ['active session', a.active || '(none)'],
+                ['total turns', String(a.turns || 0)],
+                ['last activity', a.last_activity ? new Date(a.last_activity).toISOString().replace('T',' ').slice(0,19)+' UTC' : '—']
+            ] }) }),
         Panel({ title: 'recent sessions', count: recent.length, children: recent.length === 0
-            ? EmptyState({ text: 'no recent sessions', glyph: '◈' })
+            ? EmptyState({ text: 'no recent sessions', glyph: '✉' })
             : Table({ headers: ['id','title','platform','turns'], rows: recent.map(s => [(s.id||'').slice(0,8), s.title||'—', s.platform||'—', String(s.turns ?? s.message_count ?? '—')]) })
         })
     ];
@@ -86,8 +98,8 @@ export async function analytics(h0) {
     const list = await h0.pi.sessions.list();
     const tools = [...h0.pi.tools.values()];
     const skills = [...h0.pi.skills.values()];
-    const byPlat = list.reduce((a,s) => { const k = s.platform||'?'; a[k] = (a[k]||0)+1; return a; }, {});
-    const byModel = list.reduce((a,s) => { const k = s.model||'?'; a[k] = (a[k]||0)+1; return a; }, {});
+    const byPlat = list.reduce((a,s) => { const k = s.platform||'(unset)'; a[k] = (a[k]||0)+1; return a; }, {});
+    const byModel = list.reduce((a,s) => { const k = s.model||'(unset)'; a[k] = (a[k]||0)+1; return a; }, {});
     const byToolset = tools.reduce((a,t) => { const k = t.toolset||'core'; a[k] = (a[k]||0)+1; return a; }, {});
     const bySkillCat = skills.reduce((a,s) => { const k = s.category||'other'; a[k] = (a[k]||0)+1; return a; }, {});
     const sortDesc = obj => Object.entries(obj).sort((a,b) => b[1]-a[1]).map(([k,v]) => [k, String(v)]);

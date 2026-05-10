@@ -1,6 +1,5 @@
 import * as webjsx from '../../../vendor/webjsx/index.js';
 import { Panel, Hero, Receipt } from '../content.js';
-import { Chip } from '../shell.js';
 import { skillLabel, getRecentPaths, saveRecentPath, renderChatMessages } from './helpers.js';
 const h = webjsx.createElement;
 
@@ -105,6 +104,6 @@ export async function chat(h0) {
         ] }),
         configured.length === 0
             ? Panel({ title: 'no providers configured', children: Receipt({ rows: [['set API key', 'keys tab → click chip'], ['or use acptoapi', 'run acptoapi server on localhost:4800']] }) })
-            : Panel({ title: 'providers', children: h('div', { class: 'fd-chips' }, ...providers.map(p => Chip({ tone: p.configured ? (p.available ? 'ok' : 'warn') : 'miss', children: p.name + (p.configured ? (p.available ? ' ●' : ' ○') : '') }))) })
+            : null
     ];
 }
