@@ -19,6 +19,7 @@
     "./desktop/theme.css": "./src/desktop/theme.css",
     "./desktop/wm.css": "./src/desktop/wm.css",
     "./desktop/wm.js": "./src/desktop/wm.js",
+    "./desktop/launcher.js": "./src/desktop/launcher.js",
     "./desktop/launcher.css": "./src/desktop/launcher.css",
     "./desktop/validate.css": "./src/desktop/validate.css",
     "./desktop/icons.js": "./src/desktop/icons.js",
