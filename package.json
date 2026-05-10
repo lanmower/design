@@ -31,6 +31,8 @@
       "default": "./src/page-html.js"
     },
     "./src/page-html.js": "./src/page-html.js",
+    "./web-components/ds-chat.js": "./src/web-components/ds-chat.js",
+    "./web-components/freddie-chat.js": "./src/web-components/freddie-chat.js",
     "./package.json": "./package.json"
   },
   "files": [
