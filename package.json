@@ -29,6 +29,10 @@
     "./desktop/files-app.js": "./src/desktop/files-app.js",
     "./desktop/monitor-app.js": "./src/desktop/monitor-app.js",
     "./desktop/about-app.js": "./src/desktop/about-app.js",
+    "./desktop/terminal-app.js": "./src/desktop/terminal-app.js",
+    "./desktop/browser-app.js": "./src/desktop/browser-app.js",
+    "./desktop/validator-app.js": "./src/desktop/validator-app.js",
+    "./desktop/app-panes.css": "./src/desktop/app-panes.css",
     "./colors_and_type.css": "./colors_and_type.css",
     "./app-shell.css": "./app-shell.css",
     "./page-html": {

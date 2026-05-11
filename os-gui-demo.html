@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="./src/desktop/wm.css" />
   <link rel="stylesheet" href="./src/desktop/launcher.css" />
   <link rel="stylesheet" href="./src/desktop/freddie-dashboard.css" />
+  <link rel="stylesheet" href="./src/desktop/app-panes.css" />
   <link rel="stylesheet" href="./app-shell.css" />
   <style>
     html, body { margin:0; padding:0; height:100%; background:var(--panel-0,#FBF6EB); color:var(--ink,#1F1B16); font-family:var(--ff-ui,Nunito,system-ui,sans-serif); }
@@ -40,6 +41,9 @@ import { renderWindow } from './src/desktop/wm.js';
 import { renderDock } from './src/desktop/launcher.js';
 import { renderFilesApp } from './src/desktop/files-app.js';
 import { renderMonitorApp } from './src/desktop/monitor-app.js';
+import { renderTerminal } from './src/desktop/terminal-app.js';
+import { renderBrowserPane } from './src/desktop/browser-app.js';
+import { renderValidator } from './src/desktop/validator-app.js';
 import { createFreddieDashboard } from './src/desktop/freddie-dashboard.js';
 import './src/web-components/freddie-chat.js';
 
@@ -179,6 +183,32 @@ const registry = {
     }) },
     { id:'files',     name:'files',     icon:'',  defaultSize:{ w:480, h:340 }, factory: () => renderFilesApp({ list: mockFs.list, readFile: mockFs.readFile, label:'demo-1', pollMs:0 }) },
     { id:'monitor',   name:'monitor',   icon:'',  defaultSize:{ w:360, h:220 }, factory: () => renderMonitorApp({ getStats: () => ({ instanceId:'demo-1', frames:60, shells:1, windows:4, appsRegistered:4, jsHeapMb:12.4, jsHeapLimitMb:2048, time:new Date().toLocaleTimeString() }), pollMs:1000 }) },
+    { id:'terminal',  name:'terminal',  icon:'',  defaultSize:{ w:560, h:340 }, factory: () => {
+        const t = renderTerminal({ title:'demo-1:term', statusText:'mock — no xterm wired' });
+        // Mock terminal content (no xterm in demo)
+        const pre = document.createElement('pre');
+        pre.style.cssText = 'margin:0;padding:8px;font:12px var(--os-mono,monospace);color:var(--os-fg);white-space:pre-wrap;';
+        pre.textContent = '$ ls -la\ndrwxr-xr-x  3 user user  96 May 11 10:00 .\ndrwxr-xr-x 11 user user 352 May 11 09:58 ..\n-rw-r--r--  1 user user 128 May 11 10:00 notes.md\n$ ';
+        t.slot.appendChild(pre);
+        return t;
+    } },
+    { id:'browser',   name:'browser',   icon:'',  defaultSize:{ w:640, h:420 }, factory: () => {
+        const b = renderBrowserPane({ initialUrl:'about:blank', callbacks:{ onNavigate: u => alert('demo: would navigate to ' + u), onReload: () => alert('demo: reload'), onBack: () => alert('demo: back'), onForward: () => alert('demo: forward') } });
+        const iframe = document.createElement('iframe');
+        iframe.style.cssText = 'border:none;width:100%;height:100%;background:var(--os-bg-0);';
+        iframe.srcdoc = '<html><body style="font-family:Nunito,sans-serif;padding:16px;"><h2>demo iframe</h2><p>browser-app chrome paints; consumer supplies the iframe.</p></body></html>';
+        b.slot.appendChild(iframe);
+        b.setStatus('ready');
+        return b;
+    } },
+    { id:'validator', name:'validator', icon:'',  defaultSize:{ w:520, h:380 }, factory: () => {
+        const v = renderValidator({ results:{ allGreen:true, passed:124, total:124, ms:12800 }, callbacks:{ onRerun: () => alert('demo: rerun') } });
+        const stub = document.createElement('div');
+        stub.style.cssText = 'padding:16px;font-family:var(--os-mono,monospace);font-size:11px;color:var(--os-fg-2);';
+        stub.textContent = 'demo validator slot — consumer mounts iframe to /validate.html in production.';
+        v.slot.appendChild(stub);
+        return v;
+    } },
   ],
   get: (id) => registry.list().find(a => a.id === id),
 };
@@ -206,6 +236,9 @@ shell.openApp('chat');
 shell.openApp('freddie');
 shell.openApp('files');
 shell.openApp('monitor');
+shell.openApp('terminal');
+shell.openApp('browser');
+shell.openApp('validator');
 
 // --- Self-test ---
 setTimeout(() => {
@@ -219,6 +252,9 @@ setTimeout(() => {
     at_least_3_windows:    document.querySelectorAll('.wm-win').length >= 3,
     freddie_chat_defined:  !!customElements.get('freddie-chat'),
     dock_two_buttons:      document.querySelectorAll('.launcher-instances .launcher-btn[data-role="select"]').length === 2,
+    terminal_app_present:  !!document.querySelector('[data-component="terminal-app"]'),
+    browser_app_present:   !!document.querySelector('[data-component="browser-app"]'),
+    validator_app_present: !!document.querySelector('[data-component="validator-app"]'),
   };
   const passed = Object.values(checks).filter(Boolean).length;
   const total  = Object.keys(checks).length;
