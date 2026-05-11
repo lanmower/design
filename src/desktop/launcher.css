@@ -41,4 +41,21 @@
 }
 .launcher-add { font-size: 20px; }
 
+.launcher-instances {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.launcher-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.launcher-close { font-size: 11px; opacity: 0.7; width: 20px; height: 20px; }
+.launcher-close:hover { opacity: 1; }
+
 .launcher-dock + .wm-root { left: 56px !important; }

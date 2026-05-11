@@ -19,10 +19,6 @@ export function renderDock(opts = {}) {
 
     const instancesHost = document.createElement('div');
     instancesHost.className = 'launcher-instances';
-    instancesHost.style.display = 'flex';
-    instancesHost.style.flexDirection = 'column';
-    instancesHost.style.gap = '8px';
-    instancesHost.style.alignItems = 'center';
     el.appendChild(instancesHost);
 
     root.appendChild(el);
@@ -41,10 +37,6 @@ export function renderDock(opts = {}) {
             const row = document.createElement('div');
             row.className = 'launcher-row';
             row.dataset.instanceId = inst.id;
-            row.style.display = 'flex';
-            row.style.flexDirection = 'column';
-            row.style.gap = '2px';
-            row.style.alignItems = 'center';
 
             const selBtn = document.createElement('button');
             selBtn.className = 'launcher-btn';
