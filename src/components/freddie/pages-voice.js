@@ -76,10 +76,11 @@ export async function voice(h0) {
                 ),
                 lines.length === 0 && !s.partial
                     ? EmptyState({ text: s.listening ? 'listening — speak into your mic' : 'press start to capture speech', glyph: '◌' })
-                    : h('div', { class: 'fd-voice-log', role: 'log', 'aria-live': 'polite' },
-                        ...lines.map((it, i) => h('div', { key: i, class: 'fd-voice-line' },
-                            h('span', { class: 'fd-voice-ts' }, new Date(it.ts).toLocaleTimeString()),
-                            h('span', { class: 'fd-voice-text' }, it.text))))
+                    : h('div', { class: 'fd-list', role: 'log', 'aria-live': 'polite' },
+                        ...lines.map((it, i) => h('div', { key: i, class: 'fd-list-row', 'data-cat': 'doc' },
+                            h('span', { class: 'fd-list-code' }, new Date(it.ts).toLocaleTimeString().slice(0,8)),
+                            h('div', { class: 'fd-list-main' }, h('div', { class: 'fd-list-title' }, it.text))
+                        )))
             ] });
 
     const ttsPanel = !ttsSupported

@@ -1,5 +1,5 @@
 import * as webjsx from '../../../vendor/webjsx/index.js';
-import { Panel, Row, Hero, Receipt, Kpi, Table, Form } from '../content.js';
+import { Panel, Hero, Receipt, Kpi, Table, Form } from '../content.js';
 import { Chip } from '../shell.js';
 import { EmptyState } from '../files.js';
 import { skillLabel } from './helpers.js';
@@ -24,7 +24,10 @@ export async function models(h0) {
         const ms = Array.isArray(probeState[p.name]) ? probeState[p.name] : p.models;
         const loading = probeState[p.name] === 'loading';
         if (loading) probedPanels.push(Panel({ title: p.name + ' ⏳', children: h('span', { class: 'fd-muted' }, 'probing…') }));
-        else if (ms && ms.length > 0) probedPanels.push(Panel({ title: p.name + (p.available ? ' ●' : ' ○'), count: ms.length, children: Table({ headers: ['model id'], rows: ms.map(m => [m]) }) }));
+        else if (ms && ms.length > 0) probedPanels.push(Panel({ title: p.name + (p.available ? ' ●' : ' ○'), count: ms.length, children: h('div', { class: 'fd-list fd-list-compact' }, ...ms.map((m, i) => h('div', { key: m, class: 'fd-list-row', 'data-cat': 'preview' },
+            h('span', { class: 'fd-list-code' }, String(i+1).padStart(2,'0')),
+            h('div', { class: 'fd-list-main' }, h('div', { class: 'fd-list-title fd-mono' }, m))
+        ))) }));
         else unprobedRows.push([p.name, p.available ? 'available' : 'unavailable', p.modelsError ? 'error: '+p.modelsError : '—']);
     }
     const modelPanels = [
@@ -64,7 +67,16 @@ export async function cron(h0) {
             ['weekdays 18:00', '0 18 * * 1-5'],
             ['every 15 min', '*/15 * * * *']
         ] }) }),
-        Panel({ title: 'jobs', count: list.length, children: list.length === 0 ? EmptyState({ text: 'no cron jobs — add one with the form above', glyph: '◷' }) : Table({ headers: ['id','cron','prompt','enabled'], rows: list.map(j => [j.id, j.cron, (j.prompt||'').slice(0,40), j.enabled ? 'yes' : 'no']) }) })
+        Panel({ title: 'jobs', count: list.length, children: list.length === 0
+            ? EmptyState({ text: 'no cron jobs — add one with the form above', glyph: '◷' })
+            : h('div', { class: 'fd-list' }, ...list.map(j => h('div', { key: j.id, class: 'fd-list-row', 'data-cat': j.enabled ? 'kit' : 'external' },
+                h('span', { class: 'fd-list-code' }, j.enabled ? '●' : '○'),
+                h('div', { class: 'fd-list-main' },
+                    h('div', { class: 'fd-list-title' }, (j.prompt||'(no prompt)').slice(0,80)),
+                    h('div', { class: 'fd-list-sub' }, j.cron + ' · ' + j.id)
+                ),
+                h('div', { class: 'fd-list-meta' }, h('span', { class: 'fd-list-meta-mono' }, j.enabled ? 'enabled' : 'disabled'))
+            ))) })
     ];
 }
 
@@ -75,7 +87,13 @@ export async function skills(h0) {
         Hero({ title: 'skills', body: 'SKILL.md bundles loaded from ~/.freddie/skills + plugins.', accent: list.length+' loaded' }),
         Kpi({ items: [[list.length,'skills'],[Object.keys(byCat).length,'categories']] }),
         list.length === 0 ? EmptyState({ text: 'no skills — add SKILL.md files to ~/.freddie/skills/', glyph: '◈' }) : null,
-        ...Object.entries(byCat).map(([cat, ss]) => Panel({ title: cat, count: ss.length, children: Table({ headers: ['name','description'], rows: ss.map(s => [skillLabel(s), (s.description||'').slice(0,120)]) }) }))
+        ...Object.entries(byCat).map(([cat, ss]) => Panel({ title: cat, count: ss.length, children: h('div', { class: 'fd-list' }, ...ss.map((s, i) => h('div', { key: s.name, class: 'fd-list-row', 'data-cat': cat === 'creative' ? 'preview' : cat === 'software-development' ? 'kit' : cat === 'planning' ? 'doc' : cat === 'ops' ? 'external' : 'doc' },
+            h('span', { class: 'fd-list-code' }, String(i+1).padStart(2,'0')),
+            h('div', { class: 'fd-list-main' },
+                h('div', { class: 'fd-list-title' }, skillLabel(s)),
+                s.description ? h('div', { class: 'fd-list-sub' }, (s.description||'').slice(0,140)) : null
+            )
+        ))) }))
     ].filter(Boolean);
 }
 
@@ -114,62 +132,20 @@ export async function tools(h0) {
         Hero({ title: 'tools', body: 'every tool the agent can call. param count + required env per row.', accent: list.length+' tools' }),
         Kpi({ items: [[list.length,'tools'],[filtered.length,'shown'],[Object.keys(bySet).length,'toolsets']] }),
         Panel({ title: 'filter', right: search, children: filtered.length === 0 ? EmptyState({ text: 'no matches for "'+f.q+'"', glyph: '⌕' }) : h('span', { class: 'fd-muted' }, filtered.length+' / '+list.length+' tools shown') }),
-        ...Object.entries(bySet).map(([ts, items]) => Panel({ title: 'toolset · '+ts, count: items.length, children: items.map(t => {
+        ...Object.entries(bySet).map(([ts, items]) => Panel({ title: 'toolset · '+ts, count: items.length, children: h('div', { class: 'fd-list' }, ...items.map(t => {
             const params = t.schema?.parameters?.properties ? Object.keys(t.schema.parameters.properties).length : 0;
             const reqEnv = Array.isArray(t.requiresEnv) ? t.requiresEnv : [];
-            const meta = h('span', { class: 'fd-tool-meta' },
-                params > 0 ? Chip({ tone: 'neutral', children: params+' params' }) : null,
-                ...reqEnv.map(k => Chip({ tone: envIsSet(k) ? 'ok' : 'miss', children: k }))
-            );
-            return Row({ key: t.name, code: '⚒', title: t.name, sub: (t.description || (t.schema && t.schema.description) || '').slice(0,80), meta });
-        }) }))
+            return h('div', { key: t.name, class: 'fd-list-row', 'data-cat': 'kit' },
+                h('span', { class: 'fd-list-code' }, '⚒'),
+                h('div', { class: 'fd-list-main' },
+                    h('div', { class: 'fd-list-title fd-mono' }, t.name),
+                    h('div', { class: 'fd-list-sub' }, (t.description || (t.schema && t.schema.description) || '').slice(0,120))
+                ),
+                h('div', { class: 'fd-list-meta' },
+                    params > 0 ? Chip({ tone: 'neutral', children: params+' params' }) : null,
+                    ...reqEnv.map(k => Chip({ tone: envIsSet(k) ? 'ok' : 'miss', children: k }))
+                ));
+        })) }))
     ];
 }
 
-export async function batch(h0) {
-    const results = window.__fd_batchResults = window.__fd_batchResults || [];
-    const status = window.__fd_batchStatus = window.__fd_batchStatus || { running: false, error: null };
-    const onSubmit = async ev => {
-        const prompts = ev.target.elements.prompts.value.split('\n').map(s => s.trim()).filter(Boolean);
-        if (!prompts.length) return;
-        status.running = true; status.error = null; window.__fd_batchResults = [];
-        if (typeof window.__fd_nav === 'function') window.__fd_nav('batch');
-        try {
-            const r = await h0.pi.batch.run(prompts, Number(ev.target.elements.concurrency.value) || 4);
-            const arr = Array.isArray(r) ? r : (r && typeof r === 'object' ? Object.entries(r).map(([k, v]) => ({ prompt: k, result: v })) : []);
-            window.__fd_batchResults = arr;
-        } catch (e) { status.error = e.message || String(e); }
-        status.running = false;
-        if (typeof window.__fd_nav === 'function') window.__fd_nav('batch');
-    };
-    const resPanel = status.running ? Panel({ title: 'results', children: h('span', {}, 'running…') })
-        : status.error ? Panel({ title: 'results', children: h('span', { class: 'fd-muted' }, 'error: '+status.error) })
-        : results.length === 0 ? Panel({ title: 'results', children: EmptyState({ text: 'no results yet', glyph: '⊞' }) })
-        : Panel({ title: 'results', count: results.length, children: Table({ headers: ['#','prompt','result','status'], rows: results.map((it, i) => [String(i+1), (it.prompt||'').slice(0,60), (it.result||it.error||'').slice(0,120), it.error ? 'error' : 'ok']) }) });
-    return [
-        Hero({ title: 'batch', body: 'run many prompts in parallel. one per line.', accent: results.length ? results.length+' results' : 'idle' }),
-        Panel({ title: 'run batch', children: Form({ fields: [
-            { name: 'prompts', kind: 'textarea', placeholder: 'one prompt per line', rows: 6 },
-            { name: 'concurrency', type: 'number', value: '4' }
-        ], submit: 'run', onSubmit }) }),
-        resPanel
-    ];
-}
-
-export async function gateway(h0) {
-    const platforms = typeof h0.pi.gateway?.platforms === 'function' ? h0.pi.gateway.platforms() : [];
-    const active = platforms.filter(p => p.enabled);
-    const envIsSet = k => typeof h0.pi.env?.isSet === 'function' ? h0.pi.env.isSet(k) : false;
-    return [
-        Hero({ title: 'gateway', body: 'webhook + bot platforms. each adapter declares required env keys.', accent: active.length+' / '+platforms.length+' active' }),
-        Kpi({ items: [[platforms.length,'platforms'],[active.length,'active']] }),
-        Panel({ title: 'platforms', count: platforms.length, right: active.length > 0 ? Chip({ tone: 'ok', children: active.length+' active' }) : Chip({ tone: 'miss', children: 'none active' }),
-            children: platforms.length === 0 ? EmptyState({ text: 'no platforms registered', glyph: '⇌' }) : platforms.map(p => {
-                const reqEnv = Array.isArray(p.requiresEnv) ? p.requiresEnv : [];
-                const setN = reqEnv.filter(envIsSet).length;
-                const envSummary = reqEnv.length === 0 ? '' : setN === reqEnv.length ? '✓ env ready' : 'missing '+(reqEnv.length-setN)+' / '+reqEnv.length;
-                return Row({ key: p.name, code: p.enabled ? '●' : '○', title: p.name, sub: p.note || '', meta: [p.enabled ? 'enabled' : '', envSummary].filter(Boolean).join(' · ') });
-            })
-        })
-    ];
-}
