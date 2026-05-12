@@ -19,6 +19,8 @@ export async function chat(h0) {
     const configured = providers.filter(p => p.configured);
     const v1Models = await fetch('/v1/models').then(r => r.json()).then(j => j.data || []).catch(() => []);
     const cached = await fetch('/api/models/cached').then(r => r.json()).catch(() => ({}));
+    const sampler = await fetch('/api/models/sampler').then(r => r.json()).catch(() => ({ status: {} }));
+    (function() { const reg = window.__fd_modelPickers = window.__fd_modelPickers || {}; reg['chat.model'] = { key: 'chat.model', modelCount: v1Models.length, mountedAt: Date.now() }; window.__debug = window.__debug || {}; window.__debug.modelPickers = () => Object.values(window.__fd_modelPickers || {}); })();
     const cs = window.__fd_chatState = window.__fd_chatState || { cwd: '', skill: '', provider: '', model: '', messages: [], busy: false, sessionId: null };
     try { const last = localStorage.getItem('fd-chat-model'); if (last && !cs.model) cs.model = last } catch {}
     if (!cs.cwd) cs.cwd = (getRecentPaths()[0] || '');
@@ -95,10 +97,15 @@ export async function chat(h0) {
                     ),
                     h('div', { class: 'fd-col' },
                         h('label', { class: 'fd-label' }, 'model · ' + v1Models.length + ' available'),
-                        h('select', { name: 'model', onchange: ev => { cs.model = ev.target.value; try { localStorage.setItem('fd-chat-model', cs.model) } catch {} } },
-                            h('option', { value: '' }, '— auto —'),
-                            ...v1Models.map(m => h('option', { value: m.id, selected: cs.model === m.id ? 'true' : null }, m.id))
-                        )
+                        (function() {
+                            const samplerStatus = sampler && sampler.status ? sampler.status : {};
+                            const isUnavail = id => { const s = samplerStatus[id]; return s && s.available === false; };
+                            const grouped = v1Models.reduce((a, m) => { const idx = String(m.id || '').indexOf('/'); const g = idx > 0 ? m.id.slice(0, idx) : (m.owned_by || 'other'); (a[g] = a[g] || []).push(m); return a; }, {});
+                            return h('select', { name: 'model', onchange: ev => { cs.model = ev.target.value; try { localStorage.setItem('fd-chat-model', cs.model) } catch {} } },
+                                h('option', { value: '' }, '— auto —'),
+                                ...Object.entries(grouped).map(([g, ms]) => h('optgroup', { label: g + ' · ' + ms.length },
+                                    ...ms.map(m => h('option', { value: m.id, selected: cs.model === m.id ? 'true' : null, disabled: isUnavail(m.id) ? 'true' : null }, m.id + (isUnavail(m.id) ? ' ✕' : ''))))));
+                        })()
                     )
                 ),
                 h('div', { class: 'fd-chat-send-row' },

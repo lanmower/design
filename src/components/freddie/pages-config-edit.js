@@ -9,7 +9,7 @@ const KNOWN_FIELDS = [
     { key: 'display.tool_progress_command', label: 'tool progress command', kind: 'bool' },
     { key: 'display.background_process_notifications', label: 'bg notifications', kind: 'enum', options: ['all','errors','none'] },
     { key: 'agent.provider', label: 'agent provider', kind: 'string' },
-    { key: 'agent.model', label: 'agent model', kind: 'string' },
+    { key: 'agent.model', label: 'agent model', kind: 'modelDropdown' },
     { key: 'agent.max_iterations', label: 'max iterations', kind: 'number' },
     { key: 'agent.fallback_model', label: 'fallback model', kind: 'string', nullable: true },
     { key: 'agent.save_trajectories', label: 'save trajectories', kind: 'bool' },
@@ -21,6 +21,15 @@ const KNOWN_FIELDS = [
 
 function getDot(o, p) { return p.split('.').reduce((c, k) => (c && k in c) ? c[k] : undefined, o); }
 
+function registerPicker(key, modelCount) {
+    const reg = window.__fd_modelPickers = window.__fd_modelPickers || {};
+    reg[key] = { key, modelCount, mountedAt: Date.now() };
+    if (typeof window !== 'undefined') {
+        window.__debug = window.__debug || {};
+        window.__debug.modelPickers = () => Object.values(window.__fd_modelPickers || {});
+    }
+}
+
 function commit(h0, key, value) {
     const prev = window.__fd_cfg_status = window.__fd_cfg_status || {};
     prev[key] = 'saving…';
@@ -31,10 +40,20 @@ function commit(h0, key, value) {
 
 function rerender() { if (typeof window.__fd_nav === 'function') window.__fd_nav('config'); }
 
-function editor(field, cur, defVal, h0, skins) {
+function editor(field, cur, defVal, h0, skins, v1Models, sampler) {
     const status = (window.__fd_cfg_status || {})[field.key];
     let control;
-    if (field.kind === 'skin') {
+    if (field.kind === 'modelDropdown') {
+        const models = Array.isArray(v1Models) ? v1Models : [];
+        const grouped = models.reduce((a, m) => { const idx = String(m.id || '').indexOf('/'); const g = idx > 0 ? m.id.slice(0, idx) : (m.owned_by || 'other'); (a[g] = a[g] || []).push(m); return a; }, {});
+        const samplerStatus = sampler && sampler.status ? sampler.status : {};
+        const isUnavailable = id => { const s = samplerStatus[id]; return s && s.available === false; };
+        control = h('select', { onchange: ev => commit(h0, field.key, ev.target.value === '' && field.nullable ? null : ev.target.value) },
+            h('option', { value: '', selected: !cur ? 'true' : null }, '— auto —'),
+            ...Object.entries(grouped).map(([g, ms]) => h('optgroup', { label: g + ' · ' + ms.length },
+                ...ms.map(m => h('option', { value: m.id, selected: cur === m.id ? 'true' : null, disabled: isUnavailable(m.id) ? 'true' : null }, m.id + (isUnavailable(m.id) ? ' ✕' : ''))))));
+        registerPicker(field.key, models.length);
+    } else if (field.kind === 'skin') {
         const list = skins.length ? skins : ['default'];
         control = h('select', { onchange: ev => commit(h0, field.key, ev.target.value) },
             ...list.map(s => h('option', { value: s, selected: s === cur ? 'true' : null }, s)));
@@ -119,9 +138,11 @@ export async function config(h0) {
     const skins = await fetch('/api/skins').then(r => r.json()).catch(() => ['default']);
     const provInfo = await fetch('/api/models/providers').then(r => r.json()).catch(() => ({ providers: [] }));
     const cached = await fetch('/api/models/cached').then(r => r.json()).catch(() => ({}));
+    const v1Models = await fetch('/v1/models').then(r => r.json()).then(j => j.data || []).catch(() => []);
+    const sampler = await fetch('/api/models/sampler').then(r => r.json()).catch(() => ({ status: {} }));
     const commands = typeof h0.pi.cli?.values === 'function' ? [...h0.pi.cli.values()] : [];
     const settingsPanel = Panel({ title: 'settings', count: KNOWN_FIELDS.length,
-        children: KNOWN_FIELDS.filter(f => f.key !== 'agent.model_preference').map(f => editor(f, getDot(cfg, f.key), getDot(defaults, f.key), h0, skins)) });
+        children: KNOWN_FIELDS.filter(f => f.key !== 'agent.model_preference').map(f => editor(f, getDot(cfg, f.key), getDot(defaults, f.key), h0, skins, v1Models, sampler)) });
     const prefPanel = modelPrefPanel(h0, cfg, provInfo.providers || [], cached || {});
     const rawForm = Panel({ title: 'set arbitrary key (power-user)', children: Form({ fields: [
         { name: 'key', placeholder: 'dotted.key', required: true },

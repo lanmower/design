@@ -9,6 +9,22 @@ export async function models(h0) {
     const cfg = typeof h0.pi.config?.load === 'function' ? await h0.pi.config.load() : {};
     const providers = await fetch('/api/providers').then(r => r.json()).catch(() => []);
     const configured = providers.filter(p => p.configured);
+    const queues = await fetch('/api/models/queues').then(r => r.json()).catch(() => ({}));
+    const sampler = await fetch('/api/models/sampler').then(r => r.json()).catch(() => ({ status: {} }));
+    const v1Models = await fetch('/v1/models').then(r => r.json()).then(j => j.data || []).catch(() => []);
+    const pref = Array.isArray(cfg.agent?.model_preference) ? cfg.agent.model_preference.slice() : [];
+    window.__debug = window.__debug || {};
+    window.__debug.models = () => ({ providers, queues, ranking: pref, sampler: sampler.status || {}, v1Models: v1Models.length });
+    const samplerStatus = sampler.status || {};
+    const samplerEntries = Object.entries(samplerStatus);
+    const samplerOk = samplerEntries.filter(([, s]) => s && s.available !== false).length;
+    const samplerBad = samplerEntries.length - samplerOk;
+    const saveAndNav = async (next) => { await h0.pi.config.saveValue('agent.model_preference', next); if (typeof window.__fd_nav === 'function') window.__fd_nav('models'); };
+    const movePref = (idx, dir) => { const j = idx + dir; if (j < 0 || j >= pref.length) return; const t = pref[idx]; pref[idx] = pref[j]; pref[j] = t; saveAndNav(pref); };
+    const delPref = idx => { pref.splice(idx, 1); saveAndNav(pref); };
+    const onDragStart = (idx, ev) => { ev.dataTransfer.setData('text/plain', String(idx)); ev.dataTransfer.effectAllowed = 'move'; };
+    const onDragOver = ev => { ev.preventDefault(); ev.dataTransfer.dropEffect = 'move'; };
+    const onDrop = (target, ev) => { ev.preventDefault(); const src = Number(ev.dataTransfer.getData('text/plain')); if (!Number.isFinite(src) || src === target) return; const item = pref.splice(src, 1)[0]; pref.splice(target, 0, item); saveAndNav(pref); };
     const probeState = window.__fd_probeState = window.__fd_probeState || {};
     async function probeAll() {
         await Promise.allSettled(configured.map(async p => {
@@ -34,9 +50,34 @@ export async function models(h0) {
         ...probedPanels,
         unprobedRows.length ? Panel({ title: 'unprobed providers', count: unprobedRows.length, children: Table({ headers: ['provider','status','note'], rows: unprobedRows }) }) : null
     ].filter(Boolean);
+    const samplerTile = Panel({ title: 'sampler status', count: samplerEntries.length,
+        right: h('span', {}, Chip({ tone: 'ok', children: samplerOk + ' ok' }), ' ', Chip({ tone: samplerBad > 0 ? 'miss' : 'neutral', children: samplerBad + ' down' })),
+        children: samplerEntries.length === 0
+            ? h('span', { class: 'fd-muted' }, 'no sampler entries yet — probe a provider to populate')
+            : h('div', { class: 'fd-list fd-list-compact' }, ...samplerEntries.map(([k, s]) => h('div', { key: k, class: 'fd-list-row', 'data-cat': s.available === false ? 'external' : 'kit' },
+                h('span', { class: 'fd-list-code' }, s.available === false ? '✕' : '●'),
+                h('div', { class: 'fd-list-main' }, h('div', { class: 'fd-list-title fd-mono' }, k), h('div', { class: 'fd-list-sub' }, JSON.stringify(s).slice(0, 120)))))) });
+    const prefTile = Panel({ title: 'model preference (drag to reorder)', count: pref.length,
+        right: h('button', { class: 'btn', onclick: ev => { ev.preventDefault(); pref.push({ provider: '', model: '' }); saveAndNav(pref); } }, '+ add'),
+        children: pref.length === 0
+            ? h('span', { class: 'fd-muted' }, 'no preference — edit on config page or add a row above')
+            : h('div', { class: 'fd-list' }, ...pref.map((p, i) => h('div', {
+                key: 'p'+i, class: 'fd-list-row', 'data-cat': 'kit', draggable: 'true',
+                ondragstart: ev => onDragStart(i, ev), ondragover: onDragOver, ondrop: ev => onDrop(i, ev), style: 'cursor:move'
+            },
+                h('span', { class: 'fd-list-code' }, '⋮⋮'),
+                h('div', { class: 'fd-list-main' }, h('div', { class: 'fd-list-title fd-mono' }, '#' + (i+1) + ' ' + (p.provider || '?') + (p.model ? ' / ' + p.model : '')),
+                    h('div', { class: 'fd-list-sub' }, 'drag, or use arrows')),
+                h('div', { class: 'fd-list-meta' },
+                    h('button', { class: 'btn', onclick: ev => { ev.preventDefault(); movePref(i, -1); } }, '↑'),
+                    h('button', { class: 'btn', onclick: ev => { ev.preventDefault(); movePref(i, 1); } }, '↓'),
+                    h('button', { class: 'btn', onclick: ev => { ev.preventDefault(); delPref(i); } }, '✕')))))
+    });
     return [
-        Hero({ title: 'models', body: 'pick a provider, pick a model. probe to list available models.', accent: configured.length+' configured' }),
-        Kpi({ items: [[configured.length,'configured'],[probedPanels.length,'probed'],[providers.length-configured.length,'unconfigured']] }),
+        Hero({ title: 'models', body: 'pick a provider, pick a model. probe to list available models.', accent: configured.length+' configured · ' + v1Models.length + ' models' }),
+        Kpi({ items: [[configured.length,'configured'],[probedPanels.length,'probed'],[providers.length-configured.length,'unconfigured'],[v1Models.length,'/v1/models']] }),
+        samplerTile,
+        prefTile,
         Panel({ title: 'change active model', children: Form({ fields: [
             { name: 'provider', placeholder: 'provider', value: cfg.agent?.provider || '' },
             { name: 'model', placeholder: 'model id', value: cfg.agent?.model || '' }
