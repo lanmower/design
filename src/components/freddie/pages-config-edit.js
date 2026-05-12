@@ -65,13 +65,64 @@ function editor(field, cur, defVal, h0, skins) {
         h('div', { class: 'fd-cfg-control' }, control, meta));
 }
 
+function prefRow(h0, idx, pref, providers, cached, total) {
+    const provider = pref.provider || '';
+    const model = pref.model || '';
+    const models = (cached[provider] && cached[provider].models) || [];
+    const onProv = ev => { const list = getPrefList(); list[idx] = { ...list[idx], provider: ev.target.value, model: '' }; commit(h0, 'agent.model_preference', list); };
+    const onModel = ev => { const list = getPrefList(); list[idx] = { ...list[idx], model: ev.target.value }; commit(h0, 'agent.model_preference', list); };
+    const onMove = dir => { const list = getPrefList(); const j = idx + dir; if (j < 0 || j >= list.length) return; const t = list[idx]; list[idx] = list[j]; list[j] = t; commit(h0, 'agent.model_preference', list); };
+    const onDel = () => { const list = getPrefList(); list.splice(idx, 1); commit(h0, 'agent.model_preference', list); };
+    return h('div', { class: 'fd-cfg-row', key: 'pref-' + idx, 'data-idx': idx },
+        h('label', { class: 'fd-cfg-label' }, '#' + (idx+1) + ' / ' + total),
+        h('div', { class: 'fd-cfg-control' },
+            h('select', { onchange: onProv },
+                h('option', { value: '' }, '(select provider)'),
+                ...providers.map(p => h('option', { value: p, selected: p === provider ? 'true' : null }, p))),
+            models.length > 0
+                ? h('select', { onchange: onModel },
+                    h('option', { value: '' }, '(any/default)'),
+                    ...models.map(m => h('option', { value: m, selected: m === model ? 'true' : null }, m)))
+                : h('input', { type: 'text', placeholder: 'model (run discover for dropdown)', value: model, onchange: onModel }),
+            h('button', { class: 'btn', onclick: ev => { ev.preventDefault(); onMove(-1); } }, '↑'),
+            h('button', { class: 'btn', onclick: ev => { ev.preventDefault(); onMove(1); } }, '↓'),
+            h('button', { class: 'btn', onclick: ev => { ev.preventDefault(); onDel(); } }, '✕')));
+}
+
+function getPrefList() {
+    return (window.__fd_cfg_pref || []).slice();
+}
+
+function modelPrefPanel(h0, cfg, providers, cached) {
+    const list = Array.isArray(cfg?.agent?.model_preference) ? cfg.agent.model_preference : [];
+    window.__fd_cfg_pref = list.slice();
+    const rows = list.map((p, i) => prefRow(h0, i, p, providers, cached, list.length));
+    const addBtn = h('button', { class: 'btn-primary', onclick: ev => { ev.preventDefault(); const next = getPrefList(); next.push({ provider: '', model: '' }); commit(h0, 'agent.model_preference', next); } }, '+ add row');
+    const discoverBtn = h('button', { class: 'btn', onclick: async ev => {
+        ev.preventDefault();
+        (window.__fd_cfg_status = window.__fd_cfg_status || {})['agent.discovered_models'] = 'discovering…'; rerender();
+        try { await fetch('/api/models/discover', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' }); window.__fd_cfg_status['agent.discovered_models'] = 'discovered ✓'; }
+        catch (e) { window.__fd_cfg_status['agent.discovered_models'] = 'err: ' + (e.message || e); }
+        rerender();
+    } }, 'discover models');
+    const status = (window.__fd_cfg_status || {})['agent.discovered_models'];
+    return Panel({ title: 'model preference (ordered fallback chain)', count: list.length,
+        right: h('span', {}, discoverBtn, ' ', addBtn, status ? Chip({ tone: status.startsWith('err') ? 'miss' : status === 'discovered ✓' ? 'ok' : 'warn', children: status }) : null),
+        children: list.length === 0
+            ? h('div', { class: 'fd-muted' }, 'no preferences — first available provider key will be used. add a row to override.')
+            : h('div', { class: 'fd-cfg-prefs' }, ...rows) });
+}
+
 export async function config(h0) {
     const cfg = typeof h0.pi.config?.load === 'function' ? await h0.pi.config.load() : {};
     const defaults = await fetch('/api/config/defaults').then(r => r.json()).catch(() => ({}));
     const skins = await fetch('/api/skins').then(r => r.json()).catch(() => ['default']);
+    const provInfo = await fetch('/api/models/providers').then(r => r.json()).catch(() => ({ providers: [] }));
+    const cached = await fetch('/api/models/cached').then(r => r.json()).catch(() => ({}));
     const commands = typeof h0.pi.cli?.values === 'function' ? [...h0.pi.cli.values()] : [];
     const settingsPanel = Panel({ title: 'settings', count: KNOWN_FIELDS.length,
-        children: KNOWN_FIELDS.map(f => editor(f, getDot(cfg, f.key), getDot(defaults, f.key), h0, skins)) });
+        children: KNOWN_FIELDS.filter(f => f.key !== 'agent.model_preference').map(f => editor(f, getDot(cfg, f.key), getDot(defaults, f.key), h0, skins)) });
+    const prefPanel = modelPrefPanel(h0, cfg, provInfo.providers || [], cached || {});
     const rawForm = Panel({ title: 'set arbitrary key (power-user)', children: Form({ fields: [
         { name: 'key', placeholder: 'dotted.key', required: true },
         { name: 'value', placeholder: 'value (json or string)', required: true }
@@ -89,8 +140,9 @@ export async function config(h0) {
         Table({ headers: ['name','description'], rows: commands.map(c => [c.name, c.description||'']) }));
     return [
         Hero({ title: 'config', body: 'inline editors for known keys. raw setter is the fallback.', accent: 'v'+(cfg._config_version||0) }),
-        Kpi({ items: [[KNOWN_FIELDS.length,'editable'],[commands.length,'commands'],[cfg._config_version||0,'version'],[skins.length,'skins']] }),
+        Kpi({ items: [[KNOWN_FIELDS.length,'editable'],[(cfg?.agent?.model_preference||[]).length,'pref-rows'],[commands.length,'commands'],[cfg._config_version||0,'version']] }),
         settingsPanel,
+        prefPanel,
         rawForm,
         allRaw,
         cmds,
