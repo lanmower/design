@@ -17,7 +17,10 @@ export async function chat(h0) {
     const skills = [...h0.pi.skills.values()];
     const providers = await fetch('/api/providers').then(r => r.json()).catch(() => []);
     const configured = providers.filter(p => p.configured);
+    const v1Models = await fetch('/v1/models').then(r => r.json()).then(j => j.data || []).catch(() => []);
+    const cached = await fetch('/api/models/cached').then(r => r.json()).catch(() => ({}));
     const cs = window.__fd_chatState = window.__fd_chatState || { cwd: '', skill: '', provider: '', model: '', messages: [], busy: false, sessionId: null };
+    try { const last = localStorage.getItem('fd-chat-model'); if (last && !cs.model) cs.model = last } catch {}
     if (!cs.cwd) cs.cwd = (getRecentPaths()[0] || '');
     const root = document.getElementById('app');
     const getMsgs = () => root.querySelector('#fd-chat-msgs');
@@ -91,8 +94,11 @@ export async function chat(h0) {
                         )
                     ),
                     h('div', { class: 'fd-col' },
-                        h('label', { class: 'fd-label' }, 'model'),
-                        h('input', { name: 'model', type: 'text', placeholder: 'default', value: cs.model, oninput: ev => { cs.model = ev.target.value; } })
+                        h('label', { class: 'fd-label' }, 'model · ' + v1Models.length + ' available'),
+                        h('select', { name: 'model', onchange: ev => { cs.model = ev.target.value; try { localStorage.setItem('fd-chat-model', cs.model) } catch {} } },
+                            h('option', { value: '' }, '— auto —'),
+                            ...v1Models.map(m => h('option', { value: m.id, selected: cs.model === m.id ? 'true' : null }, m.id))
+                        )
                     )
                 ),
                 h('div', { class: 'fd-chat-send-row' },
