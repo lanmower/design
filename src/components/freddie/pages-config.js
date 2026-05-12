@@ -57,10 +57,11 @@ export async function models(h0) {
             : h('div', { class: 'fd-list fd-list-compact' }, ...samplerEntries.map(([k, s]) => h('div', { key: k, class: 'fd-list-row', 'data-cat': s.available === false ? 'external' : 'kit' },
                 h('span', { class: 'fd-list-code' }, s.available === false ? '✕' : '●'),
                 h('div', { class: 'fd-list-main' }, h('div', { class: 'fd-list-title fd-mono' }, k), h('div', { class: 'fd-list-sub' }, JSON.stringify(s).slice(0, 120)))))) });
-    const prefTile = Panel({ title: 'model preference (drag to reorder)', count: pref.length,
-        right: h('button', { class: 'btn', onclick: ev => { ev.preventDefault(); pref.push({ provider: '', model: '' }); saveAndNav(pref); } }, '+ add'),
+    const addFromPicker = ev => { const v = ev.target.value; if (!v) return; const slash = v.indexOf('/'); const next = pref.slice(); next.push(slash > 0 ? { provider: v.slice(0, slash), model: v.slice(slash+1) } : { provider: v, model: '' }); saveAndNav(next); };
+    const prefTile = Panel({ title: 'model preference (drag to reorder · pick from /v1/models including queue/*)', count: pref.length,
+        right: h('span', {}, h('select', { class: 'fd-search', onchange: addFromPicker }, h('option', { value: '' }, '+ add from /v1/models'), ...v1Models.map(m => h('option', { key: m.id, value: m.id }, m.id))), ' ', h('button', { class: 'btn', onclick: ev => { ev.preventDefault(); pref.push({ provider: '', model: '' }); saveAndNav(pref); } }, '+ blank')),
         children: pref.length === 0
-            ? h('span', { class: 'fd-muted' }, 'no preference — edit on config page or add a row above')
+            ? h('span', { class: 'fd-muted' }, 'no preference — pick from the dropdown above to build a priority chain')
             : h('div', { class: 'fd-list' }, ...pref.map((p, i) => h('div', {
                 key: 'p'+i, class: 'fd-list-row', 'data-cat': 'kit', draggable: 'true',
                 ondragstart: ev => onDragStart(i, ev), ondragover: onDragOver, ondrop: ev => onDrop(i, ev), style: 'cursor:move'
