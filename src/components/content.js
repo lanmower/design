@@ -13,25 +13,20 @@ export function Panel({ title, count, right, style = '', children, kind }) {
     );
 }
 
-export function Row({ code, title, sub, meta, active, onClick, key, style }) {
-    return h('div', {
-        key,
-        class: 'row' + (active ? ' active' : ''),
-        onclick: onClick,
-        style
-    },
-        code != null ? h('span', { class: 'code' }, code) : null,
+export function Row({ code, title, sub, meta, active, onClick, key, style, href, kind, cols, leading, trailing, target }) {
+    const isLink = kind === 'link' || (href != null && !onClick);
+    const cls = 'row' + (active ? ' active' : '') + (cols ? ' row-grid' : '');
+    const props = { key, class: cls, style: cols ? `${style ? style + ';' : ''}grid-template-columns:${cols}` : style };
+    if (isLink) { props.href = href || '#'; if (target) props.target = target; }
+    else if (onClick) { props.onclick = onClick; }
+    return h(isLink ? 'a' : 'div', props,
+        leading != null ? leading : (code != null ? h('span', { class: 'code' }, code) : null),
         h('span', { class: 'title' }, title, sub ? h('span', { class: 'sub' }, sub) : null),
-        meta != null ? h('span', { class: 'meta' }, meta) : null
-    );
+        trailing != null ? trailing : (meta != null ? h('span', { class: 'meta' }, meta) : null));
 }
 
-export function RowLink({ code, title, sub, meta, href = '#', key }) {
-    return h('a', { key, class: 'row', href },
-        code != null ? h('span', { class: 'code' }, code) : null,
-        h('span', { class: 'title' }, title, sub ? h('span', { class: 'sub' }, sub) : null),
-        meta != null ? h('span', { class: 'meta' }, meta) : null
-    );
+export function RowLink({ code, title, sub, meta, href = '#', key, target }) {
+    return Row({ code, title, sub, meta, href, kind: 'link', key, target });
 }
 
 export function Hero({ title, body, accent, badge, badgeCount }) {
