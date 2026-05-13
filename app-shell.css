@@ -1172,7 +1172,15 @@ input[type="number"]::placeholder, input:not([type])::placeholder { color: var(-
 .ds-work-actions { display: flex; gap: var(--tool-gutter); }
 
 .panel.panel-inline { max-width: 560px; margin: 0; }
+.panel.panel-inline-wide { max-width: 640px; }
 .panel.panel-wide  { max-width: 900px; }
+.ds-prose-endnote {
+    font-family: var(--ff-mono);
+    font-size: 14px;
+    color: var(--panel-text-2);
+    margin-top: var(--prose-stack-lg) !important;
+}
+.ds-manifesto-section { padding: 20px 32px 40px 32px; }
 
 /* ============================================================
    .ds-prose — editorial prose surface. No chrome, no background,

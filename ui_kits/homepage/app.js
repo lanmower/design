@@ -90,9 +90,9 @@ function Works() {
                         h('span', { class: 'title' }, w.title, h('span', { class: 'sub' }, w.sub)),
                         h('span', { class: 'meta' }, w.meta + '  ' + (isOpen ? '−' : '+'))
                     ),
-                    isOpen ? h('div', { style: 'padding:14px 20px 18px 86px;background:var(--panel-2);color:var(--panel-text);font-size:15px;line-height:1.6' },
-                        h('p', { style: 'margin:0 0 12px 0;max-width:64ch' }, w.body),
-                        h('div', { style: 'display:flex;gap:8px' },
+                    isOpen ? h('div', { class: 'work-detail' },
+                        h('p', { class: 'ds-prose ds-work-body' }, w.body),
+                        h('div', { class: 'ds-work-actions' },
                             h('a', { class: 'btn-primary', href: '#' }, 'open ↗'),
                             h('a', { class: 'btn', href: '#' }, 'source')
                         )
@@ -126,14 +126,12 @@ function Writing() {
 }
 
 function Manifesto() {
-    return h('div', { style: 'padding:20px 32px 40px 32px' },
+    return h('div', { class: 'ds-section ds-manifesto-section' },
         h('h3', {}, '// manifesto · rough draft'),
-        h('div', { class: 'panel', style: 'max-width:820px' },
-            h('div', { style: 'padding:20px 24px;font-size:14px;line-height:1.7;color:var(--panel-text)' },
-                h('p', { style: 'margin:0 0 12px 0' }, 'we are the creative department of the internet. always open (24/7). always a little bit high on possibility (420).'),
-                h('p', { style: 'margin:0 0 12px 0' }, 'move fast. break things. document honestly. ship the rough draft. ', h('strong', { style: 'color:var(--panel-text)' }, 'humor is load-bearing.')),
-                h('p', { style: 'margin:0;color:var(--panel-text-2)' }, 'we will not tolerate simpleton design patterns, trifectas, gradients, or anything silly. nothing lame. we\'re internet natives and not easily pleased.')
-            )
+        h('div', { class: 'ds-prose ds-manifesto' },
+            h('p', { class: 'ds-manifesto-para' }, 'we are the creative department of the internet. always open (24/7). always a little bit high on possibility (420).'),
+            h('p', { class: 'ds-manifesto-para' }, 'move fast. break things. document honestly. ship the rough draft. ', h('strong', {}, 'humor is load-bearing.')),
+            h('p', { class: 'ds-manifesto-para dim' }, 'we will not tolerate simpleton design patterns, trifectas, gradients, or anything silly. nothing lame. we\'re internet natives and not easily pleased.')
         )
     );
 }
