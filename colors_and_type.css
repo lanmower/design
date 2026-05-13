@@ -80,6 +80,15 @@
 
   /* Measure */
   --measure:      72ch;
+  --measure-prose: 68ch;
+
+  /* Prose rhythm — asymmetric stack scale for editorial surfaces */
+  --prose-stack-sm: 12px;
+  --prose-stack-md: 24px;
+  --prose-stack-lg: 56px;
+
+  /* Tool rhythm — canonical gutter for dense panel internals */
+  --tool-gutter:  16px;
 
   /* Extended type scale */
   --fs-body:      15px;

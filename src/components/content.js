@@ -91,7 +91,9 @@ export function WorksList({ works = [], openedIndex = -1, onToggle }) {
                     class: 'work-detail',
                     'data-work-index': String(i)
                 },
-                    h('p', { class: 'ds-work-body' }, w.body),
+                    h('div', { class: 'ds-prose' },
+                        h('p', { class: 'ds-work-body' }, w.body)
+                    ),
                     h('div', { class: 'ds-work-actions' },
                         Btn({ primary: true, href: w.href || '#', children: 'open ↗' }),
                         Btn({ href: w.source || '#', children: 'source' })
@@ -110,17 +112,16 @@ export function WritingList({ posts = [] }) {
     });
 }
 
-export function Manifesto({ paragraphs = [], maxWidth = 820 }) {
-    return Panel({
-        kind: 'manifesto',
-        style: `max-width:${maxWidth}px`,
-        children: h('div', { class: 'ds-manifesto' },
-            ...paragraphs.map((p, i) => h('p', {
-                key: i,
-                class: 'ds-manifesto-para' + (p.dim ? ' dim' : '')
-            }, p.text || p))
-        )
-    });
+export function Manifesto({ paragraphs = [], maxWidth }) {
+    return h('div', {
+        class: 'ds-prose ds-manifesto',
+        'data-max-width': maxWidth ? String(maxWidth) : null
+    },
+        ...paragraphs.map((p, i) => h('p', {
+            key: i,
+            class: 'ds-manifesto-para' + (p.dim ? ' dim' : '')
+        }, p.text || p))
+    );
 }
 
 export function Kpi({ items = [] }) {
@@ -178,8 +179,10 @@ export function HomeView({ state, onNav, onToggleWork, works, posts, manifesto, 
 
 export function ProjectView({ project, copied, onCopy }) {
     return [
-        Heading({ level: 1, children: project.name }),
-        Lede({ children: project.tagline }),
+        h('div', { class: 'ds-prose' },
+            Heading({ level: 1, children: project.name }),
+            Lede({ children: project.tagline })
+        ),
         Heading({ level: 3, children: 'install' }),
         Install({ cmd: project.install, copied, onCopy }),
         Heading({ level: 3, children: 'receipt' }),
