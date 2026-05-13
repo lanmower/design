@@ -1,4 +1,4 @@
-## 🎯 anentrypoint-design v0.0.96 — 247420 design system SDK — webjsx + modified ripple-ui, single-file ESM bundle for reproducible use of the AnEntrypoint design.
+## 🎯 anentrypoint-design v0.0.98 — 247420 design system SDK — webjsx + modified ripple-ui, single-file ESM bundle for reproducible use of the AnEntrypoint design.
 
 **Runtime:** node (npm)
 
@@ -13,14 +13,14 @@
 
 ## 🛠️ Tech Stack
 
-**Patterns:** h(867), Panel(115), document.createElement(99), Chip(50), kit.render(42), render(37)
-**Top IDs:** class(595), state(353), title(301), name(291), length(277), children(236)
+**Patterns:** h(869), Panel(114), document.createElement(99), Chip(50), kit.render(42), render(37)
+**Top IDs:** class(597), state(353), title(301), name(291), length(277), children(235)
 
 ## ⚡ Code Patterns
 
 **Async:** async(158), await(121), Promise(11)
 **Errors:** try/catch(45), throw(15)
-**Internal calls:** h(867), Panel(115), document.createElement(99), Chip(50), kit.render(42), render(37), escapeHtml(34), EmptyState(32)
+**Internal calls:** h(869), Panel(114), document.createElement(99), Chip(50), kit.render(42), render(37), escapeHtml(34), EmptyState(32)
 
 ## 🔗 I/O & Integration
 
@@ -30,35 +30,35 @@
 
 ## 📊 Code Organization
 
-**Large files:** desktop/freddie-dashboard.js:654L, index.html:585L, site/theme.mjs:364L, slides/index.html:276L, os-gui-demo.html:269L, src/theme.mjs:241L (+3)
+**Large files:** desktop/freddie-dashboard.js:654L, index.html:585L, site/theme.mjs:364L, slides/index.html:276L, os-gui-demo.html:269L, src/theme.mjs:241L (+4)
 **Long funcs:** desktop/freddie-dashboard.js:94:createFreddieDashboard(561L), desktop/shell.js:31:createDesktopShell(184L), desktop/freddie-dashboard.js:212:chat(176L), test.js:43:runBrowser(131L), freddie/pages-chains.js:40:chains(129L), freddie/pages-chat.js:16:chat(107L) (+10)
-**Many params:** desktop/freddie-dashboard.js:94:createFreddieDashboard(64p), desktop/shell.js:31:createDesktopShell(19p), freddie/pages-chat.js:16:chat(15p), freddie/pages-config.js:8:models(15p), desktop/freddie-dashboard.js:212:chat(15p), freddie/pages-chains.js:40:chains(13p) (+7)
-**Classes:** web-components/freddie-chat.js:0:FreddieChat, web-components/ds-chat.js:0:DsChat, slides/deck-stage.js:0:DeckStage
+**Many params:** desktop/freddie-dashboard.js:94:createFreddieDashboard(64p), desktop/shell.js:31:createDesktopShell(19p), desktop/freddie-dashboard.js:212:chat(15p), freddie/pages-config.js:8:models(15p), freddie/pages-chat.js:16:chat(15p), freddie/pages-chains.js:40:chains(13p) (+7)
+**Classes:** web-components/ds-chat.js:0:DsChat, web-components/freddie-chat.js:0:FreddieChat, slides/deck-stage.js:0:DeckStage
 
 ## 🔄 Architecture
 
-**L0 [pure exports]:** debug(5↓), helpers(5↓), motion(3↓), ds-chat(3↓), shell(3↓), deck-stage(2↓), components(2↓), page-html(2↓) (+7)
-**L3 [pure imports]:** app(10↑), freddie(8↑), deck-stage(3↑), files-modals(2↑), content(1↑), freddie-chat(1↑), shell(1↑)
-**Hubs:** index(9↑1↓), app(10↑0↓), freddie(8↑0↓), debug(0↑5↓), helpers(0↑5↓)
-**External:** ds, webjsx, esbuild, https:, js-yaml, postcss-prefix-selector
+**L0 [pure exports]:** helpers(5↓), debug(5↓), motion(3↓), shell(3↓), ds-chat(3↓), deck-stage(2↓), components(2↓), page-html(2↓) (+7)
+**L3 [pure imports]:** app(10↑), freddie(8↑), deck-stage(3↑), files-modals(2↑), shell(1↑), content(1↑), freddie-chat(1↑)
+**Hubs:** index(9↑1↓), app(10↑0↓), freddie(8↑0↓), helpers(0↑5↓), debug(0↑5↓)
+**External:** ds, webjsx, https:, esbuild, playwright, postcss-prefix-selector
 
 ## 🔌 API Surface
 
-**Classes:** FreddieChat, DsChat, DeckStage
-**Entry files:** deck-stage, shell, helpers, icons, ds-chat (+10)
+**Classes:** DsChat, FreddieChat, DeckStage
+**Entry files:** deck-stage-style, ds-chat, pages-chains, pages-voice, icons (+10)
 
 ## 🚨 Issues
 
 - 🔥 Complex funcs: freddie-dashboard.js:94:createFreddieDashboard(561L), shell.js:31:createDesktopShell(184L), freddie-dashboard.js:212:chat(176L), test.js:43:runBrowser(131L) (+2)
 - 📁 Large files: desktop/freddie-dashboard.js:654L, index.html:585L
 - 📋 16 duplicated groups
-- 🔐 hardcoded secrets in app.js:85
 - 🔐 SQL injection in pages-chains.js:32
+- 🔐 hardcoded secrets in app.js:85
 
 ## 🧹 Dead Code & Tests
 
-**Orphaned:** inputs.html, type-prose.html, header.html, os-gui-demo.html, wm.js, stamps.html (+38)
-**Unused exports:** deck-stage.js: DeckStage | freddie.js: chat, home | freddie-chat.js: FreddieChat
+**Orphaned:** file-viewer.html, dateline.html, file-grid.html, package.json, wordmarks.html, type-mono.html (+38)
+**Unused exports:** freddie.js: home, voice | deck-stage.js: DeckStage | freddie-chat.js: FreddieChat
 **Tests:** 0/137 (0%)
 
 ## 📦 Modules
@@ -67,8 +67,8 @@
 - slides: 5f, 6cx, 3↑3↓
 - site: 5f, 0cx, 0↑0↓
 - ui_kits: 28f, 0cx, 0↑0↓
+- scripts: 2f, 0cx, 0↑0↓
 - preview: 26f, 0cx, 0↑0↓
-- scaffold-flatspace: 5f, 0cx, 0↑0↓
 
 ## 📄 File Index
 
@@ -94,7 +94,7 @@
 **preview/index-row.html** 25L
 *+98 more files*
 
-Git: branch: main, 3 uncommitted
-Hot: package.json(60), app-shell.css(12), theme.css(6), pages-config.js(6), pages-chat.js(5), freddie.js(5)
+Git: branch: main
+Hot: package.json(60), app-shell.css(12), theme.css(6), pages-config.js(6), freddie.js(5), pages-chat.js(5)
 Tooling: GitHub Actions (gh-pages.yml, publish.yml)
 Conv[JS]: 4-space, single quotes, semicolons, named exports, relative imports, kebab-case files
