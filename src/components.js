@@ -41,6 +41,6 @@ export {
 } from './components/community.js';
 
 export {
-    home, chat, sessions, projects, agents, analytics, models, cron, skills, config, env, tools, batch, gateway,
+    home, chat, sessions, projects, agents, analytics, models, cron, skills, config, env, tools, batch, gateway, chains,
     skillLabel, getRecentPaths, saveRecentPath, renderChatMessages, FREDDIE_PAGES
 } from './components/freddie.js';
