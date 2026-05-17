@@ -47,9 +47,17 @@
   --accent-fg:   var(--paper);
   --accent-tint: color-mix(in oklab, var(--accent) 18%, var(--bg));
 
-  --panel-bg:    var(--bg);
-  --panel-bg-2:  var(--bg-2);
+  --panel-bg:     var(--bg);
+  --panel-bg-2:   var(--bg-2);
   --panel-accent: var(--accent);
+  --panel-1:      var(--bg-2);
+  --panel-2:      var(--bg-3);
+  --panel-3:      color-mix(in oklab, var(--fg) 12%, transparent);
+  --panel-text:   var(--fg);
+  --panel-text-2: var(--fg-2);
+  --panel-text-3: var(--fg-3);
+  --panel-accent-2: var(--accent-bright, var(--accent));
+  --panel-shadow: 0 1px 0 color-mix(in oklab, var(--fg) 6%, transparent), 0 4px 14px color-mix(in oklab, var(--fg) 8%, transparent);
 
   /* Type — one family, used purposefully. Space Grotesk for everything
      non-mono. The display/narrow aliases stay so consumers that reference

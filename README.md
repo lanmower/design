@@ -6,10 +6,6 @@ friendly rounded sans body, monospace only on real code, tonal surfaces over bor
 
 we fart in its general direction. ◰
 
-## demos
-
-- **OS-GUI exemplar** — [`/os-gui-demo.html`](https://anentrypoint.github.io/Design/os-gui-demo.html) — UI-only showcase of every hoisted desktop surface (`createDesktopShell`, `renderWindow`, `renderDock`, `renderFilesApp`, `renderMonitorApp`, `createFreddieDashboard`, `<freddie-chat>`) wired against mock data. This is the upstream reference any host (e.g. thebird) consumes via npm.
-
 ## install (the only step)
 
 You have two choices. Both are one line.

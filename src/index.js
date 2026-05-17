@@ -12,6 +12,7 @@ import { renderMarkdown, ensureReady as ensureMarkdownReady } from './markdown.j
 import { ensurePrism, highlightAllUnder } from './highlight.js';
 import { renderPageHtml } from './page-html.js';
 import { mountKit } from './bootstrap.js';
+import * as theme from './theme.js';
 import { registerChatElement, DsChat } from './web-components/ds-chat.js';
 
 let _installed = false;
@@ -60,8 +61,10 @@ export {
     renderMarkdown, ensureMarkdownReady,
     ensurePrism, highlightAllUnder,
     registerChatElement, DsChat,
-    renderPageHtml
+    renderPageHtml,
+    theme
 };
+export { applyTheme, getTheme, resolvedTheme, onThemeChange, initTheme } from './theme.js';
 export const h = webjsx.createElement;
 export const applyDiff = webjsx.applyDiff;
 

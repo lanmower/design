@@ -16,9 +16,13 @@ const escapeJson = (obj) => JSON.stringify(obj)
 const SDK_URL = 'https://unpkg.com/anentrypoint-design@latest/dist/247420.js';
 
 const clientScript = `
-import { h, applyDiff, installStyles, components as C } from 'anentrypoint-design';
+import { h, applyDiff, installStyles, components as C, initTheme } from 'anentrypoint-design';
 installStyles();
 document.documentElement.classList.add('ds-247420');
+// initTheme picks up data-theme on <html>, reapplies stored override from
+// localStorage if present, and binds matchMedia so OS-level dark-mode flips
+// re-emit to listeners. Safe no-op if data-theme is already 'auto'.
+try { initTheme && initTheme(); } catch {}
 
 const __reveal = () => document.documentElement.classList.add('ds-ready');
 const __fallback = setTimeout(__reveal, 1500);
@@ -287,7 +291,7 @@ const html = ({ site, nav, home }) => {
     }
   }).replace(/</g, '\\u003c');
   return `<!DOCTYPE html>
-<html lang="${lang}" class="ds-247420">
+<html lang="${lang}" class="ds-247420" data-theme="auto">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />

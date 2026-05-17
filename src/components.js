@@ -42,6 +42,8 @@ export {
     ChatHeader, VoiceStrip, CommunityShell
 } from './components/community.js';
 
+export { ThemeToggle } from './components/theme-toggle.js';
+
 export {
     FREDDIE_PAGES,
     home, chat, voice, sessions, projects, agents, analytics,

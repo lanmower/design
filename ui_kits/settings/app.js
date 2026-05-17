@@ -92,7 +92,7 @@ function Danger() {
         h('p', { style: 'margin:0;color:var(--panel-text-2)' }, 'these actions are permanent.'),
         h('div', { style: 'display:flex;gap:8px' },
             h('button', { class: 'btn', style: 'color:var(--mascot,#e0a200)' }, 'export account'),
-            h('button', { class: 'btn', style: 'color:#cc4242' }, 'delete account')
+            h('button', { class: 'btn', style: 'color:var(--warn)' }, 'delete account')
         )
     ) });
 }

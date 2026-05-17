@@ -568,3 +568,27 @@ table tr.clickable:hover td { background: var(--bg-2); }
 .ds-file-row .name { font-weight: 500; }
 .ds-file-row .size { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); }
 .ds-file-row .time { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); }
+
+/* ============================================================
+   Theme toggle (segmented + compact) — bound to src/theme.js
+   ============================================================ */
+.ds-segmented {
+  display: inline-flex; gap: 0; padding: 2px;
+  background: var(--bg-2); border-radius: var(--r-pill);
+  font-family: var(--ff-mono); font-size: var(--fs-xs);
+}
+.ds-segmented .ds-seg-btn {
+  background: transparent; border: 0; color: var(--fg-3);
+  padding: 4px 12px; border-radius: var(--r-pill); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: color var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
+}
+.ds-segmented .ds-seg-btn:hover { color: var(--fg); }
+.ds-segmented .ds-seg-btn.is-on {
+  background: var(--bg); color: var(--fg);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.ds-theme-toggle.btn {
+  font-family: var(--ff-mono); font-size: var(--fs-xs);
+  display: inline-flex; align-items: center; gap: 6px;
+}
