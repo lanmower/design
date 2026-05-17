@@ -81,6 +81,9 @@ const prefixed = (await postcss([
             // (e.g. <html class="ds-247420" data-theme="auto">), so produce a
             // compound selector without the descendant-space.
             if (/^\[/.test(selector)) return prefix + selector;
+            // Selectors that already start with the scope class (descendant
+            // combinator) are self-scoped — don't double-prefix.
+            if (selector.startsWith(prefix + ' ') || selector === prefix) return selector;
             return prefixedSelector;
         },
     }),
