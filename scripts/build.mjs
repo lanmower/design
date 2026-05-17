@@ -77,6 +77,10 @@ const prefixed = (await postcss([
             if (/^body\b/.test(selector)) return selector.replace(/^body\b/, prefix + ' body');
             // Keep @keyframes, @font-face, ::-pseudo selectors untouched
             if (/^(from|to|\d+%)$/.test(selector)) return selector;
+            // Attribute / class selectors at the start mean "same element as scope"
+            // (e.g. <html class="ds-247420" data-theme="auto">), so produce a
+            // compound selector without the descendant-space.
+            if (/^\[/.test(selector)) return prefix + selector;
             return prefixedSelector;
         },
     }),
