@@ -115,18 +115,19 @@ function heroNode(hero) {
     body: hero.body || hero.subheading || '',
     accent: hero.accent,
     badge: Array.isArray(hero.badges) && hero.badges[0] ? hero.badges[0].label : undefined,
-    actions: Array.isArray(hero.ctas) ? hero.ctas.map(c => ({ label: c.label || c.cta || 'go', href: c.href || '#' })) : [],
+    actions: Array.isArray(hero.ctas) ? hero.ctas.map((c, i) => h('a', { key: i, class: i === 0 ? 'btn btn-accent' : 'btn btn-ghost', href: c.href || '#' }, c.label || c.cta || 'go')) : null,
   });
 }
 
 function sectionNode(sec, idx) {
   const rail = RAILS[idx % RAILS.length];
   const features = sec.features || sec.items || [];
-  const rows = features.map((f, i) => h('div', { key: i, class: 'row ' + rail },
-    h('span', { class: 'title' }, f.name),
-    f.desc ? h('div', { class: 'sub', innerHTML: f.desc.replace(/\`([^\`]+)\`/g, '<code>$1</code>') }) : null,
-    f.benefit ? h('div', { class: 'row-benefit' }, f.benefit) : null,
-  ));
+  const rows = features.map((f, i) => {
+    const kids = [h('span', { key: 't', class: 'title' }, String(f.name || ''))];
+    if (f.desc) kids.push(h('div', { key: 'd', class: 'sub', innerHTML: String(f.desc).replace(/\`([^\`]+)\`/g, '<code>$1</code>') }));
+    if (f.benefit) kids.push(h('div', { key: 'b', class: 'row-benefit' }, String(f.benefit)));
+    return h('div', { key: i, class: 'row ' + rail }, ...kids);
+  });
   return C.Section({
     title: sec.name || sec.title || sec.id,
     children: [
@@ -143,12 +144,13 @@ function examplesNode(examples) {
     title: 'explore',
     children: examples.map((e, i) => {
       const rail = RAILS[(i + 1) % RAILS.length];
-      return h('a', { key: i, class: 'row ' + rail, href: e.href || '#' },
-        h('span', { class: 'code' }, String(i + 1).padStart(2, '0')),
-        h('span', { class: 'title' }, e.label || e.name || e.href),
-        e.desc ? h('span', { class: 'meta dim' }, ' — ' + e.desc) : null,
-        h('span', { class: 'ds-row-arrow' }, '↗'),
-      );
+      const kids = [
+        h('span', { key: 'c', class: 'code' }, String(i + 1).padStart(2, '0')),
+        h('span', { key: 't', class: 'title' }, String(e.label || e.name || e.href || '')),
+      ];
+      if (e.desc) kids.push(h('span', { key: 'm', class: 'meta dim' }, ' — ' + e.desc));
+      kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, '↗'));
+      return h('a', { key: i, class: 'row ' + rail, href: e.href || '#' }, ...kids);
     }),
   });
 }
