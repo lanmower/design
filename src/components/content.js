@@ -1,5 +1,9 @@
+// Content blocks: Panel, Row, RowLink, Section, Hero, Install, Receipt,
+// Changelog, WorksList, WritingList, Manifesto, Kpi, Table, HomeView,
+// ProjectView, Form. Pure factories.
+
 import * as webjsx from '../../vendor/webjsx/index.js';
-import { Btn, Heading, Lede } from './shell.js';
+import { Btn, Heading, Lede, Dot } from './shell.js';
 const h = webjsx.createElement;
 
 export function Panel({ title, count, right, style = '', children, kind }) {
@@ -29,13 +33,23 @@ export function RowLink({ code, title, sub, meta, href = '#', key, target }) {
     return Row({ code, title, sub, meta, href, kind: 'link', key, target });
 }
 
-export function Hero({ title, body, accent, badge, badgeCount }) {
+export function Section({ title, eyebrow, children }) {
+    return h('section', { class: 'ds-section' },
+        eyebrow ? h('span', { class: 'eyebrow' }, eyebrow) : null,
+        title ? h('h3', {}, title) : null,
+        ...(Array.isArray(children) ? children : [children])
+    );
+}
+
+export function Hero({ eyebrow, title, body, accent, badge, badgeCount, actions }) {
     return h('div', { class: 'ds-hero' },
+        eyebrow ? h('span', { class: 'eyebrow' }, eyebrow) : null,
         h('h1', { class: 'ds-hero-title' }, title),
         body ? h('p', { class: 'ds-hero-body' },
             body,
             accent ? h('span', { class: 'ds-hero-accent' }, ' ' + accent) : null
         ) : null,
+        actions ? h('div', { class: 'ds-hero-actions', style: 'display:flex;gap:10px;flex-wrap:wrap;margin-top:8px' }, ...(Array.isArray(actions) ? actions : [actions])) : null,
         badge ? Panel({ title: badge, count: badgeCount, kind: 'inline', children: [] }) : null
     );
 }
@@ -71,21 +85,17 @@ export function Changelog({ entries = [] }) {
 
 export function WorksList({ works = [], openedIndex = -1, onToggle }) {
     return Panel({
-        title: `works · ${String(works.length).padStart(2, '0')} of ~${works.length}`,
-        right: h('a', { class: 'ds-link-accent', href: 'https://github.com/AnEntrypoint' }, 'all repos ↗'),
         children: works.map((w, i) => {
             const isOpen = openedIndex === i;
             return h('div', { key: i },
                 Row({
-                    code: w.code, title: w.title, sub: w.sub,
+                    code: w.code,
+                    title: w.title, sub: w.sub,
                     meta: w.meta + '  ' + (isOpen ? '−' : '+'),
                     active: isOpen,
                     onClick: () => onToggle && onToggle(isOpen ? -1 : i)
                 }),
-                isOpen ? h('div', {
-                    class: 'work-detail',
-                    'data-work-index': String(i)
-                },
+                isOpen ? h('div', { class: 'work-detail', 'data-work-index': String(i) },
                     h('div', { class: 'ds-prose' },
                         h('p', { class: 'ds-work-body' }, w.body)
                     ),
@@ -102,7 +112,7 @@ export function WorksList({ works = [], openedIndex = -1, onToggle }) {
 export function WritingList({ posts = [] }) {
     return Panel({
         children: posts.map((p, i) =>
-            RowLink({ key: i, code: p.date, title: p.title, meta: '§ ' + p.tag, href: p.href || '#' })
+            RowLink({ key: i, code: p.date, title: p.title, meta: p.tag, href: p.href || '#' })
         )
     });
 }
@@ -120,77 +130,84 @@ export function Manifesto({ paragraphs = [], maxWidth }) {
 }
 
 export function Kpi({ items = [] }) {
-    return h('div', { class: 'kpi' }, ...items.map(([n, l]) =>
-        h('div', { class: 'kpi-card' },
+    return h('div', { class: 'kpi' }, ...items.map(([n, l], i) =>
+        h('div', { key: i, class: 'kpi-card' },
             h('div', { class: 'num' }, String(n)),
             h('div', { class: 'lbl' }, l))));
 }
 
-export function Table({ headers = [], rows = [], onRowClick, emptyText = 'no rows' }) {
-    if (!rows || rows.length === 0) {
-        return h('div', { class: 'empty' }, emptyText);
-    }
+export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothing here yet' }) {
+    if (!rows || rows.length === 0) return h('div', { class: 'empty' }, emptyText);
     return h('table', {},
-        h('thead', {}, h('tr', {}, ...headers.map(hd => h('th', {}, hd)))),
+        h('thead', {}, h('tr', {}, ...headers.map((hd, i) => h('th', { key: i }, hd)))),
         h('tbody', {}, ...rows.map((row, i) => h('tr', {
+            key: i,
             class: onRowClick ? 'clickable' : '',
             onclick: onRowClick ? () => onRowClick(i) : null
-        }, ...row.map(c => h('td', {}, c == null ? '' : (typeof c === 'object' ? c : String(c))))))));
+        }, ...row.map((c, j) => h('td', { key: j }, c == null ? '' : (typeof c === 'object' ? c : String(c))))))));
 }
 
-export function Section({ title, children }) {
-    return h('div', { class: 'ds-section' },
-        title ? h('h3', {}, title) : null,
-        ...(Array.isArray(children) ? children : [children])
-    );
-}
-
-export function HomeView({ state, onNav, onToggleWork, works, posts, manifesto, currentlyShipping }) {
+export function HomeView({ state = {}, onNav, onToggleWork, works = [], posts = [], manifesto = [], currentlyShipping } = {}) {
     return [
         Hero({
-            title: 'the creative department of the internet.',
-            body: '247420 is a collective of mercurials. we ship fast, break things on purpose, and document honestly.',
-            accent: 'humor is load-bearing.'
+            eyebrow: 'an entrypoint',
+            title: 'Small, weird, useful tools — built in public.',
+            body: '247420 is a creative collective of eight, scattered across three timezones. We have been shipping open-source tools for the web since 2018.',
+            accent: 'Some become the future. Most don\'t. That\'s the deal.'
         }),
-        currentlyShipping ? h('div', { class: 'ds-section' },
-            Panel({
-                title: 'currently shipping',
-                count: currentlyShipping.length,
-                kind: 'inline',
+        currentlyShipping ? Section({
+            eyebrow: 'currently shipping',
+            children: Panel({
+                kind: 'wide',
                 children: currentlyShipping.map((row, i) =>
                     Row({
                         key: i,
-                        code: h('span', { class: row.live ? 'ds-dot-live' : 'ds-dot-idle' }, row.live ? '●' : '○'),
+                        code: Dot({ tone: row.live ? 'live' : 'idle' }),
                         title: row.title, sub: row.sub, meta: row.meta
                     })
                 )
             })
-        ) : null,
-        Section({ title: '// works', children: WorksList({ works, openedIndex: state.opened, onToggle: onToggleWork }) }),
-        Section({ title: '// recent writing', children: WritingList({ posts }) }),
-        Section({ title: '// manifesto · rough draft', children: Manifesto({ paragraphs: manifesto }) })
-    ];
+        }) : null,
+        works.length ? Section({
+            eyebrow: 'works', title: 'Everything else.',
+            children: WorksList({ works, openedIndex: state.opened ?? -1, onToggle: onToggleWork })
+        }) : null,
+        posts.length ? Section({
+            eyebrow: 'writing', title: 'When we have something to say.',
+            children: WritingList({ posts })
+        }) : null,
+        manifesto.length ? Section({
+            eyebrow: 'who\'s here', title: 'Eight people, three timezones, one ongoing conversation.',
+            children: Manifesto({ paragraphs: manifesto })
+        }) : null
+    ].filter(Boolean);
 }
 
-export function ProjectView({ project, copied, onCopy }) {
+export function ProjectView({ project = {}, copied, onCopy } = {}) {
     return [
         h('div', { class: 'ds-prose' },
             Heading({ level: 1, children: project.name }),
             Lede({ children: project.tagline })
         ),
-        Heading({ level: 3, children: 'install' }),
-        Install({ cmd: project.install, copied, onCopy }),
-        Heading({ level: 3, children: 'receipt' }),
-        Receipt({ rows: project.receipt }),
-        Heading({ level: 3, children: 'changelog' }),
-        Changelog({ entries: project.changelog })
-    ];
+        project.install ? [
+            Heading({ level: 3, children: 'install' }),
+            Install({ cmd: project.install, copied, onCopy }),
+        ] : null,
+        project.receipt ? [
+            Heading({ level: 3, children: 'by the numbers' }),
+            Receipt({ rows: project.receipt }),
+        ] : null,
+        project.changelog ? [
+            Heading({ level: 3, children: 'recent releases' }),
+            Changelog({ entries: project.changelog })
+        ] : null
+    ].filter(Boolean).flat();
 }
 
 export function Form({ fields = [], submit = 'submit', onSubmit }) {
-    return h('form', { class: 'row-form', onsubmit: ev => { ev.preventDefault(); onSubmit && onSubmit(ev); } },
-        ...fields.map(f => f.kind === 'textarea'
-            ? h('textarea', { name: f.name, placeholder: f.placeholder || '', rows: f.rows || 4 })
-            : h('input', { name: f.name, type: f.type || 'text', placeholder: f.placeholder || '', value: f.value || '', required: f.required ? 'true' : null })),
+    return h('form', { class: 'row-form', onsubmit: (ev) => { ev.preventDefault(); onSubmit && onSubmit(ev); } },
+        ...fields.map((f, i) => f.kind === 'textarea'
+            ? h('textarea', { key: i, name: f.name, placeholder: f.placeholder || '', rows: f.rows || 4 })
+            : h('input', { key: i, name: f.name, type: f.type || 'text', placeholder: f.placeholder || '', value: f.value || '', required: f.required ? 'true' : null })),
         h('button', { type: 'submit', class: 'btn-primary' }, submit));
 }

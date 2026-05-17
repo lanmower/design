@@ -6,11 +6,11 @@
   <title>OS-GUI exemplar — anentrypoint-design</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="stylesheet" href="./colors_and_type.css" />
-  <link rel="stylesheet" href="./src/desktop/theme.css" data-os-theme="1" />
-  <link rel="stylesheet" href="./src/desktop/wm.css" />
-  <link rel="stylesheet" href="./src/desktop/launcher.css" />
-  <link rel="stylesheet" href="./src/desktop/freddie-dashboard.css" />
-  <link rel="stylesheet" href="./src/desktop/app-panes.css" />
+  <link rel="stylesheet" href="./src/kits/os/theme.css" data-os-theme="1" />
+  <link rel="stylesheet" href="./src/kits/os/wm.css" />
+  <link rel="stylesheet" href="./src/kits/os/launcher.css" />
+  <link rel="stylesheet" href="./src/kits/os/freddie-dashboard.css" />
+  <link rel="stylesheet" href="./src/kits/os/app-panes.css" />
   <link rel="stylesheet" href="./app-shell.css" />
   <style>
     html, body { margin:0; padding:0; height:100%; background:var(--panel-0,#FBF6EB); color:var(--ink,#1F1B16); font-family:var(--ff-ui,Nunito,system-ui,sans-serif); }
@@ -36,15 +36,15 @@
 </script>
 
 <script type="module">
-import { createDesktopShell } from './src/desktop/shell.js';
-import { renderWindow } from './src/desktop/wm.js';
-import { renderDock } from './src/desktop/launcher.js';
-import { renderFilesApp } from './src/desktop/files-app.js';
-import { renderMonitorApp } from './src/desktop/monitor-app.js';
-import { renderTerminal } from './src/desktop/terminal-app.js';
-import { renderBrowserPane } from './src/desktop/browser-app.js';
-import { renderValidator } from './src/desktop/validator-app.js';
-import { createFreddieDashboard } from './src/desktop/freddie-dashboard.js';
+import { createDesktopShell } from './src/kits/os/shell.js';
+import { renderWindow } from './src/kits/os/wm.js';
+import { renderDock } from './src/kits/os/launcher.js';
+import { renderFilesApp } from './src/kits/os/files-app.js';
+import { renderMonitorApp } from './src/kits/os/monitor-app.js';
+import { renderTerminal } from './src/kits/os/terminal-app.js';
+import { renderBrowserPane } from './src/kits/os/browser-app.js';
+import { renderValidator } from './src/kits/os/validator-app.js';
+import { createFreddieDashboard } from './src/kits/os/freddie-dashboard.js';
 import './src/web-components/freddie-chat.js';
 
 // --- Minimal WM (mirrors thebird's docs/wm.js but stripped to essentials) ---

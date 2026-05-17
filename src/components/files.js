@@ -1,5 +1,7 @@
+// File primitives — matches upstream signatures.
+
 import * as webjsx from '../../vendor/webjsx/index.js';
-import { Btn, Glyph } from './shell.js';
+import { Btn } from './shell.js';
 const h = webjsx.createElement;
 
 const FILE_TYPES = ['dir', 'image', 'video', 'audio', 'code', 'text', 'archive', 'document', 'symlink', 'other'];
@@ -49,12 +51,7 @@ export function FileGrid({ files = [], onOpen, onAction, emptyText = 'no files h
     return h('div', { class: 'ds-file-grid' },
         ...files.map((f, i) => FileRow({
             key: f.path || f.name + i,
-            name: f.name,
-            type: f.type,
-            size: f.size,
-            modified: f.modified,
-            code: f.code,
-            active: f.active,
+            name: f.name, type: f.type, size: f.size, modified: f.modified, code: f.code, active: f.active,
             onOpen: onOpen ? () => onOpen(f) : null,
             onAction: onAction ? (act) => onAction(act, f) : null
         }))
@@ -93,10 +90,7 @@ export function UploadProgress({ items = [] } = {}) {
         },
             h('span', { class: 'ds-upload-name' }, it.name),
             h('span', { class: 'ds-upload-bar' },
-                h('span', {
-                    class: 'ds-upload-fill',
-                    'data-pct': String(Math.max(0, Math.min(100, it.pct || 0)))
-                })
+                h('span', { class: 'ds-upload-fill', 'data-pct': String(Math.max(0, Math.min(100, it.pct || 0))) })
             ),
             h('span', { class: 'ds-upload-pct' }, (it.error ? 'err' : (it.done ? 'ok' : (it.pct || 0) + '%')))
         ))
@@ -111,9 +105,7 @@ export function EmptyState({ text = 'nothing here', glyph = '◌' } = {}) {
 }
 
 export function BreadcrumbPath({ segments = [], onNav, root = 'root' } = {}) {
-    const parts = [
-        h('button', { key: 'root', class: 'ds-crumb-seg', onclick: () => onNav && onNav(0) }, root)
-    ];
+    const parts = [h('button', { key: 'root', class: 'ds-crumb-seg', onclick: () => onNav && onNav(0) }, root)];
     segments.forEach((seg, i) => {
         parts.push(h('span', { key: 'sep' + i, class: 'ds-crumb-sep' }, '›'));
         parts.push(h('button', {

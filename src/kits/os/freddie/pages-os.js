@@ -1,5 +1,5 @@
 // OS-overlay freddie pages, only mounted when osSurfaces is provided.
-import * as components from '../../components.js';
+import * as components from '../../../components.js';
 import { pre } from './helpers.js';
 
 const { Panel, Kpi, Table, EmptyState } = components;

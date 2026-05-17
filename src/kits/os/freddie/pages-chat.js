@@ -1,6 +1,6 @@
 // Chat page — its own module because of SSE plumbing weight.
-import * as webjsx from '../../../vendor/webjsx/index.js';
-import * as components from '../../components.js';
+import * as webjsx from '../../../../vendor/webjsx/index.js';
+import * as components from '../../../components.js';
 import { getRecentPaths, saveRecentPath, skillLabel, renderChatMessages } from './helpers.js';
 
 const h = webjsx.createElement;

@@ -1,10 +1,13 @@
+// Chat surface — matches upstream signatures (parts, typing, reactions,
+// receipts, aicat). Pure factories — props in, vnode out.
+// Includes ChatMessage, ChatComposer, Chat, AICat, AICatPortrait.
+
 import * as webjsx from '../../vendor/webjsx/index.js';
 import { renderMarkdown, ensureReady as ensureMarkdownReady } from '../markdown.js';
 import { highlightAllUnder, ensurePrism } from '../highlight.js';
 import { register } from '../debug.js';
 
 const h = webjsx.createElement;
-
 let _stats = { messages: 0, lastKindCounts: {} };
 
 export function fmtBytes(n) {
@@ -15,6 +18,7 @@ export function fmtBytes(n) {
     return (n / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
 }
 
+// Inline-only markdown subset; safe for chat bubbles.
 export function renderInline(text) {
     if (text == null) return [];
     const out = [];
@@ -66,38 +70,34 @@ function CodeNode(p) {
 }
 
 const PART_RENDERERS = {
-    text: (p) => h('div', { class: 'chat-bubble' }, ...renderInline(p.text || '')),
-    md:   (p) => MdNode(p),
-    code: (p) => CodeNode(p),
+    text:  (p) => h('div', { class: 'chat-bubble' }, ...renderInline(p.text || '')),
+    md:    (p) => MdNode(p),
+    code:  (p) => CodeNode(p),
     image: (p) => h('a', { class: 'chat-image', href: p.href || p.src, target: '_blank', rel: 'noopener' },
         h('img', { src: p.src, alt: p.alt || '', loading: 'lazy' }),
-        p.caption ? h('span', { class: 'cap' }, p.caption) : null
-    ),
-    pdf: (p) => h('div', { class: 'chat-pdf' },
+        p.caption ? h('span', { class: 'cap' }, p.caption) : null),
+    pdf:   (p) => h('div', { class: 'chat-pdf' },
         h('div', { class: 'chat-pdf-head' },
             h('span', { class: 'glyph' }, '▤'),
             h('span', { class: 'name' }, p.name || 'document.pdf'),
             p.size != null ? h('span', { class: 'size' }, fmtBytes(p.size)) : null,
             h('a', { class: 'open', href: p.src, target: '_blank', rel: 'noopener' }, 'open ↗')
         ),
-        h('embed', { src: p.src, type: 'application/pdf' })
-    ),
-    file: (p) => h('a', { class: 'chat-file', href: p.src, target: '_blank', rel: 'noopener', download: p.name || true },
+        h('embed', { src: p.src, type: 'application/pdf' })),
+    file:  (p) => h('a', { class: 'chat-file', href: p.src, target: '_blank', rel: 'noopener', download: p.name || true },
         h('span', { class: 'glyph' }, fileGlyph(p.name)),
         h('span', { class: 'meta' },
             h('span', { class: 'name' }, p.name || 'attachment'),
             h('span', { class: 'size' }, [p.kindLabel || (p.name || '').split('.').pop().toUpperCase(), p.size != null ? fmtBytes(p.size) : null].filter(Boolean).join(' · '))
         ),
-        h('span', { class: 'go' }, '↓')
-    ),
-    link: (p) => h('a', { class: 'chat-link', href: p.href, target: '_blank', rel: 'noopener' },
+        h('span', { class: 'go' }, '↓')),
+    link:  (p) => h('a', { class: 'chat-link', href: p.href, target: '_blank', rel: 'noopener' },
         p.thumb ? h('img', { class: 'thumb', src: p.thumb, alt: '' }) : null,
         h('span', { class: 'meta' },
             h('span', { class: 'host' }, p.host || (() => { try { return new URL(p.href).host; } catch { return ''; } })()),
             h('span', { class: 'title' }, p.title || p.href),
             p.desc ? h('span', { class: 'desc' }, p.desc) : null
-        )
-    )
+        ))
 };
 
 function renderPart(p, key) {

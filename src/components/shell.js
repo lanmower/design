@@ -1,3 +1,7 @@
+// Chrome: Topbar, Crumb, Side, Status, AppShell, plus primitives
+// (Brand, Chip, Btn, Glyph, Heading, Lede). Pure factories — props in,
+// webjsx vnode out. CSS in app-shell.css uses these class names.
+
 import * as webjsx from '../../vendor/webjsx/index.js';
 const h = webjsx.createElement;
 
@@ -8,15 +12,12 @@ export function Brand({ name = '247420', leaf } = {}) {
 }
 
 export function Chip({ tone = '', children }) {
-    return h('span', { class: 'chip' + (tone ? ' ' + tone : '') }, children);
+    return h('span', { class: 'chip' + (tone ? ' tone-' + tone : '') }, children);
 }
 
-export function Btn({ href = '#', primary, children, onClick }) {
-    return h('a', {
-        class: primary ? 'btn-primary' : 'btn',
-        href,
-        onclick: onClick
-    }, children);
+export function Btn({ href = '#', primary, ghost, children, onClick }) {
+    const cls = primary ? 'btn-primary' : (ghost ? 'btn-ghost' : 'btn');
+    return h('a', { class: cls, href, onclick: onClick }, children);
 }
 
 export function Glyph({ children, color }) {
@@ -29,16 +30,16 @@ export function Topbar({ brand = '247420', leaf = '', items = [], active = '', o
         search ? h('label', { class: 'app-search' },
             h('span', { class: 'icon' }, '⌕'),
             h('input', { type: 'search', placeholder: search, 'aria-label': 'search' })
-        ) : null,
+        ) : h('span', {}),
         h('nav', {}, ...items.map(([label, href]) =>
             h('a', {
                 key: label,
                 href,
-                class: active === label.replace(' ↗', '') ? 'active' : '',
+                class: active === String(label).replace(' ↗', '') ? 'active' : '',
                 onclick: (e) => {
                     if (!String(href).startsWith('http') && onNav) {
                         e.preventDefault();
-                        onNav(label.replace(' ↗', ''));
+                        onNav(String(label).replace(' ↗', ''));
                     }
                 }
             }, label)
@@ -68,7 +69,7 @@ export function Side({ sections = [] } = {}) {
                 class: active ? 'active' : '',
                 onclick: onClick
             },
-                glyph != null ? Glyph({ children: glyph, color }) : null,
+                glyph != null ? Glyph({ children: glyph, color }) : h('span', { class: 'glyph' }),
                 h('span', {}, label),
                 count != null ? h('span', { class: 'count' }, String(count)) : null
             );
@@ -86,10 +87,7 @@ export function Status({ left = [], right = [] } = {}) {
 
 export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
     const hasSide = Boolean(side);
-    const sideNode = hasSide
-        ? side
-        : h('aside', { class: 'app-side', 'aria-hidden': 'true' });
-
+    const sideNode = hasSide ? side : h('aside', { class: 'app-side', 'aria-hidden': 'true' });
     return h('div', { class: 'app' },
         topbar || null,
         crumb || null,
@@ -107,4 +105,13 @@ export function Heading({ level = 1, children, style = '' }) {
 
 export function Lede({ children }) {
     return h('p', { class: 'lede' }, children);
+}
+
+export function Dot({ tone = 'live' }) {
+    const cls = tone === 'live' ? 'ds-dot-live' : 'ds-dot-idle';
+    return h('span', { class: cls }, tone === 'live' ? '●' : '○');
+}
+
+export function Rail({ tone = 'green' }) {
+    return h('span', { class: 'ds-rail tone-' + tone, 'aria-hidden': 'true' });
 }

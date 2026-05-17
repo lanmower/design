@@ -1,3 +1,5 @@
+// Community surface — matches upstream signatures.
+
 import * as webjsx from '../../vendor/webjsx/index.js';
 const h = webjsx.createElement;
 
@@ -14,7 +16,7 @@ export function ServerRail({ servers = [], activeId, onSelect, onAdd } = {}) {
     return h('div', { class: 'cm-server-rail' },
         h('a', { class: 'cm-server-back', href: '../', title: 'Back' }, '◰'),
         h('div', { class: 'cm-server-sep' }),
-        ...servers.map(s => ServerIcon({ ...s, active: s.id === activeId, onClick: () => onSelect?.(s.id) })),
+        ...servers.map(s => ServerIcon({ ...s, active: s.id === activeId, onClick: () => onSelect && onSelect(s.id) })),
         onAdd ? h('button', { class: 'cm-server-add', onclick: onAdd, title: 'Add server' }, '+') : null
     );
 }
@@ -25,7 +27,7 @@ export function ChannelItem({ id, name, type = 'text', active, voiceActive, onCl
         class: 'cm-channel-item' + (active ? ' active' : '') + (voiceActive ? ' voice-active' : ''),
         'data-id': id,
         onclick: onClick,
-        oncontextmenu: (e) => { e.preventDefault(); onContext?.(id, e.clientX, e.clientY); }
+        oncontextmenu: (e) => { e.preventDefault(); onContext && onContext(id, e.clientX, e.clientY); }
     },
         h('span', { class: 'cm-ch-icon' }, icon),
         h('span', { class: 'cm-ch-name' }, name)
@@ -36,7 +38,7 @@ export function ChannelCategory({ id, name, channels = [], collapsed, activeId, 
     return h('div', { class: 'cm-channel-category' },
         h('div', {
             class: 'cm-category-header' + (collapsed ? ' collapsed' : ''),
-            onclick: () => onToggle?.(id)
+            onclick: () => onToggle && onToggle(id)
         },
             h('svg', { class: 'cm-cat-arrow', viewBox: '0 0 24 24' }, h('path', { d: 'M7 10l5 5 5-5z' })),
             h('span', { class: 'cm-cat-name' }, name),
@@ -46,7 +48,7 @@ export function ChannelCategory({ id, name, channels = [], collapsed, activeId, 
             ...channels.map(c => ChannelItem({
                 ...c,
                 active: c.id === activeId,
-                onClick: () => onChannelClick?.(c),
+                onClick: () => onChannelClick && onChannelClick(c),
                 onContext: onChannelContext
             }))
         )
@@ -80,10 +82,10 @@ export function UserPanel({ name, tag, color, muted, deafened, onMute, onDeafen,
     );
 }
 
-export function ChannelSidebar({ serverName, channels = [], categories = [], activeId, collapsedCats = new Set(), onChannelClick, onCategoryToggle, onAddChannel, onChannelContext, userPanelProps } = {}) {
+export function ChannelSidebar({ serverName, channels = [], categories = [], activeId, collapsedCats, onChannelClick, onCategoryToggle, onAddChannel, onChannelContext, userPanelProps } = {}) {
+    const collapsed = collapsedCats || new Set();
     const uncategorized = channels.filter(c => !c.categoryId || !categories.find(cat => cat.id === c.categoryId));
     const sorted = [...categories].sort((a, b) => (a.position || 0) - (b.position || 0));
-
     return h('div', { class: 'cm-channel-sidebar' },
         h('div', { class: 'cm-server-header' },
             h('span', { class: 'cm-server-header-name' }, serverName || 'Server'),
@@ -93,7 +95,7 @@ export function ChannelSidebar({ serverName, channels = [], categories = [], act
                 id: cat.id,
                 name: cat.name,
                 channels: channels.filter(c => c.categoryId === cat.id).sort((a, b) => (a.position || 0) - (b.position || 0)),
-                collapsed: collapsedCats.has(cat.id),
+                collapsed: collapsed.has && collapsed.has(cat.id),
                 activeId,
                 onToggle: onCategoryToggle,
                 onAddChannel,

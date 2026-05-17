@@ -1,4 +1,4 @@
-import * as webjsx from '../../../vendor/webjsx/index.js';
+import * as webjsx from '../../../../vendor/webjsx/index.js';
 const h = webjsx.createElement;
 
 export function pre(obj) {

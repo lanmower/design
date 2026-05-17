@@ -1,0 +1,439 @@
+/* ============================================================
+   247420 / AnEntrypoint — refined system tokens
+   (drift-free; bigger structural borders; responsive-aware)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* ---- Paper / Ink — cool stone scale; lets lore palette pop. ---- */
+  --paper:       #F6F5F1;
+  --paper-2:     #ECEBE6;
+  --paper-3:     #DFDED9;
+  --ink:         #131318;
+  --ink-2:       #25252C;
+  --ink-3:       #6A6A70;
+
+  /* ---- Lore palette ---- */
+  --green:       #247420;
+  --green-2:     #3A9A34;
+  --green-deep:  #133F10;
+  --green-tint:  #D9E5C8;
+
+  --purple:      #420247;
+  --purple-2:    #7F18A4;
+  --purple-deep: #28002B;
+  --purple-tint: #E4D3E5;
+
+  --mascot:      #E84B8A;
+  --mascot-2:    #FF3CA7;
+  --mascot-tint: #F5D2DF;
+
+  /* ---- Signals ---- */
+  --sun:         #F5C344;
+  --flame:       #FF5A1F;
+  --sky:         #3A6EFF;
+  --warn:        #E0241A;
+  --live:        var(--green);
+
+  /* ---- Semantic surfaces ---- */
+  --bg:          var(--paper);
+  --bg-2:        var(--paper-2);
+  --bg-3:        var(--paper-3);
+  --fg:          var(--ink);
+  --fg-2:        var(--ink-2);
+  --fg-3:        var(--ink-3);
+
+  --accent:      var(--green);
+  --accent-fg:   var(--paper);
+  --accent-tint: color-mix(in oklab, var(--accent) 18%, var(--bg));
+
+  /* ---- Typography — one family, used purposefully ---- */
+  --ff-display:  'Space Grotesk', system-ui, sans-serif;
+  --ff-narrow:   'Space Grotesk', system-ui, sans-serif;
+  --ff-body:     'Space Grotesk', system-ui, sans-serif;
+  --ff-mono:     'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+
+  /* Fluid type — calmer scale; container-relative so artboards behave */
+  --fs-micro:    11px;
+  --fs-tiny:     12px;
+  --fs-xs:       13px;
+  --fs-sm:       14px;
+  --fs-body:     16px;
+  --fs-lg:       18px;
+  --fs-xl:       21px;
+  --fs-h4:       clamp(19px, 1.8cqi, 24px);
+  --fs-h3:       clamp(22px, 2.4cqi, 30px);
+  --fs-h2:       clamp(28px, 3.6cqi, 44px);
+  --fs-h1:       clamp(34px, 5cqi, 64px);
+  --fs-hero:     clamp(42px, 7cqi, 96px);
+  --fs-mega:     clamp(56px, 11cqi, 168px);  /* reserved for one moment per page */
+
+  --lh-tight:    1.05;
+  --lh-snug:     1.2;
+  --lh-base:     1.55;
+  --lh-long:     1.7;
+
+  --tr-caps:     0.06em;
+  --tr-label:    0.10em;
+  --tr-tight:    -0.02em;
+  --tr-tighter:  -0.03em;
+
+  /* ---- Spacing (8pt) ---- */
+  --space-0:     0;
+  --space-1:     4px;
+  --space-2:     8px;
+  --space-3:     16px;
+  --space-4:     24px;
+  --space-5:     32px;
+  --space-6:     48px;
+  --space-7:     64px;
+  --space-8:     96px;
+  --space-9:     128px;
+  --space-10:    192px;
+
+  /* ---- Density modifier (set per-context) ---- */
+  --density:     1;        /* compact 0.8, comfortable 1, spacious 1.2 */
+  --pad-y:       calc(var(--space-5) * var(--density));
+  --pad-x:       calc(var(--space-5) * var(--density));
+  --gutter:      calc(var(--space-4) * var(--density));
+
+  /* ---- Borders ----
+     We use CHUNKY borders — load-bearing or none at all.
+     Hairlines are reserved for fine grids and code blocks. */
+  --bw-hair:     1px;       /* fine-grain only */
+  --bw-rule:     2px;       /* default rule */
+  --bw-chunk:    4px;       /* assertive */
+  --bw-slab:     8px;       /* slab — full-bleed dividers */
+
+  /* ---- Radii ---- */
+  --r-1:         10px;
+  --r-2:         14px;
+  --r-3:         22px;
+  --r-4:         32px;
+  --r-pill:      999px;
+
+  /* ---- Motion ---- */
+  --dur-snap:    80ms;
+  --dur-base:    160ms;
+  --dur-slow:    280ms;
+  --ease:        cubic-bezier(0.2, 0, 0, 1);
+
+  /* ---- Z ---- */
+  --z-header:    100;
+  --z-overlay:   1000;
+
+  --measure:     68ch;
+}
+
+/* Density */
+[data-density="compact"]     { --density: 0.75; }
+[data-density="comfortable"] { --density: 1; }
+[data-density="spacious"]    { --density: 1.35; }
+
+/* Accent cycle — sets BOTH the default hue (--accent) and the dark-mode
+   bright variant (--accent-bright). The ink-theme rule that follows then
+   swaps --accent → --accent-bright so dark-mode contrast is real. Order
+   matters: accent rules first, theme override last. */
+[data-accent="green"]  { --accent: var(--green);  --accent-bright: var(--green-2);  --accent-fg: var(--paper); }
+[data-accent="purple"] { --accent: var(--purple); --accent-bright: #C277FF;         --accent-fg: var(--paper); }
+[data-accent="mascot"] { --accent: var(--mascot); --accent-bright: var(--mascot-2); --accent-fg: var(--ink);   }
+
+/* Ink theme — brightens the accent so dark-mode contrast is real. */
+[data-theme="ink"] {
+  --bg:        var(--ink);
+  --bg-2:      var(--ink-2);
+  --bg-3:      #34343C;
+  --fg:        var(--paper);
+  --fg-2:      var(--paper-2);
+  --fg-3:      #9A9AA2;
+}
+[data-theme="ink"][data-accent],
+[data-theme="ink"] [data-accent] {
+  --accent: var(--accent-bright);
+  --accent-fg: var(--ink);
+}
+/* Fallback when no data-accent is set but ink is on */
+[data-theme="ink"]:not([data-accent]) {
+  --accent: var(--green-2);
+  --accent-fg: var(--ink);
+}
+
+/* Type-scale modifier */
+[data-typescale="sm"] { --fs-body: 15px; --fs-lg: 17px; --fs-xl: 20px; }
+[data-typescale="lg"] { --fs-body: 17px; --fs-lg: 20px; --fs-xl: 24px; }
+
+/* Grid overlay (debug) */
+.with-grid-overlay {
+  background-image:
+    linear-gradient(to right, rgba(232,75,138,0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(232,75,138,0.15) 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--ff-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-base);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+::selection { background: var(--mascot); color: var(--ink); }
+
+/* Every kit root is its own responsive container; clip horizontal overflow
+   as a belt-and-suspenders against any oversized child. */
+[class*="kit-"] {
+  container-type: inline-size;
+  overflow-x: clip;
+  min-width: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+[class*="kit-"] * { min-width: 0; }
+
+/* ============================================================
+   Type classes — calmer hierarchy.
+   Body owns most of the page. Display reserved for the page's one
+   anchor moment. Mono is now a CONTENT cue (terminal, metadata,
+   stats) not a chrome cue.
+   ============================================================ */
+.t-hero    { font-family: var(--ff-body); font-size: var(--fs-hero); line-height: var(--lh-tight); letter-spacing: var(--tr-tighter); font-weight: 600; margin: 0; }
+.t-mega    { font-family: var(--ff-body); font-size: var(--fs-mega); line-height: 0.95;            letter-spacing: var(--tr-tighter); font-weight: 600; margin: 0; }
+.t-h1, h1  { font-family: var(--ff-body);    font-size: var(--fs-h1);   line-height: var(--lh-snug);  letter-spacing: var(--tr-tight);   font-weight: 600; margin: 0; }
+.t-h2, h2  { font-family: var(--ff-body);    font-size: var(--fs-h2);   line-height: var(--lh-snug);  letter-spacing: var(--tr-tight);   font-weight: 600; margin: 0; }
+.t-h3, h3  { font-family: var(--ff-body);    font-size: var(--fs-h3);   line-height: var(--lh-snug);  letter-spacing: -0.01em;           font-weight: 600; margin: 0; }
+.t-h4, h4  { font-family: var(--ff-body);    font-size: var(--fs-h4);   line-height: var(--lh-snug);  font-weight: 600; margin: 0; }
+
+.t-display { font-family: var(--ff-body); font-weight: 600; letter-spacing: var(--tr-tight); }
+.t-mono    { font-family: var(--ff-mono); }
+.t-body    { font-family: var(--ff-body); }
+
+/* Eyebrow — the new "section opener". Small, accented, lowercase
+   English. Replaces `// 001` and `§ 02` mono receipts on UI pages. */
+.eyebrow {
+  font-family: var(--ff-body);
+  font-size: var(--fs-tiny);
+  font-weight: 600;
+  letter-spacing: var(--tr-caps);
+  text-transform: uppercase;
+  color: var(--accent);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.eyebrow::before {
+  content: '';
+  width: 18px; height: 2px; background: currentColor;
+}
+
+.t-label   { font-family: var(--ff-mono); font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: var(--tr-label); font-weight: 500; }
+.t-micro   { font-family: var(--ff-mono); font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: var(--tr-label); color: var(--fg-3); }
+.t-meta    { font-family: var(--ff-body); font-size: var(--fs-sm); color: var(--fg-3); }
+.t-lede    { font-family: var(--ff-body); font-size: var(--fs-xl); line-height: 1.4; max-width: 38ch; font-weight: 400; color: var(--fg-2); }
+.t-prose   { font-family: var(--ff-body); font-size: var(--fs-lg); line-height: var(--lh-long); max-width: var(--measure); text-wrap: pretty; }
+
+.dim       { color: var(--fg-3); }
+
+/* Mono hue utilities */
+.mono-green   { color: var(--green-2); }
+.mono-purple  { color: var(--purple-2); }
+.mono-mascot  { color: var(--mascot); }
+.mono-sun     { color: var(--sun); }
+.mono-flame   { color: var(--flame); }
+.mono-sky     { color: var(--sky); }
+
+/* Highlight inline */
+.hl-green   { background: var(--green);   color: var(--paper); padding: 0.1em 0.4em; }
+.hl-purple  { background: var(--purple);  color: var(--paper); padding: 0.1em 0.4em; }
+.hl-mascot  { background: var(--mascot);  color: var(--ink);   padding: 0.1em 0.4em; }
+.hl-sun     { background: var(--sun);     color: var(--ink);   padding: 0.1em 0.4em; }
+.hl-flame   { background: var(--flame);   color: var(--paper); padding: 0.1em 0.4em; }
+.hl-ink     { background: var(--ink);     color: var(--paper); padding: 0.1em 0.4em; }
+
+/* ============================================================
+   Primitives
+   ============================================================ */
+.rule       { border: 0; border-top: var(--bw-rule)  solid currentColor; opacity: 0.85; margin: 0; }
+.rule-chunk { border: 0; border-top: var(--bw-chunk) solid currentColor; margin: 0; }
+.rule-slab  { border: 0; border-top: var(--bw-slab)  solid currentColor; margin: 0; }
+
+/* Stamp — the rubber-stamp motif */
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 4px 10px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-tiny);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  font-weight: 600;
+  transform: rotate(-1.5deg);
+  border-radius: 2px;
+}
+.stamp.outline { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 2px currentColor; }
+.stamp.green   { background: var(--green);  color: var(--paper); }
+.stamp.purple  { background: var(--purple); color: var(--paper); }
+.stamp.mascot  { background: var(--mascot); color: var(--ink); }
+.stamp.sun     { background: var(--sun);    color: var(--ink); }
+.stamp.flame   { background: var(--flame);  color: var(--paper); }
+.stamp.live    { background: var(--green);  color: var(--paper); }
+
+/* Buttons — pill-shaped, friendly */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 13px 22px;
+  background: var(--bg-2);
+  color: var(--fg);
+  font-family: var(--ff-body);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+  border: 0;
+  border-radius: var(--r-pill);
+}
+.btn:hover  { background: var(--bg-3); color: var(--fg); }
+.btn:active { transform: translateY(1px); }
+
+.btn-accent, .btn-primary { background: var(--accent); color: var(--accent-fg); }
+.btn-accent:hover, .btn-primary:hover { background: var(--fg); color: var(--bg); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--fg);
+  box-shadow: inset 0 0 0 1.5px var(--rule-strong, color-mix(in oklab, currentColor 28%, transparent));
+}
+.btn-ghost:hover { background: var(--bg-2); }
+
+/* Link in prose */
+a.t-link, .prose a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
+}
+a.t-link:hover, .prose a:hover { background: var(--accent); color: var(--accent-fg); text-decoration-color: transparent; }
+
+/* Dateline — ASCII receipt header */
+.dateline {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: var(--bw-rule) solid currentColor;
+  font-family: var(--ff-mono);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-label);
+}
+.dateline .spread { flex: 1; height: 0; border-bottom: var(--bw-hair) dotted currentColor; }
+
+/* Index row — chunky, full-width, no decorative border */
+.row {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: var(--space-4);
+  align-items: baseline;
+  padding: var(--space-4) 0;
+  border-top: var(--bw-rule) solid currentColor;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: background var(--dur-snap) var(--ease), padding var(--dur-snap) var(--ease);
+}
+.row:last-child { border-bottom: var(--bw-rule) solid currentColor; }
+.row:hover { background: var(--accent); color: var(--accent-fg); padding-left: var(--space-3); padding-right: var(--space-3); }
+.row:hover .dim { color: inherit; opacity: 0.7; }
+
+/* Code */
+code, .t-code {
+  font-family: var(--ff-mono);
+  font-size: 0.92em;
+  background: var(--bg-2);
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+}
+pre {
+  font-family: var(--ff-mono);
+  background: var(--ink);
+  color: var(--paper);
+  padding: var(--space-4);
+  overflow-x: auto;
+  line-height: 1.55;
+  font-size: var(--fs-sm);
+  margin: 0;
+  border-radius: var(--r-2);
+}
+[data-theme="ink"] pre .c { color: var(--fg-3); }
+pre .k { color: var(--mascot); }   /* keyword */
+pre .s { color: var(--sun); }      /* string */
+pre .c { color: var(--ink-3); }    /* comment */
+pre .n { color: var(--green-2); }
+
+/* Receipt — repeating dotted-leader row */
+.receipt-row {
+  display: flex; align-items: baseline; gap: var(--space-3);
+  padding: 10px 0;
+  font-family: var(--ff-mono);
+}
+.receipt-row .label { font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: var(--tr-label); color: var(--fg-3); min-width: 160px; }
+.receipt-row .lead  { flex: 1; height: 0; border-bottom: var(--bw-hair) dotted currentColor; opacity: 0.4; align-self: center; }
+.receipt-row .val   { font-size: var(--fs-sm); }
+
+/* Slab block — confident colored full-bleed rectangle */
+.slab {
+  padding: var(--space-7) var(--space-6);
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+.slab-ink   { background: var(--ink);    color: var(--paper); }
+.slab-paper { background: var(--paper-2); color: var(--ink); }
+
+/* Tag chip */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px;
+  background: var(--bg-2);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-tiny);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-label);
+  border-radius: var(--r-pill);
+  color: var(--fg-2);
+}
+.chip-live { background: var(--green); color: var(--paper); }
+.chip-wip  { background: var(--sun);   color: var(--ink); }
+
+/* Cursor blink for terminal kits */
+.cursor-blink::after {
+  content: '▌';
+  animation: blink 1s steps(2) infinite;
+  margin-left: 2px;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* Visually-hidden but accessible */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+/* Random hue swatches — list-item colour identification (via tweaks) */
+[data-hue="0"] { --row-hue: var(--green); }
+[data-hue="1"] { --row-hue: var(--purple); }
+[data-hue="2"] { --row-hue: var(--mascot); }
+[data-hue="3"] { --row-hue: var(--sun); }
+[data-hue="4"] { --row-hue: var(--flame); }
+[data-hue="5"] { --row-hue: var(--sky); }
+.huechip {
+  display: inline-block; width: 10px; height: 10px;
+  background: var(--row-hue, var(--fg-3));
+  margin-right: 8px; vertical-align: middle;
+  border-radius: 2px;
+}

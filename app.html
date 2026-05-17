@@ -1,13 +1,205 @@
 <!doctype html>
-<html lang="en"><head>
+<html lang="en" class="ds-247420" data-theme="light">
+<head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>247420 / unified app</title>
-  <meta name="description" content="247420 design system — single-page WebJSX app consuming the 247420 SDK bundle.">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>247420 — SDK demo</title>
+  <link rel="stylesheet" href="dist/247420.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "anentrypoint-design": "./dist/247420.js",
+        "anentrypoint-design/": "./",
+        "webjsx": "./vendor/webjsx/index.js"
+      }
+    }
+  </script>
 </head>
 <body>
-  <div id="root" class="ds-247420"></div>
-  <script type="module" src="./dist/247420.app.js"></script>
+  <div id="app"></div>
+  <script type="module">
+    import { mount, components as C, h, scope } from 'anentrypoint-design';
+
+    const state = {
+      route: location.hash.slice(1) || 'home',
+      opened: -1,
+      copied: false,
+    };
+
+    const works = [
+      { code: '001', title: 'gm',         sub: 'state machine for coding agents',       meta: 'v0.4.1 · live', body: 'a small, deterministic runtime that lets llms code without losing their minds.' },
+      { code: '002', title: 'zellous',    sub: 'production push-to-talk',                meta: 'v1.2 · live',   body: 'hold the button. talk. someone on the other side hears you. opus codec, rooms, replay.' },
+      { code: '003', title: 'thebird',    sub: 'anthropic ↔ gemini streaming bridge',    meta: 'wip · soon',    body: 'yes, the name is a reference. no, we won\'t tell you to what.' },
+      { code: '004', title: 'spoint',     sub: 'the spawnpoint',                         meta: 'v0.8 · live',   body: 'one url, one room, everyone lands in the same place.' },
+      { code: '005', title: 'mcp-repl',   sub: 'repl for mcp · 19 tools',                meta: 'v0.7 · live',   body: 'executenodejs, executedeno, executebash, astgrep_search. read the source.' },
+      { code: '006', title: 'mutagen',    sub: 'adaptogen server',                       meta: 'v0.3 · live',   body: 'everything to do with a dapp deg3n.' },
+    ];
+    const posts = [
+      { date: '2026.04.14', title: 'we were here first',                          tag: 'lore',      href: '#blog' },
+      { date: '2026.03.22', title: 'a postmortem of gm v0.4',                     tag: 'gm',        href: '#' },
+      { date: '2026.02.09', title: 'push-to-talk is a protocol, not a feature',   tag: 'zellous',   href: '#' },
+      { date: '2025.12.11', title: 'against the vibe-coded interface',            tag: 'manifesto', href: '#' },
+    ];
+    const currentlyShipping = [
+      { title: 'gm',      sub: 'state machine', meta: 'v0.4.1', live: true },
+      { title: 'zellous', sub: 'push-to-talk',  meta: 'v1.2',   live: true },
+      { title: 'thebird', sub: '—',             meta: 'wip',    live: false },
+    ];
+    const manifesto = [
+      { text: 'we are a creative collective of eight, scattered across three timezones. we have been shipping open-source tools for the web since 2018.' },
+      { text: 'we move fast, break things on purpose, document honestly, and ship the rough draft. humor is load-bearing.', dim: true },
+      { text: 'some of what we make becomes the future. most doesn\'t. that\'s the deal.', dim: true },
+    ];
+
+    const project = {
+      name: 'gm.',
+      tagline: 'a state machine for coding agents. it thinks, so you don\'t have to. (as much.)',
+      install: 'npx -y @anentrypoint/mcp-gm',
+      receipt: [
+        ['live since',     'sep 2024'],
+        ['stars',          '3,124'],
+        ['weekly d/l',     '47k'],
+        ['runtime deps',   '0'],
+        ['integrations',   '14 editors'],
+        ['license',        'mit'],
+      ],
+      changelog: [
+        { date: 'apr 20 2026', ver: 'v0.4.1', msg: 'fixed the thing everyone complained about.' },
+        { date: 'mar 22 2026', ver: 'v0.4.0', msg: 'new state-machine runtime. broke everything on purpose.' },
+        { date: 'feb 09 2026', ver: 'v0.3.7', msg: 'astgrep_search is now astgrep_enhanced_search.' },
+        { date: 'dec 11 2025', ver: 'v0.3.0', msg: 'first public release. gm, world.' },
+      ],
+    };
+
+    const nav = [
+      ['home',     '#home'],
+      ['project',  '#project'],
+      ['docs',     '#docs'],
+      ['blog',     '#blog'],
+      ['app',      '#app'],
+    ];
+
+    function onNav(label) {
+      state.route = label;
+      location.hash = label;
+      render();
+    }
+
+    window.addEventListener('hashchange', () => {
+      state.route = location.hash.slice(1) || 'home';
+      render();
+    });
+
+    function topbar() {
+      return C.Topbar({
+        brand: '247420', leaf: state.route === 'home' ? '' : state.route,
+        items: nav, active: state.route, onNav,
+        search: 'search the system…',
+      });
+    }
+    function status() {
+      return C.Status({
+        left: [state.route === 'home' ? 'home' : '247420 / ' + state.route, 'live'],
+        right: ['● probably emerging 🌀', 'source ↗'],
+      });
+    }
+
+    function view() {
+      const main = (() => {
+        if (state.route === 'project') {
+          return C.ProjectView({ project, copied: state.copied, onCopy: () => { state.copied = true; render(); setTimeout(() => { state.copied = false; render(); }, 1400); } });
+        }
+        if (state.route === 'docs') {
+          return [
+            h('div', { class: 'ds-prose' },
+              C.Heading({ level: 1, children: 'docs · gm' }),
+              C.Lede({ children: 'how to install it, how to wire it up, and how to stay out of its way.' }),
+              h('h2', {}, 'install'),
+              h('p', {}, 'one command. if you have used a node toolchain in the last decade, this will look familiar.'),
+              h('pre', {}, h('span', { class: 'c' }, '# claude code plugin marketplace\n'),
+                h('span', { class: 'k' }, 'claude'), ' plugin marketplace add AnEntrypoint/gm-cc\n',
+                h('span', { class: 'k' }, 'claude'), ' plugin install -s user gm@gm-cc'),
+              h('h2', {}, 'quickstart'),
+              h('p', {}, 'start the repl, ask it to do something, watch it work.'),
+              h('pre', {}, h('span', { class: 'k' }, 'gm'), ' start\n',
+                h('span', { class: 'c' }, '→ state: idle\n'),
+                h('span', { class: 'c' }, '→ tools: 19\n'),
+                '> fix the failing test in src/router.ts\n',
+                h('span', { class: 'c' }, '→ state: reading\n'),
+                h('span', { class: 'c' }, '→ state: editing\n'),
+                h('span', { class: 'c' }, '→ state: verifying\n'),
+                h('span', { class: 'c' }, '→ state: '), h('span', { class: 'n' }, 'done')),
+              h('h2', {}, 'philosophy'),
+              h('p', {}, 'there is no philosophy. read the source.'),
+            )
+          ];
+        }
+        if (state.route === 'blog') {
+          return h('article', { class: 'ds-prose', style: 'max-width:680px;margin:0 auto;padding-top:32px' },
+            h('span', { class: 'eyebrow' }, 'apr 14 · 2026 · 8 min'),
+            C.Heading({ level: 1, children: 'we were here first.' }),
+            C.Lede({ children: 'a short, slightly smug history of the creative department of the internet.' }),
+            h('p', {}, 'there\'s a particular feeling — you know the one — of watching something you made five years ago get repackaged, re-skinned, and re-announced as if it were new.'),
+            h('blockquote', { style: 'margin:32px 0;padding-left:24px;border-left:4px solid var(--accent);font-style:italic;font-family:var(--ff-body);font-size:22px;line-height:1.35;max-width:32ch' },
+              'we don\'t know which ideas become the future. we just know most of them come from the same few rooms.'),
+            h('p', {}, 'the rooms have moved — from irc to forums to discord to whatever-this-is-now — but the pattern is the same.'),
+            h('h2', {}, 'so what\'s the point'),
+            h('p', {}, 'stop asking permission. ship the rough draft. document honestly. treat humor as load-bearing.'),
+          );
+        }
+        if (state.route === 'app') {
+          return [
+            C.Section({
+              eyebrow: 'production · workspace',
+              title: 'Runs',
+              children: [
+                C.Kpi({ items: [['3', 'live now'], ['12', 'queued'], ['1', 'failed today'], ['47', 'this week']] }),
+                h('div', { style: 'height:24px' }),
+                C.Table({
+                  headers: ['id', 'state', 'model', 'time', 'user'],
+                  rows: [
+                    ['#01821', C.Chip({ tone: 'purple', children: 'editing' }),   'sonnet-4.5', '0:14',  'b0'],
+                    ['#01820', C.Chip({ tone: 'sun',    children: 'verifying' }), 'sonnet-4.5', '1:02',  'jb'],
+                    ['#01819', C.Chip({ tone: 'mascot', children: 'planning' }),  'haiku-4.5',  '0:08',  'b0'],
+                    ['#01818', C.Chip({ tone: 'live',   children: 'done' }),      'sonnet-4.5', '11.4s', 'sch'],
+                    ['#01817', C.Chip({ tone: 'flame',  children: 'failed' }),    'haiku-4.5',  '2.1s',  'jb'],
+                  ],
+                })
+              ]
+            })
+          ];
+        }
+        // home (default)
+        return C.HomeView({
+          state, onNav, onToggleWork: (i) => { state.opened = i; render(); },
+          works, posts, manifesto, currentlyShipping
+        });
+      })();
+
+      const side = state.route === 'docs' ? C.Side({ sections: [
+        { group: 'getting started', items: [
+          { label: 'introduction', glyph: '·', href: '#docs', active: true },
+          { label: 'install',      glyph: '·', href: '#docs' },
+          { label: 'quickstart',   glyph: '·', href: '#docs' },
+        ]},
+        { group: 'concepts', items: [
+          { label: 'states & transitions', glyph: '·', href: '#docs' },
+          { label: 'the loop',             glyph: '·', href: '#docs' },
+          { label: 'tools',                glyph: '·', href: '#docs' },
+        ]},
+        { group: 'reference', items: [
+          { label: 'executenodejs', glyph: '·', href: '#docs' },
+          { label: 'executedeno',   glyph: '·', href: '#docs' },
+          { label: 'astgrep_*',     glyph: '·', href: '#docs' },
+        ]},
+      ]}) : null;
+
+      return C.AppShell({ topbar: topbar(), side, main, status: status(), narrow: state.route === 'blog' || state.route === 'docs' });
+    }
+
+    const root = document.getElementById('app');
+    let render;
+    render = mount(root, view);
+  </script>
 </body>
 </html>

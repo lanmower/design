@@ -1,10 +1,12 @@
+// Component barrel — matches upstream export surface 1:1.
+
 import * as webjsx from '../vendor/webjsx/index.js';
 export const h = webjsx.createElement;
 
 export {
     Brand, Chip, Btn, Glyph,
     Topbar, Crumb, Side, Status, AppShell,
-    Heading, Lede
+    Heading, Lede, Dot, Rail
 } from './components/shell.js';
 
 export {
@@ -41,6 +43,8 @@ export {
 } from './components/community.js';
 
 export {
-    home, chat, sessions, projects, agents, analytics, models, cron, skills, config, env, tools, batch, gateway, chains,
-    skillLabel, getRecentPaths, saveRecentPath, renderChatMessages, FREDDIE_PAGES
+    FREDDIE_PAGES,
+    home, chat, voice, sessions, projects, agents, analytics,
+    models, cron, skills, config, env, tools, batch, gateway, chains,
+    skillLabel, getRecentPaths, saveRecentPath, renderChatMessages
 } from './components/freddie.js';

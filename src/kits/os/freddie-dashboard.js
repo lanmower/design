@@ -1,5 +1,5 @@
-import * as webjsx from '../../vendor/webjsx/index.js';
-import * as components from '../components.js';
+import * as webjsx from '../../../vendor/webjsx/index.js';
+import * as components from '../../components.js';
 import { ROUTES, OS_ROUTE_DEFS } from './freddie/routes.js';
 import { makeCorePages } from './freddie/pages-core.js';
 import { makeChatPage } from './freddie/pages-chat.js';

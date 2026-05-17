@@ -1,61 +1,39 @@
-import { register } from './debug.js';
-
-let _marked = null;
-let _purify = null;
-let _stats = { renders: 0, sanitizedTags: 0 };
-
-async function loadMarked() {
-    if (_marked) return _marked;
-    const mod = await import('https://cdn.jsdelivr.net/npm/marked@15.0.7/lib/marked.esm.js');
-    _marked = mod.marked;
-    _marked.setOptions({ breaks: true, gfm: true });
-    return _marked;
-}
-
-async function loadPurify() {
-    if (_purify) return _purify;
-    const mod = await import('https://cdn.jsdelivr.net/npm/dompurify@3.4.1/+esm');
-    _purify = mod.default || mod;
-    if (!_purify.sanitize) throw new Error('dompurify did not load a sanitize fn');
-    _purify.addHook('uponSanitizeElement', (node, data) => {
-        if (data.tagName && data.allowedTags && !data.allowedTags[data.tagName]) _stats.sanitizedTags += 1;
-    });
-    return _purify;
-}
+// Markdown — lazy-loads marked + DOMPurify on first call. Stub-safe:
+// if loading fails, we fall back to a simple escape-and-linebreak pass so
+// the chat doesn't go blank.
 
 let _ready = null;
-export function ensureReady() {
+let _marked = null;
+let _purify = null;
+
+const MARKED_URL = 'https://cdn.jsdelivr.net/npm/marked@15/+esm';
+const PURIFY_URL = 'https://cdn.jsdelivr.net/npm/dompurify@3/+esm';
+
+export async function ensureReady() {
     if (_ready) return _ready;
-    _ready = Promise.all([loadMarked(), loadPurify()]).then(() => true);
+    _ready = (async () => {
+        try {
+            const [{ marked }, DOMPurifyMod] = await Promise.all([import(MARKED_URL), import(PURIFY_URL)]);
+            _marked = marked;
+            _purify = DOMPurifyMod.default || DOMPurifyMod;
+            return true;
+        } catch (err) {
+            console.warn('[247420] markdown loader failed:', err);
+            return false;
+        }
+    })();
     return _ready;
 }
 
-export async function renderMarkdown(text) {
-    const [marked, purify] = await Promise.all([loadMarked(), loadPurify()]);
-    const dirty = marked.parse(String(text || ''));
-    const clean = purify.sanitize(dirty, {
-        FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form'],
-        FORBID_ATTR: ['onerror', 'onclick', 'onload', 'onmouseover'],
-        ADD_ATTR: ['target', 'rel']
-    });
-    _stats.renders += 1;
-    return clean;
+function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    })[c]);
 }
 
-export function renderMarkdownSync(text) {
-    if (!_marked || !_purify) return null;
-    const dirty = _marked.parse(String(text || ''));
-    const clean = _purify.sanitize(dirty, {
-        FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form'],
-        FORBID_ATTR: ['onerror', 'onclick', 'onload', 'onmouseover'],
-        ADD_ATTR: ['target', 'rel']
-    });
-    _stats.renders += 1;
-    return clean;
+export async function renderMarkdown(src) {
+    const ok = await ensureReady();
+    if (!ok) return escapeHtml(src).replace(/\n/g, '<br>');
+    const raw = _marked.parse(String(src));
+    return _purify.sanitize(raw);
 }
-
-register('markdown', () => ({
-    loaded: { marked: !!_marked, dompurify: !!_purify },
-    renders: _stats.renders,
-    sanitizedTags: _stats.sanitizedTags
-}));

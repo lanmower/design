@@ -1,3 +1,5 @@
+// File modals — matches upstream signatures + class names.
+
 import * as webjsx from '../../vendor/webjsx/index.js';
 import { Btn } from './shell.js';
 import { fileGlyph, fmtFileSize } from './files.js';
@@ -22,7 +24,7 @@ export function ConfirmDialog({ title = 'confirm', message, confirmLabel = 'conf
             h('div', { class: 'ds-modal-actions' },
                 Btn({ onClick: onCancel, children: cancelLabel }),
                 h('button', {
-                    class: destructive ? 'btn-stamp flame' : 'btn-stamp green',
+                    class: destructive ? 'btn-primary danger' : 'btn-primary',
                     onclick: onConfirm
                 }, confirmLabel)
             )
@@ -52,7 +54,7 @@ export function PromptDialog({ title = 'name', value = '', placeholder = '', con
             ),
             h('div', { class: 'ds-modal-actions' },
                 Btn({ onClick: onCancel, children: cancelLabel }),
-                h('button', { class: 'btn-stamp green', onclick: () => onConfirm && onConfirm(value) }, confirmLabel)
+                h('button', { class: 'btn-primary', onclick: () => onConfirm && onConfirm(value) }, confirmLabel)
             )
         ]
     });

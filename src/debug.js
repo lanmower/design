@@ -1,39 +1,30 @@
-const registry = new Map();
+// Lightweight client-side registry. Subsystems register a snapshot fn;
+// `window.__debug` exposes them all for live inspection.
 
-export function register(name, snapshot) {
-    if (typeof name !== 'string' || !name) throw new Error('debug.register: name required');
-    if (typeof snapshot !== 'function') throw new Error('debug.register: snapshot fn required');
-    registry.set(name, snapshot);
-    expose();
+const _registry = new Map();
+
+export function register(name, snapshotFn) {
+    if (typeof name !== 'string' || typeof snapshotFn !== 'function') return;
+    _registry.set(name, snapshotFn);
+    if (typeof window !== 'undefined') {
+        if (!window.__debug) window.__debug = {};
+        Object.defineProperty(window.__debug, name, {
+            get() { try { return snapshotFn(); } catch (e) { return { error: String(e) }; } },
+            configurable: true,
+            enumerable: true,
+        });
+    }
 }
 
-export function unregister(name) { registry.delete(name); expose(); }
-
-export function list() { return [...registry.keys()]; }
-
-export function snapshot(name) {
-    const fn = registry.get(name);
-    if (!fn) return null;
-    try { return fn(); } catch (e) { return { error: String(e && e.message || e) }; }
+export function unregister(name) {
+    _registry.delete(name);
+    if (typeof window !== 'undefined' && window.__debug) delete window.__debug[name];
 }
 
-export function snapshotAll() {
+export function snapshot() {
     const out = {};
-    for (const [k, fn] of registry) {
-        try { out[k] = fn(); } catch (e) { out[k] = { error: String(e && e.message || e) }; }
+    for (const [k, fn] of _registry) {
+        try { out[k] = fn(); } catch (e) { out[k] = { error: String(e) }; }
     }
     return out;
 }
-
-function expose() {
-    if (typeof window === 'undefined') return;
-    const existing = (window.__debug && typeof window.__debug === 'object') ? window.__debug : {};
-    Object.assign(existing, { list, snapshot, snapshotAll, register, unregister });
-    try {
-        Object.defineProperty(window, '__debug', { value: existing, configurable: true, writable: true });
-    } catch {
-        try { window.__debug = existing; } catch {}
-    }
-}
-
-expose();

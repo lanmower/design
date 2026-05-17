@@ -138,7 +138,6 @@ try {
     await build({
         entryPoints: [
             path.join(root, 'src/index.js'),
-            path.join(root, 'src/app.js'),
         ],
         outdir: dist,
         entryNames: '247420.[name]',

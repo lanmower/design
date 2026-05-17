@@ -1,3 +1,7 @@
+// 247420 design system — main entry.
+// Drop-in replacement: same export surface as the published SDK.
+//   import { mount, components as C, h, applyDiff, scope } from 'anentrypoint-design';
+
 import * as webjsx from '../vendor/webjsx/index.js';
 import { loadCss, scope } from './styles.js';
 import { registerDeckStage, getDeckStage } from './deck-stage.js';
@@ -13,20 +17,29 @@ import { registerChatElement } from './web-components/ds-chat.js';
 let _installed = false;
 export async function installStyles(target) {
     if (_installed && !target) return;
+    if (typeof document === 'undefined') return;
     const css = await loadCss();
     const root = target || document.head;
+    if (!target && document.querySelector('style[data-247420]')) { _installed = true; return; }
     const tag = document.createElement('style');
     tag.setAttribute('data-247420', '');
     tag.textContent = css;
     root.appendChild(tag);
-    if (!target) motion.installMotion();
-    if (!target) _installed = true;
+    if (!target) {
+        motion.installMotion();
+        _installed = true;
+    }
 }
 
 export function mount(rootEl, viewFn, { autoScope = true } = {}) {
-    if (autoScope && rootEl && rootEl.classList && !rootEl.classList.contains(scope.slice(1))) {
+    if (!rootEl) throw new Error('mount: rootEl required');
+    if (typeof viewFn !== 'function') throw new Error('mount: viewFn required');
+    if (autoScope && rootEl.classList && !rootEl.classList.contains(scope.slice(1))) {
         rootEl.classList.add(scope.slice(1));
     }
+    // Auto-inject styles (idempotent) so single-line consumers don't need
+    // to remember installStyles() before mount.
+    installStyles().catch(() => {});
     const render = () => {
         webjsx.applyDiff(rootEl, viewFn(render));
         requestAnimationFrame(() => motion.animateTree(rootEl));
@@ -35,12 +48,14 @@ export function mount(rootEl, viewFn, { autoScope = true } = {}) {
     return render;
 }
 
+// Side-effect: register <ds-chat> as soon as the SDK loads in a browser.
 if (typeof window !== 'undefined' && typeof customElements !== 'undefined') {
     registerChatElement();
 }
 
 export {
-    webjsx, loadCss, scope, registerDeckStage, getDeckStage,
+    webjsx, loadCss, scope,
+    registerDeckStage, getDeckStage,
     components, motion, debug, mountKit,
     renderMarkdown, ensureMarkdownReady,
     ensurePrism, highlightAllUnder,
@@ -49,7 +64,16 @@ export {
 };
 export const h = webjsx.createElement;
 export const applyDiff = webjsx.applyDiff;
-export { FREDDIE_PAGES, home, chat, sessions, projects, agents, analytics, models, cron, skills, config, env, tools, batch, gateway, chains, skillLabel, getRecentPaths, saveRecentPath, renderChatMessages } from './components.js';
+
+// Re-export freddie helpers so consumers can `import { FREDDIE_PAGES } from
+// 'anentrypoint-design'` directly.
+export {
+    FREDDIE_PAGES,
+    home, chat, voice, sessions, projects, agents, analytics,
+    models, cron, skills, config, env, tools, batch, gateway, chains,
+    skillLabel, getRecentPaths, saveRecentPath, renderChatMessages
+} from './components.js';
+
 export default {
     webjsx, loadCss, scope, installStyles, mount, h, applyDiff,
     registerDeckStage, getDeckStage, components, motion, debug, mountKit,
