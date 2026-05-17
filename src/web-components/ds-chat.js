@@ -33,6 +33,8 @@ class DsChat extends HTMLElement {
     }
 }
 
+export { DsChat };
+
 let _registered = false;
 export function registerChatElement() {
     if (_registered) return;

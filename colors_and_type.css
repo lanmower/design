@@ -139,6 +139,21 @@
   --accent-fg: var(--ink);
 }
 
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] {
+    --bg:        var(--ink);
+    --bg-2:      var(--ink-2);
+    --bg-3:      #34343C;
+    --fg:        var(--paper);
+    --fg-2:      var(--paper-2);
+    --fg-3:      #9A9AA2;
+    --panel-bg:  var(--bg);
+    --panel-bg-2: var(--bg-2);
+    --accent:    var(--accent-bright, var(--green-2));
+    --accent-fg: var(--ink);
+  }
+}
+
 [data-density="compact"]     { --density: 0.75; }
 [data-density="comfortable"] { --density: 1; }
 [data-density="spacious"]    { --density: 1.35; }

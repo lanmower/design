@@ -12,7 +12,7 @@ import { renderMarkdown, ensureReady as ensureMarkdownReady } from './markdown.j
 import { ensurePrism, highlightAllUnder } from './highlight.js';
 import { renderPageHtml } from './page-html.js';
 import { mountKit } from './bootstrap.js';
-import { registerChatElement } from './web-components/ds-chat.js';
+import { registerChatElement, DsChat } from './web-components/ds-chat.js';
 
 let _installed = false;
 export async function installStyles(target) {
@@ -59,7 +59,7 @@ export {
     components, motion, debug, mountKit,
     renderMarkdown, ensureMarkdownReady,
     ensurePrism, highlightAllUnder,
-    registerChatElement,
+    registerChatElement, DsChat,
     renderPageHtml
 };
 export const h = webjsx.createElement;

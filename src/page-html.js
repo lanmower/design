@@ -3,7 +3,7 @@
 
 const SCOPE = 'ds-247420';
 
-export function renderPageHtml({ title = '247420', body = '', headExtra = '', theme = 'light', cssHref } = {}) {
+export function renderPageHtml({ title = '247420', body = '', headExtra = '', theme = 'auto', cssHref } = {}) {
     const cssLink = cssHref
         ? `<link rel="stylesheet" href="${cssHref}">`
         : `<link rel="stylesheet" href="https://unpkg.com/anentrypoint-design@latest/dist/247420.css">`;
