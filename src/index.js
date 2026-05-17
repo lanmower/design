@@ -36,7 +36,9 @@ export function mount(rootEl, viewFn, { autoScope = true } = {}) {
     if (!rootEl) throw new Error('mount: rootEl required');
     if (typeof viewFn !== 'function') throw new Error('mount: viewFn required');
     if (autoScope && rootEl.classList && !rootEl.classList.contains(scope.slice(1))) {
-        rootEl.classList.add(scope.slice(1));
+        const cls = scope.slice(1);
+        const inheritedFromAncestor = rootEl.closest && rootEl.closest('.' + cls);
+        if (!inheritedFromAncestor) rootEl.classList.add(cls);
     }
     // Auto-inject styles (idempotent) so single-line consumers don't need
     // to remember installStyles() before mount.

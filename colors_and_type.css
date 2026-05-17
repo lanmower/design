@@ -162,6 +162,32 @@
   }
 }
 
+/* Nested-scope safety: if .ds-247420 appears under another .ds-247420 (e.g.
+   mount() added the class to an inner element while the ancestor html
+   already had it), the inner element would otherwise re-trigger the root
+   light defaults and detach from the ancestor's data-theme override. Force
+   the inner element to inherit the ancestor's resolved tokens. */
+.ds-247420 .ds-247420 {
+  --bg:        inherit;
+  --bg-2:      inherit;
+  --bg-3:      inherit;
+  --fg:        inherit;
+  --fg-2:      inherit;
+  --fg-3:      inherit;
+  --panel-bg:  inherit;
+  --panel-bg-2: inherit;
+  --accent:    inherit;
+  --accent-fg: inherit;
+  --panel-1:   inherit;
+  --panel-2:   inherit;
+  --panel-3:   inherit;
+  --panel-text: inherit;
+  --panel-text-2: inherit;
+  --panel-text-3: inherit;
+  --panel-accent-2: inherit;
+  --panel-shadow: inherit;
+}
+
 [data-density="compact"]     { --density: 0.75; }
 [data-density="comfortable"] { --density: 1; }
 [data-density="spacious"]    { --density: 1.35; }
