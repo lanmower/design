@@ -102,6 +102,7 @@
   --space-7:     64px;
   --space-8:     96px;
   --space-9:     128px;
+  --space-10:    192px;
 
   --density:     1;
   --pad-y:       calc(var(--space-5) * var(--density));
@@ -195,3 +196,16 @@
 [data-accent="green"]  { --accent: var(--green);  --accent-bright: var(--green-2);  --accent-fg: var(--paper); --panel-accent: var(--green);  }
 [data-accent="purple"] { --accent: var(--purple); --accent-bright: #C277FF;         --accent-fg: var(--paper); --panel-accent: var(--purple); }
 [data-accent="mascot"] { --accent: var(--mascot); --accent-bright: var(--mascot-2); --accent-fg: var(--ink);   --panel-accent: var(--mascot); }
+
+/* Type-scale modifier — opt-in body/lg/xl bump for surfaces that want denser
+   or larger reading sizes without a custom override. */
+[data-typescale="sm"] { --fs-body: 15px; --fs-lg: 17px; --fs-xl: 20px; }
+[data-typescale="lg"] { --fs-body: 17px; --fs-lg: 20px; --fs-xl: 24px; }
+
+/* Debug grid overlay — 8px mascot grid. Toggle via class on any container. */
+.with-grid-overlay {
+  background-image:
+    linear-gradient(to right, rgba(232,75,138,0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(232,75,138,0.15) 1px, transparent 1px);
+  background-size: 8px 8px;
+}
