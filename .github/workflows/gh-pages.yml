@@ -24,12 +24,21 @@ jobs:
         run: |
           # Copy ui_kits and static asset directories
           for d in ui_kits preview slides vendor src site; do
-            [ -d "$d" ] && cp -R "$d" dist/ || true
+            if [ -d "$d" ]; then
+              echo "Copying $d to dist/"
+              cp -R "$d" dist/
+            fi
           done
           # Copy static root files
           for f in app-shell.css colors_and_type.css favicon.svg robots.txt sitemap.xml .nojekyll; do
-            [ -e "$f" ] && cp -f "$f" dist/ || true
+            if [ -e "$f" ]; then
+              echo "Copying $f to dist/"
+              cp -f "$f" dist/
+            fi
           done
+          # List what was copied for verification
+          echo "Contents of dist:"
+          ls -la dist/ | head -20
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
