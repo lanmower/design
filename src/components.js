@@ -12,8 +12,8 @@ export {
 export {
     Panel, Row, RowLink,
     Hero, Install, Receipt, Changelog,
-    WorksList, WritingList, Manifesto, Section,
-    Kpi, Table,
+    WorksList, WritingList, Manifesto, Section, PageHeader,
+    Kpi, Table, SearchInput, TextField, EventList,
     HomeView, ProjectView, Form
 } from './components/content.js';
 

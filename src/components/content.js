@@ -204,6 +204,62 @@ export function ProjectView({ project = {}, copied, onCopy } = {}) {
     ].filter(Boolean).flat();
 }
 
+export function PageHeader({ title, lede, eyebrow, right }) {
+    return h('section', { class: 'ds-section' },
+        eyebrow ? h('span', { class: 'eyebrow' }, eyebrow) : null,
+        title != null ? h('h1', {}, title) : null,
+        lede != null ? h('p', { class: 'lede' }, lede) : null,
+        right != null ? h('div', { class: 'ds-page-header-right' }, ...(Array.isArray(right) ? right : [right])) : null
+    );
+}
+
+export function SearchInput({ value = '', placeholder = 'search…', onInput, onSubmit, name = 'q', key }) {
+    return h('input', {
+        key,
+        type: 'search',
+        name,
+        class: 'ds-search-input',
+        placeholder,
+        value,
+        oninput: onInput ? (e) => onInput(e.target.value, e) : null,
+        onkeydown: onSubmit ? (e) => { if (e.key === 'Enter') onSubmit(e.target.value, e); } : null
+    });
+}
+
+export function TextField({ label, value = '', type = 'text', placeholder = '', onInput, onChange, name, key, hint, multiline, rows = 4 }) {
+    const input = multiline
+        ? h('textarea', {
+            key: 'i', name, rows, placeholder, value,
+            oninput: onInput ? (e) => onInput(e.target.value, e) : null,
+            onchange: onChange ? (e) => onChange(e.target.value, e) : null
+        })
+        : h('input', {
+            key: 'i', type, name, placeholder, value,
+            oninput: onInput ? (e) => onInput(e.target.value, e) : null,
+            onchange: onChange ? (e) => onChange(e.target.value, e) : null
+        });
+    return h('label', { key, class: 'ds-field' },
+        label != null ? h('span', { key: 'l', class: 'ds-field-label' }, label) : null,
+        input,
+        hint != null ? h('span', { key: 'h', class: 'lede ds-field-hint' }, hint) : null
+    );
+}
+
+export function EventList({ items = [], emptyText = 'no events', rankPad = 3 }) {
+    if (!items || !items.length) return h('p', { class: 'lede' }, emptyText);
+    return h('section', { class: 'ds-section ds-event-list' },
+        ...items.map((it, i) => Row({
+            key: it.key || ('ev' + i),
+            code: String(i + 1).padStart(rankPad, '0'),
+            title: it.title || '(empty)',
+            sub: it.sub || '',
+            active: it.active,
+            onClick: it.onClick,
+            kind: it.kind
+        }))
+    );
+}
+
 export function Form({ fields = [], submit = 'submit', onSubmit }) {
     return h('form', { class: 'row-form', onsubmit: (ev) => { ev.preventDefault(); onSubmit && onSubmit(ev); } },
         ...fields.map((f, i) => f.kind === 'textarea'
