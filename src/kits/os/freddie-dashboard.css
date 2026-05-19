@@ -36,13 +36,13 @@
 /* chatlog (legacy fd-chat-msgs container) */
 .fd-chatlog {
     max-height: 420px; overflow-y: auto;
-    background: rgba(0,0,0,0.12);
+    background: var(--panel-2, #DDD3BC);
     border-radius: 4px; padding: 4px; margin-top: 8px;
 }
-.fd-chatlog-msg { padding: 6px 10px; border-bottom: 1px solid rgba(128,128,128,0.15); white-space: pre-wrap; word-break: break-word; }
-.fd-chatlog-assistant { color: var(--color-accent, #7c9); }
-.fd-chatlog-tool { margin: 4px 0; padding: 4px 8px; background: rgba(0,0,0,0.18); border-radius: 4px; font-family: monospace; font-size: 0.85em; }
-.fd-chatlog-tool-sum { cursor: pointer; color: var(--color-warn, #fc9); padding: 2px 0; }
+.fd-chatlog-msg { padding: 6px 10px; background: var(--panel-2, #DDD3BC); white-space: pre-wrap; word-break: break-word; }
+.fd-chatlog-assistant { color: var(--panel-accent, #3F8A4A); }
+.fd-chatlog-tool { margin: 4px 0; padding: 4px 8px; background: var(--panel-3, #C9BDA0); border-radius: 4px; font-family: var(--ff-mono, JetBrains Mono, monospace); font-size: 0.85em; }
+.fd-chatlog-tool-sum { cursor: pointer; color: var(--warn, #FF6B4A); padding: 2px 0; }
 .fd-chatlog-tool-body { margin: 4px 0 0; white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto; }
 
 /* chip wraps (providers, env) */

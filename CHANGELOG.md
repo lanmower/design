@@ -1,4 +1,10 @@
 
+## 0.0.115
+- theme.css: Space Grotesk + JetBrains Mono defaults (replaces Nunito/Archivo Black) so consumers no longer carry a local font override.
+- theme.css: translucent menubar/taskbar (color-mix + backdrop-filter blur(10px)).
+- theme.css: `[data-theme="ink|paper"]`, `[data-density="compact|comfortable|spacious"]`, `[data-accent="green|purple|mascot"]` selectors so consumers can theme via root attributes (intent ported from anentrypoint-update colors_and_type.css + system.css).
+- freddie-dashboard.css: chatlog backgrounds use design tokens (`--panel-2`/`--panel-3`/`--panel-accent`/`--warn`) instead of `rgba(...)` literals; `font-family: var(--ff-mono, ...)`.
+
 ## [0.0.99]
 - Split `src/desktop/freddie-dashboard.js` (was 655L with a 561L `createFreddieDashboard` and an inline `PAGES` map of 15+ route handlers) into a slim shell (~100L) plus four page modules under `src/desktop/freddie/`: `routes.js`, `helpers.js`, `pages-core.js` (projects/home/sessions/agents/logs), `pages-chat.js`, `pages-tools.js` (analytics/models/cron/skills/config/env/tools/batch/gateway), `pages-os.js` (instances/windows/x/fs). Each module is ≤ 200L per project convention. The 64-symbol-surface inner closure is replaced with a single `ctx = { instance, osSurfaces, root, state, rerender, host }` threaded into each page factory. Public export `createFreddieDashboard({ instance, bootHost, osSurfaces })` unchanged.
 - Strip inline `style="..."` strings from freddie-dashboard.js per AGENTS.md inline-styles ban. The chat composer's gridded fields, the chatlog message rendering (text + tool-call disclosure), the env-chip wrap, and the provider-chip wrap all move to `.fd-*` classes in `src/desktop/freddie-dashboard.css`. Chat composer field rhythm now uses `var(--tool-gutter)` from the v0.0.97 rhythm refactor.

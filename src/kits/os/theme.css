@@ -1,4 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
 :root {
+    --ff-ui: 'Space Grotesk', system-ui, sans-serif;
+    --ff-display: 'Space Grotesk', system-ui, sans-serif;
+    --ff-mono: 'JetBrains Mono', ui-monospace, monospace;
     --os-accent: var(--panel-accent, #3F8A4A);
     --os-accent-2: var(--panel-accent-2, #2B6B36);
     --os-accent-soft: var(--panel-select, #D8ECCB);
@@ -18,8 +23,8 @@
     --os-bar-h-mobile: 52px;
     --os-rail-w: 64px;
     --os-tap: 44px;
-    --os-font: var(--ff-ui, 'Nunito', sans-serif);
-    --os-display: var(--ff-display, 'Archivo Black', 'Archivo', sans-serif);
+    --os-font: var(--ff-ui, 'Space Grotesk', system-ui, sans-serif);
+    --os-display: var(--ff-display, 'Space Grotesk', system-ui, sans-serif);
     --os-mono: var(--ff-mono, 'JetBrains Mono', ui-monospace, monospace);
 }
 
@@ -32,7 +37,9 @@ html, body {
 }
 
 .os-menubar, .os-taskbar {
-    background: var(--os-bg-2);
+    background: color-mix(in oklab, var(--os-bg-2) 88%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border: none;
     color: var(--os-fg);
     font: 13px var(--os-font);
@@ -410,3 +417,34 @@ html, body {
     .wm-btns .wm-btn:nth-child(3) { width: 44px !important; height: 44px !important; border-radius: var(--r-1, 6px) !important; background: var(--os-bg-3) !important; color: var(--os-fg) !important; }
     .wm-resize { display: none !important; }
 }
+
+/* ---- data-attr theme/density/accent rules (ported from anentrypoint-update colors_and_type.css) ---- */
+:root[data-theme="ink"] {
+  --os-bg-0: #14131a;
+  --os-bg-1: #1a1924;
+  --os-bg-2: #20202a;
+  --os-bg-3: #2a2a36;
+  --os-fg: #efece4;
+  --os-fg-2: #c8c5bc;
+  --os-fg-3: #8c8a80;
+  color-scheme: dark;
+}
+:root[data-theme="paper"] {
+  --os-bg-0: #f6f5f1;
+  --os-bg-1: #efece4;
+  --os-bg-2: #e7e3d8;
+  --os-bg-3: #d8d3c4;
+  --os-fg: #14131a;
+  --os-fg-2: #3a3833;
+  --os-fg-3: #6a6660;
+  color-scheme: light;
+}
+:root[data-density="compact"]  { --os-bar-h: 28px; --os-tile-pad: 6px; --os-gap: 6px; }
+:root[data-density="comfortable"] { --os-bar-h: 36px; --os-tile-pad: 10px; --os-gap: 10px; }
+:root[data-density="spacious"] { --os-bar-h: 44px; --os-tile-pad: 14px; --os-gap: 14px; }
+:root[data-accent="green"]   { --os-accent: #247420; --os-accent-tint: color-mix(in oklab, #247420 18%, transparent); }
+:root[data-accent="purple"]  { --os-accent: #7c5cff; --os-accent-tint: color-mix(in oklab, #7c5cff 18%, transparent); }
+:root[data-accent="mascot"]  { --os-accent: #ff6d3f; --os-accent-tint: color-mix(in oklab, #ff6d3f 18%, transparent); }
+:root[data-theme="ink"][data-accent="green"]   { --os-accent: #3FA93A; }
+:root[data-theme="ink"][data-accent="purple"]  { --os-accent: #a085ff; }
+:root[data-theme="ink"][data-accent="mascot"]  { --os-accent: #ff8a64; }
