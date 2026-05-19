@@ -34,6 +34,7 @@
     "./kits/os/app-panes.css": "./src/kits/os/app-panes.css",
     "./colors_and_type.css": "./colors_and_type.css",
     "./app-shell.css": "./app-shell.css",
+    "./community.css": "./community.css",
     "./system.css": "./system.css",
     "./page-html": {
       "import": "./src/page-html.js",
@@ -49,6 +50,7 @@
     "vendor/webjsx",
     "colors_and_type.css",
     "app-shell.css",
+    "community.css",
     "README.md"
   ],
   "scripts": {

@@ -22,6 +22,7 @@ const cssParts = [
     ['vendor/fonts.css', path.join(root, 'vendor/fonts.css')],
     ['colors_and_type.css', path.join(root, 'colors_and_type.css')],
     ['app-shell.css', path.join(root, 'app-shell.css')],
+    ['community.css', path.join(root, 'community.css')],
 ];
 
 async function fetchTailwind() {

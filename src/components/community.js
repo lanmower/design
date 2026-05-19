@@ -21,32 +21,55 @@ export function ServerRail({ servers = [], activeId, onSelect, onAdd } = {}) {
     );
 }
 
-export function ChannelItem({ id, name, type = 'text', active, voiceActive, onClick, onContext } = {}) {
-    const icon = type === 'voice' ? '🔊' : type === 'forum' ? '◻' : '#';
-    return h('div', {
-        class: 'cm-channel-item' + (active ? ' active' : '') + (voiceActive ? ' voice-active' : ''),
-        'data-id': id,
-        onclick: onClick,
-        oncontextmenu: (e) => { e.preventDefault(); onContext && onContext(id, e.clientX, e.clientY); }
-    },
-        h('span', { class: 'cm-ch-icon' }, icon),
-        h('span', { class: 'cm-ch-name' }, name)
+export function ChannelItem({ id, name, type = 'text', active, voiceActive, voiceConnecting, badge, draggable, actions = [], participants = [], onClick, onContext } = {}) {
+    const icon = type === 'voice' ? '🔊' : type === 'forum' ? '◻' : type === 'threaded' ? '◉' : type === 'announcement' ? '📣' : type === 'page' ? '📄' : type === 'thread' ? '🧵' : '#';
+    return h('div', { class: 'cm-channel-item-wrap', 'data-channel-wrap': id },
+        h('div', {
+            class: 'cm-channel-item' + (active ? ' active' : '') + (voiceActive ? ' voice-active' : '') + (voiceConnecting ? ' voice-connecting' : ''),
+            'data-id': id,
+            'data-type': type,
+            draggable: draggable ? 'true' : null,
+            onclick: onClick,
+            oncontextmenu: (e) => { e.preventDefault(); onContext && onContext(id, e.clientX, e.clientY); }
+        },
+            h('span', { class: 'cm-ch-icon' }, icon),
+            voiceConnecting ? h('span', { class: 'cm-ch-spinner', title: 'Connecting…' }) : null,
+            h('span', { class: 'cm-ch-name' }, name),
+            badge ? h('span', { class: 'cm-ch-badge' }, badge > 99 ? '99+' : String(badge)) : null,
+            actions.length ? h('div', { class: 'cm-ch-actions' },
+                ...actions.map(a => h('button', {
+                    class: 'cm-ch-action-btn',
+                    title: a.title || '',
+                    'data-action': a.id || '',
+                    onclick: (e) => { e.stopPropagation(); a.onClick && a.onClick(id, e); }
+                }, a.icon || a.label || '⋯'))
+            ) : null
+        ),
+        voiceActive && participants.length ? h('div', { class: 'cm-ch-voice-users' },
+            ...participants.map(p => h('div', { class: 'cm-ch-voice-user' + (p.speaking ? ' speaking' : '') },
+                h('div', { class: 'cm-ch-voice-user-avatar', style: p.color ? `background:${p.color}` : '' }, (p.identity || '?').slice(0, 1).toUpperCase()),
+                h('span', { class: 'cm-ch-voice-user-name' }, p.identity)
+            ))
+        ) : null
     );
 }
 
-export function ChannelCategory({ id, name, channels = [], collapsed, activeId, onToggle, onAddChannel, onChannelClick, onChannelContext } = {}) {
-    return h('div', { class: 'cm-channel-category' },
+export function ChannelCategory({ id, name, channels = [], collapsed, activeId, onToggle, onAddChannel, onChannelClick, onChannelContext, onContextMenu, extraButton, channelDraggable } = {}) {
+    return h('div', { class: 'cm-channel-category', 'data-category': id },
         h('div', {
             class: 'cm-category-header' + (collapsed ? ' collapsed' : ''),
-            onclick: () => onToggle && onToggle(id)
+            onclick: () => onToggle && onToggle(id),
+            oncontextmenu: onContextMenu ? (e) => { e.preventDefault(); onContextMenu(id, e.clientX, e.clientY); } : null
         },
             h('svg', { class: 'cm-cat-arrow', viewBox: '0 0 24 24' }, h('path', { d: 'M7 10l5 5 5-5z' })),
             h('span', { class: 'cm-cat-name' }, name),
+            extraButton ? h('button', { class: 'cm-cat-extra', onclick: (e) => { e.stopPropagation(); extraButton.onClick && extraButton.onClick(id, e); }, title: extraButton.title || '' }, extraButton.icon || extraButton.label || '+') : null,
             onAddChannel ? h('button', { class: 'cm-cat-add', onclick: (e) => { e.stopPropagation(); onAddChannel(id); }, title: 'Add channel' }, '+') : null
         ),
         collapsed ? null : h('div', { class: 'cm-cat-channels' },
             ...channels.map(c => ChannelItem({
                 ...c,
+                draggable: channelDraggable,
                 active: c.id === activeId,
                 onClick: () => onChannelClick && onChannelClick(c),
                 onContext: onChannelContext
