@@ -23,6 +23,8 @@ const cssParts = [
     ['colors_and_type.css', path.join(root, 'colors_and_type.css')],
     ['app-shell.css', path.join(root, 'app-shell.css')],
     ['community.css', path.join(root, 'community.css')],
+    ['chat.css', path.join(root, 'chat.css')],
+    ['editor-primitives.css', path.join(root, 'editor-primitives.css')],
 ];
 
 async function fetchTailwind() {

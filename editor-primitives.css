@@ -1,0 +1,184 @@
+/* editor-primitives.css — chrome for in-engine editors, inspectors, IDEs,
+   debug HUDs. All rules under .ds-247420 scope (build prefixes). Tokens
+   resolved from colors_and_type.css: --panel-{0..3}, --panel-text(-2/-3),
+   --accent, --accent-fg, --rule, --rule-strong, --r-1/-2, --ff-mono. */
+
+/* Toolbar */
+.ds-ep-toolbar {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 10px;
+    background: var(--panel-1);
+    color: var(--panel-text);
+    border-bottom: 1px solid var(--rule);
+    font: var(--text-sm, 12px/1.4 var(--ff-mono, monospace));
+}
+.ds-ep-toolbar.dense { padding: 4px 6px; gap: 4px; }
+.ds-ep-toolbar-leading,
+.ds-ep-toolbar-center,
+.ds-ep-toolbar-trailing { display: flex; align-items: center; gap: 4px; }
+.ds-ep-toolbar-trailing { margin-left: auto; }
+.ds-ep-toolbar-center { flex: 1; min-width: 0; }
+
+/* Tabs */
+.ds-ep-tabs { display: flex; flex-direction: column; min-height: 0; height: 100%; }
+.ds-ep-tabs-head {
+    display: flex; flex-shrink: 0;
+    background: var(--panel-1);
+    border-bottom: 1px solid var(--rule);
+}
+.ds-ep-tab {
+    flex: 1; appearance: none; background: transparent; border: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--panel-text-3);
+    padding: 8px 10px;
+    font: inherit; cursor: pointer;
+    transition: color var(--dur-snap, 80ms) var(--ease, ease), border-color var(--dur-snap, 80ms) var(--ease, ease);
+}
+.ds-ep-tab:hover { color: var(--panel-text-2); }
+.ds-ep-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+.ds-ep-tabs-body { flex: 1; min-height: 0; overflow: auto; }
+
+/* TreeView / TreeItem */
+.ds-ep-tree {
+    display: flex; flex-direction: column;
+    color: var(--panel-text);
+    font: var(--text-sm, 12px/1.4 var(--ff-mono, monospace));
+    overflow: auto;
+}
+.ds-ep-tree-item { display: flex; flex-direction: column; }
+.ds-ep-tree-row {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 8px 4px 0;
+    border-radius: var(--r-1, 10px);
+    cursor: pointer;
+    color: var(--panel-text-2);
+    transition: background var(--dur-snap, 80ms) var(--ease, ease), color var(--dur-snap, 80ms) var(--ease, ease);
+}
+.ds-ep-tree-row:hover {
+    background: color-mix(in oklab, var(--accent) 8%, transparent);
+    color: var(--panel-text);
+}
+.ds-ep-tree-item.selected > .ds-ep-tree-row {
+    background: color-mix(in oklab, var(--accent) 22%, transparent);
+    color: var(--accent);
+}
+.ds-ep-tree-twist {
+    width: 12px; flex-shrink: 0; text-align: center;
+    color: var(--panel-text-3);
+    transition: transform var(--dur-snap, 80ms) var(--ease, ease);
+}
+.ds-ep-tree-twist.open { transform: rotate(90deg); }
+.ds-ep-tree-glyph { flex-shrink: 0; color: var(--panel-text-3); }
+.ds-ep-tree-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-ep-tree-tag {
+    flex-shrink: 0; padding-left: 6px;
+    font-size: 0.85em; color: var(--panel-text-3);
+}
+.ds-ep-tree-children { display: flex; flex-direction: column; }
+
+/* PropertyGrid / PropertyField */
+.ds-ep-propgrid {
+    display: flex; flex-direction: column; gap: 6px;
+    padding: 8px;
+    color: var(--panel-text);
+    font: var(--text-sm, 12px/1.4 var(--ff-mono, monospace));
+}
+.ds-ep-propfield {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 4px 10px;
+    align-items: center;
+}
+.ds-ep-propfield.inline { display: flex; gap: 8px; }
+.ds-ep-propfield-label {
+    color: var(--panel-text-3);
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.ds-ep-propfield-value {
+    color: var(--panel-text);
+    display: flex; align-items: center; gap: 4px; min-width: 0;
+}
+.ds-ep-propfield-value input,
+.ds-ep-propfield-value select,
+.ds-ep-propfield-value textarea {
+    appearance: none;
+    background: var(--panel-2);
+    color: var(--panel-text);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-1, 10px);
+    padding: 4px 8px;
+    font: inherit;
+    min-width: 0; width: 100%;
+}
+.ds-ep-propfield-value input:focus,
+.ds-ep-propfield-value select:focus,
+.ds-ep-propfield-value textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+.ds-ep-propfield-hint {
+    grid-column: 1 / -1;
+    font-size: 0.8em;
+    color: var(--panel-text-3);
+}
+
+/* Dock — 3x3 grid for in-engine overlay (canvas pass-through center) */
+.ds-ep-dock {
+    display: grid;
+    grid-template-areas:
+        "top top top"
+        "left center right"
+        "bottom bottom bottom";
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: auto 1fr auto;
+    height: 100%; width: 100%;
+    color: var(--panel-text);
+}
+.ds-ep-dock-top    { grid-area: top;    background: var(--panel-1); border-bottom: 1px solid var(--rule); }
+.ds-ep-dock-bottom { grid-area: bottom; background: var(--panel-1); border-top: 1px solid var(--rule); }
+.ds-ep-dock-left   { grid-area: left;   background: var(--panel-1); border-right: 1px solid var(--rule); overflow: auto; }
+.ds-ep-dock-right  { grid-area: right;  background: var(--panel-1); border-left: 1px solid var(--rule); overflow: auto; }
+.ds-ep-dock-center {
+    grid-area: center;
+    background: transparent;
+    pointer-events: none;
+    position: relative;
+}
+.ds-ep-dock-center > * { pointer-events: auto; }
+
+/* IconButtonGroup */
+.ds-ep-btngrp {
+    display: inline-flex;
+    border: 1px solid var(--rule);
+    border-radius: var(--r-1, 10px);
+    overflow: hidden;
+    background: var(--panel-2);
+}
+.ds-ep-btngrp.dense .ds-ep-btngrp-btn { padding: 2px 6px; min-width: 22px; }
+.ds-ep-btngrp-btn {
+    appearance: none; border: 0;
+    background: transparent;
+    color: var(--panel-text-2);
+    padding: 4px 10px;
+    font: inherit; cursor: pointer;
+    border-right: 1px solid var(--rule);
+    transition: background var(--dur-snap, 80ms) var(--ease, ease), color var(--dur-snap, 80ms) var(--ease, ease);
+}
+.ds-ep-btngrp-btn:last-child { border-right: 0; }
+.ds-ep-btngrp-btn:hover:not([disabled]) {
+    background: color-mix(in oklab, var(--accent) 10%, transparent);
+    color: var(--panel-text);
+}
+.ds-ep-btngrp-btn.active {
+    background: var(--accent);
+    color: var(--accent-fg);
+}
+.ds-ep-btngrp-btn[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+}

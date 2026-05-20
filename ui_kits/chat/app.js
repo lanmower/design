@@ -33,7 +33,9 @@ const seed = [
                 thumb: './sample-square.png' }] },
     { who: 'them', avatar: 'mk', name: 'mai', time: '14:14',
       parts: [{ kind: 'file', src: './sample.pdf', name: 'meeting-notes-2026-05-01.pdf', size: 782 }],
-      reactions: [{ emoji: '📌', count: 1 }] }
+      reactions: [{ emoji: '📌', count: 1 }] },
+    { who: 'them', avatar: 'jr', name: 'jordan', time: '14:15', typing: true,
+      parts: [] }
 ];
 
 const state = { draft: '', room: 'general', messages: seed.slice() };
@@ -80,9 +82,7 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-section' },
-                h('h1', {}, '# ' + state.room),
-                h('p', { class: 'lede' }, 'thread of messages with rich attachments — text, code (prism-highlighted), image, pdf, file, link, markdown (marked + DOMPurify), reactions, read-receipts.'),
+            h('div', { class: 'ds-section chat-kit-page' },
                 Chat({
                     title: state.room, sub: 'public', messages: state.messages,
                     composer: ChatComposer({

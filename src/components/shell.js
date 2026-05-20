@@ -71,7 +71,7 @@ export function Side({ sections = [] } = {}) {
             },
                 glyph != null ? Glyph({ children: glyph, color }) : h('span', { class: 'glyph' }),
                 h('span', {}, label),
-                count != null ? h('span', { class: 'count' }, String(count)) : null
+                (count != null && count !== 0 && count !== '0') ? h('span', { class: 'count' }, String(count)) : null
             );
         })
     ]));

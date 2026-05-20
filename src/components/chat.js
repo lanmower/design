@@ -113,7 +113,7 @@ export function ChatMessage({ who = 'them', avatar, text, parts, time, typing, k
     const cls = 'chat-msg ' + who + (aicat && who === 'them' ? ' aicat' : '');
     const av = h('span', { class: 'chat-avatar' }, avatar || (who === 'you' ? 'u' : '?'));
     let bodyNodes;
-    if (typing) bodyNodes = [h('span', { class: 'chat-typing', key: 'typ' }, h('span'), h('span'), h('span'))];
+    if (typing) bodyNodes = [h('div', { class: 'chat-bubble', key: 'typb' }, h('span', { class: 'chat-typing' }, h('span'), h('span'), h('span')))];
     else if (parts && parts.length) bodyNodes = parts.map((p, i) => renderPart(p, i));
     else bodyNodes = [h('div', { class: 'chat-bubble', key: 't' }, ...renderInline(text || ''))];
     const reactionRow = reactions && reactions.length

@@ -45,6 +45,13 @@ export {
 export { ThemeToggle } from './components/theme-toggle.js';
 
 export {
+    Toolbar, Tabs,
+    TreeView, TreeItem,
+    PropertyGrid, PropertyField,
+    Dock, IconButtonGroup
+} from './components/editor-primitives.js';
+
+export {
     FREDDIE_PAGES,
     home, chat, voice, sessions, projects, agents, analytics,
     models, cron, skills, config, env, tools, batch, gateway, chains,
