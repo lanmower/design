@@ -111,7 +111,10 @@ function renderPart(p, key) {
 export function ChatMessage({ who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name }) {
     _stats.messages += 1;
     const cls = 'chat-msg ' + who + (aicat && who === 'them' ? ' aicat' : '');
-    const av = h('span', { class: 'chat-avatar' }, avatar || (who === 'you' ? 'u' : '?'));
+    const fallbackAvatar = avatar != null
+        ? avatar
+        : (who === 'you' ? 'u' : (name ? String(name).trim().charAt(0).toUpperCase() || '◔' : '◔'));
+    const av = h('span', { class: 'chat-avatar' }, fallbackAvatar);
     let bodyNodes;
     if (typing) bodyNodes = [h('div', { class: 'chat-bubble', key: 'typb' }, h('span', { class: 'chat-typing' }, h('span'), h('span'), h('span')))];
     else if (parts && parts.length) bodyNodes = parts.map((p, i) => renderPart(p, i));
@@ -139,15 +142,36 @@ export function ChatComposer({ value, onInput, onSend, placeholder = 'message…
         if (!v || disabled) return;
         if (onSend) onSend(v);
     };
+    const autoGrow = (e) => {
+        const ta = e.target;
+        ta.style.height = 'auto';
+        ta.style.height = Math.min(ta.scrollHeight, 200) + 'px';
+        if (onInput) onInput(ta.value);
+    };
+    const taRef = (el) => {
+        if (!el) return;
+        // initial sizing reflects current value
+        el.style.height = 'auto';
+        el.style.height = Math.min(el.scrollHeight, 200) + 'px';
+    };
     return h('div', { class: 'chat-composer' },
-        h('textarea', { value: value || '', placeholder, rows: 1,
-            oninput: (e) => onInput && onInput(e.target.value),
+        h('textarea', { ref: taRef, value: value || '', placeholder, rows: 1,
+            oninput: autoGrow,
             onkeydown: (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } } }),
         h('button', { class: 'send', disabled: disabled || !(value && value.trim()), onclick: send }, '↑')
     );
 }
 
 export function Chat({ title = 'chat', sub, messages = [], composer, header } = {}) {
+    const threadRef = (el) => {
+        if (!el) return;
+        const target = el.scrollHeight - el.clientHeight;
+        // only auto-scroll if user is near the bottom (within 120px) — preserves manual scroll-back
+        if (target - el.scrollTop < 240 || el.dataset.msgCount !== String(messages.length)) {
+            el.scrollTop = target;
+            el.dataset.msgCount = String(messages.length);
+        }
+    };
     return h('div', { class: 'chat' },
         header || h('div', { class: 'chat-head' },
             h('span', { class: 'dot' }),
@@ -156,7 +180,7 @@ export function Chat({ title = 'chat', sub, messages = [], composer, header } = 
             h('span', { class: 'spread' }),
             h('span', { class: 'sub' }, String(messages.length).padStart(2, '0') + ' msgs')
         ),
-        h('div', { class: 'chat-thread' },
+        h('div', { class: 'chat-thread', ref: threadRef },
             ...messages.map((m, i) => ChatMessage({ ...m, key: m.key != null ? m.key : i }))
         ),
         composer || null
@@ -181,6 +205,14 @@ export function AICat({ name = 'aicat', messages = [], thinking, composer, statu
     const all = thinking
         ? [...annotated, { who: 'them', aicat: true, avatar: '=^.^=', typing: true, key: '_thinking' }]
         : annotated;
+    const threadRef = (el) => {
+        if (!el) return;
+        const target = el.scrollHeight - el.clientHeight;
+        if (target - el.scrollTop < 240 || el.dataset.msgCount !== String(all.length)) {
+            el.scrollTop = target;
+            el.dataset.msgCount = String(all.length);
+        }
+    };
     return h('div', { class: 'chat' },
         h('div', { class: 'chat-head' },
             h('span', { class: 'dot' }),
@@ -189,7 +221,7 @@ export function AICat({ name = 'aicat', messages = [], thinking, composer, statu
             h('span', { class: 'spread' }),
             h('span', { class: 'sub' }, String(messages.length).padStart(2, '0') + ' turns')
         ),
-        h('div', { class: 'chat-thread' },
+        h('div', { class: 'chat-thread', ref: threadRef },
             ...all.map((m, i) => ChatMessage({ ...m, key: m.key != null ? m.key : i }))
         ),
         composer || null

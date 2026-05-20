@@ -245,12 +245,33 @@ export function TextField({ label, value = '', type = 'text', placeholder = '', 
     );
 }
 
-export function EventList({ items = [], emptyText = 'no events', rankPad = 3 }) {
-    if (!items || !items.length) return h('p', { class: 'lede' }, emptyText);
+export function Select({ label, value = '', options = [], onChange, name, key, placeholder, hint }) {
+    const opts = [];
+    if (placeholder != null) opts.push(h('option', { key: '_ph', value: '' }, placeholder));
+    for (const o of options) {
+        const id = typeof o === 'string' ? o : (o.value != null ? o.value : o.id);
+        const lab = typeof o === 'string' ? o : (o.label != null ? o.label : (o.id || o.value));
+        opts.push(h('option', { key: 'o-' + id, value: id, selected: id === value }, lab));
+    }
+    const select = h('select', {
+        key: 'i', name, class: 'ds-select',
+        onchange: onChange ? (e) => onChange(e.target.value, e) : null
+    }, ...opts);
+    if (label == null && hint == null) return select;
+    return h('label', { key, class: 'ds-field' },
+        label != null ? h('span', { key: 'l', class: 'ds-field-label' }, label) : null,
+        select,
+        hint != null ? h('span', { key: 'h', class: 'lede ds-field-hint' }, hint) : null
+    );
+}
+
+export function EventList({ items, events, emptyText = 'no events', rankPad = 3 }) {
+    const list = items || events || [];
+    if (!list.length) return h('p', { class: 'lede' }, emptyText);
     return h('section', { class: 'ds-section ds-event-list' },
-        ...items.map((it, i) => Row({
+        ...list.map((it, i) => Row({
             key: it.key || ('ev' + i),
-            code: String(i + 1).padStart(rankPad, '0'),
+            code: it.code != null ? it.code : (it.rank != null ? it.rank : String(i + 1).padStart(rankPad, '0')),
             title: it.title || '(empty)',
             sub: it.sub || '',
             active: it.active,

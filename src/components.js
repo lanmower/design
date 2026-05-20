@@ -13,7 +13,7 @@ export {
     Panel, Row, RowLink,
     Hero, Install, Receipt, Changelog,
     WorksList, WritingList, Manifesto, Section, PageHeader,
-    Kpi, Table, SearchInput, TextField, EventList,
+    Kpi, Table, SearchInput, TextField, Select, EventList,
     HomeView, ProjectView, Form
 } from './components/content.js';
 
