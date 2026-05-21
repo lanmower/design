@@ -138,13 +138,15 @@ export function Kpi({ items = [] }) {
 
 export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothing here yet' }) {
     if (!rows || rows.length === 0) return h('div', { class: 'empty' }, emptyText);
-    return h('table', {},
-        h('thead', {}, h('tr', {}, ...headers.map((hd, i) => h('th', { key: i }, hd)))),
+    return h('table', { role: 'table' },
+        h('thead', {}, h('tr', { role: 'row' }, ...headers.map((hd, i) => h('th', { key: i, scope: 'col', role: 'columnheader' }, hd)))),
         h('tbody', {}, ...rows.map((row, i) => h('tr', {
             key: i,
             class: onRowClick ? 'clickable' : '',
-            onclick: onRowClick ? () => onRowClick(i) : null
-        }, ...row.map((c, j) => h('td', { key: j }, c == null ? '' : (typeof c === 'object' ? c : String(c))))))));
+            role: 'row',
+            onclick: onRowClick ? () => onRowClick(i) : null,
+            ...(onRowClick ? { tabindex: '0', onkeydown: (e) => { if (e.key === 'Enter') onRowClick(i); } } : {})
+        }, ...row.map((c, j) => h('td', { key: j, role: 'cell' }, c == null ? '' : (typeof c === 'object' ? c : String(c))))))));
 }
 
 export function HomeView({ state = {}, onNav, onToggleWork, works = [], posts = [], manifesto = [], currentlyShipping } = {}) {
@@ -159,13 +161,15 @@ export function HomeView({ state = {}, onNav, onToggleWork, works = [], posts = 
             eyebrow: 'currently shipping',
             children: Panel({
                 kind: 'wide',
-                children: currentlyShipping.map((row, i) =>
-                    Row({
+                children: currentlyShipping.map((row, i) => {
+                    const dotNode = Dot({ tone: row.live ? 'live' : 'idle' });
+                    dotNode.props = { ...dotNode.props, 'aria-label': row.live ? 'live status' : 'idle status' };
+                    return Row({
                         key: i,
-                        code: Dot({ tone: row.live ? 'live' : 'idle' }),
+                        code: dotNode,
                         title: row.title, sub: row.sub, meta: row.meta
-                    })
-                )
+                    });
+                })
             })
         }) : null,
         works.length ? Section({

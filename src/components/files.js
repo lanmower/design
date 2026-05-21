@@ -10,6 +10,19 @@ const TYPE_GLYPH = {
     text: '§', archive: '◐', document: '▢', symlink: '↗', other: '◌'
 };
 
+const TYPE_LABELS = {
+    dir: 'folder',
+    image: 'image file',
+    video: 'video file',
+    audio: 'audio file',
+    code: 'code file',
+    text: 'text file',
+    archive: 'archive file',
+    document: 'document file',
+    symlink: 'symbolic link',
+    other: 'file'
+};
+
 export function fileGlyph(type) {
     return TYPE_GLYPH[type] || TYPE_GLYPH.other;
 }
@@ -23,32 +36,54 @@ export function fmtFileSize(bytes) {
 }
 
 export function FileIcon({ type = 'other' } = {}) {
-    return h('span', { class: 'ds-file-icon', 'data-file-type': type }, fileGlyph(type));
+    return h('span', { class: 'ds-file-icon', 'data-file-type': type, 'aria-label': TYPE_LABELS[type] || 'file', role: 'img' }, fileGlyph(type));
 }
 
 export function FileRow({ name, type = 'other', size, modified, code, onOpen, onAction, active, key } = {}) {
     const meta = [type === 'dir' ? null : fmtFileSize(size), modified || null].filter(Boolean).join(' · ');
+    const typeLabel = TYPE_LABELS[type] || 'file';
+    const accessibleLabel = `${typeLabel}: ${name}${meta ? ` (${meta})` : ''}`;
     return h('div', {
         key,
         class: 'ds-file-row row' + (active ? ' active' : ''),
         'data-file-type': type,
-        onclick: onOpen
+        onclick: onOpen,
+        role: 'button',
+        tabindex: '0',
+        'aria-label': accessibleLabel,
+        'aria-pressed': active ? 'true' : 'false',
+        onkeydown: (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onOpen && onOpen();
+            }
+        }
     },
-        code != null ? h('span', { class: 'code' }, code) : null,
+        code != null ? h('span', { class: 'code', 'aria-label': `code: ${code}` }, code) : null,
         FileIcon({ type }),
         h('span', { class: 'title' }, name),
-        h('span', { class: 'ds-file-meta meta' }, meta || '—'),
-        onAction ? h('span', { class: 'ds-file-actions', onclick: (e) => e.stopPropagation() },
-            h('button', { class: 'ds-file-act', title: 'download', onclick: () => onAction('download') }, '↓'),
-            h('button', { class: 'ds-file-act', title: 'rename', onclick: () => onAction('rename') }, '✎'),
-            h('button', { class: 'ds-file-act ds-file-act-warn', title: 'delete', onclick: () => onAction('delete') }, '✕')
+        h('span', { class: 'ds-file-meta meta', 'aria-label': meta ? `metadata: ${meta}` : null }, meta || '—'),
+        onAction ? h('span', { class: 'ds-file-actions', onclick: (e) => e.stopPropagation(), role: 'group', 'aria-label': `actions for ${name}` },
+            h('button', { class: 'ds-file-act', title: 'download', 'aria-label': `download ${name}`, onclick: () => onAction('download') }, '↓'),
+            h('button', { class: 'ds-file-act', title: 'rename', 'aria-label': `rename ${name}`, onclick: () => onAction('rename') }, '✎'),
+            h('button', { class: 'ds-file-act ds-file-act-warn', title: 'delete', 'aria-label': `delete ${name}`, onclick: () => onAction('delete') }, '✕')
         ) : null
     );
 }
 
-export function FileGrid({ files = [], onOpen, onAction, emptyText = 'no files here yet' } = {}) {
+export function FileGrid({ files = [], onOpen, onAction, emptyText = 'no files here yet', columns = 'auto' } = {}) {
     if (!files.length) return EmptyState({ text: emptyText });
-    return h('div', { class: 'ds-file-grid' },
+    const gridAttrs = {};
+    if (columns !== 'auto' && columns > 0) {
+        const col = Math.max(1, Math.min(4, Math.floor(columns)));
+        gridAttrs['data-columns'] = String(col);
+        gridAttrs.style = {
+            display: 'grid',
+            gridTemplateColumns: `repeat(${col}, minmax(240px, 1fr))`,
+            gap: 'var(--space-3)'
+        };
+    }
+    return h('div', { class: 'ds-file-grid', ...gridAttrs },
         ...files.map((f, i) => FileRow({
             key: f.path || f.name + i,
             name: f.name, type: f.type, size: f.size, modified: f.modified, code: f.code, active: f.active,
@@ -84,16 +119,25 @@ export function DropZone({ children, dragover, onDrop, onDragOver, onDragLeave, 
 export function UploadProgress({ items = [] } = {}) {
     if (!items.length) return null;
     return h('div', { class: 'ds-upload-progress' },
-        ...items.map((it, i) => h('div', {
-            key: it.name + i,
-            class: 'ds-upload-item' + (it.done ? ' done' : '') + (it.error ? ' error' : '')
-        },
-            h('span', { class: 'ds-upload-name' }, it.name),
-            h('span', { class: 'ds-upload-bar' },
-                h('span', { class: 'ds-upload-fill', 'data-pct': String(Math.max(0, Math.min(100, it.pct || 0))) })
-            ),
-            h('span', { class: 'ds-upload-pct' }, (it.error ? 'err' : (it.done ? 'ok' : (it.pct || 0) + '%')))
-        ))
+        ...items.map((it, i) => {
+            const status = it.error ? 'error' : (it.done ? 'complete' : `uploading ${it.pct || 0}%`);
+            return h('div', {
+                key: it.name + i,
+                class: 'ds-upload-item' + (it.done ? ' done' : '') + (it.error ? ' error' : ''),
+                role: 'progressbar',
+                'aria-valuenow': String(Math.max(0, Math.min(100, it.pct || 0))),
+                'aria-valuemin': '0',
+                'aria-valuemax': '100',
+                'aria-label': `${it.name}: ${status}`,
+                'aria-busy': it.done || it.error ? 'false' : 'true'
+            },
+                h('span', { class: 'ds-upload-name' }, it.name),
+                h('span', { class: 'ds-upload-bar' },
+                    h('span', { class: 'ds-upload-fill', 'data-pct': String(Math.max(0, Math.min(100, it.pct || 0))), 'aria-hidden': 'true' })
+                ),
+                h('span', { class: 'ds-upload-pct', 'aria-hidden': 'true' }, (it.error ? 'err' : (it.done ? 'ok' : (it.pct || 0) + '%')))
+            );
+        })
     );
 }
 

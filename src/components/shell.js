@@ -15,9 +15,9 @@ export function Chip({ tone = '', children }) {
     return h('span', { class: 'chip' + (tone ? ' tone-' + tone : '') }, children);
 }
 
-export function Btn({ href = '#', primary, ghost, children, onClick }) {
+export function Btn({ href = '#', primary, ghost, children, onClick, 'aria-label': ariaLabel }) {
     const cls = primary ? 'btn-primary' : (ghost ? 'btn-ghost' : 'btn');
-    return h('a', { class: cls, href, onclick: onClick }, children);
+    return h('a', { class: cls, href, onclick: onClick, role: 'button', 'aria-label': ariaLabel || (typeof children === 'string' ? children : undefined) }, children);
 }
 
 export function Glyph({ children, color }) {
@@ -25,25 +25,27 @@ export function Glyph({ children, color }) {
 }
 
 export function Topbar({ brand = '247420', leaf = '', items = [], active = '', onNav, search } = {}) {
-    return h('header', { class: 'app-topbar' },
+    return h('header', { class: 'app-topbar', role: 'banner' },
         Brand({ name: brand, leaf }),
         search ? h('label', { class: 'app-search' },
-            h('span', { class: 'icon' }, '⌕'),
-            h('input', { type: 'search', placeholder: search, 'aria-label': 'search' })
+            h('span', { class: 'icon', 'aria-hidden': 'true' }, '⌕'),
+            h('input', { type: 'search', placeholder: search, 'aria-label': `search ${search}` })
         ) : h('span', {}),
-        h('nav', {}, ...items.map(([label, href]) =>
-            h('a', {
+        h('nav', { 'aria-label': 'main navigation' }, ...items.map(([label, href]) => {
+            const cleanLabel = String(label).replace(' ↗', '');
+            return h('a', {
                 key: label,
                 href,
-                class: active === String(label).replace(' ↗', '') ? 'active' : '',
+                class: active === cleanLabel ? 'active' : '',
+                'aria-current': active === cleanLabel ? 'page' : null,
                 onclick: (e) => {
                     if (!String(href).startsWith('http') && onNav) {
                         e.preventDefault();
-                        onNav(String(label).replace(' ↗', ''));
+                        onNav(cleanLabel);
                     }
                 }
-            }, label)
-        ))
+            }, label);
+        }))
     );
 }
 
@@ -59,28 +61,31 @@ export function Crumb({ trail = [], leaf = '', right } = {}) {
 }
 
 export function Side({ sections = [] } = {}) {
-    return h('aside', { class: 'app-side' }, ...sections.flatMap(sec => [
-        h('div', { class: 'group', key: sec.group }, sec.group),
+    return h('aside', { class: 'app-side', role: 'navigation', 'aria-label': 'sidebar navigation' }, ...sections.flatMap(sec => [
+        h('div', { class: 'group', key: sec.group, role: 'heading', 'aria-level': '2' }, sec.group),
         ...sec.items.map((item, i) => {
             const { glyph, label, href = '#', active, count, color, onClick } = item;
+            const countLabel = (count != null && count !== 0 && count !== '0') ? ` (${count})` : '';
             return h('a', {
                 key: sec.group + i,
                 href,
                 class: active ? 'active' : '',
+                'aria-current': active ? 'page' : null,
+                'aria-label': label + countLabel,
                 onclick: onClick
             },
-                glyph != null ? Glyph({ children: glyph, color }) : h('span', { class: 'glyph' }),
+                glyph != null ? Glyph({ children: glyph, color }) : h('span', { class: 'glyph', 'aria-hidden': 'true' }),
                 h('span', {}, label),
-                (count != null && count !== 0 && count !== '0') ? h('span', { class: 'count' }, String(count)) : null
+                (count != null && count !== 0 && count !== '0') ? h('span', { class: 'count', 'aria-hidden': 'true' }, String(count)) : null
             );
         })
     ]));
 }
 
 export function Status({ left = [], right = [] } = {}) {
-    return h('footer', { class: 'app-status' },
+    return h('footer', { class: 'app-status', role: 'contentinfo' },
         ...left.map((t, i) => h('span', { key: 'l' + i, class: 'item' }, t)),
-        h('span', { class: 'spread' }),
+        h('span', { class: 'spread', 'aria-hidden': 'true' }),
         ...right.map((t, i) => h('span', { key: 'r' + i, class: 'item' }, t))
     );
 }
@@ -89,11 +94,12 @@ export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
     const hasSide = Boolean(side);
     const sideNode = hasSide ? side : h('aside', { class: 'app-side', 'aria-hidden': 'true' });
     return h('div', { class: 'app' },
+        h('a', { href: '#app-main', class: 'skip-link' }, 'skip to main content'),
         topbar || null,
         crumb || null,
         h('div', { class: 'app-body' + (hasSide ? '' : ' no-side') },
             h('div', { class: 'app-side-shell' }, sideNode),
-            h('main', { class: 'app-main' + (narrow ? ' narrow' : '') }, ...(Array.isArray(main) ? main : [main]))
+            h('main', { class: 'app-main' + (narrow ? ' narrow' : ''), id: 'app-main' }, ...(Array.isArray(main) ? main : [main]))
         ),
         status || null
     );
@@ -109,7 +115,8 @@ export function Lede({ children }) {
 
 export function Dot({ tone = 'live' }) {
     const cls = tone === 'live' ? 'ds-dot-live' : 'ds-dot-idle';
-    return h('span', { class: cls }, tone === 'live' ? '●' : '○');
+    const statusLabel = tone === 'live' ? 'live status indicator' : 'idle status indicator';
+    return h('span', { class: cls, role: 'img', 'aria-label': statusLabel }, tone === 'live' ? '●' : '○');
 }
 
 export function Rail({ tone = 'green' }) {

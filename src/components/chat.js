@@ -3,12 +3,12 @@
 // Includes ChatMessage, ChatComposer, Chat, AICat, AICatPortrait.
 
 import * as webjsx from '../../vendor/webjsx/index.js';
-import { renderMarkdown, ensureReady as ensureMarkdownReady } from '../markdown.js';
-import { highlightAllUnder, ensurePrism } from '../highlight.js';
+import { renderMarkdownCached, highlightCodeBlockCached, initializeCachesEagerly, getCacheStats } from '../markdown-cache.js';
 import { register } from '../debug.js';
 
 const h = webjsx.createElement;
 let _stats = { messages: 0, lastKindCounts: {} };
+let _cacheInitialized = false;
 
 export function fmtBytes(n) {
     if (n == null) return '';
@@ -48,7 +48,7 @@ function MdNode(p) {
         if (!el) return;
         if (el.dataset.mdSrc === p.text) return;
         el.dataset.mdSrc = p.text || '';
-        ensureMarkdownReady().then(() => renderMarkdown(p.text || '')).then((html) => { el.innerHTML = html; });
+        renderMarkdownCached(p.text || '').then((html) => { el.innerHTML = html; });
     };
     return h('div', { class: 'chat-bubble chat-md', ref: refSink });
 }
@@ -58,7 +58,7 @@ function CodeNode(p) {
         if (!el) return;
         if (el.dataset.codeKey === (p.lang || '') + '|' + (p.code || '').length) return;
         el.dataset.codeKey = (p.lang || '') + '|' + (p.code || '').length;
-        ensurePrism().then(() => highlightAllUnder(el));
+        highlightCodeBlockCached(el);
     };
     return h('div', { class: 'chat-bubble chat-code', ref: refSink },
         h('div', { class: 'chat-code-head' },
@@ -73,26 +73,26 @@ const PART_RENDERERS = {
     text:  (p) => h('div', { class: 'chat-bubble' }, ...renderInline(p.text || '')),
     md:    (p) => MdNode(p),
     code:  (p) => CodeNode(p),
-    image: (p) => h('a', { class: 'chat-image', href: p.href || p.src, target: '_blank', rel: 'noopener' },
-        h('img', { src: p.src, alt: p.alt || '', loading: 'lazy' }),
+    image: (p) => h('a', { class: 'chat-image', href: p.href || p.src, target: '_blank', rel: 'noopener', 'aria-label': p.alt || `embedded image: ${p.src}` },
+        h('img', { src: p.src, alt: p.alt || `embedded image from ${p.src}`, loading: 'lazy' }),
         p.caption ? h('span', { class: 'cap' }, p.caption) : null),
     pdf:   (p) => h('div', { class: 'chat-pdf' },
         h('div', { class: 'chat-pdf-head' },
-            h('span', { class: 'glyph' }, '▤'),
+            h('span', { class: 'glyph', 'aria-hidden': 'true' }, '▤'),
             h('span', { class: 'name' }, p.name || 'document.pdf'),
             p.size != null ? h('span', { class: 'size' }, fmtBytes(p.size)) : null,
-            h('a', { class: 'open', href: p.src, target: '_blank', rel: 'noopener' }, 'open ↗')
+            h('a', { class: 'open', href: p.src, target: '_blank', rel: 'noopener', 'aria-label': `open PDF: ${p.name || 'document.pdf'}` }, 'open ↗')
         ),
-        h('embed', { src: p.src, type: 'application/pdf' })),
-    file:  (p) => h('a', { class: 'chat-file', href: p.src, target: '_blank', rel: 'noopener', download: p.name || true },
-        h('span', { class: 'glyph' }, fileGlyph(p.name)),
+        h('embed', { src: p.src, type: 'application/pdf', 'aria-label': `PDF document: ${p.name || 'document.pdf'}` })),
+    file:  (p) => h('a', { class: 'chat-file', href: p.src, target: '_blank', rel: 'noopener', download: p.name || true, 'aria-label': `download file: ${p.name || 'attachment'} (${p.kindLabel || (p.name || '').split('.').pop().toUpperCase()})` },
+        h('span', { class: 'glyph', 'aria-hidden': 'true' }, fileGlyph(p.name)),
         h('span', { class: 'meta' },
             h('span', { class: 'name' }, p.name || 'attachment'),
             h('span', { class: 'size' }, [p.kindLabel || (p.name || '').split('.').pop().toUpperCase(), p.size != null ? fmtBytes(p.size) : null].filter(Boolean).join(' · '))
         ),
-        h('span', { class: 'go' }, '↓')),
-    link:  (p) => h('a', { class: 'chat-link', href: p.href, target: '_blank', rel: 'noopener' },
-        p.thumb ? h('img', { class: 'thumb', src: p.thumb, alt: '' }) : null,
+        h('span', { class: 'go', 'aria-hidden': 'true' }, '↓')),
+    link:  (p) => h('a', { class: 'chat-link', href: p.href, target: '_blank', rel: 'noopener', 'aria-label': `link: ${p.title || p.href}` },
+        p.thumb ? h('img', { class: 'thumb', src: p.thumb, alt: `preview for ${p.title || p.href}` }) : null,
         h('span', { class: 'meta' },
             h('span', { class: 'host' }, p.host || (() => { try { return new URL(p.href).host; } catch { return ''; } })()),
             h('span', { class: 'title' }, p.title || p.href),
@@ -121,11 +121,11 @@ export function ChatMessage({ who = 'them', avatar, text, parts, time, typing, k
     else bodyNodes = [h('div', { class: 'chat-bubble', key: 't' }, ...renderInline(text || ''))];
     const reactionRow = reactions && reactions.length
         ? h('div', { class: 'chat-reactions' },
-            ...reactions.map((r, i) => h('span', { class: 'rxn' + (r.you ? ' you' : ''), key: 'r' + i },
-                h('span', { class: 'e' }, r.emoji), h('span', { class: 'n' }, String(r.count)))))
+            ...reactions.map((r, i) => h('span', { class: 'rxn' + (r.you ? ' you' : ''), key: 'r' + i, 'aria-label': `${r.emoji} reaction (${String(r.count)} ${String(r.count) === '1' ? 'reaction' : 'reactions'})${r.you ? ' - you reacted' : ''}` },
+                h('span', { class: 'e', 'aria-hidden': 'true' }, r.emoji), h('span', { class: 'n', 'aria-hidden': 'true' }, String(r.count)))))
         : null;
     const tickNode = who === 'you' && receipt
-        ? h('span', { class: 'tick' + (receipt === 'read' ? ' read' : '') }, receipt === 'read' ? '✓✓' : '✓')
+        ? h('span', { class: 'tick' + (receipt === 'read' ? ' read' : ''), 'aria-label': receipt === 'read' ? 'message read' : 'message sent' }, receipt === 'read' ? '✓✓' : '✓')
         : null;
     const metaItems = [];
     if (name && who === 'them') metaItems.push(h('span', { class: 'who', key: 'w' }, name));
@@ -155,14 +155,21 @@ export function ChatComposer({ value, onInput, onSend, placeholder = 'message…
         el.style.height = Math.min(el.scrollHeight, 200) + 'px';
     };
     return h('div', { class: 'chat-composer' },
-        h('textarea', { ref: taRef, value: value || '', placeholder, rows: 1,
+        h('textarea', { ref: taRef, value: value || '', placeholder, rows: 1, 'aria-label': 'message input',
             oninput: autoGrow,
             onkeydown: (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } } }),
-        h('button', { class: 'send', disabled: disabled || !(value && value.trim()), onclick: send }, '↑')
+        h('button', { class: 'send', disabled: disabled || !(value && value.trim()), onclick: send, 'aria-label': 'send message', title: 'send message (Enter)' }, '↑')
     );
 }
 
 export function Chat({ title = 'chat', sub, messages = [], composer, header } = {}) {
+    // Eagerly initialize markdown and Prism caches on first Chat component mount.
+    // This parallelizes library loading, avoiding per-message delays.
+    if (!_cacheInitialized) {
+        _cacheInitialized = true;
+        initializeCachesEagerly().catch((err) => console.warn('[247420] cache init error:', err));
+    }
+
     const threadRef = (el) => {
         if (!el) return;
         const target = el.scrollHeight - el.clientHeight;
@@ -173,14 +180,14 @@ export function Chat({ title = 'chat', sub, messages = [], composer, header } = 
         }
     };
     return h('div', { class: 'chat' },
-        header || h('div', { class: 'chat-head' },
-            h('span', { class: 'dot' }),
-            h('span', {}, title),
-            sub ? h('span', { class: 'sub' }, ' · ' + sub) : null,
+        header || h('div', { class: 'chat-head', role: 'banner' },
+            h('span', { class: 'dot', 'aria-hidden': 'true' }),
+            h('h2', { style: 'margin:0;font-size:inherit' }, title),
+            sub ? h('span', { class: 'sub', 'aria-label': `subtitle: ${sub}` }, ' · ' + sub) : null,
             h('span', { class: 'spread' }),
-            h('span', { class: 'sub' }, String(messages.length).padStart(2, '0') + ' msgs')
+            h('span', { class: 'sub', 'aria-live': 'polite' }, String(messages.length).padStart(2, '0') + ' msgs')
         ),
-        h('div', { class: 'chat-thread', ref: threadRef },
+        h('div', { class: 'chat-thread', ref: threadRef, role: 'log', 'aria-label': 'chat messages' },
             ...messages.map((m, i) => ChatMessage({ ...m, key: m.key != null ? m.key : i }))
         ),
         composer || null
@@ -191,15 +198,21 @@ export const AICAT_FACE = ` /\\_/\\\n( o.o )\n > ^ <`;
 
 export function AICatPortrait({ name = 'aicat', status = 'idle', face } = {}) {
     return h('div', { class: 'aicat-portrait' },
-        h('pre', { class: 'aicat-face' }, face || AICAT_FACE),
+        h('pre', { class: 'aicat-face', 'aria-label': `${name} portrait` }, face || AICAT_FACE),
         h('div', { class: 'aicat-meta' },
             h('span', { class: 'name' }, name),
-            h('span', { class: 'status' }, h('span', { class: 'dot' }, '● '), status)
+            h('span', { class: 'status', 'aria-label': `status: ${status}` }, h('span', { class: 'dot', 'aria-hidden': 'true' }, '● '), status)
         )
     );
 }
 
 export function AICat({ name = 'aicat', messages = [], thinking, composer, status = 'online · purring' } = {}) {
+    // Eagerly initialize markdown and Prism caches on first AICat component mount.
+    if (!_cacheInitialized) {
+        _cacheInitialized = true;
+        initializeCachesEagerly().catch((err) => console.warn('[247420] cache init error:', err));
+    }
+
     const annotated = messages.map((m) =>
         m.who === 'them' ? { ...m, aicat: true, avatar: m.avatar || '=^.^=' } : m);
     const all = thinking
@@ -214,18 +227,22 @@ export function AICat({ name = 'aicat', messages = [], thinking, composer, statu
         }
     };
     return h('div', { class: 'chat' },
-        h('div', { class: 'chat-head' },
-            h('span', { class: 'dot' }),
-            h('span', {}, name),
-            h('span', { class: 'sub' }, ' · ' + status),
+        h('div', { class: 'chat-head', role: 'banner' },
+            h('span', { class: 'dot', 'aria-hidden': 'true' }),
+            h('h2', { style: 'margin:0;font-size:inherit' }, name),
+            h('span', { class: 'sub', 'aria-label': `status: ${status}` }, ' · ' + status),
             h('span', { class: 'spread' }),
-            h('span', { class: 'sub' }, String(messages.length).padStart(2, '0') + ' turns')
+            h('span', { class: 'sub', 'aria-live': 'polite' }, String(messages.length).padStart(2, '0') + ' turns')
         ),
-        h('div', { class: 'chat-thread', ref: threadRef },
+        h('div', { class: 'chat-thread', ref: threadRef, role: 'log', 'aria-label': 'conversation turns' },
             ...all.map((m, i) => ChatMessage({ ...m, key: m.key != null ? m.key : i }))
         ),
         composer || null
     );
 }
 
-register('chat', () => ({ messages: _stats.messages, lastKindCounts: { ..._stats.lastKindCounts } }));
+register('chat', () => ({
+    messages: _stats.messages,
+    lastKindCounts: { ..._stats.lastKindCounts },
+    cacheStats: getCacheStats(),
+}));

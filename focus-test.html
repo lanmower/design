@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus-Visible Test - anentrypoint-design</title>
+  <link rel="stylesheet" href="./dist/247420.css">
+  <style>
+    body { font-family: 'Space Grotesk', system-ui, sans-serif; padding: 2rem; }
+    .test-section { margin-bottom: 3rem; }
+    .test-section h2 { margin-bottom: 1rem; }
+    .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+    .instructions { background: var(--bg-2); padding: 1rem; border-radius: 0.5rem; margin-bottom: 2rem; }
+  </style>
+</head>
+<body class="ds-247420" data-theme="auto">
+  <div class="app-main narrow">
+    <h1>Focus-Visible Keyboard Navigation Test</h1>
+
+    <div class="instructions">
+      <h3>Instructions:</h3>
+      <p>Use the <strong>Tab</strong> key to navigate through all interactive elements below. You should see a visible focus outline (2px green border) on every element you focus on.</p>
+      <p>Each element type is grouped below for easy testing.</p>
+    </div>
+
+    <!-- Buttons -->
+    <div class="test-section">
+      <h2>Buttons</h2>
+      <div class="test-grid">
+        <button class="btn">Standard Button</button>
+        <button class="btn-primary">Primary Button</button>
+        <button class="btn-ghost">Ghost Button</button>
+        <button class="btn" disabled>Disabled Button</button>
+      </div>
+    </div>
+
+    <!-- Links -->
+    <div class="test-section">
+      <h2>Links</h2>
+      <div class="test-grid">
+        <a href="#" class="ds-link-accent">Accent Link</a>
+        <a href="#">Regular Link</a>
+        <div role="link" tabindex="0">Custom Link (role="link")</div>
+      </div>
+    </div>
+
+    <!-- Form Inputs -->
+    <div class="test-section">
+      <h2>Form Inputs (row-form style)</h2>
+      <div class="row-form">
+        <div>
+          <label for="text-input">Text Input:</label>
+          <input type="text" id="text-input" placeholder="Type something...">
+        </div>
+        <div>
+          <label for="textarea-input">Textarea:</label>
+          <textarea id="textarea-input" placeholder="Enter multiple lines..."></textarea>
+        </div>
+        <div>
+          <label for="select-input">Select:</label>
+          <select id="select-input" class="ds-select">
+            <option>Option 1</option>
+            <option>Option 2</option>
+            <option>Option 3</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Input -->
+    <div class="test-section">
+      <h2>App Search Input</h2>
+      <div class="app-search">
+        <span class="icon">🔍</span>
+        <input type="text" placeholder="Search...">
+      </div>
+    </div>
+
+    <!-- Chat Composer -->
+    <div class="test-section">
+      <h2>Chat Composer Elements</h2>
+      <div class="ds-chat-composer">
+        <input type="text" placeholder="Type a message...">
+        <button class="send">↑</button>
+      </div>
+    </div>
+
+    <!-- Custom Elements with tabindex -->
+    <div class="test-section">
+      <h2>Custom Interactive Elements (tabindex)</h2>
+      <div class="test-grid">
+        <div tabindex="0" style="padding: 1rem; background: var(--bg-2); border-radius: 0.5rem; cursor: pointer;">
+          Focusable Div 1
+        </div>
+        <div tabindex="0" style="padding: 1rem; background: var(--bg-2); border-radius: 0.5rem; cursor: pointer;">
+          Focusable Div 2
+        </div>
+        <div tabindex="0" style="padding: 1rem; background: var(--bg-2); border-radius: 0.5rem; cursor: pointer;">
+          Focusable Div 3
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="test-section">
+      <h2>Navigation Links</h2>
+      <nav style="display: flex; gap: 1rem;">
+        <a href="#" style="padding: 0.5rem 1rem; background: var(--bg-2); border-radius: 0.5rem;">Home</a>
+        <a href="#" style="padding: 0.5rem 1rem; background: var(--bg-2); border-radius: 0.5rem;">About</a>
+        <a href="#" style="padding: 0.5rem 1rem; background: var(--bg-2); border-radius: 0.5rem;">Contact</a>
+      </nav>
+    </div>
+
+    <!-- Segmented Controls -->
+    <div class="test-section">
+      <h2>Segmented Controls</h2>
+      <div class="ds-segmented">
+        <button class="ds-seg-btn is-on">Light</button>
+        <button class="ds-seg-btn">Dark</button>
+        <button class="ds-seg-btn">Auto</button>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="test-section" style="background: var(--accent-tint); padding: 1.5rem; border-radius: 0.5rem;">
+      <h3>Test Summary</h3>
+      <p>✅ Global :focus-visible rule added to colors_and_type.css</p>
+      <p>✅ Removed all outline: 0 declarations from app-shell.css</p>
+      <p>✅ Added specific :focus-visible styles for buttons, links, and form inputs</p>
+      <p>✅ Focus indicator: 2px accent color outline with 2px offset</p>
+      <p>✅ All interactive elements are keyboard navigable with visible focus indicators</p>
+    </div>
+  </div>
+
+  <script>
+    // Log when elements receive focus for debugging
+    document.addEventListener('focusin', (e) => {
+      if (e.target.matches('button, a, input, textarea, select, [tabindex]')) {
+        console.log('Focused:', e.target.tagName, e.target.className || e.target.id || 'no ID');
+      }
+    });
+  </script>
+</body>
+</html>

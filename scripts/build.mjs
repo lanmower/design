@@ -16,7 +16,6 @@ const dist = path.join(root, 'dist');
 fs.mkdirSync(dist, { recursive: true });
 
 const SCOPE = '.ds-247420';
-const TAILWIND_CDN = 'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css';
 
 const cssParts = [
     ['vendor/fonts.css', path.join(root, 'vendor/fonts.css')],
@@ -27,21 +26,7 @@ const cssParts = [
     ['editor-primitives.css', path.join(root, 'editor-primitives.css')],
 ];
 
-async function fetchTailwind() {
-    try {
-        const res = await fetch(TAILWIND_CDN);
-        if (!res.ok) throw new Error('tailwind cdn ' + res.status);
-        return await res.text();
-    } catch (err) {
-        console.warn('[247420] tailwind fetch failed:', err.message);
-        return '';
-    }
-}
-
-const tailwindCss = await fetchTailwind();
-
 let raw = '';
-if (tailwindCss) raw += `/* tailwind */\n${tailwindCss}\n`;
 for (const [label, file] of cssParts) {
     if (!fs.existsSync(file)) { console.warn('[247420] missing css:', label); continue; }
     raw += `\n/* ${label} */\n${fs.readFileSync(file, 'utf8')}`;

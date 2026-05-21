@@ -374,11 +374,16 @@
   border-radius: 50%;
   border: 2px solid color-mix(in oklab, var(--sun) 30%, transparent);
   border-top-color: var(--sun);
-  animation: cm-spin 700ms linear infinite;
   flex-shrink: 0;
 }
-@keyframes cm-spin {
-  to { transform: rotate(360deg); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .cm-ch-spinner {
+    animation: cm-spin 700ms linear infinite;
+  }
+  @keyframes cm-spin {
+    to { transform: rotate(360deg); }
+  }
 }
 
 .cm-ch-name {
@@ -529,11 +534,16 @@
   border-radius: 50%;
   background: var(--green-2);
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--green-2) 30%, transparent);
-  animation: cm-pulse 1.6s ease-in-out infinite;
 }
-@keyframes cm-pulse {
-  0%, 100% { box-shadow: 0 0 0 3px color-mix(in oklab, var(--green-2) 30%, transparent); }
-  50%      { box-shadow: 0 0 0 6px color-mix(in oklab, var(--green-2) 0%,  transparent); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .cm-vs-label::before {
+    animation: cm-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes cm-pulse {
+    0%, 100% { box-shadow: 0 0 0 3px color-mix(in oklab, var(--green-2) 30%, transparent); }
+    50%      { box-shadow: 0 0 0 6px color-mix(in oklab, var(--green-2) 0%,  transparent); }
+  }
 }
 
 .cm-vs-channel {

@@ -345,8 +345,12 @@ html, body {
 .app-frame { width: 100%; height: 100%; border: 0; background: var(--os-bg-0); }
 .app-iframe { width: 100%; height: 100%; border: 0; display: block; }
 .app-iframe.web { background: #ffffff; }
-.app-text-cursor { animation: app-cursor-blink 0.5s step-end infinite; }
-@keyframes app-cursor-blink { 50% { opacity: 0; } }
+.app-text-cursor { }
+
+@media (prefers-reduced-motion: no-preference) {
+  .app-text-cursor { animation: app-cursor-blink 0.5s step-end infinite; }
+  @keyframes app-cursor-blink { 50% { opacity: 0; } }
+}
 @media (max-width: 1023px) and (min-width: 768px) {
     .os-side-rail { display: flex; }
     .wm-root { left: var(--os-rail-w) !important; }
