@@ -27,11 +27,11 @@ export function ServerIcon({ id, name, icon, active, badge, onClick } = {}) {
 }
 
 export function ServerRail({ servers = [], activeId, onSelect, onAdd } = {}) {
-    return h('div', { class: 'cm-server-rail' },
-        h('a', { class: 'cm-server-back', href: '../', title: 'Back' }, '◰'),
-        h('div', { class: 'cm-server-sep' }),
+    return h('div', { class: 'cm-server-rail', role: 'navigation', 'aria-label': 'servers' },
+        h('a', { class: 'cm-server-back', href: '../', title: 'Back', 'aria-label': 'back' }, '◰'),
+        h('div', { class: 'cm-server-sep', 'aria-hidden': 'true' }),
         ...servers.map(s => ServerIcon({ ...s, active: s.id === activeId, onClick: () => onSelect && onSelect(s.id) })),
-        onAdd ? h('button', { class: 'cm-server-add', onclick: onAdd, title: 'Add server' }, '+') : null
+        onAdd ? h('button', { class: 'cm-server-add', type: 'button', onclick: onAdd, title: 'Add server', 'aria-label': 'add server' }, '+') : null
     );
 }
 
@@ -213,14 +213,27 @@ export function ChatHeader({ icon = '#', name, topic, toolbar = [] } = {}) {
 }
 
 export function VoiceStrip({ channelName, status, muted, deafened, onMute, onDeafen, onLeave, open } = {}) {
-    return h('div', { class: 'cm-voice-strip' + (open ? ' open' : '') },
+    return h('div', { class: 'cm-voice-strip' + (open ? ' open' : ''), role: 'region', 'aria-label': 'voice controls' },
         h('div', { class: 'cm-vs-label' },
             h('span', { class: 'cm-vs-channel' }, '🔊 ' + (channelName || 'voice')),
             h('span', { class: 'cm-vs-status' }, status || 'connected')
         ),
-        h('button', { class: 'cm-vs-btn', onclick: onMute, title: 'Mute' }, muted ? '🔇' : '🎤'),
-        h('button', { class: 'cm-vs-btn', onclick: onDeafen, title: 'Deafen' }, deafened ? '🔕' : '🎧'),
-        h('button', { class: 'cm-vs-btn danger', onclick: onLeave, title: 'Leave' }, '✕')
+        h('button', {
+            class: 'cm-vs-btn', type: 'button', onclick: onMute,
+            title: muted ? 'Unmute' : 'Mute',
+            'aria-label': muted ? 'unmute microphone' : 'mute microphone',
+            'aria-pressed': muted ? 'true' : 'false'
+        }, muted ? '🔇' : '🎤'),
+        h('button', {
+            class: 'cm-vs-btn', type: 'button', onclick: onDeafen,
+            title: deafened ? 'Undeafen' : 'Deafen',
+            'aria-label': deafened ? 'undeafen' : 'deafen',
+            'aria-pressed': deafened ? 'true' : 'false'
+        }, deafened ? '🔕' : '🎧'),
+        h('button', {
+            class: 'cm-vs-btn danger', type: 'button', onclick: onLeave,
+            title: 'Leave voice', 'aria-label': 'leave voice channel'
+        }, '✕')
     );
 }
 

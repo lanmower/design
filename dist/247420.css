@@ -1531,6 +1531,7 @@
   display: inline-flex; align-items: center; justify-content: center;
   flex-shrink: 0; font-family: var(--ff-body);
   transition: background var(--dur-snap, .15s) var(--ease, ease), transform .1s ease;
+  will-change: transform; contain: layout style paint;
 }
 .ds-247420 .chat-composer .send:hover,
 .ds-247420 .chat-composer button:hover { transform: scale(1.04); }
@@ -1608,6 +1609,13 @@
     .ds-247420 .chat-avatar { width: 28px; height: 28px; font-size: 12px; }
     .ds-247420 .chat-composer { padding: 8px; }
     .ds-247420 .chat-composer textarea { padding: 10px 12px; }
+}
+
+/* ── landscape orientation: reduce vertical space for composer ──────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+    .ds-247420 .chat-composer { padding: 6px 0; }
+    .ds-247420 .chat-composer textarea { min-height: 36px; max-height: 120px; }
+    .ds-247420 .chat-composer .send, .ds-247420 .chat-composer button { width: 36px; height: 36px; font-size: 14px; }
 }
 
 /* ============================================================
@@ -2934,6 +2942,7 @@
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklab, var(--fg) 18%, transparent) transparent;
   transition: width var(--dur-base) var(--ease), flex-basis var(--dur-base) var(--ease);
+  will-change: width, flex-basis, opacity, transform; contain: layout style;
 }
 .ds-247420 .cm-member-list:not(.open) {
   width: 0;
@@ -3138,6 +3147,51 @@
     flex: 0 0 24px;
     width: 24px;
     height: 24px;
+  }
+}
+
+/* ---------- a11y polish: focus-visible coverage on community interactive elements ---------- */
+/* Every interactive surface with a :hover state must also have a :focus-visible state so
+   keyboard users get equivalent feedback. The selectors here mirror the existing :hover rules. */
+
+.ds-247420 .cm-server-icon:focus-visible,
+.ds-247420 .cm-server-back:focus-visible,
+.ds-247420 .cm-server-add:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-2);
+}
+
+.ds-247420 .cm-channel-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: var(--r-1);
+}
+
+.ds-247420 .cm-member-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: var(--r-1);
+}
+
+.ds-247420 .cm-vs-btn:focus-visible,
+.ds-247420 .cm-user-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-1);
+}
+
+/* ---------- prefers-reduced-motion: kill the transitions that were not previously guarded ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .ds-247420 .cm-server-icon,
+  .ds-247420 .cm-channel-item,
+  .ds-247420 .cm-member-item,
+  .ds-247420 .cm-vs-btn,
+  .ds-247420 .cm-user-btn,
+  .ds-247420 .cm-ch-spinner,
+  .ds-247420 .cm-ch-voice-badge {
+    transition: none !important;
+    animation: none !important;
   }
 }
 
@@ -3536,4 +3590,27 @@
     .ds-247420 .ds-ep-resize {
         transition: none !important;
     }
+    /* Catch the transitions on tabs, tree rows, and primitive buttons that weren't
+       previously wrapped — vestibular users get a static UI. */
+    .ds-247420 .ds-ep-tab,
+    .ds-247420 .ds-ep-tree-row,
+    .ds-247420 .ds-ep-tree-twist,
+    .ds-247420 .ds-ep-toolbar button,
+    .ds-247420 .ds-ep-iconbtn,
+    .ds-247420 .ds-ep-iconbtn-group button {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* ---------- focus-visible on editor-primitive interactive elements ---------- */
+.ds-247420 .ds-ep-tab:focus-visible,
+.ds-247420 .ds-ep-tree-row:focus-visible,
+.ds-247420 .ds-ep-toolbar button:focus-visible,
+.ds-247420 .ds-ep-iconbtn:focus-visible,
+.ds-247420 .ds-ep-iconbtn-group button:focus-visible,
+.ds-247420 .ds-ep-resize:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--r-1);
 }

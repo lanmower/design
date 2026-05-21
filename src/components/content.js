@@ -21,10 +21,22 @@ export function Row({ code, title, sub, meta, active, state = 'default', onClick
     // Support legacy active/selected props for backward compatibility
     const isActive = state === 'active' || (state === 'default' && (active || selected));
     const isLink = kind === 'link' || (href != null && !onClick);
+    const isButton = !isLink && !!onClick;
     const cls = 'row' + (isActive ? ' active' : '') + (cols ? ' row-grid' : '');
     const props = { key, class: cls, style: cols ? `${style ? style + ';' : ''}grid-template-columns:${cols}` : style };
-    if (isLink) { props.href = href || '#'; if (target) props.target = target; }
-    else if (onClick) { props.onclick = onClick; }
+    if (isLink) {
+        props.href = href || '#';
+        if (target) props.target = target;
+    } else if (isButton) {
+        // Clickable div needs button semantics + keyboard activation for a11y parity.
+        props.onclick = onClick;
+        props.role = 'button';
+        props.tabindex = '0';
+        props.onkeydown = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(e); }
+        };
+    }
+    if (isActive && (isLink || isButton)) props['aria-current'] = 'true';
     return h(isLink ? 'a' : 'div', props,
         leading != null ? leading : (code != null ? h('span', { class: 'code' }, code) : null),
         h('span', { class: 'title' }, title, sub ? h('span', { class: 'sub' }, sub) : null),
@@ -295,17 +307,25 @@ export function Form({ fields = [], submit = 'submit', onSubmit }) {
         h('button', { type: 'submit', class: 'btn-primary' }, submit));
 }
 
-export function Spinner({ size = 'base', tone = 'accent', key } = {}) {
+export function Spinner({ size = 'base', tone = 'accent', label = 'loading', key } = {}) {
     const sizeClass = size === 'sm' ? 'ds-spinner-sm' : size === 'lg' ? 'ds-spinner-lg' : '';
-    return h('div', { key, class: 'ds-spinner ' + sizeClass + ' tone-' + tone },
-        h('span', { key: '1' }), h('span', { key: '2' }), h('span', { key: '3' })
+    return h('div', {
+        key, class: 'ds-spinner ' + sizeClass + ' tone-' + tone,
+        role: 'status', 'aria-live': 'polite', 'aria-label': label
+    },
+        h('span', { key: '1', 'aria-hidden': 'true' }),
+        h('span', { key: '2', 'aria-hidden': 'true' }),
+        h('span', { key: '3', 'aria-hidden': 'true' })
     );
 }
 
-export function Skeleton({ height = '1em', width = '100%', count = 1, key } = {}) {
-    return h('div', { key, class: 'ds-skeleton-group' },
+export function Skeleton({ height = '1em', width = '100%', count = 1, label = 'loading content', key } = {}) {
+    return h('div', {
+        key, class: 'ds-skeleton-group',
+        role: 'status', 'aria-busy': 'true', 'aria-label': label
+    },
         ...Array(count).fill(0).map((_, i) =>
-            h('div', { key: String(i), class: 'ds-skeleton', style: `height:${height};width:${width};` })
+            h('div', { key: String(i), class: 'ds-skeleton', style: `height:${height};width:${width};`, 'aria-hidden': 'true' })
         )
     );
 }

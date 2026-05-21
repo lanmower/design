@@ -15,11 +15,32 @@ export function Chip({ tone = '', children }) {
     return h('span', { class: 'chip' + (tone ? ' tone-' + tone : '') }, children);
 }
 
-export function Btn({ href = '#', variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost }) {
+export function Btn({ href = '#', variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost, disabled }) {
     // Support legacy primary/ghost props for backward compatibility, but prefer variant
     const resolvedVariant = variant !== 'default' ? variant : (primary ? 'primary' : (ghost ? 'ghost' : 'default'));
-    const cls = resolvedVariant === 'primary' ? 'btn-primary' : (resolvedVariant === 'ghost' ? 'btn-ghost' : 'btn');
-    return h('a', { class: cls, href, onclick: onClick, role: 'button', 'aria-label': ariaLabel || (typeof children === 'string' ? children : undefined) }, children);
+    const cls = (resolvedVariant === 'primary' ? 'btn-primary' : (resolvedVariant === 'ghost' ? 'btn-ghost' : 'btn'))
+        + (disabled ? ' is-disabled' : '');
+    // Anchor with role=button needs explicit Space/Enter activation for keyboard parity with <button>.
+    // Browsers fire click on Enter for anchors with href, but Space does nothing — and href="#"
+    // synthesizes navigation if onclick doesn't preventDefault.
+    const onkeydown = (e) => {
+        if (disabled) { e.preventDefault(); return; }
+        if (e.key === ' ' || (e.key === 'Enter' && (!href || href === '#'))) {
+            e.preventDefault();
+            if (onClick) onClick(e);
+        }
+    };
+    const onclick = (e) => {
+        if (disabled) { e.preventDefault(); return; }
+        if (onClick) onClick(e);
+    };
+    return h('a', {
+        class: cls, href, role: 'button',
+        tabindex: disabled ? '-1' : '0',
+        'aria-label': ariaLabel || (typeof children === 'string' ? children : undefined),
+        'aria-disabled': disabled ? 'true' : null,
+        onclick, onkeydown
+    }, children);
 }
 
 export function Glyph({ children, color }) {

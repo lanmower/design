@@ -18,19 +18,50 @@ export function Toolbar({ leading = [], trailing = [], dense = false, children }
     );
 }
 
-export function Tabs({ items = [], active, onChange, children } = {}) {
+export function Tabs({ items = [], active, onChange, children, 'aria-label': ariaLabel } = {}) {
+    // Roving tabindex + arrow nav per WAI-ARIA tabs pattern.
+    // Only the active tab is in the tab order; arrows move focus + activate.
+    const activeIdx = Math.max(0, items.findIndex(it => it.id === active));
+    const onTabKeyDown = (e, idx) => {
+        let next = null;
+        if (e.key === 'ArrowRight') next = (idx + 1) % items.length;
+        else if (e.key === 'ArrowLeft') next = (idx - 1 + items.length) % items.length;
+        else if (e.key === 'Home') next = 0;
+        else if (e.key === 'End') next = items.length - 1;
+        if (next == null) return;
+        e.preventDefault();
+        const nextId = items[next]?.id;
+        if (nextId && onChange) onChange(nextId);
+        // Move focus on next paint (so the newly rendered active button gets focus)
+        queueMicrotask(() => {
+            const head = e.currentTarget?.parentElement;
+            const btn = head?.querySelectorAll('[role="tab"]')[next];
+            if (btn) btn.focus();
+        });
+    };
     return h('div', { class: 'ds-ep-tabs' },
-        h('div', { class: 'ds-ep-tabs-head', role: 'tablist' },
-            ...items.map((it) => h('button', {
+        h('div', { class: 'ds-ep-tabs-head', role: 'tablist', 'aria-label': ariaLabel || 'tabs' },
+            ...items.map((it, idx) => h('button', {
                 key: it.id,
                 type: 'button',
                 class: 'ds-ep-tab' + (it.id === active ? ' active' : ''),
                 role: 'tab',
+                id: 'tab-' + it.id,
                 'aria-selected': it.id === active ? 'true' : 'false',
-                onclick: () => onChange && onChange(it.id)
+                'aria-controls': 'tabpanel-' + it.id,
+                'aria-label': typeof it.label === 'string' ? it.label : ('tab ' + (idx + 1)),
+                tabindex: idx === activeIdx ? '0' : '-1',
+                onclick: () => onChange && onChange(it.id),
+                onkeydown: (e) => onTabKeyDown(e, idx)
             }, it.label))
         ),
-        h('div', { class: 'ds-ep-tabs-body', role: 'tabpanel' }, ...kids(children))
+        h('div', {
+            class: 'ds-ep-tabs-body',
+            role: 'tabpanel',
+            id: active ? 'tabpanel-' + active : undefined,
+            'aria-labelledby': active ? 'tab-' + active : undefined,
+            tabindex: '0'
+        }, ...kids(children))
     );
 }
 
@@ -41,22 +72,58 @@ export function TreeView({ children } = {}) {
 export function TreeItem({ label, glyph, tag, depth = 0, selected = false, expanded = false, onSelect, onToggle, children, hasChildren } = {}) {
     // Support legacy 'hasChildren' prop for future; infer from children param
     const hasKids = hasChildren != null ? hasChildren : (children != null);
+    // Tree keyboard model (WAI-ARIA): Up/Down move between visible rows, Right expands/enters,
+    // Left collapses/moves to parent, Enter/Space activate, Home/End jump to first/last visible.
+    const onRowKeyDown = (e) => {
+        const row = e.currentTarget;
+        const tree = row.closest('[role="tree"]');
+        if (!tree) return;
+        const rows = Array.from(tree.querySelectorAll('.ds-ep-tree-row'));
+        const idx = rows.indexOf(row);
+        if (idx < 0) return;
+        const move = (i) => {
+            const r = rows[Math.max(0, Math.min(rows.length - 1, i))];
+            if (r) r.focus();
+        };
+        switch (e.key) {
+            case 'ArrowDown': e.preventDefault(); move(idx + 1); break;
+            case 'ArrowUp':   e.preventDefault(); move(idx - 1); break;
+            case 'Home':      e.preventDefault(); move(0); break;
+            case 'End':       e.preventDefault(); move(rows.length - 1); break;
+            case 'ArrowRight':
+                if (hasKids && !expanded && onToggle) { e.preventDefault(); onToggle(); }
+                else if (hasKids && expanded) { e.preventDefault(); move(idx + 1); }
+                break;
+            case 'ArrowLeft':
+                if (hasKids && expanded && onToggle) { e.preventDefault(); onToggle(); }
+                break;
+            case 'Enter':
+            case ' ':
+                e.preventDefault();
+                if (onSelect) onSelect();
+                break;
+        }
+    };
     return h('div', {
         class: 'ds-ep-tree-item' + (selected ? ' selected' : ''),
         role: 'treeitem',
         'aria-selected': selected ? 'true' : 'false',
-        'aria-expanded': hasKids ? String(!!expanded) : null
+        'aria-expanded': hasKids ? String(!!expanded) : null,
+        'aria-level': depth + 1
     },
         h('div', {
             class: 'ds-ep-tree-row',
             style: 'padding-left:' + (depth * 12 + 6) + 'px',
-            onclick: () => onSelect && onSelect()
+            tabindex: selected ? '0' : '-1',
+            onclick: () => onSelect && onSelect(),
+            onkeydown: onRowKeyDown
         },
             h('span', {
                 class: 'ds-ep-tree-twist' + (expanded ? ' open' : ''),
+                'aria-hidden': 'true',
                 onclick: (e) => { e.stopPropagation(); if (hasKids && onToggle) onToggle(); }
             }, hasKids ? '▸' : ''),
-            glyph != null ? h('span', { class: 'ds-ep-tree-glyph' }, glyph) : null,
+            glyph != null ? h('span', { class: 'ds-ep-tree-glyph', 'aria-hidden': 'true' }, glyph) : null,
             h('span', { class: 'ds-ep-tree-label' }, label),
             tag != null ? h('span', { class: 'ds-ep-tree-tag' }, tag) : null
         ),
