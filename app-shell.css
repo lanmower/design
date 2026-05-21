@@ -163,7 +163,10 @@ pre .n { color: var(--green-2); }
 .app-topbar nav { display: flex; gap: 4px; font-size: var(--fs-sm); }
 .app-topbar nav a {
   color: var(--fg-2);
-  padding: 8px 14px;
+  padding: 12px 14px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
   border-radius: var(--r-pill);
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
@@ -229,7 +232,8 @@ pre .n { color: var(--green-2); }
 .app-side a {
   display: grid; grid-template-columns: 18px 1fr auto;
   gap: 10px; align-items: center;
-  padding: 10px 14px;
+  padding: 12px 14px;
+  min-height: 44px;
   border-radius: var(--r-pill);
   color: var(--fg-2);
   margin-bottom: 2px;
@@ -573,15 +577,20 @@ table tr.clickable:hover td { background: var(--bg-2); }
     width: 100%; font-size: var(--fs-micro); margin-bottom: 4px;
   }
   .app-side a {
-    flex: 1; min-width: 100px; padding: 8px 10px; gap: 6px;
+    flex: 1; min-width: 100px; padding: 12px 10px; gap: 6px;
     grid-template-columns: 14px 1fr;
+    min-height: 44px;
   }
   .app-side a .glyph { font-size: 12px; }
 
   /* Topbar Navigation */
   .app-topbar {
     grid-template-columns: 1fr auto;
-    gap: var(--space-2); padding: 14px var(--space-3);
+    gap: var(--space-2); padding: 12px var(--space-3);
+  }
+  .app-topbar nav a {
+    padding: 12px 10px;
+    min-height: 44px;
   }
   .app-topbar nav {
     display: none; /* Hide full nav on very small screens */
@@ -708,22 +717,24 @@ table tr.clickable:hover td { background: var(--bg-2); }
     flex-direction: column; gap: var(--space-3);
   }
   .app-side a {
-    padding: 9px 12px; gap: 8px;
+    padding: 12px 12px; gap: 8px;
     grid-template-columns: 16px 1fr auto;
     font-size: var(--fs-xs);
+    min-height: 44px;
   }
 
   /* Topbar Navigation */
   .app-topbar {
     grid-template-columns: auto 1fr auto;
-    gap: var(--space-3); padding: 16px var(--space-4);
+    gap: var(--space-3); padding: 12px var(--space-4);
   }
   .app-topbar nav {
     display: flex; gap: 8px; font-size: var(--fs-xs);
     flex-wrap: wrap;
   }
   .app-topbar nav a {
-    padding: 8px 12px; font-size: var(--fs-xs);
+    padding: 12px 12px; font-size: var(--fs-xs);
+    min-height: 44px;
   }
   .brand { font-size: var(--fs-sm); }
 
@@ -818,7 +829,7 @@ table tr.clickable:hover td { background: var(--bg-2); }
    Chat — minimal styles (placeholder for full chat surface)
    ============================================================ */
 .ds-chat { display: flex; flex-direction: column; gap: 12px; padding: var(--space-4); }
-.ds-chat-msg { padding: 12px 18px; background: var(--bg-2); border-radius: var(--r-3); max-width: 36em; }
+.ds-chat-msg { padding: 12px 18px; background: var(--bg-2); border-radius: var(--r-3); max-width: min(90vw, 36em); }
 .ds-chat-msg.user { background: var(--accent); color: var(--accent-fg); align-self: flex-end; }
 .ds-chat-md { font-size: var(--fs-sm); line-height: 1.6; }
 .ds-chat-composer { display: flex; gap: 8px; padding: var(--space-4); }
@@ -940,7 +951,7 @@ table tr.clickable:hover td { background: var(--bg-2); }
 .chat-msg { display: flex; gap: 12px; align-items: flex-start; padding: 2px 0; position: relative; }
 .chat-msg.you { flex-direction: row-reverse; }
 .chat-msg.you .chat-stack { align-items: flex-end; }
-.chat-msg:hover { background: color-mix(in oklab, var(--fg) 1%, transparent); padding: 6px 8px; margin: -4px -8px; border-radius: 8px; transition: background 0.12s ease, padding 0.12s ease; }
+.chat-msg:hover { background: color-mix(in oklab, var(--fg) 1%, transparent); padding: 2px 0; margin: 0; border-radius: 8px; transition: background var(--dur-base) var(--ease); }
 
 .chat-avatar {
   width: 36px; height: 36px; flex-shrink: 0;
@@ -951,7 +962,7 @@ table tr.clickable:hover td { background: var(--bg-2); }
   transition: transform 0.12s ease, box-shadow 0.12s ease;
   position: relative;
 }
-.chat-msg:hover .chat-avatar { transform: scale(1.08); box-shadow: 0 2px 8px color-mix(in oklab, var(--fg) 10%, transparent); }
+.chat-msg:hover .chat-avatar { transform: scale(1.03); box-shadow: 0 1px 4px color-mix(in oklab, var(--fg) 6%, transparent); }
 .chat-msg.you .chat-avatar {
   background: color-mix(in oklab, var(--accent) 26%, var(--bg-3));
   color: var(--accent);
@@ -974,7 +985,7 @@ table tr.clickable:hover td { background: var(--bg-2); }
   max-width: clamp(200px, 80vw, 480px);
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
-.chat-msg:hover .chat-bubble { transform: translateY(-1px); box-shadow: 0 4px 16px color-mix(in oklab, var(--fg) 8%, transparent); }
+.chat-msg:hover .chat-bubble { transform: translateY(-1px); box-shadow: 0 2px 8px color-mix(in oklab, var(--fg) 6%, transparent); transition: transform var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease); }
 .chat-msg.you .chat-bubble { background: var(--accent); color: var(--accent-fg); }
 .chat-msg.aicat .chat-bubble {
   background: color-mix(in oklab, var(--mascot) 14%, var(--bg-2));
@@ -1306,7 +1317,7 @@ table tr.clickable:hover td { background: var(--bg-2); }
 .chat-composer textarea {
     resize: none;
     overflow-y: auto;
-    transition: height 0.08s ease;
+    transition: height var(--dur-snap) var(--ease);
     line-height: 1.5;
 }
 .chat-composer textarea:disabled {
@@ -1747,3 +1758,113 @@ body {
     max-width: none;
   }
 }
+
+/* ============================================================
+   Spinner — animated loading indicator
+   ============================================================ */
+.ds-spinner {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  height: 16px;
+}
+.ds-spinner span {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: ds-bounce 1.4s infinite ease-in-out;
+}
+.ds-spinner span:nth-child(1) { animation-delay: 0s; }
+.ds-spinner span:nth-child(2) { animation-delay: 0.18s; }
+.ds-spinner span:nth-child(3) { animation-delay: 0.36s; }
+
+.ds-spinner-lg { height: 24px; gap: 6px; }
+.ds-spinner-lg span { width: 6px; height: 6px; }
+
+.ds-spinner-sm { height: 12px; gap: 2px; }
+.ds-spinner-sm span { width: 2px; height: 2px; }
+
+@keyframes ds-bounce {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-8px); }
+}
+
+/* ============================================================
+   Skeleton — animated loading placeholder
+   ============================================================ */
+.ds-skeleton-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.ds-skeleton {
+  background: linear-gradient(90deg, var(--bg-2) 25%, var(--bg-3) 50%, var(--bg-2) 75%);
+  background-size: 200% 100%;
+  animation: ds-shimmer 1.5s infinite;
+  border-radius: var(--r-1);
+}
+
+@keyframes ds-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ============================================================
+   Alert — contextual message banner
+   ============================================================ */
+.ds-alert {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--r-1);
+  background: var(--panel-1);
+  border: 1px solid var(--rule-strong);
+  color: var(--fg);
+}
+
+.ds-alert-info { --alert-tone: var(--sky); }
+.ds-alert-success { --alert-tone: var(--green); }
+.ds-alert-warn { --alert-tone: var(--sun); }
+.ds-alert-error { --alert-tone: var(--warn); }
+
+.ds-alert-icon {
+  flex-shrink: 0;
+  color: var(--alert-tone);
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+}
+
+.ds-alert-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ds-alert-title {
+  font-weight: 500;
+  font-size: var(--fs-sm);
+}
+
+.ds-alert-message {
+  font-size: var(--fs-sm);
+  color: var(--fg-2);
+}
+
+.ds-alert-dismiss {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--fg-3);
+  padding: 0;
+  font-size: 14px;
+  line-height: 1;
+  min-width: 20px;
+  text-align: center;
+  transition: color var(--dur-snap) var(--ease);
+}
+.ds-alert-dismiss:hover { color: var(--fg); }

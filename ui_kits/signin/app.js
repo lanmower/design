@@ -4,9 +4,9 @@ import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
 
 const root = document.getElementById('root');
-const state = { mode: 'signin', email: '', password: '', remember: true, sent: false, error: '' };
+const state = { mode: 'signin', email: '', password: '', remember: true, sent: false, error: '', loading: null };
 
-function setMode(m) { state.mode = m; state.sent = false; state.error = ''; kit.render(); }
+function setMode(m) { state.mode = m; state.sent = false; state.error = ''; state.loading = null; kit.render(); }
 
 function submit(e) {
     e.preventDefault();
@@ -17,15 +17,88 @@ function submit(e) {
     kit.render();
 }
 
-function Provider({ glyph, label, onClick }) {
+function Provider({ glyph, label, provider }) {
+    const isLoading = state.loading === provider;
     return h('button', {
         class: 'btn',
-        style: 'flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px',
-        onclick: onClick || ((e) => { e.preventDefault(); state.error = '(stub) provider not wired'; kit.render(); })
+        style: 'flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px' + (isLoading ? ';opacity:0.7;pointer-events:none' : ''),
+        onclick: (e) => {
+            e.preventDefault();
+            if (isLoading) return;
+            state.loading = provider;
+            state.error = '';
+            kit.render();
+            startOAuthFlow(provider);
+        },
+        disabled: isLoading
     },
-        h('span', { style: 'font-family:var(--ff-mono);color:var(--panel-text-3)' }, glyph),
-        h('span', {}, label)
+        h('span', { style: 'font-family:var(--ff-mono);color:var(--panel-text-3)' }, isLoading ? '⟳' : glyph),
+        h('span', {}, isLoading ? 'redirecting…' : label)
     );
+}
+
+function startOAuthFlow(provider) {
+    const config = {
+        github: {
+            clientId: import.meta.env.VITE_GITHUB_CLIENT_ID || 'demo-github-client-id',
+            redirectUri: window.location.origin + '/auth/callback/github'
+        },
+        google: {
+            clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID || 'demo-google-client-id',
+            redirectUri: window.location.origin + '/auth/callback/google'
+        },
+        sso: {
+            endpoint: import.meta.env.VITE_SSO_ENDPOINT || 'https://sso.247420.xyz/authorize',
+            redirectUri: window.location.origin + '/auth/callback/sso'
+        }
+    }[provider];
+
+    if (!config) {
+        state.error = 'provider not configured';
+        state.loading = null;
+        kit.render();
+        return;
+    }
+
+    try {
+        if (provider === 'github') {
+            const scopes = ['user:email', 'read:user'].join(' ');
+            const params = new URLSearchParams({
+                client_id: config.clientId,
+                redirect_uri: config.redirectUri,
+                scope: scopes,
+                state: generateState()
+            });
+            window.location.href = 'https://github.com/login/oauth/authorize?' + params;
+        } else if (provider === 'google') {
+            const scopes = ['openid', 'email', 'profile'].join(' ');
+            const params = new URLSearchParams({
+                client_id: config.clientId,
+                redirect_uri: config.redirectUri,
+                response_type: 'code',
+                scope: scopes,
+                state: generateState()
+            });
+            window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params;
+        } else if (provider === 'sso') {
+            const params = new URLSearchParams({
+                redirect_uri: config.redirectUri,
+                state: generateState()
+            });
+            window.location.href = config.endpoint + '?' + params;
+        }
+    } catch (err) {
+        state.error = 'oauth flow failed: ' + (err.message || 'unknown error');
+        state.loading = null;
+        kit.render();
+    }
+}
+
+function generateState() {
+    return btoa(JSON.stringify({
+        nonce: Math.random().toString(36).slice(2),
+        timestamp: Date.now()
+    }));
 }
 
 function Form() {
@@ -64,9 +137,9 @@ function Form() {
             h('div', { style: 'flex:1;height:1px;background:var(--panel-2)' })
         ) : null,
         state.mode !== 'reset' ? h('div', { style: 'display:flex;gap:8px' },
-            Provider({ glyph: '◆', label: 'github' }),
-            Provider({ glyph: '◇', label: 'google' }),
-            Provider({ glyph: '✦', label: 'sso' })
+            Provider({ glyph: '◆', label: 'github', provider: 'github' }),
+            Provider({ glyph: '◇', label: 'google', provider: 'google' }),
+            Provider({ glyph: '✦', label: 'sso', provider: 'sso' })
         ) : null,
         state.mode !== 'reset' && state.mode !== 'magic' ? h('button', { class: 'btn', onclick: (e) => { e.preventDefault(); setMode('magic'); } }, 'use a magic link instead') : null
     );

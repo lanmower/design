@@ -275,8 +275,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 44px;
+  height: 44px;
+  padding: 8px;
   border: 0;
   background: transparent;
   color: var(--fg-3);
@@ -289,6 +290,10 @@
 .cm-cat-add:hover {
   color: var(--fg);
   background: color-mix(in oklab, var(--fg) 8%, transparent);
+}
+.cm-cat-add:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .cm-cat-channels {
@@ -379,10 +384,36 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .cm-ch-spinner {
-    animation: cm-spin 700ms linear infinite;
+    animation: cm-spin var(--dur-slow) steps(8, end) infinite;
+    will-change: transform;
+    contain: layout;
   }
   @keyframes cm-spin {
     to { transform: rotate(360deg); }
+  }
+}
+
+.cm-ch-icon.voice-active-badge {
+  color: var(--green-2);
+  text-shadow: 0 0 8px var(--green-2);
+}
+
+.cm-ch-voice-badge {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green-2);
+  flex-shrink: 0;
+  position: relative;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cm-ch-voice-badge {
+    animation: cm-voice-pulse 2s ease-in-out infinite;
+  }
+  @keyframes cm-voice-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
   }
 }
 
@@ -423,8 +454,9 @@
 .cm-channel-item.active .cm-ch-actions { opacity: 0.6; }
 
 .cm-ch-action-btn {
-  width: 18px;
-  height: 18px;
+  width: 44px;
+  height: 44px;
+  padding: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -439,6 +471,10 @@
 .cm-ch-action-btn:hover {
   color: var(--fg);
   background: color-mix(in oklab, var(--fg) 10%, transparent);
+}
+.cm-ch-action-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* Voice users nested under a voice channel */
@@ -768,6 +804,9 @@
   flex-basis: 0;
   padding: 0;
   overflow: hidden;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateX(100%);
 }
 .cm-member-list::-webkit-scrollbar { width: 8px; }
 .cm-member-list::-webkit-scrollbar-thumb {
@@ -795,6 +834,8 @@
   color: var(--fg-2);
   cursor: pointer;
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+  max-width: 100%;
+  min-width: 0;
 }
 .cm-member-item:hover {
   background: color-mix(in oklab, var(--fg) 6%, transparent);
@@ -936,8 +977,30 @@
   .cm-server-icon,
   .cm-server-add,
   .cm-server-back {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
+    padding: 4px;
   }
-  .cm-channel-sidebar { left: 56px; }
+  .cm-channel-sidebar {
+    left: 56px;
+    width: 80vw;
+    max-width: 200px;
+  }
+  .cm-channel-sidebar.open {
+    width: 80vw;
+    max-width: 200px;
+  }
+
+  /* Mobile touch target fixes for icon buttons */
+  .cm-cat-add,
+  .cm-ch-action-btn {
+    width: 44px;
+    height: 44px;
+    padding: 8px;
+  }
+  .cm-ch-icon {
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+  }
 }

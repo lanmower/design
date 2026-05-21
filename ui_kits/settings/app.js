@@ -15,7 +15,10 @@ const state = {
     motion: true,
     notify: { mentions: true, releases: true, marketing: false },
     api_key: 'sk-247420-•••••••-c2a',
-    dirty: false
+    dirty: false,
+    lastSaved: null,
+    draft: null,
+    showConfirmDiscard: false
 };
 
 const sections = [
@@ -25,6 +28,74 @@ const sections = [
     { id: 'api',       label: 'api keys',     glyph: '⌘' },
     { id: 'danger',    label: 'danger zone',  glyph: '!' }
 ];
+
+// Draft management: auto-save to localStorage on every dirty change
+function saveDraft() {
+    const draft = {
+        name: state.name,
+        email: state.email,
+        handle: state.handle,
+        bio: state.bio,
+        theme: state.theme,
+        motion: state.motion,
+        notify: { ...state.notify },
+        timestamp: Date.now()
+    };
+    localStorage.setItem('settings-draft', JSON.stringify(draft));
+    state.draft = draft;
+}
+
+function loadDraft() {
+    const stored = localStorage.getItem('settings-draft');
+    if (stored) {
+        try {
+            const draft = JSON.parse(stored);
+            state.draft = draft;
+            return draft;
+        } catch (e) {
+            return null;
+        }
+    }
+    return null;
+}
+
+function restoreDraft(draft) {
+    if (draft) {
+        state.name = draft.name;
+        state.email = draft.email;
+        state.handle = draft.handle;
+        state.bio = draft.bio;
+        state.theme = draft.theme;
+        state.motion = draft.motion;
+        state.notify = { ...draft.notify };
+    }
+}
+
+function clearDraft() {
+    localStorage.removeItem('settings-draft');
+    state.draft = null;
+}
+
+function DiscardConfirmModal({ onConfirm, onCancel }) {
+    const draft = state.draft;
+    const timestamp = draft?.timestamp ? new Date(draft.timestamp).toLocaleString() : 'unknown time';
+    return h('div', { class: 'ds-modal-backdrop', onclick: (e) => { if (e.target === e.currentTarget) onCancel(); } },
+        h('div', { class: 'ds-modal ds-modal-small', style: 'min-width:320px;max-width:480px' },
+            h('div', { class: 'ds-modal-head' }, 'Discard unsaved changes?'),
+            h('div', { class: 'ds-modal-body', style: 'padding:16px;gap:12px;display:flex;flex-direction:column' },
+                h('p', { style: 'margin:0 0 8px;color:var(--panel-text-2);font-size:14px' }, 'You have unsaved changes. A draft was saved at ' + timestamp + '.'),
+                h('div', { style: 'background:var(--panel-1);padding:12px;border-radius:6px;font-size:13px;color:var(--panel-text-2);max-height:120px;overflow-y:auto;font-family:var(--ff-mono)' },
+                    'Name: ' + state.name, h('br'), 'Email: ' + state.email, h('br'),
+                    draft && draft.theme && draft.theme !== 'auto' ? ['Theme: ' + draft.theme, h('br')] : null
+                ),
+                h('div', { style: 'display:flex;gap:8px;margin-top:12px;justify-content:space-between' },
+                    h('button', { class: 'btn', onclick: () => { restoreDraft(draft); onCancel(); } }, 'Restore draft'),
+                    h('button', { class: 'btn btn-primary danger', style: 'color:var(--warn)', onclick: onConfirm }, 'Discard & continue')
+                )
+            )
+        )
+    );
+}
 
 function Field({ label, hint, children }) {
     return h('label', { class: 'ds-field', style: 'display:flex;flex-direction:column;gap:6px;margin:10px 0' },
@@ -45,13 +116,13 @@ function Toggle({ on, onChange, label }) {
 function Profile() {
     return Panel({ title: 'profile', style: 'margin:8px 0', children: h('div', { style: 'padding:14px 18px' },
         Field({ label: 'name', hint: 'shown on commits and PRs.', children:
-            h('input', { class: 'input', value: state.name, oninput: (e) => { state.name = e.target.value; state.dirty = true; } }) }),
+            h('input', { class: 'input', value: state.name, oninput: (e) => { state.name = e.target.value; state.dirty = true; saveDraft(); kit.render(); } }) }),
         Field({ label: 'email', hint: 'used for git identity. never mailed.', children:
-            h('input', { class: 'input', type: 'email', value: state.email, oninput: (e) => { state.email = e.target.value; state.dirty = true; } }) }),
+            h('input', { class: 'input', type: 'email', value: state.email, oninput: (e) => { state.email = e.target.value; state.dirty = true; saveDraft(); kit.render(); } }) }),
         Field({ label: 'handle', children:
             h('input', { class: 'input', value: state.handle, oninput: (e) => { state.handle = e.target.value; state.dirty = true; } }) }),
         Field({ label: 'bio', hint: 'one sentence. plain text.', children:
-            h('textarea', { class: 'input', rows: 3, oninput: (e) => { state.bio = e.target.value; state.dirty = true; } }, state.bio) })
+            h('textarea', { class: 'input', rows: 3, oninput: (e) => { state.bio = e.target.value; state.dirty = true; saveDraft(); kit.render(); } }, state.bio) })
     ) });
 }
 
@@ -116,10 +187,14 @@ function App() {
                 Heading({ level: 1, children: 'settings' }),
                 Lede({ children: 'every input primitive in one surface — fields, toggles, segmented buttons, danger panel, save bar.' }),
                 view,
+                state.showConfirmDiscard ? DiscardConfirmModal({
+                    onCancel: () => { state.showConfirmDiscard = false; kit.render(); },
+                    onConfirm: () => { state.dirty = false; clearDraft(); state.showConfirmDiscard = false; kit.render(); }
+                }) : null,
                 state.dirty ? h('div', { style: 'position:sticky;bottom:8px;display:flex;justify-content:flex-end;gap:8px;padding:10px;background:var(--panel-2);border-radius:10px;margin:8px 0' },
-                    h('span', { style: 'flex:1;color:var(--panel-text-2)' }, 'unsaved changes'),
-                    h('button', { class: 'btn', onclick: () => { state.dirty = false; kit.render(); } }, 'discard'),
-                    h('button', { class: 'btn btn-primary', onclick: () => { state.dirty = false; kit.render(); } }, 'save')
+                    h('span', { style: 'flex:1;color:var(--panel-text-2)' }, 'unsaved changes · draft auto-saved'),
+                    h('button', { class: 'btn', onclick: () => { state.showConfirmDiscard = true; kit.render(); } }, 'discard'),
+                    h('button', { class: 'btn btn-primary', onclick: () => { saveDraft(); state.dirty = false; state.lastSaved = Date.now(); kit.render(); } }, 'save')
                 ) : null
             )
         ],

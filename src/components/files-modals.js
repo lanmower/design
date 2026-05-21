@@ -6,8 +6,57 @@ import { fileGlyph, fmtFileSize } from './files.js';
 const h = webjsx.createElement;
 
 function Backdrop({ onClose, children, kind = '' } = {}) {
+    const backdropRef = (el) => {
+        if (!el) return;
+        const modal = el.querySelector('.ds-modal');
+        if (!modal) return;
+
+        // Focus trap: handle Tab key to cycle focus within modal
+        const focusables = modal.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstFocusable = focusables[0];
+        const lastFocusable = focusables[focusables.length - 1];
+
+        const handleKeydown = (e) => {
+            // Escape closes the modal
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                if (onClose) onClose();
+                return;
+            }
+            // Tab trapping
+            if (e.key === 'Tab') {
+                if (focusables.length === 0) {
+                    e.preventDefault();
+                    return;
+                }
+                if (e.shiftKey) {
+                    if (document.activeElement === firstFocusable) {
+                        e.preventDefault();
+                        lastFocusable.focus();
+                    }
+                } else {
+                    if (document.activeElement === lastFocusable) {
+                        e.preventDefault();
+                        firstFocusable.focus();
+                    }
+                }
+            }
+        };
+
+        el.addEventListener('keydown', handleKeydown);
+        // Auto-focus first focusable element on mount
+        if (firstFocusable && document.activeElement === document.body) {
+            firstFocusable.focus();
+        }
+
+        return () => el.removeEventListener('keydown', handleKeydown);
+    };
+
     return h('div', {
         class: 'ds-modal-backdrop',
+        ref: backdropRef,
         onclick: (e) => { if (e.target === e.currentTarget && onClose) onClose(); }
     },
         h('div', { class: 'ds-modal' + (kind ? ' ds-modal-' + kind : '') }, ...(Array.isArray(children) ? children : [children]))

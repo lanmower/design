@@ -38,8 +38,9 @@ export function TreeView({ children } = {}) {
     return h('div', { class: 'ds-ep-tree', role: 'tree' }, ...kids(children));
 }
 
-export function TreeItem({ label, glyph, tag, depth = 0, selected = false, expanded = false, onSelect, onToggle, children } = {}) {
-    const hasKids = children != null;
+export function TreeItem({ label, glyph, tag, depth = 0, selected = false, expanded = false, onSelect, onToggle, children, hasChildren } = {}) {
+    // Support legacy 'hasChildren' prop for future; infer from children param
+    const hasKids = hasChildren != null ? hasChildren : (children != null);
     return h('div', {
         class: 'ds-ep-tree-item' + (selected ? ' selected' : ''),
         role: 'treeitem',

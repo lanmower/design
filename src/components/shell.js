@@ -15,8 +15,10 @@ export function Chip({ tone = '', children }) {
     return h('span', { class: 'chip' + (tone ? ' tone-' + tone : '') }, children);
 }
 
-export function Btn({ href = '#', primary, ghost, children, onClick, 'aria-label': ariaLabel }) {
-    const cls = primary ? 'btn-primary' : (ghost ? 'btn-ghost' : 'btn');
+export function Btn({ href = '#', variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost }) {
+    // Support legacy primary/ghost props for backward compatibility, but prefer variant
+    const resolvedVariant = variant !== 'default' ? variant : (primary ? 'primary' : (ghost ? 'ghost' : 'default'));
+    const cls = resolvedVariant === 'primary' ? 'btn-primary' : (resolvedVariant === 'ghost' ? 'btn-ghost' : 'btn');
     return h('a', { class: cls, href, onclick: onClick, role: 'button', 'aria-label': ariaLabel || (typeof children === 'string' ? children : undefined) }, children);
 }
 

@@ -14,7 +14,8 @@ export {
     Hero, Install, Receipt, Changelog,
     WorksList, WritingList, Manifesto, Section, PageHeader,
     Kpi, Table, SearchInput, TextField, Select, EventList,
-    HomeView, ProjectView, Form
+    HomeView, ProjectView, Form,
+    Spinner, Skeleton, Alert
 } from './components/content.js';
 
 export {

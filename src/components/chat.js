@@ -108,12 +108,14 @@ function renderPart(p, key) {
     return node;
 }
 
-export function ChatMessage({ who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name }) {
+export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name }) {
     _stats.messages += 1;
-    const cls = 'chat-msg ' + who + (aicat && who === 'them' ? ' aicat' : '');
+    // Support legacy 'who' prop, prefer 'role' with mapping: 'user' <-> 'you', 'assistant' <-> 'them'
+    const resolvedWho = role ? (role === 'user' ? 'you' : role === 'assistant' ? 'them' : role) : who;
+    const cls = 'chat-msg ' + resolvedWho + (aicat && resolvedWho === 'them' ? ' aicat' : '');
     const fallbackAvatar = avatar != null
         ? avatar
-        : (who === 'you' ? 'u' : (name ? String(name).trim().charAt(0).toUpperCase() || '◔' : '◔'));
+        : (resolvedWho === 'you' ? 'u' : (name ? String(name).trim().charAt(0).toUpperCase() || '◔' : '◔'));
     const av = h('span', { class: 'chat-avatar' }, fallbackAvatar);
     let bodyNodes;
     if (typing) bodyNodes = [h('div', { class: 'chat-bubble', key: 'typb' }, h('span', { class: 'chat-typing' }, h('span'), h('span'), h('span')))];
@@ -124,41 +126,56 @@ export function ChatMessage({ who = 'them', avatar, text, parts, time, typing, k
             ...reactions.map((r, i) => h('span', { class: 'rxn' + (r.you ? ' you' : ''), key: 'r' + i, 'aria-label': `${r.emoji} reaction (${String(r.count)} ${String(r.count) === '1' ? 'reaction' : 'reactions'})${r.you ? ' - you reacted' : ''}` },
                 h('span', { class: 'e', 'aria-hidden': 'true' }, r.emoji), h('span', { class: 'n', 'aria-hidden': 'true' }, String(r.count)))))
         : null;
-    const tickNode = who === 'you' && receipt
+    const tickNode = resolvedWho === 'you' && receipt
         ? h('span', { class: 'tick' + (receipt === 'read' ? ' read' : ''), 'aria-label': receipt === 'read' ? 'message read' : 'message sent' }, receipt === 'read' ? '✓✓' : '✓')
         : null;
     const metaItems = [];
-    if (name && who === 'them') metaItems.push(h('span', { class: 'who', key: 'w' }, name));
+    if (name && resolvedWho === 'them') metaItems.push(h('span', { class: 'who', key: 'w' }, name));
     if (time) metaItems.push(h('span', { class: 't', key: 'ti' }, time));
     if (tickNode) metaItems.push(tickNode);
     const meta = metaItems.length ? h('div', { class: 'chat-meta' }, ...metaItems) : null;
     const stack = h('div', { class: 'chat-stack' }, ...bodyNodes, reactionRow, meta);
-    return h('div', { key, class: cls }, who === 'you' ? stack : av, who === 'you' ? av : stack);
+    return h('div', { key, class: cls }, resolvedWho === 'you' ? stack : av, resolvedWho === 'you' ? av : stack);
 }
 
-export function ChatComposer({ value, onInput, onSend, placeholder = 'message…', disabled }) {
+export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu, placeholder = 'message…', disabled }) {
     const send = () => {
         const v = (value || '').trim();
         if (!v || disabled) return;
         if (onSend) onSend(v);
     };
+    let autoGrowScheduled = false;
     const autoGrow = (e) => {
         const ta = e.target;
-        ta.style.height = 'auto';
-        ta.style.height = Math.min(ta.scrollHeight, 200) + 'px';
         if (onInput) onInput(ta.value);
+        // Debounce scrollHeight read with rAF to prevent sync reflow thrashing
+        if (!autoGrowScheduled) {
+            autoGrowScheduled = true;
+            requestAnimationFrame(() => {
+                ta.style.height = 'auto';
+                ta.style.height = Math.min(ta.scrollHeight, 200) + 'px';
+                autoGrowScheduled = false;
+            });
+        }
     };
     const taRef = (el) => {
         if (!el) return;
-        // initial sizing reflects current value
         el.style.height = 'auto';
         el.style.height = Math.min(el.scrollHeight, 200) + 'px';
     };
     return h('div', { class: 'chat-composer' },
         h('textarea', { ref: taRef, value: value || '', placeholder, rows: 1, 'aria-label': 'message input',
             oninput: autoGrow,
-            onkeydown: (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } } }),
-        h('button', { class: 'send', disabled: disabled || !(value && value.trim()), onclick: send, 'aria-label': 'send message', title: 'send message (Enter)' }, '↑')
+            onkeydown: (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+                if (e.key === ';' && e.ctrlKey) { e.preventDefault(); onEmoji && onEmoji(e); }
+            } }),
+        h('div', { class: 'chat-composer-toolbar' },
+            onAttach ? h('button', { class: 'composer-btn', onclick: (e) => { e.preventDefault(); onAttach(e); }, 'aria-label': 'attach file', title: 'attach file' }, '📎') : null,
+            onEmoji ? h('button', { class: 'composer-btn', onclick: (e) => { e.preventDefault(); onEmoji(e); }, 'aria-label': 'emoji picker', title: 'emoji picker (Ctrl+;)' }, '😊') : null,
+            onMenu ? h('button', { class: 'composer-btn', onclick: (e) => { e.preventDefault(); onMenu(e); }, 'aria-label': 'composer menu', title: 'more options' }, '⋯') : null,
+            h('button', { class: 'send', disabled: disabled || !(value && value.trim()), onclick: send, 'aria-label': 'send message', title: 'send message (Enter)' }, '↑')
+        )
     );
 }
 
@@ -172,12 +189,30 @@ export function Chat({ title = 'chat', sub, messages = [], composer, header } = 
 
     const threadRef = (el) => {
         if (!el) return;
-        const target = el.scrollHeight - el.clientHeight;
-        // only auto-scroll if user is near the bottom (within 120px) — preserves manual scroll-back
-        if (target - el.scrollTop < 240 || el.dataset.msgCount !== String(messages.length)) {
-            el.scrollTop = target;
-            el.dataset.msgCount = String(messages.length);
-        }
+        const sentinel = el.querySelector('[data-scroll-sentinel]') || (() => {
+            const s = h('div', { 'data-scroll-sentinel': true });
+            const vnode = { props: s.props };
+            const sentinelEl = document.createElement('div');
+            sentinelEl.setAttribute('data-scroll-sentinel', '');
+            sentinelEl.style.height = '1px';
+            el.appendChild(sentinelEl);
+            return sentinelEl;
+        })();
+
+        // Use IntersectionObserver to detect if user is at bottom
+        const obs = new IntersectionObserver(
+            (entries) => {
+                if (entries[0]?.isIntersecting && el.dataset.msgCount !== String(messages.length)) {
+                    el.scrollTop = el.scrollHeight - el.clientHeight;
+                    el.dataset.msgCount = String(messages.length);
+                }
+            },
+            { root: el, threshold: 0 }
+        );
+
+        obs.observe(sentinel);
+        el.dataset.msgCount = String(messages.length);
+        return () => obs.disconnect();
     };
     return h('div', { class: 'chat' },
         header || h('div', { class: 'chat-head', role: 'banner' },
@@ -220,11 +255,27 @@ export function AICat({ name = 'aicat', messages = [], thinking, composer, statu
         : annotated;
     const threadRef = (el) => {
         if (!el) return;
-        const target = el.scrollHeight - el.clientHeight;
-        if (target - el.scrollTop < 240 || el.dataset.msgCount !== String(all.length)) {
-            el.scrollTop = target;
-            el.dataset.msgCount = String(all.length);
-        }
+        const sentinel = el.querySelector('[data-scroll-sentinel]') || (() => {
+            const sentinelEl = document.createElement('div');
+            sentinelEl.setAttribute('data-scroll-sentinel', '');
+            sentinelEl.style.height = '1px';
+            el.appendChild(sentinelEl);
+            return sentinelEl;
+        })();
+
+        const obs = new IntersectionObserver(
+            (entries) => {
+                if (entries[0]?.isIntersecting && el.dataset.msgCount !== String(all.length)) {
+                    el.scrollTop = el.scrollHeight - el.clientHeight;
+                    el.dataset.msgCount = String(all.length);
+                }
+            },
+            { root: el, threshold: 0 }
+        );
+
+        obs.observe(sentinel);
+        el.dataset.msgCount = String(all.length);
+        return () => obs.disconnect();
     };
     return h('div', { class: 'chat' },
         h('div', { class: 'chat-head', role: 'banner' },

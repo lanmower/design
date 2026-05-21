@@ -17,9 +17,11 @@ export function Panel({ title, count, right, style = '', children, kind }) {
     );
 }
 
-export function Row({ code, title, sub, meta, active, onClick, key, style, href, kind, cols, leading, trailing, target }) {
+export function Row({ code, title, sub, meta, active, state = 'default', onClick, key, style, href, kind, cols, leading, trailing, target, selected }) {
+    // Support legacy active/selected props for backward compatibility
+    const isActive = state === 'active' || (state === 'default' && (active || selected));
     const isLink = kind === 'link' || (href != null && !onClick);
-    const cls = 'row' + (active ? ' active' : '') + (cols ? ' row-grid' : '');
+    const cls = 'row' + (isActive ? ' active' : '') + (cols ? ' row-grid' : '');
     const props = { key, class: cls, style: cols ? `${style ? style + ';' : ''}grid-template-columns:${cols}` : style };
     if (isLink) { props.href = href || '#'; if (target) props.target = target; }
     else if (onClick) { props.onclick = onClick; }
@@ -291,4 +293,32 @@ export function Form({ fields = [], submit = 'submit', onSubmit }) {
             ? h('textarea', { key: i, name: f.name, placeholder: f.placeholder || '', rows: f.rows || 4 })
             : h('input', { key: i, name: f.name, type: f.type || 'text', placeholder: f.placeholder || '', value: f.value || '', required: f.required ? 'true' : null })),
         h('button', { type: 'submit', class: 'btn-primary' }, submit));
+}
+
+export function Spinner({ size = 'base', tone = 'accent', key } = {}) {
+    const sizeClass = size === 'sm' ? 'ds-spinner-sm' : size === 'lg' ? 'ds-spinner-lg' : '';
+    return h('div', { key, class: 'ds-spinner ' + sizeClass + ' tone-' + tone },
+        h('span', { key: '1' }), h('span', { key: '2' }), h('span', { key: '3' })
+    );
+}
+
+export function Skeleton({ height = '1em', width = '100%', count = 1, key } = {}) {
+    return h('div', { key, class: 'ds-skeleton-group' },
+        ...Array(count).fill(0).map((_, i) =>
+            h('div', { key: String(i), class: 'ds-skeleton', style: `height:${height};width:${width};` })
+        )
+    );
+}
+
+export function Alert({ kind = 'info', children, onDismiss, title, key } = {}) {
+    const icons = { info: 'ℹ', success: '✓', warn: '⚠', error: '✕' };
+    const cls = 'ds-alert ds-alert-' + kind;
+    return h('div', { key, class: cls, role: 'alert' },
+        h('span', { key: 'icon', class: 'ds-alert-icon' }, icons[kind]),
+        h('div', { key: 'content', class: 'ds-alert-content' },
+            title ? h('div', { key: 'title', class: 'ds-alert-title' }, title) : null,
+            h('div', { key: 'msg', class: 'ds-alert-message' }, ...(Array.isArray(children) ? children : [children]))
+        ),
+        onDismiss ? h('button', { key: 'dismiss', class: 'ds-alert-dismiss', onclick: onDismiss }, '✕') : null
+    );
 }

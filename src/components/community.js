@@ -5,7 +5,21 @@ const h = webjsx.createElement;
 
 export function ServerIcon({ id, name, icon, active, badge, onClick } = {}) {
     const initials = (name || '?').slice(0, 2).toUpperCase();
-    return h('div', { class: 'cm-server-icon' + (active ? ' active' : ''), onclick: onClick, title: name, 'data-id': id },
+    return h('div', {
+        class: 'cm-server-icon' + (active ? ' active' : ''),
+        onclick: onClick,
+        role: 'button',
+        'aria-label': name,
+        'aria-pressed': active ? 'true' : 'false',
+        tabindex: '0',
+        'data-id': id,
+        onkeydown: (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick && onClick(e);
+            }
+        }
+    },
         h('span', { class: 'cm-server-pill' }),
         icon ? h('img', { src: icon, alt: name }) : h('span', {}, initials),
         badge ? h('span', { class: 'cm-server-badge' }, badge > 99 ? '99+' : String(badge)) : null
@@ -30,10 +44,29 @@ export function ChannelItem({ id, name, type = 'text', active, voiceActive, voic
             'data-type': type,
             draggable: draggable ? 'true' : null,
             onclick: onClick,
-            oncontextmenu: (e) => { e.preventDefault(); onContext && onContext(id, e.clientX, e.clientY); }
+            oncontextmenu: (e) => { e.preventDefault(); onContext && onContext(id, e.clientX, e.clientY); },
+            onkeydown: (e) => {
+                if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) {
+                    e.preventDefault();
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    onContext && onContext(id, rect.left, rect.top + rect.height);
+                }
+                if (draggable) {
+                    if (e.ctrlKey && e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        window.dispatchEvent(new CustomEvent('reorder', { detail: { id, direction: 'up' } }));
+                    }
+                    if (e.ctrlKey && e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        window.dispatchEvent(new CustomEvent('reorder', { detail: { id, direction: 'down' } }));
+                    }
+                }
+            },
+            tabindex: '0',
+            role: 'option'
         },
-            h('span', { class: 'cm-ch-icon' }, icon),
-            voiceConnecting ? h('span', { class: 'cm-ch-spinner', title: 'Connecting…' }) : null,
+            h('span', { class: 'cm-ch-icon' + (voiceActive ? ' voice-active-badge' : ''), 'data-voice-active': voiceActive ? 'true' : null }, icon),
+            voiceConnecting ? h('span', { class: 'cm-ch-spinner', title: 'Connecting…', 'aria-label': 'Connecting to voice channel…' }) : voiceActive ? h('span', { class: 'cm-ch-voice-badge', title: 'Voice active', 'aria-label': 'Voice channel active' }) : null,
             h('span', { class: 'cm-ch-name' }, name),
             badge ? h('span', { class: 'cm-ch-badge' }, badge > 99 ? '99+' : String(badge)) : null,
             actions.length ? h('div', { class: 'cm-ch-actions' },
@@ -63,8 +96,8 @@ export function ChannelCategory({ id, name, channels = [], collapsed, activeId, 
         },
             h('svg', { class: 'cm-cat-arrow', viewBox: '0 0 24 24' }, h('path', { d: 'M7 10l5 5 5-5z' })),
             h('span', { class: 'cm-cat-name' }, name),
-            extraButton ? h('button', { class: 'cm-cat-extra', onclick: (e) => { e.stopPropagation(); extraButton.onClick && extraButton.onClick(id, e); }, title: extraButton.title || '' }, extraButton.icon || extraButton.label || '+') : null,
-            onAddChannel ? h('button', { class: 'cm-cat-add', onclick: (e) => { e.stopPropagation(); onAddChannel(id); }, title: 'Add channel' }, '+') : null
+            extraButton ? h('button', { class: 'cm-cat-extra', onclick: (e) => { e.stopPropagation(); extraButton.onClick && extraButton.onClick(id, e); }, 'aria-label': extraButton.title || 'Category action' }, extraButton.icon || extraButton.label || '+') : null,
+            onAddChannel ? h('button', { class: 'cm-cat-add', onclick: (e) => { e.stopPropagation(); onAddChannel(id); }, 'aria-label': 'Add channel to ' + name }, '+') : null
         ),
         collapsed ? null : h('div', { class: 'cm-cat-channels' },
             ...channels.map(c => ChannelItem({
@@ -88,6 +121,17 @@ export function VoiceUser({ identity, speaking, color } = {}) {
 
 export function UserPanel({ name, tag, color, muted, deafened, onMute, onDeafen, onSettings } = {}) {
     const initial = (name || '?').slice(0, 1).toUpperCase();
+    const handleSettings = (e) => {
+        e.preventDefault();
+        if (onSettings) {
+            // onSettings callback should open a drawer/modal with quick toggles
+            onSettings({
+                audioDevice: null, // controlled by consumer
+                micOn: !muted,
+                speakerOn: !deafened,
+            });
+        }
+    };
     return h('div', { class: 'cm-user-panel' },
         h('div', { class: 'cm-user-avatar', style: color ? `background:${color}` : '' },
             h('span', { class: 'cm-user-status-dot' }),
@@ -98,9 +142,9 @@ export function UserPanel({ name, tag, color, muted, deafened, onMute, onDeafen,
             tag ? h('div', { class: 'cm-user-tag' }, tag) : null
         ),
         h('div', { class: 'cm-user-controls' },
-            h('button', { class: 'cm-user-btn' + (muted ? ' muted' : ''), onclick: onMute, title: muted ? 'Unmute' : 'Mute' }, muted ? '🔇' : '🎤'),
-            h('button', { class: 'cm-user-btn' + (deafened ? ' deafened' : ''), onclick: onDeafen, title: deafened ? 'Undeafen' : 'Deafen' }, deafened ? '🔕' : '🎧'),
-            h('button', { class: 'cm-user-btn', onclick: onSettings, title: 'Settings' }, '⚙')
+            h('button', { class: 'cm-user-btn' + (muted ? ' muted' : ''), onclick: onMute, 'aria-label': muted ? 'Unmute microphone' : 'Mute microphone', 'aria-pressed': muted ? 'true' : 'false' }, muted ? '🔇' : '🎤'),
+            h('button', { class: 'cm-user-btn' + (deafened ? ' deafened' : ''), onclick: onDeafen, 'aria-label': deafened ? 'Undeafen' : 'Deafen', 'aria-pressed': deafened ? 'true' : 'false' }, deafened ? '🔕' : '🎧'),
+            h('button', { class: 'cm-user-btn', onclick: handleSettings, 'aria-label': 'Audio settings', title: 'Open audio settings' }, '⚙')
         )
     );
 }
