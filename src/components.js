@@ -46,6 +46,16 @@ export {
 export { ThemeToggle } from './components/theme-toggle.js';
 
 export {
+    Checkbox, Radio, RadioGroup, Toggle, Field, useFormValidation
+} from './components/form-primitives.js';
+
+export {
+    useDraggable, useDropTarget, Reorderable,
+    useKeyboardShortcut, formatShortcut, ShortcutHint,
+    useKeyboardShortcutHelp, ShortcutHelpDialog
+} from './components/interaction-primitives.js';
+
+export {
     Toolbar, Tabs,
     TreeView, TreeItem,
     PropertyGrid, PropertyField,
@@ -57,6 +67,10 @@ export {
     useMediaQuery,
     BP_SM, BP_MD, BP_LG, BP_XL
 } from './components/editor-primitives.js';
+
+export {
+    Tooltip, Popover, Dropdown, useLongPress, useFloating
+} from './components/overlay-primitives.js';
 
 export {
     FREDDIE_PAGES,
