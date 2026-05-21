@@ -5,15 +5,28 @@
 import { renderMarkdown, ensureReady as ensureMarkdownReady } from './markdown.js';
 import { highlightAllUnder, ensurePrism } from './highlight.js';
 
+// Simple content-based hash for memoization (FNV-1a 32-bit)
+function simpleHash(str) {
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
+    }
+    return Math.abs(h).toString(36);
+}
+
 // Global cache state
 let _markdownInitialized = false;
 let _prismInitialized = false;
 let _initPromise = null;
+let _renderCache = new Map();
 let _stats = {
     markdownInitMs: 0,
     prismInitMs: 0,
     renderCount: 0,
     renderTimes: [],
+    cacheHits: 0,
+    cacheMisses: 0,
 };
 
 /**
@@ -56,11 +69,19 @@ export async function initializeCachesEagerly() {
 
 /**
  * Render markdown with cached loader (ensures markdown is ready first).
+ * Memoizes by content hash to avoid re-parsing identical markdown.
  * @param {string} text - Markdown source
  * @returns {Promise<string>} - Sanitized HTML
  */
 export async function renderMarkdownCached(text) {
     const t0 = performance.now();
+    const hash = simpleHash(text || '');
+
+    // Check content-based cache
+    if (_renderCache.has(hash)) {
+        _stats.cacheHits += 1;
+        return _renderCache.get(hash);
+    }
 
     // Ensure markdown is ready (cached after first init)
     if (!_markdownInitialized) {
@@ -70,8 +91,16 @@ export async function renderMarkdownCached(text) {
 
     const html = await renderMarkdown(text);
 
+    // Store in content cache (limit to 500 entries to prevent unbounded growth)
+    _renderCache.set(hash, html);
+    if (_renderCache.size > 500) {
+        const first = _renderCache.keys().next().value;
+        _renderCache.delete(first);
+    }
+
     const renderMs = performance.now() - t0;
     _stats.renderCount += 1;
+    _stats.cacheMisses += 1;
     _stats.renderTimes.push(renderMs);
     // Keep only last 100 samples
     if (_stats.renderTimes.length > 100) _stats.renderTimes.shift();
@@ -96,9 +125,10 @@ export async function highlightCodeBlockCached(el) {
 
 /**
  * Get cache initialization and performance stats.
- * @returns {Object} - { markdownInitialized, prismInitialized, initMs, renderStats }
+ * @returns {Object} - { markdownInitialized, prismInitialized, initMs, renderStats, cacheStats }
  */
 export function getCacheStats() {
+    const total = _stats.cacheHits + _stats.cacheMisses;
     return {
         markdownInitialized: _markdownInitialized,
         prismInitialized: _prismInitialized,
@@ -114,6 +144,12 @@ export function getCacheStats() {
             minTimeMs: _stats.renderTimes.length ? Math.min(..._stats.renderTimes).toFixed(2) : 0,
             maxTimeMs: _stats.renderTimes.length ? Math.max(..._stats.renderTimes).toFixed(2) : 0,
         },
+        cacheStats: {
+            hits: _stats.cacheHits,
+            misses: _stats.cacheMisses,
+            hitRate: total > 0 ? (_stats.cacheHits / total * 100).toFixed(1) + '%' : 'N/A',
+            cacheSize: _renderCache.size,
+        },
     };
 }
 
@@ -124,10 +160,13 @@ export function resetCacheState() {
     _markdownInitialized = false;
     _prismInitialized = false;
     _initPromise = null;
+    _renderCache.clear();
     _stats = {
         markdownInitMs: 0,
         prismInitMs: 0,
         renderCount: 0,
         renderTimes: [],
+        cacheHits: 0,
+        cacheMisses: 0,
     };
 }

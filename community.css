@@ -798,6 +798,7 @@
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklab, var(--fg) 18%, transparent) transparent;
   transition: width var(--dur-base) var(--ease), flex-basis var(--dur-base) var(--ease);
+  will-change: width, flex-basis, opacity, transform; contain: layout style;
 }
 .cm-member-list:not(.open) {
   width: 0;

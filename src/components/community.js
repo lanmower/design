@@ -37,6 +37,7 @@ export function ServerRail({ servers = [], activeId, onSelect, onAdd } = {}) {
 
 export function ChannelItem({ id, name, type = 'text', active, voiceActive, voiceConnecting, badge, draggable, actions = [], participants = [], onClick, onContext } = {}) {
     const icon = type === 'voice' ? '🔊' : type === 'forum' ? '◻' : type === 'threaded' ? '◉' : type === 'announcement' ? '📣' : type === 'page' ? '📄' : type === 'thread' ? '🧵' : '#';
+    const handleActionClick = (a, e) => { e.stopPropagation(); a.onClick && a.onClick(id, e); };
     return h('div', { class: 'cm-channel-item-wrap', 'data-channel-wrap': id },
         h('div', {
             class: 'cm-channel-item' + (active ? ' active' : '') + (voiceActive ? ' voice-active' : '') + (voiceConnecting ? ' voice-connecting' : ''),
@@ -74,7 +75,7 @@ export function ChannelItem({ id, name, type = 'text', active, voiceActive, voic
                     class: 'cm-ch-action-btn',
                     title: a.title || '',
                     'data-action': a.id || '',
-                    onclick: (e) => { e.stopPropagation(); a.onClick && a.onClick(id, e); }
+                    onclick: (e) => handleActionClick(a, e)
                 }, a.icon || a.label || '⋯'))
             ) : null
         ),

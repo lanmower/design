@@ -150,6 +150,11 @@ pre .n { color: var(--green-2); }
   min-height: 100vh;
   background: var(--bg);
   color: var(--fg);
+  /* Notched-device safe area padding (no-op on devices without notches) */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 .app-topbar {
@@ -1257,6 +1262,7 @@ table tr.clickable:hover td { background: var(--bg-2); }
   display: inline-flex; align-items: center; justify-content: center;
   flex-shrink: 0; font-family: var(--ff-body);
   transition: background var(--dur-snap, .15s) var(--ease, ease), transform .1s ease;
+  will-change: transform; contain: layout style paint;
 }
 .chat-composer .send:hover,
 .chat-composer button:hover { transform: scale(1.04); }
@@ -1334,6 +1340,13 @@ table tr.clickable:hover td { background: var(--bg-2); }
     .chat-avatar { width: 28px; height: 28px; font-size: 12px; }
     .chat-composer { padding: 8px; }
     .chat-composer textarea { padding: 10px 12px; }
+}
+
+/* ── landscape orientation: reduce vertical space for composer ──────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+    .chat-composer { padding: 6px 0; }
+    .chat-composer textarea { min-height: 36px; max-height: 120px; }
+    .chat-composer .send, .chat-composer button { width: 36px; height: 36px; font-size: 14px; }
 }
 
 /* ============================================================

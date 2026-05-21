@@ -419,6 +419,11 @@
   min-height: 100vh;
   background: var(--bg);
   color: var(--fg);
+  /* Notched-device safe area padding (no-op on devices without notches) */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 .ds-247420 .app-topbar {
@@ -2965,6 +2970,8 @@
   color: var(--fg-2);
   cursor: pointer;
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+  max-width: 100%;
+  min-width: 0;
 }
 .ds-247420 .cm-member-item:hover {
   background: color-mix(in oklab, var(--fg) 6%, transparent);
@@ -3322,4 +3329,211 @@
 .ds-247420 .ds-ep-btngrp-btn[disabled] {
     opacity: 0.45;
     cursor: not-allowed;
+}
+
+/* Breakpoint custom property mirrors (consumers can use var()) */
+.ds-247420 {
+    --bp-sm: 480px;
+    --bp-md: 768px;
+    --bp-lg: 1024px;
+    --bp-xl: 1440px;
+}
+
+/* ---------------------------------------------------------------
+   ResizeHandle / SplitPanel
+   --------------------------------------------------------------- */
+.ds-247420 .ds-ep-resize {
+    background: var(--rule);
+    flex: 0 0 auto;
+    touch-action: none;
+    user-select: none;
+    transition: background 120ms ease;
+}
+.ds-247420 .ds-ep-resize:hover, .ds-247420 .ds-ep-resize:focus-visible {
+    background: var(--accent);
+}
+.ds-247420 .ds-ep-resize.axis-h { width: 6px; cursor: col-resize; align-self: stretch; }
+.ds-247420 .ds-ep-resize.axis-v { height: 6px; cursor: row-resize; }
+.ds-247420 .ds-ep-split { display: flex; width: 100%; height: 100%; }
+.ds-247420 .ds-ep-split.horiz { flex-direction: row; }
+.ds-247420 .ds-ep-split.vert  { flex-direction: column; }
+.ds-247420 .ds-ep-split-pane { overflow: auto; }
+.ds-247420 .ds-ep-split-pane.grow { flex: 1 1 0; }
+
+/* ---------------------------------------------------------------
+   ContextMenu
+   --------------------------------------------------------------- */
+.ds-247420 .ds-ep-ctxmenu-backdrop {
+    position: fixed; inset: 0; z-index: 9000;
+}
+.ds-247420 .ds-ep-ctxmenu {
+    position: absolute;
+    min-width: 180px;
+    background: var(--panel-1, var(--panel-bg));
+    color: var(--panel-text, var(--fg-text));
+    border: 1px solid var(--rule);
+    border-radius: var(--r-2, 8px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+    padding: 4px;
+    display: flex; flex-direction: column;
+    outline: none;
+}
+.ds-247420 .ds-ep-ctxmenu-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px;
+    background: transparent; border: 0;
+    color: inherit; font: inherit; text-align: left;
+    border-radius: var(--r-1, 4px);
+    cursor: pointer;
+}
+.ds-247420 .ds-ep-ctxmenu-item:hover:not(.disabled),
+.ds-247420 .ds-ep-ctxmenu-item:focus-visible {
+    background: var(--panel-2, var(--rule));
+}
+.ds-247420 .ds-ep-ctxmenu-item.danger { color: var(--danger, #c33); }
+.ds-247420 .ds-ep-ctxmenu-item.disabled { opacity: 0.45; cursor: not-allowed; }
+.ds-247420 .ds-ep-ctxmenu-icon { width: 16px; display: inline-flex; justify-content: center; }
+.ds-247420 .ds-ep-ctxmenu-sep { height: 1px; background: var(--rule); margin: 4px 6px; }
+
+/* ---------------------------------------------------------------
+   Drawer
+   --------------------------------------------------------------- */
+.ds-247420 .ds-ep-drawer-backdrop {
+    position: fixed; inset: 0; z-index: 8500;
+    background: rgba(0,0,0,0.42);
+}
+.ds-247420 .ds-ep-drawer {
+    position: absolute;
+    background: var(--panel-1, var(--panel-bg));
+    color: var(--panel-text, var(--fg-text));
+    box-shadow: 0 12px 40px rgba(0,0,0,0.28);
+    outline: none;
+    transition: transform 180ms ease;
+    padding: 12px;
+    padding-top: max(12px, env(safe-area-inset-top));
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+}
+.ds-247420 .ds-ep-drawer.side-left   { left: 0; top: 0; bottom: 0; width: 86vw; max-width: 320px; }
+.ds-247420 .ds-ep-drawer.side-right  { right: 0; top: 0; bottom: 0; width: 86vw; max-width: 320px; }
+.ds-247420 .ds-ep-drawer.side-bottom { left: 0; right: 0; bottom: 0; max-height: 80vh; border-top-left-radius: 12px; border-top-right-radius: 12px; }
+@media (min-width: 768px) {
+    .ds-247420 .ds-ep-drawer.side-left, .ds-247420 .ds-ep-drawer.side-right { width: 360px; max-width: 360px; }
+}
+
+/* ---------------------------------------------------------------
+   Dialog
+   --------------------------------------------------------------- */
+.ds-247420 .ds-ep-dialog-backdrop {
+    position: fixed; inset: 0; z-index: 9500;
+    background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+}
+.ds-247420 .ds-ep-dialog {
+    background: var(--panel-1, var(--panel-bg));
+    color: var(--panel-text, var(--fg-text));
+    border: 1px solid var(--rule);
+    border-radius: var(--r-2, 10px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.36);
+    min-width: 280px; max-width: min(560px, 100%);
+    max-height: 90vh; overflow: auto;
+    display: flex; flex-direction: column;
+    outline: none;
+}
+.ds-247420 .ds-ep-dialog-head { padding: 14px 16px 6px; border-bottom: 1px solid var(--rule); }
+.ds-247420 .ds-ep-dialog-title { margin: 0; font-size: 16px; font-weight: 600; }
+.ds-247420 .ds-ep-dialog-body { padding: 14px 16px; }
+.ds-247420 .ds-ep-dialog-actions {
+    display: flex; gap: 8px; justify-content: flex-end;
+    padding: 10px 14px; border-top: 1px solid var(--rule);
+}
+.ds-247420 .ds-ep-dialog-btn {
+    padding: 8px 14px;
+    border: 1px solid var(--rule);
+    border-radius: var(--r-1, 6px);
+    background: var(--panel-2, transparent);
+    color: inherit; font: inherit; cursor: pointer;
+}
+.ds-247420 .ds-ep-dialog-btn.kind-primary {
+    background: var(--accent); color: var(--accent-fg); border-color: var(--accent);
+}
+.ds-247420 .ds-ep-dialog-btn.kind-danger {
+    background: var(--danger, #c33); color: #fff; border-color: var(--danger, #c33);
+}
+
+/* ---------------------------------------------------------------
+   Toast
+   --------------------------------------------------------------- */
+.ds-247420 .ds-ep-toast-host {
+    position: fixed;
+    top: max(16px, env(safe-area-inset-top));
+    right: max(16px, env(safe-area-inset-right));
+    z-index: 9800;
+    display: flex; flex-direction: column; gap: 8px;
+    pointer-events: none;
+}
+.ds-247420 .ds-ep-toast {
+    pointer-events: auto;
+    background: var(--panel-1, var(--panel-bg));
+    color: var(--panel-text, var(--fg-text));
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--r-1, 6px);
+    padding: 10px 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+    min-width: 220px; max-width: 360px;
+    opacity: 1;
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+.ds-247420 .ds-ep-toast.kind-success { border-left-color: var(--success, #2a8); }
+.ds-247420 .ds-ep-toast.kind-warn    { border-left-color: var(--warn, #d90); }
+.ds-247420 .ds-ep-toast.kind-error   { border-left-color: var(--danger, #c33); }
+.ds-247420 .ds-ep-toast.leaving { opacity: 0; transform: translateY(-6px); }
+@media (max-width: 480px) {
+    .ds-247420 .ds-ep-toast-host { left: 16px; right: 16px; align-items: center; }
+    .ds-247420 .ds-ep-toast { width: 100%; max-width: 100%; }
+}
+
+/* ---------------------------------------------------------------
+   Focus-visible across interactive primitives
+   --------------------------------------------------------------- */
+.ds-247420 .ds-ep-tab:focus-visible,
+.ds-247420 .ds-ep-tree-row:focus-visible,
+.ds-247420 .ds-ep-btngrp-btn:focus-visible,
+.ds-247420 .ds-ep-ctxmenu-item:focus-visible,
+.ds-247420 .ds-ep-resize:focus-visible,
+.ds-247420 .ds-ep-dialog-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------
+   Coarse pointer — bump tap targets to 44px
+   --------------------------------------------------------------- */
+@media (pointer: coarse) {
+    .ds-247420 .ds-ep-tab,
+    .ds-247420 .ds-ep-btngrp-btn,
+    .ds-247420 .ds-ep-ctxmenu-item,
+    .ds-247420 .ds-ep-dialog-btn,
+    .ds-247420 .ds-ep-tree-row {
+        min-height: 44px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    .ds-247420 .ds-ep-resize.axis-h { width: 14px; }
+    .ds-247420 .ds-ep-resize.axis-v { height: 14px; }
+}
+
+/* ---------------------------------------------------------------
+   Reduced motion — disable transitions on transient surfaces
+   --------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    .ds-247420 .ds-ep-drawer,
+    .ds-247420 .ds-ep-dialog,
+    .ds-247420 .ds-ep-toast,
+    .ds-247420 .ds-ep-resize {
+        transition: none !important;
+    }
 }

@@ -49,7 +49,13 @@ export {
     Toolbar, Tabs,
     TreeView, TreeItem,
     PropertyGrid, PropertyField,
-    Dock, IconButtonGroup
+    Dock, IconButtonGroup,
+    ResizeHandle, SplitPanel,
+    ContextMenu, useContextMenu,
+    Drawer, Dialog, FocusTrap,
+    Toast, toast,
+    useMediaQuery,
+    BP_SM, BP_MD, BP_LG, BP_XL
 } from './components/editor-primitives.js';
 
 export {
