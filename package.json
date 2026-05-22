@@ -1,6 +1,6 @@
 {
   "name": "anentrypoint-design",
-  "version": "0.0.132",
+  "version": "0.0.133",
   "description": "247420 design system SDK — webjsx + modified ripple-ui, single-file ESM bundle for reproducible use of the AnEntrypoint design.",
   "type": "module",
   "main": "./dist/247420.js",
@@ -42,6 +42,7 @@
     },
     "./src/page-html.js": "./src/page-html.js",
     "./web-components/ds-chat.js": "./src/web-components/ds-chat.js",
+    "./web-components/freddie-chat.js": "./src/web-components/freddie-chat.js",
     "./package.json": "./package.json"
   },
   "files": [

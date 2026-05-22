@@ -14,6 +14,7 @@ import { renderPageHtml } from './page-html.js';
 import { mountKit } from './bootstrap.js';
 import * as theme from './theme.js';
 import { registerChatElement, DsChat } from './web-components/ds-chat.js';
+import { registerFreddieChatElement, FreddieChat } from './web-components/freddie-chat.js';
 
 let _installed = false;
 export async function installStyles(target) {
@@ -51,9 +52,10 @@ export function mount(rootEl, viewFn, { autoScope = true } = {}) {
     return render;
 }
 
-// Side-effect: register <ds-chat> as soon as the SDK loads in a browser.
+// Side-effect: register <ds-chat> + <freddie-chat> as soon as the SDK loads in a browser.
 if (typeof window !== 'undefined' && typeof customElements !== 'undefined') {
     registerChatElement();
+    registerFreddieChatElement();
 }
 
 export {
@@ -63,6 +65,7 @@ export {
     renderMarkdown, ensureMarkdownReady,
     ensurePrism, highlightAllUnder,
     registerChatElement, DsChat,
+    registerFreddieChatElement, FreddieChat,
     renderPageHtml,
     theme
 };
