@@ -42,7 +42,7 @@ function Crumb() {
         h('span', {}, 'gm'), h('span', { class: 'sep' }, '›'),
         h('span', { class: 'leaf' }, state.tab),
         h('span', { style: 'margin-left:auto;display:flex;gap:10px;align-items:center' },
-            h('span', { class: 'chip accent' }, '● live'),
+            h('span', { class: 'chip dim' }, 'shipping'),
             h('span', { class: 'chip dim' }, 'v0.4.1')
         )
     );

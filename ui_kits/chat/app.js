@@ -20,7 +20,7 @@ const seed = [
       parts: [{ kind: 'md', text: '## review notes\n\nlooks solid. couple things:\n\n- short timeout fallback in case fonts hang\n- announce the `ready` class via `requestIdleCallback`\n- keep no-js fallback to `visibility: visible`\n\n> "ship the rough draft" — but not the broken one.\n\nwill review the rest tonight.' }],
       reactions: [{ emoji: '✅', count: 2, you: true }] },
     { who: 'them', avatar: 'mk', name: 'mai', time: '14:08',
-      parts: [{ kind: 'image', src: './sample-svg.svg', alt: 'design system mascot', caption: 'spot the new mascot — final ✨' }] },
+      parts: [{ kind: 'image', src: './sample-svg.svg', alt: 'design system mascot', caption: 'spot the new mascot — final' }] },
     { who: 'you', avatar: 'me', time: '14:10', receipt: 'read',
       parts: [
         { kind: 'text', text: 'attaching the v0.0.27 token sheet for review:' },

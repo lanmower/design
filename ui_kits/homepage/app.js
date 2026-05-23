@@ -61,9 +61,9 @@ function Hero() {
 }
 
 const works = [
-    { code:'001', title:'gm', sub:'state machine for coding agents', meta:'2025 · 3k★', body:'a tiny deterministic state machine that lets llms code without losing their minds. it thinks so you don\'t have to (as much).' },
-    { code:'002', title:'zellous', sub:'production push-to-talk', meta:'2024 · live', body:'hold the button. talk. someone on the other side hears you. opus codec, dynamic rooms, 50-message replay.' },
-    { code:'003', title:'spoint', sub:'spawnpoint', meta:'2024 · live', body:'the directory for "where should we start?" one url, one room, everyone lands in the same place.' },
+    { code:'001', title:'gm', sub:'state machine for coding agents', meta:'2025 · 3k', body:'a tiny deterministic state machine that lets llms code without losing their minds. it thinks so you don\'t have to (as much).' },
+    { code:'002', title:'zellous', sub:'production push-to-talk', meta:'2024 · shipped', body:'hold the button. talk. someone on the other side hears you. opus codec, dynamic rooms, 50-message replay.' },
+    { code:'003', title:'spoint', sub:'spawnpoint', meta:'2024 · shipped', body:'the directory for "where should we start?" one url, one room, everyone lands in the same place.' },
     { code:'004', title:'flatspace', sub:'flat-file cms', meta:'wip', body:'still figuring out what to say about this one. come back tuesday.' },
     { code:'005', title:'thebird', sub:'—', meta:'wip', body:'yes, the name is a reference. no, we won\'t tell you to what.' },
     { code:'006', title:'mcp-repl', sub:'repl for mcp', meta:'2024 · live', body:'executenodejs, executedeno, executebash, astgrep_search. if you don\'t know what those are, this one isn\'t for you.' },

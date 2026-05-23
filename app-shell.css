@@ -520,6 +520,8 @@ table tr.clickable:hover td { background: var(--bg-2); }
 /* ============================================================
    Currently shipping dots
    ============================================================ */
+.ds-dot-on  { color: var(--green-2); }
+.ds-dot-off { color: var(--fg-3); }
 .ds-dot-live { color: var(--green-2); }
 .ds-dot-idle { color: var(--fg-3); }
 

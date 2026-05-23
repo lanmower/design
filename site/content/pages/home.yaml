@@ -19,8 +19,8 @@ sidebar:
     glyph: "✦"
     href: "./ui_kits/homepage/"
   bins:
-    - { glyph: "▣", label: "everything", href: "#all", count: 23, active: true }
-    - { glyph: "★", label: "starred",    href: "#starred", count: 5 }
+    - { glyph: "◫", label: "everything", href: "#all", count: 23, active: true }
+    - { glyph: "•", label: "pinned",     href: "#pinned",  count: 5 }
     - { glyph: "◐", label: "shipped",    href: "#shipped", count: 12 }
     - { glyph: "◌", label: "drafts",     href: "#drafts",  count: 6 }
   labels_group: "labels"
@@ -37,7 +37,7 @@ sidebar:
     - { glyph: "↗", label: "source",  href: "https://github.com/AnEntrypoint/design" }
 
 tabs:
-  - { glyph: "▣", label: "everything", href: "#all", active: true }
+  - { glyph: "◫", label: "everything", href: "#all", active: true }
   - { glyph: "◎", label: "kits",       href: "#kits" }
   - { glyph: "▰", label: "decks",      href: "#decks" }
   - { glyph: "§", label: "previews",   href: "#previews" }

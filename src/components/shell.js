@@ -136,10 +136,11 @@ export function Lede({ children }) {
     return h('p', { class: 'lede' }, children);
 }
 
-export function Dot({ tone = 'live' }) {
-    const cls = tone === 'live' ? 'ds-dot-live' : 'ds-dot-idle';
-    const statusLabel = tone === 'live' ? 'live status indicator' : 'idle status indicator';
-    return h('span', { class: cls, role: 'img', 'aria-label': statusLabel }, tone === 'live' ? '●' : '○');
+export function Dot({ tone = 'on' }) {
+    const isOn = tone === 'on' || tone === 'live';
+    const cls = isOn ? 'ds-dot-on' : 'ds-dot-off';
+    const statusLabel = isOn ? 'on status indicator' : 'off status indicator';
+    return h('span', { class: cls, role: 'img', 'aria-label': statusLabel }, isOn ? '●' : '○');
 }
 
 export function Rail({ tone = 'green' }) {

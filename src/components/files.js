@@ -6,7 +6,7 @@ const h = webjsx.createElement;
 
 const FILE_TYPES = ['dir', 'image', 'video', 'audio', 'code', 'text', 'archive', 'document', 'symlink', 'other'];
 const TYPE_GLYPH = {
-    dir: '▣', image: '◰', video: '▰', audio: '◎', code: '⌘',
+    dir: '◫', image: '◰', video: '▰', audio: '◎', code: '⌘',
     text: '§', archive: '◐', document: '▢', symlink: '↗', other: '◌'
 };
 
