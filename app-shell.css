@@ -437,7 +437,7 @@ a.row { text-decoration: none; }
   font-family: var(--ff-mono); font-size: var(--fs-lg);
 }
 .cli .prompt { color: var(--green-2); }
-.cli .cmd    { flex: 1; color: var(--paper); }
+.cli .cmd    { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; color: var(--paper); }
 .cli .copy   {
   padding: 8px 16px; background: transparent; color: var(--paper);
   font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: var(--tr-caps);
