@@ -926,7 +926,8 @@
   /* Panel & Row */
   .ds-247420 .panel { margin: 0 0 var(--space-3); }
   .ds-247420 .panel-head { padding: var(--space-3) var(--space-2); gap: var(--space-2); }
-  .ds-247420 .panel-body { padding: var(--space-2); }
+  .ds-247420 .panel-body { padding: var(--space-2); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .ds-247420 .panel-body > table { min-width: 100%; }
 
   .ds-247420 .row {
     grid-template-columns: minmax(0, 1fr) auto !important;

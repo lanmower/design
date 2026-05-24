@@ -625,7 +625,8 @@ table tr.clickable:hover td { background: var(--bg-2); }
   /* Panel & Row */
   .panel { margin: 0 0 var(--space-3); }
   .panel-head { padding: var(--space-3) var(--space-2); gap: var(--space-2); }
-  .panel-body { padding: var(--space-2); }
+  .panel-body { padding: var(--space-2); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .panel-body > table { min-width: 100%; }
 
   .row {
     grid-template-columns: minmax(0, 1fr) auto !important;
