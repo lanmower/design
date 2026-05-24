@@ -259,7 +259,7 @@ pre .n { color: var(--green-2); }
 }
 .app-side .count {
   background: var(--mascot); color: var(--ink);
-  padding: 1px 9px; font-size: var(--fs-micro); font-weight: 700;
+  padding: 3px 10px; font-size: var(--fs-micro); font-weight: 700;
   border-radius: var(--r-pill);
 }
 
@@ -953,10 +953,10 @@ table tr.clickable:hover td { background: var(--bg-2); }
   pointer-events: none;
 }
 
-.chat-msg { display: flex; gap: 12px; align-items: flex-start; padding: 2px 0; position: relative; min-width: 0; }
+.chat-msg { display: flex; gap: 12px; align-items: flex-start; padding: 6px 0; position: relative; min-width: 0; }
 .chat-msg.you { flex-direction: row-reverse; }
 .chat-msg.you .chat-stack { align-items: flex-end; }
-.chat-msg:hover { background: color-mix(in oklab, var(--fg) 1%, transparent); padding: 2px 0; margin: 0; border-radius: 8px; transition: background var(--dur-base) var(--ease); }
+.chat-msg:hover { background: color-mix(in oklab, var(--fg) 1%, transparent); padding: 6px 0; margin: 0; border-radius: 8px; transition: background var(--dur-base) var(--ease); }
 
 .chat-avatar {
   width: 36px; height: 36px; flex-shrink: 0;
