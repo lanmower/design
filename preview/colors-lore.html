@@ -1,10 +1,13 @@
 <!doctype html>
 <html lang="en" data-theme="auto" class="ds-247420"><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
 <link rel="stylesheet" href="../app-shell.css">
-<style>body{padding:20px;background:var(--panel-0);color:var(--panel-text);}</style><script defer src="./motion-default.js"></script>
+<style>body{padding:20px;background:var(--panel-0);color:var(--panel-text);}
+.preview-grid > *{min-width:0;overflow:hidden;}
+.preview-grid > *>*{overflow-wrap:anywhere;}
+@media (max-width:640px){.preview-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}}</style><script defer src="./motion-default.js"></script>
 </head><body>
 <div class="dateline"><span>247420 // COLORS // LORE</span><span class="spread"></span><span>THE ACTUAL PALETTE</span></div>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:16px">
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:16px" class="preview-grid">
   <div style="background:#247420;color:var(--panel-0);padding:20px;min-height:140px">
     <div class="t-label" style="color:var(--panel-0)">MARIJUANA GREEN</div>
     <div class="t-micro" style="margin-top:6px;color:var(--panel-0)">#247420</div>
