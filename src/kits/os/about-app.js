@@ -34,7 +34,7 @@ export function renderAboutApp(opts = {}) {
         ul.appendChild(li);
     }
     const foot = document.createElement('p');
-    foot.innerHTML = footer;
+    foot.textContent = footer;
     const meta = document.createElement('p');
     meta.className = 'meta';
     links.forEach((l, i) => {

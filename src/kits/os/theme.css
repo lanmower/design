@@ -104,10 +104,10 @@ html, body {
     background: var(--os-bg-1);
     border: none;
     border-radius: var(--r-3, 18px);
-    padding: 8px;
+    padding: var(--space-2, 8px);
     min-width: 220px;
-    top: calc(var(--os-bar-h) + 4px);
-    left: 8px;
+    top: calc(var(--os-bar-h) + var(--space-1, 4px));
+    left: var(--space-2, 8px);
     z-index: 9500;
     display: none;
     flex-direction: column;
@@ -220,15 +220,15 @@ html, body {
 
 .os-side-rail {
     position: fixed;
-    left: 0; top: 0; bottom: 0;
+    left: 0; top: var(--os-bar-h); bottom: var(--os-bar-h);
     width: var(--os-rail-w);
     background: var(--os-bg-2);
     border: none;
     display: none;
     flex-direction: column;
     align-items: center;
-    padding: 12px 0;
-    gap: 6px;
+    padding: var(--space-2, 8px) 0;
+    gap: var(--space-1, 4px);
     z-index: 9100;
     pointer-events: auto;
 }
@@ -266,7 +266,7 @@ html, body {
 .os-drawer.open { display: flex; opacity: 1; transform: translateY(0); }
 .os-drawer-head {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 16px;
+    padding: var(--space-2, 8px) var(--space-3, 16px);
     border: none;
     height: 56px;
     box-sizing: border-box;
@@ -287,15 +287,15 @@ html, body {
 .os-drawer-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    padding: 16px;
+    gap: var(--space-3, 16px);
+    padding: var(--space-3, 16px);
     overflow-y: auto;
     flex: 1;
     align-content: start;
 }
 .os-drawer-tile {
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-    padding: 18px 8px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2, 8px);
+    padding: var(--space-3, 16px) var(--space-2, 8px);
     background: var(--os-bg-1);
     border: none;
     color: var(--os-fg);
@@ -320,21 +320,22 @@ html, body {
 .os-instances .os-btn { flex: 0 0 auto; min-width: 36px; padding: 2px 8px; font-family: var(--os-mono); font-size: 11px; }
 .os-instances .os-btn.active { background: var(--panel-select, var(--os-accent-soft)); color: var(--os-fg); border-color: var(--panel-accent, var(--os-accent)); box-shadow: inset 0 0 0 1px var(--panel-accent, var(--os-accent)); }
 .os-menubar [data-role="home"] { display: none; }
-.os-root { position: fixed; inset: 0; display: flex; flex-direction: column; pointer-events: none; z-index: 8000; }
+.os-root { position: fixed; inset: 0; display: flex; flex-direction: column; pointer-events: none; z-index: 9300; }
 .os-menubar, .os-taskbar { pointer-events: auto; flex: 0 0 auto; }
 .os-taskbar { margin-top: auto; }
 .wm-root { top: var(--os-bar-h) !important; bottom: var(--os-bar-h) !important; inset: var(--os-bar-h) 0 var(--os-bar-h) 0 !important; }
 
-.app-pane { padding: 16px 18px; font: 14px var(--os-font); color: var(--os-fg); line-height: 1.55; overflow: auto; height: 100%; box-sizing: border-box; background: var(--os-bg-1); }
-.app-pane h2 { margin: 0 0 10px 0; color: var(--os-fg); font-family: var(--os-display); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.15; }
-.app-pane p { margin: 0 0 10px 0; color: var(--os-fg-2); }
-.app-pane ul { padding-left: 18px; margin: 6px 0 12px; color: var(--os-fg-2); }
-.app-pane li { padding: 2px 0; }
-.app-pane code { font: 12px var(--os-mono); background: var(--os-bg-2); padding: 1px 6px; border-radius: var(--r-1, 6px); color: var(--os-fg); }
+.app-pane { padding: var(--space-3, 16px); font: var(--fs-sm, 14px) var(--os-font); color: var(--os-fg); line-height: var(--lh-base, 1.55); overflow: auto; height: 100%; box-sizing: border-box; background: var(--os-bg-1); }
+.app-pane h2 { margin: 0 0 var(--space-2, 8px) 0; color: var(--os-fg); font-family: var(--os-display); font-size: var(--fs-xl, 21px); font-weight: 700; letter-spacing: -0.01em; line-height: var(--lh-snug, 1.2); }
+.app-pane p { margin: 0 0 var(--space-2, 8px) 0; color: var(--os-fg-2); }
+.app-pane ul { padding-left: var(--space-3, 16px); margin: var(--space-1, 4px) 0 var(--space-3, 16px); color: var(--os-fg-2); }
+.app-pane li { padding: var(--space-1, 4px) 0; }
+.app-pane code { font: var(--fs-tiny, 12px) var(--os-mono); background: var(--os-bg-2); padding: 1px 6px; border-radius: var(--r-1, 6px); color: var(--os-fg); }
 .app-pane a { color: var(--os-accent); text-decoration: none; }
 .app-pane a:hover { text-decoration: underline; text-underline-offset: 2px; }
-.app-pane .meta { color: var(--os-fg-3); font-size: 12px; }
-.app-pane.mono { font: 12.5px var(--os-mono); padding: 8px; background: var(--os-bg-1); }
+.app-pane .meta { color: var(--os-fg-3); font-size: var(--fs-tiny, 12px); }
+.app-pane.mono { font: var(--fs-tiny, 12px) var(--os-mono); padding: var(--space-2, 8px); background: var(--os-bg-1); }
+.app-pane.mono[data-component="monitor-app"] { white-space: pre-wrap; line-height: 1.7; }
 .app-pane.mono .row { padding: 4px 8px; cursor: pointer; border-radius: var(--r-1, 6px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .app-pane.mono .row:hover { background: var(--panel-hover, var(--os-bg-2)); }
 .app-pane.mono .row.selected { background: var(--panel-select, var(--os-accent-soft)); box-shadow: inset 4px 0 0 var(--os-accent); }
@@ -355,10 +356,10 @@ html, body {
 @media (max-width: 1023px) and (min-width: 768px) {
     .os-side-rail { display: flex; }
     .wm-root { left: var(--os-rail-w) !important; }
-    .os-menubar { padding-left: calc(var(--os-rail-w) + 8px); }
-    .os-taskbar { padding-left: calc(var(--os-rail-w) + 8px); }
+    .os-menubar { padding-left: calc(var(--os-rail-w) + var(--space-2, 8px)); }
+    .os-taskbar { padding-left: calc(var(--os-rail-w) + var(--space-2, 8px)); }
     .os-menubar .os-instances { display: flex; }
-    .os-menu { left: calc(var(--os-rail-w) + 8px); }
+    .os-menu { left: calc(var(--os-rail-w) + var(--space-2, 8px)); }
 }
 
 @media (max-width: 767px) {
