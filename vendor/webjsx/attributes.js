@@ -24,11 +24,28 @@ function updateEventListener(el, eventName, newHandler, oldHandler) {
  * @param key Property or attribute name
  * @param value New value to set
  */
+function setPropOrFallback(el, key, value) {
+    // Some IDL attributes (e.g. <input>.list, .form, .labels, .validity) are
+    // read-only getters: assigning to them throws TypeError and aborts the diff.
+    // Fall back to setAttribute so the render survives.
+    try {
+        el[key] = value;
+    }
+    catch {
+        try {
+            if (value == null || value === false)
+                el.removeAttribute(key);
+            else
+                el.setAttribute(key, value === true ? "" : `${value}`);
+        }
+        catch { /* give up silently rather than break the whole tree */ }
+    }
+}
 function updatePropOrAttr(el, key, value) {
     if (el instanceof HTMLElement) {
         if (key in el) {
             // Fast path: property exists on HTMLElement
-            el[key] = value;
+            setPropOrFallback(el, key, value);
             return;
         }
         if (typeof value === "string") {
@@ -36,7 +53,7 @@ function updatePropOrAttr(el, key, value) {
             return;
         }
         // Fallback for non-string values on HTMLElement
-        el[key] = value;
+        setPropOrFallback(el, key, value);
         return;
     }
     // SVG/Other namespace elements
@@ -55,7 +72,7 @@ function updatePropOrAttr(el, key, value) {
         el.setAttribute(key, value);
     }
     else {
-        el[key] = value;
+        setPropOrFallback(el, key, value);
     }
 }
 /**
