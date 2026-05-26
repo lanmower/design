@@ -175,7 +175,8 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
-[data-theme="ink"] {
+[data-theme="ink"],
+[data-theme="dark"] {
   --bg:        var(--ink);
   --bg-2:      var(--ink-2);
   --bg-3:      #464650;
