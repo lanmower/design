@@ -183,6 +183,10 @@ pre .n { color: var(--green-2); }
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
 .app-topbar nav a:hover { background: var(--bg-2); color: var(--fg); }
+.app-topbar nav a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 .app-topbar nav a.active {
   color: var(--accent-fg);
   background: var(--accent);
@@ -209,13 +213,9 @@ pre .n { color: var(--green-2); }
   font-family: inherit; font-size: inherit; color: var(--fg);
   width: 100%;
 }
-.app-search input:focus-visible {
+.app-search:focus-within {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-  background: var(--bg-2);
-  border-radius: var(--r-pill);
-  padding-left: 8px;
-  padding-right: 8px;
 }
 
 .app-crumb {
@@ -252,6 +252,10 @@ pre .n { color: var(--green-2); }
   margin-bottom: 2px;
 }
 .app-side a:hover { background: var(--bg-2); color: var(--fg); }
+.app-side a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 .app-side a.active {
   color: var(--accent-fg);
   background: var(--accent);
@@ -309,6 +313,10 @@ pre .n { color: var(--green-2); }
 .btn-ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 1.5px var(--rule-strong); }
 .btn-ghost:hover { background: var(--bg-2); }
 .btn:active, .btn-primary:active, .btn-ghost:active { transform: translateY(1px); }
+.btn:focus-visible, .btn-primary:focus-visible, .btn-ghost:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 
 .chip {
   display: inline-flex; align-items: center; gap: 6px;
@@ -1311,7 +1319,7 @@ table tr.clickable:hover td { background: var(--bg-2); }
 .chat-msg { display: flex; gap: 12px; align-items: flex-start; padding: 6px 0; position: relative; min-width: 0; }
 .chat-msg.you { flex-direction: row-reverse; }
 .chat-msg.you .chat-stack { align-items: flex-end; }
-.chat-msg:hover { background: color-mix(in oklab, var(--fg) 1%, transparent); padding: 6px 0; margin: 0; border-radius: 8px; transition: background var(--dur-base) var(--ease); }
+.chat-msg:hover { background: color-mix(in oklab, var(--fg) 4%, transparent); padding: 6px 0; margin: 0; border-radius: 8px; transition: background var(--dur-base) var(--ease); }
 
 .chat-avatar {
   width: 36px; height: 36px; flex-shrink: 0;
@@ -1639,6 +1647,11 @@ table tr.clickable:hover td { background: var(--bg-2); }
 .chat-composer button:hover { transform: scale(1.04); }
 .chat-composer .send:active,
 .chat-composer button:active { transform: scale(0.96); }
+.chat-composer .send:focus-visible,
+.chat-composer button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 .chat-composer .send:disabled,
 .chat-composer button:disabled {
   background: var(--bg-3); color: var(--fg-3); cursor: not-allowed; transform: none;

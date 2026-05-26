@@ -10,7 +10,7 @@
     background: var(--panel-1);
     color: var(--panel-text);
     border-bottom: 1px solid var(--rule);
-    font: var(--text-sm, 12px/1.4 var(--ff-mono, monospace));
+    font: var(--fs-tiny, 12px)/var(--lh-base, 1.4) var(--ff-mono, monospace);
 }
 .ds-ep-toolbar.dense { padding: 4px 6px; gap: 4px; }
 .ds-ep-toolbar-leading,
@@ -45,7 +45,7 @@
 .ds-ep-tree {
     display: flex; flex-direction: column;
     color: var(--panel-text);
-    font: var(--text-sm, 12px/1.4 var(--ff-mono, monospace));
+    font: var(--fs-tiny, 12px)/var(--lh-base, 1.4) var(--ff-mono, monospace);
     overflow: auto;
 }
 .ds-ep-tree-item { display: flex; flex-direction: column; }
@@ -84,7 +84,7 @@
     display: flex; flex-direction: column; gap: 6px;
     padding: 8px;
     color: var(--panel-text);
-    font: var(--text-sm, 12px/1.4 var(--ff-mono, monospace));
+    font: var(--fs-tiny, 12px)/var(--lh-base, 1.4) var(--ff-mono, monospace);
 }
 .ds-ep-propfield {
     display: grid;
@@ -623,7 +623,7 @@
 .ds-reorderable-horizontal { flex-direction: row; }
 .ds-reorder-item {
     display: flex; align-items: center; gap: var(--space-2, 8px);
-    padding: var(--space-1, 4px); border-radius: var(--radius-sm, 4px);
+    padding: var(--space-1, 4px); border-radius: var(--r-1, 10px);
     background: var(--panel-1); color: var(--panel-text);
     transition: transform var(--dur-snap, 120ms) var(--ease, ease), opacity var(--dur-snap, 120ms) var(--ease, ease);
 }
@@ -631,7 +631,7 @@
     min-width: 44px; min-height: 44px;
     display: inline-flex; align-items: center; justify-content: center;
     appearance: none; background: transparent; color: var(--panel-text-2, var(--panel-text));
-    border: 0; border-radius: var(--radius-sm, 4px);
+    border: 0; border-radius: var(--r-1, 10px);
     cursor: grab; font: 14px/1 var(--ff-mono, monospace); letter-spacing: -2px;
     touch-action: none; user-select: none;
 }
@@ -655,7 +655,7 @@
     display: inline-block; font: 0.85em/1 var(--ff-mono, monospace);
     padding: var(--space-1, 4px) calc(var(--space-1, 4px) * 1.5);
     border: 1px solid var(--rule, var(--panel-text-3));
-    border-radius: var(--radius-sm, 4px);
+    border-radius: var(--r-1, 10px);
     background: var(--panel-2, var(--panel-1)); color: var(--panel-text);
 }
 .ds-kbd-group { margin: var(--space-3, 12px) 0; }

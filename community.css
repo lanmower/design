@@ -275,9 +275,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  padding: 8px;
+  width: 28px;
+  height: 28px;
+  padding: 4px;
   border: 0;
   background: transparent;
   color: var(--fg-3);
@@ -454,9 +454,9 @@
 .cm-channel-item.active .cm-ch-actions { opacity: 0.6; }
 
 .cm-ch-action-btn {
-  width: 44px;
-  height: 44px;
-  padding: 8px;
+  width: 28px;
+  height: 28px;
+  padding: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1022,6 +1022,12 @@
   outline: 2px solid var(--accent);
   outline-offset: -2px;
   border-radius: var(--r-1);
+}
+
+.cm-server-header:focus-visible,
+.cm-category-header:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 
 .cm-member-item:focus-visible {
