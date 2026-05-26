@@ -1528,6 +1528,11 @@
 .ds-247420 .ds-file-row:hover .ds-file-check,
 .ds-247420 .ds-file-row:focus-within .ds-file-check,
 .ds-247420 .ds-file-check.on { opacity: 1; }
+/* Touch / coarse-pointer devices have no hover — keep checkboxes visible so
+   multi-select is reachable without a pointer. */
+@media (hover: none), (pointer: coarse) {
+  .ds-247420 .ds-file-check { opacity: 1; }
+}
 .ds-247420 .ds-file-check.on { background: var(--accent); border-color: var(--accent); }
 .ds-247420 .ds-file-row.selected {
   background: var(--accent-tint);
@@ -1544,6 +1549,24 @@
 }
 .ds-247420 .ds-bulk-count {
   font-weight: 600; font-size: var(--fs-sm); margin-right: auto;
+}
+
+/* Keyboard-shortcuts hint — compact two-column legend. */
+.ds-247420 .ds-shortcuts-hint {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 4px var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-2); border: var(--bw-hair) solid var(--rule);
+  border-radius: var(--r-2); font-size: var(--fs-xs);
+}
+.ds-247420 .ds-shortcut-row { display: flex; align-items: center; gap: var(--space-2); }
+.ds-247420 .ds-kbd {
+  display: inline-block; min-width: 0;
+  padding: 2px 7px; border-radius: 6px;
+  background: var(--bg); border: var(--bw-hair) solid var(--rule);
+  border-bottom-width: 2px;
+  font-family: var(--ff-mono); font-size: var(--fs-micro); color: var(--fg-2);
+  white-space: nowrap;
 }
 
 /* ============================================================
