@@ -103,7 +103,17 @@ export function PromptDialog({ title = 'name', value = '', placeholder = '', con
             ),
             h('div', { class: 'ds-modal-actions' },
                 Btn({ onClick: onCancel, children: cancelLabel }),
-                h('button', { class: 'btn-primary', onclick: () => onConfirm && onConfirm(value) }, confirmLabel)
+                h('button', {
+                    class: 'btn-primary',
+                    // Read the live input value, not the closed-over `value` prop:
+                    // consumers update their state in oninput without re-rendering
+                    // (to avoid caret jump), so the prop is stale at click time.
+                    onclick: (e) => {
+                        if (!onConfirm) return;
+                        const inp = e.currentTarget.closest('.ds-modal')?.querySelector('.ds-modal-input');
+                        onConfirm(inp ? inp.value : value);
+                    }
+                }, confirmLabel)
             )
         ]
     });
