@@ -12,7 +12,7 @@ function pre(obj) {
     return webjsx.createElement('pre', { class: 'fd-pre' }, typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2));
 }
 
-export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
+export function createFreddieDashboard({ instance, bootHost, osSurfaces, loadingText }) {
     const root = document.createElement('div');
     root.className = 'app-fd ds-247420 fd-root';
 
@@ -66,7 +66,7 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
             topbar: Topbar({ brand: 'freddie', leaf: 'dashboard', items: [], active: '' }),
             crumb: Crumb({ trail: ['freddie', instance.id], leaf: route.path, right: state.error ? Chip({ tone: 'miss', children: 'error' }) : Chip({ tone: 'ok', children: 'live' }) }),
             side: buildSide(),
-            main: state.body || EmptyState({ text: 'loading…', glyph: '◌' }),
+            main: state.body || EmptyState({ text: loadingText || 'loading…', glyph: '◌' }),
             status: Status({ left: ['ds-247420 · webjsx · ' + allRoutes.length + ' routes', 'instance=' + instance.id], right: [state.ts] }),
         });
     }

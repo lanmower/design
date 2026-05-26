@@ -452,3 +452,287 @@ html, body {
 :root[data-theme="ink"][data-accent="green"]   { --os-accent: #3FA93A; }
 :root[data-theme="ink"][data-accent="purple"]  { --os-accent: #a085ff; }
 :root[data-theme="ink"][data-accent="mascot"]  { --os-accent: #ff8a64; }
+
+/* ============================================================
+ * thebird theme preset (migrated from thebird's local thebird-brand.css
+ * 2026-05-26). thebird ships ZERO design CSS — every rule below lives here
+ * upstream and is delivered via the published package. Scoped to .ds-247420
+ * (thebird's OS root carries that class). Brand identity: Space Grotesk +
+ * --paper #F5F0E4 + green accent #247420 + uniform 34px bars +
+ * Windows-style right-side window controls.
+ * ============================================================ */
+:root {
+    --paper: #F5F0E4;
+}
+.ds-247420 {
+    --ff-ui: 'Space Grotesk', system-ui, sans-serif !important;
+    --ff-display: 'Space Grotesk', system-ui, sans-serif !important;
+    --ff-prose: 'Space Grotesk', system-ui, sans-serif !important;
+    --os-accent: #247420;
+    /* uniform bar height: 22px button + 6px+6px padding = 34px */
+    --os-bar-h: 34px !important;
+    --os-bar-h-mobile: 34px !important;
+    --os-dock-h: 34px !important;
+}
+/* Window titlebar matches the 34px bar height; clamp so menubar/taskbar/titlebar
+ * heights are uniform. */
+.ds-247420 .wm-bar { height: 34px !important; min-height: 34px !important; box-sizing: border-box !important; padding-top: 4px !important; padding-bottom: 4px !important; }
+/* Bars overlay windows: .wm-root fills full viewport, menubar/taskbar paint on top.
+ * Tilde key hides them via .bars-hidden on <html>. */
+.ds-247420 .wm-root { top: 0 !important; bottom: 0 !important; inset: 0 !important; }
+html.bars-hidden .os-menubar,
+html.bars-hidden .os-taskbar { display: none !important; }
+.ds-247420 .os-task { border-radius: var(--r-pill, 999px); }
+.os-brand { font-family: var(--ff-display); font-weight: 700; }
+
+/* thebird windows use Windows/Linux-style right-side controls (upstream theme
+ * sets .wm-btns order:-1 for a macOS look; thebird overrides to natural DOM
+ * order so controls render on the right). */
+.ds-247420 .wm-btns { order: 0; }
+
+/* OS-shell z-index layering: .os-root above .wm-root so its .os-menu dropdowns
+ * paint above windows. */
+.ds-247420 .os-root { z-index: 9300 !important; }
+.ds-247420 .os-menubar { z-index: 9200 !important; position: relative; }
+.ds-247420 .os-taskbar { z-index: 9200 !important; position: relative; }
+.ds-247420 .os-menu { z-index: 9500 !important; }
+.ds-247420 .wm-root { z-index: 9000; }
+.ds-247420 .launcher-dock { z-index: 9100; }
+
+/* Touch/gesture hardening. */
+html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-text-size-adjust: 100%; }
+.ds-247420 .os-root, .ds-247420 .wm-root { touch-action: none; }
+.ds-247420 .wm-body { overscroll-behavior: contain; touch-action: auto; }
+.ds-247420 .wm-bar, .ds-247420 .wm-resize { -webkit-touch-callout: none; user-select: none; }
+.ds-247420 .os-menubar, .ds-247420 .os-taskbar, .ds-247420 .launcher-dock { user-select: none; -webkit-user-select: none; }
+
+/* Aero-snap drag preview. */
+.ds-247420 .wm-snap-preview {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9050;
+  background: color-mix(in oklab, var(--os-accent, #247420) 20%, transparent);
+  border: 2px solid var(--os-accent, #247420);
+  border-radius: 8px;
+  transition: all 120ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-247420 .wm-snap-preview { transition: none; }
+}
+
+/* Alt+Tab window switcher overlay. */
+.ds-247420 .wm-switcher {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 16px 20px;
+  background: var(--os-bg-2, #1a1a1a);
+  border: 1px solid var(--os-accent, #247420);
+  border-radius: 8px;
+  z-index: 9600;
+  font-family: var(--ff-ui, 'Space Grotesk', sans-serif);
+  color: var(--os-fg, #fff);
+  min-width: 280px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.ds-247420 .wm-switcher-item {
+  padding: 8px 12px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ds-247420 .wm-switcher-item.active {
+  background: var(--os-accent, #247420);
+  color: var(--paper, #fff);
+}
+
+/* freddie-chat font family (upstream still ships Nunito; brand is Space Grotesk). */
+.ds-247420 freddie-chat,
+.ds-247420 freddie-chat .chat-bubble,
+.ds-247420 freddie-chat .chat-meta,
+.ds-247420 freddie-chat .chat-head {
+  font-family: var(--ff-ui, 'Space Grotesk', system-ui, sans-serif);
+}
+.ds-247420 freddie-chat .chat-bubble pre,
+.ds-247420 freddie-chat .chat-bubble code {
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+.ds-247420 freddie-chat .chat-head {
+  font-family: var(--ff-display, 'Space Grotesk', system-ui, sans-serif);
+  font-weight: 700;
+}
+
+/* Session-switch crossfade. */
+.ds-247420 .wm-win { transition: opacity 140ms ease; }
+.tb-switching .ds-247420 .wm-win { opacity: 0.4; }
+@media (prefers-reduced-motion: reduce) {
+  .ds-247420 .wm-win { transition: none; }
+  .tb-switching .ds-247420 .wm-win { opacity: 1; }
+}
+
+/* ---- Session-UX surfaces: chips + modals + empty state ---- */
+.ds-247420 .os-instances { display: flex; gap: 6px; align-items: center; flex: 0 1 auto; min-width: 0; overflow-x: auto; overflow-y: hidden; padding: 0 4px; scrollbar-width: thin; }
+.ds-247420 .os-instances::-webkit-scrollbar { height: 4px; }
+
+.ds-247420 .tb-sess-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 22px; padding: 0 6px 0 8px;
+  border-radius: var(--r-pill, 999px);
+  background: color-mix(in oklab, var(--fg, #1a1a1a) 6%, transparent);
+  color: var(--fg, #1a1a1a);
+  font-family: var(--ff-ui, system-ui); font-size: 11px; font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 120ms ease, border-color 120ms ease;
+  user-select: none; flex: 0 0 auto;
+}
+.ds-247420 .tb-sess-chip:hover { background: color-mix(in oklab, var(--fg, #1a1a1a) 12%, transparent); }
+.ds-247420 .tb-sess-chip.active {
+  background: color-mix(in oklab, var(--os-accent, #247420) 18%, transparent);
+  border-color: var(--os-accent, #247420);
+  color: var(--fg, #1a1a1a);
+}
+.ds-247420 .tb-sess-chip.active .tb-sess-dot { background: var(--os-accent, #247420); box-shadow: 0 0 0 2px color-mix(in oklab, var(--os-accent, #247420) 30%, transparent); }
+.ds-247420 .tb-sess-dot { width: 6px; height: 6px; border-radius: 50%; background: color-mix(in oklab, var(--fg, #1a1a1a) 40%, transparent); flex: 0 0 6px; }
+.ds-247420 .tb-sess-label { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-247420 .tb-sess-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 16px; height: 14px; padding: 0 4px;
+  border-radius: 7px;
+  background: color-mix(in oklab, var(--fg, #1a1a1a) 14%, transparent);
+  font-size: 9px; font-weight: 600; line-height: 1;
+}
+.ds-247420 .tb-sess-chip.active .tb-sess-badge { background: color-mix(in oklab, var(--os-accent, #247420) 30%, transparent); }
+.ds-247420 .tb-sess-x {
+  width: 16px; height: 16px; line-height: 14px; text-align: center;
+  border: 0; padding: 0; background: transparent;
+  border-radius: 50%; cursor: pointer; color: inherit;
+  font-size: 14px; font-weight: 600;
+  opacity: 0.55; transition: opacity 120ms ease, background 120ms ease;
+}
+.ds-247420 .tb-sess-chip:hover .tb-sess-x { opacity: 1; }
+.ds-247420 .tb-sess-x:hover { background: color-mix(in oklab, #d33 30%, transparent); color: #fff; }
+
+.ds-247420 .tb-sess-add {
+  display: inline-flex; align-items: center; gap: 4px;
+  height: 22px; padding: 0 10px;
+  border: 1px dashed color-mix(in oklab, var(--fg, #1a1a1a) 30%, transparent);
+  background: transparent;
+  border-radius: var(--r-pill, 999px);
+  font-family: var(--ff-ui, system-ui); font-size: 11px; font-weight: 500;
+  color: var(--fg, #1a1a1a);
+  cursor: pointer;
+  margin-left: 6px;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.ds-247420 .tb-sess-add:hover {
+  border-color: var(--os-accent, #247420);
+  background: color-mix(in oklab, var(--os-accent, #247420) 8%, transparent);
+}
+.ds-247420 .tb-sess-add-plus { font-size: 13px; line-height: 1; }
+.ds-247420 .tb-sess-add-lbl { line-height: 1; }
+
+.tb-sess-overlay {
+  position: fixed; inset: 0; z-index: 9800;
+  background: color-mix(in oklab, #000 40%, transparent);
+  display: flex; align-items: center; justify-content: center;
+  animation: tb-sess-fade 120ms ease;
+}
+@keyframes tb-sess-fade { from { opacity: 0; } to { opacity: 1; } }
+.tb-sess-modal {
+  background: var(--bg, #f5f0e4);
+  color: var(--fg, #1a1a1a);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px color-mix(in oklab, #000 30%, transparent);
+  min-width: 320px; max-width: 480px;
+  border: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 12%, transparent);
+  overflow: hidden;
+  font-family: var(--ff-ui, system-ui);
+}
+.tb-sess-modal-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 8%, transparent); }
+.tb-sess-modal-title { font-weight: 600; font-size: 14px; }
+.tb-sess-modal-x { background: transparent; border: 0; font-size: 20px; line-height: 1; cursor: pointer; color: inherit; padding: 0 4px; }
+.tb-sess-modal-body { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.tb-sess-modal-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.7; }
+.tb-sess-modal-input {
+  width: 100%; box-sizing: border-box;
+  height: 32px; padding: 0 10px;
+  border: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 20%, transparent);
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--fg, #1a1a1a) 6%, var(--bg, #fff));
+  color: inherit;
+  font-family: inherit; font-size: 13px;
+}
+.tb-sess-modal-input:focus { outline: none; border-color: var(--os-accent, #247420); box-shadow: 0 0 0 3px color-mix(in oklab, var(--os-accent, #247420) 20%, transparent); }
+.tb-sess-modal-hint { font-size: 11px; opacity: 0.7; }
+.tb-sess-modal-msg { font-size: 13px; }
+.tb-sess-modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 8%, transparent); }
+.tb-sess-modal-btn {
+  height: 28px; padding: 0 14px;
+  border-radius: 6px; border: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 20%, transparent);
+  background: transparent; color: inherit;
+  font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.tb-sess-modal-btn:hover { background: color-mix(in oklab, var(--fg, #1a1a1a) 6%, transparent); }
+.tb-sess-modal-btn.primary { background: var(--os-accent, #247420); color: #fff; border-color: var(--os-accent, #247420); }
+.tb-sess-modal-btn.primary:hover { background: color-mix(in oklab, var(--os-accent, #247420) 80%, #000); }
+.tb-sess-modal-btn.danger { background: #d33; color: #fff; border-color: #d33; }
+.tb-sess-modal-btn.danger:hover { background: #b22; }
+
+.tb-sess-empty {
+  position: fixed; inset: 0; z-index: 8900;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.tb-sess-empty-card {
+  pointer-events: auto;
+  background: var(--bg, #f5f0e4);
+  color: var(--fg, #1a1a1a);
+  border: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 14%, transparent);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px color-mix(in oklab, #000 14%, transparent);
+  padding: 32px 40px; text-align: center;
+  font-family: var(--ff-ui, system-ui);
+  max-width: 420px;
+}
+.tb-sess-empty-title { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+.tb-sess-empty-sub { font-size: 13px; opacity: 0.7; margin-bottom: 20px; }
+.tb-sess-empty-cta {
+  height: 40px; padding: 0 24px;
+  background: var(--os-accent, #247420); color: #fff;
+  border: 0; border-radius: 999px;
+  font-family: inherit; font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.tb-sess-empty-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 16px color-mix(in oklab, var(--os-accent, #247420) 40%, transparent); }
+
+/* ---- Workspaces app — full-window session manager card grid ---- */
+.ds-247420 .tb-sessions-app { display: flex; flex-direction: column; height: 100%; font-family: var(--ff-ui, system-ui); color: var(--fg, #1a1a1a); background: var(--bg, #f5f0e4); }
+.ds-247420 .tb-sessions-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 10%, transparent); }
+.ds-247420 .tb-sessions-title { font-weight: 600; font-size: 14px; }
+.ds-247420 .tb-sessions-count { font-size: 12px; opacity: 0.6; margin-left: 4px; }
+.ds-247420 .tb-sessions-spacer { flex: 1; }
+.ds-247420 .tb-sessions-btn { height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 20%, transparent); background: transparent; color: inherit; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; }
+.ds-247420 .tb-sessions-btn:hover { background: color-mix(in oklab, var(--fg, #1a1a1a) 6%, transparent); }
+.ds-247420 .tb-sessions-btn.primary { background: var(--os-accent, #247420); color: #fff; border-color: var(--os-accent, #247420); }
+.ds-247420 .tb-sessions-btn.danger { background: #d33; color: #fff; border-color: #d33; }
+.ds-247420 .tb-sessions-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.ds-247420 .tb-sessions-grid { flex: 1; overflow: auto; padding: 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; align-content: start; }
+.ds-247420 .tb-sessions-card { padding: 12px; border-radius: 10px; border: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 12%, transparent); background: color-mix(in oklab, var(--fg, #1a1a1a) 3%, transparent); display: flex; flex-direction: column; gap: 8px; transition: border-color 120ms ease, transform 120ms ease; }
+.ds-247420 .tb-sessions-card:hover { border-color: var(--os-accent, #247420); }
+.ds-247420 .tb-sessions-card.active { border-color: var(--os-accent, #247420); box-shadow: 0 0 0 2px color-mix(in oklab, var(--os-accent, #247420) 30%, transparent); }
+.ds-247420 .tb-sessions-card-head { display: flex; align-items: center; gap: 8px; }
+.ds-247420 .tb-sessions-card-check { width: 14px; height: 14px; cursor: pointer; flex: 0 0 14px; }
+.ds-247420 .tb-sessions-card-name { font-weight: 600; font-size: 13px; flex: 1; outline: none; padding: 2px 4px; border-radius: 4px; }
+.ds-247420 .tb-sessions-card-name[contenteditable="true"] { background: color-mix(in oklab, var(--fg, #1a1a1a) 8%, transparent); }
+.ds-247420 .tb-sessions-card-id { font-family: var(--os-mono, monospace); font-size: 10px; opacity: 0.5; }
+.ds-247420 .tb-sessions-card-stats { font-size: 11px; opacity: 0.7; display: flex; gap: 12px; }
+.ds-247420 .tb-sessions-card-actions { display: flex; gap: 6px; margin-top: 4px; }
+.ds-247420 .tb-sessions-card-actions button { flex: 1; height: 24px; font-size: 11px; padding: 0 8px; border-radius: 4px; border: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 16%, transparent); background: transparent; color: inherit; cursor: pointer; font-family: inherit; }
+.ds-247420 .tb-sessions-card-actions button:hover { background: color-mix(in oklab, var(--fg, #1a1a1a) 6%, transparent); }
+.ds-247420 .tb-sessions-card-actions button.danger:hover { background: #d33; color: #fff; border-color: #d33; }
+.ds-247420 .tb-sessions-empty-mid { padding: 40px; text-align: center; opacity: 0.6; font-size: 13px; }
