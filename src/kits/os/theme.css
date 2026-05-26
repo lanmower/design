@@ -334,10 +334,11 @@ html, body {
 .app-pane a { color: var(--os-accent); text-decoration: none; }
 .app-pane a:hover { text-decoration: underline; text-underline-offset: 2px; }
 .app-pane .meta { color: var(--os-fg-3); font-size: 12px; }
-.app-pane.mono { font: 12.5px var(--os-mono); padding: 12px; background: var(--os-bg-1); }
-.app-pane.mono .row { padding: 5px 8px; cursor: pointer; border-radius: var(--r-1, 6px); }
+.app-pane.mono { font: 12.5px var(--os-mono); padding: 8px; background: var(--os-bg-1); }
+.app-pane.mono .row { padding: 4px 8px; cursor: pointer; border-radius: var(--r-1, 6px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .app-pane.mono .row:hover { background: var(--panel-hover, var(--os-bg-2)); }
-.app-pane.mono .head { color: var(--os-accent); margin-bottom: 8px; padding-bottom: 6px; font-weight: 600; letter-spacing: 0.02em; }
+.app-pane.mono .row.selected { background: var(--panel-select, var(--os-accent-soft)); box-shadow: inset 4px 0 0 var(--os-accent); }
+.app-pane.mono .head { color: var(--os-accent); margin-bottom: 8px; padding-bottom: 8px; font-weight: 600; letter-spacing: 0.02em; border-bottom: 1px solid var(--os-bg-3); }
 .app-pane.mono pre { background: var(--os-bg-2); padding: 10px 12px; margin: 8px 0 0 0; max-height: 220px; overflow: auto; white-space: pre-wrap; font: 11.5px var(--os-mono); border-radius: var(--r-1, 6px); color: var(--os-fg); border: none; }
 .app-shell-pane { margin: 0; padding: 8px; font: 12px var(--os-mono); color: var(--os-fg); background: var(--os-bg-0); height: 100%; overflow: auto; white-space: pre-wrap; box-sizing: border-box; }
 .app-canvas { width: 100%; height: 100%; background: var(--os-bg-0); display: block; cursor: default; }

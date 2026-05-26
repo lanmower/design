@@ -18,7 +18,7 @@
     background: var(--os-bg-1);
     color: var(--os-fg);
     border: none;
-    border-radius: var(--r-3, 18px);
+    border-radius: var(--os-radius, var(--r-2, 10px));
     display: flex;
     flex-direction: column;
     pointer-events: auto;
@@ -29,7 +29,7 @@
 .wm-bar {
     display: flex;
     align-items: center;
-    padding: 6px 10px;
+    padding: 8px 12px;
     background: var(--os-bg-2);
     cursor: move;
     user-select: none;
@@ -39,14 +39,16 @@
 }
 .wm-title {
     flex: 1;
+    min-width: 0;
     font: 12px var(--os-font);
+    color: var(--os-fg-2);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-transform: lowercase;
 }
 
-.wm-btns { display: flex; gap: 4px; }
+.wm-btns { display: flex; gap: 6px; }
 .wm-btn {
     width: 22px;
     height: 22px;
@@ -60,10 +62,10 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--r-1, 6px);
+    border-radius: var(--os-radius-sm, var(--r-1, 6px));
     transition: background 100ms ease, color 100ms ease;
 }
-.wm-btn:hover { background: var(--panel-hover, var(--os-bg-2)); color: var(--os-fg); }
+.wm-btn:hover { background: var(--panel-hover, var(--os-bg-1)); color: var(--os-fg); }
 
 .wm-body {
     flex: 1;
@@ -76,8 +78,10 @@
     position: absolute;
     right: 0;
     bottom: 0;
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
+    padding: 2px;
+    box-sizing: border-box;
     cursor: nwse-resize;
     background: transparent;
     color: var(--os-fg-3);
@@ -89,6 +93,7 @@
     justify-content: flex-end;
     touch-action: none;
 }
+.wm-resize:hover { opacity: 0.7; }
 .wm-resize::after { content: '\25E2'; }
 
 .wm-win.wm-min .wm-body,

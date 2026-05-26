@@ -55,16 +55,20 @@ export function renderWindow(opts = {}) {
     maxBtn.addEventListener('click', e => { e.stopPropagation(); callbacks.onMaximize && callbacks.onMaximize(); });
     closeBtn.addEventListener('click', e => { e.stopPropagation(); callbacks.onClose && callbacks.onClose(); });
 
-    el.addEventListener('pointerdown', () => callbacks.onFocus && callbacks.onFocus());
+    const focus = () => callbacks.onFocus && callbacks.onFocus();
+
+    el.addEventListener('pointerdown', () => focus());
 
     bar.addEventListener('pointerdown', e => {
         if (e.target.closest('.wm-btn')) return;
-        callbacks.onFocus && callbacks.onFocus();
+        e.stopPropagation();
+        focus();
         if (callbacks.onDragStart) callbacks.onDragStart(e, { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight });
     });
 
     resize.addEventListener('pointerdown', e => {
-        callbacks.onFocus && callbacks.onFocus();
+        e.stopPropagation();
+        focus();
         if (callbacks.onResizeStart) callbacks.onResizeStart(e, { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight });
     });
 

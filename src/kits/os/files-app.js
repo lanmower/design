@@ -10,8 +10,11 @@ export function renderFilesApp(opts = {}) {
     node.dataset.component = 'files-app';
 
     let preview = null;
+    let selected = null;
     async function refresh() {
         const items = await list();
+        preview = null;
+        selected = null;
         node.innerHTML = '';
         const head = document.createElement('div');
         head.className = 'head';
@@ -21,7 +24,11 @@ export function renderFilesApp(opts = {}) {
             const row = document.createElement('div');
             row.className = 'row';
             row.textContent = p;
+            row.title = p;
             row.addEventListener('click', async () => {
+                if (selected) selected.classList.remove('selected');
+                selected = row;
+                row.classList.add('selected');
                 const body = await readFile(p);
                 if (preview) preview.remove();
                 preview = document.createElement('pre');
