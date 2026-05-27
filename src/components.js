@@ -41,11 +41,12 @@ export {
     VoiceUser, UserPanel, ChannelSidebar,
     MemberItem, MemberList,
     ChatHeader, VoiceStrip, CommunityShell,
-    MobileHeader, ReplyBar, Banner
+    MobileHeader, ReplyBar, Banner,
+    ThreadPanel, ForumView, PageView
 } from './components/community.js';
 
 export {
-    PttButton, VadMeter, WebcamPreview, VoiceSettingsModal, AudioQueue
+    PttButton, VadMeter, WebcamPreview, VoiceSettingsModal, AudioQueue, VoiceControls
 } from './components/voice.js';
 
 export { ThemeToggle } from './components/theme-toggle.js';
@@ -75,7 +76,8 @@ export {
 
 export {
     Tooltip, Popover, Dropdown, useLongPress, useFloating,
-    CommandPalette, EmojiPicker, BootOverlay, SettingsPopover
+    CommandPalette, EmojiPicker, BootOverlay, SettingsPopover,
+    AuthModal, VideoLightbox
 } from './components/overlay-primitives.js';
 
 export {

@@ -462,3 +462,91 @@ export function SettingsPopover({ title = 'Settings', open, anchorX = 0, anchorY
             }))
     );
 }
+
+// AuthModal — centered login dialog: extension / generate / import (nsec) modes.
+export function AuthModal({ mode = 'extension', error = '', busy = false, open = false, onModeChange, onConnectExtension, onGenerate, onImport, onClose } = {}) {
+    if (!open) return null;
+    const close = () => onClose && onClose();
+    const modes = [
+        { id: 'extension', label: 'Extension' },
+        { id: 'generate', label: 'Generate' },
+        { id: 'import', label: 'Import key' },
+    ];
+    let nsec = '';
+    const body = () => {
+        if (mode === 'generate') {
+            return [
+                h('p', { class: 'ov-auth-hint' }, 'Create a fresh Nostr identity. Back up the key after.'),
+                h('button', { type: 'button', class: 'ov-auth-primary', disabled: busy ? true : null,
+                    onclick: () => onGenerate && onGenerate() }, busy ? 'Working…' : 'Generate new key'),
+            ];
+        }
+        if (mode === 'import') {
+            return [
+                h('p', { class: 'ov-auth-hint' }, 'Paste an existing nsec / hex secret key.'),
+                h('input', {
+                    type: 'password', class: 'ov-auth-input', placeholder: 'nsec1…',
+                    'aria-label': 'secret key', disabled: busy ? true : null,
+                    oninput: (e) => { nsec = e.target.value; },
+                    onkeydown: (e) => { if (e.key === 'Enter') { e.preventDefault(); onImport && onImport(nsec); } },
+                }),
+                h('button', { type: 'button', class: 'ov-auth-primary', disabled: busy ? true : null,
+                    onclick: () => onImport && onImport(nsec) }, busy ? 'Working…' : 'Import'),
+            ];
+        }
+        return [
+            h('p', { class: 'ov-auth-hint' }, 'Connect a NIP-07 browser extension (Alby, nos2x…).'),
+            h('button', { type: 'button', class: 'ov-auth-primary', disabled: busy ? true : null,
+                onclick: () => onConnectExtension && onConnectExtension() }, busy ? 'Connecting…' : 'Connect extension'),
+        ];
+    };
+    return h('div', {
+        class: 'ov-auth-backdrop', role: 'presentation',
+        ref: (el) => {
+            if (!el || el._ovAuth) return; el._ovAuth = true;
+            el.addEventListener('mousedown', (e) => {
+                const panel = el.querySelector('.ov-auth-panel');
+                if (panel && !panel.contains(e.target)) close();
+            });
+        },
+    },
+        h('div', {
+            class: 'ov-auth-panel', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Sign in',
+            onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } },
+        },
+            h('div', { class: 'ov-auth-head' },
+                h('h2', { class: 'ov-auth-title' }, 'Sign in'),
+                h('button', { type: 'button', class: 'ov-auth-x', 'aria-label': 'close', onclick: close }, '×')
+            ),
+            h('div', { class: 'ov-auth-tabs', role: 'tablist' },
+                ...modes.map(m => h('button', {
+                    type: 'button', role: 'tab', key: 'am-' + m.id,
+                    class: 'ov-auth-tab' + (m.id === mode ? ' is-active' : ''),
+                    'aria-selected': m.id === mode ? 'true' : 'false',
+                    onclick: () => onModeChange && onModeChange(m.id),
+                }, m.label))
+            ),
+            h('div', { class: 'ov-auth-body' }, ...body()),
+            error ? h('div', { class: 'ov-auth-error', role: 'alert' }, String(error)) : null
+        )
+    );
+}
+
+// VideoLightbox — fullscreen video player overlay with backdrop dismiss.
+export function VideoLightbox({ src, label = '', open = false, onClose } = {}) {
+    if (!open || !src) return null;
+    const close = () => onClose && onClose();
+    return h('div', {
+        class: 'ov-lightbox-backdrop', role: 'dialog', 'aria-modal': 'true', 'aria-label': label || 'Video',
+        tabindex: '-1',
+        onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } },
+        ref: (el) => { if (el && !el._ovLb) { el._ovLb = true; queueMicrotask(() => el.focus()); } },
+        onmousedown: (e) => { if (e.target === e.currentTarget) close(); },
+    },
+        h('button', { type: 'button', class: 'ov-lightbox-x', 'aria-label': 'close', onclick: close }, '×'),
+        h('div', { class: 'ov-lightbox-stage' },
+            h('video', { class: 'ov-lightbox-video', src, controls: true, autoplay: true, playsinline: true }),
+            label ? h('div', { class: 'ov-lightbox-label' }, label) : null
+        )
+    );
+}

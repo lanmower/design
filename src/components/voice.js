@@ -192,6 +192,31 @@ export function VoiceSettingsModal({ open = false, mode = 'ptt', inputId, output
     );
 }
 
+export function VoiceControls({ muted = false, deafened = false, cameraOn = false, screenShareOn = false, onMic, onDeafen, onCamera, onScreenShare, onSettings, onLeave } = {}) {
+    const btn = (cls, on, label, glyph, handler) => h('button', {
+        type: 'button',
+        class: 'vx-vc-btn ' + cls + (on ? ' vx-vc-on' : '') + (handler ? '' : ' vx-vc-disabled'),
+        'aria-pressed': on ? 'true' : 'false',
+        'aria-label': label,
+        title: label,
+        disabled: handler ? null : true,
+        onclick: handler ? (e) => handler(e) : null
+    },
+        h('span', { class: 'vx-vc-glyph', 'aria-hidden': 'true' }, glyph)
+    );
+    return h('div', { class: 'vx-vc', role: 'toolbar', 'aria-label': 'voice controls' },
+        btn('vx-vc-mic', !muted, muted ? 'Unmute' : 'Mute', muted ? '🔇' : '🎙', onMic),
+        btn('vx-vc-deafen', !deafened, deafened ? 'Undeafen' : 'Deafen', deafened ? '🔕' : '🔊', onDeafen),
+        btn('vx-vc-camera', cameraOn, cameraOn ? 'Stop camera' : 'Start camera', '📷', onCamera),
+        btn('vx-vc-screen', screenShareOn, screenShareOn ? 'Stop sharing' : 'Share screen', '🖥', onScreenShare),
+        btn('vx-vc-settings', false, 'Voice settings', '⚙', onSettings),
+        h('button', {
+            type: 'button', class: 'vx-vc-btn vx-vc-leave', 'aria-label': 'Leave voice', title: 'Leave voice',
+            onclick: onLeave ? (e) => onLeave(e) : null
+        }, h('span', { class: 'vx-vc-glyph', 'aria-hidden': 'true' }, '📞'))
+    );
+}
+
 export function AudioQueue({ segments = [], currentSegmentId = null, paused = false, onReplay, onSkip, onResume, onPause } = {}) {
     if (!segments || !segments.length) {
         return h('div', { class: 'vx-queue vx-queue-empty' },
