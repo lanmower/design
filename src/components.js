@@ -40,8 +40,13 @@ export {
     ChannelItem, ChannelCategory,
     VoiceUser, UserPanel, ChannelSidebar,
     MemberItem, MemberList,
-    ChatHeader, VoiceStrip, CommunityShell
+    ChatHeader, VoiceStrip, CommunityShell,
+    MobileHeader, ReplyBar, Banner
 } from './components/community.js';
+
+export {
+    PttButton, VadMeter, WebcamPreview, VoiceSettingsModal, AudioQueue
+} from './components/voice.js';
 
 export { ThemeToggle } from './components/theme-toggle.js';
 
@@ -69,7 +74,8 @@ export {
 } from './components/editor-primitives.js';
 
 export {
-    Tooltip, Popover, Dropdown, useLongPress, useFloating
+    Tooltip, Popover, Dropdown, useLongPress, useFloating,
+    CommandPalette, EmojiPicker, BootOverlay, SettingsPopover
 } from './components/overlay-primitives.js';
 
 export {

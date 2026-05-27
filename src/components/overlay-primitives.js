@@ -217,3 +217,248 @@ export function Dropdown({ trigger, items = [], onSelect, placement = 'bottom-st
         ? webjsx.createElement(child.type, { ...(child.props || {}), ref: refFn }, ...(child.children || []))
         : h('button', { type: 'button', class: 'ds-dropdown-trigger', ref: refFn }, child || 'Menu');
 }
+
+// Clamp a fixed-position box to the viewport given desired top-left coords.
+function _clampToViewport(x, y, w, h, margin = 8) {
+    const vw = (typeof window !== 'undefined' ? window.innerWidth : 1024);
+    const vh = (typeof window !== 'undefined' ? window.innerHeight : 768);
+    return {
+        left: Math.max(margin, Math.min(vw - w - margin, x)),
+        top: Math.max(margin, Math.min(vh - h - margin, y)),
+    };
+}
+
+// CommandPalette — centered Cmd+K palette with live filter + keyboard nav.
+export function CommandPalette({ open, items = [], onSelect, onClose } = {}) {
+    if (!open) return null;
+    const list = Array.isArray(items) ? items : [];
+    const labelOf = (it) => String(it.label || it.title || it.name || '');
+    let active = 0, filterText = '';
+
+    const matches = () => {
+        const q = filterText.trim().toLowerCase();
+        return q ? list.filter(it => labelOf(it).toLowerCase().includes(q)) : list.slice();
+    };
+
+    const rowsFor = (filtered) => {
+        const out = [];
+        let lastGroup = null, flatIdx = 0;
+        for (const it of filtered) {
+            const grp = it.group != null ? String(it.group) : null;
+            if (grp && grp !== lastGroup) {
+                out.push(h('div', { class: 'ov-cmd-group', role: 'presentation' }, grp));
+                lastGroup = grp;
+            }
+            const idx = flatIdx++;
+            const glyph = it.icon != null ? it.icon : (it.glyph != null ? it.glyph : null);
+            const hint = it.hint != null ? it.hint : (it.shortcut != null ? it.shortcut : null);
+            out.push(h('button', {
+                type: 'button', role: 'option',
+                'data-idx': String(idx),
+                'aria-selected': idx === active ? 'true' : 'false',
+                class: 'ov-cmd-item' + (idx === active ? ' is-active' : ''),
+                onclick: () => choose(it),
+                onmousemove: () => { if (active !== idx) { active = idx; renderInner(); } },
+            },
+                glyph != null ? h('span', { class: 'ov-cmd-glyph', 'aria-hidden': 'true' }, glyph) : null,
+                h('span', { class: 'ov-cmd-label' }, labelOf(it)),
+                hint != null ? h('span', { class: 'ov-cmd-hint' }, hint) : null
+            ));
+        }
+        return out;
+    };
+
+    let rootEl = null, inputEl = null, listEl = null, flat = [];
+    const close = () => onClose && onClose();
+    const choose = (it) => { if (it && onSelect) onSelect(it); };
+
+    const renderInner = () => {
+        if (!listEl) return;
+        const filtered = matches();
+        flat = filtered;
+        if (active >= filtered.length) active = Math.max(0, filtered.length - 1);
+        webjsx.applyDiff(listEl, h('div', { class: 'ov-cmd-list-inner' },
+            filtered.length ? rowsFor(filtered) : h('div', { class: 'ov-cmd-empty' }, 'No results')));
+        const sel = listEl.querySelector('.ov-cmd-item.is-active');
+        if (sel && sel.scrollIntoView) sel.scrollIntoView({ block: 'nearest' });
+    };
+
+    const onKey = (e) => {
+        if (e.key === 'Escape') { e.preventDefault(); close(); }
+        else if (e.key === 'ArrowDown') { e.preventDefault(); if (flat.length) { active = (active + 1) % flat.length; renderInner(); } }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); if (flat.length) { active = (active - 1 + flat.length) % flat.length; renderInner(); } }
+        else if (e.key === 'Enter') { e.preventDefault(); if (flat[active]) choose(flat[active]); }
+    };
+
+    return h('div', {
+        class: 'ov-cmd-backdrop', role: 'presentation',
+        ref: (el) => {
+            if (!el || el._ovCmd) return; el._ovCmd = true; rootEl = el;
+            el.addEventListener('mousedown', (e) => {
+                const panel = el.querySelector('.ov-cmd-panel');
+                if (panel && !panel.contains(e.target)) close();
+            });
+        },
+    },
+        h('div', { class: 'ov-cmd-panel', role: 'dialog', 'aria-label': 'Command palette', onkeydown: onKey },
+            h('input', {
+                type: 'text', class: 'ov-cmd-input', placeholder: 'Type a command…',
+                'aria-label': 'Filter commands',
+                oninput: (e) => { filterText = e.target.value; active = 0; renderInner(); },
+                ref: (el) => { if (!el || el._ovCmdIn) return; el._ovCmdIn = true; inputEl = el; queueMicrotask(() => el.focus()); },
+            }),
+            h('div', { class: 'ov-cmd-list', role: 'listbox',
+                ref: (el) => { if (!el) return; listEl = el; queueMicrotask(renderInner); } })
+        )
+    );
+}
+
+const EMOJI_CATEGORIES = [
+    { id: 'smileys', label: '😀', emoji: ['😀','😁','😂','🤣','😊','😍','😘','😎','🤔','😅','😉','🙂','😇','🥳','😴','🤩','😜','😢','😭','😡','😱','🥺','😤','😬'] },
+    { id: 'gestures', label: '👍', emoji: ['👍','👎','👌','✌️','🤞','🙏','👏','🙌','💪','👀','🤝','✋','🤙','👋','🤟','☝️'] },
+    { id: 'hearts', label: '❤️', emoji: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','💔','💕','💖','💗'] },
+    { id: 'symbols', label: '✅', emoji: ['🔥','💯','✅','❌','⭐','🎉','🎊','✨','💡','⚡','💢','💀','🚀','🏆'] },
+];
+
+// EmojiPicker — fixed popover near (anchorX, anchorY) with category tabs + grid.
+export function EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose } = {}) {
+    if (!open) return null;
+    let cat = EMOJI_CATEGORIES[0].id;
+    let rootEl = null, gridEl = null;
+    const close = () => onClose && onClose();
+
+    const renderGrid = () => {
+        if (!gridEl) return;
+        const c = EMOJI_CATEGORIES.find(x => x.id === cat) || EMOJI_CATEGORIES[0];
+        webjsx.applyDiff(gridEl, h('div', { class: 'ov-emoji-grid-inner' },
+            ...c.emoji.map((ch) => h('button', {
+                type: 'button', class: 'ov-emoji-cell', 'aria-label': ch,
+                onclick: () => { if (onSelect) onSelect(ch); },
+            }, ch))));
+    };
+
+    return h('div', {
+        class: 'ov-emoji-root', role: 'dialog', 'aria-label': 'Emoji picker',
+        tabindex: '-1',
+        onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } },
+        ref: (el) => {
+            if (!el || el._ovEmoji) return; el._ovEmoji = true; rootEl = el;
+            const place = () => {
+                const r = el.getBoundingClientRect();
+                const { left, top } = _clampToViewport(anchorX, anchorY, r.width || 260, r.height || 240);
+                el.style.left = left + 'px'; el.style.top = top + 'px';
+            };
+            queueMicrotask(() => { place(); el.focus(); });
+            const onDown = (e) => { if (!el.contains(e.target)) close(); };
+            queueMicrotask(() => document.addEventListener('mousedown', onDown, true));
+            el._ovEmojiCleanup = () => document.removeEventListener('mousedown', onDown, true);
+        },
+    },
+        h('div', { class: 'ov-emoji-tabs', role: 'tablist' },
+            ...EMOJI_CATEGORIES.map((c) => h('button', {
+                type: 'button', class: 'ov-emoji-tab', role: 'tab',
+                'aria-selected': c.id === cat ? 'true' : 'false',
+                onclick: (e) => {
+                    cat = c.id;
+                    const tabs = rootEl.querySelectorAll('.ov-emoji-tab');
+                    tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+                    e.currentTarget.setAttribute('aria-selected', 'true');
+                    renderGrid();
+                },
+            }, c.label))),
+        h('div', { class: 'ov-emoji-grid',
+            ref: (el) => { if (!el) return; gridEl = el; queueMicrotask(renderGrid); } })
+    );
+}
+
+// BootOverlay — full-screen brand/progress overlay with error state.
+export function BootOverlay({ progress = 0, phase = '', errored = false, visible = false } = {}) {
+    if (!visible) return null;
+    let pct = Number(progress) || 0;
+    if (pct <= 1) pct = pct * 100;
+    pct = Math.max(0, Math.min(100, pct));
+    return h('div', { class: 'ov-boot' + (errored ? ' is-error' : ''), role: errored ? 'alert' : 'status', 'aria-live': 'polite' },
+        h('div', { class: 'ov-boot-inner' },
+            errored
+                ? h('div', { class: 'ov-boot-mark ov-boot-mark-error', 'aria-hidden': 'true' }, '⚠')
+                : h('div', { class: 'ov-boot-spinner', 'aria-hidden': 'true' }),
+            !errored ? h('div', { class: 'ov-boot-bar', role: 'progressbar',
+                'aria-valuenow': String(Math.round(pct)), 'aria-valuemin': '0', 'aria-valuemax': '100' },
+                h('div', { class: 'ov-boot-bar-fill', style: 'width:' + pct + '%' })) : null,
+            h('div', { class: 'ov-boot-phase' }, String(phase || (errored ? 'Error' : 'Loading…')))
+        )
+    );
+}
+
+// SettingsPopover — fixed popover with generic section/row control rendering.
+export function SettingsPopover({ title = 'Settings', open, anchorX = 0, anchorY = 0, sections = [], onClose } = {}) {
+    if (!open) return null;
+    const close = () => onClose && onClose();
+    const secs = Array.isArray(sections) ? sections : [];
+
+    const renderRow = (row, i) => {
+        const label = row.label != null ? row.label : (row.title != null ? row.title : '');
+        const kind = row.kind;
+        const labelNode = h('span', { class: 'ov-set-row-label' }, String(label));
+        let control = null;
+        if (kind === 'select') {
+            const opts = Array.isArray(row.options) ? row.options : [];
+            control = h('select', {
+                class: 'ov-set-control', value: row.value != null ? String(row.value) : undefined,
+                onchange: (e) => row.onChange && row.onChange(e.target.value),
+            }, ...opts.map(o => {
+                const v = (o && typeof o === 'object') ? o.value : o;
+                const l = (o && typeof o === 'object') ? (o.label != null ? o.label : o.value) : o;
+                return h('option', { value: String(v), selected: String(v) === String(row.value) ? 'selected' : undefined }, String(l));
+            }));
+        } else if (kind === 'toggle') {
+            control = h('input', {
+                type: 'checkbox', class: 'ov-set-toggle',
+                checked: row.value ? 'checked' : undefined,
+                onchange: (e) => row.onChange && row.onChange(e.target.checked),
+            });
+        } else if (kind === 'range') {
+            control = h('input', {
+                type: 'range', class: 'ov-set-control',
+                min: String(row.min != null ? row.min : 0),
+                max: String(row.max != null ? row.max : 100),
+                step: String(row.step != null ? row.step : 1),
+                value: String(row.value != null ? row.value : 0),
+                oninput: (e) => row.onChange && row.onChange(Number(e.target.value)),
+            });
+        } else if (kind === 'button') {
+            control = h('button', { type: 'button', class: 'ov-set-btn',
+                onclick: () => row.onClick && row.onClick() }, String(label || 'Action'));
+            return h('div', { class: 'ov-set-row', key: i }, control);
+        } else {
+            control = h('span', { class: 'ov-set-row-value' }, String(row.value != null ? row.value : ''));
+        }
+        return h('div', { class: 'ov-set-row', key: i }, labelNode, control);
+    };
+
+    return h('div', {
+        class: 'ov-set-root', role: 'dialog', 'aria-label': String(title), tabindex: '-1',
+        onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } },
+        ref: (el) => {
+            if (!el || el._ovSet) return; el._ovSet = true;
+            const place = () => {
+                const r = el.getBoundingClientRect();
+                const { left, top } = _clampToViewport(anchorX, anchorY, r.width || 280, r.height || 200);
+                el.style.left = left + 'px'; el.style.top = top + 'px';
+            };
+            queueMicrotask(() => { place(); el.focus(); });
+            const onDown = (e) => { if (!el.contains(e.target)) close(); };
+            queueMicrotask(() => document.addEventListener('mousedown', onDown, true));
+        },
+    },
+        h('div', { class: 'ov-set-head' }, String(title)),
+        h('div', { class: 'ov-set-body' },
+            ...secs.map((sec, si) => {
+                const slabel = sec.label != null ? sec.label : (sec.title != null ? sec.title : '');
+                const rows = Array.isArray(sec.rows) ? sec.rows : (Array.isArray(sec.items) ? sec.items : []);
+                return h('div', { class: 'ov-set-section', key: si },
+                    slabel ? h('div', { class: 'ov-set-section-head' }, String(slabel)) : null,
+                    ...rows.map((r, ri) => renderRow(r, ri)));
+            }))
+    );
+}

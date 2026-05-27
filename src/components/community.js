@@ -237,6 +237,48 @@ export function VoiceStrip({ channelName, status, muted, deafened, onMute, onDea
     );
 }
 
+export function MobileHeader({ title, onMenu, onMembers } = {}) {
+    return h('div', { class: 'cm-mobile-header', role: 'banner' },
+        h('button', {
+            class: 'cm-mh-btn', type: 'button', onclick: onMenu,
+            title: 'Menu', 'aria-label': 'open navigation menu'
+        }, '☰'),
+        h('span', { class: 'cm-mh-title' }, title || ''),
+        h('button', {
+            class: 'cm-mh-btn', type: 'button', onclick: onMembers,
+            title: 'Members', 'aria-label': 'show members'
+        }, '👥')
+    );
+}
+
+export function ReplyBar({ quotedMessage, quotedAuthor, onCancel } = {}) {
+    return h('div', { class: 'cm-reply-bar', role: 'status' },
+        h('span', { class: 'cm-rb-label' }, 'Replying to ',
+            h('strong', { class: 'cm-rb-author' }, quotedAuthor || 'unknown')
+        ),
+        h('span', { class: 'cm-rb-preview', title: quotedMessage || '' }, quotedMessage || ''),
+        h('button', {
+            class: 'cm-rb-cancel', type: 'button', onclick: onCancel,
+            title: 'Cancel reply', 'aria-label': 'cancel reply'
+        }, '✕')
+    );
+}
+
+export function Banner({ tone = 'info', message, visible, actionLabel, onAction, onClick } = {}) {
+    if (!visible || !message) return null;
+    return h('div', {
+        class: 'cm-banner tone-' + tone + (onClick ? ' clickable' : ''),
+        role: tone === 'error' || tone === 'warning' ? 'alert' : 'status',
+        onclick: onClick || null
+    },
+        h('span', { class: 'cm-banner-msg' }, message),
+        actionLabel ? h('button', {
+            class: 'cm-banner-action', type: 'button',
+            onclick: (e) => { e.stopPropagation(); onAction && onAction(e); }
+        }, actionLabel) : null
+    );
+}
+
 export function CommunityShell({ serverRailProps, sidebarProps, children, memberListProps, voiceStripProps } = {}) {
     return h('div', { class: 'cm-shell' },
         serverRailProps ? ServerRail(serverRailProps) : null,
