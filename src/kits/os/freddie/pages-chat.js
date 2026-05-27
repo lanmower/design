@@ -134,7 +134,7 @@ export function makeChatPage(ctx) {
                 ? Panel({ title: 'no providers configured', children: Receipt({ rows: [
                     ['set API key', 'go to keys tab, click a provider chip to set its key'],
                     ['then reload', 'refresh this page to see providers here'],
-                    ['or use acptoapi', 'run acptoapi server on localhost:4800 for local LLMs'],
+                    ['or use a gateway', 'run a gateway server on localhost:4800 for local LLMs'],
                 ] }) })
                 : Panel({ title: 'configured providers', children: h('div', { class: 'fd-chip-wrap' },
                     ...providers.map(p => Chip({ tone: p.configured ? (p.available ? 'ok' : 'warn') : 'miss', children: p.name + (p.configured ? (p.available ? ' ●' : ' ○') : '') }))) }),

@@ -45,7 +45,7 @@ export function makeCorePages(ctx) {
             const skills = h0.pi.skills.size;
             const health = (typeof h0.pi.health === 'function') ? h0.pi.health() : { ok: true };
             return [
-                Hero({ title: 'freddie', body: 'open js agent harness — pi-mono · xstate · floosie · anentrypoint-design.', accent: h0.version || 'web' }),
+                Hero({ title: 'assistant', body: 'open js agent harness — in-page agent runtime.', accent: h0.version || 'web' }),
                 Kpi({ items: [[sessions.length, 'sessions'], [tools, 'tools'], [skills, 'skills']] }),
                 Panel({ title: 'quick start', children: Receipt({ rows: [
                     ['open chat',   "click 'chat' in sidebar — set a working directory and pick a skill"],
