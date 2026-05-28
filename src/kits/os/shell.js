@@ -39,6 +39,8 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
 
     const menubar = document.createElement('div');
     menubar.className = 'os-menubar';
+    menubar.setAttribute('role', 'menubar');
+    menubar.setAttribute('aria-label', 'Desktop menu bar');
 
     const homeBtn = makeBtn(icons.home, '', 'home');
     homeBtn.title = 'apps';
