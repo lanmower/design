@@ -541,6 +541,27 @@ a.row { text-decoration: none; }
 }
 .cli .copy:hover { background: #6A6A70; }
 
+/* Multi-line CLI block: when .cli holds .cli-line / .cli-cmt children
+   (quickstart scripts, multi-command snippets) it stacks as a column
+   instead of the single-line install row. */
+.cli:has(.cli-line),
+.cli:has(.cli-cmt) {
+  flex-direction: column; align-items: stretch; gap: 0;
+  font-size: var(--fs-sm); line-height: 1.6;
+}
+.cli-line {
+  display: flex; gap: 10px;
+  font-family: var(--ff-mono); font-size: 13px; line-height: 1.6;
+  padding: 3px 0;
+}
+.cli-line .prompt { color: var(--green-2); flex: 0 0 auto; user-select: none; }
+.cli-line .cmd { flex: 1 1 auto; white-space: pre-wrap; word-break: break-word; color: var(--paper); }
+.cli-cmt {
+  color: var(--fg-3);
+  font-family: var(--ff-mono); font-size: 11.5px; line-height: 1.6;
+  padding: 3px 0; white-space: pre-wrap; word-break: break-word;
+}
+
 /* ============================================================
    Receipt — key/value table
    ============================================================ */

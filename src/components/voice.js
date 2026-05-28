@@ -2,6 +2,7 @@
 // Pure factories returning webjsx vnodes. Class prefix: vx-*.
 
 import * as webjsx from '../../vendor/webjsx/index.js';
+import { Icon } from './shell.js';
 const h = webjsx.createElement;
 
 function fmtDur(s) {
@@ -32,7 +33,7 @@ export function PttButton({ state = 'idle', mode = 'ptt', onHoldStart, onHoldEnd
         ontouchend: (e) => { e.preventDefault(); end(e); }
     },
         h('span', { class: 'vx-ptt-glow', 'aria-hidden': 'true' }),
-        h('span', { class: 'vx-ptt-icon', 'aria-hidden': 'true' }, state === 'idle' ? '🎙' : '●'),
+        h('span', { class: 'vx-ptt-icon', 'aria-hidden': 'true' }, state === 'idle' ? Icon('mic') : '●'),
         h('span', { class: 'vx-ptt-label' }, label)
     );
 }
@@ -74,7 +75,7 @@ export function WebcamPreview({ videoStream = null, resolution = '640x480', fps 
         h('div', { class: 'vx-cam-stage' },
             enabled
                 ? h('video', { class: 'vx-cam-video', ref: videoRef, autoplay: true, muted: true, playsinline: true })
-                : h('div', { class: 'vx-cam-placeholder' }, h('span', {}, '📷'), h('span', {}, 'Camera off'))
+                : h('div', { class: 'vx-cam-placeholder' }, h('span', {}, Icon('camera')), h('span', {}, 'Camera off'))
         ),
         h('div', { class: 'vx-cam-controls' },
             h('select', {
@@ -205,15 +206,15 @@ export function VoiceControls({ muted = false, deafened = false, cameraOn = fals
         h('span', { class: 'vx-vc-glyph', 'aria-hidden': 'true' }, glyph)
     );
     return h('div', { class: 'vx-vc', role: 'toolbar', 'aria-label': 'voice controls' },
-        btn('vx-vc-mic', !muted, muted ? 'Unmute' : 'Mute', muted ? '🔇' : '🎙', onMic),
-        btn('vx-vc-deafen', !deafened, deafened ? 'Undeafen' : 'Deafen', deafened ? '🔕' : '🔊', onDeafen),
-        btn('vx-vc-camera', cameraOn, cameraOn ? 'Stop camera' : 'Start camera', '📷', onCamera),
-        btn('vx-vc-screen', screenShareOn, screenShareOn ? 'Stop sharing' : 'Share screen', '🖥', onScreenShare),
-        btn('vx-vc-settings', false, 'Voice settings', '⚙', onSettings),
+        btn('vx-vc-mic', !muted, muted ? 'Unmute' : 'Mute', Icon(muted ? 'mic-off' : 'mic'), onMic),
+        btn('vx-vc-deafen', !deafened, deafened ? 'Undeafen' : 'Deafen', Icon(deafened ? 'speaker-off' : 'speaker'), onDeafen),
+        btn('vx-vc-camera', cameraOn, cameraOn ? 'Stop camera' : 'Start camera', Icon('camera'), onCamera),
+        btn('vx-vc-screen', screenShareOn, screenShareOn ? 'Stop sharing' : 'Share screen', Icon('screen'), onScreenShare),
+        btn('vx-vc-settings', false, 'Voice settings', Icon('settings'), onSettings),
         h('button', {
             type: 'button', class: 'vx-vc-btn vx-vc-leave', 'aria-label': 'Leave voice', title: 'Leave voice',
             onclick: onLeave ? (e) => onLeave(e) : null
-        }, h('span', { class: 'vx-vc-glyph', 'aria-hidden': 'true' }, '📞'))
+        }, h('span', { class: 'vx-vc-glyph', 'aria-hidden': 'true' }, Icon('phone')))
     );
 }
 

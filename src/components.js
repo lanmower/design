@@ -4,7 +4,7 @@ import * as webjsx from '../vendor/webjsx/index.js';
 export const h = webjsx.createElement;
 
 export {
-    Brand, Chip, Btn, Glyph, IconButton, Badge,
+    Brand, Chip, Btn, Glyph, Icon, IconButton, Badge,
     Topbar, Crumb, Side, Status, AppShell,
     Heading, Lede, Dot, Rail
 } from './components/shell.js';

@@ -65,6 +65,32 @@ export function Glyph({ children, color, size = 'base' }) {
     return h('span', { class: 'glyph', style }, children);
 }
 
+// Monochrome inline-SVG icons (stroke=currentColor) so chrome reads as one
+// coherent line-icon set instead of multicolor OS emoji. 16px box, 1.6 stroke.
+const ICON_PATHS = {
+    mic: '<path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+    'mic-off': '<path d="M9 9v2a3 3 0 0 0 4.5 2.6M15 11V6a3 3 0 0 0-5.9-.8"/><path d="M5 11a7 7 0 0 0 11.5 5.4M12 18v3"/><path d="m4 4 16 16"/>',
+    speaker: '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>',
+    'speaker-off': '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m17 9 4 6M21 9l-4 6"/>',
+    camera: '<rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/>',
+    screen: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
+    phone: '<path d="M5 4h3l2 5-2 1a11 11 0 0 0 5 5l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+    members: '<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 6a3 3 0 0 1 0 6M21 20a6 6 0 0 0-4-5.7"/>',
+    menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
+    settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/>'
+};
+export function Icon(name, { size = 16 } = {}) {
+    const inner = ICON_PATHS[name];
+    if (!inner) return h('span', { class: 'glyph', 'aria-hidden': 'true' }, '');
+    return h('svg', {
+        class: 'ds-icon ds-icon-' + name,
+        width: String(size), height: String(size), viewBox: '0 0 24 24',
+        fill: 'none', stroke: 'currentColor', 'stroke-width': '1.6',
+        'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true',
+        dangerouslySetInnerHTML: { __html: inner }
+    });
+}
+
 export function Topbar({ brand = '247420', leaf = '', items = [], active = '', onNav, search } = {}) {
     return h('header', { class: 'app-topbar', role: 'banner' },
         Brand({ name: brand, leaf }),
@@ -151,7 +177,7 @@ export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
             class: 'app-side-toggle', type: 'button',
             'aria-label': 'toggle navigation', 'aria-expanded': 'false', 'aria-controls': 'app-main',
             onclick: () => toggleSide(),
-        }, '☰') : null,
+        }, Icon('menu')) : null,
         topbar || null,
         crumb || null,
         h('div', { class: 'app-body' + (hasSide ? '' : ' no-side') },

@@ -1,6 +1,7 @@
 // Community surface — matches upstream signatures.
 
 import * as webjsx from '../../vendor/webjsx/index.js';
+import { Icon } from './shell.js';
 const h = webjsx.createElement;
 
 export function ServerIcon({ id, name, icon, active, badge, onClick } = {}) {
@@ -143,9 +144,9 @@ export function UserPanel({ name, tag, color, muted, deafened, onMute, onDeafen,
             tag ? h('div', { class: 'cm-user-tag' }, tag) : null
         ),
         h('div', { class: 'cm-user-controls' },
-            h('button', { class: 'cm-user-btn' + (muted ? ' muted' : ''), onclick: onMute, 'aria-label': muted ? 'Unmute microphone' : 'Mute microphone', 'aria-pressed': muted ? 'true' : 'false' }, muted ? '🔇' : '🎤'),
-            h('button', { class: 'cm-user-btn' + (deafened ? ' deafened' : ''), onclick: onDeafen, 'aria-label': deafened ? 'Undeafen' : 'Deafen', 'aria-pressed': deafened ? 'true' : 'false' }, deafened ? '🔕' : '🎧'),
-            h('button', { class: 'cm-user-btn', onclick: handleSettings, 'aria-label': 'Audio settings', title: 'Open audio settings' }, '⚙')
+            h('button', { class: 'cm-user-btn' + (muted ? ' muted' : ''), onclick: onMute, 'aria-label': muted ? 'Unmute microphone' : 'Mute microphone', 'aria-pressed': muted ? 'true' : 'false' }, Icon(muted ? 'mic-off' : 'mic')),
+            h('button', { class: 'cm-user-btn' + (deafened ? ' deafened' : ''), onclick: onDeafen, 'aria-label': deafened ? 'Undeafen' : 'Deafen', 'aria-pressed': deafened ? 'true' : 'false' }, Icon(deafened ? 'speaker-off' : 'speaker')),
+            h('button', { class: 'cm-user-btn', onclick: handleSettings, 'aria-label': 'Audio settings', title: 'Open audio settings' }, Icon('settings'))
         )
     );
 }
@@ -215,7 +216,7 @@ export function ChatHeader({ icon = '#', name, topic, toolbar = [] } = {}) {
 export function VoiceStrip({ channelName, status, muted, deafened, onMute, onDeafen, onLeave, open } = {}) {
     return h('div', { class: 'cm-voice-strip' + (open ? ' open' : ''), role: 'region', 'aria-label': 'voice controls' },
         h('div', { class: 'cm-vs-label' },
-            h('span', { class: 'cm-vs-channel' }, '🔊 ' + (channelName || 'voice')),
+            h('span', { class: 'cm-vs-channel' }, Icon('speaker'), ' ' + (channelName || 'voice')),
             h('span', { class: 'cm-vs-status' }, status || 'connected')
         ),
         h('button', {
@@ -223,13 +224,13 @@ export function VoiceStrip({ channelName, status, muted, deafened, onMute, onDea
             title: muted ? 'Unmute' : 'Mute',
             'aria-label': muted ? 'unmute microphone' : 'mute microphone',
             'aria-pressed': muted ? 'true' : 'false'
-        }, muted ? '🔇' : '🎤'),
+        }, Icon(muted ? 'mic-off' : 'mic')),
         h('button', {
             class: 'cm-vs-btn', type: 'button', onclick: onDeafen,
             title: deafened ? 'Undeafen' : 'Deafen',
             'aria-label': deafened ? 'undeafen' : 'deafen',
             'aria-pressed': deafened ? 'true' : 'false'
-        }, deafened ? '🔕' : '🎧'),
+        }, Icon(deafened ? 'speaker-off' : 'speaker')),
         h('button', {
             class: 'cm-vs-btn danger', type: 'button', onclick: onLeave,
             title: 'Leave voice', 'aria-label': 'leave voice channel'
@@ -242,12 +243,12 @@ export function MobileHeader({ title, onMenu, onMembers } = {}) {
         h('button', {
             class: 'cm-mh-btn', type: 'button', onclick: onMenu,
             title: 'Menu', 'aria-label': 'open navigation menu'
-        }, '☰'),
+        }, Icon('menu')),
         h('span', { class: 'cm-mh-title' }, title || ''),
         h('button', {
             class: 'cm-mh-btn', type: 'button', onclick: onMembers,
             title: 'Members', 'aria-label': 'show members'
-        }, '👥')
+        }, Icon('members'))
     );
 }
 
