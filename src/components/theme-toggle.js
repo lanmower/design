@@ -14,7 +14,7 @@ import { applyTheme, getTheme, resolvedTheme, onThemeChange } from '../theme.js'
 const h = webjsx.createElement;
 
 const MODES = [
-    ['auto',  '⌗', 'auto'],
+    ['auto',  'A', 'auto'],
     ['paper', '☀', 'light'],
     ['ink',   '☾', 'dark'],
 ];
@@ -35,7 +35,7 @@ export function ThemeToggle({ compact = false, onChange } = {}) {
 
     if (compact) {
         const resolved = resolvedTheme();
-        const glyph = current === 'auto' ? '⌗' : (resolved === 'ink' ? '☾' : '☀');
+        const glyph = current === 'auto' ? 'A' : (resolved === 'ink' ? '☾' : '☀');
         const label = current === 'auto' ? `auto (${resolved})` : (current === 'ink' ? 'dark' : 'light');
         return h('button', {
             class: 'btn ds-theme-toggle',

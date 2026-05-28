@@ -19,10 +19,10 @@ sidebar:
     glyph: "✦"
     href: "./ui_kits/homepage/"
   bins:
-    - { glyph: "◫", label: "everything", href: "#all", count: 23, active: true }
-    - { glyph: "•", label: "pinned",     href: "#pinned",  count: 5 }
-    - { glyph: "◐", label: "shipped",    href: "#shipped", count: 12 }
-    - { glyph: "◌", label: "drafts",     href: "#drafts",  count: 6 }
+    - { label: "everything", href: "#all", count: 23, active: true }
+    - { label: "pinned",     href: "#pinned",  count: 5 }
+    - { label: "shipped",    href: "#shipped", count: 12 }
+    - { label: "drafts",     href: "#drafts",  count: 6 }
   labels_group: "labels"
   labels:
     - { glyph: "●", label: "ui kits",  href: "#kits",     count: 4,  color: "var(--panel-accent)" }
@@ -31,16 +31,16 @@ sidebar:
     - { glyph: "●", label: "docs",     href: "#docs",     count: 3,  color: "var(--panel-text-3)" }
   more_group: "more"
   more:
-    - { glyph: "§", label: "readme",  href: "https://github.com/AnEntrypoint/design/blob/main/README.md" }
-    - { glyph: "§", label: "skill",   href: "https://github.com/AnEntrypoint/design/blob/main/SKILL.md" }
-    - { glyph: "⌘", label: "tokens",  href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css" }
+    - { label: "readme",  href: "https://github.com/AnEntrypoint/design/blob/main/README.md" }
+    - { label: "skill",   href: "https://github.com/AnEntrypoint/design/blob/main/SKILL.md" }
+    - { label: "tokens",  href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css" }
     - { glyph: "↗", label: "source",  href: "https://github.com/AnEntrypoint/design" }
 
 tabs:
-  - { glyph: "◫", label: "everything", href: "#all", active: true }
-  - { glyph: "◎", label: "kits",       href: "#kits" }
-  - { glyph: "▰", label: "decks",      href: "#decks" }
-  - { glyph: "§", label: "previews",   href: "#previews" }
+  - { label: "everything", href: "#all", active: true }
+  - { label: "kits",       href: "#kits" }
+  - { label: "decks",      href: "#decks" }
+  - { label: "previews",   href: "#previews" }
 
 kits:
   heading: "ui kits"
