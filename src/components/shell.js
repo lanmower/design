@@ -63,10 +63,14 @@ export function Badge({ children, variant = 'default', tone = 'neutral' }) {
     return h('span', { class: 'ds-badge ds-badge-' + variant + ' tone-' + tone }, children);
 }
 
-export function Glyph({ children, color, size = 'base' }) {
+export function Glyph({ children, color, size = 'base', label } = {}) {
     const fontSize = size === 'sm' ? '11px' : (size === 'lg' ? '16px' : '13px');
     const style = `font-size:${fontSize}` + (color ? `;color:${color}` : '');
-    return h('span', { class: 'glyph', style }, children);
+    // Decorative by default (screen readers skip the glyph char). Pass `label`
+    // to expose an accessible name instead.
+    return h('span', label
+        ? { class: 'glyph', style, role: 'img', 'aria-label': label }
+        : { class: 'glyph', style, 'aria-hidden': 'true' }, children);
 }
 
 // Monochrome inline-SVG icons (stroke=currentColor) so chrome reads as one
