@@ -108,9 +108,9 @@ export function Topbar({ brand = '247420', leaf = '', items = [], active = '', o
     return h('header', { class: 'app-topbar', role: 'banner' },
         Brand({ name: brand, leaf }),
         search ? h('label', { class: 'app-search' },
-            h('span', { class: 'icon', 'aria-hidden': 'true' }, '⌕'),
+            h('span', { class: 'icon', 'aria-hidden': 'true' }, 'search'),
             h('input', { type: 'search', placeholder: search, 'aria-label': `search ${search}` })
-        ) : h('span', {}),
+        ) : null,
         h('nav', { 'aria-label': 'main navigation' }, ...items.map(([label, href]) => {
             const cleanLabel = String(label).replace(' ↗', '');
             return h('a', {

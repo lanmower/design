@@ -186,14 +186,18 @@ pre .n { color: var(--green-2); }
 
 .app-topbar {
   position: sticky; top: 0; z-index: var(--z-header);
-  display: grid; grid-template-columns: auto 1fr auto;
+  display: flex; flex-wrap: wrap;
   align-items: center; gap: var(--space-4);
   min-height: var(--app-topbar-h);
   padding: 10px var(--pad-x);
   background: color-mix(in oklab, var(--bg) 88%, transparent);
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
 }
-.app-topbar nav { display: flex; gap: 4px; font-size: var(--fs-sm); }
+.app-topbar > .brand { flex: 0 0 auto; }
+.app-topbar > .app-search { flex: 1 1 auto; }
+.app-topbar > nav { margin-left: auto; }
+.app-topbar nav { display: flex; gap: 4px; font-size: var(--fs-sm); flex-wrap: wrap; }
+.app-topbar nav a { flex: 0 0 auto; }
 .app-topbar nav a {
   color: var(--fg-2);
   padding: 12px 14px;
@@ -751,25 +755,21 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   /* App Layout: single-column + drawer is handled once in the ≤900px block;
      no need to re-declare grid-template-columns here (was a redundant !important). */
 
-  /* Topbar Navigation */
+  /* Topbar Navigation: stack the nav onto its own full-width row below the
+     brand and let it scroll horizontally. The brand stays on the first row;
+     nav wraps to a second row at 100% width (flex-wrap on .app-topbar). */
   .app-topbar {
-    grid-template-columns: 1fr auto;
     gap: var(--space-2); padding: 12px var(--space-3);
   }
-  .app-topbar nav a {
-    padding: 12px 10px;
-    min-height: 44px;
-  }
-  /* Keep primary nav reachable on small screens (apps without a sidebar have
-     no other entry point). Compact it and let it scroll horizontally rather
-     than hiding it entirely. */
-  .app-topbar nav {
-    display: flex; gap: 2px;
+  .app-topbar > nav {
+    flex: 1 1 100%; margin-left: 0; order: 3;
+    display: flex; gap: 2px; flex-wrap: nowrap;
     overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
-    max-width: 60vw;
   }
   .app-topbar nav::-webkit-scrollbar { display: none; }
-  .app-topbar nav a { padding: 10px 8px; white-space: nowrap; }
+  .app-topbar nav a {
+    flex: 0 0 auto; padding: 10px 12px; min-height: 44px; white-space: nowrap;
+  }
   .brand { font-size: var(--fs-tiny); font-weight: 600; }
 
   /* Search */
