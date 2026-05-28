@@ -55,6 +55,11 @@ html, body {
 .os-menubar > *, .os-taskbar > * { flex-shrink: 0; }
 .os-menubar .os-spacer { flex: 1 1 auto; min-width: 0; }
 .os-menubar .os-tray { margin-left: auto; }
+/* Many open windows must scroll within the bar, not overflow it. Mobile
+   already had this; promote it to all widths so a crowded desktop taskbar
+   scrolls horizontally instead of pushing buttons off-screen. */
+.os-taskbar { overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.os-taskbar::-webkit-scrollbar { display: none; }
 
 .os-brand {
     color: var(--os-fg);
@@ -738,3 +743,26 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
 .ds-247420 .tb-sessions-card-actions button:hover { background: color-mix(in oklab, var(--fg, #1a1a1a) 6%, transparent); }
 .ds-247420 .tb-sessions-card-actions button.danger:hover { background: #d33; color: #fff; border-color: #d33; }
 .ds-247420 .tb-sessions-empty-mid { padding: 40px; text-align: center; opacity: 0.6; font-size: 13px; }
+
+/* ---- prefers-contrast: more — strengthen borders + focus so the translucent
+   chrome stays legible under forced/high-contrast user settings. ---- */
+@media (prefers-contrast: more) {
+  .ds-247420 .wm-win { border-color: var(--fg, #1a1a1a); }
+  .ds-247420 .wm-bar { border-bottom: 1px solid var(--fg, #1a1a1a); }
+  .ds-247420 .os-menubar,
+  .ds-247420 .os-taskbar { border-color: var(--fg, #1a1a1a); }
+  .ds-247420 .tb-sess-chip,
+  .ds-247420 .tb-sessions-card,
+  .ds-247420 .tb-sessions-btn { border-color: var(--fg, #1a1a1a); }
+  .ds-247420 :focus-visible { outline: 2px solid var(--fg, #1a1a1a); outline-offset: 2px; }
+}
+
+/* ---- print: a web-OS desktop has no meaningful print form. Suppress the
+   live chrome so a Ctrl+P does not waste pages on translucent panels. ---- */
+@media print {
+  .os-menubar, .os-taskbar, .wm-snap-preview,
+  .tb-sess-overlay, .tb-switching, .wm-switcher { display: none !important; }
+  .wm-root, .wm-canvas { position: static !important; transform: none !important; overflow: visible !important; }
+  .wm-win { position: static !important; box-shadow: none !important; border: 1px solid #000 !important; page-break-inside: avoid; margin: 0 0 12px; width: auto !important; height: auto !important; }
+  .wm-win.wm-min { display: none !important; }
+}

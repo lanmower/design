@@ -28,6 +28,19 @@ const section = (title, ...children) => Panel({ title, children: children.flat()
 const noteAlert = (note) => note ? h('div', { class: 'ds-alert ds-alert-' + note.kind, role: 'alert' },
     h('span', { class: 'ds-alert-icon' }, '!'),
     h('div', { class: 'ds-alert-content' }, note.msg)) : null;
+// Manual refresh button for non-polling pages — parity with auto-refreshing ones.
+const refreshBtn = (onClick, busy) => Btn({ children: busy ? 'refreshing…' : '↻ refresh', disabled: !!busy, onClick, 'aria-label': 'refresh' });
+// Non-blocking refresh-error banner: keep last-good content, surface the failure.
+const refreshError = (err) => err ? h('div', { class: 'ds-alert ds-alert-warn', role: 'status', 'aria-live': 'polite' },
+    h('span', { class: 'ds-alert-icon' }, '!'),
+    h('div', { class: 'ds-alert-content' }, 'refresh failed: ' + String(err.message || err))) : null;
+// Polite live region announcing async busy/done state to screen readers.
+const liveRegion = (msg) => h('div', { class: 'fd-sr-live', role: 'status', 'aria-live': 'polite' }, msg || '');
+// Truncate with a title tooltip carrying the full text.
+const trunc = (s, n = 90) => { const str = String(s || ''); return str.length > n ? { text: str.slice(0, n) + '…', title: str } : { text: str, title: null }; };
+// Autoscroll a thread only when the user is already near the bottom, so
+// scrolling up to read history is not yanked back down on the next render.
+const stickyScroll = (el) => { if (!el) return; const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80; if (nearBottom) el.scrollTop = el.scrollHeight; };
 
 // ---- home ------------------------------------------------------------------
 
@@ -37,9 +50,10 @@ export const home = makePage((ctx) => {
             const [health, agents, sessions] = await Promise.all([
                 api('/api/health').catch(() => null),
                 api('/api/agents').catch(() => null),
-                api('/api/sessions').catch(() => []),
+                api('/api/sessions').catch((e) => ({ _err: e })),
             ]);
-            ctx.set({ loading: false, health, agents, sessions: Array.isArray(sessions) ? sessions : [], error: null });
+            const sessFailed = sessions && sessions._err;
+            ctx.set({ loading: false, health, agents, sessions: Array.isArray(sessions) ? sessions : [], sessFailed, error: null });
         } catch (e) { ctx.set({ loading: false, error: e }); }
     }
     load();
@@ -61,12 +75,14 @@ export const home = makePage((ctx) => {
                 [agents.count ?? 0, 'active agents'],
             ] }),
             section('recent sessions',
-                sessions.length
-                    ? Table({
-                        headers: ['session', 'platform', 'updated'],
-                        rows: sessions.slice(0, 8).map(x => [x.title || x.id, x.platform || '—', fmtAgo(x.updated_at)]),
-                    })
-                    : emptyState('no sessions yet')),
+                s.sessFailed
+                    ? errorState(new Error('could not load sessions'))
+                    : sessions.length
+                        ? Table({
+                            headers: ['session', 'platform', 'updated'],
+                            rows: sessions.slice(0, 8).map(x => { const t = trunc(x.title || x.id, 60); return [h('span', { title: t.title }, t.text), x.platform || '—', fmtAgo(x.updated_at)]; }),
+                        })
+                        : emptyState('no sessions yet')),
             section('health',
                 s.health ? Table({ headers: ['check', 'status'], rows: Object.entries(s.health).map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : String(v)]) })
                     : emptyState('health endpoint unavailable')),
@@ -96,8 +112,9 @@ export const chat = makePage((ctx) => {
         const s = ctx.state;
         return h('div', { class: 'fd-chat' },
             PageHeader({ eyebrow: 'freddie', title: 'chat', lede: 'one-shot agent turns · POST /api/chat' }),
+            liveRegion(s.sending ? 'waiting for assistant reply' : ''),
             h('div', { class: 'chat-thread fd-chat-thread', role: 'log', 'aria-label': 'chat messages',
-                ref: (el) => { if (el) el.scrollTop = el.scrollHeight; } },
+                ref: stickyScroll },
                 s.messages.length ? s.messages.map((m, i) => ChatMessage({ ...m, key: i }))
                     : emptyState('send a prompt to start', '✎'),
                 s.sending ? ChatMessage({ role: 'assistant', typing: true, key: '_typing' }) : null),
@@ -114,11 +131,25 @@ export const chat = makePage((ctx) => {
 // ---- voice -----------------------------------------------------------------
 
 export const voice = makePage((ctx) => {
-    Object.assign(ctx.state, { loading: false });
-    return () => [
-        PageHeader({ eyebrow: 'freddie', title: 'voice', lede: 'voice surfaces' }),
-        section('status', emptyState('no voice backend wired in this build. configure a transcription/tts plugin to enable.', '🎙')),
-    ];
+    async function load() {
+        // Probe for a voice backend; the endpoint is optional, so a 404/!ok
+        // means "not wired" rather than an error to surface.
+        try { const v = await api('/api/voice').catch(() => null); ctx.set({ loading: false, voice: v, error: null }); }
+        catch (e) { ctx.set({ loading: false, error: e }); }
+    }
+    load();
+    return () => {
+        const s = ctx.state;
+        if (s.loading) return loadingState();
+        const v = s.voice;
+        const enabled = v && (v.enabled || v.transcription || v.tts);
+        return [
+            PageHeader({ eyebrow: 'freddie', title: 'voice', lede: 'voice surfaces', right: enabled ? Chip({ tone: 'ok', children: 'enabled' }) : Chip({ tone: 'neutral', children: 'not configured' }) }),
+            enabled
+                ? section('backends', Table({ headers: ['capability', 'status'], rows: [['transcription', v.transcription ? Chip({ tone: 'ok', children: 'on' }) : Chip({ tone: 'neutral', children: 'off' })], ['tts', v.tts ? Chip({ tone: 'ok', children: 'on' }) : Chip({ tone: 'neutral', children: 'off' })]] }))
+                : section('status', emptyState('no voice backend wired in this build. configure a transcription/tts plugin to enable.', '🎙')),
+        ];
+    };
 });
 
 // ---- sessions --------------------------------------------------------------
@@ -134,6 +165,7 @@ export const sessions = makePage((ctx) => {
         try { ctx.set({ loading: false, list: await api('/api/search?q=' + encodeURIComponent(q)), error: null }); }
         catch (e) { ctx.set({ loading: false, error: e }); }
     }
+    async function refresh() { ctx.set({ refreshing: true }); try { ctx.set({ list: await api('/api/sessions'), error: null }); } catch (e) { ctx.set({ error: e }); } ctx.set({ refreshing: false }); }
     async function open(id) {
         ctx.set({ selected: id, msgLoading: true });
         try { ctx.set({ messages: await api('/api/sessions/' + encodeURIComponent(id) + '/messages'), msgLoading: false }); }
@@ -146,12 +178,14 @@ export const sessions = makePage((ctx) => {
         if (s.error && !s.list) return errorState(s.error, load);
         const list = Array.isArray(s.list) ? s.list : [];
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'sessions', lede: list.length + ' sessions' }),
-            SearchInput({ value: s.q, placeholder: 'search messages…', onInput: (v) => { s.q = v; }, onSubmit: (v) => search(v) }),
+            PageHeader({ eyebrow: 'freddie', title: 'sessions', lede: list.length + ' sessions', right: refreshBtn(refresh, s.refreshing) }),
+            s.error && s.list ? refreshError(s.error) : null,
+            SearchInput({ value: s.q, label: 'search sessions', placeholder: 'search messages…', onInput: (v) => { s.q = v; }, onSubmit: (v) => search(v) }),
             section('sessions',
                 list.length
                     ? Table({ headers: ['session', 'platform', 'updated'], onRowClick: (i) => open(list[i].id),
-                        rows: list.map(x => [x.title || x.id, x.platform || '—', fmtAgo(x.updated_at)]) })
+                        rowLabels: list.map(x => x.title || x.id),
+                        rows: list.map(x => { const t = trunc(x.title || x.id, 60); return [h('span', { title: t.title }, t.text), x.platform || '—', fmtAgo(x.updated_at)]; }) })
                     : emptyState('no sessions match')),
             s.selected ? section('messages · ' + s.selected,
                 s.msgLoading ? loadingState()
@@ -282,6 +316,7 @@ export const models = makePage((ctx) => {
         const status = s.sampler?.status || {};
         return [
             PageHeader({ eyebrow: 'freddie', title: 'models', lede: providers.length + ' providers', right: Btn({ primary: true, disabled: s.discovering, children: s.discovering ? 'discovering…' : 'discover', onClick: discover }) }),
+            liveRegion(s.discovering ? 'discovering models' : ''),
             section('providers', providers.length ? Table({
                 headers: ['provider', 'sampler', 'cached models'],
                 rows: providers.map(p => {
@@ -381,11 +416,16 @@ export const config = makePage((ctx) => {
         if (s.error) return errorState(s.error, load);
         const cfg = s.cfg || {};
         const flat = Object.entries(cfg).filter(([, v]) => typeof v !== 'object' || v === null);
+        const nested = Object.entries(cfg).filter(([, v]) => typeof v === 'object' && v !== null);
         const skinList = Array.isArray(s.skins) ? s.skins : (s.skins?.skins || s.skins?.available || []);
         const activeSkin = cfg.skin || s.skins?.active || '';
         return [
             PageHeader({ eyebrow: 'freddie', title: 'config', lede: 'runtime configuration' }),
             noteAlert(s.note),
+            liveRegion(s.busy ? 'saving configuration' : ''),
+            nested.length ? h('div', { class: 'ds-alert ds-alert-info', role: 'note' },
+                h('span', { class: 'ds-alert-icon' }, 'i'),
+                h('div', { class: 'ds-alert-content' }, nested.length + ' nested config ' + (nested.length === 1 ? 'object is' : 'objects are') + ' read-only here (' + nested.map(([k]) => k).join(', ') + ') — edit via the config file or raw view below.')) : null,
             skinList.length ? section('skin',
                 Select({ label: 'active skin', value: activeSkin, options: skinList, onChange: (v) => setSkin(v) })
             ) : null,
@@ -463,7 +503,19 @@ export const batch = makePage((ctx) => {
                 TextField({ label: 'prompts (one per line)', value: s.prompts, multiline: true, rows: 6, onInput: (v) => { s.prompts = v; } }),
                 TextField({ label: 'concurrency', type: 'number', value: String(s.concurrency), onInput: (v) => { s.concurrency = v; } }),
                 Btn({ primary: true, disabled: s.busy, children: s.busy ? 'running…' : 'run batch', onClick: run })),
-            s.result ? section('result', h('pre', { class: 'fd-pre' }, JSON.stringify(s.result, null, 2))) : null,
+            s.result ? section('result', (() => {
+                const r = s.result;
+                const items = Array.isArray(r.results) ? r.results : (Array.isArray(r) ? r : null);
+                if (!items) return h('pre', { class: 'fd-pre' }, JSON.stringify(r, null, 2));
+                return [
+                    Kpi({ items: [[items.length, 'prompts'], [items.filter(x => !x.error).length, 'ok'], [items.filter(x => x.error).length, 'errors']] }),
+                    Table({ headers: ['#', 'prompt', 'status', 'output'], rows: items.map((x, i) => {
+                        const p = trunc(x.prompt || x.input || '', 50);
+                        const out = trunc(x.error || x.result || x.content || x.output || '', 70);
+                        return [String(i + 1), h('span', { title: p.title }, p.text), x.error ? Chip({ tone: 'miss', children: 'error' }) : Chip({ tone: 'ok', children: 'ok' }), h('span', { title: out.title }, out.text)];
+                    }) }),
+                ];
+            })()) : null,
         ];
     };
 });

@@ -25,6 +25,12 @@
     overflow: hidden;
 }
 .wm-win.wm-focused { box-shadow: inset 4px 0 0 var(--os-accent); }
+/* Promote to a compositor layer only for the duration of a drag/resize so the
+   per-frame left/top/width/height writes don't force a main-thread layout each
+   pointermove. Released on pointerup (class removed) to avoid the permanent
+   will-change memory/perf anti-pattern. */
+.wm-win.wm-dragging { will-change: left, top; }
+.wm-win.wm-resizing { will-change: width, height; }
 
 .wm-bar {
     display: flex;

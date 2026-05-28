@@ -154,8 +154,15 @@ export function Kpi({ items = [] }) {
             h('div', { class: 'lbl' }, l))));
 }
 
-export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothing here yet' }) {
+export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothing here yet', rowLabels }) {
     if (!rows || rows.length === 0) return h('div', { class: 'empty' }, emptyText);
+    // rowLabels lets callers supply a plain-text label per row when the first
+    // cell is a vnode (so the aria-label is meaningful, not the literal 'row').
+    const labelFor = (row, i) => {
+        if (Array.isArray(rowLabels) && rowLabels[i] != null) return String(rowLabels[i]);
+        const c = row[0];
+        return c == null ? 'row' : (typeof c === 'object' ? 'row' : String(c));
+    };
     return h('table', { role: 'table' },
         h('thead', {}, h('tr', { role: 'row' }, ...headers.map((hd, i) => h('th', { key: i, scope: 'col', role: 'columnheader' }, hd)))),
         h('tbody', {}, ...rows.map((row, i) => h('tr', {
@@ -163,7 +170,7 @@ export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothin
             class: onRowClick ? 'clickable' : '',
             role: 'row',
             onclick: onRowClick ? () => onRowClick(i) : null,
-            ...(onRowClick ? { tabindex: '0', onkeydown: (e) => { if (e.key === 'Enter') onRowClick(i); } } : {})
+            ...(onRowClick ? { tabindex: '0', 'aria-label': 'open ' + labelFor(row, i), onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onRowClick(i); } } } : {})
         }, ...row.map((c, j) => h('td', { key: j, role: 'cell' }, c == null ? '' : (typeof c === 'object' ? c : String(c))))))));
 }
 
@@ -235,13 +242,14 @@ export function PageHeader({ title, lede, eyebrow, right }) {
     );
 }
 
-export function SearchInput({ value = '', placeholder = 'search…', onInput, onSubmit, name = 'q', key }) {
+export function SearchInput({ value = '', placeholder = 'search…', onInput, onSubmit, name = 'q', key, label }) {
     return h('input', {
         key,
         type: 'search',
         name,
         class: 'ds-search-input',
         placeholder,
+        'aria-label': label || placeholder,
         value,
         oninput: onInput ? (e) => onInput(e.target.value, e) : null,
         onkeydown: onSubmit ? (e) => { if (e.key === 'Enter') onSubmit(e.target.value, e); } : null
