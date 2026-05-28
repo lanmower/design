@@ -31,6 +31,7 @@
   --mascot:      #E84B8A;
   --mascot-2:    #FF3CA7;
   --mascot-tint: #F5D2DF;
+  --mascot-deep: #B81F63;
 
   /* Signals */
   --sun:         #F5C344;
@@ -51,7 +52,7 @@
 
   --accent:      var(--green);
   --accent-fg:   var(--paper);
-  --accent-tint: color-mix(in oklab, var(--accent) 18%, var(--bg));
+  --accent-tint: color-mix(in oklab, var(--accent) 26%, var(--bg));
 
   --panel-bg:     var(--bg);
   --panel-bg-2:   var(--bg-2);

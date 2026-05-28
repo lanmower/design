@@ -278,7 +278,7 @@ export function TextField({ label, value = '', type = 'text', placeholder = '', 
     );
 }
 
-export function Select({ label, value = '', options = [], onChange, name, key, placeholder, hint }) {
+export function Select({ label, value = '', options = [], onChange, name, key, placeholder, hint, title, 'aria-label': ariaLabel }) {
     const opts = [];
     if (placeholder != null) opts.push(h('option', { key: '_ph', value: '', disabled: true, selected: value === '' || value == null }, placeholder));
     for (const o of options) {
@@ -288,6 +288,9 @@ export function Select({ label, value = '', options = [], onChange, name, key, p
     }
     const select = h('select', {
         key: 'i', name, class: 'ds-select',
+        // Guarantee an accessible name even when rendered without a visible label.
+        'aria-label': ariaLabel || (label == null ? (title || placeholder || name) : null),
+        title,
         onchange: onChange ? (e) => onChange(e.target.value, e) : null
     }, ...opts);
     if (label == null && hint == null) return select;

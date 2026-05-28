@@ -748,9 +748,8 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
    Mobile Portrait Breakpoint (480px and below)
    ────────────────────────────────────────────────────────────────────── */
 @media (max-width: 480px) {
-  /* App Layout — drawer handled in 900px block below */
-  .app-body { grid-template-columns: 1fr !important; }
-  .app-body.no-side { grid-template-columns: 1fr; }
+  /* App Layout: single-column + drawer is handled once in the ≤900px block;
+     no need to re-declare grid-template-columns here (was a redundant !important). */
 
   /* Topbar Navigation */
   .app-topbar {
@@ -761,9 +760,16 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
     padding: 12px 10px;
     min-height: 44px;
   }
+  /* Keep primary nav reachable on small screens (apps without a sidebar have
+     no other entry point). Compact it and let it scroll horizontally rather
+     than hiding it entirely. */
   .app-topbar nav {
-    display: none; /* Hide full nav on very small screens */
+    display: flex; gap: 2px;
+    overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    max-width: 60vw;
   }
+  .app-topbar nav::-webkit-scrollbar { display: none; }
+  .app-topbar nav a { padding: 10px 8px; white-space: nowrap; }
   .brand { font-size: var(--fs-tiny); font-weight: 600; }
 
   /* Search */
@@ -1851,7 +1857,8 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   border-radius: 50%; flex-shrink: 0;
 }
 .aicat-meta { display: flex; flex-direction: column; font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); }
-.aicat-meta .name { color: var(--mascot); font-weight: 600; }
+.aicat-meta .name { color: var(--mascot-deep, var(--mascot)); font-weight: 600; }
+[data-theme="dark"] .aicat-meta .name, [data-theme="ink"] .aicat-meta .name { color: var(--mascot); }
 
 /* ============================================================
    Sidebar polish: hide zero-count badges; tonal active state;
@@ -2561,7 +2568,12 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
     padding: 10px 12px;
   }
   .app-side .group { width: 100%; }
-  .app-crumb { display: none; }
+  /* Keep the crumb on mobile — apps mount contextual controls (model picker,
+     actions, live status) in crumb-right, so hiding it strands them. Collapse
+     the breadcrumb trail/leaf instead and let the right cluster wrap. */
+  .app-crumb { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: 8px 12px; }
+  .app-crumb > .sep, .app-crumb > span:not(.crumb-right):not(.leaf) { display: none; }
+  .app-crumb .crumb-right { margin-left: 0; }
   .chat-head { padding: var(--space-2) var(--space-3) var(--space-2); margin-bottom: var(--space-2); }
   .app-main { padding-left: var(--space-3); padding-right: var(--space-3); }
 }

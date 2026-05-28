@@ -781,9 +781,11 @@
    Panel — soft tonal container, no border decoration
    ============================================================ */
 .ds-247420 .panel {
-  background: var(--bg);
+  background: var(--panel-1, var(--bg-2));
   border-radius: var(--r-3);
   margin: 0 0 var(--space-5);
+  padding: var(--space-3);
+  box-shadow: var(--panel-shadow);
   position: relative;
 }
 .ds-247420 .panel.panel-inline { background: var(--bg-2); padding: var(--space-3) var(--space-3); }
@@ -2309,10 +2311,14 @@
   transform: scale(0.98);
 }
 
-/* Enhanced hover transitions */
+/* Enhanced hover transitions — transition only the properties that actually
+   change (not `all`, which animates layout and is a perf trap), and drop the
+   blanket `will-change` (it forces a permanent compositor layer per element). */
 .ds-247420 .btn, .ds-247420 .btn-primary, .ds-247420 .btn-ghost, .ds-247420 button, .ds-247420 a.row, .ds-247420 .row, .ds-247420 .chip, .ds-247420[role="button"], .ds-247420 input[type="checkbox"], .ds-247420 input[type="radio"] {
-  transition: all var(--dur-snap) var(--ease);
-  will-change: background-color, color, transform;
+  transition: background-color var(--dur-snap) var(--ease),
+              color var(--dur-snap) var(--ease),
+              box-shadow var(--dur-snap) var(--ease),
+              transform var(--dur-snap) var(--ease);
 }
 
 /* Prevent double-tap zoom on buttons (iOS) */
@@ -2583,9 +2589,10 @@
 }
 .ds-247420 .skip-to-main:focus { top: 10px; }
 
-/* Reduced motion preferences */
+/* Reduced motion preferences — scoped to the DS surface so it doesn't reach
+   into and neutralize the host document's own motion. */
 @media (prefers-reduced-motion: reduce) {
-  .ds-247420 * {
+  .ds-247420 *, .ds-247420 .app * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -2593,17 +2600,14 @@
 }
 
 /* ────────────────────────────────────────────────────────────
-   Performance: GPU Acceleration & Paint Optimization
+   Performance
    ────────────────────────────────────────────────────────────── */
 
-/* Promote hover-interactive elements to compositing layer */
-.ds-247420 .btn:hover, .ds-247420 .btn-primary:hover, .ds-247420 .btn-ghost:hover, .ds-247420 a:hover, .ds-247420 .row:hover, .ds-247420 button:hover, .ds-247420[role="button"]:hover {
-  transform: translateZ(0);
-}
-
-/* Contain layout repaints on self-contained components */
-.ds-247420 .panel, .ds-247420 .row, .ds-247420 .chip, .ds-247420 .btn, .ds-247420 button {
-  contain: layout style paint;
+/* Limit layout/style containment to self-contained components. `paint` is
+   intentionally omitted — it clips focus rings, tooltips and dropdowns that
+   emanate from a contained .row/.btn. */
+.ds-247420 .panel, .ds-247420 .row {
+  contain: layout style;
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -2612,11 +2616,13 @@
 
 @media (hover: none) and (pointer: coarse) {
   /* Mobile devices: larger touch targets, faster responses */
-  .ds-247420 .btn, .ds-247420 .btn-primary, .ds-247420 .btn-ghost, .ds-247420 button, .ds-247420 a.row, .ds-247420[role="button"] {
+  .ds-247420 .btn, .ds-247420 .btn-primary, .ds-247420 .btn-ghost, .ds-247420 button, .ds-247420 a.row, .ds-247420[role="button"], .ds-247420 .ds-icon-btn, .ds-247420 .composer-btn {
     min-height: 48px;
     min-width: 48px;
     padding: 12px 20px;
   }
+  /* Icon buttons stay square — the padding bump above would distort them. */
+  .ds-247420 .ds-icon-btn, .ds-247420 .composer-btn { padding: 0; }
 
   /* Remove hover effects on touch devices (use active instead) */
   .ds-247420 .btn:hover, .ds-247420 .btn-primary:hover, .ds-247420 .btn-ghost:hover {
@@ -2639,12 +2645,9 @@
    Theme Transition Smoothness
    ────────────────────────────────────────────────────────────── */
 
-.ds-247420 {
-  transition: background-color var(--dur-base) var(--ease),
-              color var(--dur-base) var(--ease);
-}
-
-.ds-247420 body {
+/* Scoped to the DS wrapper so the design system never reaches out and
+   animates the host document's html/body. */
+.ds-247420, .ds-247420 .app {
   transition: background-color var(--dur-base) var(--ease),
               color var(--dur-base) var(--ease);
 }

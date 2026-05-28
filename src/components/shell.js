@@ -141,25 +141,30 @@ export function Crumb({ trail = [], leaf = '', right } = {}) {
 }
 
 export function Side({ sections = [] } = {}) {
-    return h('aside', { class: 'app-side', role: 'navigation', 'aria-label': 'sidebar navigation' }, ...sections.flatMap(sec => [
-        h('div', { class: 'group', key: sec.group, role: 'heading', 'aria-level': '2' }, sec.group),
-        ...sec.items.map((item, i) => {
-            const { glyph, label, href = '#', active, count, color, onClick } = item;
-            const countLabel = (count != null && count !== 0 && count !== '0') ? ` (${count})` : '';
-            return h('a', {
-                key: sec.group + i,
-                href,
-                class: active ? 'active' : '',
-                'aria-current': active ? 'page' : null,
-                'aria-label': label + countLabel,
-                onclick: onClick
-            },
-                glyph != null ? Glyph({ children: glyph, color }) : h('span', { class: 'glyph', 'aria-hidden': 'true' }),
-                h('span', {}, label),
-                (count != null && count !== 0 && count !== '0') ? h('span', { class: 'count', 'aria-hidden': 'true' }, String(count)) : null
-            );
-        })
-    ]));
+    return h('aside', { class: 'app-side', role: 'navigation', 'aria-label': 'sidebar navigation' }, ...sections.map(sec => {
+        const groupId = 'side-group-' + String(sec.group).replace(/\W+/g, '-').toLowerCase();
+        // Each section is a group labelled by its heading, so AT users hear the
+        // heading as the group name instead of an orphan heading.
+        return h('div', { class: 'app-side-group', key: sec.group, role: 'group', 'aria-labelledby': groupId },
+            h('div', { class: 'group', id: groupId, role: 'heading', 'aria-level': '2' }, sec.group),
+            ...sec.items.map((item, i) => {
+                const { glyph, label, href = '#', active, count, color, onClick } = item;
+                const countLabel = (count != null && count !== 0 && count !== '0') ? ` (${count})` : '';
+                return h('a', {
+                    key: sec.group + i,
+                    href,
+                    class: active ? 'active' : '',
+                    'aria-current': active ? 'page' : null,
+                    'aria-label': label + countLabel,
+                    onclick: onClick
+                },
+                    glyph != null ? Glyph({ children: glyph, color }) : h('span', { class: 'glyph', 'aria-hidden': 'true' }),
+                    h('span', {}, label),
+                    (count != null && count !== 0 && count !== '0') ? h('span', { class: 'count', 'aria-hidden': 'true' }, String(count)) : null
+                );
+            })
+        );
+    }));
 }
 
 export function Status({ left = [], right = [] } = {}) {
