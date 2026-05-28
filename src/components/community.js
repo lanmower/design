@@ -81,7 +81,7 @@ export function ChannelItem({ id, name, type = 'text', active, voiceActive, voic
         ),
         voiceActive && participants.length ? h('div', { class: 'cm-ch-voice-users' },
             ...participants.map(p => h('div', { class: 'cm-ch-voice-user' + (p.speaking ? ' speaking' : '') },
-                h('div', { class: 'cm-ch-voice-user-avatar', style: p.color ? `background:${p.color}` : '' }, (p.identity || '?').slice(0, 1).toUpperCase()),
+                h('div', { class: 'cm-ch-voice-user-avatar', style: p.color ? `--avatar-bg:${p.color}` : null }, (p.identity || '?').slice(0, 1).toUpperCase()),
                 h('span', { class: 'cm-ch-voice-user-name' }, p.identity)
             ))
         ) : null
@@ -115,7 +115,7 @@ export function ChannelCategory({ id, name, channels = [], collapsed, activeId, 
 export function VoiceUser({ identity, speaking, color } = {}) {
     const initial = (identity || '?').slice(0, 1).toUpperCase();
     return h('div', { class: 'cm-voice-user' + (speaking ? ' speaking' : '') },
-        h('div', { class: 'cm-voice-user-avatar', style: color ? `background:${color}` : '' }, initial),
+        h('div', { class: 'cm-voice-user-avatar', style: color ? `--avatar-bg:${color}` : null }, initial),
         h('span', { class: 'cm-voice-user-name' }, identity)
     );
 }
@@ -134,7 +134,7 @@ export function UserPanel({ name, tag, color, muted, deafened, onMute, onDeafen,
         }
     };
     return h('div', { class: 'cm-user-panel' },
-        h('div', { class: 'cm-user-avatar', style: color ? `background:${color}` : '' },
+        h('div', { class: 'cm-user-avatar', style: color ? `--avatar-bg:${color}` : null },
             h('span', { class: 'cm-user-status-dot' }),
             initial
         ),
@@ -186,7 +186,7 @@ export function ChannelSidebar({ serverName, channels = [], categories = [], act
 export function MemberItem({ identity, name, color, status = 'online' } = {}) {
     const initial = (name || identity || '?').slice(0, 1).toUpperCase();
     return h('div', { class: 'cm-member-item' },
-        h('div', { class: 'cm-member-avatar', style: color ? `background:${color}` : '' },
+        h('div', { class: 'cm-member-avatar', style: color ? `--avatar-bg:${color}` : null },
             h('span', { class: 'cm-member-status' + (status === 'online' ? ' online' : '') }),
             initial
         ),

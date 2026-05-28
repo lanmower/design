@@ -73,7 +73,7 @@ export function RadioGroup({ legend, name, value, options = [], onChange, orient
         const inputs = root.querySelectorAll('input[type="radio"]');
         if (inputs[next]) inputs[next].focus();
     };
-    return h('fieldset', { key, class: 'ds-radio-group ' + (isHoriz ? 'horiz' : 'vert'), role: 'radiogroup', onkeydown: onKeyDown },
+    return h('fieldset', { key, class: 'ds-radio-group ' + (isHoriz ? 'horiz' : 'vert'), role: 'radiogroup', 'aria-orientation': isHoriz ? 'horizontal' : 'vertical', onkeydown: onKeyDown },
         legend != null ? h('legend', { key: 'lg', class: 'ds-field-label' }, legend) : null,
         ...options.map((o, i) => {
             const v = typeof o === 'string' ? o : o.value;
@@ -110,7 +110,7 @@ function cloneWithProps(node, extra) {
     return { ...node, props: { ...(node.props || {}), ...extra } };
 }
 
-export function Field({ label, hint, error, required, htmlFor, children, key } = {}) {
+export function Field({ label, hint, error, required, requiredMarker = '*', htmlFor, children, key } = {}) {
     const autoId = htmlFor || uid('ds-field');
     const hintId = hint != null ? autoId + '-hint' : null;
     const errorId = error != null ? autoId + '-err' : null;
@@ -128,12 +128,12 @@ export function Field({ label, hint, error, required, htmlFor, children, key } =
     return h('div', { key, class: 'ds-field-wrap' },
         label != null ? h('label', { key: 'l', class: 'ds-field-label', for: autoId },
             label,
-            required ? h('span', { key: 'r', class: 'ds-field-required', 'aria-hidden': 'true' }, ' *') : null
+            required ? h('span', { key: 'r', class: 'ds-field-required', 'aria-hidden': 'true' }, ' ' + requiredMarker) : null
         ) : null,
         required ? h('span', { key: 'sr', class: 'sr-only' }, 'required') : null,
         ...decorated,
         error != null
-            ? h('div', { key: 'e', id: errorId, class: 'ds-field-error', role: 'alert' }, error)
+            ? h('div', { key: 'e', id: errorId, class: 'ds-field-error', role: 'alert', 'aria-live': 'polite', 'aria-atomic': 'true' }, error)
             : (hint != null ? h('div', { key: 'h', id: hintId, class: 'ds-field-hint' }, hint) : null)
     );
 }
@@ -149,20 +149,33 @@ const RULES = {
 
 export function useFormValidation(schema = {}) {
     const errors = {};
+    const isPromise = (x) => x != null && typeof x.then === 'function';
+    // Runs rules for one field. Returns the error string/null synchronously when
+    // no rule yields a Promise; returns a Promise resolving to that value when
+    // any rule (e.g. an async custom validator) does.
     const validateField = (name, value) => {
         const rules = schema[name] || [];
-        for (const r of rules) {
+        const settle = (out, idx) => {
+            if (out) { errors[name] = rules[idx].message || out; return errors[name]; }
+            // No error from this rule — continue with the rest.
+            return run(idx + 1);
+        };
+        const run = (i) => {
+            if (i >= rules.length) { delete errors[name]; return null; }
+            const r = rules[i];
             const fn = RULES[r.rule];
-            if (!fn) continue;
+            if (!fn) return run(i + 1);
             const out = fn(value, r);
-            if (out) { errors[name] = r.message || out; return errors[name]; }
-        }
-        delete errors[name];
-        return null;
+            if (isPromise(out)) return out.then((res) => settle(res, i));
+            return settle(out, i);
+        };
+        return run(0);
     };
     const validate = (values = {}) => {
-        for (const name of Object.keys(schema)) validateField(name, values[name]);
-        return { valid: Object.keys(errors).length === 0, errors: { ...errors } };
+        const names = Object.keys(schema);
+        const results = names.map((name) => validateField(name, values[name]));
+        const finish = () => ({ valid: Object.keys(errors).length === 0, errors: { ...errors } });
+        return results.some(isPromise) ? Promise.all(results).then(finish) : finish();
     };
     return { errors, validate, validateField };
 }

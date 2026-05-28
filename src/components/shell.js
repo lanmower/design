@@ -43,8 +43,26 @@ export function Btn({ href = '#', variant = 'default', children, onClick, 'aria-
     }, children);
 }
 
-export function Glyph({ children, color }) {
-    return h('span', { class: 'glyph', style: color ? `color:${color}` : '' }, children);
+export function IconButton({ icon, onClick, title, size = 'base', variant = 'ghost', disabled = false }) {
+    const cls = 'ds-icon-btn ds-icon-btn-' + variant + ' ds-icon-btn-' + size + (disabled ? ' is-disabled' : '');
+    return h('button', {
+        type: 'button',
+        class: cls,
+        title,
+        'aria-label': title,
+        disabled: disabled ? true : null,
+        onclick: (e) => { if (disabled) { e.preventDefault(); return; } if (onClick) onClick(e); }
+    }, Glyph({ children: icon, size }));
+}
+
+export function Badge({ children, variant = 'default', tone = 'neutral' }) {
+    return h('span', { class: 'ds-badge ds-badge-' + variant + ' tone-' + tone }, children);
+}
+
+export function Glyph({ children, color, size = 'base' }) {
+    const fontSize = size === 'sm' ? '11px' : (size === 'lg' ? '16px' : '13px');
+    const style = `font-size:${fontSize}` + (color ? `;color:${color}` : '');
+    return h('span', { class: 'glyph', style }, children);
 }
 
 export function Topbar({ brand = '247420', leaf = '', items = [], active = '', onNav, search } = {}) {
@@ -128,8 +146,8 @@ export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
     );
 }
 
-export function Heading({ level = 1, children, style = '' }) {
-    return h('h' + level, { style }, children);
+export function Heading({ level = 1, children, style = '', 'aria-level': ariaLevel }) {
+    return h('h' + level, { style, 'aria-level': ariaLevel != null ? String(ariaLevel) : null }, children);
 }
 
 export function Lede({ children }) {

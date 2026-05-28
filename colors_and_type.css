@@ -7,6 +7,10 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 :root {
+  /* Tree view indentation tokens */
+  --tree-indent: 12px;
+  --tree-base-indent: 6px;
+
   /* Paper / Ink — cool stone scale; lets lore palette pop. */
   --paper:       #F6F5F1;
   --paper-2:     #ECEBE6;
@@ -136,6 +140,18 @@
   --z-overlay:   1000;
 
   --measure:     68ch;
+  --measure-wide:   940px;
+  --measure-narrow: 760px;
+
+  --sidebar-width:           220px;
+  --sidebar-width-collapsed: 64px;
+
+  --lh-tall:     1.4;
+
+  /* Control size scale — heights for status/topbar/crumb + controls. */
+  --size-sm:     32px;
+  --size-base:   42px;
+  --size-lg:     56px;
 }
 
 /* ============================================================
@@ -166,7 +182,7 @@ input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 
 /* Interactive element focus-visible */
@@ -198,6 +214,10 @@ select:focus-visible {
   --danger:    oklch(0.68 0.19 25);
 }
 
+/* NOTE: the [data-theme="auto"] block below intentionally duplicates the
+   [data-theme="ink"/"dark"] block above. They are NOT literally identical —
+   the explicit-dark block also overrides --danger for contrast — so they are
+   kept separate rather than consolidated to avoid a behavior change. */
 @media (prefers-color-scheme: dark) {
   [data-theme="auto"] {
     --bg:        var(--ink);

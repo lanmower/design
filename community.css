@@ -512,7 +512,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--bg-3);
+  background: var(--avatar-bg, var(--bg-3));
   color: var(--fg-2);
   display: inline-flex;
   align-items: center;
@@ -645,7 +645,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--bg-3);
+  background: var(--avatar-bg, var(--bg-3));
   color: var(--fg-2);
   display: inline-flex;
   align-items: center;
@@ -849,7 +849,7 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--bg-3);
+  background: var(--avatar-bg, var(--bg-3));
   color: var(--fg-2);
   display: inline-flex;
   align-items: center;
@@ -910,7 +910,7 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--bg-3);
+  background: var(--avatar-bg, var(--bg-3));
   color: var(--fg-2);
   display: inline-flex;
   align-items: center;

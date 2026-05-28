@@ -17,12 +17,16 @@ export function Panel({ title, count, right, style = '', children, kind }) {
     );
 }
 
+// Card — semantic alias of Panel; behaves identically.
+export const Card = Panel;
+
 export function Row({ code, title, sub, meta, active, state = 'default', onClick, key, style, href, kind, cols, leading, trailing, target, selected }) {
     // Support legacy active/selected props for backward compatibility
     const isActive = state === 'active' || (state === 'default' && (active || selected));
     const isLink = kind === 'link' || (href != null && !onClick);
     const isButton = !isLink && !!onClick;
-    const cls = 'row' + (isActive ? ' active' : '') + (cols ? ' row-grid' : '');
+    const stateCls = state === 'disabled' ? ' row-state-disabled' : (state === 'error' ? ' row-state-error' : '');
+    const cls = 'row' + (isActive ? ' active' : '') + stateCls + (cols ? ' row-grid' : '');
     const props = { key, class: cls, style: cols ? `${style ? style + ';' : ''}grid-template-columns:${cols}` : style };
     if (isLink) {
         props.href = href || '#';
@@ -36,7 +40,7 @@ export function Row({ code, title, sub, meta, active, state = 'default', onClick
             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(e); }
         };
     }
-    if (isActive && (isLink || isButton)) props['aria-current'] = 'true';
+    if (isActive && (isLink || isButton)) props['aria-current'] = isActive ? 'page' : null;
     return h(isLink ? 'a' : 'div', props,
         leading != null ? leading : (code != null ? h('span', { class: 'code' }, code) : null),
         h('span', { class: 'title' }, title, sub ? h('span', { class: 'sub' }, sub) : null),
@@ -63,7 +67,7 @@ export function Hero({ eyebrow, title, body, accent, badge, badgeCount, actions 
             body,
             accent ? h('span', { class: 'ds-hero-accent' }, ' ' + accent) : null
         ) : null,
-        actions ? h('div', { class: 'ds-hero-actions', style: 'display:flex;gap:10px;flex-wrap:wrap;margin-top:8px' }, ...(Array.isArray(actions) ? actions : [actions])) : null,
+        actions ? h('div', { class: 'ds-hero-actions' }, ...(Array.isArray(actions) ? actions : [actions])) : null,
         badge ? Panel({ title: badge, count: badgeCount, kind: 'inline', children: [] }) : null
     );
 }
@@ -244,28 +248,31 @@ export function SearchInput({ value = '', placeholder = 'search…', onInput, on
     });
 }
 
-export function TextField({ label, value = '', type = 'text', placeholder = '', onInput, onChange, name, key, hint, multiline, rows = 4 }) {
+export function TextField({ label, value = '', type = 'text', placeholder = '', onInput, onChange, name, key, hint, multiline, rows = 4, maxLength }) {
     const input = multiline
         ? h('textarea', {
             key: 'i', name, rows, placeholder, value,
+            maxlength: maxLength != null ? maxLength : null,
             oninput: onInput ? (e) => onInput(e.target.value, e) : null,
             onchange: onChange ? (e) => onChange(e.target.value, e) : null
         })
         : h('input', {
             key: 'i', type, name, placeholder, value,
+            maxlength: maxLength != null ? maxLength : null,
             oninput: onInput ? (e) => onInput(e.target.value, e) : null,
             onchange: onChange ? (e) => onChange(e.target.value, e) : null
         });
     return h('label', { key, class: 'ds-field' },
         label != null ? h('span', { key: 'l', class: 'ds-field-label' }, label) : null,
         input,
+        maxLength != null ? h('span', { key: 'c', class: 'ds-field-count' }, String(value.length) + '/' + maxLength) : null,
         hint != null ? h('span', { key: 'h', class: 'lede ds-field-hint' }, hint) : null
     );
 }
 
 export function Select({ label, value = '', options = [], onChange, name, key, placeholder, hint }) {
     const opts = [];
-    if (placeholder != null) opts.push(h('option', { key: '_ph', value: '' }, placeholder));
+    if (placeholder != null) opts.push(h('option', { key: '_ph', value: '', disabled: true, selected: value === '' || value == null }, placeholder));
     for (const o of options) {
         const id = typeof o === 'string' ? o : (o.value != null ? o.value : o.id);
         const lab = typeof o === 'string' ? o : (o.label != null ? o.label : (o.id || o.value));
@@ -299,8 +306,9 @@ export function EventList({ items, events, emptyText = 'no events', rankPad = 3 
     );
 }
 
-export function Form({ fields = [], submit = 'submit', onSubmit }) {
-    return h('form', { class: 'row-form', onsubmit: (ev) => { ev.preventDefault(); onSubmit && onSubmit(ev); } },
+export function Form({ fields = [], submit = 'submit', onSubmit, columns = 1 }) {
+    const cols = columns > 1 ? String(columns) : null;
+    return h('form', { class: 'row-form', 'data-columns': cols, onsubmit: (ev) => { ev.preventDefault(); onSubmit && onSubmit(ev); } },
         ...fields.map((f, i) => f.kind === 'textarea'
             ? h('textarea', { key: i, name: f.name, placeholder: f.placeholder || '', rows: f.rows || 4 })
             : h('input', { key: i, name: f.name, type: f.type || 'text', placeholder: f.placeholder || '', value: f.value || '', required: f.required ? 'true' : null })),
@@ -308,7 +316,8 @@ export function Form({ fields = [], submit = 'submit', onSubmit }) {
 }
 
 export function Spinner({ size = 'base', tone = 'accent', label = 'loading', key } = {}) {
-    const sizeClass = size === 'sm' ? 'ds-spinner-sm' : size === 'lg' ? 'ds-spinner-lg' : '';
+    const SIZE_CLASS = { xs: 'ds-spinner-xs', sm: 'ds-spinner-sm', base: '', lg: 'ds-spinner-lg', xl: 'ds-spinner-xl' };
+    const sizeClass = SIZE_CLASS[size] != null ? SIZE_CLASS[size] : '';
     return h('div', {
         key, class: 'ds-spinner ' + sizeClass + ' tone-' + tone,
         role: 'status', 'aria-live': 'polite', 'aria-label': label

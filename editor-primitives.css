@@ -12,7 +12,7 @@
     border-bottom: 1px solid var(--rule);
     font: var(--fs-tiny, 12px)/var(--lh-base, 1.4) var(--ff-mono, monospace);
 }
-.ds-ep-toolbar.dense { padding: 4px 6px; gap: 4px; }
+.ds-ep-toolbar.dense { padding: 2px 4px; gap: 2px; }
 .ds-ep-toolbar-leading,
 .ds-ep-toolbar-center,
 .ds-ep-toolbar-trailing { display: flex; align-items: center; gap: 4px; }
@@ -22,7 +22,8 @@
 /* Tabs */
 .ds-ep-tabs { display: flex; flex-direction: column; min-height: 0; height: 100%; }
 .ds-ep-tabs-head {
-    display: flex; flex-shrink: 0;
+    display: flex; flex-shrink: 0; flex-wrap: nowrap;
+    overflow-x: auto; scroll-behavior: smooth;
     background: var(--panel-1);
     border-bottom: 1px solid var(--rule);
 }
@@ -49,6 +50,7 @@
     overflow: auto;
 }
 .ds-ep-tree-item { display: flex; flex-direction: column; }
+.ds-ep-tree-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .ds-ep-tree-row {
     display: flex; align-items: center; gap: 6px;
     padding: 4px 8px 4px 0;
@@ -88,7 +90,7 @@
 }
 .ds-ep-propfield {
     display: grid;
-    grid-template-columns: 120px 1fr;
+    grid-template-columns: minmax(80px, 120px) 1fr;
     gap: 4px 10px;
     align-items: center;
 }
@@ -151,6 +153,14 @@
 }
 .ds-ep-dock-center > * { pointer-events: auto; }
 
+/* Mobile — stack dock regions vertically instead of the 3x3 grid */
+@media (max-width: 600px) {
+    .ds-ep-dock {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
 /* IconButtonGroup */
 .ds-ep-btngrp {
     display: inline-flex;
@@ -210,6 +220,8 @@
 .ds-ep-split.horiz { flex-direction: row; }
 .ds-ep-split.vert  { flex-direction: column; }
 .ds-ep-split-pane { overflow: auto; }
+.ds-ep-split.horiz > .ds-ep-split-pane:not(.grow) { width: var(--split-size); }
+.ds-ep-split.vert  > .ds-ep-split-pane:not(.grow) { height: var(--split-size); }
 .ds-ep-split-pane.grow { flex: 1 1 0; }
 
 /* ---------------------------------------------------------------
