@@ -33,6 +33,7 @@
   --mascot:      #E84B8A;
   --mascot-2:    #FF3CA7;
   --mascot-tint: #F5D2DF;
+  --mascot-deep: #B81F63;
 
   /* Signals */
   --sun:         #F5C344;
@@ -53,7 +54,7 @@
 
   --accent:      var(--green);
   --accent-fg:   var(--paper);
-  --accent-tint: color-mix(in oklab, var(--accent) 18%, var(--bg));
+  --accent-tint: color-mix(in oklab, var(--accent) 26%, var(--bg));
 
   --panel-bg:     var(--bg);
   --panel-bg-2:   var(--bg-2);
@@ -1079,9 +1080,8 @@
    Mobile Portrait Breakpoint (480px and below)
    ────────────────────────────────────────────────────────────────────── */
 @media (max-width: 480px) {
-  /* App Layout — drawer handled in 900px block below */
-  .ds-247420 .app-body { grid-template-columns: 1fr !important; }
-  .ds-247420 .app-body.no-side { grid-template-columns: 1fr; }
+  /* App Layout: single-column + drawer is handled once in the ≤900px block;
+     no need to re-declare grid-template-columns here (was a redundant !important). */
 
   /* Topbar Navigation */
   .ds-247420 .app-topbar {
@@ -1092,9 +1092,16 @@
     padding: 12px 10px;
     min-height: 44px;
   }
+  /* Keep primary nav reachable on small screens (apps without a sidebar have
+     no other entry point). Compact it and let it scroll horizontally rather
+     than hiding it entirely. */
   .ds-247420 .app-topbar nav {
-    display: none; /* Hide full nav on very small screens */
+    display: flex; gap: 2px;
+    overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    max-width: 60vw;
   }
+  .ds-247420 .app-topbar nav::-webkit-scrollbar { display: none; }
+  .ds-247420 .app-topbar nav a { padding: 10px 8px; white-space: nowrap; }
   .ds-247420 .brand { font-size: var(--fs-tiny); font-weight: 600; }
 
   /* Search */
@@ -2182,7 +2189,8 @@
   border-radius: 50%; flex-shrink: 0;
 }
 .ds-247420 .aicat-meta { display: flex; flex-direction: column; font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); }
-.ds-247420 .aicat-meta .name { color: var(--mascot); font-weight: 600; }
+.ds-247420 .aicat-meta .name { color: var(--mascot-deep, var(--mascot)); font-weight: 600; }
+.ds-247420[data-theme="dark"] .aicat-meta .name, .ds-247420[data-theme="ink"] .aicat-meta .name { color: var(--mascot); }
 
 /* ============================================================
    Sidebar polish: hide zero-count badges; tonal active state;
@@ -2883,7 +2891,12 @@
     padding: 10px 12px;
   }
   .ds-247420 .app-side .group { width: 100%; }
-  .ds-247420 .app-crumb { display: none; }
+  /* Keep the crumb on mobile — apps mount contextual controls (model picker,
+     actions, live status) in crumb-right, so hiding it strands them. Collapse
+     the breadcrumb trail/leaf instead and let the right cluster wrap. */
+  .ds-247420 .app-crumb { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: 8px 12px; }
+  .ds-247420 .app-crumb > .sep, .ds-247420 .app-crumb > span:not(.crumb-right):not(.leaf) { display: none; }
+  .ds-247420 .app-crumb .crumb-right { margin-left: 0; }
   .ds-247420 .chat-head { padding: var(--space-2) var(--space-3) var(--space-2); margin-bottom: var(--space-2); }
   .ds-247420 .app-main { padding-left: var(--space-3); padding-right: var(--space-3); }
 }
