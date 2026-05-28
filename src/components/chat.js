@@ -217,7 +217,7 @@ export function Chat({ title = 'chat', sub, messages = [], composer, header } = 
     return h('div', { class: 'chat' },
         header || h('div', { class: 'chat-head', role: 'banner' },
             h('span', { class: 'dot', 'aria-hidden': 'true' }),
-            h('h2', { style: 'margin:0;font-size:inherit' }, title),
+            h('h2', { class: 'ds-chat-title' }, title),
             sub ? h('span', { class: 'sub', 'aria-label': `subtitle: ${sub}` }, ' · ' + sub) : null,
             h('span', { class: 'spread' }),
             h('span', { class: 'sub', 'aria-live': 'polite' }, String(messages.length).padStart(2, '0') + ' msgs')
@@ -280,7 +280,7 @@ export function AICat({ name = 'aicat', messages = [], thinking, composer, statu
     return h('div', { class: 'chat' },
         h('div', { class: 'chat-head', role: 'banner' },
             h('span', { class: 'dot', 'aria-hidden': 'true' }),
-            h('h2', { style: 'margin:0;font-size:inherit' }, name),
+            h('h2', { class: 'ds-chat-title' }, name),
             h('span', { class: 'sub', 'aria-label': `status: ${status}` }, ' · ' + status),
             h('span', { class: 'spread' }),
             h('span', { class: 'sub', 'aria-live': 'polite' }, String(messages.length).padStart(2, '0') + ' turns')

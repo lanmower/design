@@ -303,11 +303,12 @@ export function CommandPalette({ open, items = [], onSelect, onClose } = {}) {
         h('div', { class: 'ov-cmd-panel', role: 'dialog', 'aria-label': 'Command palette', onkeydown: onKey },
             h('input', {
                 type: 'text', class: 'ov-cmd-input', placeholder: 'Type a command…',
-                'aria-label': 'Filter commands',
+                'aria-label': 'command search',
+                'aria-controls': 'ov-cmd-list',
                 oninput: (e) => { filterText = e.target.value; active = 0; renderInner(); },
                 ref: (el) => { if (!el || el._ovCmdIn) return; el._ovCmdIn = true; inputEl = el; queueMicrotask(() => el.focus()); },
             }),
-            h('div', { class: 'ov-cmd-list', role: 'listbox',
+            h('div', { class: 'ov-cmd-list', id: 'ov-cmd-list', role: 'listbox',
                 ref: (el) => { if (!el) return; listEl = el; queueMicrotask(renderInner); } })
         )
     );

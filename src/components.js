@@ -4,13 +4,13 @@ import * as webjsx from '../vendor/webjsx/index.js';
 export const h = webjsx.createElement;
 
 export {
-    Brand, Chip, Btn, Glyph,
+    Brand, Chip, Btn, Glyph, IconButton, Badge,
     Topbar, Crumb, Side, Status, AppShell,
     Heading, Lede, Dot, Rail
 } from './components/shell.js';
 
 export {
-    Panel, Row, RowLink,
+    Panel, Card, Row, RowLink,
     Hero, Install, Receipt, Changelog,
     WorksList, WritingList, Manifesto, Section, PageHeader,
     Kpi, Table, SearchInput, TextField, Select, EventList,

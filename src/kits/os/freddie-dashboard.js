@@ -42,7 +42,7 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces, loading
 
     function buildSide() {
         const sections = [{
-            group: 'FREDDIE',
+            group: 'ASSISTANT',
             items: ROUTES.map(r => ({
                 glyph: r.glyph, label: r.label, href: '#fd-' + r.path,
                 active: state.active === r.path,
@@ -63,8 +63,8 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces, loading
     function view() {
         const route = allRoutes.find(r => r.path === state.active) || ROUTES[1];
         return AppShell({
-            topbar: Topbar({ brand: 'freddie', leaf: 'dashboard', items: [], active: '' }),
-            crumb: Crumb({ trail: ['freddie', instance.id], leaf: route.path, right: state.error ? Chip({ tone: 'miss', children: 'error' }) : Chip({ tone: 'ok', children: 'live' }) }),
+            topbar: Topbar({ brand: 'assistant', leaf: 'dashboard', items: [], active: '' }),
+            crumb: Crumb({ trail: ['assistant', instance.id], leaf: route.path, right: state.error ? Chip({ tone: 'miss', children: 'error' }) : Chip({ tone: 'ok', children: 'live' }) }),
             side: buildSide(),
             main: state.body || EmptyState({ text: loadingText || 'loading…', glyph: '◌' }),
             status: Status({ left: ['ds-247420 · webjsx · ' + allRoutes.length + ' routes', 'instance=' + instance.id], right: [state.ts] }),

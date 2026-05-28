@@ -113,7 +113,7 @@ export function TreeItem({ label, glyph, tag, depth = 0, selected = false, expan
     },
         h('div', {
             class: 'ds-ep-tree-row',
-            style: 'padding-left:' + (depth * 12 + 6) + 'px',
+            style: 'padding-left:calc(' + depth + ' * var(--tree-indent,12px) + var(--tree-base-indent,6px))',
             tabindex: selected ? '0' : '-1',
             onclick: () => onSelect && onSelect(),
             onkeydown: onRowKeyDown
@@ -286,7 +286,7 @@ export function SplitPanel({ orientation = 'horizontal', initial = '50%', min = 
         class: 'ds-ep-split ' + (isH ? 'horiz' : 'vert'),
         ref: (el) => { rootEl = el; }
     },
-        h('div', { class: 'ds-ep-split-pane', style: sizeProp + ':' + initStyle + ';flex:0 0 auto' }, first),
+        h('div', { class: 'ds-ep-split-pane', style: '--split-size:' + initStyle + ';flex:0 0 auto' }, first),
         ResizeHandle({ axis: isH ? 'horizontal' : 'vertical', onResize }),
         h('div', { class: 'ds-ep-split-pane grow', style: 'flex:1 1 0;min-' + sizeProp + ':0' }, second)
     );

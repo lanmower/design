@@ -43,8 +43,26 @@ export function Btn({ href = '#', variant = 'default', children, onClick, 'aria-
     }, children);
 }
 
-export function Glyph({ children, color }) {
-    return h('span', { class: 'glyph', style: color ? `color:${color}` : '' }, children);
+export function IconButton({ icon, onClick, title, size = 'base', variant = 'ghost', disabled = false }) {
+    const cls = 'ds-icon-btn ds-icon-btn-' + variant + ' ds-icon-btn-' + size + (disabled ? ' is-disabled' : '');
+    return h('button', {
+        type: 'button',
+        class: cls,
+        title,
+        'aria-label': title,
+        disabled: disabled ? true : null,
+        onclick: (e) => { if (disabled) { e.preventDefault(); return; } if (onClick) onClick(e); }
+    }, Glyph({ children: icon, size }));
+}
+
+export function Badge({ children, variant = 'default', tone = 'neutral' }) {
+    return h('span', { class: 'ds-badge ds-badge-' + variant + ' tone-' + tone }, children);
+}
+
+export function Glyph({ children, color, size = 'base' }) {
+    const fontSize = size === 'sm' ? '11px' : (size === 'lg' ? '16px' : '13px');
+    const style = `font-size:${fontSize}` + (color ? `;color:${color}` : '');
+    return h('span', { class: 'glyph', style }, children);
 }
 
 export function Topbar({ brand = '247420', leaf = '', items = [], active = '', onNav, search } = {}) {
@@ -113,23 +131,40 @@ export function Status({ left = [], right = [] } = {}) {
     );
 }
 
+// Toggle the mobile sidebar drawer. Pure-DOM because AppShell is stateless
+// chrome; the class lives on .app-body and is read by the ≤900px media query.
+function toggleSide(open) {
+    const body = document.querySelector('.app-body');
+    if (!body) return;
+    const next = open != null ? open : !body.classList.contains('side-open');
+    body.classList.toggle('side-open', next);
+    const btn = document.querySelector('.app-side-toggle');
+    if (btn) btn.setAttribute('aria-expanded', next ? 'true' : 'false');
+}
+
 export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
     const hasSide = Boolean(side);
     const sideNode = hasSide ? side : h('aside', { class: 'app-side', 'aria-hidden': 'true' });
     return h('div', { class: 'app' },
         h('a', { href: '#app-main', class: 'skip-link' }, 'skip to main content'),
+        hasSide ? h('button', {
+            class: 'app-side-toggle', type: 'button',
+            'aria-label': 'toggle navigation', 'aria-expanded': 'false', 'aria-controls': 'app-main',
+            onclick: () => toggleSide(),
+        }, '☰') : null,
         topbar || null,
         crumb || null,
         h('div', { class: 'app-body' + (hasSide ? '' : ' no-side') },
-            h('div', { class: 'app-side-shell' }, sideNode),
+            h('div', { class: 'app-side-scrim', 'aria-hidden': 'true', onclick: () => toggleSide(false) }),
+            h('div', { class: 'app-side-shell', onclick: (e) => { if (e.target.closest('a')) toggleSide(false); } }, sideNode),
             h('main', { class: 'app-main' + (narrow ? ' narrow' : ''), id: 'app-main' }, ...(Array.isArray(main) ? main : [main]))
         ),
         status || null
     );
 }
 
-export function Heading({ level = 1, children, style = '' }) {
-    return h('h' + level, { style }, children);
+export function Heading({ level = 1, children, style = '', 'aria-level': ariaLevel }) {
+    return h('h' + level, { style, 'aria-level': ariaLevel != null ? String(ariaLevel) : null }, children);
 }
 
 export function Lede({ children }) {
