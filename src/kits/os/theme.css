@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-    --ff-ui: 'Space Grotesk', system-ui, sans-serif;
-    --ff-display: 'Space Grotesk', system-ui, sans-serif;
+    --ff-ui: 'Inter', system-ui, sans-serif;
+    --ff-display: 'Inter', system-ui, sans-serif;
     --ff-mono: 'JetBrains Mono', ui-monospace, monospace;
     --os-accent: var(--panel-accent, #3F8A4A);
     --os-accent-2: var(--panel-accent-2, #2B6B36);
@@ -23,8 +23,8 @@
     --os-bar-h-mobile: 52px;
     --os-rail-w: 64px;
     --os-tap: 44px;
-    --os-font: var(--ff-ui, 'Space Grotesk', system-ui, sans-serif);
-    --os-display: var(--ff-display, 'Space Grotesk', system-ui, sans-serif);
+    --os-font: var(--ff-ui, 'Inter', system-ui, sans-serif);
+    --os-display: var(--ff-display, 'Inter', system-ui, sans-serif);
     --os-mono: var(--ff-mono, 'JetBrains Mono', ui-monospace, monospace);
 }
 
@@ -464,7 +464,7 @@ html, body {
  * thebird theme preset (migrated from thebird's local thebird-brand.css
  * 2026-05-26). thebird ships ZERO design CSS — every rule below lives here
  * upstream and is delivered via the published package. Scoped to .ds-247420
- * (thebird's OS root carries that class). Brand identity: Space Grotesk +
+ * (thebird's OS root carries that class). Brand identity: Inter +
  * --paper #F5F0E4 + green accent #247420 + uniform 34px bars +
  * Windows-style right-side window controls.
  * ============================================================ */
@@ -472,9 +472,9 @@ html, body {
     --paper: #F5F0E4;
 }
 .ds-247420 {
-    --ff-ui: 'Space Grotesk', system-ui, sans-serif !important;
-    --ff-display: 'Space Grotesk', system-ui, sans-serif !important;
-    --ff-prose: 'Space Grotesk', system-ui, sans-serif !important;
+    --ff-ui: 'Inter', system-ui, sans-serif !important;
+    --ff-display: 'Inter', system-ui, sans-serif !important;
+    --ff-prose: 'Inter', system-ui, sans-serif !important;
     --os-accent: #247420;
     /* uniform bar height: 22px button + 6px+6px padding = 34px */
     --os-bar-h: 34px !important;
@@ -538,7 +538,7 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   border: 1px solid var(--os-accent, #247420);
   border-radius: 8px;
   z-index: 9600;
-  font-family: var(--ff-ui, 'Space Grotesk', sans-serif);
+  font-family: var(--ff-ui, 'Inter', sans-serif);
   color: var(--os-fg, #fff);
   min-width: 280px;
   box-shadow: 0 12px 40px rgba(0,0,0,0.5);
@@ -555,19 +555,19 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   color: var(--paper, #fff);
 }
 
-/* freddie-chat font family (upstream still ships Nunito; brand is Space Grotesk). */
+/* freddie-chat font family (upstream still ships Nunito; brand is Inter). */
 .ds-247420 freddie-chat,
 .ds-247420 freddie-chat .chat-bubble,
 .ds-247420 freddie-chat .chat-meta,
 .ds-247420 freddie-chat .chat-head {
-  font-family: var(--ff-ui, 'Space Grotesk', system-ui, sans-serif);
+  font-family: var(--ff-ui, 'Inter', system-ui, sans-serif);
 }
 .ds-247420 freddie-chat .chat-bubble pre,
 .ds-247420 freddie-chat .chat-bubble code {
   font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 }
 .ds-247420 freddie-chat .chat-head {
-  font-family: var(--ff-display, 'Space Grotesk', system-ui, sans-serif);
+  font-family: var(--ff-display, 'Inter', system-ui, sans-serif);
   font-weight: 700;
 }
 

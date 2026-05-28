@@ -15,31 +15,35 @@ export function Chip({ tone = '', children }) {
     return h('span', { class: 'chip' + (tone ? ' tone-' + tone : '') }, children);
 }
 
-export function Btn({ href = '#', variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled }) {
+export function Btn({ href, variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled }) {
     // Support legacy primary/ghost props for backward compatibility, but prefer variant
     const resolvedVariant = variant !== 'default' ? variant : (primary ? 'primary' : (ghost ? 'ghost' : (danger ? 'danger' : 'default')));
     const cls = (resolvedVariant === 'primary' ? 'btn-primary' : (resolvedVariant === 'ghost' ? 'btn-ghost' : (resolvedVariant === 'danger' ? 'btn-primary danger' : 'btn')))
         + (disabled ? ' is-disabled' : '');
-    // Anchor with role=button needs explicit Space/Enter activation for keyboard parity with <button>.
-    // Browsers fire click on Enter for anchors with href, but Space does nothing — and href="#"
-    // synthesizes navigation if onclick doesn't preventDefault.
-    const onkeydown = (e) => {
-        if (disabled) { e.preventDefault(); return; }
-        if (e.key === ' ' || (e.key === 'Enter' && (!href || href === '#'))) {
-            e.preventDefault();
-            if (onClick) onClick(e);
-        }
-    };
     const onclick = (e) => {
         if (disabled) { e.preventDefault(); return; }
         if (onClick) onClick(e);
     };
-    return h('a', {
-        class: cls, href, role: 'button',
-        tabindex: disabled ? '-1' : '0',
-        'aria-label': ariaLabel || (typeof children === 'string' ? children : undefined),
-        'aria-disabled': disabled ? 'true' : null,
-        onclick, onkeydown
+    const ariaName = ariaLabel || (typeof children === 'string' ? children : undefined);
+
+    // A real navigational href renders an anchor; everything else is an action
+    // button and renders a native <button> (correct semantics + keyboard
+    // activation for free, no role=button / href="#" scroll-jump hack).
+    const isLink = href != null && href !== '' && href !== '#';
+    if (isLink) {
+        return h('a', {
+            class: cls, href,
+            'aria-label': ariaName,
+            'aria-disabled': disabled ? 'true' : null,
+            tabindex: disabled ? '-1' : null,
+            onclick
+        }, children);
+    }
+    return h('button', {
+        type: 'button', class: cls,
+        disabled: disabled ? true : null,
+        'aria-label': ariaName,
+        onclick
     }, children);
 }
 
@@ -77,7 +81,12 @@ const ICON_PATHS = {
     phone: '<path d="M5 4h3l2 5-2 1a11 11 0 0 0 5 5l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
     members: '<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 6a3 3 0 0 1 0 6M21 20a6 6 0 0 0-4-5.7"/>',
     menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
-    settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/>'
+    settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/>',
+    paperclip: '<path d="M21 11.5 12.5 20a5 5 0 0 1-7-7l8-8a3.5 3.5 0 0 1 5 5l-8 8a2 2 0 0 1-3-3l7.5-7.5"/>',
+    smile: '<circle cx="12" cy="12" r="9"/><path d="M8 14a4 4 0 0 0 8 0"/><path d="M9 9h.01M15 9h.01"/>',
+    'more-horizontal': '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
+    'arrow-up': '<path d="M12 19V5M5 12l7-7 7 7"/>',
+    send: '<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>'
 };
 export function Icon(name, { size = 16 } = {}) {
     const inner = ICON_PATHS[name];

@@ -5,6 +5,7 @@
 import * as webjsx from '../../vendor/webjsx/index.js';
 import { renderMarkdownCached, highlightCodeBlockCached, initializeCachesEagerly, getCacheStats } from '../markdown-cache.js';
 import { register } from '../debug.js';
+import { Icon } from './shell.js';
 
 const h = webjsx.createElement;
 let _stats = { messages: 0, lastKindCounts: {} };
@@ -171,10 +172,10 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
                 if (e.key === ';' && e.ctrlKey) { e.preventDefault(); onEmoji && onEmoji(e); }
             } }),
         h('div', { class: 'chat-composer-toolbar' },
-            onAttach ? h('button', { class: 'composer-btn', onclick: (e) => { e.preventDefault(); onAttach(e); }, 'aria-label': 'attach file', title: 'attach file' }, '📎') : null,
-            onEmoji ? h('button', { class: 'composer-btn', onclick: (e) => { e.preventDefault(); onEmoji(e); }, 'aria-label': 'emoji picker', title: 'emoji picker (Ctrl+;)' }, '😊') : null,
-            onMenu ? h('button', { class: 'composer-btn', onclick: (e) => { e.preventDefault(); onMenu(e); }, 'aria-label': 'composer menu', title: 'more options' }, '⋯') : null,
-            h('button', { class: 'send', disabled: disabled || !(value && value.trim()), onclick: send, 'aria-label': 'send message', title: 'send message (Enter)' }, '↑')
+            onAttach ? h('button', { type: 'button', class: 'composer-btn', onclick: (e) => { e.preventDefault(); onAttach(e); }, 'aria-label': 'attach file', title: 'attach file' }, Icon('paperclip')) : null,
+            onEmoji ? h('button', { type: 'button', class: 'composer-btn', onclick: (e) => { e.preventDefault(); onEmoji(e); }, 'aria-label': 'emoji picker', title: 'emoji picker (Ctrl+;)' }, Icon('smile')) : null,
+            onMenu ? h('button', { type: 'button', class: 'composer-btn', onclick: (e) => { e.preventDefault(); onMenu(e); }, 'aria-label': 'composer menu', title: 'more options' }, Icon('more-horizontal')) : null,
+            h('button', { type: 'button', class: 'send', disabled: disabled || !(value && value.trim()), onclick: send, 'aria-label': 'send message', title: 'send message (Enter)' }, Icon('arrow-up'))
         )
     );
 }
@@ -223,6 +224,11 @@ export function Chat({ title = 'chat', sub, messages = [], composer, header } = 
             h('span', { class: 'sub', 'aria-live': 'polite' }, String(messages.length).padStart(2, '0') + ' msgs')
         ),
         h('div', { class: 'chat-thread', ref: threadRef, role: 'log', 'aria-label': 'chat messages' },
+            messages.length === 0
+                ? h('div', { key: '_empty', class: 'chat-empty', role: 'status' },
+                    h('p', { class: 'chat-empty-title' }, 'no messages yet'),
+                    h('p', { class: 'chat-empty-sub' }, 'start the conversation'))
+                : null,
             ...messages.map((m, i) => ChatMessage({ ...m, key: m.key != null ? m.key : i }))
         ),
         composer || null

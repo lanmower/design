@@ -6,7 +6,7 @@
    Source-of-truth tokens. Component sheet lives in app-shell.css.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap');
 
 .ds-247420 {
   /* Tree view indentation tokens */
@@ -68,12 +68,11 @@
   --panel-accent-2: var(--accent-bright, var(--accent));
   --panel-shadow: 0 1px 0 color-mix(in oklab, var(--fg) 6%, transparent), 0 4px 14px color-mix(in oklab, var(--fg) 8%, transparent);
 
-  /* Type — one family, used purposefully. Space Grotesk for everything
-     non-mono. The display/narrow aliases stay so consumers that reference
-     them keep working; they just resolve to the body font now. */
-  --ff-display:  'Space Grotesk', system-ui, sans-serif;
-  --ff-narrow:   'Space Grotesk', system-ui, sans-serif;
-  --ff-body:     'Space Grotesk', system-ui, sans-serif;
+  /* Type — Inter for everything non-mono. The display/narrow aliases stay so
+     consumers that reference them keep working; they resolve to the body font. */
+  --ff-display:  'Inter', system-ui, sans-serif;
+  --ff-narrow:   'Inter', system-ui, sans-serif;
+  --ff-body:     'Inter', system-ui, sans-serif;
   --ff-mono:     'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 
   --fs-micro:    12px;
@@ -89,6 +88,15 @@
   --fs-h1:       clamp(34px, 5cqi, 64px);
   --fs-hero:     clamp(42px, 7cqi, 96px);
   --fs-mega:     clamp(56px, 11cqi, 168px);
+
+  /* App/chrome typescale: the default heading scale above is tuned for
+     marketing/hero layouts (h1 up to 64px). Application chrome — page titles,
+     panel headers — needs a compact ceiling so a PageHeader title doesn't
+     dwarf the content. Opt in with `data-typescale="app"` on a container. */
+  --fs-h1-app:   clamp(22px, 2.4cqi, 30px);
+  --fs-h2-app:   clamp(19px, 2cqi, 24px);
+  --fs-h3-app:   clamp(17px, 1.8cqi, 20px);
+  --fs-h4-app:   clamp(15px, 1.6cqi, 17px);
 
   --lh-tight:    1.05;
   --lh-snug:     1.2;
@@ -195,6 +203,7 @@
 
 .ds-247420[data-theme="ink"],
 .ds-247420[data-theme="dark"] {
+  color-scheme: dark;
   --bg:        var(--ink);
   --bg-2:      var(--ink-2);
   --bg-3:      #464650;
@@ -381,6 +390,12 @@
 .ds-247420 h3, .ds-247420 .t-h3 { font-family: var(--ff-body); font-size: var(--fs-h3); line-height: var(--lh-snug); letter-spacing: -0.01em;          font-weight: 600; margin: 0; }
 .ds-247420 h4, .ds-247420 .t-h4 { font-family: var(--ff-body); font-size: var(--fs-h4); line-height: var(--lh-snug);                                  font-weight: 600; margin: 0; }
 
+/* App/chrome typescale opt-in: compact heading ceiling for application UIs. */
+.ds-247420[data-typescale="app"] h1, .ds-247420[data-typescale="app"] .t-h1 { font-size: var(--fs-h1-app); line-height: 1.15; }
+.ds-247420[data-typescale="app"] h2, .ds-247420[data-typescale="app"] .t-h2 { font-size: var(--fs-h2-app); }
+.ds-247420[data-typescale="app"] h3, .ds-247420[data-typescale="app"] .t-h3 { font-size: var(--fs-h3-app); }
+.ds-247420[data-typescale="app"] h4, .ds-247420[data-typescale="app"] .t-h4 { font-size: var(--fs-h4-app); }
+
 .ds-247420 .t-hero    { font-family: var(--ff-body); font-size: var(--fs-hero); line-height: var(--lh-tight); letter-spacing: var(--tr-tighter); font-weight: 600; margin: 0; }
 .ds-247420 .t-mega    { font-family: var(--ff-body); font-size: var(--fs-mega); line-height: 0.95;            letter-spacing: var(--tr-tighter); font-weight: 600; margin: 0; }
 
@@ -471,6 +486,11 @@
 .ds-247420 .app {
   display: flex; flex-direction: column;
   min-height: 100vh;
+  /* Definite height so the flex column resolves height:100% for descendants
+     (e.g. a full-height chat) at every breakpoint, not just where a desktop
+     media override happened to set explicit heights. dvh tracks mobile chrome. */
+  min-height: 100dvh;
+  height: 100dvh;
   background: var(--bg);
   color: var(--fg);
   /* Notched-device safe area padding (no-op on devices without notches) */
@@ -612,17 +632,22 @@
   align-self: stretch;
   height: 100%;
 }
-.ds-247420 .app-main > * { min-height: 0; flex-shrink: 0; }
+.ds-247420 .app-main > * { min-height: 0; }
+/* The main region scrolls its own overflow at every breakpoint (previously
+   only ≥901px), so a fixed-height .app never clips route content and inner
+   panels don't fight the page scroll. */
+.ds-247420 .app-main { overflow-y: auto; }
 /* Reserve the scrollbar track so routes with/without overflow don't shift
    the layout horizontally when the bar appears. */
 .ds-247420 .app-main { scrollbar-gutter: stable; }
 /* Jump-target anchors clear the inner-scroll top edge (no chrome overlap,
    but a little breathing room when deep-linked within .app-main). */
 .ds-247420 .app-main [id] { scroll-margin-top: var(--space-4); }
+/* Full-height route children fill the region instead of scrolling the page. */
 .ds-247420 .app-main > .chat,
 .ds-247420 .app-main > .chat-area,
 .ds-247420 .app-main > .ds-file-stage,
-.ds-247420 .app-main > .grow { flex-shrink: 1; }
+.ds-247420 .app-main > .grow { flex: 1 1 auto; min-height: 0; }
 .ds-247420 .app-main.narrow { max-width: var(--measure-narrow); margin: 0 auto; }
 
 @media (min-width: 1400px) {
@@ -1757,7 +1782,6 @@
 .ds-247420 .chat {
   display: flex; flex-direction: column;
   flex: 1; min-height: 0; gap: var(--space-3);
-  padding-bottom: calc(var(--app-status-h, 42px) + var(--space-2));
 }
 .ds-247420 .chat-head {
   display: flex; align-items: baseline; gap: 8px;
@@ -1768,6 +1792,7 @@
   margin-bottom: var(--space-2);
 }
 .ds-247420 .chat-head .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.ds-247420 .chat-head .ds-chat-title,
 .ds-247420 .chat-head > span:nth-child(2) {
   font-family: var(--ff-body); font-size: var(--fs-h4);
   font-weight: 600; color: var(--fg);
@@ -1781,21 +1806,21 @@
   flex: 1; min-height: 0; overflow-y: auto;
   padding: var(--space-2) 0;
   scrollbar-width: thin; scrollbar-color: var(--bg-3) transparent;
-  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ds-247420 .chat-thread { scroll-behavior: smooth; }
 }
 .ds-247420 .chat-thread::-webkit-scrollbar { width: 8px; }
 .ds-247420 .chat-thread::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 4px; }
-.ds-247420 .chat-thread:empty::before {
-  content: 'no messages yet\astart the conversation';
-  white-space: pre;
+.ds-247420 .chat-empty {
+  margin: auto;
+  text-align: center;
   color: var(--fg-3);
   font-family: var(--ff-mono);
-  font-size: var(--fs-sm);
-  text-align: center;
-  margin: auto;
-  opacity: 0.6;
   pointer-events: none;
 }
+.ds-247420 .chat-empty-title { font-size: var(--fs-sm); margin: 0 0 var(--space-1); }
+.ds-247420 .chat-empty-sub { font-size: var(--fs-tiny); margin: 0; opacity: .7; }
 
 .ds-247420 .chat-msg { display: flex; gap: 12px; align-items: flex-start; padding: 6px 0; position: relative; min-width: 0; }
 .ds-247420 .chat-msg.you { flex-direction: row-reverse; }
@@ -1829,10 +1854,10 @@
 
 .ds-247420 .chat-bubble {
   padding: 10px 14px; background: var(--bg-2); color: var(--fg);
-  border-radius: 14px; line-height: 1.55;
+  max-width: 100%;
+  border-radius: var(--r-2); line-height: 1.55;
   word-wrap: break-word; overflow-wrap: anywhere;
   font-size: var(--fs-sm);
-  max-width: clamp(220px, min(75vw, 28em), 480px);
   min-width: 0;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
@@ -2116,27 +2141,34 @@
   box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 20%, transparent);
   outline: none;
 }
-.ds-247420 .chat-composer .send,
-.ds-247420 .chat-composer button {
+.ds-247420 .chat-composer .send {
   width: 44px; height: 44px; border-radius: 50%;
   background: var(--accent); color: var(--accent-fg);
-  border: 0; cursor: pointer; font-size: 18px; font-weight: 700;
+  border: 0; cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center;
-  flex-shrink: 0; font-family: var(--ff-body);
+  flex-shrink: 0;
   transition: background var(--dur-snap, .15s) var(--ease, ease), transform .1s ease;
-  will-change: transform; contain: layout style paint;
 }
-.ds-247420 .chat-composer .send:hover,
-.ds-247420 .chat-composer button:hover { transform: scale(1.04); }
-.ds-247420 .chat-composer .send:active,
-.ds-247420 .chat-composer button:active { transform: scale(0.96); }
+.ds-247420 .chat-composer .send:disabled { opacity: .5; cursor: not-allowed; }
+/* Ghost icon buttons in the toolbar (attach / emoji / more) — NOT the round
+   accent send button. */
+.ds-247420 .composer-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: transparent; color: var(--fg-3);
+  border: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background var(--dur-snap, .15s) var(--ease, ease), color var(--dur-snap, .15s) var(--ease, ease);
+}
+.ds-247420 .composer-btn:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
+.ds-247420 .chat-composer .send:hover { transform: scale(1.04); }
+.ds-247420 .chat-composer .send:active { transform: scale(0.96); }
 .ds-247420 .chat-composer .send:focus-visible,
-.ds-247420 .chat-composer button:focus-visible {
+.ds-247420 .composer-btn:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
-.ds-247420 .chat-composer .send:disabled,
-.ds-247420 .chat-composer button:disabled {
+.ds-247420 .chat-composer .send:disabled {
   background: var(--bg-3); color: var(--fg-3); cursor: not-allowed; transform: none;
 }
 
@@ -2421,6 +2453,9 @@
 .ds-247420 input[type="email"],
 .ds-247420 input[type="password"],
 .ds-247420 input[type="number"],
+.ds-247420 input[type="search"],
+.ds-247420 input[type="url"],
+.ds-247420 input[type="tel"],
 .ds-247420 textarea,
 .ds-247420 select {
   transition: background var(--dur-snap) var(--ease),
@@ -2432,8 +2467,72 @@
 .ds-247420 input[type="email"]::placeholder,
 .ds-247420 input[type="password"]::placeholder,
 .ds-247420 input[type="number"]::placeholder,
+.ds-247420 input[type="search"]::placeholder,
+.ds-247420 input[type="url"]::placeholder,
 .ds-247420 textarea::placeholder {
   color: var(--fg-3);
+}
+
+/* ── Field controls: themed base for TextField / Select / SearchInput ──
+   Root fix: previously only `transition` was set, so themed apps got
+   browser-default white boxes in dark mode and labels collided with inputs
+   because `.ds-field` had no layout. */
+.ds-247420 .ds-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 6px);
+  align-items: stretch;
+  width: 100%;
+}
+.ds-247420 .ds-field-label {
+  font-size: var(--fs-sm, 14px);
+  color: var(--fg-2);
+  line-height: 1.3;
+}
+.ds-247420 .ds-field-hint {
+  font-size: var(--fs-tiny, 13px);
+  color: var(--fg-3);
+  line-height: 1.35;
+}
+.ds-247420 .ds-field-count {
+  font-size: var(--fs-tiny, 13px);
+  color: var(--fg-3);
+  align-self: flex-end;
+}
+
+.ds-247420 .ds-field input,
+.ds-247420 .ds-field textarea,
+.ds-247420 .ds-field .ds-select,
+.ds-247420 .ds-search-input {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  color: var(--fg);
+  background: var(--bg-2);
+  border: 0;
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule);
+  border-radius: var(--r-2, 10px);
+  padding: 10px 14px;
+}
+.ds-247420 .ds-field textarea { min-height: calc(4 * 1.5em); resize: vertical; }
+.ds-247420 .ds-search-input::placeholder { color: var(--fg-3); }
+
+.ds-247420 .ds-field input:focus-visible,
+.ds-247420 .ds-field textarea:focus-visible,
+.ds-247420 .ds-field .ds-select:focus-visible,
+.ds-247420 .ds-search-input:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.ds-247420 .ds-field input:disabled,
+.ds-247420 .ds-field textarea:disabled,
+.ds-247420 .ds-field .ds-select:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+.ds-247420 .ds-field input[aria-invalid="true"],
+.ds-247420 .ds-field textarea[aria-invalid="true"] {
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--flame, #d64545);
 }
 
 /* Clear button for text inputs */

@@ -274,7 +274,7 @@ export function TextField({ label, value = '', type = 'text', placeholder = '', 
         label != null ? h('span', { key: 'l', class: 'ds-field-label' }, label) : null,
         input,
         maxLength != null ? h('span', { key: 'c', class: 'ds-field-count' }, String(value.length) + '/' + maxLength) : null,
-        hint != null ? h('span', { key: 'h', class: 'lede ds-field-hint' }, hint) : null
+        hint != null ? h('span', { key: 'h', class: 'ds-field-hint' }, hint) : null
     );
 }
 
@@ -294,7 +294,7 @@ export function Select({ label, value = '', options = [], onChange, name, key, p
     return h('label', { key, class: 'ds-field' },
         label != null ? h('span', { key: 'l', class: 'ds-field-label' }, label) : null,
         select,
-        hint != null ? h('span', { key: 'h', class: 'lede ds-field-hint' }, hint) : null
+        hint != null ? h('span', { key: 'h', class: 'ds-field-hint' }, hint) : null
     );
 }
 

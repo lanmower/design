@@ -4,7 +4,7 @@
    Source-of-truth tokens. Component sheet lives in app-shell.css.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap');
 
 :root {
   /* Tree view indentation tokens */
@@ -66,12 +66,11 @@
   --panel-accent-2: var(--accent-bright, var(--accent));
   --panel-shadow: 0 1px 0 color-mix(in oklab, var(--fg) 6%, transparent), 0 4px 14px color-mix(in oklab, var(--fg) 8%, transparent);
 
-  /* Type — one family, used purposefully. Space Grotesk for everything
-     non-mono. The display/narrow aliases stay so consumers that reference
-     them keep working; they just resolve to the body font now. */
-  --ff-display:  'Space Grotesk', system-ui, sans-serif;
-  --ff-narrow:   'Space Grotesk', system-ui, sans-serif;
-  --ff-body:     'Space Grotesk', system-ui, sans-serif;
+  /* Type — Inter for everything non-mono. The display/narrow aliases stay so
+     consumers that reference them keep working; they resolve to the body font. */
+  --ff-display:  'Inter', system-ui, sans-serif;
+  --ff-narrow:   'Inter', system-ui, sans-serif;
+  --ff-body:     'Inter', system-ui, sans-serif;
   --ff-mono:     'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 
   --fs-micro:    12px;
@@ -87,6 +86,15 @@
   --fs-h1:       clamp(34px, 5cqi, 64px);
   --fs-hero:     clamp(42px, 7cqi, 96px);
   --fs-mega:     clamp(56px, 11cqi, 168px);
+
+  /* App/chrome typescale: the default heading scale above is tuned for
+     marketing/hero layouts (h1 up to 64px). Application chrome — page titles,
+     panel headers — needs a compact ceiling so a PageHeader title doesn't
+     dwarf the content. Opt in with `data-typescale="app"` on a container. */
+  --fs-h1-app:   clamp(22px, 2.4cqi, 30px);
+  --fs-h2-app:   clamp(19px, 2cqi, 24px);
+  --fs-h3-app:   clamp(17px, 1.8cqi, 20px);
+  --fs-h4-app:   clamp(15px, 1.6cqi, 17px);
 
   --lh-tight:    1.05;
   --lh-snug:     1.2;
@@ -193,6 +201,7 @@ select:focus-visible {
 
 [data-theme="ink"],
 [data-theme="dark"] {
+  color-scheme: dark;
   --bg:        var(--ink);
   --bg-2:      var(--ink-2);
   --bg-3:      #464650;
