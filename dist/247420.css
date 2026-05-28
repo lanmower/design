@@ -552,8 +552,11 @@
 .ds-247420 .app-crumb .crumb-right { margin-left: auto; color: var(--fg-3); }
 
 .ds-247420 .app-side-shell { background: var(--bg); }
-.ds-247420 .app-body { display: grid; grid-template-columns: var(--sidebar-width) minmax(0, 1fr); flex: 1; min-height: 0; }
+.ds-247420 .app-body { display: grid; grid-template-columns: var(--sidebar-width) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); align-items: stretch; align-content: stretch; flex: 1; min-height: 0; }
 .ds-247420 .app-body.no-side { grid-template-columns: minmax(0, 1fr); }
+/* When there is no sidebar, the empty side-shell must not occupy a grid row,
+   otherwise main wraps to a second (collapsed) row. Remove it from layout. */
+.ds-247420 .app-body.no-side .app-side-shell { display: none; }
 
 .ds-247420 .app-side {
   display: flex; flex-direction: column; gap: var(--space-4);
@@ -593,7 +596,14 @@
 .ds-247420 .app-main {
   padding: var(--space-5) var(--pad-x) 0;
   min-width: 0;
+  /* Full-height flex column so a single flex:1 child (e.g. .chat) fills the
+     region between crumb and status instead of floating at content height. */
+  display: flex; flex-direction: column;
+  min-height: 0;
+  align-self: stretch;
+  height: 100%;
 }
+.ds-247420 .app-main > * { min-height: 0; }
 .ds-247420 .app-main.narrow { max-width: var(--measure-narrow); margin: 0 auto; }
 
 @media (min-width: 1400px) {
@@ -601,11 +611,14 @@
   .ds-247420 .app-main .chat,
   .ds-247420 .app-main > .chat-area,
   .ds-247420 .app-main > .main-content { max-width: none; margin: 0; width: 100%; }
-  .ds-247420 .app-status { max-width: 1400px; margin-left: auto; margin-right: auto; left: 0; right: 0; }
+  /* Status bar inherits the .app max-width cap above and stretches edge-to-edge
+     within it; no separate width constraint (which previously narrowed it). */
+  .ds-247420 .app-status { width: 100%; }
 }
 
 .ds-247420 .app-status {
   display: flex; align-items: center; gap: var(--space-3);
+  width: 100%;
   min-height: var(--app-status-h);
   padding: 10px var(--pad-x);
   font-family: var(--ff-mono); font-size: var(--fs-xs);
@@ -709,6 +722,9 @@
 .ds-247420 .chip.tone-error    { background: var(--flame);       color: var(--paper); }
 .ds-247420 .chip.tone-success  { background: var(--green-tint);  color: var(--green-deep); }
 .ds-247420 .chip.tone-disabled { background: var(--bg-3);        color: var(--fg-3); }
+.ds-247420 .chip.tone-ok       { background: var(--green-tint);  color: var(--green-deep); }
+.ds-247420 .chip.tone-miss     { background: var(--flame);       color: var(--paper); }
+.ds-247420 .chip.tone-neutral  { background: var(--bg-3);        color: var(--fg-2); }
 
 .ds-247420 .glyph {
   display: inline-flex; align-items: center; justify-content: center;
@@ -2055,6 +2071,8 @@
   font-family: inherit; font-size: var(--fs-sm);
   line-height: 1.4; resize: none;
   min-height: 44px; max-height: 200px;
+  box-sizing: border-box; overflow-y: auto;
+  scrollbar-width: thin;
 }
 .ds-247420 .chat-composer textarea::placeholder { color: var(--fg-3); }
 .ds-247420 .chat-composer textarea:focus {
@@ -2733,7 +2751,7 @@
   .ds-247420 .app-main { padding-left: var(--space-3); padding-right: var(--space-3); }
 }
 
-/* Drawer scrim */
+/* Drawer scrim — lives inside .app-body, shown when drawer open ≤900px */
 .ds-247420 .app-side-scrim {
   display: none;
   position: fixed; inset: 0;
@@ -2741,8 +2759,34 @@
   z-index: 49;
 }
 @media (max-width: 900px) {
-  .ds-247420 .app-body.side-open ~ .app-side-scrim,
-  .ds-247420 .app-side-shell.open ~ .app-side-scrim { display: block; }
+  .ds-247420 .app-body.side-open .app-side-scrim { display: block; }
+}
+
+/* Mobile nav toggle (hamburger) — hidden on desktop, shown ≤900px */
+.ds-247420 .app-side-toggle {
+  display: none;
+  position: fixed; top: calc((var(--app-topbar-h) - 32px) / 2); left: 10px;
+  z-index: 51;
+  width: 36px; height: 36px;
+  align-items: center; justify-content: center;
+  font-size: 18px; line-height: 1;
+  background: var(--bg-2); color: var(--fg);
+  border: 1px solid var(--rule, color-mix(in oklab, var(--fg) 12%, transparent));
+  border-radius: var(--r-1, 6px);
+  cursor: pointer;
+}
+.ds-247420 .app-side-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 900px) {
+  .ds-247420 .app-side-toggle { display: inline-flex; }
+  .ds-247420 .app-topbar .brand { margin-left: 44px; }
+}
+
+/* Desktop: independent scroll for side rail and main, so a short viewport
+   keeps the bottom nav items reachable and main scrolls on its own. */
+@media (min-width: 901px) {
+  .ds-247420 .app-body { min-height: 0; max-height: calc(100vh - var(--app-topbar-h) - var(--app-crumb-h, 0px) - var(--app-status-h, 0px)); }
+  .ds-247420 .app-side-shell { overflow-y: auto; max-height: 100%; }
+  .ds-247420 .app-main { overflow-y: auto; max-height: 100%; }
 }
 
 /* Mobile (≤480) status bar compact; hide tail item */
@@ -4271,6 +4315,27 @@
 .ds-247420 .cm-page-edit { padding: var(--space-1) var(--space-2); border: var(--bw-hair) solid var(--rule-strong); border-radius: var(--r-1); background: var(--bg-3); color: var(--fg); cursor: pointer; }
 .ds-247420 .cm-page-body { padding: var(--space-3); line-height: 1.6; }
 .ds-247420 .cm-page-empty { color: var(--fg-2, var(--fg)); opacity: .7; }
+
+/* ============================================================
+   freddie pages — layout for FREDDIE_PAGES renderers.
+   Scoped under .ds-247420 by the build prefixer. Tokens only.
+   ============================================================ */
+.ds-247420 .fd-page-root { display: block; height: 100%; }
+.ds-247420 .fd-page-inner { display: flex; flex-direction: column; gap: var(--space-3, 16px); padding: var(--space-3, 16px); max-width: 1100px; }
+.ds-247420 .fd-page-inner > * { min-width: 0; }
+.ds-247420 .fd-loading { display: flex; align-items: center; gap: var(--space-2, 10px); padding: var(--space-4, 24px); color: var(--fg-2, var(--fg)); }
+.ds-247420 .fd-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2, 10px); padding: var(--space-5, 32px) var(--space-3, 16px); color: var(--fg-2, var(--fg)); text-align: center; }
+.ds-247420 .fd-empty-glyph { font-size: 28px; opacity: .55; line-height: 1; }
+.ds-247420 .fd-pre { margin: 0; padding: var(--space-2, 10px); background: var(--bg-3, var(--panel-bg-2)); border: var(--bw-hair, 1px) solid var(--rule, var(--panel-accent)); border-radius: var(--r-1, 6px); overflow: auto; max-height: 460px; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; font-family: var(--font-mono, ui-monospace, monospace); font-size: 12px; line-height: 1.5; }
+.ds-247420 .fd-skill-body { max-height: 320px; }
+.ds-247420 .fd-row-actions { display: inline-flex; gap: var(--space-1, 6px); align-items: center; }
+.ds-247420 .fd-chat { display: flex; flex-direction: column; gap: var(--space-2, 10px); height: 100%; min-height: 0; }
+.ds-247420 .fd-chat-thread { flex: 1 1 auto; min-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-2, 10px); padding: var(--space-2, 10px); }
+.ds-247420 .fd-page-error { white-space: pre-wrap; overflow-wrap: anywhere; }
+/* page-level responsive: tighten padding on narrow viewports */
+@media (max-width: 640px) {
+  .ds-247420 .fd-page-inner { padding: var(--space-2, 10px); gap: var(--space-2, 10px); }
+}
 
 /* chat.css */
 /* chat.css — chat-specific styles. Currently empty; all chat styles live in

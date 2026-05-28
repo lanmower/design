@@ -131,15 +131,32 @@ export function Status({ left = [], right = [] } = {}) {
     );
 }
 
+// Toggle the mobile sidebar drawer. Pure-DOM because AppShell is stateless
+// chrome; the class lives on .app-body and is read by the ≤900px media query.
+function toggleSide(open) {
+    const body = document.querySelector('.app-body');
+    if (!body) return;
+    const next = open != null ? open : !body.classList.contains('side-open');
+    body.classList.toggle('side-open', next);
+    const btn = document.querySelector('.app-side-toggle');
+    if (btn) btn.setAttribute('aria-expanded', next ? 'true' : 'false');
+}
+
 export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
     const hasSide = Boolean(side);
     const sideNode = hasSide ? side : h('aside', { class: 'app-side', 'aria-hidden': 'true' });
     return h('div', { class: 'app' },
         h('a', { href: '#app-main', class: 'skip-link' }, 'skip to main content'),
+        hasSide ? h('button', {
+            class: 'app-side-toggle', type: 'button',
+            'aria-label': 'toggle navigation', 'aria-expanded': 'false', 'aria-controls': 'app-main',
+            onclick: () => toggleSide(),
+        }, '☰') : null,
         topbar || null,
         crumb || null,
         h('div', { class: 'app-body' + (hasSide ? '' : ' no-side') },
-            h('div', { class: 'app-side-shell' }, sideNode),
+            h('div', { class: 'app-side-scrim', 'aria-hidden': 'true', onclick: () => toggleSide(false) }),
+            h('div', { class: 'app-side-shell', onclick: (e) => { if (e.target.closest('a')) toggleSide(false); } }, sideNode),
             h('main', { class: 'app-main' + (narrow ? ' narrow' : ''), id: 'app-main' }, ...(Array.isArray(main) ? main : [main]))
         ),
         status || null
