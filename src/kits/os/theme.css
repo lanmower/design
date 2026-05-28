@@ -580,8 +580,8 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
 }
 
 /* ---- Session-UX surfaces: chips + modals + empty state ---- */
-.ds-247420 .os-instances { display: flex; gap: 6px; align-items: center; flex: 0 1 auto; min-width: 0; overflow-x: auto; overflow-y: hidden; padding: 0 4px; scrollbar-width: thin; }
-.ds-247420 .os-instances::-webkit-scrollbar { height: 4px; }
+.ds-247420 .os-instances { display: flex; gap: 6px; align-items: center; flex: 0 1 auto; min-width: 0; height: var(--os-bar-h, 34px); overflow-x: auto; overflow-y: hidden; padding: 0 4px; scrollbar-width: none; }
+.ds-247420 .os-instances::-webkit-scrollbar { display: none; }
 
 .ds-247420 .tb-sess-chip {
   display: inline-flex; align-items: center; gap: 6px;
