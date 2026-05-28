@@ -14,9 +14,9 @@ import { applyTheme, getTheme, resolvedTheme, onThemeChange } from '../theme.js'
 const h = webjsx.createElement;
 
 const MODES = [
-    ['auto',  'A', 'auto'],
-    ['paper', '☀', 'light'],
-    ['ink',   '☾', 'dark'],
+    ['auto',  'auto'],
+    ['paper', 'light'],
+    ['ink',   'dark'],
 ];
 
 // Track instances so an OS-theme change while in 'auto' re-renders the
@@ -35,7 +35,6 @@ export function ThemeToggle({ compact = false, onChange } = {}) {
 
     if (compact) {
         const resolved = resolvedTheme();
-        const glyph = current === 'auto' ? 'A' : (resolved === 'ink' ? '☾' : '☀');
         const label = current === 'auto' ? `auto (${resolved})` : (current === 'ink' ? 'dark' : 'light');
         return h('button', {
             class: 'btn ds-theme-toggle',
@@ -47,14 +46,14 @@ export function ThemeToggle({ compact = false, onChange } = {}) {
                 applyTheme(next);
                 if (onChange) try { onChange(next); } catch {}
             }
-        }, h('span', { class: 'glyph' }, glyph), ' ', label);
+        }, label);
     }
 
     return h('div', {
         class: 'ds-theme-toggle ds-segmented',
         role: 'radiogroup',
         'aria-label': 'theme'
-    }, ...MODES.map(([mode, glyph, label]) =>
+    }, ...MODES.map(([mode, label]) =>
         h('button', {
             key: mode,
             type: 'button',
@@ -65,6 +64,6 @@ export function ThemeToggle({ compact = false, onChange } = {}) {
                 applyTheme(mode);
                 if (onChange) try { onChange(mode); } catch {}
             }
-        }, h('span', { class: 'glyph' }, glyph), ' ', label)
+        }, label)
     ));
 }

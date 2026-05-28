@@ -120,7 +120,7 @@ export function Crumb({ trail = [], leaf = '', right } = {}) {
     const parts = [];
     trail.forEach((t, i) => {
         parts.push(h('span', { key: 't' + i }, t));
-        parts.push(h('span', { key: 's' + i, class: 'sep' }, '›'));
+        parts.push(h('span', { key: 's' + i, class: 'sep' }, '/'));
     });
     parts.push(h('span', { key: 'leaf', class: 'leaf' }, leaf));
     if (right) parts.push(h('span', { key: 'r', class: 'crumb-right' }, ...(Array.isArray(right) ? right : [right])));

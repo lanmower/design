@@ -79,7 +79,7 @@ examples:
       cta: object map of all 14 page functions
     - name: skillLabel
       href: "#helpers"
-      cta: format gm:skill-name → readable label
+      cta: format gm:skill-name to readable label
     - name: renderChatMessages
       href: "#helpers"
       cta: render message array into DOM element
