@@ -99,15 +99,22 @@ ${cssLink}
 .page-body h1 { margin-top: 0 } .page-body h2 { margin-top: var(--space-5, 32px) } .page-body h3 { margin-top: var(--space-4, 24px) }
 .page-body > * + * { margin-top: var(--space-3, 16px) }
 .page-body pre { margin: var(--space-3, 16px) 0; background: var(--panel-2); padding: var(--space-3, 16px); border-radius: var(--r-1, 10px); overflow-x: auto }
-/* .app-stage owns inter-block rhythm via grid gap; sections/hero must not double it */
-.app-stage > .ds-hero { margin: 0; padding: 0 }
-.app-stage > .ds-section { margin: 0 }
+/* .app-stage owns inter-block rhythm via grid gap; sections/hero must not double it.
+   These selectors carry !important because this inline block loads before the
+   unpkg CSS bundle, which would otherwise win on load-order for equal specificity. */
+.ds-247420 .app-stage > .ds-hero { margin: 0 !important; padding: var(--space-4, 24px) 0 0 !important; max-width: none !important; gap: var(--space-4, 24px) !important }
+.ds-247420 .app-stage > .ds-section { margin: 0 !important }
 .app-stage .row + .row { margin-top: var(--space-1, 4px) }
 .app-stage .ds-section .row { margin-top: var(--space-2, 8px) }
 .app-stage .ds-section > p.ds-lede { margin: 0 0 var(--space-3, 16px); max-width: var(--measure, 68ch); color: var(--fg-2) }
 .row-benefit { font-style: italic; color: var(--fg-3); font-size: var(--fs-sm); margin-top: var(--space-1, 4px) }
 .ds-row-arrow { margin-left: auto; opacity: .5; transition: opacity var(--dur-snap, 80ms) var(--ease) }
 a.row:hover .ds-row-arrow { opacity: 1 }
+/* hero stat strip — all badges as a wrapping inline rhythm, not one empty panel */
+.ds-hero-stats { display: flex; flex-wrap: wrap; gap: var(--space-3, 16px) var(--space-5, 32px); margin-top: var(--space-2, 8px) }
+.ds-hero-stat { display: flex; align-items: baseline; gap: var(--space-2, 8px) }
+.ds-hero-stat-n { font-family: var(--ff-body); font-weight: 700; font-size: var(--fs-lg, 18px); color: var(--fg) }
+.ds-hero-stat-l { font-size: var(--fs-sm, 15px); color: var(--fg-3) }
 </style>
 <script id="__site__" type="application/json">${JSON.stringify(pageData).replace(/</g, '\\u003c')}</script>
 ${headExtra}
@@ -121,14 +128,27 @@ const RAILS = ['rail-green', 'rail-purple', 'rail-mascot', 'rail-sun', 'rail-fla
 
 function heroNode(hero) {
   if (!hero) return null;
-  return C.Hero({
-    eyebrow: hero.eyebrow,
-    title: hero.heading || hero.title || data.title,
-    body: hero.body || hero.subheading || '',
-    accent: hero.accent,
-    badge: Array.isArray(hero.badges) && hero.badges[0] ? hero.badges[0].label : undefined,
-    actions: Array.isArray(hero.ctas) ? hero.ctas.map((c, i) => h('a', { key: i, class: i === 0 ? 'btn btn-accent' : 'btn btn-ghost', href: c.href || '#' }, c.label || c.cta || 'go')) : null,
-  });
+  const badges = Array.isArray(hero.badges) ? hero.badges.filter(Boolean) : [];
+  const badgeRow = badges.length
+    ? h('div', { class: 'ds-hero-stats' }, ...badges.map((b, i) =>
+        h('span', { key: i, class: 'ds-hero-stat' },
+          h('strong', { class: 'ds-hero-stat-n' }, String(b.label != null ? b.label : b)),
+          b.desc ? h('span', { class: 'ds-hero-stat-l' }, String(b.desc)) : null,
+        )))
+    : null;
+  return h('div', { class: 'ds-hero' },
+    hero.eyebrow ? h('span', { class: 'eyebrow' }, hero.eyebrow) : null,
+    h('h1', { class: 'ds-hero-title' }, hero.heading || hero.title || data.title),
+    (hero.body || hero.subheading) ? h('p', { class: 'ds-hero-body' },
+      hero.body || hero.subheading,
+      hero.accent ? h('span', { class: 'ds-hero-accent' }, ' ' + hero.accent) : null,
+    ) : null,
+    Array.isArray(hero.ctas) && hero.ctas.length
+      ? h('div', { class: 'ds-hero-actions' }, ...hero.ctas.map((c, i) =>
+          h('a', { key: i, class: i === 0 ? 'btn btn-accent' : 'btn btn-ghost', href: c.href || '#' }, c.label || c.cta || 'go')))
+      : null,
+    badgeRow,
+  );
 }
 
 function sectionNode(sec, idx) {
