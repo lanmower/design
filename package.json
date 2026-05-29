@@ -19,6 +19,8 @@
     "./kits/spoint/loading-screen.css": "./src/kits/spoint/loading-screen.css",
     "./kits/spoint/game-hud.js": "./src/kits/spoint/game-hud.js",
     "./kits/spoint/game-hud.css": "./src/kits/spoint/game-hud.css",
+    "./kits/spoint/host-join-lobby.js": "./src/kits/spoint/host-join-lobby.js",
+    "./kits/spoint/host-join-lobby.css": "./src/kits/spoint/host-join-lobby.css",
     "./kits/os": {
       "import": "./src/kits/os/index.js",
       "default": "./src/kits/os/index.js"

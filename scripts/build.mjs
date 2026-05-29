@@ -43,6 +43,7 @@ const cssParts = [
     ['community-app.css', path.join(root, 'community-app.css')],
     ['spoint/loading-screen.css', path.join(root, 'src/kits/spoint/loading-screen.css')],
     ['spoint/game-hud.css', path.join(root, 'src/kits/spoint/game-hud.css')],
+    ['spoint/host-join-lobby.css', path.join(root, 'src/kits/spoint/host-join-lobby.css')],
 ];
 
 let raw = '';

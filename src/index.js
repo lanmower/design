@@ -77,6 +77,7 @@ export const applyDiff = webjsx.applyDiff;
 // spoint kit paint surfaces (loading screen, HUD, editor chrome).
 export { renderLoadingScreen } from './kits/spoint/loading-screen.js';
 export { renderGameHud } from './kits/spoint/game-hud.js';
+export { renderHostJoinLobby } from './kits/spoint/host-join-lobby.js';
 
 // Re-export freddie helpers so consumers can `import { FREDDIE_PAGES } from
 // 'anentrypoint-design'` directly.
