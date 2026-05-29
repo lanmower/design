@@ -93,9 +93,21 @@ ${cssLink}
 { "imports": { "anentrypoint-design": "https://unpkg.com/anentrypoint-design@latest/dist/247420.js" } }
 </script>
 <style>
-.app-stage { max-width: 1100px; margin: 0 auto; padding: 24px; display: grid; gap: 24px }
-.page-body h1 { margin-top: 0 } .page-body h2 { margin-top: 32px } .page-body h3 { margin-top: 24px }
-.page-body pre { margin: 12px 0; background: var(--panel-2); padding: 12px; border-radius: 8px; overflow-x: auto }
+.app-stage { width: 100%; max-width: var(--measure-wide, 940px); margin-inline: auto; padding: var(--space-6, 48px) var(--space-4, 24px) var(--space-8, 96px); display: grid; gap: var(--space-6, 48px); box-sizing: border-box }
+@media (max-width: 768px) { .app-stage { padding: var(--space-4, 24px) var(--space-3, 16px) var(--space-6, 48px); gap: var(--space-5, 32px) } }
+.page-body > :first-child { margin-top: 0 }
+.page-body h1 { margin-top: 0 } .page-body h2 { margin-top: var(--space-5, 32px) } .page-body h3 { margin-top: var(--space-4, 24px) }
+.page-body > * + * { margin-top: var(--space-3, 16px) }
+.page-body pre { margin: var(--space-3, 16px) 0; background: var(--panel-2); padding: var(--space-3, 16px); border-radius: var(--r-1, 10px); overflow-x: auto }
+/* .app-stage owns inter-block rhythm via grid gap; sections/hero must not double it */
+.app-stage > .ds-hero { margin: 0; padding: 0 }
+.app-stage > .ds-section { margin: 0 }
+.app-stage .row + .row { margin-top: var(--space-1, 4px) }
+.app-stage .ds-section .row { margin-top: var(--space-2, 8px) }
+.app-stage .ds-section > p.ds-lede { margin: 0 0 var(--space-3, 16px); max-width: var(--measure, 68ch); color: var(--fg-2) }
+.row-benefit { font-style: italic; color: var(--fg-3); font-size: var(--fs-sm); margin-top: var(--space-1, 4px) }
+.ds-row-arrow { margin-left: auto; opacity: .5; transition: opacity var(--dur-snap, 80ms) var(--ease) }
+a.row:hover .ds-row-arrow { opacity: 1 }
 </style>
 <script id="__site__" type="application/json">${JSON.stringify(pageData).replace(/</g, '\\u003c')}</script>
 ${headExtra}

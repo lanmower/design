@@ -1,31 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* Fonts are declared once in the canonical theme (colors_and_type.css /
+   vendor/fonts.css), which every .ds-247420 consumer loads first. No @import
+   here — a second Inter-only import risked a weight-set FOUT mismatch. */
 
+/* The OS shell namespaces its surfaces as --os-* but those are pure ALIASES of
+   the canonical semantic tokens from colors_and_type.css. colors_and_type.css
+   is always loaded before this sheet for any .ds-247420 consumer, so the
+   canonical tokens are guaranteed present and the alias fallbacks are dropped —
+   a fallback here would silently re-introduce theme drift (a baked light value
+   that ignores [data-theme="ink"]). One theme drives both token namespaces. */
 :root {
-    --ff-ui: 'Inter', system-ui, sans-serif;
-    --ff-display: 'Inter', system-ui, sans-serif;
-    --ff-mono: 'JetBrains Mono', ui-monospace, monospace;
-    --os-accent: var(--panel-accent, #3F8A4A);
-    --os-accent-2: var(--panel-accent-2, #2B6B36);
-    --os-accent-soft: var(--panel-select, #D8ECCB);
-    --os-bg-0: var(--panel-0, #F5F0E4);
-    --os-bg-1: var(--panel-1, #FBF6EB);
-    --os-bg-2: var(--panel-2, #F0E9DA);
-    --os-bg-3: var(--panel-3, #E3DAC7);
-    --os-fg: var(--panel-text, #1F1B16);
-    --os-fg-2: var(--panel-text-2, #5A5246);
-    --os-fg-3: var(--panel-text-3, #857B6C);
-    --os-red: var(--warn, #FF6B4A);
-    --os-amber: var(--sun, #FFD86B);
-    --os-green: var(--green, #3F8A4A);
-    --os-radius: var(--r-2, 10px);
-    --os-radius-sm: var(--r-1, 6px);
+    /* --ff-ui is the OS-shell alias for the canonical body font; --ff-display
+       and --ff-mono are already canonical (colors_and_type.css), referenced
+       directly below — do not self-redefine them here (cycle). */
+    --ff-ui: var(--ff-body);
+    --os-accent: var(--accent);
+    --os-accent-2: var(--accent-bright, var(--accent));
+    --os-accent-soft: var(--accent-tint);
+    --os-bg-0: var(--bg);
+    --os-bg-1: var(--bg-2);
+    --os-bg-2: var(--bg-3);
+    --os-bg-3: var(--panel-3);
+    --os-fg: var(--fg);
+    --os-fg-2: var(--fg-2);
+    --os-fg-3: var(--fg-3);
+    --os-red: var(--warn);
+    --os-amber: var(--sun);
+    --os-green: var(--green);
+    --os-radius: var(--r-2);
+    --os-radius-sm: var(--r-1);
     --os-bar-h: 44px;
     --os-bar-h-mobile: 52px;
     --os-rail-w: 64px;
     --os-tap: 44px;
-    --os-font: var(--ff-ui, 'Inter', system-ui, sans-serif);
-    --os-display: var(--ff-display, 'Inter', system-ui, sans-serif);
-    --os-mono: var(--ff-mono, 'JetBrains Mono', ui-monospace, monospace);
+    --os-font: var(--ff-ui);
+    --os-display: var(--ff-display);
+    --os-mono: var(--ff-mono);
 }
 
 html, body {
@@ -348,10 +357,10 @@ html, body {
 .app-pane.mono pre { background: var(--os-bg-2); padding: 10px 12px; margin: 8px 0 0 0; max-height: 220px; overflow: auto; white-space: pre-wrap; font: 11.5px var(--os-mono); border-radius: var(--r-1, 6px); color: var(--os-fg); border: none; }
 .app-shell-pane { margin: 0; padding: 8px; font: 12px var(--os-mono); color: var(--os-fg); background: var(--os-bg-0); height: 100%; overflow: auto; white-space: pre-wrap; box-sizing: border-box; }
 .app-canvas { width: 100%; height: 100%; background: var(--os-bg-0); display: block; cursor: default; }
-.app-canvas.x-display { background: #0b0d10; }
+.app-canvas.x-display { background: #0b0d10; } /* intentional: fake CRT/terminal black screen, not a theme surface */
 .app-frame { width: 100%; height: 100%; border: 0; background: var(--os-bg-0); }
 .app-iframe { width: 100%; height: 100%; border: 0; display: block; }
-.app-iframe.web { background: #ffffff; }
+.app-iframe.web { background: #ffffff; } /* intentional: white canvas for embedded external web content that expects white */
 .app-text-cursor { }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -429,53 +438,45 @@ html, body {
     .wm-resize { display: none !important; }
 }
 
-/* ---- data-attr theme/density/accent rules (ported from anentrypoint-update colors_and_type.css) ---- */
-:root[data-theme="ink"] {
-  --os-bg-0: #14131a;
-  --os-bg-1: #1a1924;
-  --os-bg-2: #20202a;
-  --os-bg-3: #2a2a36;
-  --os-fg: #efece4;
-  --os-fg-2: #c8c5bc;
-  --os-fg-3: #8c8a80;
-  color-scheme: dark;
-}
-:root[data-theme="paper"] {
-  --os-bg-0: #f6f5f1;
-  --os-bg-1: #efece4;
-  --os-bg-2: #e7e3d8;
-  --os-bg-3: #d8d3c4;
-  --os-fg: #14131a;
-  --os-fg-2: #3a3833;
-  --os-fg-3: #6a6660;
-  color-scheme: light;
-}
-:root[data-density="compact"]  { --os-bar-h: 28px; --os-tile-pad: 6px; --os-gap: 6px; }
+/* ---- data-attr theme/accent: deferred to the canonical theme ----
+ * The OS shell no longer redefines surface or accent colors per theme. The
+ * --os-* aliases above consume the canonical semantic tokens (--bg/--fg/
+ * --accent), and colors_and_type.css already drives [data-theme] (paper/ink/
+ * auto, with color-scheme + --danger tuning) and [data-accent] (green/purple/
+ * mascot). Re-declaring --os-bg-*/--os-accent per theme here only re-introduced
+ * drift (ink #14131a vs canonical #131318; purple #7c5cff vs canonical
+ * #420247). Density bar-height is genuinely OS-shell-specific, so it stays;
+ * --os-accent-tint maps to the canonical accent tint. */
+:root { --os-accent-tint: var(--accent-tint); }
+:root[data-density="compact"]     { --os-bar-h: 28px; --os-tile-pad: 6px;  --os-gap: 6px;  }
 :root[data-density="comfortable"] { --os-bar-h: 36px; --os-tile-pad: 10px; --os-gap: 10px; }
-:root[data-density="spacious"] { --os-bar-h: 44px; --os-tile-pad: 14px; --os-gap: 14px; }
-:root[data-accent="green"]   { --os-accent: #247420; --os-accent-tint: color-mix(in oklab, #247420 18%, transparent); }
-:root[data-accent="purple"]  { --os-accent: #7c5cff; --os-accent-tint: color-mix(in oklab, #7c5cff 18%, transparent); }
-:root[data-accent="mascot"]  { --os-accent: #ff6d3f; --os-accent-tint: color-mix(in oklab, #ff6d3f 18%, transparent); }
-:root[data-theme="ink"][data-accent="green"]   { --os-accent: #3FA93A; }
-:root[data-theme="ink"][data-accent="purple"]  { --os-accent: #a085ff; }
-:root[data-theme="ink"][data-accent="mascot"]  { --os-accent: #ff8a64; }
+:root[data-density="spacious"]    { --os-bar-h: 44px; --os-tile-pad: 14px; --os-gap: 14px; }
 
 /* ============================================================
- * thebird theme preset (migrated from thebird's local thebird-brand.css
+ * thebird brand layer (migrated from thebird's local thebird-brand.css
  * 2026-05-26). thebird ships ZERO design CSS — every rule below lives here
  * upstream and is delivered via the published package. Scoped to .ds-247420
- * (thebird's OS root carries that class). Brand identity: Inter +
- * --paper #F5F0E4 + green accent #247420 + uniform 34px bars +
- * Windows-style right-side window controls.
+ * (thebird's OS root carries that class). Brand identity: Inter + green accent
+ * + uniform 34px bars + Windows-style right-side window controls.
+ *
+ * NOTE: this no longer globally overrides --paper. A global :root override
+ * silently mutated the base theme for EVERY portfolio consumer (canonical
+ * --paper is #F6F5F1; thebird wanted #F5F0E4). The warm-paper variant is now a
+ * named preset [data-theme="thebird"] a consumer opts into, leaving the base
+ * theme untouched. Typography + bar geometry below are brand chrome, not
+ * color, so they stay scoped to .ds-247420.
  * ============================================================ */
-:root {
-    --paper: #F5F0E4;
+[data-theme="thebird"] {
+    color-scheme: light;
+    --paper:   #F5F0E4;
+    --paper-2: #EFE9DB;
+    --paper-3: #E3DAC7;
+    --bg: var(--paper); --bg-2: var(--paper-2); --bg-3: var(--paper-3);
+    --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
+    --accent: var(--green); --accent-fg: var(--paper);
 }
 .ds-247420 {
-    --ff-ui: 'Inter', system-ui, sans-serif !important;
-    --ff-display: 'Inter', system-ui, sans-serif !important;
-    --ff-prose: 'Inter', system-ui, sans-serif !important;
-    --os-accent: #247420;
+    --ff-ui: var(--ff-body);
     /* uniform bar height: 22px button + 6px+6px padding = 34px */
     --os-bar-h: 34px !important;
     --os-bar-h-mobile: 34px !important;
@@ -518,8 +519,8 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   position: fixed;
   pointer-events: none;
   z-index: 9050;
-  background: color-mix(in oklab, var(--os-accent, #247420) 20%, transparent);
-  border: 2px solid var(--os-accent, #247420);
+  background: color-mix(in oklab, var(--os-accent) 20%, transparent);
+  border: 2px solid var(--os-accent);
   border-radius: 8px;
   transition: all 120ms ease;
 }
@@ -534,14 +535,14 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   top: 50%;
   transform: translate(-50%, -50%);
   padding: 16px 20px;
-  background: var(--os-bg-2, #1a1a1a);
-  border: 1px solid var(--os-accent, #247420);
+  background: var(--os-bg-2);
+  border: 1px solid var(--os-accent);
   border-radius: 8px;
   z-index: 9600;
-  font-family: var(--ff-ui, 'Inter', sans-serif);
-  color: var(--os-fg, #fff);
+  font-family: var(--ff-ui);
+  color: var(--os-fg);
   min-width: 280px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  box-shadow: var(--shadow-overlay);
 }
 .ds-247420 .wm-switcher-item {
   padding: 8px 12px;
@@ -551,8 +552,8 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   gap: 10px;
 }
 .ds-247420 .wm-switcher-item.active {
-  background: var(--os-accent, #247420);
-  color: var(--paper, #fff);
+  background: var(--os-accent);
+  color: var(--paper);
 }
 
 /* freddie-chat font family (upstream still ships Nunito; brand is Inter). */
@@ -560,7 +561,7 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
 .ds-247420 freddie-chat .chat-bubble,
 .ds-247420 freddie-chat .chat-meta,
 .ds-247420 freddie-chat .chat-head {
-  font-family: var(--ff-ui, 'Inter', system-ui, sans-serif);
+  font-family: var(--ff-ui);
 }
 .ds-247420 freddie-chat .chat-bubble pre,
 .ds-247420 freddie-chat .chat-bubble code {
@@ -587,31 +588,31 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   display: inline-flex; align-items: center; gap: 6px;
   height: 22px; padding: 0 6px 0 8px;
   border-radius: var(--r-pill, 999px);
-  background: color-mix(in oklab, var(--fg, #1a1a1a) 6%, transparent);
-  color: var(--fg, #1a1a1a);
-  font-family: var(--ff-ui, system-ui); font-size: 11px; font-weight: 500;
+  background: color-mix(in oklab, var(--fg) 6%, transparent);
+  color: var(--fg);
+  font-family: var(--ff-ui); font-size: 11px; font-weight: 500;
   cursor: pointer;
   border: 1px solid transparent;
   transition: background 120ms ease, border-color 120ms ease;
   user-select: none; flex: 0 0 auto;
 }
-.ds-247420 .tb-sess-chip:hover { background: color-mix(in oklab, var(--fg, #1a1a1a) 12%, transparent); }
+.ds-247420 .tb-sess-chip:hover { background: color-mix(in oklab, var(--fg) 12%, transparent); }
 .ds-247420 .tb-sess-chip.active {
-  background: color-mix(in oklab, var(--os-accent, #247420) 18%, transparent);
-  border-color: var(--os-accent, #247420);
-  color: var(--fg, #1a1a1a);
+  background: color-mix(in oklab, var(--os-accent) 18%, transparent);
+  border-color: var(--os-accent);
+  color: var(--fg);
 }
-.ds-247420 .tb-sess-chip.active .tb-sess-dot { background: var(--os-accent, #247420); box-shadow: 0 0 0 2px color-mix(in oklab, var(--os-accent, #247420) 30%, transparent); }
-.ds-247420 .tb-sess-dot { width: 6px; height: 6px; border-radius: 50%; background: color-mix(in oklab, var(--fg, #1a1a1a) 40%, transparent); flex: 0 0 6px; }
+.ds-247420 .tb-sess-chip.active .tb-sess-dot { background: var(--os-accent); box-shadow: 0 0 0 2px color-mix(in oklab, var(--os-accent) 30%, transparent); }
+.ds-247420 .tb-sess-dot { width: 6px; height: 6px; border-radius: 50%; background: color-mix(in oklab, var(--fg) 40%, transparent); flex: 0 0 6px; }
 .ds-247420 .tb-sess-label { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ds-247420 .tb-sess-badge {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 16px; height: 14px; padding: 0 4px;
   border-radius: 7px;
-  background: color-mix(in oklab, var(--fg, #1a1a1a) 14%, transparent);
+  background: color-mix(in oklab, var(--fg) 14%, transparent);
   font-size: 9px; font-weight: 600; line-height: 1;
 }
-.ds-247420 .tb-sess-chip.active .tb-sess-badge { background: color-mix(in oklab, var(--os-accent, #247420) 30%, transparent); }
+.ds-247420 .tb-sess-chip.active .tb-sess-badge { background: color-mix(in oklab, var(--os-accent) 30%, transparent); }
 .ds-247420 .tb-sess-x {
   width: 16px; height: 16px; line-height: 14px; text-align: center;
   border: 0; padding: 0; background: transparent;
@@ -620,45 +621,45 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   opacity: 0.55; transition: opacity 120ms ease, background 120ms ease;
 }
 .ds-247420 .tb-sess-chip:hover .tb-sess-x { opacity: 1; }
-.ds-247420 .tb-sess-x:hover { background: color-mix(in oklab, #d33 30%, transparent); color: #fff; }
+.ds-247420 .tb-sess-x:hover { background: color-mix(in oklab, var(--danger) 30%, transparent); color: var(--on-color); }
 
 .ds-247420 .tb-sess-add {
   display: inline-flex; align-items: center; gap: 4px;
   height: 22px; padding: 0 10px;
-  border: 1px dashed color-mix(in oklab, var(--fg, #1a1a1a) 30%, transparent);
+  border: 1px dashed color-mix(in oklab, var(--fg) 30%, transparent);
   background: transparent;
   border-radius: var(--r-pill, 999px);
-  font-family: var(--ff-ui, system-ui); font-size: 11px; font-weight: 500;
-  color: var(--fg, #1a1a1a);
+  font-family: var(--ff-ui); font-size: 11px; font-weight: 500;
+  color: var(--fg);
   cursor: pointer;
   margin-left: 6px;
   transition: border-color 120ms ease, background 120ms ease;
 }
 .ds-247420 .tb-sess-add:hover {
-  border-color: var(--os-accent, #247420);
-  background: color-mix(in oklab, var(--os-accent, #247420) 8%, transparent);
+  border-color: var(--os-accent);
+  background: color-mix(in oklab, var(--os-accent) 8%, transparent);
 }
 .ds-247420 .tb-sess-add-plus { font-size: 13px; line-height: 1; }
 .ds-247420 .tb-sess-add-lbl { line-height: 1; }
 
 .tb-sess-overlay {
   position: fixed; inset: 0; z-index: 9800;
-  background: color-mix(in oklab, #000 40%, transparent);
+  background: var(--scrim);
   display: flex; align-items: center; justify-content: center;
   animation: tb-sess-fade 120ms ease;
 }
 @keyframes tb-sess-fade { from { opacity: 0; } to { opacity: 1; } }
 .tb-sess-modal {
-  background: var(--bg, #f5f0e4);
-  color: var(--fg, #1a1a1a);
+  background: var(--bg);
+  color: var(--fg);
   border-radius: 12px;
-  box-shadow: 0 12px 40px color-mix(in oklab, #000 30%, transparent);
+  box-shadow: var(--shadow-overlay);
   min-width: 320px; max-width: 480px;
-  border: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
   overflow: hidden;
-  font-family: var(--ff-ui, system-ui);
+  font-family: var(--ff-ui);
 }
-.tb-sess-modal-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 8%, transparent); }
+.tb-sess-modal-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid color-mix(in oklab, var(--fg) 8%, transparent); }
 .tb-sess-modal-title { font-weight: 600; font-size: 14px; }
 .tb-sess-modal-x { background: transparent; border: 0; font-size: 20px; line-height: 1; cursor: pointer; color: inherit; padding: 0 4px; }
 .tb-sess-modal-body { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
@@ -666,28 +667,28 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
 .tb-sess-modal-input {
   width: 100%; box-sizing: border-box;
   height: 32px; padding: 0 10px;
-  border: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 20%, transparent);
+  border: 1px solid color-mix(in oklab, var(--fg) 20%, transparent);
   border-radius: 6px;
-  background: color-mix(in oklab, var(--fg, #1a1a1a) 6%, var(--bg, #fff));
+  background: color-mix(in oklab, var(--fg) 6%, var(--bg));
   color: inherit;
   font-family: inherit; font-size: 13px;
 }
-.tb-sess-modal-input:focus { outline: none; border-color: var(--os-accent, #247420); box-shadow: 0 0 0 3px color-mix(in oklab, var(--os-accent, #247420) 20%, transparent); }
+.tb-sess-modal-input:focus { outline: none; border-color: var(--os-accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--os-accent) 20%, transparent); }
 .tb-sess-modal-hint { font-size: 11px; opacity: 0.7; }
 .tb-sess-modal-msg { font-size: 13px; }
-.tb-sess-modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 8%, transparent); }
+.tb-sess-modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid color-mix(in oklab, var(--fg) 8%, transparent); }
 .tb-sess-modal-btn {
   height: 28px; padding: 0 14px;
-  border-radius: 6px; border: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 20%, transparent);
+  border-radius: 6px; border: 1px solid color-mix(in oklab, var(--fg) 20%, transparent);
   background: transparent; color: inherit;
   font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer;
   transition: background 120ms ease, border-color 120ms ease;
 }
-.tb-sess-modal-btn:hover { background: color-mix(in oklab, var(--fg, #1a1a1a) 6%, transparent); }
-.tb-sess-modal-btn.primary { background: var(--os-accent, #247420); color: #fff; border-color: var(--os-accent, #247420); }
-.tb-sess-modal-btn.primary:hover { background: color-mix(in oklab, var(--os-accent, #247420) 80%, #000); }
-.tb-sess-modal-btn.danger { background: #d33; color: #fff; border-color: #d33; }
-.tb-sess-modal-btn.danger:hover { background: #b22; }
+.tb-sess-modal-btn:hover { background: color-mix(in oklab, var(--fg) 6%, transparent); }
+.tb-sess-modal-btn.primary { background: var(--os-accent); color: var(--on-color); border-color: var(--os-accent); }
+.tb-sess-modal-btn.primary:hover { background: color-mix(in oklab, var(--os-accent) 80%, var(--ink)); }
+.tb-sess-modal-btn.danger { background: var(--danger); color: var(--on-color); border-color: var(--danger); }
+.tb-sess-modal-btn.danger:hover { background: color-mix(in oklab, var(--danger) 80%, var(--ink)); }
 
 .tb-sess-empty {
   position: fixed; inset: 0; z-index: 8900;
@@ -696,65 +697,65 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
 }
 .tb-sess-empty-card {
   pointer-events: auto;
-  background: var(--bg, #f5f0e4);
-  color: var(--fg, #1a1a1a);
-  border: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 14%, transparent);
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid color-mix(in oklab, var(--fg) 14%, transparent);
   border-radius: 16px;
-  box-shadow: 0 8px 32px color-mix(in oklab, #000 14%, transparent);
+  box-shadow: var(--shadow-3);
   padding: 32px 40px; text-align: center;
-  font-family: var(--ff-ui, system-ui);
+  font-family: var(--ff-ui);
   max-width: 420px;
 }
 .tb-sess-empty-title { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
 .tb-sess-empty-sub { font-size: 13px; opacity: 0.7; margin-bottom: 20px; }
 .tb-sess-empty-cta {
   height: 40px; padding: 0 24px;
-  background: var(--os-accent, #247420); color: #fff;
+  background: var(--os-accent); color: var(--on-color);
   border: 0; border-radius: 999px;
   font-family: inherit; font-size: 14px; font-weight: 600;
   cursor: pointer;
   transition: transform 120ms ease, box-shadow 120ms ease;
 }
-.tb-sess-empty-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 16px color-mix(in oklab, var(--os-accent, #247420) 40%, transparent); }
+.tb-sess-empty-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 16px color-mix(in oklab, var(--os-accent) 40%, transparent); }
 
 /* ---- Workspaces app — full-window session manager card grid ---- */
-.ds-247420 .tb-sessions-app { display: flex; flex-direction: column; height: 100%; font-family: var(--ff-ui, system-ui); color: var(--fg, #1a1a1a); background: var(--bg, #f5f0e4); }
-.ds-247420 .tb-sessions-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 10%, transparent); }
+.ds-247420 .tb-sessions-app { display: flex; flex-direction: column; height: 100%; font-family: var(--ff-ui); color: var(--fg); background: var(--bg); }
+.ds-247420 .tb-sessions-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid color-mix(in oklab, var(--fg) 10%, transparent); }
 .ds-247420 .tb-sessions-title { font-weight: 600; font-size: 14px; }
 .ds-247420 .tb-sessions-count { font-size: 12px; opacity: 0.6; margin-left: 4px; }
 .ds-247420 .tb-sessions-spacer { flex: 1; }
-.ds-247420 .tb-sessions-btn { height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 20%, transparent); background: transparent; color: inherit; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; }
-.ds-247420 .tb-sessions-btn:hover { background: color-mix(in oklab, var(--fg, #1a1a1a) 6%, transparent); }
-.ds-247420 .tb-sessions-btn.primary { background: var(--os-accent, #247420); color: #fff; border-color: var(--os-accent, #247420); }
-.ds-247420 .tb-sessions-btn.danger { background: #d33; color: #fff; border-color: #d33; }
+.ds-247420 .tb-sessions-btn { height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid color-mix(in oklab, var(--fg) 20%, transparent); background: transparent; color: inherit; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; }
+.ds-247420 .tb-sessions-btn:hover { background: color-mix(in oklab, var(--fg) 6%, transparent); }
+.ds-247420 .tb-sessions-btn.primary { background: var(--os-accent); color: var(--on-color); border-color: var(--os-accent); }
+.ds-247420 .tb-sessions-btn.danger { background: var(--danger); color: var(--on-color); border-color: var(--danger); }
 .ds-247420 .tb-sessions-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .ds-247420 .tb-sessions-grid { flex: 1; overflow: auto; padding: 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; align-content: start; }
-.ds-247420 .tb-sessions-card { padding: 12px; border-radius: 10px; border: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 12%, transparent); background: color-mix(in oklab, var(--fg, #1a1a1a) 3%, transparent); display: flex; flex-direction: column; gap: 8px; transition: border-color 120ms ease, transform 120ms ease; }
-.ds-247420 .tb-sessions-card:hover { border-color: var(--os-accent, #247420); }
-.ds-247420 .tb-sessions-card.active { border-color: var(--os-accent, #247420); box-shadow: 0 0 0 2px color-mix(in oklab, var(--os-accent, #247420) 30%, transparent); }
+.ds-247420 .tb-sessions-card { padding: 12px; border-radius: 10px; border: 1px solid color-mix(in oklab, var(--fg) 12%, transparent); background: color-mix(in oklab, var(--fg) 3%, transparent); display: flex; flex-direction: column; gap: 8px; transition: border-color 120ms ease, transform 120ms ease; }
+.ds-247420 .tb-sessions-card:hover { border-color: var(--os-accent); }
+.ds-247420 .tb-sessions-card.active { border-color: var(--os-accent); box-shadow: 0 0 0 2px color-mix(in oklab, var(--os-accent) 30%, transparent); }
 .ds-247420 .tb-sessions-card-head { display: flex; align-items: center; gap: 8px; }
 .ds-247420 .tb-sessions-card-check { width: 14px; height: 14px; cursor: pointer; flex: 0 0 14px; }
 .ds-247420 .tb-sessions-card-name { font-weight: 600; font-size: 13px; flex: 1; outline: none; padding: 2px 4px; border-radius: 4px; }
-.ds-247420 .tb-sessions-card-name[contenteditable="true"] { background: color-mix(in oklab, var(--fg, #1a1a1a) 8%, transparent); }
+.ds-247420 .tb-sessions-card-name[contenteditable="true"] { background: color-mix(in oklab, var(--fg) 8%, transparent); }
 .ds-247420 .tb-sessions-card-id { font-family: var(--os-mono, monospace); font-size: 10px; opacity: 0.5; }
 .ds-247420 .tb-sessions-card-stats { font-size: 11px; opacity: 0.7; display: flex; gap: 12px; }
 .ds-247420 .tb-sessions-card-actions { display: flex; gap: 6px; margin-top: 4px; }
-.ds-247420 .tb-sessions-card-actions button { flex: 1; height: 24px; font-size: 11px; padding: 0 8px; border-radius: 4px; border: 1px solid color-mix(in oklab, var(--fg, #1a1a1a) 16%, transparent); background: transparent; color: inherit; cursor: pointer; font-family: inherit; }
-.ds-247420 .tb-sessions-card-actions button:hover { background: color-mix(in oklab, var(--fg, #1a1a1a) 6%, transparent); }
-.ds-247420 .tb-sessions-card-actions button.danger:hover { background: #d33; color: #fff; border-color: #d33; }
+.ds-247420 .tb-sessions-card-actions button { flex: 1; height: 24px; font-size: 11px; padding: 0 8px; border-radius: 4px; border: 1px solid color-mix(in oklab, var(--fg) 16%, transparent); background: transparent; color: inherit; cursor: pointer; font-family: inherit; }
+.ds-247420 .tb-sessions-card-actions button:hover { background: color-mix(in oklab, var(--fg) 6%, transparent); }
+.ds-247420 .tb-sessions-card-actions button.danger:hover { background: var(--danger); color: var(--on-color); border-color: var(--danger); }
 .ds-247420 .tb-sessions-empty-mid { padding: 40px; text-align: center; opacity: 0.6; font-size: 13px; }
 
 /* ---- prefers-contrast: more — strengthen borders + focus so the translucent
    chrome stays legible under forced/high-contrast user settings. ---- */
 @media (prefers-contrast: more) {
-  .ds-247420 .wm-win { border-color: var(--fg, #1a1a1a); }
-  .ds-247420 .wm-bar { border-bottom: 1px solid var(--fg, #1a1a1a); }
+  .ds-247420 .wm-win { border-color: var(--fg); }
+  .ds-247420 .wm-bar { border-bottom: 1px solid var(--fg); }
   .ds-247420 .os-menubar,
-  .ds-247420 .os-taskbar { border-color: var(--fg, #1a1a1a); }
+  .ds-247420 .os-taskbar { border-color: var(--fg); }
   .ds-247420 .tb-sess-chip,
   .ds-247420 .tb-sessions-card,
-  .ds-247420 .tb-sessions-btn { border-color: var(--fg, #1a1a1a); }
-  .ds-247420 :focus-visible { outline: 2px solid var(--fg, #1a1a1a); outline-offset: 2px; }
+  .ds-247420 .tb-sessions-btn { border-color: var(--fg); }
+  .ds-247420 :focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 }
 
 /* ---- print: a web-OS desktop has no meaningful print form. Suppress the
@@ -763,6 +764,6 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   .os-menubar, .os-taskbar, .wm-snap-preview,
   .tb-sess-overlay, .tb-switching, .wm-switcher { display: none !important; }
   .wm-root, .wm-canvas { position: static !important; transform: none !important; overflow: visible !important; }
-  .wm-win { position: static !important; box-shadow: none !important; border: 1px solid #000 !important; page-break-inside: avoid; margin: 0 0 12px; width: auto !important; height: auto !important; }
+  .wm-win { position: static !important; box-shadow: none !important; border: 1px solid var(--fg) !important; page-break-inside: avoid; margin: 0 0 12px; width: auto !important; height: auto !important; }
   .wm-win.wm-min { display: none !important; }
 }

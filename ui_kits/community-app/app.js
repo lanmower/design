@@ -6,7 +6,7 @@
 
 import { mountCommunityApp } from 'ds/community-app.js';
 
-const CAT = ['#3F8A4A', '#6B3A78', '#F07AA8', '#FFD86B', '#FF8454', '#6FA9FF'];
+const CAT = ['var(--cat-green)', 'var(--cat-purple)', 'var(--cat-mascot)', 'var(--cat-sun)', 'var(--cat-flame)', 'var(--cat-sky)'];
 const color = (id) => CAT[Math.abs([...String(id || '')].reduce((a, c) => a * 31 + c.charCodeAt(0) | 0, 7)) % CAT.length];
 
 const channels = [

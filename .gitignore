@@ -38,3 +38,6 @@ rs-learn.db
 dist/
 .codeinsight/
 CLAUDE.md
+.gm/browser-profile/
+.gm/browser-profile-*/
+.gm/pw-sock-*/

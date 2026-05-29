@@ -54,7 +54,31 @@
 
   --accent:      var(--green);
   --accent-fg:   var(--paper);
+  --accent-bright: var(--green-2); /* base value so var(--accent-bright) never falls back empty; ink + [data-accent] retune it */
   --accent-tint: color-mix(in oklab, var(--accent) 26%, var(--bg));
+
+  /* On-color foregrounds — text/icons that sit ON a saturated fill (accent,
+     danger, category chips). Theme-driven so white-on-color never hard-codes
+     #fff. --on-accent tracks --accent-fg; --on-color is the generic light
+     foreground for any colored fill. */
+  --on-accent:   var(--accent-fg);
+  --on-color:    #fff;
+
+  /* Scrims — modal/overlay backdrops. Derived from --fg so a dark theme dims
+     with its own ink rather than a baked rgba(0,0,0). */
+  --scrim:        color-mix(in oklab, var(--fg) 40%, transparent);
+  --scrim-strong: color-mix(in oklab, var(--fg) 72%, transparent);
+  --scrim-media:  color-mix(in oklab, var(--fg) 85%, transparent);
+
+  /* Category palette — surfaces (forum tags, project cards) that color-code by
+     category. Canonical so a theme/accent swap recolors categories instead of
+     drifting from a private --cat-* block. Derived from the base palette. */
+  --cat-green:   var(--green-2);
+  --cat-purple:  var(--purple-2);
+  --cat-mascot:  var(--mascot);
+  --cat-sun:     var(--sun);
+  --cat-flame:   var(--flame);
+  --cat-sky:     var(--sky);
 
   --panel-bg:     var(--bg);
   --panel-bg-2:   var(--bg-2);
@@ -277,6 +301,33 @@
   --panel-text-3: inherit;
   --panel-accent-2: inherit;
   --panel-shadow: inherit;
+  --on-accent: inherit;
+  --on-color: inherit;
+  --scrim: inherit;
+  --scrim-strong: inherit;
+  --scrim-media: inherit;
+  --cat-green: inherit;
+  --cat-purple: inherit;
+  --cat-mascot: inherit;
+  --cat-sun: inherit;
+  --cat-flame: inherit;
+  --cat-sky: inherit;
+}
+
+/* ============================================================
+   Named-theme preset contract
+   ------------------------------------------------------------
+   A theme is one [data-theme="X"] block that overrides ONLY the semantic
+   surface tokens — never component rules, never raw literals in component
+   sheets. The base :root above IS the "paper" theme; [data-theme="paper"]
+   restates it so the attribute is explicit and round-trippable. To add a
+   theme: copy a block, rename the attr, retune the ~8 semantic tokens.
+   ============================================================ */
+.ds-247420[data-theme="paper"] {
+  color-scheme: light;
+  --bg: var(--paper); --bg-2: var(--paper-2); --bg-3: var(--paper-3);
+  --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
+  --accent: var(--green); --accent-fg: var(--paper);
 }
 
 .ds-247420[data-density="compact"]     { --density: 0.75; }
@@ -322,6 +373,10 @@
               0 2px 4px  color-mix(in oklab, var(--fg) 6%,  transparent);
   --shadow-3: 0 12px 32px color-mix(in oklab, var(--fg) 14%, transparent),
               0 4px 8px   color-mix(in oklab, var(--fg) 8%,  transparent);
+  /* Overlay elevation — the float for dialogs/lightboxes that sit above a
+     scrim; heavier than --shadow-3 and theme-driven (was raw rgba(0,0,0,.4)). */
+  --shadow-overlay: 0 12px 40px color-mix(in oklab, var(--fg) 28%, transparent),
+                    0 4px 12px  color-mix(in oklab, var(--fg) 16%, transparent);
   --z-dropdown:  600;
   --z-popover:   700;
   --z-modal:     800;
@@ -466,7 +521,7 @@
 
 .ds-247420 pre {
   font-family: var(--ff-mono);
-  background: var(--panel-bg, #15151a);
+  background: var(--panel-bg);
   color: var(--panel-text, inherit);
   padding: var(--space-5);
   overflow-x: auto;
@@ -477,7 +532,7 @@
 }
 .ds-247420 pre .k { color: var(--mascot); }
 .ds-247420 pre .s { color: var(--sun); }
-.ds-247420 pre .c { color: #9A9AA2; }
+.ds-247420 pre .c { color: var(--fg-3); }
 .ds-247420 pre .n { color: var(--green-2); }
 
 /* ============================================================
@@ -921,10 +976,10 @@
 .ds-247420 .cli .copy   {
   padding: 8px 16px; background: transparent; color: var(--paper);
   font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: var(--tr-caps);
-  cursor: pointer; box-shadow: inset 0 0 0 1px #6A6A70;
+  cursor: pointer; box-shadow: inset 0 0 0 1px var(--rule-strong);
   border-radius: var(--r-pill);
 }
-.ds-247420 .cli .copy:hover { background: #6A6A70; }
+.ds-247420 .cli .copy:hover { background: var(--fg-3); }
 
 /* Multi-line CLI block: when .cli holds .cli-line / .cli-cmt children
    (quickstart scripts, multi-command snippets) it stacks as a column
@@ -1617,7 +1672,7 @@
 .ds-247420 .btn-primary.danger {
   background: var(--warn);
   border-color: var(--warn);
-  color: #fff;
+  color: var(--on-color);
 }
 
 /* ── Preview ──────────────────────────────────────────────── */
@@ -1801,7 +1856,7 @@
 .ds-247420 .ds-segmented .ds-seg-btn:hover { color: var(--fg); }
 .ds-247420 .ds-segmented .ds-seg-btn.is-on {
   background: var(--bg); color: var(--fg);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow-1);
 }
 .ds-247420 .ds-theme-toggle.btn {
   font-family: var(--ff-mono); font-size: var(--fs-xs);
@@ -2571,7 +2626,7 @@
 }
 .ds-247420 .ds-field input[aria-invalid="true"],
 .ds-247420 .ds-field textarea[aria-invalid="true"] {
-  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--flame, #d64545);
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--flame);
 }
 
 /* Clear button for text inputs */
@@ -4433,9 +4488,9 @@
   cursor: pointer; font-size: 16px; line-height: 1;
 }
 .ds-247420 .vx-vc-btn:hover { background: var(--bg-4, var(--bg-3)); }
-.ds-247420 .vx-vc-on { background: var(--accent); color: var(--accent-fg, #fff); border-color: var(--accent); }
+.ds-247420 .vx-vc-on { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
 .ds-247420 .vx-vc-disabled, .ds-247420 .vx-vc-btn:disabled { opacity: .4; cursor: not-allowed; }
-.ds-247420 .vx-vc-leave { margin-left: auto; background: var(--danger, #d04545); color: #fff; border-color: var(--danger, #d04545); }
+.ds-247420 .vx-vc-leave { margin-left: auto; background: var(--danger); color: var(--on-color); border-color: var(--danger); }
 .ds-247420 .vx-vc-glyph { pointer-events: none; }
 
 /* ThreadPanel — cm-thread-panel / cm-tp-* */
@@ -4478,7 +4533,7 @@
 .ds-247420 .cm-forum-toolbar { display: flex; gap: var(--space-2); align-items: center; padding: var(--space-2); border-bottom: var(--bw-hair) solid var(--rule); }
 .ds-247420 .cm-forum-search { flex: 1; padding: var(--space-1) var(--space-2); border: var(--bw-hair) solid var(--rule-strong); border-radius: var(--r-1); background: var(--bg-3); color: var(--fg); }
 .ds-247420 .cm-forum-sort { padding: var(--space-1); border: var(--bw-hair) solid var(--rule-strong); border-radius: var(--r-1); background: var(--bg-3); color: var(--fg); }
-.ds-247420 .cm-forum-new { padding: var(--space-1) var(--space-2); border: none; border-radius: var(--r-1); background: var(--accent); color: var(--accent-fg, #fff); cursor: pointer; }
+.ds-247420 .cm-forum-new { padding: var(--space-1) var(--space-2); border: none; border-radius: var(--r-1); background: var(--accent); color: var(--accent-fg); cursor: pointer; }
 .ds-247420 .cm-forum-list { flex: 1; min-height: 0; overflow-y: auto; }
 .ds-247420 .cm-forum-item { display: flex; flex-direction: column; gap: var(--space-1); width: 100%; text-align: left; cursor: pointer; padding: var(--space-2) var(--space-3); border: none; background: transparent; border-bottom: var(--bw-hair) solid var(--rule); color: var(--fg); }
 .ds-247420 .cm-forum-item:hover { background: var(--bg-3); }
@@ -4551,21 +4606,21 @@
   white-space: nowrap;
   margin-left: auto;
   font-size: .85em;
-  color: var(--muted, #8a8f98);
+  color: var(--fg-3);
 }
 /* status disc — a CSS-drawn dot, not a glyph; pulses while streaming */
 .ds-247420 .agentchat-status .status-dot-disc {
   flex: none; width: 8px; height: 8px; border-radius: 50%;
-  background: var(--muted, #8a8f98);
+  background: var(--fg-3);
 }
 .ds-247420 .agentchat-status .status-dot-disc.status-dot-live {
-  background: var(--accent, #50c878);
+  background: var(--accent);
   animation: agentchat-pulse 2s infinite;
 }
 @keyframes agentchat-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(80, 200, 120, .5); }
-  70%  { box-shadow: 0 0 0 6px rgba(80, 200, 120, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(80, 200, 120, 0); }
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 50%, transparent); }
+  70%  { box-shadow: 0 0 0 6px color-mix(in oklab, var(--accent) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 0%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) {
   .ds-247420 .agentchat-status .status-dot-disc { animation: none !important; }
@@ -4577,7 +4632,7 @@
   align-items: center;
   gap: var(--space-2, 8px);
   font-size: .85em;
-  color: var(--muted, #8a8f98);
+  color: var(--fg-3);
   flex-wrap: wrap;
 }
 .ds-247420 .agentchat-cwd-text {
@@ -4588,20 +4643,20 @@
 }
 .ds-247420 .agentchat-cwd-btn {
   background: none;
-  border: 1px solid var(--border, #2a2f3a);
+  border: 1px solid var(--rule);
   color: inherit;
   border-radius: 6px;
   padding: 2px 8px;
   cursor: pointer;
   font: inherit;
 }
-.ds-247420 .agentchat-cwd-btn:hover { border-color: var(--accent, #50c878); }
+.ds-247420 .agentchat-cwd-btn:hover { border-color: var(--accent); }
 .ds-247420 .agentchat-cwd-input {
   flex: 1;
   min-width: 12ch;
-  background: var(--surface, #11151c);
-  border: 1px solid var(--border, #2a2f3a);
-  color: var(--text, #e6e9ee);
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  color: var(--fg);
   border-radius: 6px;
   padding: 4px 8px;
   font: inherit;
@@ -4614,7 +4669,7 @@
   gap: .5em;
 }
 .ds-247420 .agentchat-title { font-size: 1em; margin: 0; }
-.ds-247420 .agentchat-sub { font-size: .85em; color: var(--muted, #8a8f98); }
+.ds-247420 .agentchat-sub { font-size: .85em; color: var(--fg-3); }
 .ds-247420 .agentchat-thread {
   flex: 1;
   min-height: 0;
@@ -4864,7 +4919,7 @@
     color: var(--panel-text, var(--fg-text));
     border: 1px solid var(--rule);
     border-radius: var(--r-2, 8px);
-    box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+    box-shadow: var(--shadow-2);
     padding: 4px;
     display: flex; flex-direction: column;
     outline: none;
@@ -4881,7 +4936,7 @@
 .ds-247420 .ds-ep-ctxmenu-item:focus-visible {
     background: var(--panel-2, var(--rule));
 }
-.ds-247420 .ds-ep-ctxmenu-item.danger { color: var(--danger, #c33); }
+.ds-247420 .ds-ep-ctxmenu-item.danger { color: var(--danger); }
 .ds-247420 .ds-ep-ctxmenu-item.disabled { opacity: 0.45; cursor: not-allowed; }
 .ds-247420 .ds-ep-ctxmenu-icon { width: 16px; display: inline-flex; justify-content: center; }
 .ds-247420 .ds-ep-ctxmenu-sep { height: 1px; background: var(--rule); margin: 4px 6px; }
@@ -4891,13 +4946,13 @@
    --------------------------------------------------------------- */
 .ds-247420 .ds-ep-drawer-backdrop {
     position: fixed; inset: 0; z-index: 8500;
-    background: rgba(0,0,0,0.42);
+    background: var(--scrim);
 }
 .ds-247420 .ds-ep-drawer {
     position: absolute;
     background: var(--panel-1, var(--panel-bg));
     color: var(--panel-text, var(--fg-text));
-    box-shadow: 0 12px 40px rgba(0,0,0,0.28);
+    box-shadow: var(--shadow-overlay);
     outline: none;
     transition: transform 180ms ease;
     padding: 12px;
@@ -4918,7 +4973,7 @@
    --------------------------------------------------------------- */
 .ds-247420 .ds-ep-dialog-backdrop {
     position: fixed; inset: 0; z-index: 9500;
-    background: rgba(0,0,0,0.5);
+    background: var(--scrim-strong);
     display: flex; align-items: center; justify-content: center;
     padding: 16px;
 }
@@ -4927,7 +4982,7 @@
     color: var(--panel-text, var(--fg-text));
     border: 1px solid var(--rule);
     border-radius: var(--r-2, 10px);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.36);
+    box-shadow: var(--shadow-overlay);
     min-width: 280px; max-width: min(560px, 100%);
     max-height: 90vh; overflow: auto;
     display: flex; flex-direction: column;
@@ -4951,7 +5006,7 @@
     background: var(--accent); color: var(--accent-fg); border-color: var(--accent);
 }
 .ds-247420 .ds-ep-dialog-btn.kind-danger {
-    background: var(--danger, #c33); color: #fff; border-color: var(--danger, #c33);
+    background: var(--danger); color: var(--on-accent); border-color: var(--danger);
 }
 
 /* ---------------------------------------------------------------
@@ -4973,14 +5028,14 @@
     border-left: 3px solid var(--accent);
     border-radius: var(--r-1, 6px);
     padding: 10px 14px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+    box-shadow: var(--shadow-3);
     min-width: 220px; max-width: 360px;
     opacity: 1;
     transition: opacity 180ms ease, transform 180ms ease;
 }
-.ds-247420 .ds-ep-toast.kind-success { border-left-color: var(--success, #2a8); }
-.ds-247420 .ds-ep-toast.kind-warn    { border-left-color: var(--warn, #d90); }
-.ds-247420 .ds-ep-toast.kind-error   { border-left-color: var(--danger, #c33); }
+.ds-247420 .ds-ep-toast.kind-success { border-left-color: var(--success); }
+.ds-247420 .ds-ep-toast.kind-warn    { border-left-color: var(--warn); }
+.ds-247420 .ds-ep-toast.kind-error   { border-left-color: var(--danger); }
 .ds-247420 .ds-ep-toast.leaving { opacity: 0; transform: translateY(-6px); }
 @media (max-width: 480px) {
     .ds-247420 .ds-ep-toast-host { left: 16px; right: 16px; align-items: center; }
@@ -5140,7 +5195,7 @@
     font-weight: 500;
 }
 .ds-247420 .ds-field-required {
-    color: var(--danger, oklch(0.55 0.18 25));
+    color: var(--danger);
     font-weight: 700;
     margin-left: 2px;
 }
@@ -5149,12 +5204,12 @@
     font-size: var(--fs-tiny, 12px);
 }
 .ds-247420 .ds-field-error {
-    color: var(--danger, oklch(0.55 0.18 25));
+    color: var(--danger);
     font-size: var(--fs-tiny, 12px);
     font-weight: 500;
 }
 .ds-247420 .ds-field-wrap [aria-invalid="true"] {
-    border-color: var(--danger, oklch(0.55 0.18 25)) !important;
+    border-color: var(--danger) !important;
 }
 
 .ds-247420 .sr-only {
@@ -5182,10 +5237,10 @@
     font-size: 12px;
     line-height: 1.4;
     max-width: 280px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.22);
+    box-shadow: var(--shadow-3);
     pointer-events: none;
 }
-.ds-247420 .ds-tooltip.kind-danger { border-color: var(--danger, #c33); color: var(--danger, #c33); }
+.ds-247420 .ds-tooltip.kind-danger { border-color: var(--danger); color: var(--danger); }
 @media (prefers-reduced-motion: no-preference) {
     .ds-247420 .ds-tooltip { transition: opacity 120ms ease; }
 }
@@ -5201,7 +5256,7 @@
     color: var(--panel-text, var(--fg-text));
     border: 1px solid var(--rule);
     border-radius: var(--r-2, 8px);
-    box-shadow: 0 8px 28px rgba(0,0,0,0.22);
+    box-shadow: var(--shadow-3);
     padding: 0;
     outline: none;
     min-width: 160px;
@@ -5238,7 +5293,7 @@
     pointer-events: none;
     cursor: not-allowed;
 }
-.ds-247420 .ds-dropdown-item.is-danger { color: var(--danger, #c33); }
+.ds-247420 .ds-dropdown-item.is-danger { color: var(--danger); }
 .ds-247420 .ds-dropdown-glyph { width: 16px; display: inline-flex; justify-content: center; flex-shrink: 0; }
 .ds-247420 .ds-dropdown-label { flex: 1; min-width: 0; }
 .ds-247420 .ds-dropdown-separator { height: 1px; background: var(--rule); margin: 4px 6px; }
@@ -5318,7 +5373,7 @@
     background: var(--bg-2); color: var(--fg);
     border: 1px solid var(--rule);
     border-radius: var(--r-2, 14px);
-    box-shadow: var(--shadow-3, 0 12px 32px rgba(0,0,0,0.3));
+    box-shadow: var(--shadow-3);
     overflow: hidden;
 }
 .ds-247420 .ov-cmd-input {
@@ -5366,7 +5421,7 @@
     background: var(--bg-2); color: var(--fg);
     border: 1px solid var(--rule);
     border-radius: var(--r-2, 14px);
-    box-shadow: var(--shadow-3, 0 12px 32px rgba(0,0,0,0.3));
+    box-shadow: var(--shadow-3);
     outline: none; overflow: hidden;
 }
 .ds-247420 .ov-emoji-tabs {
@@ -5446,7 +5501,7 @@
     background: var(--bg-2); color: var(--fg);
     border: 1px solid var(--rule);
     border-radius: var(--r-2, 14px);
-    box-shadow: var(--shadow-3, 0 12px 32px rgba(0,0,0,0.3));
+    box-shadow: var(--shadow-3);
     outline: none; overflow: hidden;
 }
 .ds-247420 .ov-set-head {
@@ -5491,14 +5546,14 @@
 .ds-247420 .ov-auth-backdrop {
     position: fixed; inset: 0; z-index: var(--z-overlay, 1000);
     display: flex; align-items: center; justify-content: center;
-    background: rgba(0,0,0,.55);
+    background: var(--scrim-strong);
 }
 .ds-247420 .ov-auth-panel {
     width: min(420px, 92vw);
     display: flex; flex-direction: column;
     background: var(--bg-2); color: var(--fg);
     border: 1px solid var(--rule); border-radius: var(--r-2, 8px);
-    box-shadow: var(--shadow-2, 0 12px 40px rgba(0,0,0,.4));
+    box-shadow: var(--shadow-overlay);
     overflow: hidden;
 }
 .ds-247420 .ov-auth-head { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3); border-bottom: 1px solid var(--rule); }
@@ -5511,21 +5566,21 @@
 .ds-247420 .ov-auth-body { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); }
 .ds-247420 .ov-auth-hint { margin: 0; font-size: var(--fs-0, 12px); color: var(--fg-2, var(--fg)); }
 .ds-247420 .ov-auth-input { padding: var(--space-2); border: 1px solid var(--rule-strong); border-radius: var(--r-1); background: var(--bg-3); color: var(--fg); }
-.ds-247420 .ov-auth-primary { padding: var(--space-2); border: none; border-radius: var(--r-1); background: var(--accent); color: var(--accent-fg, #fff); font-weight: 700; cursor: pointer; }
+.ds-247420 .ov-auth-primary { padding: var(--space-2); border: none; border-radius: var(--r-1); background: var(--accent); color: var(--on-accent); font-weight: 700; cursor: pointer; }
 .ds-247420 .ov-auth-primary:disabled { opacity: .6; cursor: progress; }
-.ds-247420 .ov-auth-error { margin: 0 var(--space-3) var(--space-3); padding: var(--space-2); border-radius: var(--r-1); background: var(--danger-bg, rgba(208,69,69,.15)); color: var(--danger, #d04545); font-size: var(--fs-0, 12px); }
+.ds-247420 .ov-auth-error { margin: 0 var(--space-3) var(--space-3); padding: var(--space-2); border-radius: var(--r-1); background: color-mix(in oklab, var(--danger) 15%, transparent); color: var(--danger); font-size: var(--fs-0, 12px); }
 
 /* VideoLightbox — ov-lightbox-* */
 .ds-247420 .ov-lightbox-backdrop {
     position: fixed; inset: 0; z-index: var(--z-overlay-top, 1100);
     display: flex; align-items: center; justify-content: center;
-    background: rgba(0,0,0,.85);
+    background: var(--scrim-media);
 }
-.ds-247420 .ov-lightbox-x { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border: none; border-radius: 50%; background: rgba(255,255,255,.12); color: #fff; font-size: 24px; line-height: 1; cursor: pointer; }
-.ds-247420 .ov-lightbox-x:hover { background: rgba(255,255,255,.24); }
+.ds-247420 .ov-lightbox-x { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border: none; border-radius: 50%; background: color-mix(in oklab, var(--on-color) 12%, transparent); color: var(--on-color); font-size: 24px; line-height: 1; cursor: pointer; }
+.ds-247420 .ov-lightbox-x:hover { background: color-mix(in oklab, var(--on-color) 24%, transparent); }
 .ds-247420 .ov-lightbox-stage { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); max-width: 92vw; max-height: 90vh; }
-.ds-247420 .ov-lightbox-video { max-width: 92vw; max-height: 82vh; border-radius: var(--r-1); background: #000; }
-.ds-247420 .ov-lightbox-label { color: #fff; font-size: var(--fs-0, 12px); opacity: .85; }
+.ds-247420 .ov-lightbox-video { max-width: 92vw; max-height: 82vh; border-radius: var(--r-1); background: #000; /* true black media letterbox, intentional */ }
+.ds-247420 .ov-lightbox-label { color: var(--on-color); font-size: var(--fs-0, 12px); opacity: .85; }
 
 /* community-app.css */
 /* community-app.css — layout glue for mountCommunityApp (the full chat/community
@@ -5535,15 +5590,6 @@
    and the category-color tokens the consumer avatars use. All scoped under
    .ds-247420. Additive — defines only the ca- prefix, group, rail-empty, vx-view
    classes plus the cat color tokens. */
-
-.ds-247420 {
-  --cat-green: #3F8A4A;
-  --cat-purple: #6B3A78;
-  --cat-mascot: #F07AA8;
-  --cat-sun: #FFD86B;
-  --cat-flame: #FF8454;
-  --cat-sky: #6FA9FF;
-}
 
 .ds-247420.ds-247420 .ca-app {
   display: flex;
@@ -5619,7 +5665,7 @@
   padding: 0 5px;
   border-radius: 9px;
   background: var(--accent);
-  color: var(--green-fg, #fff);
+  color: var(--on-accent);
   font-size: 11px;
   font-weight: 600;
   text-align: center;

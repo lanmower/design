@@ -26,8 +26,8 @@ sidebar:
   labels_group: "labels"
   labels:
     - { label: "ui kits",  href: "#kits",     count: 4,  color: "var(--panel-accent)" }
-    - { label: "decks",    href: "#decks",    count: 1,  color: "var(--mascot,#e0a200)" }
-    - { label: "previews", href: "#previews", count: 20, color: "var(--purple,#8856b3)" }
+    - { label: "decks",    href: "#decks",    count: 1,  color: "var(--mascot,#E84B8A)" }
+    - { label: "previews", href: "#previews", count: 20, color: "var(--purple,#420247)" }
     - { label: "docs",     href: "#docs",     count: 3,  color: "var(--panel-text-3)" }
   more_group: "more"
   more:

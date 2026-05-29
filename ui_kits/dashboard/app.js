@@ -58,7 +58,7 @@ function App() {
                 ] },
                 { group: 'env', items: [
                     { glyph: '●', label: 'production', count: 'eu', key: 'p', color: 'var(--panel-accent)' },
-                    { glyph: '●', label: 'staging',    count: 'us', key: 's', color: 'var(--mascot,#e0a200)' }
+                    { glyph: '●', label: 'staging',    count: 'us', key: 's', color: 'var(--mascot)' }
                 ] }
             ]
         }),

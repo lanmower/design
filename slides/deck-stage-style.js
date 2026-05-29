@@ -40,7 +40,7 @@ export const STYLESHEET = `
       filter: blur(6px);
       display: flex; align-items: center;
       gap: 4px; padding: 4px;
-      background: #000; color: #fff;
+      background: var(--scrim-media, rgba(19,19,24,0.85)); color: var(--on-color, #fff);
       border-radius: 999px;
       font-size: 14px;
       font-feature-settings: "tnum" 1;
@@ -63,38 +63,38 @@ export const STYLESHEET = `
       display: inline-flex; align-items: center; justify-content: center;
       height: 28px; min-width: 28px;
       border-radius: 999px;
-      color: rgba(255,255,255,0.72);
+      color: color-mix(in oklab, var(--on-color, #fff) 72%, transparent);
       transition: background 140ms ease, color 140ms ease;
       -webkit-tap-highlight-color: transparent;
     }
-    .btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
-    .btn:active { background: rgba(255,255,255,0.18); }
+    .btn:hover { background: color-mix(in oklab, var(--on-color, #fff) 12%, transparent); color: var(--on-color, #fff); }
+    .btn:active { background: color-mix(in oklab, var(--on-color, #fff) 18%, transparent); }
     .btn:focus, .btn:focus-visible { outline: none; }
     .btn::-moz-focus-inner { border: 0; }
     .btn svg { width: 14px; height: 14px; display: block; }
     .btn.reset {
       font-size: 13px; font-weight: 500; letter-spacing: 0.02em;
       padding: 0 10px 0 12px; gap: 6px;
-      color: rgba(255,255,255,0.72);
+      color: color-mix(in oklab, var(--on-color, #fff) 72%, transparent);
     }
     .btn.reset .kbd {
       display: inline-flex; align-items: center; justify-content: center;
       min-width: 16px; height: 16px; padding: 0 4px;
       font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
       font-size: 12px; line-height: 1;
-      color: rgba(255,255,255,0.88);
-      background: rgba(255,255,255,0.12);
+      color: color-mix(in oklab, var(--on-color, #fff) 88%, transparent);
+      background: color-mix(in oklab, var(--on-color, #fff) 12%, transparent);
       border-radius: 4px;
     }
     .count {
       font-variant-numeric: tabular-nums;
-      color: #fff; font-weight: 500;
+      color: var(--on-color, #fff); font-weight: 500;
       padding: 0 8px; min-width: 42px;
       text-align: center; font-size: 14px;
     }
-    .count .sep { color: rgba(255,255,255,0.45); margin: 0 3px; font-weight: 400; }
-    .count .total { color: rgba(255,255,255,0.55); }
-    .divider { width: 1px; height: 14px; background: rgba(255,255,255,0.18); margin: 0 2px; }
+    .count .sep { color: color-mix(in oklab, var(--on-color, #fff) 45%, transparent); margin: 0 3px; font-weight: 400; }
+    .count .total { color: color-mix(in oklab, var(--on-color, #fff) 55%, transparent); }
+    .divider { width: 1px; height: 14px; background: color-mix(in oklab, var(--on-color, #fff) 18%, transparent); margin: 0 2px; }
     @media print {
       :host { position: static; inset: auto; background: none; overflow: visible; color: inherit; }
       .stage { position: static; display: block; }

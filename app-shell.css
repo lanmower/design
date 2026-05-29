@@ -134,7 +134,7 @@ code {
 
 pre {
   font-family: var(--ff-mono);
-  background: var(--panel-bg, #15151a);
+  background: var(--panel-bg);
   color: var(--panel-text, inherit);
   padding: var(--space-5);
   overflow-x: auto;
@@ -145,7 +145,7 @@ pre {
 }
 pre .k { color: var(--mascot); }
 pre .s { color: var(--sun); }
-pre .c { color: #9A9AA2; }
+pre .c { color: var(--fg-3); }
 pre .n { color: var(--green-2); }
 
 /* ============================================================
@@ -589,10 +589,10 @@ a.row { text-decoration: none; }
 .cli .copy   {
   padding: 8px 16px; background: transparent; color: var(--paper);
   font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: var(--tr-caps);
-  cursor: pointer; box-shadow: inset 0 0 0 1px #6A6A70;
+  cursor: pointer; box-shadow: inset 0 0 0 1px var(--rule-strong);
   border-radius: var(--r-pill);
 }
-.cli .copy:hover { background: #6A6A70; }
+.cli .copy:hover { background: var(--fg-3); }
 
 /* Multi-line CLI block: when .cli holds .cli-line / .cli-cmt children
    (quickstart scripts, multi-command snippets) it stacks as a column
@@ -1285,7 +1285,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .btn-primary.danger {
   background: var(--warn);
   border-color: var(--warn);
-  color: #fff;
+  color: var(--on-color);
 }
 
 /* ── Preview ──────────────────────────────────────────────── */
@@ -1469,7 +1469,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-segmented .ds-seg-btn:hover { color: var(--fg); }
 .ds-segmented .ds-seg-btn.is-on {
   background: var(--bg); color: var(--fg);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow-1);
 }
 .ds-theme-toggle.btn {
   font-family: var(--ff-mono); font-size: var(--fs-xs);
@@ -2246,7 +2246,7 @@ textarea::placeholder {
 }
 .ds-field input[aria-invalid="true"],
 .ds-field textarea[aria-invalid="true"] {
-  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--flame, #d64545);
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--flame);
 }
 
 /* Clear button for text inputs */

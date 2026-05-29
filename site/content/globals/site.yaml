@@ -9,8 +9,10 @@ keywords:
   - "tokens"
   - "247420"
   - "anentrypoint"
-accent_from: "#56d364"
-accent_to: "#79c0ff"
+# Brand accent gradient — mirrors the canonical palette (--green → --green-2).
+# YAML is content config, not CSS, so it cannot use var(); keep in sync with colors_and_type.css.
+accent_from: "#247420"
+accent_to: "#3A9A34"
 glyph: "·"
 code: "072"
 category: "web"

@@ -6,15 +6,6 @@
    .ds-247420. Additive — defines only the ca- prefix, group, rail-empty, vx-view
    classes plus the cat color tokens. */
 
-.ds-247420 {
-  --cat-green: #3F8A4A;
-  --cat-purple: #6B3A78;
-  --cat-mascot: #F07AA8;
-  --cat-sun: #FFD86B;
-  --cat-flame: #FF8454;
-  --cat-sky: #6FA9FF;
-}
-
 html.ds-247420 .ca-app {
   display: flex;
   flex-direction: column;
@@ -89,7 +80,7 @@ html.ds-247420 .ca-rail a .count {
   padding: 0 5px;
   border-radius: 9px;
   background: var(--accent);
-  color: var(--green-fg, #fff);
+  color: var(--on-accent);
   font-size: 11px;
   font-weight: 600;
   text-align: center;

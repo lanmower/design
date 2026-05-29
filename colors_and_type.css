@@ -52,7 +52,31 @@
 
   --accent:      var(--green);
   --accent-fg:   var(--paper);
+  --accent-bright: var(--green-2); /* base value so var(--accent-bright) never falls back empty; ink + [data-accent] retune it */
   --accent-tint: color-mix(in oklab, var(--accent) 26%, var(--bg));
+
+  /* On-color foregrounds — text/icons that sit ON a saturated fill (accent,
+     danger, category chips). Theme-driven so white-on-color never hard-codes
+     #fff. --on-accent tracks --accent-fg; --on-color is the generic light
+     foreground for any colored fill. */
+  --on-accent:   var(--accent-fg);
+  --on-color:    #fff;
+
+  /* Scrims — modal/overlay backdrops. Derived from --fg so a dark theme dims
+     with its own ink rather than a baked rgba(0,0,0). */
+  --scrim:        color-mix(in oklab, var(--fg) 40%, transparent);
+  --scrim-strong: color-mix(in oklab, var(--fg) 72%, transparent);
+  --scrim-media:  color-mix(in oklab, var(--fg) 85%, transparent);
+
+  /* Category palette — surfaces (forum tags, project cards) that color-code by
+     category. Canonical so a theme/accent swap recolors categories instead of
+     drifting from a private --cat-* block. Derived from the base palette. */
+  --cat-green:   var(--green-2);
+  --cat-purple:  var(--purple-2);
+  --cat-mascot:  var(--mascot);
+  --cat-sun:     var(--sun);
+  --cat-flame:   var(--flame);
+  --cat-sky:     var(--sky);
 
   --panel-bg:     var(--bg);
   --panel-bg-2:   var(--bg-2);
@@ -275,6 +299,33 @@ select:focus-visible {
   --panel-text-3: inherit;
   --panel-accent-2: inherit;
   --panel-shadow: inherit;
+  --on-accent: inherit;
+  --on-color: inherit;
+  --scrim: inherit;
+  --scrim-strong: inherit;
+  --scrim-media: inherit;
+  --cat-green: inherit;
+  --cat-purple: inherit;
+  --cat-mascot: inherit;
+  --cat-sun: inherit;
+  --cat-flame: inherit;
+  --cat-sky: inherit;
+}
+
+/* ============================================================
+   Named-theme preset contract
+   ------------------------------------------------------------
+   A theme is one [data-theme="X"] block that overrides ONLY the semantic
+   surface tokens — never component rules, never raw literals in component
+   sheets. The base :root above IS the "paper" theme; [data-theme="paper"]
+   restates it so the attribute is explicit and round-trippable. To add a
+   theme: copy a block, rename the attr, retune the ~8 semantic tokens.
+   ============================================================ */
+[data-theme="paper"] {
+  color-scheme: light;
+  --bg: var(--paper); --bg-2: var(--paper-2); --bg-3: var(--paper-3);
+  --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
+  --accent: var(--green); --accent-fg: var(--paper);
 }
 
 [data-density="compact"]     { --density: 0.75; }
@@ -320,6 +371,10 @@ select:focus-visible {
               0 2px 4px  color-mix(in oklab, var(--fg) 6%,  transparent);
   --shadow-3: 0 12px 32px color-mix(in oklab, var(--fg) 14%, transparent),
               0 4px 8px   color-mix(in oklab, var(--fg) 8%,  transparent);
+  /* Overlay elevation — the float for dialogs/lightboxes that sit above a
+     scrim; heavier than --shadow-3 and theme-driven (was raw rgba(0,0,0,.4)). */
+  --shadow-overlay: 0 12px 40px color-mix(in oklab, var(--fg) 28%, transparent),
+                    0 4px 12px  color-mix(in oklab, var(--fg) 16%, transparent);
   --z-dropdown:  600;
   --z-popover:   700;
   --z-modal:     800;

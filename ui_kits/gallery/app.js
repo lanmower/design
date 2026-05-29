@@ -61,7 +61,7 @@ function Lightbox() {
     const it = items.find((i) => i.id === state.open);
     return h('div', {
         onclick: () => { state.open = null; kit.render(); },
-        style: 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;padding:32px;z-index:50'
+        style: 'position:fixed;inset:0;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:32px;z-index:50'
     },
         h('div', { onclick: (e) => e.stopPropagation(),
             style: 'background:var(--panel-0);border-radius:14px;padding:28px;min-width:320px;max-width:520px;display:flex;flex-direction:column;gap:14px' },

@@ -17,8 +17,12 @@ fs.mkdirSync(dist, { recursive: true });
 
 const SCOPE = '.ds-247420';
 
+// Fonts: a single googleapis @import lives at the top of colors_and_type.css
+// (Inter + JetBrains Mono). There is no local vendor/fonts.css — the earlier
+// cssParts entry referenced a file that never existed and logged "missing css"
+// every build. The font-URL rewrite below (url(./fonts/) -> unpkg) is retained
+// as a guard for any future self-hosted @font-face but is a no-op today.
 const cssParts = [
-    ['vendor/fonts.css', path.join(root, 'vendor/fonts.css')],
     ['colors_and_type.css', path.join(root, 'colors_and_type.css')],
     ['app-shell.css', path.join(root, 'app-shell.css')],
     ['community.css', path.join(root, 'community.css')],

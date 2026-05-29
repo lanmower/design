@@ -32,9 +32,9 @@ const channels = [
 
 const members = [
     { label: 'online — 3', members: [
-        { identity: 'jordan', name: 'jordan', status: 'online', color: '#3F8A4A' },
-        { identity: 'mai', name: 'mai', status: 'online', color: '#6B3A78' },
-        { identity: 'aicat', name: 'aicat', status: 'online', color: '#F07AA8' },
+        { identity: 'jordan', name: 'jordan', status: 'online', color: 'var(--cat-green)' },
+        { identity: 'mai', name: 'mai', status: 'online', color: 'var(--cat-purple)' },
+        { identity: 'aicat', name: 'aicat', status: 'online', color: 'var(--cat-mascot)' },
     ]},
     { label: 'offline — 2', members: [
         { identity: 'river', name: 'river', status: 'offline' },
@@ -51,9 +51,9 @@ const state = {
     muted: false,
     deafened: false,
     messages: [
-        { id: 1, author: 'jordan', color: '#3F8A4A', time: '14:02', text: 'shipped the community shell component. check it out.' },
-        { id: 2, author: 'mai', color: '#6B3A78', time: '14:03', text: 'looks clean. does it handle collapsed cats?' },
-        { id: 3, author: 'aicat', color: '#F07AA8', time: '14:04', text: 'yes — click any category header.' },
+        { id: 1, author: 'jordan', color: 'var(--cat-green)', time: '14:02', text: 'shipped the community shell component. check it out.' },
+        { id: 2, author: 'mai', color: 'var(--cat-purple)', time: '14:03', text: 'looks clean. does it handle collapsed cats?' },
+        { id: 3, author: 'aicat', color: 'var(--cat-mascot)', time: '14:04', text: 'yes — click any category header.' },
     ]
 };
 
@@ -105,7 +105,7 @@ function App() {
                 userPanelProps: {
                     name: 'you',
                     tag: '◰',
-                    color: '#247420',
+                    color: 'var(--accent)',
                     muted: state.muted,
                     deafened: state.deafened,
                     onMute: () => { state.muted = !state.muted; kit.render(); },

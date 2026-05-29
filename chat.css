@@ -27,21 +27,21 @@
   white-space: nowrap;
   margin-left: auto;
   font-size: .85em;
-  color: var(--muted, #8a8f98);
+  color: var(--fg-3);
 }
 /* status disc — a CSS-drawn dot, not a glyph; pulses while streaming */
 .agentchat-status .status-dot-disc {
   flex: none; width: 8px; height: 8px; border-radius: 50%;
-  background: var(--muted, #8a8f98);
+  background: var(--fg-3);
 }
 .agentchat-status .status-dot-disc.status-dot-live {
-  background: var(--accent, #50c878);
+  background: var(--accent);
   animation: agentchat-pulse 2s infinite;
 }
 @keyframes agentchat-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(80, 200, 120, .5); }
-  70%  { box-shadow: 0 0 0 6px rgba(80, 200, 120, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(80, 200, 120, 0); }
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 50%, transparent); }
+  70%  { box-shadow: 0 0 0 6px color-mix(in oklab, var(--accent) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 0%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) {
   .agentchat-status .status-dot-disc { animation: none !important; }
@@ -53,7 +53,7 @@
   align-items: center;
   gap: var(--space-2, 8px);
   font-size: .85em;
-  color: var(--muted, #8a8f98);
+  color: var(--fg-3);
   flex-wrap: wrap;
 }
 .agentchat-cwd-text {
@@ -64,20 +64,20 @@
 }
 .agentchat-cwd-btn {
   background: none;
-  border: 1px solid var(--border, #2a2f3a);
+  border: 1px solid var(--rule);
   color: inherit;
   border-radius: 6px;
   padding: 2px 8px;
   cursor: pointer;
   font: inherit;
 }
-.agentchat-cwd-btn:hover { border-color: var(--accent, #50c878); }
+.agentchat-cwd-btn:hover { border-color: var(--accent); }
 .agentchat-cwd-input {
   flex: 1;
   min-width: 12ch;
-  background: var(--surface, #11151c);
-  border: 1px solid var(--border, #2a2f3a);
-  color: var(--text, #e6e9ee);
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  color: var(--fg);
   border-radius: 6px;
   padding: 4px 8px;
   font: inherit;
@@ -90,7 +90,7 @@
   gap: .5em;
 }
 .agentchat-title { font-size: 1em; margin: 0; }
-.agentchat-sub { font-size: .85em; color: var(--muted, #8a8f98); }
+.agentchat-sub { font-size: .85em; color: var(--fg-3); }
 .agentchat-thread {
   flex: 1;
   min-height: 0;

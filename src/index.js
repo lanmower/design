@@ -69,7 +69,8 @@ export {
     renderPageHtml,
     theme
 };
-export { applyTheme, getTheme, resolvedTheme, onThemeChange, initTheme } from './theme.js';
+export { applyTheme, getTheme, resolvedTheme, onThemeChange, initTheme,
+         applyAccent, getAccent, applyDensity, getDensity } from './theme.js';
 export const h = webjsx.createElement;
 export const applyDiff = webjsx.applyDiff;
 

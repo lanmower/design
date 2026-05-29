@@ -125,7 +125,7 @@ function Form() {
             ),
             h('a', { href: '#reset', onclick: (e) => { e.preventDefault(); setMode('reset'); }, style: 'font-size:13px' }, 'forgot password?')
         ) : null,
-        state.error ? h('div', { style: 'padding:8px 10px;background:var(--panel-1);border-radius:8px;color:#cc4242;font-size:13px' }, state.error) : null,
+        state.error ? h('div', { style: 'padding:8px 10px;background:var(--panel-1);border-radius:8px;color:var(--danger);font-size:13px' }, state.error) : null,
         h('button', { class: 'btn btn-primary', type: 'submit' },
             state.mode === 'signup' ? 'create account →' :
             state.mode === 'magic'  ? 'send magic link →' :

@@ -162,7 +162,7 @@ function Danger() {
     return Panel({ title: 'danger zone', kind: 'danger', style: 'margin:8px 0', children: h('div', { style: 'padding:14px 18px;display:flex;flex-direction:column;gap:10px' },
         h('p', { style: 'margin:0;color:var(--panel-text-2)' }, 'these actions are permanent.'),
         h('div', { style: 'display:flex;gap:8px' },
-            h('button', { class: 'btn', style: 'color:var(--mascot,#e0a200)' }, 'export account'),
+            h('button', { class: 'btn', style: 'color:var(--mascot)' }, 'export account'),
             h('button', { class: 'btn', style: 'color:var(--warn)' }, 'delete account')
         )
     ) });
