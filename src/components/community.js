@@ -37,7 +37,8 @@ export function ServerRail({ servers = [], activeId, onSelect, onAdd } = {}) {
 }
 
 export function ChannelItem({ id, name, type = 'text', active, voiceActive, voiceConnecting, badge, draggable, actions = [], participants = [], onClick, onContext } = {}) {
-    const icon = type === 'voice' ? '🔊' : type === 'forum' ? '◻' : type === 'threaded' ? '◉' : type === 'announcement' ? '📣' : type === 'page' ? '📄' : type === 'thread' ? '🧵' : '#';
+    const ICON_FOR = { voice: 'speaker', forum: 'forum', threaded: 'thread', announcement: 'megaphone', page: 'page', thread: 'thread', text: 'hash' };
+    const icon = Icon(ICON_FOR[type] || 'hash', { size: 15 });
     const handleActionClick = (a, e) => { e.stopPropagation(); a.onClick && a.onClick(id, e); };
     return h('div', { class: 'cm-channel-item-wrap', 'data-channel-wrap': id },
         h('div', {
@@ -238,13 +239,17 @@ export function VoiceStrip({ channelName, status, muted, deafened, onMute, onDea
     );
 }
 
-export function MobileHeader({ title, onMenu, onMembers } = {}) {
+export function MobileHeader({ title, channelType, channelName, onMenu, onMembers } = {}) {
+    const ICON_FOR = { voice: 'speaker', forum: 'forum', threaded: 'thread', announcement: 'megaphone', page: 'page', thread: 'thread', text: 'hash' };
+    const titleNode = channelType
+        ? [Icon(ICON_FOR[channelType] || 'hash', { size: 16 }), ' ' + (channelName || '')]
+        : [title || ''];
     return h('div', { class: 'cm-mobile-header', role: 'banner' },
         h('button', {
             class: 'cm-mh-btn', type: 'button', onclick: onMenu,
             title: 'Menu', 'aria-label': 'open navigation menu'
         }, Icon('menu')),
-        h('span', { class: 'cm-mh-title' }, title || ''),
+        h('span', { class: 'cm-mh-title' }, ...titleNode),
         h('button', {
             class: 'cm-mh-btn', type: 'button', onclick: onMembers,
             title: 'Members', 'aria-label': 'show members'

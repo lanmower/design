@@ -90,7 +90,12 @@ const ICON_PATHS = {
     smile: '<circle cx="12" cy="12" r="9"/><path d="M8 14a4 4 0 0 0 8 0"/><path d="M9 9h.01M15 9h.01"/>',
     'more-horizontal': '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
     'arrow-up': '<path d="M12 19V5M5 12l7-7 7 7"/>',
-    send: '<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>'
+    send: '<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>',
+    hash: '<path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/>',
+    megaphone: '<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 8a4 4 0 0 1 0 8M18 5a8 8 0 0 1 0 14"/>',
+    forum: '<path d="M4 5h13a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/>',
+    page: '<path d="M6 3h8l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5M8 13h8M8 17h6"/>',
+    thread: '<path d="M5 6h14M5 11h14M5 16h8"/><circle cx="17" cy="17" r="3"/>'
 };
 export function Icon(name, { size = 16 } = {}) {
     const inner = ICON_PATHS[name];
@@ -189,6 +194,14 @@ function toggleSide(open) {
 export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
     const hasSide = Boolean(side);
     const sideNode = hasSide ? side : h('aside', { class: 'app-side', 'aria-hidden': 'true' });
+    // Topbar and crumb used to stack as two separate chrome bars — a "double
+    // title bar". When both are present, fold them into one sticky row:
+    // brand + nav (topbar) and breadcrumb + right slot (crumb) share a single
+    // band so the chrome reads as one bar, not two. Either prop alone still
+    // renders on its own (consumers that pass only a topbar are unaffected).
+    const chrome = (topbar && crumb)
+        ? h('div', { class: 'app-chrome' }, topbar, crumb)
+        : (topbar || crumb || null);
     return h('div', { class: 'app' },
         h('a', { href: '#app-main', class: 'skip-link' }, 'skip to main content'),
         hasSide ? h('button', {
@@ -196,8 +209,7 @@ export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
             'aria-label': 'toggle navigation', 'aria-expanded': 'false', 'aria-controls': 'app-main',
             onclick: () => toggleSide(),
         }, Icon('menu')) : null,
-        topbar || null,
-        crumb || null,
+        chrome,
         h('div', { class: 'app-body' + (hasSide ? '' : ' no-side') },
             h('div', { class: 'app-side-scrim', 'aria-hidden': 'true', onclick: () => toggleSide(false) }),
             h('div', { class: 'app-side-shell', onclick: (e) => { if (e.target.closest('a')) toggleSide(false); } }, sideNode),
