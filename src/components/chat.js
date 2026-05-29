@@ -215,13 +215,16 @@ export function Chat({ title = 'chat', sub, messages = [], composer, header } = 
         el.dataset.msgCount = String(messages.length);
         return () => obs.disconnect();
     };
+    const msgCount = messages.length;
     return h('div', { class: 'chat' },
         header || h('div', { class: 'chat-head', role: 'banner' },
             h('span', { class: 'dot', 'aria-hidden': 'true' }),
             h('h2', { class: 'ds-chat-title' }, title),
             sub ? h('span', { class: 'sub', 'aria-label': `subtitle: ${sub}` }, ' · ' + sub) : null,
             h('span', { class: 'spread' }),
-            h('span', { class: 'sub', 'aria-live': 'polite' }, String(messages.length).padStart(2, '0') + ' msgs')
+            msgCount > 0
+                ? h('span', { class: 'sub', 'aria-live': 'polite' }, msgCount + (msgCount === 1 ? ' message' : ' messages'))
+                : null
         ),
         h('div', { class: 'chat-thread', ref: threadRef, role: 'log', 'aria-label': 'chat messages' },
             messages.length === 0
@@ -289,7 +292,9 @@ export function AICat({ name = 'aicat', messages = [], thinking, composer, statu
             h('h2', { class: 'ds-chat-title' }, name),
             h('span', { class: 'sub', 'aria-label': `status: ${status}` }, ' · ' + status),
             h('span', { class: 'spread' }),
-            h('span', { class: 'sub', 'aria-live': 'polite' }, String(messages.length).padStart(2, '0') + ' turns')
+            messages.length > 0
+                ? h('span', { class: 'sub', 'aria-live': 'polite' }, messages.length + (messages.length === 1 ? ' turn' : ' turns'))
+                : null
         ),
         h('div', { class: 'chat-thread', ref: threadRef, role: 'log', 'aria-label': 'conversation turns' },
             ...all.map((m, i) => ChatMessage({ ...m, key: m.key != null ? m.key : i }))
