@@ -17,6 +17,8 @@
     },
     "./kits/spoint/loading-screen.js": "./src/kits/spoint/loading-screen.js",
     "./kits/spoint/loading-screen.css": "./src/kits/spoint/loading-screen.css",
+    "./kits/spoint/game-hud.js": "./src/kits/spoint/game-hud.js",
+    "./kits/spoint/game-hud.css": "./src/kits/spoint/game-hud.css",
     "./kits/os": {
       "import": "./src/kits/os/index.js",
       "default": "./src/kits/os/index.js"

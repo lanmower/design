@@ -5778,3 +5778,64 @@
   color: var(--fg-3);
   font-size: var(--fs-small, 11px);
 }
+
+/* spoint/game-hud.css */
+/* Game-HUD kit styles. Scoped under .ds-247420 at build time.
+   Colors from semantic tokens (no raw literals) per the token-lint gate. */
+.ds-247420 .sp-hud { pointer-events: none; font-family: var(--ff-mono); }
+.ds-247420 .sp-hud-crosshair {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: var(--fg);
+  text-shadow: 0 0 2px var(--bg);
+}
+.ds-247420 .sp-hud-ammo {
+  position: fixed;
+  bottom: 50px;
+  right: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--fg);
+  text-shadow: 0 0 4px var(--bg);
+}
+.ds-247420 .sp-hud-ammo-reloading { color: var(--warn); }
+.ds-247420 .sp-hud-health {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 20px;
+  background: var(--bg-3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.ds-247420 .sp-hud-health-fill {
+  height: 100%;
+  transition: width var(--dur-snap) var(--ease);
+}
+.ds-247420 .sp-hud-hp-high { background: var(--success); }
+.ds-247420 .sp-hud-hp-mid { background: var(--warn); }
+.ds-247420 .sp-hud-hp-low { background: var(--danger); }
+.ds-247420 .sp-hud-health-num {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  color: var(--fg);
+  font-size: 12px;
+  line-height: 20px;
+}
+.ds-247420 .sp-hud-boost {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  padding: 8px 16px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-weight: bold;
+  border-radius: 6px;
+  font-size: 14px;
+}

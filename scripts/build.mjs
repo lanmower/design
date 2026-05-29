@@ -36,6 +36,7 @@ const cssParts = [
     ['editor-primitives.css', path.join(root, 'editor-primitives.css')],
     ['community-app.css', path.join(root, 'community-app.css')],
     ['spoint/loading-screen.css', path.join(root, 'src/kits/spoint/loading-screen.css')],
+    ['spoint/game-hud.css', path.join(root, 'src/kits/spoint/game-hud.css')],
 ];
 
 let raw = '';
