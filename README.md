@@ -4,7 +4,7 @@ The 247420 / AnEntrypoint design system, packaged as a single-file ESM SDK.
 
 friendly rounded sans body, monospace only on real code, tonal surfaces over borders, indicator rails for color-coded separation, generous negative space, terminal-flavoured rhythm.
 
-we fart in its general direction. ◰
+we fart in its general direction.
 
 ## install (the only step)
 

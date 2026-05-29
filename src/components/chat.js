@@ -82,7 +82,7 @@ const PART_RENDERERS = {
             h('span', { class: 'glyph', 'aria-hidden': 'true' }, '▤'),
             h('span', { class: 'name' }, p.name || 'document.pdf'),
             p.size != null ? h('span', { class: 'size' }, fmtBytes(p.size)) : null,
-            h('a', { class: 'open', href: p.src, target: '_blank', rel: 'noopener', 'aria-label': `open PDF: ${p.name || 'document.pdf'}` }, 'open ↗')
+            h('a', { class: 'open', href: p.src, target: '_blank', rel: 'noopener', 'aria-label': `open PDF: ${p.name || 'document.pdf'}` }, 'open ->')
         ),
         h('embed', { src: p.src, type: 'application/pdf', 'aria-label': `PDF document: ${p.name || 'document.pdf'}` })),
     file:  (p) => h('a', { class: 'chat-file', href: p.src, target: '_blank', rel: 'noopener', download: p.name || true, 'aria-label': `download file: ${p.name || 'attachment'} (${p.kindLabel || (p.name || '').split('.').pop().toUpperCase()})` },

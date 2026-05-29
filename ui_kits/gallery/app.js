@@ -79,7 +79,7 @@ function Lightbox() {
 function App() {
     const cols = state.density === 'tight' ? 'repeat(auto-fill, minmax(140px, 1fr))' : 'repeat(auto-fill, minmax(180px, 1fr))';
     return AppShell({
-        topbar: Topbar({ brand: '247420', leaf: 'gallery', items: [['index', '../../'], ['source ↗', 'https://github.com/AnEntrypoint/design']] }),
+        topbar: Topbar({ brand: '247420', leaf: 'gallery', items: [['index', '../../'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'gallery', right: items.length + ' tiles' }),
         side: Side({
             sections: [

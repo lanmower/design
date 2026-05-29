@@ -171,7 +171,7 @@ function Danger() {
 function App() {
     const view = { profile: Profile, theme: Theme, notify: Notify, api: ApiKeys, danger: Danger }[state.section]();
     return AppShell({
-        topbar: Topbar({ brand: '247420', leaf: 'settings', items: [['index', '../../'], ['source ↗', 'https://github.com/AnEntrypoint/design']] }),
+        topbar: Topbar({ brand: '247420', leaf: 'settings', items: [['index', '../../'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'settings · ' + state.section }),
         side: Side({
             sections: [

@@ -11,6 +11,12 @@
       "default": "./dist/247420.js"
     },
     "./css": "./dist/247420.css",
+    "./kits/spoint": {
+      "import": "./src/kits/spoint/index.js",
+      "default": "./src/kits/spoint/index.js"
+    },
+    "./kits/spoint/loading-screen.js": "./src/kits/spoint/loading-screen.js",
+    "./kits/spoint/loading-screen.css": "./src/kits/spoint/loading-screen.css",
     "./kits/os": {
       "import": "./src/kits/os/index.js",
       "default": "./src/kits/os/index.js"
@@ -56,8 +62,8 @@
     "README.md"
   ],
   "scripts": {
-    "build": "node scripts/build.mjs",
-    "test": "node test.js"
+    "lint:tokens": "node scripts/lint-tokens.mjs",
+    "build": "node scripts/build.mjs"
   },
   "repository": {
     "type": "git",

@@ -118,12 +118,12 @@ function Controls() {
         h('button', {
             class: 'btn',
             onclick: () => { if (state.i > 0) { state.i--; kit.render(); } }
-        }, '← prev'),
+        }, '<- prev'),
         h('span', { style: 'color:var(--fg-3)' }, (state.i + 1) + ' / ' + slides.length),
         h('button', {
             class: 'btn',
             onclick: () => { if (state.i < slides.length - 1) { state.i++; kit.render(); } }
-        }, 'next →')
+        }, 'next ->')
     );
 }
 

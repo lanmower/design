@@ -7,7 +7,7 @@ const h = webjsx.createElement;
 const seed = [
     { who: 'them', avatar: 'jr', name: 'jordan', time: '14:02',
       parts: [{ kind: 'text', text: 'pushed v0.0.27, theme cleanup looks clean now. see the **release notes** in [the changelog](https://github.com/AnEntrypoint/design/releases).' }],
-      reactions: [{ emoji: '🎉', count: 3, you: true }, { emoji: '👀', count: 1 }] },
+      reactions: [{ emoji: 'yay', count: 3, you: true }, { emoji: 'eyes', count: 1 }] },
     { who: 'them', avatar: 'mk', name: 'mai', time: '14:03',
       parts: [{ kind: 'text', text: 'nice. body-hide trick on first paint? share the diff?' }] },
     { who: 'you', avatar: 'me', time: '14:04', receipt: 'read',
@@ -18,7 +18,7 @@ const seed = [
       ] },
     { who: 'them', avatar: 'jr', name: 'jordan', time: '14:05',
       parts: [{ kind: 'md', text: '## review notes\n\nlooks solid. couple things:\n\n- short timeout fallback in case fonts hang\n- announce the `ready` class via `requestIdleCallback`\n- keep no-js fallback to `visibility: visible`\n\n> "ship the rough draft" — but not the broken one.\n\nwill review the rest tonight.' }],
-      reactions: [{ emoji: '✅', count: 2, you: true }] },
+      reactions: [{ emoji: 'done', count: 2, you: true }] },
     { who: 'them', avatar: 'mk', name: 'mai', time: '14:08',
       parts: [{ kind: 'image', src: './sample-svg.svg', alt: 'design system mascot', caption: 'spot the new mascot — final' }] },
     { who: 'you', avatar: 'me', time: '14:10', receipt: 'read',
@@ -33,7 +33,7 @@ const seed = [
                 thumb: './sample-square.png' }] },
     { who: 'them', avatar: 'mk', name: 'mai', time: '14:14',
       parts: [{ kind: 'file', src: './sample.pdf', name: 'meeting-notes-2026-05-01.pdf', size: 782 }],
-      reactions: [{ emoji: '📌', count: 1 }] },
+      reactions: [{ emoji: 'pin', count: 1 }] },
     { who: 'them', avatar: 'jr', name: 'jordan', time: '14:15', typing: true,
       parts: [] }
 ];
@@ -73,7 +73,7 @@ function send(text) {
 
 function App() {
     return AppShell({
-        topbar: Topbar({ brand: '247420', leaf: 'chat', items: [['index', '../../'], ['aicat', '../aicat/'], ['source ↗', 'https://github.com/AnEntrypoint/design']] }),
+        topbar: Topbar({ brand: '247420', leaf: 'chat', items: [['index', '../../'], ['aicat', '../aicat/'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'chat' }),
         side: Side({
             sections: [
@@ -96,7 +96,7 @@ function App() {
                     title: 'pattern notes',
                     children: h('div', { class: 'ds-pattern-notes' },
                         h('p', {}, '· bubble corner-cut on the originating side (4–6px) gives directional read without arrows.'),
-                        h('p', {}, '· own messages take the accent fill so the eye lands on what you said last; ✓ delivered, ✓✓ read.'),
+                        h('p', {}, '· own messages take the accent fill so the eye lands on what you said last; [x] delivered, [x][x] read.'),
                         h('p', {}, '· markdown is parsed by ', h('code', {}, 'marked'), ' and sanitized by ', h('code', {}, 'DOMPurify'), '; code blocks lit by ', h('code', {}, 'prism.js'), '.')
                     )
                 })

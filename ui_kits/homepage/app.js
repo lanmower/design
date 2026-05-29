@@ -5,7 +5,7 @@ const h = webjsx.createElement;
 const state = { route: 'works', opened: 0 };
 const root = document.getElementById('root');
 
-const navItems = [['works','#works'],['writing','#writing'],['manifesto','#manifesto'],['source ↗','https://github.com/AnEntrypoint']];
+const navItems = [['works','#works'],['writing','#writing'],['manifesto','#manifesto'],['source ->','https://github.com/AnEntrypoint']];
 
 function Topbar() {
     return h('header', { class: 'app-topbar' },
@@ -14,8 +14,8 @@ function Topbar() {
             h('a', {
                 key: label,
                 href,
-                class: state.route === label.replace(' ↗','') ? 'active' : '',
-                onclick: (e) => { if (!href.startsWith('http')) { e.preventDefault(); state.route = label.replace(' ↗',''); render(); } }
+                class: state.route === label.replace(' ->','') ? 'active' : '',
+                onclick: (e) => { if (!href.startsWith('http')) { e.preventDefault(); state.route = label.replace(' ->',''); render(); } }
             }, label)
         ))
     );
@@ -77,7 +77,7 @@ function Works() {
         h('div', { class: 'panel' },
             h('div', { class: 'panel-head' },
                 h('span', {}, 'works · 08 of ~61'),
-                h('a', { href: 'https://github.com/AnEntrypoint', style: 'color:var(--panel-accent);text-decoration:none' }, 'all repos ↗')
+                h('a', { href: 'https://github.com/AnEntrypoint', style: 'color:var(--panel-accent);text-decoration:none' }, 'all repos ->')
             ),
             h('div', { class: 'panel-body' }, ...works.map((w, i) => {
                 const isOpen = state.opened === i;
@@ -88,12 +88,12 @@ function Works() {
                     },
                         h('span', { class: 'code' }, w.code),
                         h('span', { class: 'title' }, w.title, h('span', { class: 'sub' }, w.sub)),
-                        h('span', { class: 'meta' }, w.meta + '  ' + (isOpen ? '−' : '+'))
+                        h('span', { class: 'meta' }, w.meta + '  ' + (isOpen ? '-' : '+'))
                     ),
                     isOpen ? h('div', { class: 'work-detail' },
                         h('p', { class: 'ds-prose ds-work-body' }, w.body),
                         h('div', { class: 'ds-work-actions' },
-                            h('a', { class: 'btn-primary', href: '#' }, 'open ↗'),
+                            h('a', { class: 'btn-primary', href: '#' }, 'open ->'),
                             h('a', { class: 'btn', href: '#' }, 'source')
                         )
                     ) : null
@@ -143,7 +143,7 @@ function Status() {
         h('span', { class: 'item' }, '• 5 posts'),
         h('span', { class: 'spread' }),
         h('span', { class: 'item' }, 'probably emerging'),
-        h('span', { class: 'item' }, h('a', { href: 'https://github.com/AnEntrypoint' }, 'source ↗'))
+        h('span', { class: 'item' }, h('a', { href: 'https://github.com/AnEntrypoint' }, 'source ->'))
     );
 }
 

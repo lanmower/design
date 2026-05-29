@@ -117,7 +117,7 @@ export function Topbar({ brand = '247420', leaf = '', items = [], active = '', o
             h('input', { type: 'search', placeholder: search, 'aria-label': `search ${search}` })
         ) : null,
         h('nav', { 'aria-label': 'main navigation' }, ...items.map(([label, href]) => {
-            const cleanLabel = String(label).replace(' ↗', '');
+            const cleanLabel = String(label).replace(' ->', '');
             return h('a', {
                 key: label,
                 href,
@@ -181,7 +181,7 @@ export function Status({ left = [], right = [] } = {}) {
 }
 
 // Toggle the mobile sidebar drawer. Pure-DOM because AppShell is stateless
-// chrome; the class lives on .app-body and is read by the ≤900px media query.
+// chrome; the class lives on .app-body and is read by the <=900px media query.
 function toggleSide(open) {
     const body = document.querySelector('.app-body');
     if (!body) return;

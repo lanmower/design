@@ -20,5 +20,5 @@ export const OS_ROUTE_DEFS = [
     { path: 'os-instances', label: 'instances', glyph: '◫' },
     { path: 'os-windows',   label: 'windows',   glyph: '▭' },
     { path: 'os-x',         label: 'x-server',  glyph: '✕' },
-    { path: 'os-fs',        label: 'fs',        glyph: '📁' },
+    { path: 'os-fs',        label: 'fs',        glyph: '◫' },
 ];

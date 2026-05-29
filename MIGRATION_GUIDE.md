@@ -40,9 +40,9 @@ Btn({ variant: 'default', children: 'Default' })
    ```
 
 2. **Replace patterns:**
-   - `primary: true` → `variant: 'primary'`
-   - `ghost: true` → `variant: 'ghost'`
-   - Remove both flags → add `variant: 'default'` (or omit, as default)
+   - `primary: true` -> `variant: 'primary'`
+   - `ghost: true` -> `variant: 'ghost'`
+   - Remove both flags -> add `variant: 'default'` (or omit, as default)
 
 3. **Example refactor:**
    ```js
@@ -57,7 +57,7 @@ Btn({ variant: 'default', children: 'Default' })
 
 4. **Backward compatibility:** Old code still works:
    ```js
-   Btn({ primary: true, children: 'Save' })  // ⚠️ works but triggers deprecation notice
+   Btn({ primary: true, children: 'Save' })  // works but triggers deprecation notice
    ```
 
 ### 2. Row Component
@@ -88,10 +88,10 @@ Row({ title: 'item', state: 'active' })    // consistent prop name
    ```
 
 2. **Replace patterns:**
-   - `active: true` → `state: 'active'`
-   - `active: false` → `state: 'default'` (or omit)
-   - `selected: true` → `state: 'active'`
-   - `selected: false` → `state: 'default'` (or omit)
+   - `active: true` -> `state: 'active'`
+   - `active: false` -> `state: 'default'` (or omit)
+   - `selected: true` -> `state: 'active'`
+   - `selected: false` -> `state: 'default'` (or omit)
 
 3. **Example refactor:**
    ```js
@@ -130,9 +130,9 @@ ChatMessage({ role: 'assistant', text: 'hi' })
    ```
 
 2. **Replace patterns:**
-   - `who: 'you'` → `role: 'user'`
-   - `who: 'them'` → `role: 'assistant'`
-   - For spread patterns: `{ ...msg }` → handle in message object
+   - `who: 'you'` -> `role: 'user'`
+   - `who: 'them'` -> `role: 'assistant'`
+   - For spread patterns: `{ ...msg }` -> handle in message object
 
 3. **For message objects spread into ChatMessage:**
    ```js
@@ -153,7 +153,7 @@ ChatMessage({ role: 'assistant', text: 'hi' })
 
 4. **Backward compatibility:**
    ```js
-   ChatMessage({ who: 'you', text: 'hello' })  // ⚠️ works but use role instead
+   ChatMessage({ who: 'you', text: 'hello' })  // works but use role instead
    ```
 
 ### 4. TreeItem Component
@@ -346,9 +346,9 @@ const app = h('div', {},
 
 ### Issue: Styles not applying after migration
 **Solution**: Verify CSS class names are correct:
-- `Btn` with `variant='primary'` → class should contain `btn-primary`
-- `Row` with `state='active'` → class should contain `active`
-- `ChatMessage` with `role='user'` → class should contain `you`
+- `Btn` with `variant='primary'` -> class should contain `btn-primary`
+- `Row` with `state='active'` -> class should contain `active`
+- `ChatMessage` with `role='user'` -> class should contain `you`
 
 ### Issue: Spread patterns still using old props
 **Solution**: Update source objects before spreading:

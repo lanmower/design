@@ -328,6 +328,20 @@ select:focus-visible {
   --accent: var(--green); --accent-fg: var(--paper);
 }
 
+/* thebird — warm-paper brand preset. A first-class swappable theme: it lives
+   here in the canonical layer (not as a global :root override) so any consumer
+   can opt in with data-theme="thebird". The OS-shell chrome (bar heights,
+   window controls) stays in src/kits/os/theme.css; only color lives here. */
+[data-theme="thebird"] {
+  color-scheme: light;
+  --paper:   #F5F0E4;
+  --paper-2: #EFE9DB;
+  --paper-3: #E3DAC7;
+  --bg: var(--paper); --bg-2: var(--paper-2); --bg-3: var(--paper-3);
+  --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
+  --accent: var(--green); --accent-fg: var(--paper);
+}
+
 [data-density="compact"]     { --density: 0.75; }
 [data-density="comfortable"] { --density: 1; }
 [data-density="spacious"]    { --density: 1.35; }

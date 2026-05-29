@@ -104,7 +104,7 @@ function generateState() {
 function Form() {
     if (state.sent) {
         return h('div', { style: 'padding:18px;display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center' },
-            h('div', { style: 'font-size:32px;color:var(--panel-accent)' }, '✓'),
+            h('div', { style: 'font-size:32px;color:var(--panel-accent)' }, '[x]'),
             h('p', { style: 'margin:0;font-weight:600' }, state.mode === 'magic' ? 'check your email' : (state.mode === 'reset' ? 'reset link sent' : 'welcome back')),
             h('p', { style: 'margin:0;color:var(--panel-text-2)' }, state.mode === 'magic' ? 'we sent a sign-in link to ' + state.email : (state.mode === 'reset' ? 'follow the link to set a new password.' : 'redirecting…'))
         );
@@ -127,9 +127,9 @@ function Form() {
         ) : null,
         state.error ? h('div', { style: 'padding:8px 10px;background:var(--panel-1);border-radius:8px;color:var(--danger);font-size:13px' }, state.error) : null,
         h('button', { class: 'btn btn-primary', type: 'submit' },
-            state.mode === 'signup' ? 'create account →' :
-            state.mode === 'magic'  ? 'send magic link →' :
-            state.mode === 'reset'  ? 'send reset link →' : 'sign in →'
+            state.mode === 'signup' ? 'create account ->' :
+            state.mode === 'magic'  ? 'send magic link ->' :
+            state.mode === 'reset'  ? 'send reset link ->' : 'sign in ->'
         ),
         state.mode !== 'reset' ? h('div', { style: 'display:flex;align-items:center;gap:10px;margin:6px 0;color:var(--panel-text-3);font-size:12px' },
             h('div', { style: 'flex:1;height:1px;background:var(--panel-2)' }),

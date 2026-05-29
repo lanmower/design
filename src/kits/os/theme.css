@@ -443,9 +443,9 @@ html, body {
  * --os-* aliases above consume the canonical semantic tokens (--bg/--fg/
  * --accent), and colors_and_type.css already drives [data-theme] (paper/ink/
  * auto, with color-scheme + --danger tuning) and [data-accent] (green/purple/
- * mascot). Re-declaring --os-bg-*/--os-accent per theme here only re-introduced
- * drift (ink #14131a vs canonical #131318; purple #7c5cff vs canonical
- * #420247). Density bar-height is genuinely OS-shell-specific, so it stays;
+ * mascot). Re-declaring the os surface or accent tokens per theme here only
+ * re-introduced drift (ink vs canonical ink; purple vs canonical purple).
+ * Density bar-height is genuinely OS-shell-specific, so it stays;
  * --os-accent-tint maps to the canonical accent tint. */
 :root { --os-accent-tint: var(--accent-tint); }
 :root[data-density="compact"]     { --os-bar-h: 28px; --os-tile-pad: 6px;  --os-gap: 6px;  }
@@ -463,18 +463,11 @@ html, body {
  * silently mutated the base theme for EVERY portfolio consumer (canonical
  * --paper is #F6F5F1; thebird wanted #F5F0E4). The warm-paper variant is now a
  * named preset [data-theme="thebird"] a consumer opts into, leaving the base
- * theme untouched. Typography + bar geometry below are brand chrome, not
- * color, so they stay scoped to .ds-247420.
+ * theme untouched. The [data-theme="thebird"] COLOR preset now lives in the
+ * canonical colors_and_type.css (a first-class swappable theme); only the
+ * OS-shell chrome (bar geometry, typography alias) stays here scoped to
+ * .ds-247420.
  * ============================================================ */
-[data-theme="thebird"] {
-    color-scheme: light;
-    --paper:   #F5F0E4;
-    --paper-2: #EFE9DB;
-    --paper-3: #E3DAC7;
-    --bg: var(--paper); --bg-2: var(--paper-2); --bg-3: var(--paper-3);
-    --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
-    --accent: var(--green); --accent-fg: var(--paper);
-}
 .ds-247420 {
     --ff-ui: var(--ff-body);
     /* uniform bar height: 22px button + 6px+6px padding = 34px */

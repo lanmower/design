@@ -55,7 +55,7 @@ function App() {
     return AppShell({
         topbar: Topbar({
             brand: '247420', leaf: 'search',
-            items: [['index', '../../'], ['source ↗', 'https://github.com/AnEntrypoint/design']],
+            items: [['index', '../../'], ['source ->', 'https://github.com/AnEntrypoint/design']],
             search: h('input', {
                 class: 'input', value: state.q, placeholder: 'search kits, previews, docs, api…',
                 style: 'width:280px',
@@ -84,7 +84,7 @@ function App() {
                 Heading({ level: 1, children: 'search' }),
                 Lede({ children: 'query bar in the topbar, faceted filters in the sidebar, ranked results in panel rows. same row primitive every other surface uses.' }),
                 rows.length ? Panel({ title: 'results', count: rows.length, style: 'margin:8px 0', children:
-                    rows.map((r, i) => RowLink({ key: 'r' + r.code + i, code: r.code, title: r.title, sub: r.sub, meta: r.kind + ' ↗', href: r.href }))
+                    rows.map((r, i) => RowLink({ key: 'r' + r.code + i, code: r.code, title: r.title, sub: r.sub, meta: r.kind + ' ->', href: r.href }))
                 }) : Panel({ title: 'no results', style: 'margin:8px 0', children: h('div', { style: 'padding:24px;text-align:center;color:var(--panel-text-3)' },
                     h('div', { style: 'font-size:32px' }, '◌'),
                     h('p', { style: 'margin:6px 0' }, 'no matches for ', h('code', {}, '"' + state.q + '"')),

@@ -28,10 +28,10 @@ function Topbar() {
     return h('header', { class: 'app-topbar' },
         h('span', { class: 'brand' }, '247420', h('span', { class: 'slash' }, ' / '), 'gm'),
         h('nav', {},
-            h('a', { href: '../homepage/' }, '← all projects'),
+            h('a', { href: '../homepage/' }, '<- all projects'),
             h('a', { href: '#', class: state.tab==='readme'?'active':'' , onclick:(e)=>{e.preventDefault();state.tab='readme';render();}}, 'readme'),
             h('a', { href: '#', class: state.tab==='docs'?'active':'' , onclick:(e)=>{e.preventDefault();state.tab='docs';render();}}, 'docs'),
-            h('a', { href: '#' }, 'source ↗')
+            h('a', { href: '#' }, 'source ->')
         )
     );
 }

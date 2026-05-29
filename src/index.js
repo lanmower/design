@@ -74,6 +74,9 @@ export { applyTheme, getTheme, resolvedTheme, onThemeChange, initTheme,
 export const h = webjsx.createElement;
 export const applyDiff = webjsx.applyDiff;
 
+// spoint kit paint surfaces (loading screen, HUD, editor chrome).
+export { renderLoadingScreen } from './kits/spoint/loading-screen.js';
+
 // Re-export freddie helpers so consumers can `import { FREDDIE_PAGES } from
 // 'anentrypoint-design'` directly.
 export {

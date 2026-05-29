@@ -9,11 +9,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
+import { lintTokensOrThrow } from './lint-tokens.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const dist = path.join(root, 'dist');
 fs.mkdirSync(dist, { recursive: true });
+
+// Themability gate: refuse to build if any component sheet hard-codes a raw
+// color literal. Runs unconditionally (not via npm prebuild hook) so it holds
+// under flatspace/CI runners that skip lifecycle scripts.
+lintTokensOrThrow();
 
 const SCOPE = '.ds-247420';
 
@@ -29,6 +35,7 @@ const cssParts = [
     ['chat.css', path.join(root, 'chat.css')],
     ['editor-primitives.css', path.join(root, 'editor-primitives.css')],
     ['community-app.css', path.join(root, 'community-app.css')],
+    ['spoint/loading-screen.css', path.join(root, 'src/kits/spoint/loading-screen.css')],
 ];
 
 let raw = '';

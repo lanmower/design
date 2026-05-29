@@ -147,7 +147,7 @@ export const voice = makePage((ctx) => {
             PageHeader({ eyebrow: 'freddie', title: 'voice', lede: 'voice surfaces', right: enabled ? Chip({ tone: 'ok', children: 'enabled' }) : Chip({ tone: 'neutral', children: 'not configured' }) }),
             enabled
                 ? section('backends', Table({ headers: ['capability', 'status'], rows: [['transcription', v.transcription ? Chip({ tone: 'ok', children: 'on' }) : Chip({ tone: 'neutral', children: 'off' })], ['tts', v.tts ? Chip({ tone: 'ok', children: 'on' }) : Chip({ tone: 'neutral', children: 'off' })]] }))
-                : section('status', emptyState('no voice backend wired in this build. configure a transcription/tts plugin to enable.', '🎙')),
+                : section('status', emptyState('no voice backend wired in this build. configure a transcription/tts plugin to enable.')),
         ];
     };
 });
@@ -405,7 +405,7 @@ export const config = makePage((ctx) => {
     }
     async function setSkin(name) {
         ctx.set({ busy: true, note: null });
-        try { await api('/api/config', { method: 'POST', body: { skin: name } }); await load(); ctx.set({ note: { kind: 'success', msg: 'skin → ' + name } }); }
+        try { await api('/api/config', { method: 'POST', body: { skin: name } }); await load(); ctx.set({ note: { kind: 'success', msg: 'skin -> ' + name } }); }
         catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); }
         ctx.set({ busy: false });
     }
@@ -574,7 +574,7 @@ export const chains = makePage((ctx) => {
             PageHeader({ eyebrow: 'freddie', title: 'chains', lede: 'acptoapi fallback chains', right: up ? Chip({ tone: 'ok', children: 'acptoapi up' }) : Chip({ tone: 'miss', children: 'acptoapi down' }) }),
             noteAlert(s.note),
             section('chains', Array.isArray(chainsList) && chainsList.length ? chainsList.map((c, i) => Row({
-                key: i, title: c.name || c, sub: Array.isArray(c.links) ? c.links.join(' → ') : '',
+                key: i, title: c.name || c, sub: Array.isArray(c.links) ? c.links.join(' -> ') : '',
                 trailing: Btn({ danger: true, children: 'delete', onClick: () => del(c.name || c) }),
             })) : emptyState('no chains defined')),
             section('new chain',

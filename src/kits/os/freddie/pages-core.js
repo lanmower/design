@@ -51,9 +51,9 @@ export function makeCorePages(ctx) {
                     ['open chat',   "click 'chat' in sidebar — set a working directory and pick a skill"],
                     ['pick skill',  "software dev, research, planning — shown with descriptions"],
                     ['pick model',  "select a configured provider + model in the chat bar"],
-                    ['list tools',  '/tools in chat → tools tab'],
-                    ['set api key', 'keys tab → click chip to set value'],
-                    ['add cron',    'cron tab → form'],
+                    ['list tools',  '/tools in chat -> tools tab'],
+                    ['set api key', 'keys tab -> click chip to set value'],
+                    ['add cron',    'cron tab -> form'],
                 ] }) }),
                 Panel({ title: 'host', children: Receipt({ rows: Object.entries(health).map(([k, v]) => [k, String(v)]) }) }),
             ];

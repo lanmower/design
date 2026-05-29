@@ -161,7 +161,7 @@ function examplesNode(examples) {
         h('span', { key: 't', class: 'title' }, String(e.label || e.name || e.href || '')),
       ];
       if (e.desc) kids.push(h('span', { key: 'm', class: 'meta dim' }, ' — ' + e.desc));
-      kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, '↗'));
+      kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, '->'));
       return h('a', { key: i, class: 'row ' + rail, href: e.href || '#' }, ...kids);
     }),
   });

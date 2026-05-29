@@ -63,7 +63,7 @@ function App() {
     const ch = state.activeChannel;
     const chatContent = h('div', { class: 'ds-community-main' },
         ChatHeader({
-            icon: ch.type === 'voice' ? '🔊' : '#',
+            icon: ch.type === 'voice' ? '◉' : '#',
             name: ch.name,
             topic: ch.type === 'text' ? 'community shell demo — click channels to switch' : null,
             toolbar: [
@@ -84,7 +84,7 @@ function App() {
     );
 
     return h('div', { class: 'ds-community-page' },
-        Topbar({ brand: '247420', leaf: 'community', items: [['index', '../../'], ['chat', '../chat/'], ['source ↗', 'https://github.com/AnEntrypoint/design']] }),
+        Topbar({ brand: '247420', leaf: 'community', items: [['index', '../../'], ['chat', '../chat/'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
         CommunityShell({
             serverRailProps: {
                 servers,

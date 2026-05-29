@@ -43,7 +43,7 @@ export function makeOsPages(ctx) {
             return [
                 Kpi({ items: [[list.length, 'paths'], [instance.id, 'instance']] }),
                 Panel({ title: 'paths', count: list.length, children: list.length === 0
-                    ? EmptyState({ text: 'empty fs', glyph: '📁' })
+                    ? EmptyState({ text: 'empty fs', glyph: '◫' })
                     : pre(list.join('\n')) }),
             ];
         },

@@ -109,7 +109,7 @@ export function WorksList({ works = [], openedIndex = -1, onToggle }) {
                 Row({
                     code: w.code,
                     title: w.title, sub: w.sub,
-                    meta: w.meta + '  ' + (isOpen ? '−' : '+'),
+                    meta: w.meta + '  ' + (isOpen ? '-' : '+'),
                     active: isOpen,
                     onClick: () => onToggle && onToggle(isOpen ? -1 : i)
                 }),
@@ -118,7 +118,7 @@ export function WorksList({ works = [], openedIndex = -1, onToggle }) {
                         h('p', { class: 'ds-work-body' }, w.body)
                     ),
                     h('div', { class: 'ds-work-actions' },
-                        Btn({ primary: true, href: w.href || '#', children: 'open ↗' }),
+                        Btn({ primary: true, href: w.href || '#', children: 'open ->' }),
                         Btn({ href: w.source || '#', children: 'source' })
                     )
                 ) : null

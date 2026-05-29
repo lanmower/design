@@ -2,7 +2,7 @@
 
 Every repo in the 247420.xyz portfolio (33 projects, source-of-truth: C:/dev/247420/lib/projects.js) MUST follow this pattern:
 - No package.json in repo root (CI/CD-only build)
-- GitHub Actions: `npx --yes flatspace@latest build` → deploys `./dist` via peaceiris/actions-gh-pages (or actions/deploy-pages)
+- GitHub Actions: `npx --yes flatspace@latest build` -> deploys `./dist` via peaceiris/actions-gh-pages (or actions/deploy-pages)
 - Site source: flatspace.config.mjs + config/globals/*.yaml + config/pages/*.yaml + src/theme.mjs
 - theme.mjs MUST render via AnEntrypoint design system SDK (anentrypoint-design at `unpkg.com/anentrypoint-design@latest/dist/247420.js`), importmap-loaded, `installStyles()` + `class="ds-247420"` on the SDK render root (the `#app` div, not `<html>`), components from `window.ds`/webjsx `h()` factory
 - SDK pin policy: every consumer (theme.mjs, index.html, importmap, installStyles bootstrap) MUST use `anentrypoint-design@latest` so any CI/CD build of any portfolio project picks up the newest published design without redeploying the consumer. Never pin a fixed version (`@0.0.16`) in portfolio repos.

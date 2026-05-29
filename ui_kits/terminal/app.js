@@ -26,13 +26,13 @@ const demoScript = [
     { d: 220,  kind: 'cmd', text: 'npm run build' },
     { d: 180,  kind: 'out', text: '> 247420-design build' },
     { d: 180,  kind: 'out', text: '[247420] css gzip+base64: 18.4kb (raw 96.1kb)' },
-    { d: 220,  kind: 'ok',  text: '✓ bundle written to dist/247420.js (84.0 kb)' },
+    { d: 220,  kind: 'ok',  text: 'bundle written to dist/247420.js (84.0 kb)' },
     { d: 280,  kind: 'cmd', text: 'npm test' },
     { d: 500,  kind: 'out', text: '116 assertions, 0 failures' },
-    { d: 200,  kind: 'ok',  text: '✓ all tests passed' },
+    { d: 200,  kind: 'ok',  text: 'all tests passed' },
     { d: 320,  kind: 'cmd', text: 'git push' },
     { d: 240,  kind: 'out', text: 'remote: Deploying to gh-pages…' },
-    { d: 900,  kind: 'ok',  text: '✓ deploy in 11s' }
+    { d: 900,  kind: 'ok',  text: 'deploy in 11s' }
 ];
 const reduced = typeof matchMedia !== 'undefined'
     && matchMedia('(prefers-reduced-motion: reduce)').matches;

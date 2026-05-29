@@ -6,11 +6,11 @@ const h = webjsx.createElement;
 const root = document.getElementById('root');
 
 const suggestions = [
-    { code: '◆', title: 'index',         sub: 'design system home',                 href: '../../',                meta: 'open ↗' },
-    { code: '◇', title: 'kits',          sub: 'every ui kit in the portfolio',      href: '../../#kits',           meta: 'jump ↗' },
-    { code: '§', title: 'previews',      sub: 'every primitive isolated',           href: '../../preview/buttons.html', meta: 'browse ↗' },
-    { code: 'md',title: 'readme',        sub: 'overview, manifesto, conventions',   href: 'https://github.com/AnEntrypoint/design/blob/main/README.md', meta: 'readme ↗' },
-    { code: '↗', title: 'github',        sub: 'source repo · 247420/anentrypoint',  href: 'https://github.com/AnEntrypoint/design',                     meta: 'source ↗' }
+    { code: '◆', title: 'index',         sub: 'design system home',                 href: '../../',                meta: 'open ->' },
+    { code: '◇', title: 'kits',          sub: 'every ui kit in the portfolio',      href: '../../#kits',           meta: 'jump ->' },
+    { code: '§', title: 'previews',      sub: 'every primitive isolated',           href: '../../preview/buttons.html', meta: 'browse ->' },
+    { code: 'md',title: 'readme',        sub: 'overview, manifesto, conventions',   href: 'https://github.com/AnEntrypoint/design/blob/main/README.md', meta: 'readme ->' },
+    { code: '↗', title: 'github',        sub: 'source repo · 247420/anentrypoint',  href: 'https://github.com/AnEntrypoint/design',                     meta: 'source ->' }
 ];
 
 const path = (typeof location !== 'undefined' && location.search) ? new URLSearchParams(location.search).get('p') : null;
@@ -31,7 +31,7 @@ function App() {
                         h('span', {}, path)
                     ) : null,
                     h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px' },
-                        h('a', { href: '../../', class: 'btn btn-primary' }, '← back to index'),
+                        h('a', { href: '../../', class: 'btn btn-primary' }, '<- back to index'),
                         h('a', { href: '../search/', class: 'btn' }, 'search instead'),
                         h('button', { class: 'btn', onclick: () => history.back() }, 'go back')
                     ),

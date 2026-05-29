@@ -158,9 +158,9 @@ async function runAllTests() {
         const speedup = (10000 + initStats.initMs.markdown + initStats.initMs.prism) / (mdStats.avg * 100 + initStats.initMs.markdown + initStats.initMs.prism);
         console.log(`Performance improvement: ~${speedup.toFixed(1)}x faster`);
 
-        console.log('\n✓ All tests completed successfully');
+        console.log('\nPASS All tests completed successfully');
     } catch (err) {
-        console.error('\n✗ Test failed:', err.message);
+        console.error('\nFAIL Test failed:', err.message);
         console.error(err.stack);
         process.exit(1);
     }

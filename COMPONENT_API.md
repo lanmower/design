@@ -18,8 +18,8 @@ This document describes all exported components, their prop signatures, and stan
 - `onClick`, `onInput`, `onSubmit`, `onChange`, etc.
 
 **Variant/mode props** use enum values, never multiple boolean flags:
-- Old: `primary={true}`, `ghost={true}` ❌
-- New: `variant: 'primary' | 'ghost' | 'default'` ✅
+- Old: `primary={true}`, `ghost={true}` [ ]
+- New: `variant: 'primary' | 'ghost' | 'default'` [x]
 
 ---
 
@@ -40,7 +40,7 @@ Brand({ name = '247420', leaf })
 **Example:**
 ```js
 Brand({ name: 'acme', leaf: 'dashboard' })
-// → "acme / dashboard"
+// -> "acme / dashboard"
 ```
 
 ### Chip
@@ -74,8 +74,8 @@ Btn({ href = '#', variant = 'default', children, onClick, 'aria-label' })
 | `children` | ReactNode | - | Button label/content |
 | `onClick` | function | - | Click handler callback |
 | `aria-label` | string | - | Accessible label (auto-filled from children if string) |
-| `primary` | boolean | - | ⚠️ **Deprecated**: use `variant="primary"` |
-| `ghost` | boolean | - | ⚠️ **Deprecated**: use `variant="ghost"` |
+| `primary` | boolean | - | **Deprecated**: use `variant="primary"` |
+| `ghost` | boolean | - | **Deprecated**: use `variant="ghost"` |
 
 **Example:**
 ```js
@@ -273,8 +273,8 @@ Row({ code, title, sub, meta, state = 'default', onClick, href, kind, cols, lead
 | `leading` | ReactNode | - | Custom leading content |
 | `trailing` | ReactNode | - | Custom trailing content |
 | `target` | string | - | Link target (`_blank`, etc.) |
-| `active` | boolean | - | ⚠️ **Deprecated**: use `state="active"` |
-| `selected` | boolean | - | ⚠️ **Deprecated**: use `state="active"` |
+| `active` | boolean | - | **Deprecated**: use `state="active"` |
+| `selected` | boolean | - | **Deprecated**: use `state="active"` |
 
 **Example:**
 ```js
@@ -440,7 +440,7 @@ ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat,
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `role` | `'user' | 'assistant' | 'them' | 'you'` | - | Message sender role (preferred) |
-| `who` | `'you' | 'them'` | `'them'` | ⚠️ **Deprecated**: use `role` |
+| `who` | `'you' | 'them'` | `'them'` | **Deprecated**: use `role` |
 | `avatar` | string | - | Avatar character/emoji |
 | `text` | string | - | Plain text message |
 | `parts` | array | - | Rich message parts (text, md, code, image, etc.) |
@@ -749,9 +749,9 @@ Row({ title: 'item', state: 'active' })
 ```
 
 **Migration Path:**
-- `active: true` → `state: 'active'`
-- `active: false` → `state: 'default'`
-- `selected: true` → `state: 'active'`
+- `active: true` -> `state: 'active'`
+- `active: false` -> `state: 'default'`
+- `selected: true` -> `state: 'active'`
 
 ### ChatMessage Component
 **Status**: Backward compatible (v0.0.127+)
@@ -769,8 +769,8 @@ ChatMessage({ role: 'assistant', text: 'hi' })
 ```
 
 **Migration Path:**
-- `who: 'you'` → `role: 'user'`
-- `who: 'them'` → `role: 'assistant'`
+- `who: 'you'` -> `role: 'user'`
+- `who: 'them'` -> `role: 'assistant'`
 - Both still supported; `role` takes precedence if both provided
 
 ### TreeItem Component

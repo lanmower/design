@@ -115,7 +115,7 @@ export function makeToolsPages(ctx) {
                         if (typeof h0.pi.env.set === 'function') { h0.pi.env.set(k.key, v); rerender(); }
                     },
                 },
-                Chip({ tone: k.set ? 'ok' : 'miss', children: k.key + (k.set ? ' ✓' : ' ·') })
+                Chip({ tone: k.set ? 'ok' : 'miss', children: k.key + (k.set ? ' [x]' : ' [ ]') })
             ));
             return [
                 Kpi({ items: [[setCount, 'set'], [list.length - setCount, 'missing'], [list.length, 'total known']] }),

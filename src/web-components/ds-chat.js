@@ -12,7 +12,7 @@ class DsChat extends HTMLElement {
     constructor() {
         super();
         this._messages = [];
-        this._placeholder = 'type, then ⏎';
+        this._placeholder = 'type, then enter';
         this._title = 'chat';
         this._sub = '';
         this._composerValue = '';
