@@ -24,6 +24,8 @@ export {
     AICAT_FACE, AICatPortrait, AICat
 } from './components/chat.js';
 
+export { AgentChat } from './components/agent-chat.js';
+
 export {
     fileGlyph, fmtFileSize,
     FileIcon, FileRow, FileGrid, FileToolbar,
@@ -86,3 +88,5 @@ export {
     models, cron, skills, config, env, tools, batch, gateway, chains,
     skillLabel, getRecentPaths, saveRecentPath, renderChatMessages
 } from './components/freddie.js';
+
+export { mountCommunityApp } from './community-app.js';

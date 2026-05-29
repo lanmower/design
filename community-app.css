@@ -1,0 +1,121 @@
+/* community-app.css — layout glue for mountCommunityApp (the full chat/community
+   app GUI). Reuses the canonical app/body/main classes from app-shell.css and
+   the community + voice component classes from community.css; this part only adds
+   the app-composition wrapper, the server+channel rail pills, the voice view grid,
+   and the category-color tokens the consumer avatars use. All scoped under
+   .ds-247420. Additive — defines only the ca- prefix, group, rail-empty, vx-view
+   classes plus the cat color tokens. */
+
+.ds-247420 {
+  --cat-green: #3F8A4A;
+  --cat-purple: #6B3A78;
+  --cat-mascot: #F07AA8;
+  --cat-sun: #FFD86B;
+  --cat-flame: #FF8454;
+  --cat-sky: #6FA9FF;
+}
+
+html.ds-247420 .ca-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
+}
+html.ds-247420 .ca-app > .app-body {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+html.ds-247420 .ca-app > .app-body > .app-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* server + channel rail */
+html.ds-247420 .ca-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 220px;
+  min-width: 220px;
+  padding: 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-2, color-mix(in oklab, var(--bg) 92%, var(--fg)));
+  scrollbar-width: thin;
+}
+html.ds-247420 .ca-rail .group {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
+  padding: 10px 8px 4px;
+}
+html.ds-247420 .ca-rail a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  color: var(--fg-2, color-mix(in oklab, var(--fg) 78%, transparent));
+  text-decoration: none;
+  font-size: var(--fs-sm, 14px);
+  line-height: 1.2;
+  transition: background 0.1s, color 0.1s;
+}
+html.ds-247420 .ca-rail a:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
+html.ds-247420 .ca-rail a.active { background: color-mix(in oklab, var(--accent) 22%, transparent); color: var(--fg); }
+html.ds-247420 .ca-rail a .glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  flex-shrink: 0;
+  color: var(--fg-3, currentColor);
+}
+html.ds-247420 .ca-rail a > span:nth-child(2) { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.ds-247420 .ca-rail a .count {
+  flex-shrink: 0;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--accent);
+  color: var(--green-fg, #fff);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+html.ds-247420 .ca-rail .rail-empty {
+  padding: 8px;
+  color: var(--fg-3, color-mix(in oklab, var(--fg) 50%, transparent));
+  font-size: var(--fs-sm, 14px);
+  font-style: italic;
+}
+
+/* voice channel view */
+html.ds-247420 .vx-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+html.ds-247420 .vx-view .vx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+  overflow-y: auto;
+  align-content: start;
+}

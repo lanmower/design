@@ -1,2 +1,101 @@
-/* chat.css — chat-specific styles. Currently empty; all chat styles live in
-   app-shell.css under the .chat-* prefix. Reserved for future split. */
+/* chat.css — chat-specific styles. Most chat styles live in app-shell.css under
+   the .chat-* prefix. This file carries the AgentChat kit styles (the reusable
+   multi-agent orchestration chat surface). */
+
+.agentchat {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  gap: var(--space-2, 8px);
+}
+
+/* agent + model picker, new/stop, status — wraps on narrow widths */
+.agentchat-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2, 8px);
+}
+.agentchat-controls .select,
+.agentchat-controls [role="combobox"] { min-width: 130px; max-width: 240px; }
+
+.agentchat-status {
+  display: inline-flex;
+  align-items: center;
+  gap: .4em;
+  white-space: nowrap;
+  margin-left: auto;
+  font-size: .85em;
+  color: var(--muted, #8a8f98);
+}
+/* status disc — a CSS-drawn dot, not a glyph; pulses while streaming */
+.agentchat-status .status-dot-disc {
+  flex: none; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--muted, #8a8f98);
+}
+.agentchat-status .status-dot-disc.status-dot-live {
+  background: var(--accent, #50c878);
+  animation: agentchat-pulse 2s infinite;
+}
+@keyframes agentchat-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(80, 200, 120, .5); }
+  70%  { box-shadow: 0 0 0 6px rgba(80, 200, 120, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(80, 200, 120, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .agentchat-status .status-dot-disc { animation: none !important; }
+}
+
+/* working-directory bar */
+.agentchat-cwd {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  font-size: .85em;
+  color: var(--muted, #8a8f98);
+  flex-wrap: wrap;
+}
+.agentchat-cwd-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60ch;
+}
+.agentchat-cwd-btn {
+  background: none;
+  border: 1px solid var(--border, #2a2f3a);
+  color: inherit;
+  border-radius: 6px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font: inherit;
+}
+.agentchat-cwd-btn:hover { border-color: var(--accent, #50c878); }
+.agentchat-cwd-input {
+  flex: 1;
+  min-width: 12ch;
+  background: var(--surface, #11151c);
+  border: 1px solid var(--border, #2a2f3a);
+  color: var(--text, #e6e9ee);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font: inherit;
+}
+
+/* head + thread */
+.agentchat-head {
+  display: flex;
+  align-items: baseline;
+  gap: .5em;
+}
+.agentchat-title { font-size: 1em; margin: 0; }
+.agentchat-sub { font-size: .85em; color: var(--muted, #8a8f98); }
+.agentchat-thread {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+}

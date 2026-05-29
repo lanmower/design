@@ -4522,8 +4522,107 @@
 }
 
 /* chat.css */
-/* chat.css — chat-specific styles. Currently empty; all chat styles live in
-   app-shell.css under the .chat-* prefix. Reserved for future split. */
+/* chat.css — chat-specific styles. Most chat styles live in app-shell.css under
+   the .chat-* prefix. This file carries the AgentChat kit styles (the reusable
+   multi-agent orchestration chat surface). */
+
+.ds-247420 .agentchat {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  gap: var(--space-2, 8px);
+}
+
+/* agent + model picker, new/stop, status — wraps on narrow widths */
+.ds-247420 .agentchat-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2, 8px);
+}
+.ds-247420 .agentchat-controls .select,
+.ds-247420 .agentchat-controls [role="combobox"] { min-width: 130px; max-width: 240px; }
+
+.ds-247420 .agentchat-status {
+  display: inline-flex;
+  align-items: center;
+  gap: .4em;
+  white-space: nowrap;
+  margin-left: auto;
+  font-size: .85em;
+  color: var(--muted, #8a8f98);
+}
+/* status disc — a CSS-drawn dot, not a glyph; pulses while streaming */
+.ds-247420 .agentchat-status .status-dot-disc {
+  flex: none; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--muted, #8a8f98);
+}
+.ds-247420 .agentchat-status .status-dot-disc.status-dot-live {
+  background: var(--accent, #50c878);
+  animation: agentchat-pulse 2s infinite;
+}
+@keyframes agentchat-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(80, 200, 120, .5); }
+  70%  { box-shadow: 0 0 0 6px rgba(80, 200, 120, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(80, 200, 120, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-247420 .agentchat-status .status-dot-disc { animation: none !important; }
+}
+
+/* working-directory bar */
+.ds-247420 .agentchat-cwd {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  font-size: .85em;
+  color: var(--muted, #8a8f98);
+  flex-wrap: wrap;
+}
+.ds-247420 .agentchat-cwd-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60ch;
+}
+.ds-247420 .agentchat-cwd-btn {
+  background: none;
+  border: 1px solid var(--border, #2a2f3a);
+  color: inherit;
+  border-radius: 6px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font: inherit;
+}
+.ds-247420 .agentchat-cwd-btn:hover { border-color: var(--accent, #50c878); }
+.ds-247420 .agentchat-cwd-input {
+  flex: 1;
+  min-width: 12ch;
+  background: var(--surface, #11151c);
+  border: 1px solid var(--border, #2a2f3a);
+  color: var(--text, #e6e9ee);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font: inherit;
+}
+
+/* head + thread */
+.ds-247420 .agentchat-head {
+  display: flex;
+  align-items: baseline;
+  gap: .5em;
+}
+.ds-247420 .agentchat-title { font-size: 1em; margin: 0; }
+.ds-247420 .agentchat-sub { font-size: .85em; color: var(--muted, #8a8f98); }
+.ds-247420 .agentchat-thread {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+}
 
 /* editor-primitives.css */
 /* editor-primitives.css — chrome for in-engine editors, inspectors, IDEs,
@@ -5427,3 +5526,126 @@
 .ds-247420 .ov-lightbox-stage { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); max-width: 92vw; max-height: 90vh; }
 .ds-247420 .ov-lightbox-video { max-width: 92vw; max-height: 82vh; border-radius: var(--r-1); background: #000; }
 .ds-247420 .ov-lightbox-label { color: #fff; font-size: var(--fs-0, 12px); opacity: .85; }
+
+/* community-app.css */
+/* community-app.css — layout glue for mountCommunityApp (the full chat/community
+   app GUI). Reuses the canonical app/body/main classes from app-shell.css and
+   the community + voice component classes from community.css; this part only adds
+   the app-composition wrapper, the server+channel rail pills, the voice view grid,
+   and the category-color tokens the consumer avatars use. All scoped under
+   .ds-247420. Additive — defines only the ca- prefix, group, rail-empty, vx-view
+   classes plus the cat color tokens. */
+
+.ds-247420 {
+  --cat-green: #3F8A4A;
+  --cat-purple: #6B3A78;
+  --cat-mascot: #F07AA8;
+  --cat-sun: #FFD86B;
+  --cat-flame: #FF8454;
+  --cat-sky: #6FA9FF;
+}
+
+.ds-247420.ds-247420 .ca-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
+}
+.ds-247420.ds-247420 .ca-app > .app-body {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.ds-247420.ds-247420 .ca-app > .app-body > .app-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* server + channel rail */
+.ds-247420.ds-247420 .ca-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 220px;
+  min-width: 220px;
+  padding: 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-2, color-mix(in oklab, var(--bg) 92%, var(--fg)));
+  scrollbar-width: thin;
+}
+.ds-247420.ds-247420 .ca-rail .group {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
+  padding: 10px 8px 4px;
+}
+.ds-247420.ds-247420 .ca-rail a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  color: var(--fg-2, color-mix(in oklab, var(--fg) 78%, transparent));
+  text-decoration: none;
+  font-size: var(--fs-sm, 14px);
+  line-height: 1.2;
+  transition: background 0.1s, color 0.1s;
+}
+.ds-247420.ds-247420 .ca-rail a:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
+.ds-247420.ds-247420 .ca-rail a.active { background: color-mix(in oklab, var(--accent) 22%, transparent); color: var(--fg); }
+.ds-247420.ds-247420 .ca-rail a .glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  flex-shrink: 0;
+  color: var(--fg-3, currentColor);
+}
+.ds-247420.ds-247420 .ca-rail a > span:nth-child(2) { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-247420.ds-247420 .ca-rail a .count {
+  flex-shrink: 0;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--accent);
+  color: var(--green-fg, #fff);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+.ds-247420.ds-247420 .ca-rail .rail-empty {
+  padding: 8px;
+  color: var(--fg-3, color-mix(in oklab, var(--fg) 50%, transparent));
+  font-size: var(--fs-sm, 14px);
+  font-style: italic;
+}
+
+/* voice channel view */
+.ds-247420.ds-247420 .vx-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.ds-247420.ds-247420 .vx-view .vx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+  overflow-y: auto;
+  align-content: start;
+}

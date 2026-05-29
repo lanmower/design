@@ -24,6 +24,7 @@ const cssParts = [
     ['community.css', path.join(root, 'community.css')],
     ['chat.css', path.join(root, 'chat.css')],
     ['editor-primitives.css', path.join(root, 'editor-primitives.css')],
+    ['community-app.css', path.join(root, 'community-app.css')],
 ];
 
 let raw = '';
