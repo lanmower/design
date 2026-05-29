@@ -4,6 +4,7 @@
 // .ds-247420 (see editor-primitives.css).
 
 import * as webjsx from '../../vendor/webjsx/index.js';
+import { Icon } from './shell.js';
 const h = webjsx.createElement;
 const kids = (c) => c == null ? [] : (Array.isArray(c) ? c : [c]);
 const FOCUSABLE_SEL = 'a[href],button:not([disabled]),textarea:not([disabled]),input:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])';
@@ -65,6 +66,12 @@ function _hideTip() {
     if (_tipFloat) { _tipFloat.dispose(); _tipFloat = null; }
     if (_tipEl) { _tipEl.hidden = true; _tipEl.className = 'ds-tooltip'; }
 }
+// One module-scope scroll listener hides the shared bubble on any scroll —
+// registered once, never per-trigger (per-trigger leaked a listener per element).
+if (typeof window !== 'undefined' && !window.__dsTipScrollBound) {
+    window.__dsTipScrollBound = true;
+    window.addEventListener('scroll', _hideTip, true);
+}
 function _showTip(trigger, label, placement, kind) {
     if (typeof document === 'undefined') return;
     if (!_tipEl || !document.body.contains(_tipEl)) {
@@ -95,7 +102,6 @@ export function Tooltip({ children, label, placement = 'top', delay = 350, kind 
         el.addEventListener('focus', show);
         el.addEventListener('blur', _hideTip);
         el.addEventListener('keydown', (e) => { if (e.key === 'Escape') _hideTip(); });
-        window.addEventListener('scroll', _hideTip, true);
         useLongPress(el, show, { ms: 500 });
     };
     const prevRef = child.props && child.props.ref;
@@ -343,7 +349,8 @@ export function EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose 
         tabindex: '-1',
         onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } },
         ref: (el) => {
-            if (!el || el._ovEmoji) return; el._ovEmoji = true; rootEl = el;
+            if (!el) { if (rootEl && rootEl._ovEmojiCleanup) rootEl._ovEmojiCleanup(); return; }
+            if (el._ovEmoji) return; el._ovEmoji = true; rootEl = el;
             const place = () => {
                 const r = el.getBoundingClientRect();
                 const { left, top } = _clampToViewport(anchorX, anchorY, r.width || 260, r.height || 240);
@@ -381,7 +388,7 @@ export function BootOverlay({ progress = 0, phase = '', errored = false, visible
     return h('div', { class: 'ov-boot' + (errored ? ' is-error' : ''), role: errored ? 'alert' : 'status', 'aria-live': 'polite' },
         h('div', { class: 'ov-boot-inner' },
             errored
-                ? h('div', { class: 'ov-boot-mark ov-boot-mark-error', 'aria-hidden': 'true' }, '⚠')
+                ? h('div', { class: 'ov-boot-mark ov-boot-mark-error', 'aria-hidden': 'true' }, Icon('warn'))
                 : h('div', { class: 'ov-boot-spinner', 'aria-hidden': 'true' }),
             !errored ? h('div', { class: 'ov-boot-bar', role: 'progressbar',
                 'aria-valuenow': String(Math.round(pct)), 'aria-valuemin': '0', 'aria-valuemax': '100' },

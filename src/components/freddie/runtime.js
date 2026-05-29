@@ -5,6 +5,7 @@
 // a ref callback that uses the SDK's own applyDiff.
 
 import * as webjsx from '../../../vendor/webjsx/index.js';
+import { Icon } from '../shell.js';
 const h = webjsx.createElement;
 const applyDiff = webjsx.applyDiff;
 
@@ -57,7 +58,7 @@ export function makePage(setup, { initial = {} } = {}) {
             try { body = render(); }
             catch (e) {
                 body = h('div', { class: 'ds-alert ds-alert-error', role: 'alert' },
-                    h('span', { class: 'ds-alert-icon' }, '✕'),
+                    h('span', { class: 'ds-alert-icon' }, Icon('x')),
                     h('div', { class: 'ds-alert-content' },
                         h('div', { class: 'ds-alert-title' }, 'page render error'),
                         h('pre', { class: 'fd-pre' }, String(e && e.stack || e))));
@@ -70,7 +71,14 @@ export function makePage(setup, { initial = {} } = {}) {
             elRef = el;
             const r = setup(ctx);
             if (typeof r === 'function') render = r;
+            // Paint immediately, then again on the next microtask. Pages whose
+            // setup only seeds state synchronously (chat, batch) get a single
+            // ref-time paint; if that paint lands before the node is fully live
+            // in the document the diff can no-op, leaving an empty page-root.
+            // The deferred second paint guarantees content regardless of attach
+            // timing. Pages that also load() async are unaffected (idempotent).
             ctx.rerender();
+            Promise.resolve().then(() => ctx.rerender());
         };
         return h('div', { class: 'fd-page-root', ref });
     };
@@ -87,14 +95,14 @@ export function loadingState(label = 'loading…') {
 export function errorState(err, onRetry) {
     const msg = String(err && err.message || err);
     return h('div', { class: 'ds-alert ds-alert-error', role: 'alert' },
-        h('span', { class: 'ds-alert-icon' }, '✕'),
+        h('span', { class: 'ds-alert-icon' }, Icon('x')),
         h('div', { class: 'ds-alert-content' },
             h('div', { class: 'ds-alert-title' }, 'failed to load'),
             h('div', { class: 'ds-alert-message' }, msg),
-            onRetry ? h('button', { class: 'btn', onclick: onRetry, style: 'margin-top:8px' }, 'retry') : null));
+            onRetry ? h('button', { class: 'btn ds-alert-retry', onclick: onRetry }, 'retry') : null));
 }
 
-export function emptyState(text = 'nothing here yet', glyph = '◌') {
+export function emptyState(text = 'nothing here yet', glyph = Icon('circle')) {
     return h('div', { class: 'fd-empty', role: 'status' },
         h('div', { class: 'fd-empty-glyph', 'aria-hidden': 'true' }, glyph),
         h('div', { class: 'dim' }, text));

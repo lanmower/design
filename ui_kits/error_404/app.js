@@ -6,11 +6,11 @@ const h = webjsx.createElement;
 const root = document.getElementById('root');
 
 const suggestions = [
-    { code: '◆', title: 'index',         sub: 'design system home',                 href: '../../',                meta: 'open ->' },
-    { code: '◇', title: 'kits',          sub: 'every ui kit in the portfolio',      href: '../../#kits',           meta: 'jump ->' },
-    { code: '§', title: 'previews',      sub: 'every primitive isolated',           href: '../../preview/buttons.html', meta: 'browse ->' },
+    { code: '*', title: 'index',         sub: 'design system home',                 href: '../../',                meta: 'open ->' },
+    { code: '-', title: 'kits',          sub: 'every ui kit in the portfolio',      href: '../../#kits',           meta: 'jump ->' },
+    { code: '//', title: 'previews',      sub: 'every primitive isolated',           href: '../../preview/buttons.html', meta: 'browse ->' },
     { code: 'md',title: 'readme',        sub: 'overview, manifesto, conventions',   href: 'https://github.com/AnEntrypoint/design/blob/main/README.md', meta: 'readme ->' },
-    { code: '↗', title: 'github',        sub: 'source repo · 247420/anentrypoint',  href: 'https://github.com/AnEntrypoint/design',                     meta: 'source ->' }
+    { code: '->', title: 'github',        sub: 'source repo · 247420/anentrypoint',  href: 'https://github.com/AnEntrypoint/design',                     meta: 'source ->' }
 ];
 
 const path = (typeof location !== 'undefined' && location.search) ? new URLSearchParams(location.search).get('p') : null;
@@ -36,7 +36,7 @@ function App() {
                         h('button', { class: 'btn', onclick: () => history.back() }, 'go back')
                     ),
                     h('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:4px' },
-                        Chip({ tone: 'dim', children: '◌ empty' }),
+                        Chip({ tone: 'dim', children: 'empty' }),
                         Chip({ tone: 'dim', children: '· status 404' }),
                         Chip({ tone: 'dim', children: '· no body' })
                     )
@@ -47,7 +47,7 @@ function App() {
             )
         ],
         status: Status({
-            left: ['error', '• 404', '• ' + (path || 'unknown')],
+            left: ['error', '- 404', '- ' + (path || 'unknown')],
             right: ['247420 / mmxxvi']
         })
     });

@@ -1095,6 +1095,7 @@
 /* ============================================================
    Currently shipping dots
    ============================================================ */
+.ds-247420 .ds-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; vertical-align: middle; }
 .ds-247420 .ds-dot-on  { color: var(--green-2); }
 .ds-247420 .ds-dot-off { color: var(--fg-3); }
 .ds-247420 .ds-dot-live { color: var(--green-2); }
@@ -2933,6 +2934,7 @@
   font-size: var(--fs-sm);
   color: var(--fg-2);
 }
+.ds-247420 .ds-alert-retry { margin-top: var(--space-2); }
 
 .ds-247420 .ds-alert-dismiss {
   flex-shrink: 0;
@@ -4540,7 +4542,7 @@
 .ds-247420 .cm-tp-item-title { font-size: var(--fs-1, 14px); }
 .ds-247420 .cm-tp-item-snippet { font-size: var(--fs-0, 12px); color: var(--fg-2, var(--fg)); opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ds-247420 .cm-tp-item-meta { display: flex; gap: var(--space-2); font-size: var(--fs-micro, 11px); color: var(--fg-2, var(--fg)); opacity: .7; }
-.ds-247420 .cm-tp-empty, .ds-247420 .cm-forum-empty { padding: var(--space-3); text-align: center; color: var(--fg-2, var(--fg)); opacity: .7; }
+.ds-247420 .cm-tp-empty, .ds-247420 .cm-forum-empty, .ds-247420 .cm-channel-empty, .ds-247420 .cm-member-empty { padding: var(--space-3); text-align: center; color: var(--fg-2, var(--fg)); opacity: .7; font-size: var(--fs-sm); }
 
 /* ForumView — cm-forum / cm-forum-* */
 .ds-247420 .cm-forum { display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--bg-1, var(--bg-2)); color: var(--fg); }

@@ -6,21 +6,21 @@ const root = document.getElementById('root');
 
 const sideSections = [
     { group: 'project', items: [
-        ['◆', 'overview', 'readme', true],
-        ['§', 'readme', 'readme', false],
-        ['§', 'docs', 'docs', false],
-        ['§', 'changelog', 'changelog', false]
+        ['*', 'overview', 'readme', true],
+        ['//', 'readme', 'readme', false],
+        ['//', 'docs', 'docs', false],
+        ['//', 'changelog', 'changelog', false]
     ]},
     { group: 'reference', items: [
-        ['›', 'executenodejs', 'ref', false],
-        ['›', 'executedeno', 'ref', false],
-        ['›', 'astgrep_*', 'ref', false],
-        ['›', 'batch_execute', 'ref', false]
+        ['>', 'executenodejs', 'ref', false],
+        ['>', 'executedeno', 'ref', false],
+        ['>', 'astgrep_*', 'ref', false],
+        ['>', 'batch_execute', 'ref', false]
     ]},
     { group: 'links', items: [
-        ['↗', 'source', 'ext', false],
-        ['↗', 'npm', 'ext', false],
-        ['↗', 'releases', 'ext', false]
+        ['->', 'source', 'ext', false],
+        ['->', 'npm', 'ext', false],
+        ['->', 'releases', 'ext', false]
     ]}
 ];
 
@@ -127,12 +127,12 @@ function Changelog({ entries }) {
 function Status() {
     return h('footer', { class: 'app-status' },
         h('span', { class: 'item' }, 'main'),
-        h('span', { class: 'item' }, '• typescript'),
-        h('span', { class: 'item' }, '• 0 errors'),
-        h('span', { class: 'item' }, '• 0 warnings'),
+        h('span', { class: 'item' }, '- typescript'),
+        h('span', { class: 'item' }, '- 0 errors'),
+        h('span', { class: 'item' }, '- 0 warnings'),
         h('span', { class: 'spread' }),
         h('span', { class: 'item' }, 'v0.4.1'),
-        h('span', { class: 'item' }, '• MIT')
+        h('span', { class: 'item' }, '- MIT')
     );
 }
 

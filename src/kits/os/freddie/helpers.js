@@ -41,7 +41,7 @@ export function renderChatMessages(container, messages) {
             det.className = 'fd-chatlog-tool';
             const sum = document.createElement('summary');
             sum.className = 'fd-chatlog-tool-sum';
-            sum.textContent = '⚒ ' + m.name + (m.argsSummary ? ' ' + m.argsSummary : '');
+            sum.textContent = '[tool] ' + m.name + (m.argsSummary ? ' ' + m.argsSummary : '');
             det.appendChild(sum);
             const body = document.createElement('pre');
             body.className = 'fd-chatlog-tool-body';
@@ -51,7 +51,7 @@ export function renderChatMessages(container, messages) {
         } else {
             const el = document.createElement('div');
             el.className = 'fd-chatlog-msg fd-chatlog-' + (m.role === 'assistant' ? 'assistant' : 'user');
-            el.textContent = (m.role === 'assistant' ? '◈ ' : '▷ ') + (m.content || '');
+            el.textContent = (m.role === 'assistant' ? 'assistant: ' : 'user: ') + (m.content || '');
             container.appendChild(el);
         }
     }

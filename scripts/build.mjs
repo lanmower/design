@@ -10,6 +10,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
 import { lintTokensOrThrow } from './lint-tokens.mjs';
+import { lintGlyphsOrThrow } from './lint-glyphs.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -20,6 +21,11 @@ fs.mkdirSync(dist, { recursive: true });
 // color literal. Runs unconditionally (not via npm prebuild hook) so it holds
 // under flatspace/CI runners that skip lifecycle scripts.
 lintTokensOrThrow();
+
+// Glyph gate: refuse to build if any source hard-codes a decorative unicode
+// glyph (the machine-shaped tell the design system bans). Same unconditional
+// placement so the regression guard holds under any runner.
+lintGlyphsOrThrow();
 
 const SCOPE = '.ds-247420';
 

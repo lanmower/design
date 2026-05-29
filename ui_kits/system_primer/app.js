@@ -122,10 +122,10 @@ function App() {
         side: Side({
             sections: [
                 { group: 'sections', items: [
-                    { glyph: '◐', label: 'palette',    key: 'p' },
-                    { glyph: '◑', label: 'semantic',   key: 's' },
-                    { glyph: '◒', label: 'type scale', key: 't' },
-                    { glyph: '◓', label: 'primitives', key: 'r' }
+                    { glyph: '-', label: 'palette',    key: 'p' },
+                    { glyph: '-', label: 'semantic',   key: 's' },
+                    { glyph: '-', label: 'type scale', key: 't' },
+                    { glyph: '-', label: 'primitives', key: 'r' }
                 ] }
             ]
         }),
@@ -143,7 +143,7 @@ function App() {
             )
         ],
         status: Status({
-            left: ['system primer', '• ' + PALETTE.length + ' lore colors', '• ' + SEMANTIC.length + ' semantic'],
+            left: ['system primer', '- ' + PALETTE.length + ' lore colors', '- ' + SEMANTIC.length + ' semantic'],
             right: ['247420 / mmxxvi']
         })
     });

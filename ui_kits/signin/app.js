@@ -116,7 +116,7 @@ function Form() {
         ),
         state.mode !== 'magic' && state.mode !== 'reset' ? h('label', { style: 'display:flex;flex-direction:column;gap:4px' },
             h('span', { style: 'font-family:var(--ff-mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--panel-text-3)' }, 'password'),
-            h('input', { class: 'input', type: 'password', placeholder: '••••••••', value: state.password, autocomplete: state.mode === 'signup' ? 'new-password' : 'current-password', oninput: (e) => { state.password = e.target.value; } })
+            h('input', { class: 'input', type: 'password', placeholder: '********', value: state.password, autocomplete: state.mode === 'signup' ? 'new-password' : 'current-password', oninput: (e) => { state.password = e.target.value; } })
         ) : null,
         state.mode === 'signin' ? h('div', { style: 'display:flex;align-items:center;justify-content:space-between' },
             h('label', { style: 'display:flex;align-items:center;gap:6px;cursor:pointer' },
@@ -137,9 +137,9 @@ function Form() {
             h('div', { style: 'flex:1;height:1px;background:var(--panel-2)' })
         ) : null,
         state.mode !== 'reset' ? h('div', { style: 'display:flex;gap:8px' },
-            Provider({ glyph: '◆', label: 'github', provider: 'github' }),
-            Provider({ glyph: '◇', label: 'google', provider: 'google' }),
-            Provider({ glyph: '✦', label: 'sso', provider: 'sso' })
+            Provider({ glyph: 'gh', label: 'github', provider: 'github' }),
+            Provider({ glyph: 'g', label: 'google', provider: 'google' }),
+            Provider({ glyph: '@', label: 'sso', provider: 'sso' })
         ) : null,
         state.mode !== 'reset' && state.mode !== 'magic' ? h('button', { class: 'btn', onclick: (e) => { e.preventDefault(); setMode('magic'); } }, 'use a magic link instead') : null
     );
@@ -179,7 +179,7 @@ function App() {
             )
         ],
         status: Status({
-            left: ['auth', '• ' + state.mode, state.error ? '• error' : '• ok'],
+            left: ['auth', '- ' + state.mode, state.error ? '- error' : '- ok'],
             right: ['247420 / mmxxvi']
         })
     });

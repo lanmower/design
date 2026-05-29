@@ -4,7 +4,7 @@ import * as components from '../../../components.js';
 import { pre, form, skillLabel } from './helpers.js';
 
 const h = webjsx.createElement;
-const { Panel, Row, Receipt, Kpi, Table, Section, EmptyState, Chip } = components;
+const { Panel, Row, Receipt, Kpi, Table, Section, EmptyState, Chip, Icon } = components;
 
 export function makeToolsPages(ctx) {
     const { rerender } = ctx;
@@ -18,10 +18,10 @@ export function makeToolsPages(ctx) {
             return [
                 Kpi({ items: [[list.length, 'sessions'], [tools.length, 'tools']] }),
                 Panel({ title: 'sessions by platform', children: Object.keys(byPlatform).length === 0
-                    ? EmptyState({ text: 'no data', glyph: '◉' })
+                    ? EmptyState({ text: 'no data', glyph: Icon('activity') })
                     : Table({ headers: ['platform', 'count'], rows: Object.entries(byPlatform).sort((a, b) => b[1] - a[1]) }) }),
                 Panel({ title: 'sessions by model', children: Object.keys(byModel).length === 0
-                    ? EmptyState({ text: 'no data', glyph: '◎' })
+                    ? EmptyState({ text: 'no data', glyph: Icon('circle-dot') })
                     : Table({ headers: ['model', 'count'], rows: Object.entries(byModel).sort((a, b) => b[1] - a[1]) }) }),
                 Panel({ title: 'tool distribution', children: Table({ headers: ['toolset', 'count', 'tools'],
                     rows: Object.entries(byToolset).map(([k, v]) => [k, v.length, v.slice(0, 4).join(', ') + (v.length > 4 ? '…' : '')]) }) }),
@@ -50,7 +50,7 @@ export function makeToolsPages(ctx) {
                     },
                 }) }),
                 Panel({ title: 'provider availability', children: h('div', { class: 'fd-chip-wrap' },
-                    ...providers.map(p => Chip({ tone: p.configured ? (p.available ? 'ok' : 'warn') : 'miss', children: p.name + (p.configured ? (p.available ? ' ●' : ' ○') : ' ·') }))
+                    ...providers.map(p => Chip({ tone: p.configured ? (p.available ? 'ok' : 'warn') : 'miss', children: [p.name, ' ', p.configured ? (p.available ? Icon('circle-dot') : Icon('circle')) : Icon('dot')] }))
                 ) }),
             ];
         },
@@ -64,7 +64,7 @@ export function makeToolsPages(ctx) {
                     onSubmit: async (ev) => { try { await h0.pi.cron.create({ cron: ev.target.elements.cron.value, prompt: ev.target.elements.prompt.value }); rerender(); } catch (e) { alert(e.message); } },
                 }) }),
                 Panel({ title: 'scheduled jobs', count: list.length, children: list.length === 0
-                    ? EmptyState({ text: 'no cron jobs — add one above', glyph: '◷' })
+                    ? EmptyState({ text: 'no cron jobs — add one above', glyph: Icon('circle') })
                     : Table({ headers: ['id', 'cron', 'prompt', 'enabled'],
                         rows: list.map(j => [j.id, j.cron, (j.prompt || '').slice(0, 40), j.enabled ? 'yes' : 'no']) }) }),
             ];
@@ -74,9 +74,9 @@ export function makeToolsPages(ctx) {
             const byCat = list.reduce((a, s) => { (a[s.category || 'other'] = a[s.category || 'other'] || []).push(s); return a; }, {});
             return [
                 Kpi({ items: [[list.length, 'skills'], [Object.keys(byCat).length, 'categories']] }),
-                list.length === 0 ? EmptyState({ text: 'no skills loaded — add SKILL.md files to ~/.freddie/skills/', glyph: '◈' }) : null,
+                list.length === 0 ? EmptyState({ text: 'no skills loaded — add SKILL.md files to ~/.freddie/skills/', glyph: Icon('square') }) : null,
                 ...Object.entries(byCat).map(([cat, ss]) => Panel({ title: cat, count: ss.length,
-                    children: ss.length === 0 ? EmptyState({ text: 'none', glyph: '◈' })
+                    children: ss.length === 0 ? EmptyState({ text: 'none', glyph: Icon('square') })
                         : Table({ headers: ['name', 'description'], rows: ss.map(s => [skillLabel(s), (s.description || '').slice(0, 120)]) }) })),
             ].filter(Boolean);
         },
@@ -132,7 +132,7 @@ export function makeToolsPages(ctx) {
             return [
                 Kpi({ items: [[list.length, 'tools'], [Object.keys(byToolset).length, 'toolsets']] }),
                 ...Object.entries(byToolset).map(([ts, items]) => Panel({ title: 'toolset · ' + ts, count: items.length,
-                    children: items.map(t => Row({ key: t.name, code: '⚒', title: t.name, sub: (t.description || (t.schema && t.schema.description) || '').slice(0, 80) })) })),
+                    children: items.map(t => Row({ key: t.name, code: Icon('settings'), title: t.name, sub: (t.description || (t.schema && t.schema.description) || '').slice(0, 80) })) })),
             ];
         },
         async batch(h0) {
@@ -170,8 +170,8 @@ export function makeToolsPages(ctx) {
                 Kpi({ items: [[platforms.length, 'platforms'], [active.length, 'active']] }),
                 Panel({ title: 'platforms', count: platforms.length,
                     right: active.length > 0 ? Chip({ tone: 'ok', children: active.length + ' active' }) : Chip({ tone: 'miss', children: 'none active' }),
-                    children: platforms.length === 0 ? EmptyState({ text: 'no platforms registered', glyph: '⇌' })
-                        : platforms.map(p => Row({ key: p.name, code: p.enabled ? '●' : '○', title: p.name, sub: p.note || '', meta: p.enabled ? 'enabled' : '' })) }),
+                    children: platforms.length === 0 ? EmptyState({ text: 'no platforms registered', glyph: Icon('arrow-right') })
+                        : platforms.map(p => Row({ key: p.name, code: p.enabled ? Icon('circle-dot') : Icon('circle'), title: p.name, sub: p.note || '', meta: p.enabled ? 'enabled' : '' })) }),
                 Panel({ title: 'start gateway', children: Receipt({ rows: [
                     ['webhook + api_server', 'freddie gateway --port 3000'],
                     ['specific platform', 'TELEGRAM_BOT_TOKEN=… freddie gateway'],

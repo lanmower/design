@@ -4,7 +4,7 @@ import * as components from '../../../components.js';
 import { getRecentPaths, saveRecentPath, skillLabel, renderChatMessages } from './helpers.js';
 
 const h = webjsx.createElement;
-const { Panel, Receipt, Chip } = components;
+const { Panel, Receipt, Chip, Icon } = components;
 
 function parseSseEvents(text) {
     const events = [];
@@ -106,7 +106,7 @@ export function makeChatPage(ctx) {
 
         const selProv = h('select', { name: 'provider', onchange: (ev) => { chatState.provider = ev.target.value; } },
             h('option', { value: '' }, configuredProviders.length ? '— auto —' : '— no providers configured —'),
-            ...configuredProviders.map(p => h('option', { value: p.name, selected: chatState.provider === p.name ? 'true' : null }, (p.available ? '● ' : '○ ') + p.name)));
+            ...configuredProviders.map(p => h('option', { value: p.name, selected: chatState.provider === p.name ? 'true' : null }, (p.available ? '(on) ' : '(off) ') + p.name)));
 
         return [
             Panel({
@@ -137,7 +137,7 @@ export function makeChatPage(ctx) {
                     ['or use a gateway', 'run a gateway server on localhost:4800 for local LLMs'],
                 ] }) })
                 : Panel({ title: 'configured providers', children: h('div', { class: 'fd-chip-wrap' },
-                    ...providers.map(p => Chip({ tone: p.configured ? (p.available ? 'ok' : 'warn') : 'miss', children: p.name + (p.configured ? (p.available ? ' ●' : ' ○') : '') }))) }),
+                    ...providers.map(p => Chip({ tone: p.configured ? (p.available ? 'ok' : 'warn') : 'miss', children: p.configured ? [p.name, ' ', p.available ? Icon('circle-dot') : Icon('circle')] : p.name }))) }),
         ];
     };
 }

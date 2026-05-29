@@ -8,7 +8,7 @@ import * as webjsx from '../../vendor/webjsx/index.js';
 import { makePage, api, loadingState, errorState, emptyState } from './freddie/runtime.js';
 import { getRecentPaths, saveRecentPath, skillLabel, renderChatMessages } from './freddie/helpers.js';
 import { Panel, Row, Table, Kpi, PageHeader, SearchInput, TextField, Select } from './content.js';
-import { Chip, Btn } from './shell.js';
+import { Chip, Btn, Icon } from './shell.js';
 import { ChatMessage, ChatComposer } from './chat.js';
 
 const h = webjsx.createElement;
@@ -29,7 +29,7 @@ const noteAlert = (note) => note ? h('div', { class: 'ds-alert ds-alert-' + note
     h('span', { class: 'ds-alert-icon' }, '!'),
     h('div', { class: 'ds-alert-content' }, note.msg)) : null;
 // Manual refresh button for non-polling pages — parity with auto-refreshing ones.
-const refreshBtn = (onClick, busy) => Btn({ children: busy ? 'refreshing…' : '↻ refresh', disabled: !!busy, onClick, 'aria-label': 'refresh' });
+const refreshBtn = (onClick, busy) => Btn({ children: busy ? 'refreshing…' : [Icon('refresh'), ' refresh'], disabled: !!busy, onClick, 'aria-label': 'refresh' });
 // Non-blocking refresh-error banner: keep last-good content, surface the failure.
 const refreshError = (err) => err ? h('div', { class: 'ds-alert ds-alert-warn', role: 'status', 'aria-live': 'polite' },
     h('span', { class: 'ds-alert-icon' }, '!'),
@@ -104,7 +104,7 @@ export const chat = makePage((ctx) => {
             const reply = r.result || r.content || r.message || (r.messages && r.messages.at(-1)?.content) || JSON.stringify(r);
             ctx.state.messages.push({ role: 'assistant', text: String(reply), time: new Date().toLocaleTimeString() });
         } catch (e) {
-            ctx.state.messages.push({ role: 'assistant', text: '⚠ ' + String(e.message || e), time: new Date().toLocaleTimeString() });
+            ctx.state.messages.push({ role: 'assistant', text: 'Error: ' + String(e.message || e), time: new Date().toLocaleTimeString() });
         }
         ctx.set({ sending: false });
     }
@@ -116,7 +116,7 @@ export const chat = makePage((ctx) => {
             h('div', { class: 'chat-thread fd-chat-thread', role: 'log', 'aria-label': 'chat messages',
                 ref: stickyScroll },
                 s.messages.length ? s.messages.map((m, i) => ChatMessage({ ...m, key: i }))
-                    : emptyState('send a prompt to start', '✎'),
+                    : emptyState('send a prompt to start', Icon('forum')),
                 s.sending ? ChatMessage({ role: 'assistant', typing: true, key: '_typing' }) : null),
             ChatComposer({
                 value: s.draft,
@@ -225,7 +225,7 @@ export const projects = makePage((ctx) => {
             noteAlert(s.note),
             section('projects',
                 list.length ? list.map((p, i) => Row({
-                    key: i, code: p.name === activeName ? '●' : '○', title: p.name, sub: p.path || '',
+                    key: i, code: h('span', { class: 'ds-dot ' + (p.name === activeName ? 'ds-dot-on' : 'ds-dot-off'), 'aria-hidden': 'true' }), title: p.name, sub: p.path || '',
                     active: p.name === activeName,
                     trailing: h('span', { class: 'fd-row-actions' },
                         p.name !== activeName ? Btn({ children: 'activate', onClick: () => activate(p.name) }) : Chip({ tone: 'ok', children: 'active' }),
@@ -354,7 +354,7 @@ export const cron = makePage((ctx) => {
             PageHeader({ eyebrow: 'freddie', title: 'cron', lede: list.length + ' scheduled jobs' }),
             noteAlert(s.note),
             section('jobs', list.length ? list.map((j, i) => Row({
-                key: i, code: j.enabled ? '▶' : '⏸', title: j.cron, sub: (j.prompt || '').slice(0, 80),
+                key: i, code: j.enabled ? Icon('play') : Icon('pause'), title: j.cron, sub: (j.prompt || '').slice(0, 80),
                 trailing: Btn({ danger: true, children: 'delete', onClick: () => del(j.id) }),
             })) : emptyState('no cron jobs')),
             section('new job',

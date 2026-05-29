@@ -3,7 +3,7 @@
 // ProjectView, Form. Pure factories.
 
 import * as webjsx from '../../vendor/webjsx/index.js';
-import { Btn, Heading, Lede, Dot } from './shell.js';
+import { Btn, Heading, Lede, Dot, Icon } from './shell.js';
 const h = webjsx.createElement;
 
 export function Panel({ title, count, right, style = '', children, kind }) {
@@ -351,14 +351,14 @@ export function Skeleton({ height = '1em', width = '100%', count = 1, label = 'l
 }
 
 export function Alert({ kind = 'info', children, onDismiss, title, key } = {}) {
-    const icons = { info: 'ℹ', success: '✓', warn: '⚠', error: '✕' };
+    const icons = { info: 'info', success: 'check', warn: 'warn', error: 'x' };
     const cls = 'ds-alert ds-alert-' + kind;
     return h('div', { key, class: cls, role: 'alert' },
-        h('span', { key: 'icon', class: 'ds-alert-icon' }, icons[kind]),
+        h('span', { key: 'icon', class: 'ds-alert-icon' }, Icon(icons[kind] || 'info')),
         h('div', { key: 'content', class: 'ds-alert-content' },
             title ? h('div', { key: 'title', class: 'ds-alert-title' }, title) : null,
             h('div', { key: 'msg', class: 'ds-alert-message' }, ...(Array.isArray(children) ? children : [children]))
         ),
-        onDismiss ? h('button', { key: 'dismiss', class: 'ds-alert-dismiss', onclick: onDismiss }, '✕') : null
+        onDismiss ? h('button', { key: 'dismiss', class: 'ds-alert-dismiss', 'aria-label': 'dismiss', onclick: onDismiss }, Icon('x')) : null
     );
 }

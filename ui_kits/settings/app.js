@@ -8,13 +8,13 @@ const root = document.getElementById('root');
 const state = {
     section: 'profile',
     name: 'lanmower',
-    email: 'almagestfraternite@gmail.com',
+    email: 'almagestfraternite@247420.xyz',
     handle: '@247420',
     bio: 'creative department of the internet. always open. always a little high.',
     theme: 'auto',
     motion: true,
     notify: { mentions: true, releases: true, marketing: false },
-    api_key: 'sk-247420-•••••••-c2a',
+    api_key: 'sk-247420-*******-c2a',
     dirty: false,
     lastSaved: null,
     draft: null,
@@ -22,9 +22,9 @@ const state = {
 };
 
 const sections = [
-    { id: 'profile',   label: 'profile',      glyph: '◆' },
-    { id: 'theme',     label: 'theme',        glyph: '◐' },
-    { id: 'notify',    label: 'notifications',glyph: '◇' },
+    { id: 'profile',   label: 'profile',      glyph: '@' },
+    { id: 'theme',     label: 'theme',        glyph: '*' },
+    { id: 'notify',    label: 'notifications',glyph: '~' },
     { id: 'api',       label: 'api keys',     glyph: '⌘' },
     { id: 'danger',    label: 'danger zone',  glyph: '!' }
 ];
@@ -110,7 +110,7 @@ function Toggle({ on, onChange, label }) {
         class: on ? 'btn btn-primary' : 'btn',
         style: 'min-width:78px',
         onclick: () => { onChange(!on); state.dirty = true; kit.render(); }
-    }, on ? '● on' : '○ off', label ? h('span', { style: 'margin-left:8px;color:inherit;opacity:0.7' }, label) : null);
+    }, on ? '[x] on' : '[ ] off', label ? h('span', { style: 'margin-left:8px;color:inherit;opacity:0.7' }, label) : null);
 }
 
 function Profile() {
@@ -127,7 +127,7 @@ function Profile() {
 }
 
 function Theme() {
-    const opts = [['auto', '◐ auto'], ['light', '○ light'], ['dark', '● dark']];
+    const opts = [['auto', 'auto'], ['light', 'light'], ['dark', 'dark']];
     return Panel({ title: 'theme', style: 'margin:8px 0', children: h('div', { style: 'padding:14px 18px' },
         Field({ label: 'mode', children: h('div', { style: 'display:flex;gap:6px' },
             ...opts.map(([k, l]) => h('button', { key: k,
@@ -141,9 +141,9 @@ function Theme() {
 
 function Notify() {
     return Panel({ title: 'notifications', style: 'margin:8px 0', children: [
-        Row({ key: 'n1', code: '◆', title: 'mentions',  sub: 'when someone @s you',          meta: h('span', {}, Toggle({ on: state.notify.mentions, onChange: (v) => state.notify.mentions = v })) }),
-        Row({ key: 'n2', code: '◇', title: 'releases',  sub: 'on every tagged build',        meta: h('span', {}, Toggle({ on: state.notify.releases, onChange: (v) => state.notify.releases = v })) }),
-        Row({ key: 'n3', code: '◇', title: 'marketing', sub: 'occasional product updates',   meta: h('span', {}, Toggle({ on: state.notify.marketing, onChange: (v) => state.notify.marketing = v })) })
+        Row({ key: 'n1', code: '@', title: 'mentions',  sub: 'when someone @s you',          meta: h('span', {}, Toggle({ on: state.notify.mentions, onChange: (v) => state.notify.mentions = v })) }),
+        Row({ key: 'n2', code: '-', title: 'releases',  sub: 'on every tagged build',        meta: h('span', {}, Toggle({ on: state.notify.releases, onChange: (v) => state.notify.releases = v })) }),
+        Row({ key: 'n3', code: '-', title: 'marketing', sub: 'occasional product updates',   meta: h('span', {}, Toggle({ on: state.notify.marketing, onChange: (v) => state.notify.marketing = v })) })
     ] });
 }
 
@@ -199,7 +199,7 @@ function App() {
             )
         ],
         status: Status({
-            left: ['settings', '• ' + state.section, state.dirty ? '• dirty' : '• saved'],
+            left: ['settings', '- ' + state.section, state.dirty ? '- dirty' : '- saved'],
             right: ['247420 / mmxxvi']
         })
     });

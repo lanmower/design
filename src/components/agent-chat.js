@@ -11,36 +11,16 @@
 // The host owns state; AgentChat renders it and calls back on intent.
 
 import * as webjsx from '../../vendor/webjsx/index.js';
-import { ChatComposer, ChatMessage } from './chat.js';
+import { ChatComposer, ChatMessage, makeThreadAutoScroll } from './chat.js';
 import { Select } from './content.js';
 import { Btn } from './shell.js';
 
 const h = webjsx.createElement;
 
-// Auto-scroll a thread to the bottom while the user is already near the bottom,
-// via an IntersectionObserver on a sentinel — the AICat scroll behaviour, lifted
-// so it works for any message list without a per-frame scrollTop write.
-function threadRef(msgCount) {
-  return (el) => {
-    if (!el) return;
-    let sentinel = el.querySelector('[data-scroll-sentinel]');
-    if (!sentinel) {
-      sentinel = document.createElement('div');
-      sentinel.setAttribute('data-scroll-sentinel', '');
-      sentinel.style.height = '1px';
-      el.appendChild(sentinel);
-    }
-    const obs = new IntersectionObserver((entries) => {
-      if (entries[0]?.isIntersecting && el.dataset.msgCount !== String(msgCount)) {
-        el.scrollTop = el.scrollHeight - el.clientHeight;
-        el.dataset.msgCount = String(msgCount);
-      }
-    }, { root: el, threshold: 0 });
-    obs.observe(sentinel);
-    el.dataset.msgCount = String(msgCount);
-    return () => obs.disconnect();
-  };
-}
+// Auto-scroll behaviour is the shared chat helper; bind it to this thread's
+// live message count. (`makeThreadAutoScroll` takes a getter so the observer
+// always compares against current state, not a value captured at mount.)
+const threadRef = (msgCount) => makeThreadAutoScroll(() => msgCount);
 
 // The agent picker: agent-then-model, not a flat model list. Unavailable agents
 // are disabled (unless installable via npx). Ordering is the host's concern.

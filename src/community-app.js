@@ -29,6 +29,7 @@
 
 import * as webjsx from '../vendor/webjsx/index.js';
 import { Icon } from './components/shell.js';
+import { register } from './debug.js';
 import { Chat, ChatComposer } from './components/chat.js';
 import {
     ServerRail, ChannelItem, MemberList, MobileHeader,
@@ -85,11 +86,11 @@ export function mountCommunityApp(root, adapter = {}) {
     const railPill = (c, cur, isVoice, s) => {
         const active = cur.id === c.id;
         const inVoice = isVoice && s.voiceConnected && s.voiceChannelName === c.name;
-        const glyph = inVoice ? h('span', { class: 'glyph' }, '●')
-            : (c.type === 'threaded' ? h('span', { class: 'glyph' }, '◉')
-                : h('span', { class: 'glyph' }, Icon(CHANNEL_ICON[c.type] || 'hash', { size: 15 })));
+        const glyph = inVoice ? h('span', { class: 'glyph', 'aria-hidden': 'true' }, h('span', { class: 'ds-dot ds-dot-live' }))
+            : (c.type === 'threaded' ? h('span', { class: 'glyph', 'aria-hidden': 'true' }, Icon('circle-dot', { size: 15 }))
+                : h('span', { class: 'glyph', 'aria-hidden': 'true' }, Icon(CHANNEL_ICON[c.type] || 'hash', { size: 15 })));
         return h('a', {
-            href: '#', class: active ? 'active' : '',
+            href: '#', class: active ? 'active' : '', 'aria-label': (c.name || c.id) + (inVoice ? ' (in voice)' : ''),
             onclick: (e) => { e.preventDefault(); A.switchChannel && A.switchChannel(c); },
             oncontextmenu: (e) => { e.preventDefault(); A.channelContext && A.channelContext(c.id, e.clientX, e.clientY); },
         }, glyph, h('span', {}, c.name || c.id),
@@ -99,10 +100,10 @@ export function mountCommunityApp(root, adapter = {}) {
     const railServerPill = (sv, s) => {
         const active = sv._home ? s.homeMode : (!s.homeMode && s.currentServerId === sv.id);
         return h('a', {
-            href: '#', class: active ? 'active' : '',
+            href: '#', class: active ? 'active' : '', 'aria-label': sv._home ? 'home' : (sv.name || sv.id),
             onclick: (e) => { e.preventDefault(); sv._home ? (A.goHome && A.goHome()) : (A.switchServer && A.switchServer(sv.id)); },
             oncontextmenu: sv._home ? null : (e) => { e.preventDefault(); A.serverContext && A.serverContext(sv.id, e.clientX, e.clientY); },
-        }, h('span', { class: 'glyph' }, sv._home ? '◆' : (sv.name || '?').slice(0, 1).toUpperCase()),
+        }, h('span', { class: 'glyph', 'aria-hidden': 'true' }, sv._home ? Icon('square', { size: 15 }) : (sv.name || '?').slice(0, 1).toUpperCase()),
             h('span', {}, sv.name || sv.id),
             sv.unreadCount ? h('span', { class: 'count' }, sv.unreadCount > 99 ? '99+' : String(sv.unreadCount)) : null);
     };
@@ -228,6 +229,21 @@ export function mountCommunityApp(root, adapter = {}) {
 
     let unsub = null;
     if (typeof adapter.subscribe === 'function') unsub = adapter.subscribe(render);
+
+    // Observability: expose live overlay + snapshot state for in-browser inspection.
+    register('community-app', () => {
+        const s = get() || {};
+        return {
+            overlays: { context: ctx.open, emoji: emoji.open, palette: palette.open },
+            channels: (s.channels || []).length,
+            servers: (s.servers || []).length,
+            messages: (s.messages || []).length,
+            currentChannel: (s.currentChannel || {}).name || null,
+            voiceConnected: !!s.voiceConnected,
+            homeMode: !!s.homeMode,
+        };
+    });
+
     render();
     return { render, api, destroy: () => { if (unsub) try { unsub(); } catch (_) {} } };
 }

@@ -48,7 +48,7 @@ function Line(l, i, opts = {}) {
     if (l.kind === 'cmt')  return h('div', { key: 'l' + i, class: 'cli' }, ...baseChildren('#', l.text, '', 'color:var(--fg-3)'));
     if (l.kind === 'cmd')  return h('div', { key: 'l' + i, class: 'cli' }, ...baseChildren('$', l.text));
     if (l.kind === 'out')  return h('div', { key: 'l' + i, class: 'cli' }, ...baseChildren('·', l.text, '', 'color:var(--fg-2)'));
-    if (l.kind === 'ok')   return h('div', { key: 'l' + i, class: 'cli' }, ...baseChildren('✓', l.text, 'color:var(--accent)', 'color:var(--accent)'));
+    if (l.kind === 'ok')   return h('div', { key: 'l' + i, class: 'cli' }, ...baseChildren('+', l.text, 'color:var(--accent)', 'color:var(--accent)'));
     if (l.kind === 'warn') return h('div', { key: 'l' + i, class: 'cli' }, ...baseChildren('!', l.text, 'color:var(--mascot)', 'color:var(--mascot)'));
     if (l.kind === 'log')  return h('div', { key: 'l' + i, class: 'cli' }, ...baseChildren('·', l.text, 'color:var(--fg-3)', 'color:var(--fg-2);font-family:var(--ff-mono)'));
     return null;
@@ -65,12 +65,12 @@ function App() {
         side: Side({
             sections: [
                 { group: 'sessions', items: [
-                    { glyph: '◆', label: 'live',     count: 'on', key: 'l' },
-                    { glyph: '◇', label: 'demo loop', count: demo.looping ? 'play' : 'still', key: 'd' }
+                    { glyph: '*', label: 'live',     count: 'on', key: 'l' },
+                    { glyph: '-', label: 'demo loop', count: demo.looping ? 'play' : 'still', key: 'd' }
                 ] },
                 { group: 'shortcuts', items: [
                     { glyph: '·', label: 'clear (⌘k)',  key: 'c' },
-                    { glyph: '·', label: 'history (↑)', key: 'h' }
+                    { glyph: '·', label: 'history (up)', key: 'h' }
                 ] }
             ]
         }),
@@ -127,7 +127,7 @@ function App() {
             )
         ],
         status: Status({
-            left: ['terminal', '• live ' + liveTranscript.length + ' lines', demo.looping ? '• demo playing' : '• demo still'],
+            left: ['terminal', '- live ' + liveTranscript.length + ' lines', demo.looping ? '- demo playing' : '- demo still'],
             right: ['247420 / mmxxvi']
         })
     });

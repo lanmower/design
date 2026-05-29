@@ -63,12 +63,12 @@ function App() {
     const ch = state.activeChannel;
     const chatContent = h('div', { class: 'ds-community-main' },
         ChatHeader({
-            icon: ch.type === 'voice' ? '◉' : '#',
+            icon: ch.type === 'voice' ? '((' : '#',
             name: ch.name,
             topic: ch.type === 'text' ? 'community shell demo — click channels to switch' : null,
             toolbar: [
                 h('button', { class: 'btn btn-ghost', onclick: () => { state.memberListOpen = !state.memberListOpen; kit.render(); } },
-                    state.memberListOpen ? '✕ members' : '◑ members')
+                    state.memberListOpen ? 'hide members' : 'show members')
             ]
         }),
         h('div', { class: 'ds-community-messages' },
@@ -104,7 +104,7 @@ function App() {
                 },
                 userPanelProps: {
                     name: 'you',
-                    tag: '◰',
+                    tag: '@',
                     color: 'var(--accent)',
                     muted: state.muted,
                     deafened: state.deafened,
@@ -126,7 +126,7 @@ function App() {
                 open: true
             } : null
         }),
-        Status({ left: ['community', '• ' + channels.length + ' channels', '• ' + servers.length + ' servers'], right: ['247420 / mmxxvi'] })
+        Status({ left: ['community', '- ' + channels.length + ' channels', '- ' + servers.length + ' servers'], right: ['247420 / mmxxvi'] })
     );
 }
 

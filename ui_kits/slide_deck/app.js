@@ -138,7 +138,7 @@ function App() {
         side: Side({
             sections: [
                 { group: 'slides', items: slides.map((s, i) => ({
-                    glyph: i === state.i ? '◆' : '◇',
+                    glyph: i === state.i ? '*' : '-',
                     label: (i + 1) + ' · ' + (s.title || s.eyebrow || s.kind),
                     key: 's' + i
                 })) }
@@ -156,7 +156,7 @@ function App() {
             )
         ],
         status: Status({
-            left: ['slide deck', '• slide ' + (state.i + 1) + '/' + slides.length, '• ←/→ to nav'],
+            left: ['slide deck', '- slide ' + (state.i + 1) + '/' + slides.length, '- </> to nav'],
             right: ['247420 / mmxxvi']
         })
     });

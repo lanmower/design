@@ -5,6 +5,7 @@
 // via the kit's data-theme attribute on the .ds-247420 scope root.
 
 import * as webjsx from '../../vendor/webjsx/index.js';
+import { Icon } from './shell.js';
 const h = webjsx.createElement;
 
 function kids(c) { return c == null ? [] : (Array.isArray(c) ? c : [c]); }
@@ -122,7 +123,7 @@ export function TreeItem({ label, glyph, tag, depth = 0, selected = false, expan
                 class: 'ds-ep-tree-twist' + (expanded ? ' open' : ''),
                 'aria-hidden': 'true',
                 onclick: (e) => { e.stopPropagation(); if (hasKids && onToggle) onToggle(); }
-            }, hasKids ? '▸' : ''),
+            }, hasKids ? Icon('chevron-right') : ''),
             glyph != null ? h('span', { class: 'ds-ep-tree-glyph', 'aria-hidden': 'true' }, glyph) : null,
             h('span', { class: 'ds-ep-tree-label' }, label),
             tag != null ? h('span', { class: 'ds-ep-tree-tag' }, tag) : null

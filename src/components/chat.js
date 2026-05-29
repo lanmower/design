@@ -38,10 +38,45 @@ export function renderInline(text) {
     return out;
 }
 
-const FILE_GLYPHS = { pdf: '▤', zip: '▦', tar: '▦', gz: '▦', mp4: '▶', mp3: '♪', wav: '♪', csv: '⊞', json: '{}', md: '§', txt: '§', default: '◫' };
-function fileGlyph(name) {
+// Map file extension -> line-icon name (drawn SVG, not a decorative glyph).
+const FILE_ICONS = { pdf: 'file-pdf', zip: 'file-zip', tar: 'file-zip', gz: 'file-zip', mp4: 'file-video', mov: 'file-video', mp3: 'file-audio', wav: 'file-audio', csv: 'file-sheet', json: 'file-code', js: 'file-code', ts: 'file-code', md: 'file-text', txt: 'file-text' };
+function fileIconName(name) {
     const ext = String(name || '').split('.').pop().toLowerCase();
-    return FILE_GLYPHS[ext] || FILE_GLYPHS.default;
+    return FILE_ICONS[ext] || 'file';
+}
+
+// Eagerly warm the markdown + Prism caches on first chat-surface mount, once.
+function ensureCachesInit() {
+    if (_cacheInitialized) return;
+    _cacheInitialized = true;
+    initializeCachesEagerly().catch((err) => console.warn('[247420] cache init error:', err));
+}
+
+// Build a ref callback that keeps a scroll container pinned to the bottom when
+// new messages arrive AND the user is already at the bottom (sentinel visible).
+// `getCount` returns the current message count so the observer compares against
+// live state. Shared by Chat, AICat, and AgentChat.
+export function makeThreadAutoScroll(getCount) {
+    return (el) => {
+        if (!el) return;
+        let sentinel = el.querySelector('[data-scroll-sentinel]');
+        if (!sentinel) {
+            sentinel = document.createElement('div');
+            sentinel.setAttribute('data-scroll-sentinel', '');
+            sentinel.style.height = '1px';
+            el.appendChild(sentinel);
+        }
+        const obs = new IntersectionObserver((entries) => {
+            const count = String(getCount());
+            if (entries[0]?.isIntersecting && el.dataset.msgCount !== count) {
+                el.scrollTop = el.scrollHeight - el.clientHeight;
+                el.dataset.msgCount = count;
+            }
+        }, { root: el, threshold: 0 });
+        obs.observe(sentinel);
+        el.dataset.msgCount = String(getCount());
+        return () => obs.disconnect();
+    };
 }
 
 function MdNode(p) {
@@ -79,19 +114,19 @@ const PART_RENDERERS = {
         p.caption ? h('span', { class: 'cap' }, p.caption) : null),
     pdf:   (p) => h('div', { class: 'chat-pdf' },
         h('div', { class: 'chat-pdf-head' },
-            h('span', { class: 'glyph', 'aria-hidden': 'true' }, '▤'),
+            h('span', { class: 'glyph', 'aria-hidden': 'true' }, Icon('file-pdf', { size: 18 })),
             h('span', { class: 'name' }, p.name || 'document.pdf'),
             p.size != null ? h('span', { class: 'size' }, fmtBytes(p.size)) : null,
             h('a', { class: 'open', href: p.src, target: '_blank', rel: 'noopener', 'aria-label': `open PDF: ${p.name || 'document.pdf'}` }, 'open ->')
         ),
         h('embed', { src: p.src, type: 'application/pdf', 'aria-label': `PDF document: ${p.name || 'document.pdf'}` })),
     file:  (p) => h('a', { class: 'chat-file', href: p.src, target: '_blank', rel: 'noopener', download: p.name || true, 'aria-label': `download file: ${p.name || 'attachment'} (${p.kindLabel || (p.name || '').split('.').pop().toUpperCase()})` },
-        h('span', { class: 'glyph', 'aria-hidden': 'true' }, fileGlyph(p.name)),
+        h('span', { class: 'glyph', 'aria-hidden': 'true' }, Icon(fileIconName(p.name), { size: 22 })),
         h('span', { class: 'meta' },
             h('span', { class: 'name' }, p.name || 'attachment'),
             h('span', { class: 'size' }, [p.kindLabel || (p.name || '').split('.').pop().toUpperCase(), p.size != null ? fmtBytes(p.size) : null].filter(Boolean).join(' · '))
         ),
-        h('span', { class: 'go', 'aria-hidden': 'true' }, '↓')),
+        h('span', { class: 'go', 'aria-hidden': 'true' }, Icon('arrow-down'))),
     link:  (p) => h('a', { class: 'chat-link', href: p.href, target: '_blank', rel: 'noopener', 'aria-label': `link: ${p.title || p.href}` },
         p.thumb ? h('img', { class: 'thumb', src: p.thumb, alt: `preview for ${p.title || p.href}` }) : null,
         h('span', { class: 'meta' },
@@ -116,7 +151,7 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     const cls = 'chat-msg ' + resolvedWho + (aicat && resolvedWho === 'them' ? ' aicat' : '');
     const fallbackAvatar = avatar != null
         ? avatar
-        : (resolvedWho === 'you' ? 'u' : (name ? String(name).trim().charAt(0).toUpperCase() || '◔' : '◔'));
+        : (resolvedWho === 'you' ? 'u' : (name ? String(name).trim().charAt(0).toUpperCase() || '?' : '?'));
     const av = h('span', { class: 'chat-avatar' }, fallbackAvatar);
     let bodyNodes;
     if (typing) bodyNodes = [h('div', { class: 'chat-bubble', key: 'typb' }, h('span', { class: 'chat-typing' }, h('span'), h('span'), h('span')))];
@@ -128,7 +163,7 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
                 h('span', { class: 'e', 'aria-hidden': 'true' }, r.emoji), h('span', { class: 'n', 'aria-hidden': 'true' }, String(r.count)))))
         : null;
     const tickNode = resolvedWho === 'you' && receipt
-        ? h('span', { class: 'tick' + (receipt === 'read' ? ' read' : ''), 'aria-label': receipt === 'read' ? 'message read' : 'message sent' }, receipt === 'read' ? '✓✓' : '✓')
+        ? h('span', { class: 'tick' + (receipt === 'read' ? ' read' : ''), role: 'img', 'aria-label': receipt === 'read' ? 'message read' : 'message sent' }, Icon(receipt === 'read' ? 'check-check' : 'check', { size: 14 }))
         : null;
     const metaItems = [];
     if (name && resolvedWho === 'them') metaItems.push(h('span', { class: 'who', key: 'w' }, name));
@@ -191,40 +226,9 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
 }
 
 export function Chat({ title = 'chat', sub, messages = [], composer, header } = {}) {
-    // Eagerly initialize markdown and Prism caches on first Chat component mount.
-    // This parallelizes library loading, avoiding per-message delays.
-    if (!_cacheInitialized) {
-        _cacheInitialized = true;
-        initializeCachesEagerly().catch((err) => console.warn('[247420] cache init error:', err));
-    }
-
-    const threadRef = (el) => {
-        if (!el) return;
-        const sentinel = el.querySelector('[data-scroll-sentinel]') || (() => {
-            const s = h('div', { 'data-scroll-sentinel': true });
-            const vnode = { props: s.props };
-            const sentinelEl = document.createElement('div');
-            sentinelEl.setAttribute('data-scroll-sentinel', '');
-            sentinelEl.style.height = '1px';
-            el.appendChild(sentinelEl);
-            return sentinelEl;
-        })();
-
-        // Use IntersectionObserver to detect if user is at bottom
-        const obs = new IntersectionObserver(
-            (entries) => {
-                if (entries[0]?.isIntersecting && el.dataset.msgCount !== String(messages.length)) {
-                    el.scrollTop = el.scrollHeight - el.clientHeight;
-                    el.dataset.msgCount = String(messages.length);
-                }
-            },
-            { root: el, threshold: 0 }
-        );
-
-        obs.observe(sentinel);
-        el.dataset.msgCount = String(messages.length);
-        return () => obs.disconnect();
-    };
+    // Warm markdown/Prism caches once so library loading parallelizes.
+    ensureCachesInit();
+    const threadRef = makeThreadAutoScroll(() => messages.length);
     const msgCount = messages.length;
     return h('div', { class: 'chat' },
         header || h('div', { class: 'chat-head', role: 'banner' },
@@ -255,47 +259,19 @@ export function AICatPortrait({ name = 'aicat', status = 'idle', face } = {}) {
         h('pre', { class: 'aicat-face', 'aria-label': `${name} portrait` }, face || AICAT_FACE),
         h('div', { class: 'aicat-meta' },
             h('span', { class: 'name' }, name),
-            h('span', { class: 'status', 'aria-label': `status: ${status}` }, h('span', { class: 'dot', 'aria-hidden': 'true' }, '● '), status)
+            h('span', { class: 'status', 'aria-label': `status: ${status}` }, h('span', { class: 'dot ds-dot ds-dot-on', 'aria-hidden': 'true' }), ' ', status)
         )
     );
 }
 
 export function AICat({ name = 'aicat', messages = [], thinking, composer, status = 'online · purring' } = {}) {
-    // Eagerly initialize markdown and Prism caches on first AICat component mount.
-    if (!_cacheInitialized) {
-        _cacheInitialized = true;
-        initializeCachesEagerly().catch((err) => console.warn('[247420] cache init error:', err));
-    }
-
+    ensureCachesInit();
     const annotated = messages.map((m) =>
         m.who === 'them' ? { ...m, aicat: true, avatar: m.avatar || '=^.^=' } : m);
     const all = thinking
         ? [...annotated, { who: 'them', aicat: true, avatar: '=^.^=', typing: true, key: '_thinking' }]
         : annotated;
-    const threadRef = (el) => {
-        if (!el) return;
-        const sentinel = el.querySelector('[data-scroll-sentinel]') || (() => {
-            const sentinelEl = document.createElement('div');
-            sentinelEl.setAttribute('data-scroll-sentinel', '');
-            sentinelEl.style.height = '1px';
-            el.appendChild(sentinelEl);
-            return sentinelEl;
-        })();
-
-        const obs = new IntersectionObserver(
-            (entries) => {
-                if (entries[0]?.isIntersecting && el.dataset.msgCount !== String(all.length)) {
-                    el.scrollTop = el.scrollHeight - el.clientHeight;
-                    el.dataset.msgCount = String(all.length);
-                }
-            },
-            { root: el, threshold: 0 }
-        );
-
-        obs.observe(sentinel);
-        el.dataset.msgCount = String(all.length);
-        return () => obs.disconnect();
-    };
+    const threadRef = makeThreadAutoScroll(() => all.length);
     return h('div', { class: 'chat' },
         h('div', { class: 'chat-head', role: 'banner' },
             h('span', { class: 'dot', 'aria-hidden': 'true' }),

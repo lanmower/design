@@ -66,7 +66,7 @@ function App() {
         side: Side({
             sections: [
                 { group: 'kind', items: kinds.map((k) => ({
-                    glyph: state.kind === k ? '●' : '○', label: k,
+                    glyph: h('span', { class: state.kind === k ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }), label: k,
                     count: k === 'all' ? corpus.length : corpus.filter((c) => c.kind === k).length,
                     href: '#' + k, active: state.kind === k, key: k,
                     onClick: (e) => { e.preventDefault(); state.kind = k; kit.render(); }
@@ -86,7 +86,7 @@ function App() {
                 rows.length ? Panel({ title: 'results', count: rows.length, style: 'margin:8px 0', children:
                     rows.map((r, i) => RowLink({ key: 'r' + r.code + i, code: r.code, title: r.title, sub: r.sub, meta: r.kind + ' ->', href: r.href }))
                 }) : Panel({ title: 'no results', style: 'margin:8px 0', children: h('div', { style: 'padding:24px;text-align:center;color:var(--panel-text-3)' },
-                    h('div', { style: 'font-size:32px' }, '◌'),
+                    h('div', { style: 'font-size:32px' }, '( )'),
                     h('p', { style: 'margin:6px 0' }, 'no matches for ', h('code', {}, '"' + state.q + '"')),
                     h('p', { style: 'margin:0;font-size:13px' }, 'try a shorter query, or pick a different kind.')
                 ) }),
@@ -98,7 +98,7 @@ function App() {
             )
         ],
         status: Status({
-            left: ['search', '• kind=' + state.kind, '• ' + rows.length + ' rows'],
+            left: ['search', '- kind=' + state.kind, '- ' + rows.length + ' rows'],
             right: ['247420 / mmxxvi']
         })
     });

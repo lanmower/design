@@ -1475,7 +1475,7 @@
 .cm-tp-item-title { font-size: var(--fs-1, 14px); }
 .cm-tp-item-snippet { font-size: var(--fs-0, 12px); color: var(--fg-2, var(--fg)); opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cm-tp-item-meta { display: flex; gap: var(--space-2); font-size: var(--fs-micro, 11px); color: var(--fg-2, var(--fg)); opacity: .7; }
-.cm-tp-empty, .cm-forum-empty { padding: var(--space-3); text-align: center; color: var(--fg-2, var(--fg)); opacity: .7; }
+.cm-tp-empty, .cm-forum-empty, .cm-channel-empty, .cm-member-empty { padding: var(--space-3); text-align: center; color: var(--fg-2, var(--fg)); opacity: .7; font-size: var(--fs-sm); }
 
 /* ForumView — cm-forum / cm-forum-* */
 .cm-forum { display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--bg-1, var(--bg-2)); color: var(--fg); }

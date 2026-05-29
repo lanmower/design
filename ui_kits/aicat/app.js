@@ -105,8 +105,8 @@ function App() {
         side: Side({
             sections: [
                 { group: 'session', items: [
-                    { glyph: '◆', label: 'new chat', key: 'new', onClick: (e) => { e.preventDefault(); state.messages = state.messages.slice(0, 2); kit.render(); } },
-                    { glyph: '◇', label: 'history', count: 7, key: 'h' }
+                    { glyph: '+', label: 'new chat', key: 'new', onClick: (e) => { e.preventDefault(); state.messages = state.messages.slice(0, 2); kit.render(); } },
+                    { glyph: '~', label: 'history', count: 7, key: 'h' }
                 ] },
                 { group: 'try', items: PRESETS.map((p, i) => ({
                     glyph: '·', label: p.q.length > 22 ? p.q.slice(0, 22) + '…' : p.q, key: 'p' + i,
@@ -146,7 +146,7 @@ function App() {
             )
         ],
         status: Status({
-            left: ['aicat', '• ' + state.messages.length + ' turns', state.thinking ? '• thinking' : '• idle'],
+            left: ['aicat', '- ' + state.messages.length + ' turns', state.thinking ? '- thinking' : '- idle'],
             right: ['247420 / mmxxvi']
         })
     });

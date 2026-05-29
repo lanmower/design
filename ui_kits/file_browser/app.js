@@ -203,7 +203,7 @@ function App() {
             }),
             crumb: Crumb({ trail: ['247420', 'ui kits'], leaf: 'file browser' }),
             main,
-            status: Status({ left: ['main', '• ' + state.files.length + ' items'], right: ['live', 'demo only'] })
+            status: Status({ left: ['main', '- ' + state.files.length + ' items'], right: ['live', 'demo only'] })
         }),
         state.viewer ? FileViewer({
             file: state.viewer,

@@ -95,7 +95,39 @@ const ICON_PATHS = {
     megaphone: '<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 8a4 4 0 0 1 0 8M18 5a8 8 0 0 1 0 14"/>',
     forum: '<path d="M4 5h13a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/>',
     page: '<path d="M6 3h8l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5M8 13h8M8 17h6"/>',
-    thread: '<path d="M5 6h14M5 11h14M5 16h8"/><circle cx="17" cy="17" r="3"/>'
+    thread: '<path d="M5 6h14M5 11h14M5 16h8"/><circle cx="17" cy="17" r="3"/>',
+    // status / control icons (replace decorative text glyphs at the source)
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    'check-check': '<path d="M18 6 7 17l-3-3"/><path d="m22 10-7.5 7.5L13 16"/>',
+    'chevron-right': '<path d="m9 6 6 6-6 6"/>',
+    'chevron-down': '<path d="m6 9 6 6 6-6"/>',
+    'arrow-down': '<path d="M12 5v14M5 12l7 7 7-7"/>',
+    'arrow-right': '<path d="M5 12h14M12 5l7 7-7 7"/>',
+    x: '<path d="M18 6 6 18M6 6l12 12"/>',
+    play: '<path d="M6 4v16l14-8z"/>',
+    pause: '<path d="M8 5v14M16 5v14"/>',
+    refresh: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+    circle: '<circle cx="12" cy="12" r="9"/>',
+    'circle-dot': '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3" fill="currentColor"/>',
+    dot: '<circle cx="12" cy="12" r="4" fill="currentColor"/>',
+    square: '<rect x="4" y="4" width="16" height="16" rx="2"/>',
+    activity: '<path d="M3 12h4l3 8 4-16 3 8h4"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+    warn: '<path d="M10.3 4 2.7 17a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 4a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+    // file-type icons (replace the FILE_GLYPHS unicode set)
+    'file-pdf': '<path d="M6 3h8l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/>',
+    'file-zip': '<path d="M6 3h8l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M11 4v3M11 9v3M11 14v3"/>',
+    'file-video': '<path d="M6 3h8l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="m10 12 4 2.5L10 17z"/>',
+    'file-audio': '<path d="M6 3h8l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M9 17v-3l4-1v3"/><circle cx="8" cy="17" r="1"/><circle cx="12" cy="16" r="1"/>',
+    'file-sheet': '<path d="M6 3h8l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M8 13h8M8 17h8M12 11v8"/>',
+    'file-code': '<path d="M6 3h8l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="m10 12-2 2 2 2M14 12l2 2-2 2"/>',
+    'file-text': '<path d="M6 3h8l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M8 13h8M8 17h6"/>',
+    file: '<path d="M6 3h8l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/>',
+    pencil: '<path d="M4 20h4L19 9a2 2 0 0 0-3-3L5 17z"/><path d="M14 6l3 3"/>',
+    'skip-forward': '<path d="M5 5v14l9-7z"/><path d="M19 5v14"/>',
+    'chevron-left': '<path d="m15 6-6 6 6 6"/>',
+    trash: '<path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/>',
+    'external-link': '<path d="M14 4h6v6M20 4l-9 9M19 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6"/>'
 };
 export function Icon(name, { size = 16 } = {}) {
     const inner = ICON_PATHS[name];
@@ -175,7 +207,7 @@ export function Side({ sections = [] } = {}) {
 export function Status({ left = [], right = [] } = {}) {
     return h('footer', { class: 'app-status', role: 'contentinfo' },
         ...left.map((t, i) => h('span', { key: 'l' + i, class: 'item' }, t)),
-        h('span', { class: 'spread', 'aria-hidden': 'true' }),
+        h('span', { key: 'spread', class: 'spread', 'aria-hidden': 'true' }),
         ...right.map((t, i) => h('span', { key: 'r' + i, class: 'item' }, t))
     );
 }
@@ -229,9 +261,10 @@ export function Lede({ children }) {
 
 export function Dot({ tone = 'on' }) {
     const isOn = tone === 'on' || tone === 'live';
-    const cls = isOn ? 'ds-dot-on' : 'ds-dot-off';
+    const cls = 'ds-dot ' + (isOn ? 'ds-dot-on' : 'ds-dot-off');
     const statusLabel = isOn ? 'on status indicator' : 'off status indicator';
-    return h('span', { class: cls, role: 'img', 'aria-label': statusLabel }, isOn ? '●' : '○');
+    // Drawn as a CSS circle (.ds-dot) — no decorative text glyph.
+    return h('span', { class: cls, role: 'img', 'aria-label': statusLabel });
 }
 
 export function Rail({ tone = 'green' }) {

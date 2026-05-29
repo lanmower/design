@@ -55,7 +55,7 @@ function rowsFromItems(items, prefix) {
     code: it.code || String(i + 1).padStart(2, '0'),
     title: it.title || it.name,
     sub: it.sub || it.desc || '',
-    meta: it.cta || it.meta || 'open ↗',
+    meta: it.cta || it.meta || 'open ->',
     href: it.href || '#'
   }));
 }
@@ -106,7 +106,7 @@ function Previews() {
     code: String(i + 1).padStart(2, '0'),
     title: String(name).replace(/-/g, ' '),
     sub: 'preview · ' + name + '.html',
-    meta: 'open ↗',
+    meta: 'open ->',
     href: base + name + '.html'
   }));
   return C.Panel({
@@ -193,7 +193,7 @@ function buildSide() {
   if (sb.fab) {
     sections.push({
       group: 'open',
-      items: [{ glyph: sb.fab.glyph || '✦', label: sb.fab.label || 'open', href: sb.fab.href || '#' }]
+      items: [{ glyph: sb.fab.glyph || '+', label: sb.fab.label || 'open', href: sb.fab.href || '#' }]
     });
   }
   if (sb.bins && sb.bins.length) {
@@ -225,8 +225,8 @@ function Tabs() {
 
 const navItems = (nav && nav.links ? nav.links : []).map(l => [String(l.label || ''), l.href]);
 
-const statusLeft = home.status_left || ['main', '• utf-8', '• lf'];
-const statusRight = home.status_right || ['247420 / mmxxvi', '• probably emerging'];
+const statusLeft = home.status_left || ['main', '- utf-8', '- lf'];
+const statusRight = home.status_right || ['247420 / mmxxvi', '- probably emerging'];
 
 const App = C.AppShell({
   topbar: C.Topbar({
@@ -334,8 +334,8 @@ const html = ({ site, nav, home }) => {
   <meta name="twitter:creator" content="${twitter}" />
   ${image ? `<meta name="twitter:image" content="${image}" />
   <meta name="twitter:image:alt" content="${escapeHtml(site.title)}" />` : ''}
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E${encodeURIComponent(site.glyph || '◆')}%3C/text%3E%3C/svg%3E" />
-  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E${encodeURIComponent(site.glyph || '◆')}%3C/text%3E%3C/svg%3E" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E${encodeURIComponent(site.glyph || (site.title ? site.title.trim().charAt(0).toUpperCase() : '2'))}%3C/text%3E%3C/svg%3E" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E${encodeURIComponent(site.glyph || (site.title ? site.title.trim().charAt(0).toUpperCase() : '2'))}%3C/text%3E%3C/svg%3E" />
   <script type="application/ld+json">${ldJson}</script>
   <script type="importmap">{"imports":{"anentrypoint-design":"${SDK_URL}"}}</script>
   <link rel="stylesheet" href="https://unpkg.com/anentrypoint-design@latest/dist/247420.css">

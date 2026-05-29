@@ -1,13 +1,13 @@
 // File primitives — matches upstream signatures.
 
 import * as webjsx from '../../vendor/webjsx/index.js';
-import { Btn } from './shell.js';
+import { Btn, Icon } from './shell.js';
 const h = webjsx.createElement;
 
 const FILE_TYPES = ['dir', 'image', 'video', 'audio', 'code', 'text', 'archive', 'document', 'symlink', 'other'];
-const TYPE_GLYPH = {
-    dir: '◫', image: '◰', video: '▰', audio: '◎', code: '⌘',
-    text: '§', archive: '◐', document: '▢', symlink: '↗', other: '◌'
+const TYPE_ICON = {
+    dir: 'file', image: 'file', video: 'file-video', audio: 'file-audio', code: 'file-code',
+    text: 'file-text', archive: 'file-zip', document: 'file-text', symlink: 'file', other: 'file'
 };
 
 const TYPE_LABELS = {
@@ -24,7 +24,7 @@ const TYPE_LABELS = {
 };
 
 export function fileGlyph(type) {
-    return TYPE_GLYPH[type] || TYPE_GLYPH.other;
+    return TYPE_ICON[type] || TYPE_ICON.other;
 }
 
 export function fmtFileSize(bytes) {
@@ -36,7 +36,7 @@ export function fmtFileSize(bytes) {
 }
 
 export function FileIcon({ type = 'other' } = {}) {
-    return h('span', { class: 'ds-file-icon', 'data-file-type': type, 'aria-label': TYPE_LABELS[type] || 'file', role: 'img' }, fileGlyph(type));
+    return h('span', { class: 'ds-file-icon', 'data-file-type': type, 'aria-label': TYPE_LABELS[type] || 'file', role: 'img' }, Icon(fileGlyph(type)));
 }
 
 export function FileRow({ name, type = 'other', size, modified, code, onOpen, onAction, active, key } = {}) {
@@ -64,9 +64,9 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
         h('span', { class: 'title' }, name),
         h('span', { class: 'ds-file-meta meta', 'aria-label': meta ? `metadata: ${meta}` : null }, meta || '—'),
         onAction ? h('span', { class: 'ds-file-actions', onclick: (e) => e.stopPropagation(), role: 'group', 'aria-label': `actions for ${name}` },
-            h('button', { class: 'ds-file-act', title: 'download', 'aria-label': `download ${name}`, onclick: () => onAction('download') }, '↓'),
-            h('button', { class: 'ds-file-act', title: 'rename', 'aria-label': `rename ${name}`, onclick: () => onAction('rename') }, '✎'),
-            h('button', { class: 'ds-file-act ds-file-act-warn', title: 'delete', 'aria-label': `delete ${name}`, onclick: () => onAction('delete') }, '✕')
+            h('button', { class: 'ds-file-act', title: 'download', 'aria-label': `download ${name}`, onclick: () => onAction('download') }, Icon('arrow-down')),
+            h('button', { class: 'ds-file-act', title: 'rename', 'aria-label': `rename ${name}`, onclick: () => onAction('rename') }, Icon('pencil')),
+            h('button', { class: 'ds-file-act ds-file-act-warn', title: 'delete', 'aria-label': `delete ${name}`, onclick: () => onAction('delete') }, Icon('x'))
         ) : null
     );
 }
@@ -141,7 +141,7 @@ export function UploadProgress({ items = [] } = {}) {
     );
 }
 
-export function EmptyState({ text = 'nothing here', glyph = '◌' } = {}) {
+export function EmptyState({ text = 'nothing here', glyph = Icon('circle') } = {}) {
     return h('div', { class: 'ds-file-empty' },
         h('span', { class: 'ds-file-empty-glyph' }, glyph),
         h('span', { class: 'ds-file-empty-text' }, text)
@@ -151,7 +151,7 @@ export function EmptyState({ text = 'nothing here', glyph = '◌' } = {}) {
 export function BreadcrumbPath({ segments = [], onNav, root = 'root' } = {}) {
     const parts = [h('button', { key: 'root', class: 'ds-crumb-seg', onclick: () => onNav && onNav(0) }, root)];
     segments.forEach((seg, i) => {
-        parts.push(h('span', { key: 'sep' + i, class: 'ds-crumb-sep' }, '›'));
+        parts.push(h('span', { key: 'sep' + i, class: 'ds-crumb-sep', 'aria-hidden': 'true' }, Icon('chevron-right', { size: 13 })));
         parts.push(h('button', {
             key: 'seg' + i,
             class: 'ds-crumb-seg' + (i === segments.length - 1 ? ' leaf' : ''),

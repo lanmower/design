@@ -6,7 +6,7 @@ import { makeChatPage } from './freddie/pages-chat.js';
 import { makeToolsPages } from './freddie/pages-tools.js';
 import { makeOsPages } from './freddie/pages-os.js';
 
-const { AppShell, Topbar, Side, Crumb, Status, Panel, Chip, EmptyState } = components;
+const { AppShell, Topbar, Side, Crumb, Status, Panel, Chip, EmptyState, Icon } = components;
 
 function pre(obj) {
     return webjsx.createElement('pre', { class: 'fd-pre' }, typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2));
@@ -66,7 +66,7 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces, loading
             topbar: Topbar({ brand: 'assistant', leaf: 'dashboard', items: [], active: '' }),
             crumb: Crumb({ trail: ['assistant', instance.id], leaf: route.path, right: state.error ? Chip({ tone: 'miss', children: 'error' }) : Chip({ tone: 'ok', children: 'live' }) }),
             side: buildSide(),
-            main: state.body || EmptyState({ text: loadingText || 'loading…', glyph: '◌' }),
+            main: state.body || EmptyState({ text: loadingText || 'loading…', glyph: Icon('circle') }),
             status: Status({ left: ['ds-247420 · webjsx · ' + allRoutes.length + ' routes', 'instance=' + instance.id], right: [state.ts] }),
         });
     }

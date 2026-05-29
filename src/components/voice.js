@@ -33,7 +33,7 @@ export function PttButton({ state = 'idle', mode = 'ptt', onHoldStart, onHoldEnd
         ontouchend: (e) => { e.preventDefault(); end(e); }
     },
         h('span', { class: 'vx-ptt-glow', 'aria-hidden': 'true' }),
-        h('span', { class: 'vx-ptt-icon', 'aria-hidden': 'true' }, state === 'idle' ? Icon('mic') : '●'),
+        h('span', { class: 'vx-ptt-icon', 'aria-hidden': 'true' }, state === 'idle' ? Icon('mic') : h('span', { class: 'ds-dot ds-dot-on', 'aria-hidden': 'true' })),
         h('span', { class: 'vx-ptt-label' }, label)
     );
 }
@@ -229,11 +229,11 @@ export function AudioQueue({ segments = [], currentSegmentId = null, paused = fa
                 type: 'button', class: 'vx-queue-btn',
                 'aria-label': paused ? 'resume' : 'pause',
                 onclick: () => paused ? (onResume && onResume()) : (onPause && onPause())
-            }, paused ? '▶' : '⏸'),
+            }, paused ? Icon('play') : Icon('pause')),
             h('button', {
                 type: 'button', class: 'vx-queue-btn',
                 'aria-label': 'skip', onclick: () => onSkip && onSkip()
-            }, '⏭')
+            }, Icon('skip-forward'))
         ),
         h('div', { class: 'vx-queue-strip' },
             ...segments.map(s => h('button', {

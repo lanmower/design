@@ -694,6 +694,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 /* ============================================================
    Currently shipping dots
    ============================================================ */
+.ds-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; vertical-align: middle; }
 .ds-dot-on  { color: var(--green-2); }
 .ds-dot-off { color: var(--fg-3); }
 .ds-dot-live { color: var(--green-2); }
@@ -2541,6 +2542,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   font-size: var(--fs-sm);
   color: var(--fg-2);
 }
+.ds-alert-retry { margin-top: var(--space-2); }
 
 .ds-alert-dismiss {
   flex-shrink: 0;

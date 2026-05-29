@@ -51,14 +51,14 @@ function App() {
         side: Side({
             sections: [
                 { group: 'views', items: [
-                    { glyph: '◆', label: 'overview', count: '·', key: 'o' },
-                    { glyph: '◇', label: 'requests', count: 5,    key: 'r' },
-                    { glyph: '◇', label: 'errors',   count: 2,    key: 'e' },
-                    { glyph: '◇', label: 'cron',     count: 7,    key: 'c' }
+                    { glyph: '*', label: 'overview', count: '·', key: 'o' },
+                    { glyph: '-', label: 'requests', count: 5,    key: 'r' },
+                    { glyph: '-', label: 'errors',   count: 2,    key: 'e' },
+                    { glyph: '-', label: 'cron',     count: 7,    key: 'c' }
                 ] },
                 { group: 'env', items: [
-                    { glyph: '●', label: 'production', count: 'eu', key: 'p', color: 'var(--panel-accent)' },
-                    { glyph: '●', label: 'staging',    count: 'us', key: 's', color: 'var(--mascot)' }
+                    { glyph: h('span', { class: 'ds-dot' }), label: 'production', count: 'eu', key: 'p', color: 'var(--panel-accent)' },
+                    { glyph: h('span', { class: 'ds-dot' }), label: 'staging',    count: 'us', key: 's', color: 'var(--mascot)' }
                 ] }
             ]
         }),
@@ -83,8 +83,8 @@ function App() {
             )
         ],
         status: Status({
-            left: ['dashboard', '• ' + kpis.length + ' kpis', '• ' + tableRows.length + ' endpoints'],
-            right: ['247420 / mmxxvi', '• live']
+            left: ['dashboard', '- ' + kpis.length + ' kpis', '- ' + tableRows.length + ' endpoints'],
+            right: ['247420 / mmxxvi', '- live']
         })
     });
 }

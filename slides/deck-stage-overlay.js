@@ -7,9 +7,9 @@ export function buildOverlay({ onPrev, onNext, onReset }) {
     overlay.setAttribute('role', 'toolbar');
     overlay.setAttribute('aria-label', 'Deck controls');
     overlay.innerHTML = `
-        <button class="btn prev" type="button" aria-label="Previous slide" title="Previous (←)">${ICON_PREV}</button>
+        <button class="btn prev" type="button" aria-label="Previous slide" title="Previous (left)">${ICON_PREV}</button>
         <span class="count" aria-live="polite"><span class="current">1</span><span class="sep">/</span><span class="total">1</span></span>
-        <button class="btn next" type="button" aria-label="Next slide" title="Next (→)">${ICON_NEXT}</button>
+        <button class="btn next" type="button" aria-label="Next slide" title="Next (right)">${ICON_NEXT}</button>
         <span class="divider"></span>
         <button class="btn reset" type="button" aria-label="Reset to first slide" title="Reset (R)">Reset<span class="kbd">R</span></button>
     `;

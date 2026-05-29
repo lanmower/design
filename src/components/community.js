@@ -4,6 +4,10 @@ import * as webjsx from '../../vendor/webjsx/index.js';
 import { Icon } from './shell.js';
 const h = webjsx.createElement;
 
+// Clamp a count to a compact badge string (matches the rail's 99+ convention),
+// so a runaway number never blows out a fixed-width badge or item row.
+const clampCount = (n) => { const v = Number(n) || 0; return v > 99 ? '99+' : String(v); };
+
 export function ServerIcon({ id, name, icon, active, badge, onClick } = {}) {
     const initials = (name || '?').slice(0, 2).toUpperCase();
     return h('div', {
@@ -29,7 +33,7 @@ export function ServerIcon({ id, name, icon, active, badge, onClick } = {}) {
 
 export function ServerRail({ servers = [], activeId, onSelect, onAdd } = {}) {
     return h('div', { class: 'cm-server-rail', role: 'navigation', 'aria-label': 'servers' },
-        h('a', { class: 'cm-server-back', href: '../', title: 'Back', 'aria-label': 'back' }, '◰'),
+        h('a', { class: 'cm-server-back', href: '../', title: 'Back', 'aria-label': 'back' }, Icon('chevron-left')),
         h('div', { class: 'cm-server-sep', 'aria-hidden': 'true' }),
         ...servers.map(s => ServerIcon({ ...s, active: s.id === activeId, onClick: () => onSelect && onSelect(s.id) })),
         onAdd ? h('button', { class: 'cm-server-add', type: 'button', onclick: onAdd, title: 'Add server', 'aria-label': 'add server' }, '+') : null
@@ -161,6 +165,9 @@ export function ChannelSidebar({ serverName, channels = [], categories = [], act
             h('span', { class: 'cm-server-header-name' }, serverName || 'Server'),
         ),
         h('div', { class: 'cm-channel-list' },
+            (sorted.length === 0 && uncategorized.length === 0)
+                ? h('div', { class: 'cm-channel-empty' }, 'no channels yet')
+                : null,
             ...sorted.map(cat => ChannelCategory({
                 id: cat.id,
                 name: cat.name,
@@ -197,7 +204,11 @@ export function MemberItem({ identity, name, color, status = 'online' } = {}) {
 }
 
 export function MemberList({ categories = [], open } = {}) {
+    const total = categories.reduce((n, cat) => n + (cat.members ? cat.members.length : 0), 0);
     return h('div', { class: 'cm-member-list' + (open ? ' open' : '') },
+        total === 0
+            ? h('div', { key: '_empty', class: 'cm-member-empty' }, 'no members')
+            : null,
         ...categories.flatMap(cat => [
             h('div', { class: 'cm-member-category', key: cat.label }, `${cat.label} — ${cat.members.length}`),
             ...cat.members.map((m, i) => MemberItem({ ...m, key: m.identity || i }))
@@ -235,7 +246,7 @@ export function VoiceStrip({ channelName, status, muted, deafened, onMute, onDea
         h('button', {
             class: 'cm-vs-btn danger', type: 'button', onclick: onLeave,
             title: 'Leave voice', 'aria-label': 'leave voice channel'
-        }, '✕')
+        }, Icon('x'))
     );
 }
 
@@ -266,7 +277,7 @@ export function ReplyBar({ quotedMessage, quotedAuthor, onCancel } = {}) {
         h('button', {
             class: 'cm-rb-cancel', type: 'button', onclick: onCancel,
             title: 'Cancel reply', 'aria-label': 'cancel reply'
-        }, '✕')
+        }, Icon('x'))
     );
 }
 
@@ -305,7 +316,7 @@ export function ThreadPanel({ threads = [], activeId = null, title = 'Threads', 
             h('span', { class: 'cm-tp-title' }, title),
             h('div', { class: 'cm-tp-head-actions' },
                 onCreate ? h('button', { type: 'button', class: 'cm-tp-new', 'aria-label': 'new thread', title: 'New thread', onclick: onCreate }, '+') : null,
-                onClose ? h('button', { type: 'button', class: 'cm-tp-close', 'aria-label': 'close', title: 'Close', onclick: onClose }, '✕') : null
+                onClose ? h('button', { type: 'button', class: 'cm-tp-close', 'aria-label': 'close', title: 'Close', onclick: onClose }, Icon('x')) : null
             )
         ),
         h('div', { class: 'cm-tp-list' },
@@ -355,7 +366,7 @@ export function ForumView({ posts = [], onSearch, onSort, onSelect, onNewPost } 
                 },
                     h('div', { class: 'cm-forum-item-head' },
                         h('span', { class: 'cm-forum-item-title' }, p.title || '(untitled)'),
-                        h('span', { class: 'cm-forum-item-replies' }, (Number(p.replyCount) || 0) + ' ▸')
+                        h('span', { class: 'cm-forum-item-replies' }, clampCount(p.replyCount), Icon('chevron-right', { size: 13 }))
                     ),
                     p.snippet ? h('div', { class: 'cm-forum-item-snippet' }, p.snippet) : null,
                     h('div', { class: 'cm-forum-item-meta' },

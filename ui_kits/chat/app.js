@@ -102,7 +102,7 @@ function App() {
                 })
             )
         ],
-        status: Status({ left: ['main', '• ' + state.messages.length + ' messages', '• ' + rooms.length + ' rooms'], right: ['247420 / mmxxvi'] })
+        status: Status({ left: ['main', '- ' + state.messages.length + ' messages', '- ' + rooms.length + ' rooms'], right: ['247420 / mmxxvi'] })
     });
 }
 

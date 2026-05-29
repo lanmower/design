@@ -41,17 +41,17 @@ function Hero() {
             h('div', { class: 'panel-head' }, h('span', {}, 'currently shipping'), h('span', {}, '3')),
             h('div', { class: 'panel-body' },
                 h('div', { class: 'row' },
-                    h('span', { class: 'code' }, h('span', { style: 'color:var(--panel-accent)' }, '●')),
+                    h('span', { class: 'code' }, h('span', { class: 'ds-dot ds-dot-on' })),
                     h('span', { class: 'title' }, 'gm', h('span', { class: 'sub' }, 'state machine v0.4.1')),
                     h('span', { class: 'meta' }, 'live')
                 ),
                 h('div', { class: 'row' },
-                    h('span', { class: 'code' }, h('span', { style: 'color:var(--panel-accent)' }, '●')),
+                    h('span', { class: 'code' }, h('span', { class: 'ds-dot ds-dot-on' })),
                     h('span', { class: 'title' }, 'zellous', h('span', { class: 'sub' }, 'push-to-talk')),
                     h('span', { class: 'meta' }, 'live')
                 ),
                 h('div', { class: 'row' },
-                    h('span', { class: 'code' }, h('span', { style: 'color:var(--panel-text-3)' }, '○')),
+                    h('span', { class: 'code' }, h('span', { class: 'ds-dot ds-dot-off' })),
                     h('span', { class: 'title' }, 'thebird', h('span', { class: 'sub' }, '—')),
                     h('span', { class: 'meta' }, 'wip')
                 )
@@ -118,7 +118,7 @@ function Writing() {
                 h('a', { key: i, class: 'row', href: '#' },
                     h('span', { class: 'code' }, p.date),
                     h('span', { class: 'title' }, p.title),
-                    h('span', { class: 'meta' }, '§ ' + p.tag)
+                    h('span', { class: 'meta' }, '// ' + p.tag)
                 )
             ))
         )
@@ -139,8 +139,8 @@ function Manifesto() {
 function Status() {
     return h('footer', { class: 'app-status' },
         h('span', { class: 'item' }, 'main'),
-        h('span', { class: 'item' }, '• 8 works'),
-        h('span', { class: 'item' }, '• 5 posts'),
+        h('span', { class: 'item' }, '- 8 works'),
+        h('span', { class: 'item' }, '- 5 posts'),
         h('span', { class: 'spread' }),
         h('span', { class: 'item' }, 'probably emerging'),
         h('span', { class: 'item' }, h('a', { href: 'https://github.com/AnEntrypoint' }, 'source ->'))

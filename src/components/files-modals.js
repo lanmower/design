@@ -1,7 +1,7 @@
 // File modals — matches upstream signatures + class names.
 
 import * as webjsx from '../../vendor/webjsx/index.js';
-import { Btn } from './shell.js';
+import { Btn, Icon } from './shell.js';
 import { fileGlyph, fmtFileSize } from './files.js';
 const h = webjsx.createElement;
 
@@ -154,8 +154,8 @@ export function FileViewer({ file, body, onClose, onAction } = {}) {
                 h('span', { class: 'ds-preview-name' }, file.name || ''),
                 h('span', { class: 'ds-preview-meta' }, meta),
                 h('span', { class: 'ds-preview-actions' },
-                    onAction ? h('button', { class: 'ds-file-act', title: 'download', onclick: () => onAction('download') }, '↓') : null,
-                    h('button', { class: 'ds-file-act', title: 'close', onclick: onClose }, '✕')
+                    onAction ? h('button', { class: 'ds-file-act', title: 'download', 'aria-label': 'download', onclick: () => onAction('download') }, Icon('arrow-down')) : null,
+                    h('button', { class: 'ds-file-act', title: 'close', 'aria-label': 'close', onclick: onClose }, Icon('x'))
                 )
             ),
             h('div', { class: 'ds-preview-body', 'data-file-type': file.type || 'other' },

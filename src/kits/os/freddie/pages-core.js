@@ -4,7 +4,7 @@ import * as components from '../../../components.js';
 import { pre, form, skillLabel } from './helpers.js';
 
 const h = webjsx.createElement;
-const { Panel, Row, Hero, Receipt, Kpi, Table, EmptyState } = components;
+const { Panel, Row, Hero, Receipt, Kpi, Table, EmptyState, Icon } = components;
 
 export function makeCorePages(ctx) {
     return {
@@ -13,7 +13,7 @@ export function makeCorePages(ctx) {
             const activeProj = (typeof h0.pi.projects.active === 'function') ? h0.pi.projects.active() : null;
             const rows = list.map(p => Row({
                 key: p.name,
-                code: p.name === activeProj?.name ? '●' : '○',
+                code: p.name === activeProj?.name ? Icon('circle-dot') : Icon('circle'),
                 title: p.name + (p.name === activeProj?.name ? '  (active)' : ''),
                 meta: p.path,
                 onClick: () => { if (p.name !== activeProj?.name) try { h0.pi.projects.setActive(p.name); ctx.rerender(); } catch (e) { alert(e.message); } },
@@ -26,7 +26,7 @@ export function makeCorePages(ctx) {
                     submit: 'add',
                     onSubmit: (ev) => { try { h0.pi.projects.create({ name: ev.target.elements.name.value, path: ev.target.elements.path.value }); ctx.rerender(); } catch (e) { alert(e.message); } },
                 }) }),
-                Panel({ title: 'all projects', count: list.length, children: rows.length ? rows : EmptyState({ text: 'no projects', glyph: '◆' }) }),
+                Panel({ title: 'all projects', count: list.length, children: rows.length ? rows : EmptyState({ text: 'no projects', glyph: Icon('square') }) }),
                 Panel({ title: 'how encapsulation works', children: Receipt({ rows: [
                     ['sessions db', '<project>/sessions.db'],
                     ['config', '<project>/config.json'],
@@ -78,7 +78,7 @@ export function makeCorePages(ctx) {
             return [
                 Kpi({ items: [[list.length, 'sessions']] }),
                 Panel({ title: 'recent sessions', count: list.length, children: list.length === 0
-                    ? EmptyState({ text: 'no sessions yet — open chat and send a message', glyph: '✉' })
+                    ? EmptyState({ text: 'no sessions yet — open chat and send a message', glyph: Icon('thread') })
                     : Table({ headers: ['id', 'title', 'platform', 'model', 'cwd', 'skill', ''], rows }) }),
             ];
         },

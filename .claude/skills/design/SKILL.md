@@ -30,7 +30,7 @@ this is the visual paradigm. read it once, then go.
 --paper       #F5F0E4           /* warm, calm, never pure white */
 --ink         #1F1B16           /* warm near-black */
 
-/* tonal surface ladder (light) — gmail/inbox feel */
+/* tonal surface ladder (light) — layered list-surface feel */
 --panel-0     #F5F0E4           /* canvas / shell */
 --panel-1     #FBF6EB           /* primary content surface */
 --panel-2     #F0E9DA           /* zebra / hover-quiet */
@@ -52,7 +52,7 @@ this is the visual paradigm. read it once, then go.
 --link        #3A66FF           /* in-prose links only */
 ```
 
-Dark mode flips the panel ladder to warm-neutral greys (`#1A1B1E → #36383E`). Same hues, lighter on dark. Validate every page in both.
+Dark mode flips the panel ladder to warm-neutral greys (`#1A1B1E -> #36383E`). Same hues, lighter on dark. Validate every page in both.
 
 ## the four primitives
 
@@ -115,9 +115,9 @@ Pair the rail with a dot of the same hue inside the row, and a chip with `color-
 - **Client:** [webjsx.org](https://webjsx.org) + customised [ripple-ui.com](https://ripple-ui.com). React/Vue/Svelte/Next/Nuxt are banned org-wide.
 - **Build:** GitHub Actions for everything. Building on a laptop is banned.
 - **Vendored, never CDN runtime.** webjsx, ripple, fonts — committed under `vendor/`. (The 247420 SDK itself ships from npm + unpkg as the single allowed CDN dependency — see workflow below.)
-- **CMS sites** → flatspace, run as a CI step.
-- **Database** → busybase from npm.
-- **Otherwise** → static HTML + vendored JS, deployed via GitHub Pages.
+- **CMS sites** -> flatspace, run as a CI step.
+- **Database** -> busybase from npm.
+- **Otherwise** -> static HTML + vendored JS, deployed via GitHub Pages.
 
 ## consuming the SDK from a buildless flatspace project
 
@@ -189,7 +189,7 @@ examples:
     - { name: conservation, href: ./conservation.html, cta: open }
 ```
 
-`C.HomeView` reads `hero / features / examples` and lays them out as: editorial hero on top, indicator-railed feature panel underneath, gmail-style row list of examples below that.
+`C.HomeView` reads `hero / features / examples` and lays them out as: editorial hero on top, indicator-railed feature panel underneath, dense row-list of examples below that.
 
 ### 3. CI workflow
 
@@ -230,8 +230,8 @@ A page is a sequence of beats:
 
 - **Home / hero** — `C.Hero({ heading, subheading, body, badges, ctas })`. One sentence of who, one sentence of what, three badges of self-tag, one primary CTA. Optional `currently shipping` panel below — three rows max, mono ranks, dots in `--green`/`--mascot`/`--sun`. Story-beat: "this is who we are, this is what's live."
 - **Index / works** — `C.WorksList(items)`. Numeric mono code on the left, name-with-sub in the middle, meta on the right. Open one row inline to reveal `body + ctas`. Story-beat: "here's the catalogue, pull a thread to read more."
-- **Project page** — `C.ProjectView({ overview, install, receipt, changelog })`. Hero pill (`live · v0.4.1`), then a railed panel sequence: overview prose → install CLI block (`.cli`) → receipt (kv table) → changelog rows (each rail-tagged by category). Story-beat: "here's a thing in detail, in the order you'd actually need it."
-- **Writing index** — `C.WritingList(posts)`. Date code in mono on the left, title in Nunito middle, `§ tag` mono meta on the right. No rails — writing is one category. Story-beat: "we're saying things in time."
+- **Project page** — `C.ProjectView({ overview, install, receipt, changelog })`. Hero pill (`live · v0.4.1`), then a railed panel sequence: overview prose -> install CLI block (`.cli`) -> receipt (kv table) -> changelog rows (each rail-tagged by category). Story-beat: "here's a thing in detail, in the order you'd actually need it."
+- **Writing index** — `C.WritingList(posts)`. Date code in mono on the left, title in Nunito middle, `// tag` mono meta on the right. No rails — writing is one category. Story-beat: "we're saying things in time."
 - **Manifesto** — `C.Manifesto({ paragraphs })`. Single panel, generous padding, max-width 64ch, paragraphs separated by 12–16px not by rules. One bolded `humor is load-bearing.` somewhere in the middle. Story-beat: "here's what we believe, in five small breaths."
 
 Avoid: marketing-speak, three-column "feature grids" with stock icons, gradient hero text, "trusted by" logo carousels, `<hr>` between paragraphs, headings in ALL CAPS, emoji as bullets in body copy. (Emoji in prose is fine — rare, intentional, never substituting for punctuation.)
@@ -244,7 +244,7 @@ Avoid: marketing-speak, three-column "feature grids" with stock icons, gradient 
 | sun rail                      | `.rail-sun`                            | a deck or presentation           |
 | purple rail                   | `.rail-purple`                         | writing, lore, manifesto         |
 | mascot rail                   | `.rail-mascot`                         | docs, prose-first surfaces       |
-| sky rail + ↗                  | `.rail-sky` + `↗` glyph                | external link / off-site         |
+| sky rail + ext-link           | `.rail-sky` + `Icon('external-link')`  | external link / off-site         |
 | flame chip                    | chip with `--flame` background         | "watch out" / soft warn          |
 | live dot in metadata          | `.dot.live` left of "live"             | currently shipping               |
 | mono numeric on right         | `.row .code` with `--ff-mono`          | rank / position / "this is item N" |
@@ -252,30 +252,24 @@ Avoid: marketing-speak, three-column "feature grids" with stock icons, gradient 
 
 Three signals, one meaning. Always.
 
-## glyphs
+## icons
 
-Unicode glyphs, never icon fonts. The canon:
+Line-icons via the `Icon(name, {size})` component — monochrome inline SVG, `stroke=currentColor`, 24-box, 1.6 stroke — so chrome reads as one coherent set. NEVER decorative unicode glyphs in source (they are a machine-shaped tell and are banned; a build-time guard, `scripts/lint-glyphs.mjs`, fails the build on any). The mapping:
 
 ```
-●  live / shipping       (mono-1 hue)
-○  draft / pending       (panel-text-3)
-◐  half / partial
-◌  empty / placeholder
-★  starred / pinned
-☆  unstarred
-✦  currently open / active
-↗  external link
-›  breadcrumb separator
-§  prose / writing
-⌘  tokens / system
-◰  the 247420 corner glyph
-▣  inbox / everything
-◎  ui kit
-▰  deck
-▢  empty container
+status dot      -> CSS circle: <span class="ds-dot ds-dot-on|ds-dot-off"> (Dot() component)
+active / partial -> Icon('circle-dot') / Icon('circle')
+external link    -> the ASCII 'open ->' or Icon('external-link')
+breadcrumb sep   -> Icon('chevron-right')  (or '/' in Crumb)
+check / receipt  -> Icon('check') / Icon('check-check')
+close / cancel   -> Icon('x')
+play / pause     -> Icon('play') / Icon('pause')
+file type        -> Icon('file-pdf'|'file-zip'|'file-video'|'file-audio'|'file-sheet'|'file-code'|'file-text'|'file')
+warn / info      -> Icon('warn') / Icon('info')
+the 247420 corner-> Icon('square')
 ```
 
-Set in JetBrains Mono so they share cap-height with rank numbers. No font-awesome, no material-icons, no svg sprite sheets.
+Add new icons by extending `ICON_PATHS` in `src/components/shell.js` (an out-of-set name renders an empty span — a bug). ASCII stands in where no icon fits: `->` for arrows, `[x]`/`[ ]` for checkboxes, `-`/`*` for bullets. Exempt: the `·` middle-dot separator and the `⌘` Mac Command-key symbol (industry-standard). No font-awesome, no material-icons, no svg sprite sheets, no unicode-glyph icon canon.
 
 ## files in this repo
 
@@ -320,4 +314,4 @@ Set in JetBrains Mono so they share cap-height with rank numbers. No font-awesom
 
 Add the importmap, mount the components, write your YAML. That is the whole onboarding.
 
-we fart in its general direction. ◰
+we fart in its general direction.

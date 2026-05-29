@@ -4,6 +4,7 @@
 
 import { renderMarkdown, ensureReady as ensureMarkdownReady } from './markdown.js';
 import { highlightAllUnder, ensurePrism } from './highlight.js';
+import { register } from './debug.js';
 
 // Simple content-based hash for memoization (FNV-1a 32-bit)
 function simpleHash(str) {
@@ -152,6 +153,9 @@ export function getCacheStats() {
         },
     };
 }
+
+// Observability: expose markdown/prism cache stats live via window.__debug.
+register('markdown-cache', () => getCacheStats());
 
 /**
  * Reset cache state (for testing only).
