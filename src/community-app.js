@@ -34,9 +34,9 @@ import {
     ServerRail, ChannelItem, MemberList, MobileHeader,
     UserPanel, VoiceStrip, VoiceUser, ThreadPanel, ForumView, PageView, Banner,
 } from './components/community.js';
-import { VoiceControls } from './components/voice.js';
+import { VoiceControls, VoiceSettingsModal, AudioQueue, PttButton, VadMeter, WebcamPreview } from './components/voice.js';
 import { ContextMenu } from './components/editor-primitives.js';
-import { EmojiPicker, CommandPalette } from './components/overlay-primitives.js';
+import { EmojiPicker, CommandPalette, AuthModal, BootOverlay, SettingsPopover, VideoLightbox } from './components/overlay-primitives.js';
 
 const h = webjsx.createElement;
 
@@ -157,6 +157,9 @@ export function mountCommunityApp(root, adapter = {}) {
 
     const voiceView = (s) => h('div', { class: 'vx-view' },
         h('div', { class: 'vx-grid' }, ...(s.voiceParticipants || []).map((p, i) => VoiceUser({ ...p, key: p.identity || p.id || i }))),
+        s.webcamEnabled ? WebcamPreview({ videoStream: s.webcamStream, resolution: s.webcamResolution, fps: s.webcamFps, enabled: true }) : null,
+        s.pttUiMode === 'vad' ? VadMeter({ level: s.micRawLevel || 0, threshold: s.vadThreshold, onThresholdChange: (t) => A.setVadThreshold && A.setVadThreshold(t) }) : null,
+        s.pttUiMode === 'ptt' || s.pttUiMode == null ? PttButton({ state: s.isSpeaking ? 'live' : 'idle', mode: 'ptt', onHoldStart: () => A.pttStart && A.pttStart(), onHoldEnd: () => A.pttStop && A.pttStop() }) : null,
         VoiceControls({
             muted: !!s.micMuted, deafened: !!s.voiceDeafened,
             onMic: () => A.toggleMic && A.toggleMic(),
@@ -170,7 +173,10 @@ export function mountCommunityApp(root, adapter = {}) {
         const s = get();
         const ch = s.currentChannel || {};
         const inVoiceChannel = ch.type === 'voice';
-        const bodyMain = inVoiceChannel ? voiceView(s) : chatView(s);
+        const bodyMain = inVoiceChannel ? voiceView(s)
+            : ch.type === 'forum' ? ForumView({ posts: s.forumPosts || [], onSelect: (id) => A.openThread && A.openThread(id), onNewPost: () => A.newForumPost && A.newForumPost() })
+            : ch.type === 'page' ? PageView({ title: ch.name, html: s.pageHtml || '', isAdmin: !!s.canManage, onEdit: () => A.editPage && A.editPage() })
+            : chatView(s);
         const showVoiceBanner = s.voiceConnected && s.voiceChannelName && !(inVoiceChannel && s.voiceChannelName === ch.name);
         return h('div', { class: 'ca-app' },
             // top bar (sole app chrome above the chat-head)
@@ -199,6 +205,14 @@ export function mountCommunityApp(root, adapter = {}) {
             ctx.open ? ContextMenu({ items: ctx.items, anchor: { x: ctx.x, y: ctx.y }, onClose: () => { ctx = { ...ctx, open: false }; render(); } }) : null,
             emoji.open ? EmojiPicker({ open: true, anchorX: emoji.x, anchorY: emoji.y, onSelect: (em) => { try { emoji.onSelect && emoji.onSelect(em); } catch (_) {} emoji = { ...emoji, open: false }; render(); }, onClose: () => { emoji = { ...emoji, open: false }; render(); } }) : null,
             palette.open ? CommandPalette({ open: true, items: palette.items, onSelect: (it) => { try { palette.onSelect && palette.onSelect(it); } catch (_) {} palette = { ...palette, open: false }; render(); }, onClose: () => { palette = { ...palette, open: false }; render(); } }) : null,
+            // global overlays (visibility driven by adapter snapshot)
+            s.showAuthModal ? AuthModal({ open: true, mode: s.authMode || 'extension', error: s.authError || '', busy: !!s.authBusy, onModeChange: (m) => A.setAuthMode && A.setAuthMode(m), onConnectExtension: () => A.authExtension && A.authExtension(), onGenerate: () => A.authGenerate && A.authGenerate(), onImport: (k) => A.authImport && A.authImport(k), onClose: () => A.closeAuth && A.closeAuth() }) : null,
+            BootOverlay({ progress: s.bootProgress || 0, phase: s.bootPhase || '', errored: !!s.bootErrored, visible: !!s.bootVisible }),
+            s.settingsOpen ? SettingsPopover({ open: true, anchorX: (s.settingsAnchor && s.settingsAnchor.x) || 0, anchorY: (s.settingsAnchor && s.settingsAnchor.y) || 0, sections: s.settingsSections || [], onClose: () => A.openSettings && A.openSettings() }) : null,
+            s.voiceSettingsOpen ? VoiceSettingsModal({ open: true, mode: s.voiceMode || 'ptt', inputId: s.inputDeviceId, outputId: s.outputDeviceId, inputDevices: s.inputDevices || [], outputDevices: s.outputDevices || [], vadThreshold: s.vadThreshold, rnnoise: !!s.rnnoiseEnabled, autoGain: !!s.autoGainEnabled, forceTurn: !!s.forceTurnEnabled, bitrate: s.voiceBitrate, volume: s.masterVolume, onChange: (p) => A.voiceSettingsChange && A.voiceSettingsChange(p), onSave: () => A.voiceSettingsSave && A.voiceSettingsSave(), onCancel: () => A.voiceSettingsClose && A.voiceSettingsClose(), onClose: () => A.voiceSettingsClose && A.voiceSettingsClose() }) : null,
+            s.videoLightbox && s.videoLightbox.open ? VideoLightbox({ open: true, src: s.videoLightbox.src, label: s.videoLightbox.label, onClose: () => A.closeVideoLightbox && A.closeVideoLightbox() }) : null,
+            (s.audioQueueItems && s.audioQueueItems.length) ? AudioQueue({ segments: s.audioQueueItems, currentSegmentId: s.audioQueueCurrentId, paused: !!s.audioQueuePaused, onReplay: (id) => A.replaySegment && A.replaySegment(id), onSkip: () => A.skipSegment && A.skipSegment(), onResume: () => A.resumeQueue && A.resumeQueue(), onPause: () => A.pauseQueue && A.pauseQueue() }) : null,
+            s.threadPanelOpen ? ThreadPanel({ threads: s.threads || [], activeId: s.activeThreadId, onSelect: (id) => A.selectThread && A.selectThread(id), onCreate: () => A.createThread && A.createThread(), onClose: () => A.closeThreadPanel && A.closeThreadPanel() }) : null,
         );
     };
 
