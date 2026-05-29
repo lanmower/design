@@ -140,8 +140,13 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
 }
 
 export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu, placeholder = 'message…', disabled }) {
+    // Keep a handle to the live textarea so send() reads the actual DOM value
+    // (not the possibly-lagging `value` prop) and so we can sync the DOM value
+    // only when it genuinely differs — re-applying `value` on every parent
+    // re-render otherwise resets the caret and drops fast keystrokes.
+    let taEl = null;
     const send = () => {
-        const v = (value || '').trim();
+        const v = ((taEl && taEl.value) || value || '').trim();
         if (!v || disabled) return;
         if (onSend) onSend(v);
     };
@@ -161,11 +166,16 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
     };
     const taRef = (el) => {
         if (!el) return;
+        taEl = el;
+        // Sync the controlled value into the DOM only when it actually differs,
+        // so a re-render mid-type does not clobber the caret or pending input.
+        const next = value || '';
+        if (el.value !== next) el.value = next;
         el.style.height = 'auto';
         el.style.height = Math.min(el.scrollHeight, 200) + 'px';
     };
     return h('div', { class: 'chat-composer' },
-        h('textarea', { ref: taRef, value: value || '', placeholder, rows: 1, 'aria-label': 'message input',
+        h('textarea', { ref: taRef, placeholder, rows: 1, 'aria-label': 'message input',
             oninput: autoGrow,
             onkeydown: (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
