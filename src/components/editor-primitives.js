@@ -325,15 +325,22 @@ export function ContextMenu({ items = [], anchor = { x: 0, y: 0 }, onClose } = {
             ref: (el) => {
                 if (!el) return;
                 rootEl = el;
-                // Clamp to viewport
-                const vw = window.innerWidth, vh = window.innerHeight;
-                let x = anchor.x || 0, y = anchor.y || 0;
-                el.style.left = '0px'; el.style.top = '0px';
-                const r = el.getBoundingClientRect();
-                if (x + r.width > vw) x = Math.max(0, vw - r.width - 4);
-                if (y + r.height > vh) y = Math.max(0, vh - r.height - 4);
-                el.style.left = x + 'px';
-                el.style.top = y + 'px';
+                // Position at the anchor immediately, then clamp once layout has
+                // settled — measuring synchronously in ref reads a zero-size box
+                // (children not yet painted), so the clamp must run post-layout.
+                const ax = anchor.x || 0, ay = anchor.y || 0;
+                el.style.left = ax + 'px';
+                el.style.top = ay + 'px';
+                const clamp = () => {
+                    const vw = window.innerWidth, vh = window.innerHeight;
+                    const r = el.getBoundingClientRect();
+                    let x = ax, y = ay;
+                    if (x + r.width > vw) x = Math.max(4, vw - r.width - 4);
+                    if (y + r.height > vh) y = Math.max(4, vh - r.height - 4);
+                    el.style.left = x + 'px';
+                    el.style.top = y + 'px';
+                };
+                requestAnimationFrame(clamp);
                 queueMicrotask(() => { el.querySelector('button[data-ix]')?.focus(); });
             }
         },
