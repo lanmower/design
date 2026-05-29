@@ -167,6 +167,16 @@ a.row:hover .ds-row-arrow { opacity: 1 }
 .ds-hero-stat { display: flex; align-items: baseline; gap: var(--space-2, 8px) }
 .ds-hero-stat-n { font-family: var(--ff-body); font-weight: 700; font-size: var(--fs-lg, 18px); color: var(--fg) }
 .ds-hero-stat-l { font-size: var(--fs-sm, 15px); color: var(--fg-3) }
+/* feature rows \u2014 single-column stack with a rail accent (the dashboard .row grid
+   forces a 3-col code/title/meta layout that mangles title+desc+benefit) */
+.ds-feature { position: relative; padding: var(--space-3, 16px) var(--space-4, 24px); background: var(--bg, #fff); border-radius: var(--r-2, 14px); display: grid; gap: var(--space-1, 4px) }
+.ds-feature::before { content: ''; position: absolute; left: 0; top: var(--space-2, 8px); bottom: var(--space-2, 8px); width: 3px; border-radius: 3px; background: var(--rail-color, var(--rule-strong)) }
+.ds-feature.rail-green { --rail-color: var(--green) } .ds-feature.rail-purple { --rail-color: var(--purple) } .ds-feature.rail-mascot { --rail-color: var(--mascot) }
+.ds-feature.rail-sun { --rail-color: var(--sun) } .ds-feature.rail-flame { --rail-color: var(--flame) } .ds-feature.rail-sky { --rail-color: var(--sky) }
+.ds-feature + .ds-feature { margin-top: var(--space-2, 8px) }
+.ds-feature-title { font-weight: 600; font-size: var(--fs-lg, 18px); color: var(--fg) }
+.ds-feature-desc { font-size: var(--fs-sm, 15px); color: var(--fg-2); line-height: 1.5 }
+.ds-feature-benefit { font-style: italic; font-size: var(--fs-sm, 15px); color: var(--fg-3); margin-top: var(--space-1, 4px) }
 </style>
 <script id="__site__" type="application/json">${JSON.stringify(m).replace(/</g,"\\u003c")}<\/script>
 ${p}
@@ -207,10 +217,10 @@ function sectionNode(sec, idx) {
   const rail = RAILS[idx % RAILS.length];
   const features = sec.features || sec.items || [];
   const rows = features.map((f, i) => {
-    const kids = [h('span', { key: 't', class: 'title' }, String(f.name || ''))];
-    if (f.desc) kids.push(h('div', { key: 'd', class: 'sub', innerHTML: String(f.desc).replace(/\`([^\`]+)\`/g, '<code>$1</code>') }));
-    if (f.benefit) kids.push(h('div', { key: 'b', class: 'row-benefit' }, String(f.benefit)));
-    return h('div', { key: i, class: 'row ' + rail }, ...kids);
+    const kids = [h('div', { key: 't', class: 'ds-feature-title' }, String(f.name || ''))];
+    if (f.desc) kids.push(h('div', { key: 'd', class: 'ds-feature-desc', innerHTML: String(f.desc).replace(/\`([^\`]+)\`/g, '<code>$1</code>') }));
+    if (f.benefit) kids.push(h('div', { key: 'b', class: 'ds-feature-benefit' }, String(f.benefit)));
+    return h('div', { key: i, class: 'ds-feature ' + rail }, ...kids);
   });
   return C.Section({
     title: sec.name || sec.title || sec.id,
