@@ -99,7 +99,7 @@ export function errorState(err, onRetry) {
         h('div', { class: 'ds-alert-content' },
             h('div', { class: 'ds-alert-title' }, 'failed to load'),
             h('div', { class: 'ds-alert-message' }, msg),
-            onRetry ? h('button', { class: 'btn ds-alert-retry', onclick: onRetry }, 'retry') : null));
+            onRetry ? h('button', { type: 'button', class: 'btn ds-alert-retry', onclick: onRetry }, 'retry') : null));
 }
 
 export function emptyState(text = 'nothing here yet', glyph = Icon('circle')) {

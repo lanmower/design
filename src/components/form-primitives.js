@@ -116,13 +116,16 @@ export function Field({ label, hint, error, required, requiredMarker = '*', html
     const errorId = error != null ? autoId + '-err' : null;
     const describedBy = [hintId, errorId].filter(Boolean).join(' ') || null;
     const list = Array.isArray(children) ? children : [children];
+    // Apply the generated id to the FIRST control that lacks one so the label's
+    // `for=autoId` and the hint/error aria-describedby actually reference it.
+    // Controls that already carry an id keep theirs (and still get describedby).
+    let idApplied = false;
     const decorated = list.map((c) => {
         if (!c || typeof c !== 'object') return c;
         const props = c.props || {};
         const extra = { 'aria-describedby': describedBy };
         if (error != null) extra['aria-invalid'] = 'true';
-        if (!props.id && !htmlFor) { /* leave id unset */ }
-        else if (!props.id) extra.id = autoId;
+        if (!props.id && !idApplied) { extra.id = autoId; idApplied = true; }
         return cloneWithProps(c, extra);
     });
     return h('div', { key, class: 'ds-field-wrap' },

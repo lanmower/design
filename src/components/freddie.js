@@ -38,6 +38,17 @@ const refreshError = (err) => err ? h('div', { class: 'ds-alert ds-alert-warn', 
 const liveRegion = (msg) => h('div', { class: 'fd-sr-live', role: 'status', 'aria-live': 'polite' }, msg || '');
 // Truncate with a title tooltip carrying the full text.
 const trunc = (s, n = 90) => { const str = String(s || ''); return str.length > n ? { text: str.slice(0, n) + '…', title: str } : { text: str, title: null }; };
+// Named truncation widths so list pages cap display consistently (and any
+// raw .slice(0,N) on user text routes through trunc() for ellipsis + tooltip).
+const TRUNC_TITLE = 60;   // session/skill/tool titles
+const TRUNC_SUB = 80;     // row sub-text (prompts, descriptions)
+const TRUNC_OUTPUT = 70;  // batch output cells
+const TRUNC_DESC = 90;    // long descriptions
+const TRUNC_PROMPT = 50;  // batch prompt cells
+// Render trunc() result as a span carrying the full text in its title tooltip.
+const truncSpan = (s, n) => { const t = trunc(s, n); return h('span', { title: t.title }, t.text); };
+// Cap a raw JSON dump for an inline table cell without losing the data via tooltip.
+const truncJson = (v, n = TRUNC_TITLE) => truncSpan(JSON.stringify(v), n);
 // Autoscroll a thread only when the user is already near the bottom, so
 // scrolling up to read history is not yanked back down on the next render.
 const stickyScroll = (el) => { if (!el) return; const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80; if (nearBottom) el.scrollTop = el.scrollHeight; };
@@ -47,13 +58,22 @@ const stickyScroll = (el) => { if (!el) return; const nearBottom = el.scrollHeig
 export const home = makePage((ctx) => {
     async function load() {
         try {
-            const [health, agents, sessions] = await Promise.all([
+            // tools/skills counts come from the host when injected; otherwise
+            // fall back to the same /api/* endpoints the tools/skills pages use
+            // so the home KPIs never render an em-dash placeholder.
+            const needTools = ctx.host?.pi?.tools?.size == null;
+            const needSkills = ctx.host?.pi?.skills?.size == null;
+            const [health, agents, sessions, toolsList, skillsList] = await Promise.all([
                 api('/api/health').catch(() => null),
                 api('/api/agents').catch(() => null),
                 api('/api/sessions').catch((e) => ({ _err: e })),
+                needTools ? api('/api/tools').catch(() => null) : Promise.resolve(null),
+                needSkills ? api('/api/skills').catch(() => null) : Promise.resolve(null),
             ]);
+            const toolsCount = needTools ? (Array.isArray(toolsList) ? toolsList.length : (toolsList?.tools?.length ?? null)) : null;
+            const skillsCount = needSkills ? (Array.isArray(skillsList) ? skillsList.length : (skillsList?.skills?.length ?? null)) : null;
             const sessFailed = sessions && sessions._err;
-            ctx.set({ loading: false, health, agents, sessions: Array.isArray(sessions) ? sessions : [], sessFailed, error: null });
+            ctx.set({ loading: false, health, agents, sessions: Array.isArray(sessions) ? sessions : [], sessFailed, toolsCount, skillsCount, error: null });
         } catch (e) { ctx.set({ loading: false, error: e }); }
     }
     load();
@@ -64,8 +84,8 @@ export const home = makePage((ctx) => {
         if (s.error) return errorState(s.error, load);
         const sessions = s.sessions || [];
         const agents = s.agents || {};
-        const tools = ctx.host?.pi?.tools?.size ?? '—';
-        const skills = ctx.host?.pi?.skills?.size ?? '—';
+        const tools = ctx.host?.pi?.tools?.size ?? s.toolsCount ?? '—';
+        const skills = ctx.host?.pi?.skills?.size ?? s.skillsCount ?? '—';
         return [
             PageHeader({ eyebrow: 'freddie', title: 'dashboard', lede: 'agent harness · live overview' }),
             Kpi({ items: [
@@ -80,11 +100,11 @@ export const home = makePage((ctx) => {
                     : sessions.length
                         ? Table({
                             headers: ['session', 'platform', 'updated'],
-                            rows: sessions.slice(0, 8).map(x => { const t = trunc(x.title || x.id, 60); return [h('span', { title: t.title }, t.text), x.platform || '—', fmtAgo(x.updated_at)]; }),
+                            rows: sessions.slice(0, 8).map(x => [truncSpan(x.title || x.id, TRUNC_TITLE), x.platform || '—', fmtAgo(x.updated_at)]),
                         })
                         : emptyState('no sessions yet')),
             section('health',
-                s.health ? Table({ headers: ['check', 'status'], rows: Object.entries(s.health).map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : String(v)]) })
+                s.health ? Table({ headers: ['check', 'status'], rows: Object.entries(s.health).map(([k, v]) => [k, typeof v === 'object' ? truncJson(v) : String(v)]) })
                     : emptyState('health endpoint unavailable')),
         ];
     };
@@ -140,7 +160,7 @@ export const voice = makePage((ctx) => {
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState();
+        if (s.loading) return loadingState('loading voice config…');
         const v = s.voice;
         const enabled = v && (v.enabled || v.transcription || v.tts);
         return [
@@ -174,7 +194,7 @@ export const sessions = makePage((ctx) => {
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState();
+        if (s.loading) return loadingState('loading sessions…');
         if (s.error && !s.list) return errorState(s.error, load);
         const list = Array.isArray(s.list) ? s.list : [];
         return [
@@ -185,10 +205,10 @@ export const sessions = makePage((ctx) => {
                 list.length
                     ? Table({ headers: ['session', 'platform', 'updated'], onRowClick: (i) => open(list[i].id),
                         rowLabels: list.map(x => x.title || x.id),
-                        rows: list.map(x => { const t = trunc(x.title || x.id, 60); return [h('span', { title: t.title }, t.text), x.platform || '—', fmtAgo(x.updated_at)]; }) })
+                        rows: list.map(x => [truncSpan(x.title || x.id, TRUNC_TITLE), x.platform || '—', fmtAgo(x.updated_at)]) })
                     : emptyState('no sessions match')),
             s.selected ? section('messages · ' + s.selected,
-                s.msgLoading ? loadingState()
+                s.msgLoading ? loadingState('loading messages…')
                     : (s.messages || []).length ? (s.messages).map((m, i) => ChatMessage({ role: m.role, text: m.content || m.text || '', time: m.ts ? fmtTime(m.ts) : '', key: i }))
                         : emptyState('no messages')) : null,
         ];
@@ -216,7 +236,7 @@ export const projects = makePage((ctx) => {
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState();
+        if (s.loading) return loadingState('loading projects…');
         if (s.error && !s.data) return errorState(s.error, load);
         const d = s.data || {}; const list = d.projects || [];
         const activeName = (d.active && d.active.name) || d.active || 'default';
@@ -246,11 +266,12 @@ export const agents = makePage((ctx) => {
     load(); ctx.interval(load, 5000);
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState();
-        if (s.error) return errorState(s.error, load);
+        if (s.loading) return loadingState('loading agents…');
+        if (s.error && !s.data) return errorState(s.error, load);
         const d = s.data || {};
         return [
             PageHeader({ eyebrow: 'freddie', title: 'agents', lede: 'live agent activity' }),
+            s.error && s.data ? refreshError(s.error) : null,
             Kpi({ items: [[d.count ?? 0, 'active'], [d.turns ?? 0, 'total turns'], [d.last_activity ? fmtAgo(d.last_activity) : '—', 'last activity']] }),
             section('detail', Table({ headers: ['field', 'value'], rows: Object.entries(d).map(([k, v]) => [k, String(v)]) })),
         ];
@@ -272,13 +293,14 @@ export const analytics = makePage((ctx) => {
     load(); ctx.interval(load, 15000);
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState();
-        if (s.error) return errorState(s.error, load);
+        if (s.loading) return loadingState('loading analytics…');
+        if (s.error && !s.sampler && !s.avail) return errorState(s.error, load);
         const samp = s.sampler?.status ? Object.values(s.sampler.status) : [];
         const ok = samp.filter(x => x && x.available !== false).length;
         const sum = s.avail?.summary || {};
         return [
             PageHeader({ eyebrow: 'freddie', title: 'analytics', lede: 'provider availability & sampler health' }),
+            s.error && (s.sampler || s.avail) ? refreshError(s.error) : null,
             Kpi({ items: [[ok + '/' + samp.length, 'providers up'], [sum.total_models ?? '—', 'models'], [sum.usable_in_any_mode ?? '—', 'usable']] }),
             section('sampler', samp.length ? Table({ headers: ['provider', 'available', 'fails'], rows: Object.entries(s.sampler.status).map(([k, v]) => [k, v.available === false ? 'no' : 'yes', String(v.failCount ?? 0)]) }) : emptyState('no sampler data')),
         ];
@@ -309,7 +331,7 @@ export const models = makePage((ctx) => {
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState();
+        if (s.loading) return loadingState('loading models…');
         if (s.error && !s.providers) return errorState(s.error, load);
         const providers = Array.isArray(s.providers) ? s.providers : [];
         const cached = s.cached || {};
@@ -347,14 +369,14 @@ export const cron = makePage((ctx) => {
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState();
+        if (s.loading) return loadingState('loading cron jobs…');
         if (s.error && !s.list) return errorState(s.error, load);
         const list = Array.isArray(s.list) ? s.list : [];
         return [
             PageHeader({ eyebrow: 'freddie', title: 'cron', lede: list.length + ' scheduled jobs' }),
             noteAlert(s.note),
             section('jobs', list.length ? list.map((j, i) => Row({
-                key: i, code: j.enabled ? Icon('play') : Icon('pause'), title: j.cron, sub: (j.prompt || '').slice(0, 80),
+                key: i, code: j.enabled ? Icon('play') : Icon('pause'), title: j.cron, sub: trunc(j.prompt, TRUNC_SUB).text,
                 trailing: Btn({ danger: true, children: 'delete', onClick: () => del(j.id) }),
             })) : emptyState('no cron jobs')),
             section('new job',
@@ -373,13 +395,13 @@ export const skills = makePage((ctx) => {
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState();
+        if (s.loading) return loadingState('loading skills…');
         if (s.error) return errorState(s.error, load);
         const list = Array.isArray(s.list) ? s.list : (s.list?.skills || []);
         return [
             PageHeader({ eyebrow: 'freddie', title: 'skills', lede: list.length + ' skills' }),
             section('skills', list.length ? list.map((sk, i) => h('div', { key: i },
-                Row({ code: (sk.source || 'fs').slice(0, 3), title: sk.name, sub: (sk.description || '').slice(0, 90),
+                Row({ code: (sk.source || 'fs').slice(0, 3), title: sk.name, sub: trunc(sk.description, TRUNC_DESC).text,
                     onClick: () => ctx.set({ open: s.open === i ? null : i }), active: s.open === i }),
                 s.open === i ? h('pre', { class: 'fd-pre fd-skill-body' }, sk.body || sk.content || '(no body)') : null,
             )) : emptyState('no skills')),
@@ -412,7 +434,7 @@ export const config = makePage((ctx) => {
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState();
+        if (s.loading) return loadingState('loading config…');
         if (s.error) return errorState(s.error, load);
         const cfg = s.cfg || {};
         const flat = Object.entries(cfg).filter(([, v]) => typeof v !== 'object' || v === null);
@@ -433,7 +455,8 @@ export const config = makePage((ctx) => {
                 TextField({ key: i, label: k, value: String(ctx.state.edited[k] ?? v ?? ''), onInput: (val) => { ctx.state.edited[k] = val; } })
             ) : emptyState('no scalar config keys')),
             section('raw', h('pre', { class: 'fd-pre' }, JSON.stringify(cfg, null, 2))),
-            Btn({ primary: true, disabled: s.busy || !Object.keys(s.edited).length, children: s.busy ? 'saving…' : 'save changes', onClick: save }),
+            section('actions',
+                Btn({ primary: true, disabled: s.busy || !Object.keys(s.edited).length, children: s.busy ? 'saving…' : 'save changes', onClick: save })),
         ];
     };
 });
@@ -445,10 +468,10 @@ export const env = makePage((ctx) => {
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState();
+        if (s.loading) return loadingState('loading environment…');
         if (s.error) return errorState(s.error, load);
         const d = s.data || {};
-        const rows = Object.entries(d).map(([k, v]) => [k, v === true || v === 'set' ? Chip({ tone: 'ok', children: 'set' }) : (v ? String(v) : Chip({ tone: 'neutral', children: 'unset' }))]);
+        const rows = Object.entries(d).map(([k, v]) => [k, v === true || v === 'set' ? Chip({ tone: 'ok', children: 'set' }) : (v ? truncSpan(v, TRUNC_SUB) : Chip({ tone: 'neutral', children: 'unset' }))]);
         return [
             PageHeader({ eyebrow: 'freddie', title: 'env', lede: 'environment / key presence' }),
             section('variables', rows.length ? Table({ headers: ['key', 'status'], rows }) : emptyState('no env data')),
@@ -464,7 +487,7 @@ export const tools = makePage((ctx) => {
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState();
+        if (s.loading) return loadingState('loading tools…');
         if (s.error) return errorState(s.error, load);
         let list = Array.isArray(s.list) ? s.list : (s.list?.tools || []);
         if (s.q) list = list.filter(t => (t.name || '').includes(s.q));
@@ -472,9 +495,9 @@ export const tools = makePage((ctx) => {
         for (const t of list) { const g = t.toolset || 'core'; (groups[g] = groups[g] || []).push(t); }
         return [
             PageHeader({ eyebrow: 'freddie', title: 'tools', lede: list.length + ' tools' }),
-            SearchInput({ value: s.q, placeholder: 'filter tools…', onInput: (v) => ctx.set({ q: v }) }),
+            SearchInput({ value: s.q, label: 'filter tools', placeholder: 'filter tools…', onInput: (v) => ctx.set({ q: v }) }),
             ...Object.entries(groups).map(([g, ts]) => section(g + ' · ' + ts.length, ts.map((t, i) => h('div', { key: i },
-                Row({ title: t.name, sub: (t.schema?.description || t.description || '').slice(0, 90), onClick: () => ctx.set({ open: ctx.state.open === t.name ? null : t.name }), active: ctx.state.open === t.name }),
+                Row({ title: t.name, sub: trunc(t.schema?.description || t.description, TRUNC_DESC).text, onClick: () => ctx.set({ open: ctx.state.open === t.name ? null : t.name }), active: ctx.state.open === t.name }),
                 ctx.state.open === t.name ? h('pre', { class: 'fd-pre' }, JSON.stringify(t.schema || t, null, 2)) : null,
             )))),
             list.length ? null : emptyState('no tools match'),
@@ -501,7 +524,7 @@ export const batch = makePage((ctx) => {
             noteAlert(s.note),
             section('prompts',
                 TextField({ label: 'prompts (one per line)', value: s.prompts, multiline: true, rows: 6, onInput: (v) => { s.prompts = v; } }),
-                TextField({ label: 'concurrency', type: 'number', value: String(s.concurrency), onInput: (v) => { s.concurrency = v; } }),
+                TextField({ label: 'concurrency', type: 'number', min: 1, 'aria-label': 'batch concurrency', value: String(s.concurrency), onInput: (v) => { s.concurrency = v; } }),
                 Btn({ primary: true, disabled: s.busy, children: s.busy ? 'running…' : 'run batch', onClick: run })),
             s.result ? section('result', (() => {
                 const r = s.result;
@@ -510,9 +533,7 @@ export const batch = makePage((ctx) => {
                 return [
                     Kpi({ items: [[items.length, 'prompts'], [items.filter(x => !x.error).length, 'ok'], [items.filter(x => x.error).length, 'errors']] }),
                     Table({ headers: ['#', 'prompt', 'status', 'output'], rows: items.map((x, i) => {
-                        const p = trunc(x.prompt || x.input || '', 50);
-                        const out = trunc(x.error || x.result || x.content || x.output || '', 70);
-                        return [String(i + 1), h('span', { title: p.title }, p.text), x.error ? Chip({ tone: 'miss', children: 'error' }) : Chip({ tone: 'ok', children: 'ok' }), h('span', { title: out.title }, out.text)];
+                        return [String(i + 1), truncSpan(x.prompt || x.input || '', TRUNC_PROMPT), x.error ? Chip({ tone: 'miss', children: 'error' }) : Chip({ tone: 'ok', children: 'ok' }), truncSpan(x.error || x.result || x.content || x.output || '', TRUNC_OUTPUT)];
                     }) }),
                 ];
             })()) : null,
@@ -527,13 +548,14 @@ export const gateway = makePage((ctx) => {
     load(); ctx.interval(load, 10000);
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState();
-        if (s.error) return errorState(s.error, load);
+        if (s.loading) return loadingState('loading gateway…');
+        if (s.error && !s.data) return errorState(s.error, load);
         const d = s.data || {};
         const platforms = d.platforms || d;
         const rows = Object.entries(platforms).map(([k, v]) => [k, typeof v === 'object' ? (v.running || v.up ? Chip({ tone: 'ok', children: 'up' }) : Chip({ tone: 'miss', children: 'down' })) : String(v)]);
         return [
             PageHeader({ eyebrow: 'freddie', title: 'gateway', lede: 'messaging platform status' }),
+            s.error && s.data ? refreshError(s.error) : null,
             section('platforms', rows.length ? Table({ headers: ['platform', 'status'], rows }) : emptyState('no platforms configured')),
         ];
     };
@@ -566,7 +588,7 @@ export const chains = makePage((ctx) => {
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState();
+        if (s.loading) return loadingState('loading chains…');
         if (s.error && !s.cfg && !s.health) return errorState(s.error, load);
         const chainsList = s.list?.chains || s.list || [];
         const up = s.health && (s.health.ok || s.health.status === 'ok' || s.health.healthy);
@@ -593,15 +615,16 @@ export const machines = makePage((ctx) => {
     load(); ctx.interval(load, 8000);
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState();
-        if (s.error) return errorState(s.error, load);
+        if (s.loading) return loadingState('loading machines…');
+        if (s.error && !s.data) return errorState(s.error, load);
         const d = s.data || {};
         const list = Array.isArray(d) ? d : (d.machines || Object.entries(d).map(([kind, v]) => ({ kind, ...(typeof v === 'object' ? v : { value: v }) })));
         return [
             PageHeader({ eyebrow: 'freddie', title: 'machines', lede: 'persisted xstate machine census' }),
+            s.error && s.data ? refreshError(s.error) : null,
             section('machines', list.length ? Table({
                 headers: ['kind', 'key', 'state'],
-                rows: list.map(m => [m.kind || '—', m.key || m.machine_id || '—', m.state || m.value || JSON.stringify(m).slice(0, 60)]),
+                rows: list.map(m => [m.kind || '—', m.key || m.machine_id || '—', m.state || m.value || truncJson(m)]),
             }) : emptyState('no live machines')),
         ];
     };
@@ -622,13 +645,14 @@ export const health = makePage((ctx) => {
     load(); ctx.interval(load, 15000);
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState();
-        if (s.error) return errorState(s.error, load);
+        if (s.loading) return loadingState('loading health…');
+        if (s.error && !s.health && !s.providers) return errorState(s.error, load);
         const hd = s.health || {};
         const provs = Array.isArray(s.providers) ? s.providers : (s.providers?.providers || []);
         return [
             PageHeader({ eyebrow: 'freddie', title: 'health', lede: 'system & provider health', right: hd.ok ? Chip({ tone: 'ok', children: 'healthy' }) : Chip({ tone: 'miss', children: 'degraded' }) }),
-            section('checks', Object.keys(hd).length ? Table({ headers: ['check', 'status'], rows: Object.entries(hd).map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : (v === true ? Chip({ tone: 'ok', children: 'ok' }) : v === false ? Chip({ tone: 'miss', children: 'no' }) : String(v))]) }) : emptyState('no health data')),
+            s.error && (s.health || s.providers) ? refreshError(s.error) : null,
+            section('checks', Object.keys(hd).length ? Table({ headers: ['check', 'status'], rows: Object.entries(hd).map(([k, v]) => [k, typeof v === 'object' ? truncJson(v) : (v === true ? Chip({ tone: 'ok', children: 'ok' }) : v === false ? Chip({ tone: 'miss', children: 'no' }) : String(v))]) }) : emptyState('no health data')),
             provs.length ? section('providers', Table({ headers: ['provider', 'status'], rows: provs.map(p => { const n = typeof p === 'string' ? p : p.name || p.id; const ok = typeof p === 'object' ? (p.ok ?? p.available) : null; return [n, ok == null ? '—' : (ok ? Chip({ tone: 'ok', children: 'up' }) : Chip({ tone: 'miss', children: 'down' }))]; }) })) : null,
         ];
     };
@@ -647,7 +671,7 @@ export const debug = makePage((ctx) => {
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState();
+        if (s.loading) return loadingState('loading debug snapshots…');
         if (s.error) return errorState(s.error, load);
         const d = s.data || {};
         const subsystems = d.subsystems || Object.keys(d);

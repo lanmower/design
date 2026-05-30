@@ -82,6 +82,15 @@ export function renderPageHtml({
         bodyHtml: body ? renderMarkdown(body) : '',
     };
 
+    // Theme attribute co-location is CORRECT here: dist/247420.css keys every
+    // theme block off the COMPOUND selector `.ds-247420[data-theme="X"]`
+    // (verified in dist/247420.css ~L229). That selector requires BOTH the class
+    // and the data-theme on the SAME node, so `<html class="ds-247420"
+    // data-theme=...>` is what the CSS expects for SSR. The AGENTS.md
+    // "descendant-selector" warning is about the dashboard's RUNTIME controller,
+    // which splits them (.ds-247420 on <html>, data-theme on <body>) and relies
+    // on inheritance — a different mechanism. Do NOT move data-theme to <body>
+    // here or the theme blocks stop matching.
     return `<!doctype html>
 <html lang="en" class="ds-247420" data-theme="${theme}">
 <head>
@@ -115,15 +124,20 @@ a.row:hover .ds-row-arrow { opacity: 1 }
 .ds-hero-stat { display: flex; align-items: baseline; gap: var(--space-2, 8px) }
 .ds-hero-stat-n { font-family: var(--ff-body); font-weight: 700; font-size: var(--fs-lg, 18px); color: var(--fg) }
 .ds-hero-stat-l { font-size: var(--fs-sm, 15px); color: var(--fg-3) }
+/* accent sits on its own line, muted, so it reads as a distinct aside instead
+   of running on from the hero body sentence. */
+.ds-hero-accent { display: block; margin-top: var(--space-2, 8px); color: var(--fg-3) }
 /* feature rows — single-column stack with a rail accent (the dashboard .row grid
    forces a 3-col code/title/meta layout that mangles title+desc+benefit) */
-.ds-feature { position: relative; padding: var(--space-3, 16px) var(--space-4, 24px); background: var(--bg, #fff); border-radius: var(--r-2, 14px); display: grid; gap: var(--space-1, 4px) }
+/* background uses a theme-neutral panel token (resolves per data-theme) so dark
+   mode doesn't flash a literal white card before/independent of the bundle. */
+.ds-feature { position: relative; padding: var(--space-3, 16px) var(--space-4, 24px); background: var(--panel-1, var(--bg)); border-radius: var(--r-2, 14px); display: grid; gap: var(--space-1, 4px) }
 .ds-feature::before { content: ''; position: absolute; left: 0; top: var(--space-2, 8px); bottom: var(--space-2, 8px); width: 3px; border-radius: 3px; background: var(--rail-color, var(--rule-strong)) }
 .ds-feature.rail-green { --rail-color: var(--green) } .ds-feature.rail-purple { --rail-color: var(--purple) } .ds-feature.rail-mascot { --rail-color: var(--mascot) }
 .ds-feature.rail-sun { --rail-color: var(--sun) } .ds-feature.rail-flame { --rail-color: var(--flame) } .ds-feature.rail-sky { --rail-color: var(--sky) }
 .ds-feature + .ds-feature { margin-top: var(--space-2, 8px) }
 .ds-feature-title { font-weight: 600; font-size: var(--fs-lg, 18px); color: var(--fg) }
-.ds-feature-desc { font-size: var(--fs-sm, 15px); color: var(--fg-2); line-height: 1.5 }
+.ds-feature-desc { font-size: var(--fs-sm, 15px); color: var(--fg-2); line-height: 1.5; overflow-wrap: anywhere }
 .ds-feature-benefit { font-style: italic; font-size: var(--fs-sm, 15px); color: var(--fg-3); margin-top: var(--space-1, 4px) }
 </style>
 <script id="__site__" type="application/json">${JSON.stringify(pageData).replace(/</g, '\\u003c')}</script>
@@ -175,7 +189,7 @@ function sectionNode(sec, idx) {
     children: [
       sec.lede ? h('p', { class: 'ds-lede' }, sec.lede) : null,
       ...rows,
-      sec.body && sec.body.length >= 240 ? h('div', { class: 'page-body', innerHTML: __md(sec.body) }) : null,
+      sec.body && String(sec.body).trim() ? h('div', { class: 'page-body', innerHTML: __md(sec.body) }) : null,
     ].filter(Boolean),
   });
 }

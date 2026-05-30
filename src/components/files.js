@@ -4,6 +4,10 @@ import * as webjsx from '../../vendor/webjsx/index.js';
 import { Btn, Icon } from './shell.js';
 const h = webjsx.createElement;
 
+// Minimum column width for the responsive file grid (minmax floor). Named so
+// the magic 240px isn't buried in the gridTemplateColumns string.
+const FILE_GRID_MIN_COL = '240px';
+
 const FILE_TYPES = ['dir', 'image', 'video', 'audio', 'code', 'text', 'archive', 'document', 'symlink', 'other'];
 const TYPE_ICON = {
     dir: 'file', image: 'file', video: 'file-video', audio: 'file-audio', code: 'file-code',
@@ -43,27 +47,29 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
     const meta = [type === 'dir' ? null : fmtFileSize(size), modified || null].filter(Boolean).join(' · ');
     const typeLabel = TYPE_LABELS[type] || 'file';
     const accessibleLabel = `${typeLabel}: ${name}${meta ? ` (${meta})` : ''}`;
+    // A role=button row containing real <button> action controls is invalid
+    // HTML (interactive nesting). Instead the row is a plain container and the
+    // primary "open" affordance is itself a real <button> (native keyboard +
+    // semantics); the per-file action buttons sit alongside it as siblings.
     return h('div', {
         key,
         class: 'ds-file-row row' + (active ? ' active' : ''),
         'data-file-type': type,
-        onclick: onOpen,
-        role: 'button',
-        tabindex: '0',
-        'aria-label': accessibleLabel,
-        'aria-pressed': active ? 'true' : 'false',
-        onkeydown: (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onOpen && onOpen();
-            }
-        }
     },
-        code != null ? h('span', { class: 'code', 'aria-label': `code: ${code}` }, code) : null,
-        FileIcon({ type }),
-        h('span', { class: 'title' }, name),
-        h('span', { class: 'ds-file-meta meta', 'aria-label': meta ? `metadata: ${meta}` : null }, meta || '—'),
-        onAction ? h('span', { class: 'ds-file-actions', onclick: (e) => e.stopPropagation(), role: 'group', 'aria-label': `actions for ${name}` },
+        h('button', {
+            type: 'button',
+            class: 'ds-file-open',
+            onclick: onOpen || null,
+            'aria-label': accessibleLabel,
+            'aria-pressed': active ? 'true' : 'false',
+            disabled: onOpen ? null : true,
+        },
+            code != null ? h('span', { class: 'code', 'aria-label': `code: ${code}` }, code) : null,
+            FileIcon({ type }),
+            h('span', { class: 'title' }, name),
+            h('span', { class: 'ds-file-meta meta', 'aria-label': meta ? `metadata: ${meta}` : null }, meta || '—')
+        ),
+        onAction ? h('span', { class: 'ds-file-actions', role: 'group', 'aria-label': `actions for ${name}` },
             h('button', { class: 'ds-file-act', title: 'download', 'aria-label': `download ${name}`, onclick: () => onAction('download') }, Icon('arrow-down')),
             h('button', { class: 'ds-file-act', title: 'rename', 'aria-label': `rename ${name}`, onclick: () => onAction('rename') }, Icon('pencil')),
             h('button', { class: 'ds-file-act ds-file-act-warn', title: 'delete', 'aria-label': `delete ${name}`, onclick: () => onAction('delete') }, Icon('x'))
@@ -79,7 +85,7 @@ export function FileGrid({ files = [], onOpen, onAction, emptyText = 'no files h
         gridAttrs['data-columns'] = String(col);
         gridAttrs.style = {
             display: 'grid',
-            gridTemplateColumns: `repeat(${col}, minmax(240px, 1fr))`,
+            gridTemplateColumns: `repeat(${col}, minmax(${FILE_GRID_MIN_COL}, 1fr))`,
             gap: 'var(--space-3)'
         };
     }
@@ -108,7 +114,7 @@ export function DropZone({ children, dragover, onDrop, onDragOver, onDragLeave, 
         ondrop: (e) => { e.preventDefault(); onDrop && onDrop(e.dataTransfer.files); }
     },
         h('div', { class: 'ds-dropzone-inner' },
-            h('span', { class: 'ds-dropzone-glyph' }, '⇪'),
+            h('span', { class: 'ds-dropzone-glyph', role: 'img', 'aria-label': 'upload' }, Icon('arrow-up')),
             h('span', { class: 'ds-dropzone-label' }, label),
             onPick ? Btn({ onClick: onPick, children: 'pick files' }) : null
         ),
@@ -142,8 +148,8 @@ export function UploadProgress({ items = [] } = {}) {
 }
 
 export function EmptyState({ text = 'nothing here', glyph = Icon('circle') } = {}) {
-    return h('div', { class: 'ds-file-empty' },
-        h('span', { class: 'ds-file-empty-glyph' }, glyph),
+    return h('div', { class: 'ds-file-empty', role: 'status' },
+        h('span', { class: 'ds-file-empty-glyph', 'aria-hidden': 'true' }, glyph),
         h('span', { class: 'ds-file-empty-text' }, text)
     );
 }

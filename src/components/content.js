@@ -109,7 +109,12 @@ export function WorksList({ works = [], openedIndex = -1, onToggle }) {
                 Row({
                     code: w.code,
                     title: w.title, sub: w.sub,
-                    meta: w.meta + '  ' + (isOpen ? '-' : '+'),
+                    // Expand affordance: a chevron icon (down when open, right when
+                    // collapsed) separated from the meta text by a CSS gap, not a
+                    // literal +/- with a double-space.
+                    meta: h('span', { class: 'ds-works-meta', style: 'display:inline-flex;align-items:center;gap:.4em' },
+                        w.meta != null ? h('span', {}, w.meta) : null,
+                        Icon(isOpen ? 'chevron-down' : 'chevron-right')),
                     active: isOpen,
                     onClick: () => onToggle && onToggle(isOpen ? -1 : i)
                 }),
@@ -163,15 +168,19 @@ export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothin
         const c = row[0];
         return c == null ? 'row' : (typeof c === 'object' ? 'row' : String(c));
     };
-    return h('table', { role: 'table' },
-        h('thead', {}, h('tr', { role: 'row' }, ...headers.map((hd, i) => h('th', { key: i, scope: 'col', role: 'columnheader' }, hd)))),
+    // Native <table>/<tr>/<th>/<td> already carry the correct implicit ARIA
+    // roles — explicit role="table"/row/columnheader/cell is redundant and only
+    // risks overriding native semantics, so it is omitted.
+    return h('table', {},
+        h('thead', {}, h('tr', {}, ...headers.map((hd, i) => h('th', { key: i, scope: 'col' }, hd)))),
         h('tbody', {}, ...rows.map((row, i) => h('tr', {
             key: i,
             class: onRowClick ? 'clickable' : '',
-            role: 'row',
             onclick: onRowClick ? () => onRowClick(i) : null,
-            ...(onRowClick ? { tabindex: '0', 'aria-label': 'open ' + labelFor(row, i), onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onRowClick(i); } } } : {})
-        }, ...row.map((c, j) => h('td', { key: j, role: 'cell' }, c == null ? '' : (typeof c === 'object' ? c : String(c))))))));
+            // Space scrolls by default — preventDefault on Space (and Enter) so
+            // keyboard activation matches click without page jump.
+            ...(onRowClick ? { tabindex: '0', role: 'button', 'aria-label': 'open ' + labelFor(row, i), onkeydown: (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); onRowClick(i); } } } : {})
+        }, ...row.map((c, j) => h('td', { key: j }, c == null ? '' : (typeof c === 'object' ? c : String(c))))))));
 }
 
 export function HomeView({ state = {}, onNav, onToggleWork, works = [], posts = [], manifesto = [], currentlyShipping } = {}) {
@@ -256,17 +265,21 @@ export function SearchInput({ value = '', placeholder = 'search…', onInput, on
     });
 }
 
-export function TextField({ label, value = '', type = 'text', placeholder = '', onInput, onChange, name, key, hint, multiline, rows = 4, maxLength }) {
+export function TextField({ label, value = '', type = 'text', placeholder = '', onInput, onChange, name, key, hint, multiline, rows = 4, maxLength, min, max, 'aria-label': ariaLabel }) {
     const input = multiline
         ? h('textarea', {
             key: 'i', name, rows, placeholder, value,
             maxlength: maxLength != null ? maxLength : null,
+            'aria-label': ariaLabel || null,
             oninput: onInput ? (e) => onInput(e.target.value, e) : null,
             onchange: onChange ? (e) => onChange(e.target.value, e) : null
         })
         : h('input', {
             key: 'i', type, name, placeholder, value,
             maxlength: maxLength != null ? maxLength : null,
+            min: min != null ? String(min) : null,
+            max: max != null ? String(max) : null,
+            'aria-label': ariaLabel || null,
             oninput: onInput ? (e) => onInput(e.target.value, e) : null,
             onchange: onChange ? (e) => onChange(e.target.value, e) : null
         });
@@ -320,9 +333,19 @@ export function EventList({ items, events, emptyText = 'no events', rankPad = 3 
 export function Form({ fields = [], submit = 'submit', onSubmit, columns = 1 }) {
     const cols = columns > 1 ? String(columns) : null;
     return h('form', { class: 'row-form', 'data-columns': cols, onsubmit: (ev) => { ev.preventDefault(); onSubmit && onSubmit(ev); } },
-        ...fields.map((f, i) => f.kind === 'textarea'
-            ? h('textarea', { key: i, name: f.name, placeholder: f.placeholder || '', rows: f.rows || 4 })
-            : h('input', { key: i, name: f.name, type: f.type || 'text', placeholder: f.placeholder || '', value: f.value || '', required: f.required ? 'true' : null })),
+        ...fields.map((f, i) => {
+            // Each control gets a stable id and an associated <label> so the
+            // placeholder is no longer the only (inaccessible) name. The label
+            // text falls back to label -> placeholder -> name.
+            const fieldId = 'ds-form-' + (f.name || 'field') + '-' + i;
+            const labelText = f.label != null ? f.label : (f.placeholder || f.name || '');
+            const control = f.kind === 'textarea'
+                ? h('textarea', { key: 'i', id: fieldId, name: f.name, placeholder: f.placeholder || '', rows: f.rows || 4, required: f.required ? true : null })
+                : h('input', { key: 'i', id: fieldId, name: f.name, type: f.type || 'text', placeholder: f.placeholder || '', value: f.value || '', required: f.required ? true : null });
+            return h('label', { key: i, class: 'ds-field', for: fieldId },
+                labelText !== '' ? h('span', { key: 'l', class: 'ds-field-label' }, labelText) : null,
+                control);
+        }),
         h('button', { type: 'submit', class: 'btn-primary' }, submit));
 }
 
@@ -339,13 +362,31 @@ export function Spinner({ size = 'base', tone = 'accent', label = 'loading', key
     );
 }
 
+// Clamp a caller-supplied CSS length to a sane range so a raw prop like
+// height="9999px" can't blow out the layout. Accepts a CSS length string
+// (px/em/rem/%/vh/vw) or a bare number (treated as px); rejects anything else
+// back to the default. Numeric values are clamped to [2, 600] (px-equivalent).
+function clampLen(v, fallback) {
+    if (v == null) return fallback;
+    const s = String(v).trim();
+    const m = /^(\d+(?:\.\d+)?)(px|em|rem|%|vh|vw)?$/.exec(s);
+    if (!m) return fallback;
+    const unit = m[2] || 'px';
+    let n = parseFloat(m[1]);
+    if (unit === '%' || unit === 'vh' || unit === 'vw') n = Math.min(100, Math.max(0, n));
+    else n = Math.min(600, Math.max(2, n));
+    return n + unit;
+}
+
 export function Skeleton({ height = '1em', width = '100%', count = 1, label = 'loading content', key } = {}) {
+    const h_ = clampLen(height, '1em');
+    const w_ = clampLen(width, '100%');
     return h('div', {
         key, class: 'ds-skeleton-group',
         role: 'status', 'aria-busy': 'true', 'aria-label': label
     },
         ...Array(count).fill(0).map((_, i) =>
-            h('div', { key: String(i), class: 'ds-skeleton', style: `height:${height};width:${width};`, 'aria-hidden': 'true' })
+            h('div', { key: String(i), class: 'ds-skeleton', style: `height:${h_};width:${w_};`, 'aria-hidden': 'true' })
         )
     );
 }

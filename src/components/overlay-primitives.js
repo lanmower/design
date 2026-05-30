@@ -9,6 +9,16 @@ const h = webjsx.createElement;
 const kids = (c) => c == null ? [] : (Array.isArray(c) ? c : [c]);
 const FOCUSABLE_SEL = 'a[href],button:not([disabled]),textarea:not([disabled]),input:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
+// Shared viewport-clamp margins (px). Previously scattered as bare 8/4/6
+// literals across useFloating + _clampToViewport. CLAMP_MARGIN is the gap a
+// fixed box keeps from the viewport edge; FLOAT_EDGE is the useFloating edge
+// gap; FLOAT_OFFSET_* are anchor-to-content offsets per overlay kind.
+const CLAMP_MARGIN = 8;
+const FLOAT_EDGE = 4;
+const FLOAT_OFFSET_TOOLTIP = 6;
+const FLOAT_OFFSET_POPOVER = 6;
+const FLOAT_OFFSET_DROPDOWN = 4;
+
 // useFloating — compute left/top + auto-flip; re-runs on resize/scroll.
 export function useFloating(anchorEl, contentEl, { placement = 'bottom-start', offset = 8 } = {}) {
     if (!anchorEl || !contentEl) return { update() {}, dispose() {}, finalPlacement: placement };
@@ -30,8 +40,8 @@ export function useFloating(anchorEl, contentEl, { placement = 'bottom-start', o
             x = s === 'right' ? a.right + offset : a.left - offset - c.width;
             y = align === 'start' ? a.top : align === 'end' ? a.bottom - c.height : a.top + (a.height - c.height) / 2;
         }
-        x = Math.max(4, Math.min(vw - c.width - 4, x));
-        y = Math.max(4, Math.min(vh - c.height - 4, y));
+        x = Math.max(FLOAT_EDGE, Math.min(vw - c.width - FLOAT_EDGE, x));
+        y = Math.max(FLOAT_EDGE, Math.min(vh - c.height - FLOAT_EDGE, y));
         contentEl.style.left = x + 'px';
         contentEl.style.top = y + 'px';
         finalPlacement = s + '-' + align;
@@ -86,7 +96,7 @@ function _showTip(trigger, label, placement, kind) {
     _tipEl.id = 'ds-tip-' + (++_tipId);
     trigger.setAttribute('aria-describedby', _tipEl.id);
     if (_tipFloat) _tipFloat.dispose();
-    _tipFloat = useFloating(trigger, _tipEl, { placement, offset: 6 });
+    _tipFloat = useFloating(trigger, _tipEl, { placement, offset: FLOAT_OFFSET_TOOLTIP });
 }
 
 export function Tooltip({ children, label, placement = 'top', delay = 350, kind = 'default' } = {}) {
@@ -126,7 +136,7 @@ export function Popover({ open, anchorEl, onClose, placement = 'bottom-start', c
     el.tabIndex = -1;
     document.body.appendChild(el);
     webjsx.applyDiff(el, h('div', { class: 'ds-popover-inner' }, ...kids(children)));
-    const floating = useFloating(anchorEl, el, { placement, offset: 6 });
+    const floating = useFloating(anchorEl, el, { placement, offset: FLOAT_OFFSET_POPOVER });
     const close = () => onClose && onClose();
     const onDown = (e) => { if (el.contains(e.target) || anchorEl.contains(e.target)) return; close(); };
     const onKey = (e) => {
@@ -203,7 +213,7 @@ export function Dropdown({ trigger, items = [], onSelect, placement = 'bottom-st
         webjsx.applyDiff(menuEl, tree);
         document.body.appendChild(menuEl);
         menuEl.addEventListener('keydown', onMenuKey);
-        floating = useFloating(triggerEl, menuEl, { placement, offset: 4 });
+        floating = useFloating(triggerEl, menuEl, { placement, offset: FLOAT_OFFSET_DROPDOWN });
         document.addEventListener('mousedown', onDown, true);
         triggerEl.setAttribute('aria-expanded', 'true');
         if (focusFirst) queueMicrotask(() => focusItem(0));
@@ -225,13 +235,42 @@ export function Dropdown({ trigger, items = [], onSelect, placement = 'bottom-st
 }
 
 // Clamp a fixed-position box to the viewport given desired top-left coords.
-function _clampToViewport(x, y, w, h, margin = 8) {
+function _clampToViewport(x, y, w, h, margin = CLAMP_MARGIN) {
     const vw = (typeof window !== 'undefined' ? window.innerWidth : 1024);
     const vh = (typeof window !== 'undefined' ? window.innerHeight : 768);
     return {
         left: Math.max(margin, Math.min(vw - w - margin, x)),
         top: Math.max(margin, Math.min(vh - h - margin, y)),
     };
+}
+
+// Tab focus trap for a dialog root — keeps Tab/Shift+Tab cycling inside `el`.
+// Call from an onkeydown handler; returns true if it handled the event.
+function _trapTab(el, e) {
+    if (e.key !== 'Tab') return false;
+    const nodes = el.querySelectorAll(FOCUSABLE_SEL);
+    if (!nodes.length) { e.preventDefault(); return true; }
+    const first = nodes[0], last = nodes[nodes.length - 1], a = document.activeElement;
+    if (e.shiftKey && a === first) { e.preventDefault(); last.focus(); return true; }
+    if (!e.shiftKey && a === last) { e.preventDefault(); first.focus(); return true; }
+    return false;
+}
+
+// Shared lifecycle for fixed anchor-positioned popovers (EmojiPicker,
+// SettingsPopover): on mount, place+clamp near (anchorX, anchorY), focus the
+// root, and wire an outside-mousedown close. Returns a cleanup fn the ref(null)
+// branch must call. Both consumers deduped through this so the
+// queueMicrotask/place/clamp/outside-close dance is authored once.
+function _anchoredOverlayLifecycle(el, { anchorX, anchorY, fallbackW, fallbackH, close }) {
+    const place = () => {
+        const r = el.getBoundingClientRect();
+        const { left, top } = _clampToViewport(anchorX, anchorY, r.width || fallbackW, r.height || fallbackH);
+        el.style.left = left + 'px'; el.style.top = top + 'px';
+    };
+    queueMicrotask(() => { place(); el.focus(); });
+    const onDown = (e) => { if (!el.contains(e.target)) close(); };
+    queueMicrotask(() => document.addEventListener('mousedown', onDown, true));
+    return () => document.removeEventListener('mousedown', onDown, true);
 }
 
 // CommandPalette — centered Cmd+K palette with live filter + keyboard nav.
@@ -275,7 +314,11 @@ export function CommandPalette({ open, items = [], onSelect, onClose } = {}) {
     };
 
     let rootEl = null, inputEl = null, listEl = null, flat = [];
-    const close = () => onClose && onClose();
+    // Remember the element focused before the palette opened so we can return
+    // focus there on close (the input steals focus on mount).
+    const prevFocus = (typeof document !== 'undefined') ? document.activeElement : null;
+    const restoreFocus = () => { if (prevFocus && prevFocus.focus && document.contains(prevFocus)) prevFocus.focus(); };
+    const close = () => { restoreFocus(); if (onClose) onClose(); };
     const choose = (it) => { if (it && onSelect) onSelect(it); };
 
     const renderInner = () => {
@@ -320,6 +363,10 @@ export function CommandPalette({ open, items = [], onSelect, onClose } = {}) {
     );
 }
 
+// Sanctioned literal-emoji exception: an emoji picker's whole purpose is to
+// present emoji, so the glyph ban does not apply to this data table or the
+// per-emoji <button> labels below. This is intentional product content, not
+// decorative chrome.
 const EMOJI_CATEGORIES = [
     { id: 'smileys', label: '😀', emoji: ['😀','😁','😂','🤣','😊','😍','😘','😎','🤔','😅','😉','🙂','😇','🥳','😴','🤩','😜','😢','😭','😡','😱','🥺','😤','😬'] },
     { id: 'gestures', label: '👍', emoji: ['👍','👎','👌','✌️','🤞','🙏','👏','🙌','💪','👀','🤝','✋','🤙','👋','🤟','☝️'] },
@@ -347,19 +394,11 @@ export function EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose 
     return h('div', {
         class: 'ov-emoji-root', role: 'dialog', 'aria-label': 'Emoji picker',
         tabindex: '-1',
-        onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } },
+        onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); return; } if (rootEl) _trapTab(rootEl, e); },
         ref: (el) => {
             if (!el) { if (rootEl && rootEl._ovEmojiCleanup) rootEl._ovEmojiCleanup(); return; }
             if (el._ovEmoji) return; el._ovEmoji = true; rootEl = el;
-            const place = () => {
-                const r = el.getBoundingClientRect();
-                const { left, top } = _clampToViewport(anchorX, anchorY, r.width || 260, r.height || 240);
-                el.style.left = left + 'px'; el.style.top = top + 'px';
-            };
-            queueMicrotask(() => { place(); el.focus(); });
-            const onDown = (e) => { if (!el.contains(e.target)) close(); };
-            queueMicrotask(() => document.addEventListener('mousedown', onDown, true));
-            el._ovEmojiCleanup = () => document.removeEventListener('mousedown', onDown, true);
+            el._ovEmojiCleanup = _anchoredOverlayLifecycle(el, { anchorX, anchorY, fallbackW: 260, fallbackH: 240, close });
         },
     },
         h('div', { class: 'ov-emoji-tabs', role: 'tablist' },
@@ -401,32 +440,41 @@ export function BootOverlay({ progress = 0, phase = '', errored = false, visible
 // SettingsPopover — fixed popover with generic section/row control rendering.
 export function SettingsPopover({ title = 'Settings', open, anchorX = 0, anchorY = 0, sections = [], onClose } = {}) {
     if (!open) return null;
+    let rootEl = null;
     const close = () => onClose && onClose();
     const secs = Array.isArray(sections) ? sections : [];
 
     const renderRow = (row, i) => {
         const label = row.label != null ? row.label : (row.title != null ? row.title : '');
         const kind = row.kind;
-        const labelNode = h('span', { class: 'ov-set-row-label' }, String(label));
+        // Give every interactive control a stable id and point the row label's
+        // `for` at it, so the visible label is the control's accessible name.
+        const ctrlId = 'ov-set-' + i + '-' + kind;
+        const labelNode = h('label', { class: 'ov-set-row-label', for: ctrlId }, String(label));
         let control = null;
         if (kind === 'select') {
             const opts = Array.isArray(row.options) ? row.options : [];
+            // Controlled via the `value` prop only — per-option `selected` is
+            // dropped so the two don't fight (value wins).
             control = h('select', {
+                id: ctrlId,
                 class: 'ov-set-control', value: row.value != null ? String(row.value) : undefined,
                 onchange: (e) => row.onChange && row.onChange(e.target.value),
             }, ...opts.map(o => {
                 const v = (o && typeof o === 'object') ? o.value : o;
                 const l = (o && typeof o === 'object') ? (o.label != null ? o.label : o.value) : o;
-                return h('option', { value: String(v), selected: String(v) === String(row.value) ? 'selected' : undefined }, String(l));
+                return h('option', { value: String(v) }, String(l));
             }));
         } else if (kind === 'toggle') {
             control = h('input', {
+                id: ctrlId,
                 type: 'checkbox', class: 'ov-set-toggle',
                 checked: row.value ? 'checked' : undefined,
                 onchange: (e) => row.onChange && row.onChange(e.target.checked),
             });
         } else if (kind === 'range') {
             control = h('input', {
+                id: ctrlId,
                 type: 'range', class: 'ov-set-control',
                 min: String(row.min != null ? row.min : 0),
                 max: String(row.max != null ? row.max : 100),
@@ -440,23 +488,19 @@ export function SettingsPopover({ title = 'Settings', open, anchorX = 0, anchorY
             return h('div', { class: 'ov-set-row', key: i }, control);
         } else {
             control = h('span', { class: 'ov-set-row-value' }, String(row.value != null ? row.value : ''));
+            // Non-interactive value row: a plain span label (no `for` target).
+            return h('div', { class: 'ov-set-row', key: i }, h('span', { class: 'ov-set-row-label' }, String(label)), control);
         }
         return h('div', { class: 'ov-set-row', key: i }, labelNode, control);
     };
 
     return h('div', {
         class: 'ov-set-root', role: 'dialog', 'aria-label': String(title), tabindex: '-1',
-        onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } },
+        onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); return; } if (rootEl) _trapTab(rootEl, e); },
         ref: (el) => {
-            if (!el || el._ovSet) return; el._ovSet = true;
-            const place = () => {
-                const r = el.getBoundingClientRect();
-                const { left, top } = _clampToViewport(anchorX, anchorY, r.width || 280, r.height || 200);
-                el.style.left = left + 'px'; el.style.top = top + 'px';
-            };
-            queueMicrotask(() => { place(); el.focus(); });
-            const onDown = (e) => { if (!el.contains(e.target)) close(); };
-            queueMicrotask(() => document.addEventListener('mousedown', onDown, true));
+            if (!el) { if (rootEl && rootEl._ovSetCleanup) rootEl._ovSetCleanup(); return; }
+            if (el._ovSet) return; el._ovSet = true; rootEl = el;
+            el._ovSetCleanup = _anchoredOverlayLifecycle(el, { anchorX, anchorY, fallbackW: 280, fallbackH: 200, close });
         },
     },
         h('div', { class: 'ov-set-head' }, String(title)),
@@ -524,7 +568,7 @@ export function AuthModal({ mode = 'extension', error = '', busy = false, open =
         },
             h('div', { class: 'ov-auth-head' },
                 h('h2', { class: 'ov-auth-title' }, 'Sign in'),
-                h('button', { type: 'button', class: 'ov-auth-x', 'aria-label': 'close', onclick: close }, '×')
+                h('button', { type: 'button', class: 'ov-auth-x', 'aria-label': 'close', onclick: close }, Icon('x'))
             ),
             h('div', { class: 'ov-auth-tabs', role: 'tablist' },
                 ...modes.map(m => h('button', {
@@ -551,7 +595,7 @@ export function VideoLightbox({ src, label = '', open = false, onClose } = {}) {
         ref: (el) => { if (el && !el._ovLb) { el._ovLb = true; queueMicrotask(() => el.focus()); } },
         onmousedown: (e) => { if (e.target === e.currentTarget) close(); },
     },
-        h('button', { type: 'button', class: 'ov-lightbox-x', 'aria-label': 'close', onclick: close }, '×'),
+        h('button', { type: 'button', class: 'ov-lightbox-x', 'aria-label': 'close', onclick: close }, Icon('x')),
         h('div', { class: 'ov-lightbox-stage' },
             h('video', { class: 'ov-lightbox-video', src, controls: true, autoplay: true, playsinline: true }),
             label ? h('div', { class: 'ov-lightbox-label' }, label) : null

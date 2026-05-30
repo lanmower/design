@@ -1,6 +1,7 @@
 // Interaction primitives — pointer drag/drop + keyboard shortcuts.
 // Pointer Events only (touch+mouse). Visuals via editor-primitives.css.
 import * as webjsx from '../../vendor/webjsx/index.js';
+import { Icon } from './shell.js';
 const h = webjsx.createElement;
 const DRAG_THRESHOLD = 5;
 const IS_MAC = (typeof navigator !== 'undefined') && /Mac|iPhone|iPad/.test(navigator.platform || '');
@@ -146,7 +147,7 @@ export function Reorderable({ items = [], getKey, renderItem, onReorder, axis = 
                 h('button', {
                     type: 'button', class: 'ds-reorder-handle',
                     'aria-label': 'Reorder', tabindex: '0',
-                }, '⋮⋮'),
+                }, Icon('more-horizontal')),
                 renderItem ? renderItem(item, i) : null
             );
         })
@@ -203,8 +204,30 @@ export function ShortcutHelpDialog({ open = false, onClose, registry } = {}) {
     const list = registry || Array.from(SHORTCUT_REGISTRY);
     const groups = {};
     list.forEach(r => { (groups[r.scope] = groups[r.scope] || []).push(r); });
+    // Escape-to-close, Tab focus trap, and autofocus on open — wired through a
+    // ref so teardown runs on the webjsx ref(null) unmount branch.
+    const dialogRef = (el) => {
+        if (!el) { if (ShortcutHelpDialog._teardown) { ShortcutHelpDialog._teardown(); ShortcutHelpDialog._teardown = null; } return; }
+        const focusables = () => el.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+        const onKey = (e) => {
+            if (e.key === 'Escape') { e.preventDefault(); if (onClose) onClose(); return; }
+            if (e.key === 'Tab') {
+                const f = focusables();
+                if (!f.length) { e.preventDefault(); return; }
+                const first = f[0], last = f[f.length - 1];
+                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+                else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
+        };
+        el.addEventListener('keydown', onKey);
+        ShortcutHelpDialog._teardown = () => el.removeEventListener('keydown', onKey);
+        // The dialog itself is focusable (tabindex=-1) so it always has a home
+        // for focus even when it contains no interactive controls.
+        const f = focusables();
+        (f[0] || el).focus();
+    };
     return h('div', { class: 'ds-ep-dialog-backdrop', onmousedown: (e) => { if (e.target === e.currentTarget && onClose) onClose(); } },
-        h('div', { class: 'ds-ep-dialog', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Keyboard shortcuts' },
+        h('div', { class: 'ds-ep-dialog', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Keyboard shortcuts', tabindex: '-1', ref: dialogRef },
             h('h2', null, 'Keyboard shortcuts'),
             ...Object.entries(groups).map(([scope, rows]) =>
                 h('section', { class: 'ds-kbd-group' },

@@ -64,13 +64,17 @@ export function Badge({ children, variant = 'default', tone = 'neutral' }) {
 }
 
 export function Glyph({ children, color, size = 'base', label } = {}) {
-    const fontSize = size === 'sm' ? '11px' : (size === 'lg' ? '16px' : '13px');
-    const style = `font-size:${fontSize}` + (color ? `;color:${color}` : '');
+    // Font-size is var-driven per size class (--glyph-size-{size}) so themes can
+    // retune glyph scale; inline fallback keeps sizing if the SDK CSS hasn't
+    // loaded yet. Size class is the stable hook (glyph-sm / glyph-base / glyph-lg).
+    const fallback = size === 'sm' ? '11px' : (size === 'lg' ? '16px' : '13px');
+    const cls = 'glyph glyph-' + size;
+    const style = `font-size:var(--glyph-size-${size}, ${fallback})` + (color ? `;color:${color}` : '');
     // Decorative by default (screen readers skip the glyph char). Pass `label`
     // to expose an accessible name instead.
     return h('span', label
-        ? { class: 'glyph', style, role: 'img', 'aria-label': label }
-        : { class: 'glyph', style, 'aria-hidden': 'true' }, children);
+        ? { class: cls, style, role: 'img', 'aria-label': label }
+        : { class: cls, style, 'aria-hidden': 'true' }, children);
 }
 
 // Monochrome inline-SVG icons (stroke=currentColor) so chrome reads as one
@@ -135,7 +139,7 @@ export function Icon(name, { size = 16 } = {}) {
     return h('svg', {
         class: 'ds-icon ds-icon-' + name,
         width: String(size), height: String(size), viewBox: '0 0 24 24',
-        fill: 'none', stroke: 'currentColor', 'stroke-width': '1.6',
+        fill: 'none', stroke: 'currentColor', 'stroke-width': 'var(--ds-icon-stroke, 1.6)',
         'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true',
         dangerouslySetInnerHTML: { __html: inner }
     });
@@ -146,7 +150,7 @@ export function Topbar({ brand = '247420', leaf = '', items = [], active = '', o
         Brand({ name: brand, leaf }),
         search ? h('label', { class: 'app-search' },
             h('span', { class: 'icon', 'aria-hidden': 'true' }, 'search'),
-            h('input', { type: 'search', placeholder: search, 'aria-label': `search ${search}` })
+            h('input', { type: 'search', name: 'q', placeholder: search, 'aria-label': `search ${search}` })
         ) : null,
         h('nav', { 'aria-label': 'main navigation' }, ...items.map(([label, href]) => {
             const cleanLabel = String(label).replace(' ->', '');
@@ -183,7 +187,7 @@ export function Side({ sections = [] } = {}) {
         // Each section is a group labelled by its heading, so AT users hear the
         // heading as the group name instead of an orphan heading.
         return h('div', { class: 'app-side-group', key: sec.group, role: 'group', 'aria-labelledby': groupId },
-            h('div', { class: 'group', id: groupId, role: 'heading', 'aria-level': '2' }, sec.group),
+            h('h2', { class: 'group', id: groupId }, sec.group),
             ...sec.items.map((item, i) => {
                 const { glyph, label, href = '#', active, count, color, onClick } = item;
                 const countLabel = (count != null && count !== 0 && count !== '0') ? ` (${count})` : '';
