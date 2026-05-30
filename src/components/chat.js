@@ -105,10 +105,46 @@ function CodeNode(p) {
     );
 }
 
+// Freddie-flavored agent parts: collapsible tool-call card, tool-result, and
+// transient thinking indicator. Each renders as a `chat-bubble` variant so the
+// surrounding ChatMessage chrome (avatar/meta/reactions) stays consistent.
+function ToolCallNode(p) {
+    const status = p.status || (p.error ? 'error' : (p.result != null ? 'done' : 'running'));
+    const argsText = typeof p.args === 'string' ? p.args : JSON.stringify(p.args || {}, null, 2);
+    const resultText = p.result == null ? '' : (typeof p.result === 'string' ? p.result : JSON.stringify(p.result, null, 2));
+    return h('details', { class: 'chat-bubble chat-tool tool-' + status, open: !!p.open },
+        h('summary', { class: 'chat-tool-head' },
+            h('span', { class: 'chat-tool-icon', 'aria-hidden': 'true' }, status === 'running' ? '◌' : (status === 'error' ? '!' : '✓')),
+            h('span', { class: 'chat-tool-name' }, p.name || 'tool'),
+            p.label ? h('span', { class: 'chat-tool-label' }, p.label) : null,
+            h('span', { class: 'chat-tool-status' }, status)
+        ),
+        h('div', { class: 'chat-tool-body' },
+            h('div', { class: 'chat-tool-section' },
+                h('div', { class: 'chat-tool-section-label' }, 'args'),
+                h('pre', { class: 'chat-tool-pre' }, h('code', {}, argsText))),
+            resultText ? h('div', { class: 'chat-tool-section' },
+                h('div', { class: 'chat-tool-section-label' }, p.error ? 'error' : 'result'),
+                h('pre', { class: 'chat-tool-pre' + (p.error ? ' is-error' : '') }, h('code', {}, resultText))) : null
+        )
+    );
+}
+
+function ThinkingNode(p) {
+    return h('div', { class: 'chat-bubble chat-thinking', role: 'status', 'aria-live': 'polite' },
+        h('span', { class: 'chat-thinking-dots', 'aria-hidden': 'true' }, h('span'), h('span'), h('span')),
+        h('span', { class: 'chat-thinking-text' }, p.text || 'thinking…')
+    );
+}
+
 const PART_RENDERERS = {
     text:  (p) => h('div', { class: 'chat-bubble' }, ...renderInline(p.text || '')),
     md:    (p) => MdNode(p),
     code:  (p) => CodeNode(p),
+    tool:        (p) => ToolCallNode(p),
+    tool_call:   (p) => ToolCallNode(p),
+    tool_result: (p) => ToolCallNode({ ...p, name: p.name || 'tool_result', result: p.text != null ? p.text : p.result }),
+    thinking:    (p) => ThinkingNode(p),
     image: (p) => h('a', { class: 'chat-image', href: p.href || p.src, target: '_blank', rel: 'noopener', 'aria-label': p.alt || `embedded image: ${p.src}` },
         h('img', { src: p.src, alt: p.alt || `embedded image from ${p.src}`, loading: 'lazy' }),
         p.caption ? h('span', { class: 'cap' }, p.caption) : null),
@@ -146,9 +182,20 @@ function renderPart(p, key) {
 
 export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name }) {
     _stats.messages += 1;
-    // Support legacy 'who' prop, prefer 'role' with mapping: 'user' <-> 'you', 'assistant' <-> 'them'
-    const resolvedWho = role ? (role === 'user' ? 'you' : role === 'assistant' ? 'them' : role) : who;
-    const cls = 'chat-msg ' + resolvedWho + (aicat && resolvedWho === 'them' ? ' aicat' : '');
+    // Support legacy 'who' prop, prefer 'role' with mapping:
+    //   'user'      -> 'you'   (right-aligned, accent bubble)
+    //   'assistant' -> 'them'  (left-aligned, paper bubble)
+    //   'system'    -> 'system' (centered, italic muted)
+    //   'tool'      -> 'tool'   (centered, collapsible card chrome)
+    //   'thinking'  -> 'thinking' (centered, transient typing dots)
+    const resolvedWho = role
+        ? (role === 'user' ? 'you'
+            : role === 'assistant' ? 'them'
+            : (role === 'system' || role === 'tool' || role === 'thinking') ? role
+            : role)
+        : who;
+    const isCentered = resolvedWho === 'system' || resolvedWho === 'tool' || resolvedWho === 'thinking';
+    const cls = 'chat-msg ' + resolvedWho + (aicat && resolvedWho === 'them' ? ' aicat' : '') + (isCentered ? ' centered' : '');
     const fallbackAvatar = avatar != null
         ? avatar
         : (resolvedWho === 'you' ? 'u' : (name ? String(name).trim().charAt(0).toUpperCase() || '?' : '?'));
@@ -171,10 +218,14 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     if (tickNode) metaItems.push(tickNode);
     const meta = metaItems.length ? h('div', { class: 'chat-meta' }, ...metaItems) : null;
     const stack = h('div', { class: 'chat-stack' }, ...bodyNodes, reactionRow, meta);
+    // Centered roles (system/tool/thinking) skip the avatar column entirely so
+    // the bubble owns the full row — the chrome reads as out-of-band signal,
+    // not a participant turn.
+    if (isCentered) return h('div', { key, class: cls }, stack);
     return h('div', { key, class: cls }, resolvedWho === 'you' ? stack : av, resolvedWho === 'you' ? av : stack);
 }
 
-export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu, placeholder = 'message…', disabled }) {
+export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu, onCancel, busy, placeholder = 'message…', disabled }) {
     // Keep a handle to the live textarea so send() reads the actual DOM value
     // (not the possibly-lagging `value` prop) and so we can sync the DOM value
     // only when it genuinely differs — re-applying `value` on every parent
@@ -220,12 +271,14 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
             onAttach ? h('button', { type: 'button', class: 'composer-btn', onclick: (e) => { e.preventDefault(); onAttach(e); }, 'aria-label': 'attach file', title: 'attach file' }, Icon('paperclip')) : null,
             onEmoji ? h('button', { type: 'button', class: 'composer-btn', onclick: (e) => { e.preventDefault(); onEmoji(e); }, 'aria-label': 'emoji picker', title: 'emoji picker (Ctrl+;)' }, Icon('smile')) : null,
             onMenu ? h('button', { type: 'button', class: 'composer-btn', onclick: (e) => { e.preventDefault(); onMenu(e); }, 'aria-label': 'composer menu', title: 'more options' }, Icon('more-horizontal')) : null,
-            h('button', { type: 'button', class: 'send', disabled: disabled || !(value && value.trim()), onclick: send, 'aria-label': 'send message', title: 'send message (Enter)' }, Icon('arrow-up'))
+            busy && onCancel
+                ? h('button', { type: 'button', class: 'send cancel', onclick: (e) => { e.preventDefault(); onCancel(e); }, 'aria-label': 'stop generating', title: 'stop generating (Esc)' }, Icon('square'))
+                : h('button', { type: 'button', class: 'send', disabled: disabled || !(value && value.trim()), onclick: send, 'aria-label': 'send message', title: 'send message (Enter)' }, Icon('arrow-up'))
         )
     );
 }
 
-export function Chat({ title = 'chat', sub, messages = [], composer, header } = {}) {
+export function Chat({ title = 'chat', sub, messages = [], composer, header, suggestions, onSuggestionClick } = {}) {
     // Warm markdown/Prism caches once so library loading parallelizes.
     ensureCachesInit();
     const threadRef = makeThreadAutoScroll(() => messages.length);
@@ -243,8 +296,14 @@ export function Chat({ title = 'chat', sub, messages = [], composer, header } = 
         h('div', { class: 'chat-thread', ref: threadRef, role: 'log', 'aria-label': 'chat messages' },
             messages.length === 0
                 ? h('div', { key: '_empty', class: 'chat-empty', role: 'status' },
-                    h('p', { class: 'chat-empty-title' }, 'no messages yet'),
-                    h('p', { class: 'chat-empty-sub' }, 'start the conversation'))
+                    h('p', { class: 'chat-empty-title' }, 'start a conversation'),
+                    h('p', { class: 'chat-empty-sub' }, sub || 'ask anything — i can search, read files, recall context, and call tools'),
+                    (suggestions && suggestions.length)
+                        ? h('div', { class: 'chat-empty-suggestions' },
+                            ...suggestions.map((s, i) => h('button', { key: 'sug' + i, type: 'button', class: 'chat-empty-suggestion',
+                                onclick: () => { if (onSuggestionClick) onSuggestionClick(typeof s === 'string' ? s : (s.prompt || s.text || '')); } },
+                                typeof s === 'string' ? s : (s.label || s.text || s.prompt))))
+                        : null)
                 : null,
             ...messages.map((m, i) => ChatMessage({ ...m, key: m.key != null ? m.key : i }))
         ),
