@@ -272,6 +272,14 @@ export function SplitPanel({ orientation = 'horizontal', initial = '50%', min = 
     const sizeProp = isH ? 'width' : 'height';
     const initStyle = typeof initial === 'number' ? initial + 'px' : initial;
     let rootEl = null;
+    // The dragged size is persisted here so a re-render (applyDiff reconciling
+    // the pane's style back to the initial value) does NOT reset the user's
+    // resize. onResize records it; the pane's ref re-applies it after each diff.
+    let draggedSize = null;
+    const applySize = (a) => {
+        if (!a) return;
+        if (draggedSize != null) { a.style[sizeProp] = draggedSize + 'px'; a.style.flex = '0 0 auto'; }
+    };
     const onResize = (delta) => {
         if (!rootEl) return;
         const a = rootEl.firstChild;
@@ -280,6 +288,7 @@ export function SplitPanel({ orientation = 'horizontal', initial = '50%', min = 
         const curr = isH ? rect.width : rect.height;
         const total = isH ? rootEl.getBoundingClientRect().width : rootEl.getBoundingClientRect().height;
         const next = Math.max(min, Math.min(max === Infinity ? total - min : max, curr + delta));
+        draggedSize = next;
         a.style[sizeProp] = next + 'px';
         a.style.flex = '0 0 auto';
     };
@@ -287,7 +296,7 @@ export function SplitPanel({ orientation = 'horizontal', initial = '50%', min = 
         class: 'ds-ep-split ' + (isH ? 'horiz' : 'vert'),
         ref: (el) => { rootEl = el; }
     },
-        h('div', { class: 'ds-ep-split-pane', style: '--split-size:' + initStyle + ';flex:0 0 auto' }, first),
+        h('div', { class: 'ds-ep-split-pane', style: '--split-size:' + initStyle + ';flex:0 0 auto', ref: applySize }, first),
         ResizeHandle({ axis: isH ? 'horizontal' : 'vertical', onResize }),
         h('div', { class: 'ds-ep-split-pane grow', style: 'flex:1 1 0;min-' + sizeProp + ':0' }, second)
     );
