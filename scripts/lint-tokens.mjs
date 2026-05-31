@@ -61,6 +61,27 @@ function stripComments(src) {
     return src.replace(/\/\*[^]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '));
 }
 
+// Themable literals to neutralize before scanning — each is NOT a baked theme
+// color, so flagging it is a false positive that the cascade already proves safe:
+//
+//   var(--token, #fallback)  the active theme drives the var; the literal only
+//                            applies when the token is undefined (a safety
+//                            default). The token IS the themable surface.
+//   box-shadow ... rgba(...) shadow tints are depth, not theme color; they ride
+//                            on every theme unchanged (true-black ambient).
+//
+// We blank ONLY the literal characters (keeping length) so a BARE literal
+// elsewhere on the same line is still caught and line numbers stay exact.
+function stripThemableLiterals(code) {
+    const blank = (m) => m.replace(/[^\n]/g, ' ');
+    return code
+        // var(--token, <literal>) — neutralize the fallback literal only.
+        .replace(/var\(\s*--[\w-]+\s*,\s*([^()]*?)\s*\)/g, (whole, fallback) =>
+            whole.replace(fallback, blank(fallback)))
+        // box-shadow / text-shadow rgba|hsla shadow tints.
+        .replace(/(?:box|text)-shadow\s*:[^;}]*/g, blank);
+}
+
 // Returns the array of violation strings (empty == clean). Pure; no exit/log,
 // so build.mjs can call it inline and decide how to fail.
 export function findTokenViolations() {
@@ -69,7 +90,7 @@ export function findTokenViolations() {
         const file = path.join(root, rel);
         if (!fs.existsSync(file)) { console.warn('[lint-tokens] missing:', rel); continue; }
         const src = fs.readFileSync(file, 'utf8');
-        const codeLines = stripComments(src).split(/\r?\n/);
+        const codeLines = stripThemableLiterals(stripComments(src)).split(/\r?\n/);
         const rawLines = src.split(/\r?\n/);
         codeLines.forEach((code, i) => {
             if (COLOR_RE.test(code) && !isAllowed(rel, rawLines[i])) {

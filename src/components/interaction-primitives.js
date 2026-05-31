@@ -89,6 +89,56 @@ export function useDraggable(el, { data, kind, onDragStart, onDragEnd } = {}) {
     }};
 }
 
+// useNumberScrub — pointer-event horizontal drag-to-scrub on a numeric input.
+// Pointer Events (mouse+touch+pen+XR), touch-action:none so a vertical page
+// scroll never steals the gesture. Click-to-edit is preserved: a press that
+// does not cross SCRUB_THRESHOLD leaves the input focusable for typing.
+export function useNumberScrub(el, { getValue, onChange, step = 0.01, threshold = 3 } = {}) {
+    if (!el) return { destroy() {} };
+    el.style.touchAction = 'none';
+    let pid = null, startX = 0, startV = 0, moved = false;
+    const onMove = (e) => {
+        if (pid == null) return;
+        const dx = e.clientX - startX;
+        if (!moved) {
+            if (Math.abs(dx) < threshold) return;
+            moved = true;
+            el.setAttribute('data-scrubbing', 'true');
+            if (document.activeElement === el) el.blur();
+        }
+        const v = startV + dx * step;
+        if (onChange) onChange(v);
+    };
+    const onUp = () => {
+        if (pid == null) return;
+        try { el.releasePointerCapture(pid); } catch {}
+        pid = null;
+        el.removeAttribute('data-scrubbing');
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        window.removeEventListener('pointercancel', onUp);
+    };
+    const onDown = (e) => {
+        if (e.button != null && e.button !== 0) return;
+        // Let a focused input handle caret placement / text selection instead.
+        if (document.activeElement === el) return;
+        pid = e.pointerId; startX = e.clientX; moved = false;
+        const cur = getValue ? getValue() : parseFloat(el.value);
+        startV = Number.isFinite(cur) ? cur : 0;
+        try { el.setPointerCapture(pid); } catch {}
+        window.addEventListener('pointermove', onMove);
+        window.addEventListener('pointerup', onUp);
+        window.addEventListener('pointercancel', onUp);
+    };
+    el.addEventListener('pointerdown', onDown);
+    return { destroy() {
+        el.removeEventListener('pointerdown', onDown);
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        window.removeEventListener('pointercancel', onUp);
+    }};
+}
+
 export function useDropTarget(el, { accepts = [], onDrop, onDragOver } = {}) {
     if (!el) return { destroy() {} };
     el.setAttribute('data-drop-target', '');
