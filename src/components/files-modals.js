@@ -5,7 +5,10 @@ import { Btn, Icon } from './shell.js';
 import { fileGlyph, fmtFileSize } from './files.js';
 const h = webjsx.createElement;
 
-function Backdrop({ onClose, children, kind = '' } = {}) {
+// Monotonic id source for aria-labelledby wiring between a modal and its head.
+let _modalSeq = 0;
+
+function Backdrop({ onClose, children, kind = '', labelledBy } = {}) {
     // webjsx invokes a ref callback with the element on mount and with null on
     // unmount. We stash the per-element keydown teardown on the node itself so
     // the null branch can run it — otherwise the document/element listener leaks
@@ -66,7 +69,11 @@ function Backdrop({ onClose, children, kind = '' } = {}) {
         },
         onclick: (e) => { if (e.target === e.currentTarget && onClose) onClose(); }
     },
-        h('div', { class: 'ds-modal' + (kind ? ' ds-modal-' + kind : '') }, ...(Array.isArray(children) ? children : [children]))
+        h('div', {
+            class: 'ds-modal' + (kind ? ' ds-modal-' + kind : ''),
+            role: 'dialog', 'aria-modal': 'true',
+            ...(labelledBy ? { 'aria-labelledby': labelledBy } : {})
+        }, ...(Array.isArray(children) ? children : [children]))
     );
 }
 
@@ -75,11 +82,15 @@ function Backdrop({ onClose, children, kind = '' } = {}) {
 // `actions` is an array of vnodes (already using the Btn primitive). Any of the
 // slots may be omitted.
 function Modal({ onClose, kind = '', head, headClass = '', headAttrs = {}, body, bodyClass = 'ds-modal-body', bodyAttrs = {}, actions } = {}) {
+    // Give the head a stable id so the dialog can point aria-labelledby at it,
+    // exposing the title as the dialog's accessible name to screen readers.
+    const headId = head != null ? ('ds-modal-head-' + (++_modalSeq)) : null;
     return Backdrop({
         onClose,
         kind,
+        labelledBy: headId,
         children: [
-            head != null ? h('div', { class: ('ds-modal-head' + (headClass ? ' ' + headClass : '')), ...headAttrs }, ...(Array.isArray(head) ? head : [head])) : null,
+            head != null ? h('div', { id: headId, class: ('ds-modal-head' + (headClass ? ' ' + headClass : '')), ...headAttrs }, ...(Array.isArray(head) ? head : [head])) : null,
             body != null ? h('div', { class: bodyClass, ...bodyAttrs }, ...(Array.isArray(body) ? body : [body])) : null,
             actions != null ? h('div', { class: 'ds-modal-actions' }, ...(Array.isArray(actions) ? actions : [actions])) : null,
         ].filter(Boolean)
