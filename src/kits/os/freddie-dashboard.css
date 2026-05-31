@@ -52,3 +52,21 @@
 .fd-chip-wrap { display: flex; flex-wrap: wrap; gap: var(--space-1, 4px); }
 .fd-chip-wrap-padded { padding: var(--space-2, 8px) var(--space-1, 4px); }
 .fd-env-chip { cursor: pointer; }
+
+/* dashboard chat tab — config strip above + <ds-chat> thread below
+   --------------------------------------------------------------------- */
+.fd-chat-config { display: flex; flex-direction: column; gap: var(--space-2, 8px); padding-bottom: var(--space-3, 12px); border-bottom: 1px solid color-mix(in oklab, var(--fg) 10%, transparent); margin-bottom: var(--space-3, 12px); }
+.fd-chat-config .fd-chat-field { display: flex; flex-direction: column; gap: var(--space-1, 4px); min-width: 120px; }
+.fd-chat-config .fd-chat-field > label { font-family: var(--os-mono, monospace); font-size: 10px; opacity: 0.6; letter-spacing: 0.05em; text-transform: uppercase; }
+.fd-chat-config .fd-chat-field > input,
+.fd-chat-config .fd-chat-field > select { width: 100%; box-sizing: border-box; padding: 6px 8px; background: var(--panel-1, transparent); color: var(--fg, inherit); border: 1px solid color-mix(in oklab, var(--fg) 14%, transparent); border-radius: 6px; font: inherit; font-size: 12px; }
+.fd-chat-config .fd-chat-field > input:focus-visible,
+.fd-chat-config .fd-chat-field > select:focus-visible { outline: 2px solid var(--os-accent, #247420); outline-offset: 0; border-color: color-mix(in oklab, var(--os-accent, #247420) 60%, transparent); }
+.fd-chat-config .fd-chat-row { display: flex; gap: var(--space-2, 8px); flex-wrap: wrap; }
+.fd-chat-config .fd-chat-field-grow { flex: 1 1 140px; min-width: 0; }
+
+.app-fd ds-chat.fd-dashboard-chat { flex: 1 1 auto; min-height: 280px; display: flex; flex-direction: column; overflow: hidden; }
+
+.fd-chat-actions { display: inline-flex; gap: var(--space-1, 4px); align-items: center; }
+.fd-chat-actions .btn-secondary { background: transparent; color: var(--danger, #c0392b); border: 1px solid color-mix(in oklab, var(--danger, #c0392b) 40%, transparent); cursor: pointer; padding: 2px 8px; border-radius: 4px; font: inherit; font-size: 12px; }
+.fd-chat-actions .btn-secondary:hover { background: color-mix(in oklab, var(--danger, #c0392b) 10%, transparent); }
