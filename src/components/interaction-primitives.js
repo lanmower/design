@@ -139,6 +139,54 @@ export function useNumberScrub(el, { getValue, onChange, step = 0.01, threshold 
     }};
 }
 
+// usePointerDrag — free 2D pointer drag with caller-supplied onMove, for surfaces
+// that need raw pointer coordinates each frame (a 3D viewport gizmo, a canvas
+// handle) rather than the data-transfer DnD model of useDraggable. Pointer Events
+// only, so mouse+touch+pen+XR-controller all drive it. The primary pointer is
+// captured on the element (drag keeps tracking when it leaves the element or
+// crosses a panel) and released on pointerup/pointercancel; a non-primary pointer
+// (second finger) is ignored mid-drag so multi-touch never makes the drag jump.
+// onStart returns false to decline the drag (e.g. a miss in the gizmo raycast),
+// leaving the pointerdown to propagate to other handlers.
+export function usePointerDrag(el, { onStart, onMove, onEnd, button = 0 } = {}) {
+    if (!el) return { destroy() {} };
+    let pid = null;
+    const onMoveEv = (e) => {
+        if (pid == null || e.pointerId !== pid) return;
+        if (onMove) onMove(e);
+    };
+    const finish = (e, cancelled) => {
+        if (pid == null) return;
+        try { el.releasePointerCapture(pid); } catch {}
+        pid = null;
+        el.removeAttribute('data-pointer-dragging');
+        window.removeEventListener('pointermove', onMoveEv);
+        window.removeEventListener('pointerup', onUpEv);
+        window.removeEventListener('pointercancel', onCancelEv);
+        if (onEnd) onEnd(e, cancelled);
+    };
+    const onUpEv = (e) => { if (e.pointerId === pid) finish(e, false); };
+    const onCancelEv = (e) => { if (e.pointerId === pid) finish(e, true); };
+    const onDown = (e) => {
+        if (button != null && e.button != null && e.button !== button) return;
+        if (pid != null) return; // already dragging with the primary pointer
+        if (onStart && onStart(e) === false) return; // caller declined (e.g. raycast miss)
+        pid = e.pointerId;
+        el.setAttribute('data-pointer-dragging', 'true');
+        try { el.setPointerCapture(pid); } catch {}
+        window.addEventListener('pointermove', onMoveEv);
+        window.addEventListener('pointerup', onUpEv);
+        window.addEventListener('pointercancel', onCancelEv);
+    };
+    el.addEventListener('pointerdown', onDown);
+    return { destroy() {
+        el.removeEventListener('pointerdown', onDown);
+        window.removeEventListener('pointermove', onMoveEv);
+        window.removeEventListener('pointerup', onUpEv);
+        window.removeEventListener('pointercancel', onCancelEv);
+    }, get dragging() { return pid != null; } };
+}
+
 export function useDropTarget(el, { accepts = [], onDrop, onDragOver } = {}) {
     if (!el) return { destroy() {} };
     el.setAttribute('data-drop-target', '');

@@ -58,7 +58,7 @@ export {
 } from './components/form-primitives.js';
 
 export {
-    useDraggable, useDropTarget, useNumberScrub, Reorderable,
+    useDraggable, useDropTarget, useNumberScrub, usePointerDrag, Reorderable,
     useKeyboardShortcut, formatShortcut, ShortcutHint,
     useKeyboardShortcutHelp, ShortcutHelpDialog
 } from './components/interaction-primitives.js';
