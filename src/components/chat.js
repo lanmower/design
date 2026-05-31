@@ -112,9 +112,13 @@ function ToolCallNode(p) {
     const status = p.status || (p.error ? 'error' : (p.result != null ? 'done' : 'running'));
     const argsText = typeof p.args === 'string' ? p.args : JSON.stringify(p.args || {}, null, 2);
     const resultText = p.result == null ? '' : (typeof p.result === 'string' ? p.result : JSON.stringify(p.result, null, 2));
-    return h('details', { class: 'chat-bubble chat-tool tool-' + status, open: !!p.open },
+    // Default-open while running or on error so the user sees live progress / failure detail;
+    // collapse on success unless the caller explicitly overrides with open:true.
+    const defaultOpen = p.open != null ? !!p.open : (status === 'running' || status === 'error');
+    const iconName = status === 'running' ? 'refresh' : (status === 'error' ? 'warn' : 'check');
+    return h('details', { class: 'chat-bubble chat-tool tool-' + status, open: defaultOpen },
         h('summary', { class: 'chat-tool-head' },
-            h('span', { class: 'chat-tool-icon', 'aria-hidden': 'true' }, status === 'running' ? '◌' : (status === 'error' ? '!' : '✓')),
+            h('span', { class: 'chat-tool-icon', 'aria-hidden': 'true' }, Icon(iconName, { size: 14 })),
             h('span', { class: 'chat-tool-name' }, p.name || 'tool'),
             p.label ? h('span', { class: 'chat-tool-label' }, p.label) : null,
             h('span', { class: 'chat-tool-status' }, status)
