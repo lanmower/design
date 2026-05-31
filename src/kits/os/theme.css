@@ -957,12 +957,24 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
  * ----------------------------------------------------------------------- */
 
 .ds-247420 freddie-chat,
-.ds-247420 ds-chat {
+.ds-247420 ds-chat,
+.ds-247420 freddie-chat.chat,
+.ds-247420 ds-chat.chat {
   display: flex;
   flex-direction: column;
   min-height: 0;
   height: 100%;
   overflow: hidden;
+  /* zero legacy .ds-247420 .chat + .chat (app-shell) token leak — host
+     carries `.chat` class so the legacy full-page chat-card rule
+     (margin:12px 0; max-width:820; min-height:480; padding-bottom:50)
+     applies. Bump specificity with the doubled-class selector. */
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  max-width: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
 }
 .ds-247420 freddie-chat > .chat,
 .ds-247420 ds-chat > .chat {
@@ -971,6 +983,7 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  margin: 0;
   padding: 0;
   gap: 0;
 }
