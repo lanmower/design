@@ -1195,8 +1195,13 @@
   .ds-247420 .app-topbar {
     gap: var(--space-2); padding: 12px var(--space-3);
   }
+  /* When the topbar is folded into .app-chrome it is a flex:0 0 auto child, so
+     it sizes to its nav's content and overflows the viewport instead of letting
+     the nav's own overflow-x:auto engage. Constrain it to the chrome width so
+     the horizontally-scrolling nav stays inside the screen. */
+  .ds-247420 .app-chrome > .app-topbar { max-width: 100%; min-width: 0; flex-basis: 100%; }
   .ds-247420 .app-topbar > nav {
-    flex: 1 1 100%; margin-left: 0; order: 3;
+    flex: 1 1 100%; margin-left: 0; order: 3; min-width: 0; max-width: 100%;
     display: flex; gap: 2px; flex-wrap: nowrap;
     overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
   }
