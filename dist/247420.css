@@ -4819,6 +4819,21 @@
    the tab body instead of collapsing under a block container. */
 .ds-247420 .ds-ep-tabs-body { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; }
 
+/* EventLog — dense console-style log rows (one event per line). */
+.ds-247420 .ds-ep-eventlog {
+    display: flex; flex-direction: column;
+    font: var(--fs-tiny, 12px)/1.4 var(--ff-mono, monospace);
+    color: var(--panel-text);
+}
+.ds-247420 .ds-ep-eventrow {
+    display: flex; align-items: baseline; gap: 8px;
+    padding: 3px 8px;
+    border-bottom: 1px solid color-mix(in oklab, var(--rule) 50%, transparent);
+}
+.ds-247420 .ds-ep-eventrow:hover { background: color-mix(in oklab, var(--accent) 6%, transparent); }
+.ds-247420 .ds-ep-eventrow-type { color: var(--panel-text); font-weight: 600; flex-shrink: 0; }
+.ds-247420 .ds-ep-eventrow-sub { color: var(--panel-text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 /* TreeView / TreeItem */
 .ds-247420 .ds-ep-tree {
     display: flex; flex-direction: column;
@@ -4904,6 +4919,69 @@
     grid-column: 1 / -1;
     font-size: 0.8em;
     color: var(--panel-text-3);
+}
+/* x/y/z packed on one row, each field equal width, no horizontal overflow. */
+.ds-247420 .ds-ep-vec3 {
+    display: flex; gap: 4px; width: 100%; min-width: 0;
+}
+.ds-247420 .ds-ep-vec3 > * { flex: 1 1 0; min-width: 0; }
+/* Dense numeric inputs in the inspector — compact, tight radius, mono. */
+.ds-247420 .ds-ep-propfield-value input,
+.ds-247420 .ds-ep-propfield-value .ds-input-bare {
+    padding: 2px 6px;
+    border-radius: var(--r-1, 4px);
+    font: var(--fs-tiny, 12px)/1.3 var(--ff-mono, monospace);
+}
+.ds-247420 .ds-input-bare {
+    appearance: none;
+    background: var(--panel-2);
+    color: var(--panel-text);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-1, 4px);
+    padding: 2px 6px;
+    font: var(--fs-tiny, 12px)/1.3 var(--ff-mono, monospace);
+    min-width: 0;
+}
+.ds-247420 .ds-input-bare:focus { outline: none; border-color: var(--accent); }
+/* A property field whose control spans the full panel width (label above,
+   control below) — used for wide segmented controls that would clip in the
+   narrow value column. */
+.ds-247420 .ds-ep-propfield.block {
+    display: flex; flex-direction: column; align-items: stretch; gap: 4px;
+}
+.ds-247420 .ds-ep-propfield.block > .ds-ep-propfield-value { width: 100%; }
+.ds-247420 .ds-ep-propfield.block .ds-ep-btngrp { width: 100%; }
+.ds-247420 .ds-ep-propfield.block .ds-ep-btngrp-btn { flex: 1 1 0; text-align: center; }
+
+/* Flush dense action bar docked at a panel bottom (inspector Edit/Delete etc.).
+   Compact buttons, square-ish, bordered top — not big floating pills. */
+.ds-247420 .ds-ep-actionbar {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 8px;
+    border-top: 1px solid var(--rule);
+    background: var(--panel-1);
+}
+.ds-247420 .ds-ep-actionbar > * { flex: 1 1 0; }
+.ds-247420 .ds-ep-actionbar button {
+    width: 100%;
+    min-height: 28px; height: 28px; padding: 0 10px;
+    border-radius: var(--r-1, 4px);
+    font: var(--fs-tiny, 12px)/1 var(--ff-mono, monospace);
+}
+
+/* Inline buttons inside a tree row (e.g. app-list Place) and the editor toolbars
+   are compact — small, square-ish, not big pills. Excludes the segmented
+   IconButtonGroup which manages its own sizing. */
+.ds-247420 .ds-ep-tree-row button:not(.ds-ep-btngrp-btn),
+.ds-247420 .ds-ep-toolbar button:not(.ds-ep-btngrp-btn) {
+    min-height: 24px; height: 24px; padding: 0 8px;
+    border-radius: var(--r-1, 4px);
+    font: var(--fs-tiny, 12px)/1 var(--ff-mono, monospace);
+}
+@media (pointer: coarse) {
+    .ds-247420 .ds-ep-tree-row button:not(.ds-ep-btngrp-btn),
+    .ds-247420 .ds-ep-toolbar button:not(.ds-ep-btngrp-btn) { min-height: 36px; height: 36px; }
 }
 
 /* Dock — 3x3 grid for in-engine overlay (canvas pass-through center) */
