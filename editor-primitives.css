@@ -1138,3 +1138,57 @@ input.ov-set-control[type="range"] { padding: 0; accent-color: var(--accent); }
 }
 .ds-ep-tree-item[data-dragging] > .ds-ep-tree-row,
 .ds-ep-tree-item.dragging > .ds-ep-tree-row { opacity: 0.5; }
+
+/* ---------------------------------------------------------------
+   Floating editor docks — the non-occluding idiom. The game/3D
+   viewport fills the whole editor stage; the hierarchy + inspector
+   ride over it as translucent, backdrop-blurred, collapsible cards
+   so the play area stays visible (and clickable) behind them. The
+   dock layer is pointer-events:none; only the dock cards capture
+   input, so the exposed viewport gutter clicks through to the canvas.
+   --------------------------------------------------------------- */
+.ds-247420 .ds-ep-stage { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+.ds-247420 .ds-ep-dock-layer { display: block; }
+.ds-247420 .ds-ep-dock {
+    position: absolute; top: 8px; bottom: 8px;
+    display: flex; flex-direction: column;
+    width: 280px; max-width: calc(50% - 12px);
+    pointer-events: all;
+    background: color-mix(in oklab, var(--panel-1) 82%, transparent);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-2, 8px);
+    box-shadow: 0 6px 24px color-mix(in oklab, #000 28%, transparent);
+    color: var(--panel-text);
+    overflow: hidden;
+}
+.ds-247420 .ds-ep-dock-left { left: 8px; }
+.ds-247420 .ds-ep-dock-right { right: 8px; }
+/* Collapsed: shrink to just the header strip, freeing the viewport. */
+.ds-247420 .ds-ep-dock.collapsed { bottom: auto; height: auto; }
+.ds-247420 .ds-ep-dock-head {
+    display: flex; align-items: center; gap: 6px;
+    flex: 0 0 auto; padding: 4px 6px 4px 10px;
+    border-bottom: 1px solid var(--rule);
+    background: color-mix(in oklab, var(--panel-1) 60%, transparent);
+}
+.ds-247420 .ds-ep-dock.collapsed .ds-ep-dock-head { border-bottom: 0; }
+.ds-247420 .ds-ep-dock-title {
+    flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font: 8px/1 var(--ff-mono, monospace); text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--panel-text-3);
+}
+.ds-247420 .ds-ep-dock-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: transparent; }
+.ds-247420 .ds-ep-dock-body.hidden { display: none; }
+/* The right dock's body reuses .ds-ep-panel but must stay transparent so the
+   dock's own translucency/blur shows the game view through. */
+.ds-247420 .ds-ep-dock-body.ds-ep-panel { background: transparent; }
+
+/* Mobile: docks become full-width bottom-anchored sheets so they don't crowd
+   the narrow viewport side-by-side; the viewport still fills the stage behind. */
+@media (max-width: 760px) {
+    .ds-247420 .ds-ep-dock { width: auto; max-width: none; left: 6px; right: 6px; top: auto; bottom: 6px; max-height: 46vh; }
+    .ds-247420 .ds-ep-dock-left { bottom: calc(46vh + 12px); max-height: 40vh; }
+    .ds-247420 .ds-ep-dock.collapsed { bottom: auto; }
+    .ds-247420 .ds-ep-dock-left.collapsed { top: 6px; bottom: auto; }
+}
