@@ -3,6 +3,71 @@
    resolved from colors_and_type.css: --panel-{0..3}, --panel-text(-2/-3),
    --accent, --accent-fg, --rule, --rule-strong, --r-1/-2, --ff-mono. */
 
+/* ---------------------------------------------------------------
+   Docked panel — the engine-editor idiom: flush, square, dense,
+   full-height. Unlike the dashboard .panel card (rounded, margined,
+   shadowed) this docks edge-to-edge with a 1px --rule seam. Use for
+   inspector / hierarchy / apps / events columns inside an editor.
+   --------------------------------------------------------------- */
+.ds-ep-panel {
+    display: flex; flex-direction: column;
+    min-height: 0; height: 100%;
+    margin: 0; border-radius: 0; box-shadow: none;
+    background: var(--panel-1);
+    color: var(--panel-text);
+    font: var(--fs-tiny, 12px)/var(--lh-base, 1.4) var(--ff-mono, monospace);
+    overflow: hidden;
+}
+.ds-ep-panel-head {
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--rule);
+    font-size: var(--fs-micro, 11px); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--panel-text-3);
+    white-space: nowrap;
+}
+.ds-ep-panel-head > :last-child {
+    font-weight: 500; letter-spacing: 0;
+    color: var(--panel-text-2);
+    overflow: hidden; text-overflow: ellipsis;
+}
+.ds-ep-panel-body {
+    flex: 1; min-height: 0; overflow: auto;
+    padding: 6px 8px;
+}
+.ds-ep-panel-body.flush { padding: 0; }
+/* A sub-section divider inside a docked panel (e.g. app-prop mount). Only
+   shows its top seam when it actually has content — an empty section is
+   collapsed so no stray dashed rule floats over an empty inspector. */
+.ds-ep-panel-section {
+    flex-shrink: 0;
+    border-top: 1px solid var(--rule);
+    overflow: auto;
+}
+.ds-ep-panel-section:empty { display: none; border-top: 0; }
+
+/* Dense status strip for editor chrome — thin, flush, bordered top. */
+.ds-ep-statusbar {
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    min-height: 0; height: 26px;
+    padding: 0 10px;
+    border-top: 1px solid var(--rule);
+    background: var(--panel-1);
+    color: var(--panel-text-2);
+    font: var(--fs-micro, 11px)/1 var(--ff-mono, monospace);
+}
+.ds-ep-statusbar-left, .ds-ep-statusbar-right { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.ds-ep-statusbar-left { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Buttons inside the dense strip shrink to fit the 26px band. */
+.ds-ep-statusbar button {
+    min-height: 0; height: 20px; padding: 0 8px;
+    border-radius: var(--r-1, 4px);
+    font: var(--fs-micro, 11px)/1 var(--ff-mono, monospace);
+}
+
 /* Toolbar */
 .ds-ep-toolbar {
     display: flex; align-items: center; gap: 6px;
@@ -40,7 +105,9 @@
     color: var(--accent);
     border-bottom-color: var(--accent);
 }
-.ds-ep-tabs-body { flex: 1; min-height: 0; overflow: auto; }
+/* Flex column so a full-height docked child (e.g. an inspector panel) fills
+   the tab body instead of collapsing under a block container. */
+.ds-ep-tabs-body { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; }
 
 /* TreeView / TreeItem */
 .ds-ep-tree {
