@@ -131,8 +131,28 @@ const ICON_PATHS = {
     'skip-forward': '<path d="M5 5v14l9-7z"/><path d="M19 5v14"/>',
     'chevron-left': '<path d="m15 6-6 6 6 6"/>',
     trash: '<path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/>',
-    'external-link': '<path d="M14 4h6v6M20 4l-9 9M19 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6"/>'
+    'external-link': '<path d="M14 4h6v6M20 4l-9 9M19 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6"/>',
+    // theme-toggle icons (replace decorative sun/moon/contrast text glyphs)
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/>',
+    contrast: '<circle cx="12" cy="12" r="9"/><path d="M12 3v18a9 9 0 0 0 0-18z" fill="currentColor"/>',
+    // file-browser icons (replace folder/file emoji + arrow glyphs in fs apps)
+    folder: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    upload: '<path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/>',
+    download: '<path d="M12 4v12M7 11l5 5 5-5"/><path d="M5 20h14"/>',
+    'corner-up-left': '<path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v6"/>'
 };
+// Raw-DOM consumers (no webjsx render in scope) need the SVG as a markup string
+// rather than an h() vnode. Same path table, same viewBox/stroke contract as
+// Icon(); use innerHTML = iconMarkup(name). Keeps the icon paths upstream so
+// raw-DOM call sites never reintroduce decorative glyph literals.
+export function iconMarkup(name, { size = 16 } = {}) {
+    const inner = ICON_PATHS[name];
+    if (!inner) return '';
+    return '<svg class="ds-icon ds-icon-' + name + '" width="' + size + '" height="' + size +
+        '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--ds-icon-stroke, 1.6)"' +
+        ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
+}
 export function Icon(name, { size = 16 } = {}) {
     const inner = ICON_PATHS[name];
     if (!inner) return h('span', { class: 'glyph', 'aria-hidden': 'true' }, '');

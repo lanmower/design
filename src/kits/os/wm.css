@@ -92,15 +92,22 @@
     background: transparent;
     color: var(--os-fg-3);
     opacity: 0.4;
-    font: 10px var(--os-mono);
-    line-height: 1;
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
     touch-action: none;
 }
 .wm-resize:hover { opacity: 0.7; }
-.wm-resize::after { content: '\25E2'; }
+/* Resize grip drawn with CSS (two diagonal hairlines) instead of a decorative
+ * unicode content glyph; keeps the affordance, drops the glyph tell. */
+.wm-resize::after {
+    content: '';
+    position: absolute;
+    right: 3px;
+    bottom: 3px;
+    width: 9px;
+    height: 9px;
+    background:
+        linear-gradient(135deg, transparent 0 45%, currentColor 45% 55%, transparent 55% 100%),
+        linear-gradient(135deg, transparent 0 70%, currentColor 70% 80%, transparent 80% 100%);
+}
 
 .wm-win.wm-min .wm-body,
 .wm-win.wm-min .wm-resize { display: none; }

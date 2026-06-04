@@ -79,6 +79,9 @@
 }
 .browser-app-btn:hover { background: var(--os-accent-soft); }
 .browser-app-btn:focus-visible { box-shadow: inset 0 0 0 1px var(--os-accent); }
+/* Inert back/forward when there's no history in that direction. */
+.browser-app-btn:disabled { opacity: 0.4; cursor: default; pointer-events: none; }
+.browser-app-btn:disabled:hover { background: var(--os-bg-3); }
 .browser-app-url {
     flex: 1 1 auto;
     min-width: 0;
@@ -110,6 +113,9 @@
     text-transform: lowercase;
     min-height: 18px;
 }
+/* Loading: a thin indeterminate bar under the toolbar. Error: red status row. */
+.browser-app-loading .browser-app-bar { box-shadow: inset 0 -2px 0 var(--os-accent); }
+.browser-app[data-error] .browser-app-status { color: var(--os-danger, #c0392b); }
 
 /* --- validator-app --- */
 .validator-app {
