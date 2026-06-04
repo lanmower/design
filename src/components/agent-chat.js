@@ -92,10 +92,17 @@ export function AgentChat(props = {}) {
     onSelectAgent, onSelectModel, onSend, onStop, onNewChat, onInput,
     onCwdEdit, onCwdSave, onCwdCancel, onCwdClear, onCwdDraft,
     canSend = true,
+    suggestions = [], onSuggestionClick,
   } = props;
 
   const name = agentName || (agents.find((a) => a.id === selectedAgent)?.name) || selectedAgent || 'agent';
   const lastIdx = messages.length - 1;
+  const lastMsg = messages[lastIdx];
+  // True when streaming but the live assistant turn already shows content/parts,
+  // so its inline typing dots have stopped — a long silent tool call would
+  // otherwise read as frozen. We append a standalone "working" indicator below.
+  const showWorkingTail = busy && lastMsg && lastMsg.role === 'assistant'
+    && (lastMsg.content || (Array.isArray(lastMsg.parts) && lastMsg.parts.length));
   const rows = messages.map((m, i) => {
     const isAssistant = m.role === 'assistant';
     const isStreaming = busy && i === lastIdx && isAssistant;
@@ -106,7 +113,15 @@ export function AgentChat(props = {}) {
     if (!isStreaming && isAssistant && !m.content && !hasParts) return null;
     const parts = [];
     if (m.content) parts.push({ kind: isAssistant ? 'md' : 'text', text: m.content });
-    if (hasParts) for (const p of m.parts) parts.push({ kind: 'text', text: p });
+    // A message's parts may be bare strings (legacy text lines) OR structured
+    // part objects ({ kind:'tool'|'tool_result'|'code'|..., ... }). Pass the
+    // structured objects straight through to ChatMessage's renderPart so the
+    // host can surface real tool cards / code blocks; wrap only bare strings as
+    // text. This is what lets an orchestration host (agentgui) render the kit's
+    // collapsible ToolCallNode instead of flattening tools into plain text.
+    if (hasParts) for (const p of m.parts) {
+      parts.push((p && typeof p === 'object' && p.kind) ? p : { kind: 'text', text: String(p) });
+    }
     return ChatMessage({
       key: m.id || String(i),
       who: isAssistant ? 'them' : 'you',
@@ -118,13 +133,35 @@ export function AgentChat(props = {}) {
     });
   });
 
+  // While streaming, the composer's send button becomes an inline stop button
+  // (busy + onCancel) so the user can halt the turn from where their hands
+  // already are, not only from the controls cluster up top.
   const composer = ChatComposer({
     value: draft,
     disabled: !canSend,
+    busy,
     placeholder: placeholder || (selectedAgent ? 'message…' : 'choose an agent first'),
     onInput: (v) => onInput && onInput(v),
     onSend: (v) => onSend && onSend(v),
+    onCancel: busy && onStop ? () => onStop() : undefined,
   });
+
+  // Empty state: a fresh thread is a void without this. Mirrors the kit's Chat
+  // empty surface (title, sub, optional starter prompts) so AgentChat opens to
+  // an invitation, not a blank panel.
+  const emptyState = (messages.length === 0)
+    ? h('div', { class: 'agentchat-empty', role: 'status' },
+        h('p', { class: 'agentchat-empty-title' }, selectedAgent ? 'Start a conversation with ' + name : 'Choose an agent to begin'),
+        h('p', { class: 'agentchat-empty-sub' },
+          selectedAgent ? 'Type a message below. The agent can read files, run tools, and search.' : 'Pick an agent from the selector above, then send a message.'),
+        (suggestions && suggestions.length)
+          ? h('div', { class: 'agentchat-empty-suggestions' },
+              ...suggestions.map((s, i) => h('button', {
+                key: 'sug' + i, type: 'button', class: 'agentchat-empty-suggestion',
+                onclick: () => { const t = typeof s === 'string' ? s : (s.prompt || s.text || ''); if (onSuggestionClick) onSuggestionClick(t); },
+              }, typeof s === 'string' ? s : (s.label || s.text || s.prompt))))
+          : null)
+    : null;
 
   return h('div', { class: 'agentchat' },
     AgentControls({ agents, selectedAgent, models, selectedModel, busy, status, modelsLoading,
@@ -137,7 +174,13 @@ export function AgentChat(props = {}) {
       h('span', { class: 'agentchat-sub', 'aria-live': 'polite' },
         busy ? 'streaming…' : (messages.length ? messages.length + (messages.length === 1 ? ' message' : ' messages') : ''))),
     h('div', { class: 'agentchat-thread', ref: threadRef(messages.length), role: 'log', 'aria-label': 'conversation' },
-      ...rows.filter(Boolean)),
+      emptyState,
+      ...rows.filter(Boolean),
+      showWorkingTail
+        ? h('div', { key: '_working', class: 'agentchat-working', role: 'status', 'aria-live': 'polite' },
+            h('span', { class: 'chat-thinking-dots', 'aria-hidden': 'true' }, h('span'), h('span'), h('span')),
+            h('span', { class: 'agentchat-working-text' }, 'working…'))
+        : null),
     composer,
   );
 }

@@ -332,7 +332,8 @@ export function EventList({ items, events, emptyText = 'no events', rankPad = 3 
             sub: it.sub || '',
             active: it.active,
             onClick: it.onClick,
-            kind: it.kind
+            kind: it.kind,
+            rail: it.rail
         }))
     );
 }

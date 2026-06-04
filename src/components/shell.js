@@ -249,7 +249,9 @@ export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
         h('div', { class: 'app-body' + (hasSide ? '' : ' no-side') },
             h('div', { class: 'app-side-scrim', 'aria-hidden': 'true', onclick: () => toggleSide(false) }),
             h('div', { class: 'app-side-shell', onclick: (e) => { if (e.target.closest('a')) toggleSide(false); } }, sideNode),
-            h('main', { class: 'app-main' + (narrow ? ' narrow' : ''), id: 'app-main' }, ...(Array.isArray(main) ? main : [main]))
+            // tabindex=-1 so the skip-link (href="#app-main") actually moves
+            // keyboard focus into the main region, not just scroll to it.
+            h('main', { class: 'app-main' + (narrow ? ' narrow' : ''), id: 'app-main', tabindex: '-1' }, ...(Array.isArray(main) ? main : [main]))
         ),
         status || null
     );

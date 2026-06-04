@@ -4712,6 +4712,68 @@
   gap: var(--space-2, 8px);
 }
 
+/* Empty state: a fresh thread is an invitation, not a void. */
+.ds-247420 .agentchat-empty {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4em;
+  text-align: center;
+  padding: var(--space-6, 32px) var(--space-4, 16px);
+  color: var(--fg-3);
+  max-width: 46ch;
+}
+.ds-247420 .agentchat-empty-title { margin: 0; font-size: 1.05em; color: var(--fg-2, var(--fg)); }
+.ds-247420 .agentchat-empty-sub { margin: 0; font-size: .9em; }
+.ds-247420 .agentchat-empty-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5em;
+  justify-content: center;
+  margin-top: .5em;
+}
+.ds-247420 .agentchat-empty-suggestion {
+  cursor: pointer;
+  font: inherit;
+  font-size: .85em;
+  padding: .4em .8em;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--fg) 16%, transparent);
+  background: color-mix(in srgb, var(--fg) 5%, transparent);
+  color: var(--fg-2, var(--fg));
+}
+.ds-247420 .agentchat-empty-suggestion:hover { background: color-mix(in srgb, var(--accent, var(--fg)) 12%, transparent); }
+.ds-247420 .agentchat-empty-suggestion:focus-visible { outline: 2px solid var(--accent, var(--fg)); outline-offset: 2px; }
+
+/* "working" tail: a long silent tool call shouldn't read as frozen. */
+.ds-247420 .agentchat-working {
+  display: flex;
+  align-items: center;
+  gap: .5em;
+  padding: .3em .2em;
+  color: var(--fg-3);
+  font-size: .85em;
+}
+.ds-247420 .agentchat-working-text { color: var(--fg-3); }
+/* Self-contained dots (chat-thinking-dots lives in a kit sheet not bundled
+   into this DS distribution, so the agentchat tail draws its own). */
+.ds-247420 .agentchat-working .chat-thinking-dots { display: inline-flex; gap: 3px; }
+.ds-247420 .agentchat-working .chat-thinking-dots span {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--fg); opacity: .4;
+  animation: agentchat-dot-bounce 1.2s infinite ease-in-out;
+}
+.ds-247420 .agentchat-working .chat-thinking-dots span:nth-child(2) { animation-delay: .15s; }
+.ds-247420 .agentchat-working .chat-thinking-dots span:nth-child(3) { animation-delay: .3s; }
+@keyframes agentchat-dot-bounce {
+  0%, 80%, 100% { transform: scale(.6); opacity: .3; }
+  40% { transform: scale(1); opacity: .9; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-247420 .agentchat-working .chat-thinking-dots span { animation: none; opacity: .7; }
+}
+
 /* editor-primitives.css */
 /* editor-primitives.css — chrome for in-engine editors, inspectors, IDEs,
    debug HUDs. All rules under .ds-247420 scope (build prefixes). Tokens
