@@ -24,7 +24,7 @@ const threadRef = (msgCount) => makeThreadAutoScroll(() => msgCount);
 
 // The agent picker: agent-then-model, not a flat model list. Unavailable agents
 // are disabled (unless installable via npx). Ordering is the host's concern.
-function AgentControls({ agents, selectedAgent, models, selectedModel, busy, status,
+function AgentControls({ agents, selectedAgent, models, selectedModel, busy, status, modelsLoading,
                          onSelectAgent, onSelectModel, onNewChat, onStop }) {
   const agentOptions = (agents || []).map((a) => ({
     value: a.id,
@@ -38,13 +38,17 @@ function AgentControls({ agents, selectedAgent, models, selectedModel, busy, sta
       title: 'Select agent', options: agentOptions,
       onChange: (v) => onSelectAgent && onSelectAgent(v),
     }),
+    // While models load for a freshly-picked agent, show a disabled "loading…"
+    // placeholder so the picker doesn't vanish then reappear (a layout flash).
     showModels
       ? Select({
           key: 'modelsel', value: selectedModel, placeholder: '— model —',
           title: 'Select model', options: (models || []).map((m) => ({ value: m.id, label: m.name || m.id })),
           onChange: (v) => onSelectModel && onSelectModel(v),
         })
-      : null,
+      : (modelsLoading
+          ? Select({ key: 'modelsel', value: '', placeholder: 'loading models…', title: 'Loading models', disabled: true, options: [] })
+          : null),
     busy
       ? Btn({ key: 'stop', onClick: () => onStop && onStop(), children: 'stop', title: 'Stop streaming' })
       : Btn({ key: 'new', onClick: () => onNewChat && onNewChat(), children: 'new', title: 'New chat' }),
@@ -81,7 +85,7 @@ function CwdBar({ cwd, editing, draft, onEdit, onSave, onCancel, onClear, onDraf
 //   onCwdEdit/onCwdSave/onCwdCancel/onCwdClear/onCwdDraft
 export function AgentChat(props = {}) {
   const {
-    agents = [], selectedAgent = '', models = [], selectedModel = '',
+    agents = [], selectedAgent = '', models = [], selectedModel = '', modelsLoading = false,
     messages = [], busy = false, draft = '', status, banners = [],
     cwd = '', cwdEditing = false, cwdDraft,
     agentName, placeholder,
@@ -97,6 +101,9 @@ export function AgentChat(props = {}) {
     const isStreaming = busy && i === lastIdx && isAssistant;
     const hasParts = Array.isArray(m.parts) && m.parts.length > 0;
     const emptyStreaming = isStreaming && !m.content && !hasParts;
+    // A finished assistant message with no content and no parts is an empty
+    // shell (e.g. an aborted turn) — render nothing rather than a blank bubble.
+    if (!isStreaming && isAssistant && !m.content && !hasParts) return null;
     const parts = [];
     if (m.content) parts.push({ kind: isAssistant ? 'md' : 'text', text: m.content });
     if (hasParts) for (const p of m.parts) parts.push({ kind: 'text', text: p });
@@ -120,7 +127,7 @@ export function AgentChat(props = {}) {
   });
 
   return h('div', { class: 'agentchat' },
-    AgentControls({ agents, selectedAgent, models, selectedModel, busy, status,
+    AgentControls({ agents, selectedAgent, models, selectedModel, busy, status, modelsLoading,
                     onSelectAgent, onSelectModel, onNewChat, onStop }),
     CwdBar({ cwd, editing: cwdEditing, draft: cwdDraft,
              onEdit: onCwdEdit, onSave: onCwdSave, onCancel: onCwdCancel, onClear: onCwdClear, onDraft: onCwdDraft }),
@@ -130,7 +137,7 @@ export function AgentChat(props = {}) {
       h('span', { class: 'agentchat-sub', 'aria-live': 'polite' },
         busy ? 'streaming…' : (messages.length ? messages.length + (messages.length === 1 ? ' message' : ' messages') : ''))),
     h('div', { class: 'agentchat-thread', ref: threadRef(messages.length), role: 'log', 'aria-label': 'conversation' },
-      ...rows),
+      ...rows.filter(Boolean)),
     composer,
   );
 }

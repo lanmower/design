@@ -20,19 +20,25 @@ export function Panel({ title, count, right, style = '', children, kind }) {
 // Card — semantic alias of Panel; behaves identically.
 export const Card = Panel;
 
-export function Row({ code, title, sub, meta, active, state = 'default', onClick, key, style, href, kind, cols, leading, trailing, target, selected }) {
+export function Row({ code, rank, title, sub, meta, active, state = 'default', onClick, key, style, href, kind, cols, leading, trailing, target, selected, rail }) {
+    // `rank` is an alias for `code` (the leading monospace index); callers use
+    // either name. `rail` renders a thin colour bar at the row's leading edge as
+    // a status indicator (tone: green | purple | flame | <any token>).
+    const codeVal = code != null ? code : rank;
     // Support legacy active/selected props for backward compatibility
     const isActive = state === 'active' || (state === 'default' && (active || selected));
     const isLink = kind === 'link' || (href != null && !onClick);
     const isButton = !isLink && !!onClick;
     const stateCls = state === 'disabled' ? ' row-state-disabled' : (state === 'error' ? ' row-state-error' : '');
-    const cls = 'row' + (isActive ? ' active' : '') + stateCls + (cols ? ' row-grid' : '');
+    const cls = 'row' + (isActive ? ' active' : '') + stateCls + (cols ? ' row-grid' : '') + (rail ? ' rail-' + rail : '');
+    const isDisabled = state === 'disabled';
     const props = { key, class: cls, style: cols ? `${style ? style + ';' : ''}grid-template-columns:${cols}` : style };
     if (isLink) {
         props.href = href || '#';
         if (target) props.target = target;
-    } else if (isButton) {
+    } else if (isButton && !isDisabled) {
         // Clickable div needs button semantics + keyboard activation for a11y parity.
+        // A disabled row is inert: no click, no button role, no tab stop.
         props.onclick = onClick;
         props.role = 'button';
         props.tabindex = '0';
@@ -40,9 +46,10 @@ export function Row({ code, title, sub, meta, active, state = 'default', onClick
             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(e); }
         };
     }
+    if (isDisabled) props['aria-disabled'] = 'true';
     if (isActive && (isLink || isButton)) props['aria-current'] = isActive ? 'page' : null;
     return h(isLink ? 'a' : 'div', props,
-        leading != null ? leading : (code != null ? h('span', { class: 'code' }, code) : null),
+        leading != null ? leading : (codeVal != null ? h('span', { class: 'code' }, codeVal) : null),
         h('span', { class: 'title' }, title, sub ? h('span', { class: 'sub' }, sub) : null),
         trailing != null ? trailing : (meta != null ? h('span', { class: 'meta' }, meta) : null));
 }

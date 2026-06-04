@@ -539,6 +539,11 @@ pre .n { color: var(--green-2); }
 .row.row-state-disabled { opacity: 0.5; pointer-events: none; }
 .row.row-state-error { background: color-mix(in oklab, var(--flame) 10%, var(--bg-2)); }
 .row.row-state-error::before { background: var(--flame); }
+/* rail tones — a persistent status colour on the leading rail (the ::before
+   bar). Active/hover/error still win via their own rules below source order. */
+.row.rail-green::before  { background: var(--accent); }
+.row.rail-purple::before { background: var(--purple-2, #7F18A4); }
+.row.rail-flame::before  { background: var(--flame); }
 .row-grid { /* explicit grid-template-columns set inline */ }
 
 .row .code  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); }
