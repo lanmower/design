@@ -101,27 +101,43 @@ export function AgentChat(props = {}) {
   // True when streaming but the live assistant turn already shows content/parts,
   // so its inline typing dots have stopped — a long silent tool call would
   // otherwise read as frozen. We append a standalone "working" indicator below.
-  const showWorkingTail = busy && lastMsg && lastMsg.role === 'assistant'
-    && (lastMsg.content || (Array.isArray(lastMsg.parts) && lastMsg.parts.length));
+  // A message carries content (text/parts) when it has a non-empty content
+  // string OR at least one part. Used for the empty-shell skip + working tail
+  // so an interleaved turn (parts-only, no m.content) is not treated as empty.
+  const msgHasBody = (m) => !!(m.content || (Array.isArray(m.parts) && m.parts.length));
+  const showWorkingTail = busy && lastMsg && lastMsg.role === 'assistant' && msgHasBody(lastMsg);
   const rows = messages.map((m, i) => {
     const isAssistant = m.role === 'assistant';
     const isStreaming = busy && i === lastIdx && isAssistant;
     const hasParts = Array.isArray(m.parts) && m.parts.length > 0;
-    const emptyStreaming = isStreaming && !m.content && !hasParts;
+    const emptyStreaming = isStreaming && !msgHasBody(m);
     // A finished assistant message with no content and no parts is an empty
     // shell (e.g. an aborted turn) — render nothing rather than a blank bubble.
-    if (!isStreaming && isAssistant && !m.content && !hasParts) return null;
+    if (!isStreaming && isAssistant && !msgHasBody(m)) return null;
+    // Render order follows m.parts so text and tool cards INTERLEAVE in arrival
+    // order (text -> tool -> text -> tool). A message's parts may be bare
+    // strings (legacy) OR structured {kind,...} objects (md/tool/tool_result/
+    // code/...) passed straight through to ChatMessage.renderPart — this is what
+    // lets an orchestration host render the kit's collapsible ToolCallNode
+    // inline instead of flattening tools to the end of the turn.
     const parts = [];
-    if (m.content) parts.push({ kind: isAssistant ? 'md' : 'text', text: m.content });
-    // A message's parts may be bare strings (legacy text lines) OR structured
-    // part objects ({ kind:'tool'|'tool_result'|'code'|..., ... }). Pass the
-    // structured objects straight through to ChatMessage's renderPart so the
-    // host can surface real tool cards / code blocks; wrap only bare strings as
-    // text. This is what lets an orchestration host (agentgui) render the kit's
-    // collapsible ToolCallNode instead of flattening tools into plain text.
-    if (hasParts) for (const p of m.parts) {
-      parts.push((p && typeof p === 'object' && p.kind) ? p : { kind: 'text', text: String(p) });
+    if (hasParts) {
+      for (const p of m.parts) {
+        const part = (p && typeof p === 'object' && p.kind) ? p : { kind: 'text', text: String(p) };
+        // While a turn is still streaming, render its prose as cheap inline text
+        // rather than full markdown: MdNode re-parses + re-sanitizes the WHOLE
+        // accumulated source and swaps the entire bubble innerHTML on every frame
+        // (O(n^2) over the turn, with a visible reflow). Downgrade md -> text
+        // mid-stream; the settled turn below renders real markdown once.
+        if (isStreaming && part.kind === 'md') parts.push({ kind: 'text', text: part.text });
+        else parts.push(part);
+      }
     }
+    // m.content is the legacy/simple path (user messages, hosts that don't build
+    // interleaved parts). Only prepend it when the parts array doesn't already
+    // carry prose, so a parts-driven turn isn't double-rendered.
+    const partsHaveProse = parts.some(p => p.kind === 'md' || p.kind === 'text');
+    if (m.content && !partsHaveProse) parts.unshift({ kind: isAssistant ? 'md' : 'text', text: m.content });
     return ChatMessage({
       key: m.id || String(i),
       who: isAssistant ? 'them' : 'you',
@@ -172,7 +188,10 @@ export function AgentChat(props = {}) {
     h('div', { class: 'agentchat-head', role: 'banner' },
       h('h2', { class: 'agentchat-title' }, name + (selectedModel ? ' · ' + selectedModel : '')),
       h('span', { class: 'agentchat-sub', 'aria-live': 'polite' },
-        busy ? 'streaming…' : (messages.length ? messages.length + (messages.length === 1 ? ' message' : ' messages') : ''))),
+        // Derive the busy label from the same status prop the controls use, so a
+        // reconnecting-while-streaming state reads one word everywhere instead of
+        // the head saying "streaming…" while the controls say "reconnecting…".
+        busy ? (status || 'streaming…') : (messages.length ? messages.length + (messages.length === 1 ? ' message' : ' messages') : ''))),
     h('div', { class: 'agentchat-thread', ref: threadRef(messages.length), role: 'log', 'aria-label': 'conversation' },
       emptyState,
       ...rows.filter(Boolean),

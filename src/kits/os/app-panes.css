@@ -1,7 +1,7 @@
 /* App-pane chrome for kit components rendered inside .wm-win bodies.
    Bible tokens only — no hardcoded color, font, or radius. Focus = inset rail; no shadows, no gradients. */
 
-/* ── terminal-app ───────────────────────────────────────────────────── */
+/* --- terminal-app --- */
 .terminal-app {
     display: flex;
     flex-direction: column;
@@ -48,7 +48,7 @@
 }
 .terminal-app-slot > * { width: 100%; height: 100%; }
 
-/* ── browser-app ────────────────────────────────────────────────────── */
+/* --- browser-app --- */
 .browser-app {
     display: flex;
     flex-direction: column;
@@ -111,7 +111,7 @@
     min-height: 18px;
 }
 
-/* ── validator-app ──────────────────────────────────────────────────── */
+/* --- validator-app --- */
 .validator-app {
     display: flex;
     flex-direction: column;

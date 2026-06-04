@@ -1962,11 +1962,13 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
     .chat-composer textarea { padding: 10px 12px; }
 }
 
-/* ── landscape orientation: reduce vertical space for composer ──────────── */
+/* --- landscape orientation: reduce vertical space for composer --- */
 @media (max-height: 500px) and (orientation: landscape) {
     .chat-composer { padding: 6px 0; }
-    .chat-composer textarea { min-height: 36px; max-height: 120px; }
-    .chat-composer .send, .chat-composer button { width: 36px; height: 36px; font-size: 14px; }
+    .chat-composer textarea { min-height: 44px; max-height: 120px; }
+    /* Keep the send button at the 44x44 minimum tap target even in the
+       space-constrained landscape layout. */
+    .chat-composer .send, .chat-composer button { width: 44px; height: 44px; font-size: 14px; }
 }
 
 /* ============================================================
@@ -2636,9 +2638,11 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 /* Mobile nav toggle (hamburger) — hidden on desktop, shown ≤900px */
 .app-side-toggle {
   display: none;
-  position: fixed; top: calc((var(--app-topbar-h) - 32px) / 2); left: 10px;
+  position: fixed; top: calc((var(--app-topbar-h) - 44px) / 2); left: 10px;
   z-index: 51;
-  width: 36px; height: 36px;
+  /* 44x44 minimum hit area (WCAG 2.5.5 / Apple HIG) - 36px is below the
+     reliable-tap threshold on touch. */
+  width: 44px; height: 44px;
   align-items: center; justify-content: center;
   font-size: 18px; line-height: 1;
   background: var(--bg-2); color: var(--fg);

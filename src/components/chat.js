@@ -92,8 +92,12 @@ function MdNode(p) {
 function CodeNode(p) {
     const refSink = (el) => {
         if (!el) return;
-        if (el.dataset.codeKey === (p.lang || '') + '|' + (p.code || '').length) return;
-        el.dataset.codeKey = (p.lang || '') + '|' + (p.code || '').length;
+        // Key on the full code, not its length: two different blocks of the same
+        // length (e.g. an edit that swaps a line) would otherwise share a key and
+        // skip re-highlighting, leaving stale syntax coloring.
+        const codeKey = (p.lang || '') + '|' + (p.code || '');
+        if (el.dataset.codeKey === codeKey) return;
+        el.dataset.codeKey = codeKey;
         highlightCodeBlockCached(el);
     };
     return h('div', { class: 'chat-bubble chat-code', ref: refSink },

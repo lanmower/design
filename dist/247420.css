@@ -2363,11 +2363,13 @@
     .ds-247420 .chat-composer textarea { padding: 10px 12px; }
 }
 
-/* ── landscape orientation: reduce vertical space for composer ──────────── */
+/* --- landscape orientation: reduce vertical space for composer --- */
 @media (max-height: 500px) and (orientation: landscape) {
     .ds-247420 .chat-composer { padding: 6px 0; }
-    .ds-247420 .chat-composer textarea { min-height: 36px; max-height: 120px; }
-    .ds-247420 .chat-composer .send, .ds-247420 .chat-composer button { width: 36px; height: 36px; font-size: 14px; }
+    .ds-247420 .chat-composer textarea { min-height: 44px; max-height: 120px; }
+    /* Keep the send button at the 44x44 minimum tap target even in the
+       space-constrained landscape layout. */
+    .ds-247420 .chat-composer .send, .ds-247420 .chat-composer button { width: 44px; height: 44px; font-size: 14px; }
 }
 
 /* ============================================================
@@ -3028,9 +3030,11 @@
 /* Mobile nav toggle (hamburger) — hidden on desktop, shown ≤900px */
 .ds-247420 .app-side-toggle {
   display: none;
-  position: fixed; top: calc((var(--app-topbar-h) - 32px) / 2); left: 10px;
+  position: fixed; top: calc((var(--app-topbar-h) - 44px) / 2); left: 10px;
   z-index: 51;
-  width: 36px; height: 36px;
+  /* 44x44 minimum hit area (WCAG 2.5.5 / Apple HIG) - 36px is below the
+     reliable-tap threshold on touch. */
+  width: 44px; height: 44px;
   align-items: center; justify-content: center;
   font-size: 18px; line-height: 1;
   background: var(--bg-2); color: var(--fg);
@@ -4631,6 +4635,22 @@
 }
 .ds-247420 .agentchat-controls .select,
 .ds-247420 .agentchat-controls [role="combobox"] { min-width: 130px; max-width: 240px; }
+.ds-247420 .agentchat-controls .ds-select { min-width: 130px; max-width: 240px; }
+
+/* Narrow viewports: let the agent/model selects share the row two-up, then
+   stack full-width on the smallest screens, and drop the status to its own
+   line so nothing is squeezed below a usable tap size. */
+@media (max-width: 640px) {
+  .ds-247420 .agentchat-controls .select,
+  .ds-247420 .agentchat-controls .ds-select,
+  .ds-247420 .agentchat-controls [role="combobox"] { flex: 1 1 45%; max-width: none; }
+  .ds-247420 .agentchat-status { margin-left: 0; flex-basis: 100%; }
+}
+@media (max-width: 360px) {
+  .ds-247420 .agentchat-controls .select,
+  .ds-247420 .agentchat-controls .ds-select,
+  .ds-247420 .agentchat-controls [role="combobox"] { flex-basis: 100%; }
+}
 
 .ds-247420 .agentchat-status {
   display: inline-flex;
@@ -4672,7 +4692,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 60ch;
+  /* 60ch overflows narrow phones; clamp to the viewport so the path ellipsizes
+     instead of pushing the row wider than the screen. */
+  max-width: min(60ch, 60vw);
 }
 .ds-247420 .agentchat-cwd-btn {
   background: none;
@@ -4684,6 +4706,7 @@
   font: inherit;
 }
 .ds-247420 .agentchat-cwd-btn:hover { border-color: var(--accent); }
+.ds-247420 .agentchat-cwd-btn:focus-visible { outline: 2px solid var(--accent, var(--fg)); outline-offset: 2px; }
 .ds-247420 .agentchat-cwd-input {
   flex: 1;
   min-width: 12ch;
@@ -4772,6 +4795,18 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .ds-247420 .agentchat-working .chat-thinking-dots span { animation: none; opacity: .7; }
+}
+
+/* Responsive: the control cluster + cwd bar must stay usable on phones/tablets.
+   The cwd path can't eat the row beside its label + buttons on a narrow screen. */
+.ds-247420 .agentchat-controls { flex-wrap: wrap; }
+.ds-247420 .agentchat-cwd-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: min(60ch, 60vw); }
+@media (max-width: 900px) {
+  .ds-247420 .agentchat-controls .ds-select { min-width: 110px; max-width: 180px; }
+}
+@media (max-width: 640px) {
+  .ds-247420 .agentchat-cwd-text { max-width: 42vw; }
+  .ds-247420 .agentchat-controls { gap: .4em; }
 }
 
 /* editor-primitives.css */

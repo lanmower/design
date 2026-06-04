@@ -20,7 +20,7 @@ export function Panel({ title, count, right, style = '', children, kind }) {
 // Card — semantic alias of Panel; behaves identically.
 export const Card = Panel;
 
-export function Row({ code, rank, title, sub, meta, active, state = 'default', onClick, key, style, href, kind, cols, leading, trailing, target, selected, rail }) {
+export function Row({ code, rank, title, sub, meta, active, state = 'default', onClick, key, style, href, kind, cols, leading, trailing, target, selected, rail, expanded }) {
     // `rank` is an alias for `code` (the leading monospace index); callers use
     // either name. `rail` renders a thin colour bar at the row's leading edge as
     // a status indicator (tone: green | purple | flame | <any token>).
@@ -45,6 +45,10 @@ export function Row({ code, rank, title, sub, meta, active, state = 'default', o
         props.onkeydown = (e) => {
             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(e); }
         };
+        // When the row is a disclosure toggle (host passes a boolean `expanded`),
+        // announce its open/closed state so AT users hear "expanded/collapsed".
+        // Omitted entirely for plain action buttons (expanded === undefined).
+        if (expanded === true || expanded === false) props['aria-expanded'] = expanded ? 'true' : 'false';
     }
     if (isDisabled) props['aria-disabled'] = 'true';
     if (isActive && (isLink || isButton)) props['aria-current'] = isActive ? 'page' : null;
@@ -333,7 +337,10 @@ export function EventList({ items, events, emptyText = 'no events', rankPad = 3 
             active: it.active,
             onClick: it.onClick,
             kind: it.kind,
-            rail: it.rail
+            rail: it.rail,
+            // Forward a disclosure state when the host marks the row as a toggle,
+            // so a clickable event row announces aria-expanded.
+            expanded: it.expanded
         }))
     );
 }
