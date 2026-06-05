@@ -19,6 +19,21 @@ export function fmtBytes(n) {
     return (n / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
 }
 
+// Reject dangerous URL schemes (javascript:, data:, vbscript:, file:) so an
+// inline markdown link or an image src built from untrusted text can't smuggle a
+// script-executing or data-exfiltrating URL past the inline renderer (which does
+// NOT pass through DOMPurify the way the full md path does). http(s), mailto,
+// protocol-relative, root/relative, and anchor links are allowed.
+export function safeUrl(url) {
+    const s = String(url == null ? '' : url).trim();
+    if (!s) return null;
+    // Allow relative / anchor / protocol-relative without a scheme.
+    if (/^(\/|\.|#|\?)/.test(s) || s.startsWith('//')) return s;
+    const scheme = (s.match(/^([a-zA-Z][a-zA-Z0-9+.-]*):/) || [])[1];
+    if (!scheme) return s; // schemeless relative
+    return /^(https?|mailto|tel)$/i.test(scheme) ? s : null;
+}
+
 // Inline-only markdown subset; safe for chat bubbles.
 export function renderInline(text) {
     if (text == null) return [];
@@ -31,7 +46,13 @@ export function renderInline(text) {
         if (m[2] != null) push(h('strong', { key: 's' + i }, m[2]));
         else if (m[3] != null) push(h('em', { key: 's' + i }, m[3]));
         else if (m[4] != null) push(h('code', { key: 's' + i, class: 'chat-tick' }, m[4]));
-        else if (m[5] != null) push(h('a', { key: 's' + i, href: m[6], target: '_blank', rel: 'noopener' }, m[5]));
+        else if (m[5] != null) {
+            const safe = safeUrl(m[6]);
+            // A link with a rejected (unsafe) scheme degrades to its plain label
+            // text rather than a clickable, scheme-smuggling anchor.
+            if (safe) push(h('a', { key: 's' + i, href: safe, target: '_blank', rel: 'noopener noreferrer' }, m[5]));
+            else push(h('span', { key: 's' + i }, m[5]));
+        }
         last = m.index + m[0].length; i += 1;
     }
     if (last < text.length) push(h('span', { key: 's' + i + 'a' }, text.slice(last)));
@@ -133,7 +154,13 @@ function ToolCallNode(p) {
                 h('pre', { class: 'chat-tool-pre' }, h('code', {}, argsText))),
             resultText ? h('div', { class: 'chat-tool-section' },
                 h('div', { class: 'chat-tool-section-label' }, p.error ? 'error' : 'result'),
-                h('pre', { class: 'chat-tool-pre' + (p.error ? ' is-error' : '') }, h('code', {}, resultText))) : null
+                h('pre', { class: 'chat-tool-pre' + (p.error ? ' is-error' : '') }, h('code', {}, resultText)))
+                // A finished tool with no output would otherwise render no result
+                // section, reading identically to a still-running tool. Show an
+                // explicit placeholder so "done, empty" is distinguishable.
+                : (status === 'done' ? h('div', { class: 'chat-tool-section' },
+                    h('div', { class: 'chat-tool-section-label' }, 'result'),
+                    h('pre', { class: 'chat-tool-pre chat-tool-empty' }, h('code', {}, '(no output)'))) : null)
         )
     );
 }
@@ -146,16 +173,24 @@ function ThinkingNode(p) {
 }
 
 const PART_RENDERERS = {
-    text:  (p) => h('div', { class: 'chat-bubble' }, ...renderInline(p.text || '')),
+    text:  (p) => h('div', { class: 'chat-bubble' + (p.mdShell ? ' chat-md' : '') }, ...renderInline(p.text || '')),
     md:    (p) => MdNode(p),
     code:  (p) => CodeNode(p),
     tool:        (p) => ToolCallNode(p),
     tool_call:   (p) => ToolCallNode(p),
     tool_result: (p) => ToolCallNode({ ...p, name: p.name || 'tool_result', result: p.text != null ? p.text : p.result }),
     thinking:    (p) => ThinkingNode(p),
-    image: (p) => h('a', { class: 'chat-image', href: p.href || p.src, target: '_blank', rel: 'noopener', 'aria-label': p.alt || `embedded image: ${p.src}` },
-        h('img', { src: p.src, alt: p.alt || `embedded image from ${p.src}`, loading: 'lazy' }),
-        p.caption ? h('span', { class: 'cap' }, p.caption) : null),
+    image: (p) => {
+        // Guard both the wrapping link and the img src against unsafe schemes
+        // (e.g. a data:text/html src) so an embedded-image part from untrusted
+        // markdown can't smuggle an active payload.
+        const imgSrc = safeUrl(p.src);
+        const linkHref = safeUrl(p.href || p.src);
+        if (!imgSrc) return h('span', { class: 'chat-image-blocked' }, p.alt || 'image blocked (unsafe url)');
+        return h('a', { class: 'chat-image', href: linkHref || imgSrc, target: '_blank', rel: 'noopener noreferrer', 'aria-label': p.alt || `embedded image: ${imgSrc}` },
+            h('img', { src: imgSrc, alt: p.alt || `embedded image from ${imgSrc}`, loading: 'lazy' }),
+            p.caption ? h('span', { class: 'cap' }, p.caption) : null);
+    },
     pdf:   (p) => h('div', { class: 'chat-pdf' },
         h('div', { class: 'chat-pdf-head' },
             h('span', { class: 'glyph', 'aria-hidden': 'true' }, Icon('file-pdf', { size: 18 })),
@@ -171,7 +206,7 @@ const PART_RENDERERS = {
             h('span', { class: 'size' }, [p.kindLabel || (p.name || '').split('.').pop().toUpperCase(), p.size != null ? fmtBytes(p.size) : null].filter(Boolean).join(' · '))
         ),
         h('span', { class: 'go', 'aria-hidden': 'true' }, Icon('arrow-down'))),
-    link:  (p) => h('a', { class: 'chat-link', href: p.href, target: '_blank', rel: 'noopener', 'aria-label': `link: ${p.title || p.href}` },
+    link:  (p) => h('a', { class: 'chat-link', href: safeUrl(p.href) || '#', target: '_blank', rel: 'noopener noreferrer', 'aria-label': `link: ${p.title || p.href}` },
         p.thumb ? h('img', { class: 'thumb', src: p.thumb, alt: `preview for ${p.title || p.href}` }) : null,
         h('span', { class: 'meta' },
             h('span', { class: 'host' }, p.host || (() => { try { return new URL(p.href).host; } catch { return ''; } })()),
@@ -293,7 +328,6 @@ export function Chat({ title = 'chat', sub, messages = [], composer, header, sug
     const msgCount = messages.length;
     return h('div', { class: 'chat' },
         header || h('div', { class: 'chat-head', role: 'banner' },
-            h('span', { class: 'dot', 'aria-hidden': 'true' }),
             h('h2', { class: 'ds-chat-title' }, title),
             sub ? h('span', { class: 'sub', 'aria-label': `subtitle: ${sub}` }, ' · ' + sub) : null,
             h('span', { class: 'spread' }),

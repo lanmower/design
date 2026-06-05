@@ -253,8 +253,11 @@ export function ProjectView({ project = {}, copied, onCopy } = {}) {
     ].filter(Boolean).flat();
 }
 
-export function PageHeader({ title, lede, eyebrow, right }) {
-    return h('section', { class: 'ds-section' },
+export function PageHeader({ title, lede, eyebrow, right, compact }) {
+    // `compact` drops the large leading/trailing section margins so a PageHeader
+    // used as a page's first element top-aligns cleanly without the consumer
+    // having to !important-override the .ds-section margin.
+    return h('section', { class: 'ds-section' + (compact ? ' ds-section-compact' : '') },
         eyebrow ? h('span', { class: 'eyebrow' }, eyebrow) : null,
         title != null ? h('h1', {}, title) : null,
         lede != null ? h('p', { class: 'lede' }, lede) : null,

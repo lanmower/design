@@ -129,7 +129,11 @@ export function AgentChat(props = {}) {
         // accumulated source and swaps the entire bubble innerHTML on every frame
         // (O(n^2) over the turn, with a visible reflow). Downgrade md -> text
         // mid-stream; the settled turn below renders real markdown once.
-        if (isStreaming && part.kind === 'md') parts.push({ kind: 'text', text: part.text });
+        // Carry a `mdShell` flag so the streaming-text bubble uses the same
+        // container shape (.chat-md padding/spacing) the settled markdown will
+        // use — only the inner content swaps on settle, so the bubble box does
+        // not reflow/jump when the turn finishes and renders real markdown.
+        if (isStreaming && part.kind === 'md') parts.push({ kind: 'text', text: part.text, mdShell: true });
         else parts.push(part);
       }
     }

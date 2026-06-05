@@ -245,9 +245,14 @@ body.canvas-host { background: transparent !important; }
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+/* Active tab reads as a subtle tinted pill with an accent underline rather than
+   an oversized filled oval that sits taller than its inactive siblings and reads
+   as misaligned. Same height as the inactive links — only the tint + underline
+   change. */
 .app-topbar nav a.active {
-  color: var(--accent-fg);
-  background: var(--accent);
+  color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 16%, transparent);
+  box-shadow: inset 0 -2px 0 0 var(--accent);
   font-weight: 600;
 }
 
@@ -540,6 +545,9 @@ body.canvas-host { background: transparent !important; }
   background: transparent; border-radius: 3px;
   transition: background var(--dur-snap) var(--ease);
 }
+/* A clickable row (onClick -> role=button, or a link row) is interactive, so it
+   carries a pointer cursor; without this the click affordance is invisible. */
+.row[role="button"], a.row { cursor: pointer; }
 .row:hover { background: var(--bg-2); }
 .row:hover::before { background: var(--rule-strong); }
 .row.active { background: color-mix(in oklab, var(--accent) 10%, var(--bg-2)); }
@@ -588,6 +596,9 @@ a.row { text-decoration: none; }
    Section grouping
    ============================================================ */
 .ds-section { margin: var(--space-8) 0; }
+/* Compact section (e.g. a PageHeader used as a page's first element): no large
+   leading margin, modest trailing margin — top-aligns without consumer overrides. */
+.ds-section-compact { margin-top: 0; margin-bottom: var(--space-4); }
 .ds-section > h3 {
   font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-h3);
   margin: 0 0 var(--space-5);

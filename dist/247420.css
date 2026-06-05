@@ -579,6 +579,14 @@
 .ds-247420 .fd-root .app { width: 100%; height: 100%; min-height: 0; flex: 1 1 auto; }
 .ds-247420 .fd-root .app-body { min-width: 0; }
 
+/* Full-bleed canvas host (e.g. a game/3D viewport that fills the page behind the
+   shell): the shell's opaque var(--bg) would paint OVER the canvas and hide it.
+   Mark the host with `canvas-host` to make the shell surfaces transparent so the
+   live canvas shows through. The canvas itself is the backdrop. */
+.ds-247420 .canvas-host,
+.ds-247420 .canvas-host .app,
+.ds-247420 body.canvas-host { background: transparent !important; }
+
 .ds-247420 {
   --app-status-h: var(--size-base);
   --app-topbar-h: var(--size-lg);
@@ -638,9 +646,14 @@
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+/* Active tab reads as a subtle tinted pill with an accent underline rather than
+   an oversized filled oval that sits taller than its inactive siblings and reads
+   as misaligned. Same height as the inactive links — only the tint + underline
+   change. */
 .ds-247420 .app-topbar nav a.active {
-  color: var(--accent-fg);
-  background: var(--accent);
+  color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 16%, transparent);
+  box-shadow: inset 0 -2px 0 0 var(--accent);
   font-weight: 600;
 }
 
@@ -933,6 +946,9 @@
   background: transparent; border-radius: 3px;
   transition: background var(--dur-snap) var(--ease);
 }
+/* A clickable row (onClick -> role=button, or a link row) is interactive, so it
+   carries a pointer cursor; without this the click affordance is invisible. */
+.ds-247420 .row[role="button"], .ds-247420 a.row { cursor: pointer; }
 .ds-247420 .row:hover { background: var(--bg-2); }
 .ds-247420 .row:hover::before { background: var(--rule-strong); }
 .ds-247420 .row.active { background: color-mix(in oklab, var(--accent) 10%, var(--bg-2)); }
@@ -981,6 +997,9 @@
    Section grouping
    ============================================================ */
 .ds-247420 .ds-section { margin: var(--space-8) 0; }
+/* Compact section (e.g. a PageHeader used as a page's first element): no large
+   leading margin, modest trailing margin — top-aligns without consumer overrides. */
+.ds-247420 .ds-section-compact { margin-top: 0; margin-bottom: var(--space-4); }
 .ds-247420 .ds-section > h3 {
   font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-h3);
   margin: 0 0 var(--space-5);
