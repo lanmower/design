@@ -464,17 +464,52 @@ export const config = makePage((ctx) => {
 // ---- env -------------------------------------------------------------------
 
 export const env = makePage((ctx) => {
-    async function load() { try { ctx.set({ loading: false, data: await api('/api/env'), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
+    Object.assign(ctx.state, { auth: null, vars: null, draft: {}, busy: '', note: null });
+    async function load() {
+        try {
+            const [auth, vars] = await Promise.all([api('/api/auth').catch(() => null), api('/api/env').catch(() => null)]);
+            ctx.set({ loading: false, auth, vars, error: null });
+        } catch (e) { ctx.set({ loading: false, error: e }); }
+    }
+    // Set a provider key through the dashboard (POST /api/auth). The key is sent
+    // once and never echoed back — GET /api/auth returns only a masked fingerprint.
+    async function setKey(provider) {
+        const key = (ctx.state.draft[provider] || '').trim();
+        if (!key) { ctx.set({ note: { kind: 'warn', msg: 'key required for ' + provider } }); return; }
+        ctx.set({ busy: provider, note: null });
+        try { await api('/api/auth', { method: 'POST', body: { provider, key } }); ctx.state.draft[provider] = ''; await load(); ctx.set({ note: { kind: 'success', msg: 'stored ' + provider } }); }
+        catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); }
+        ctx.set({ busy: '' });
+    }
+    async function removeKey(provider) {
+        ctx.set({ busy: provider, note: null });
+        try { await api('/api/auth/' + encodeURIComponent(provider), { method: 'DELETE' }); await load(); ctx.set({ note: { kind: 'success', msg: 'removed ' + provider } }); }
+        catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); }
+        ctx.set({ busy: '' });
+    }
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState('loading environment…');
-        if (s.error) return errorState(s.error, load);
-        const d = s.data || {};
-        const rows = Object.entries(d).map(([k, v]) => [k, v === true || v === 'set' ? Chip({ tone: 'ok', children: 'set' }) : (v ? truncSpan(v, TRUNC_SUB) : Chip({ tone: 'neutral', children: 'unset' }))]);
+        if (s.loading) return loadingState('loading keys…');
+        if (s.error && !s.auth) return errorState(s.error, load);
+        const auth = Array.isArray(s.auth) ? s.auth : [];
+        const vars = Array.isArray(s.vars) ? s.vars : [];
+        // Non-provider env vars (platform tokens etc) stay a read-only presence table.
+        const providerEnvs = new Set(auth.map(a => a.env));
+        const otherRows = vars.filter(v => !providerEnvs.has(v.key)).map(v => [v.key, v.set ? Chip({ tone: 'ok', children: v.source || 'set' }) : Chip({ tone: 'neutral', children: 'unset' })]);
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'env', lede: 'environment / key presence' }),
-            section('variables', rows.length ? Table({ headers: ['key', 'status'], rows }) : emptyState('no env data')),
+            PageHeader({ eyebrow: 'freddie', title: 'keys', lede: 'provider api keys · stored locally, never displayed' }),
+            noteAlert(s.note),
+            section('provider keys',
+                auth.length ? auth.map((a, i) => Row({
+                    key: i, title: a.provider, sub: a.env + (a.set ? '  ·  ' + a.source + (a.fingerprint ? '  ·  ' + a.fingerprint : '') : ''),
+                    trailing: h('span', { class: 'fd-row-actions' },
+                        a.set ? Chip({ tone: 'ok', children: 'set' }) : Chip({ tone: 'neutral', children: 'unset' }),
+                        TextField({ type: 'password', value: s.draft[a.provider] || '', onInput: (v) => { s.draft[a.provider] = v; }, placeholder: 'paste key', 'aria-label': 'key for ' + a.provider }),
+                        Btn({ primary: true, disabled: s.busy === a.provider, children: s.busy === a.provider ? '…' : 'save', onClick: () => setKey(a.provider) }),
+                        (a.set && a.source === 'stored') ? Btn({ danger: true, disabled: s.busy === a.provider, children: 'remove', onClick: () => removeKey(a.provider) }) : null),
+                })) : emptyState('no providers')),
+            otherRows.length ? section('other environment', Table({ headers: ['key', 'status'], rows: otherRows })) : null,
         ];
     };
 });
