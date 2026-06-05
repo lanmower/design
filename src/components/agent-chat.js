@@ -13,14 +13,44 @@
 import * as webjsx from '../../vendor/webjsx/index.js';
 import { ChatComposer, ChatMessage, makeThreadAutoScroll } from './chat.js';
 import { Select } from './content.js';
-import { Btn } from './shell.js';
+import { Btn, Icon } from './shell.js';
 
 const h = webjsx.createElement;
 
 // Auto-scroll behaviour is the shared chat helper; bind it to this thread's
 // live message count. (`makeThreadAutoScroll` takes a getter so the observer
 // always compares against current state, not a value captured at mount.)
-const threadRef = (msgCount) => makeThreadAutoScroll(() => msgCount);
+const baseAutoScroll = (msgCount) => makeThreadAutoScroll(() => msgCount);
+
+// Compose the auto-scroll ref with a scroll listener that reveals the
+// jump-to-latest button when the user has scrolled away from the bottom. This
+// is the scroll-anchoring fix: auto-scroll only pins when the user is already at
+// the bottom (the IntersectionObserver gate), so reading back-history is no
+// longer fought; the button is the explicit way back to the live edge.
+const NEAR_BOTTOM_PX = 80;
+const threadRef = (msgCount) => {
+  const auto = baseAutoScroll(msgCount);
+  return (el) => {
+    if (!el) return;
+    const disposeAuto = auto(el);
+    const jumpBtn = () => el.parentElement && el.parentElement.querySelector('.agentchat-jump');
+    const update = () => {
+      const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < NEAR_BOTTOM_PX;
+      const btn = jumpBtn();
+      if (btn) btn.classList.toggle('show', !atBottom);
+    };
+    el.addEventListener('scroll', update, { passive: true });
+    requestAnimationFrame(update);
+    return () => { el.removeEventListener('scroll', update); if (typeof disposeAuto === 'function') disposeAuto(); };
+  };
+};
+
+// Scroll a thread to its live edge — used by the jump-to-latest button.
+function scrollThreadToBottom(btn) {
+  const wrap = btn.closest('.agentchat-thread-wrap');
+  const thread = wrap && wrap.querySelector('.agentchat-thread');
+  if (thread) thread.scrollTop = thread.scrollHeight;
+}
 
 // The agent picker: agent-then-model, not a flat model list. Unavailable agents
 // are disabled (unless installable via npx). Ordering is the host's concern.
@@ -93,6 +123,7 @@ export function AgentChat(props = {}) {
     onCwdEdit, onCwdSave, onCwdCancel, onCwdClear, onCwdDraft,
     canSend = true,
     suggestions = [], onSuggestionClick,
+    onCopyMessage, onRetryMessage, onEditMessage,
   } = props;
 
   const name = agentName || (agents.find((a) => a.id === selectedAgent)?.name) || selectedAgent || 'agent';
@@ -142,6 +173,19 @@ export function AgentChat(props = {}) {
     // carry prose, so a parts-driven turn isn't double-rendered.
     const partsHaveProse = parts.some(p => p.kind === 'md' || p.kind === 'text');
     if (m.content && !partsHaveProse) parts.unshift({ kind: isAssistant ? 'md' : 'text', text: m.content });
+    // The streaming caret rides the live assistant turn once it has body (the
+    // empty-shell turn already shows the inline typing dots).
+    const streaming = isStreaming && msgHasBody(m);
+    // Per-message actions: the host supplies onCopyMessage / onRetryMessage; we
+    // build the action row only for SETTLED messages (no actions mid-stream).
+    let actions;
+    if (!isStreaming && msgHasBody(m)) {
+      const built = [];
+      if (onCopyMessage) built.push({ label: 'copy', icon: 'page', title: 'copy message', onClick: () => onCopyMessage(m) });
+      if (isAssistant && onRetryMessage && i === lastIdx) built.push({ label: 'retry', icon: 'refresh', title: 'retry this turn', onClick: () => onRetryMessage(m) });
+      if (!isAssistant && onEditMessage) built.push({ label: 'edit', icon: 'pencil', title: 'edit and resend', onClick: () => onEditMessage(m) });
+      if (built.length) actions = built;
+    }
     return ChatMessage({
       key: m.id || String(i),
       who: isAssistant ? 'them' : 'you',
@@ -149,6 +193,8 @@ export function AgentChat(props = {}) {
       name: isAssistant ? name : 'you',
       time: m.time || '',
       typing: emptyStreaming,
+      streaming,
+      actions,
       parts: emptyStreaming ? undefined : (parts.length ? parts : [{ kind: 'text', text: '' }]),
     });
   });
@@ -196,14 +242,21 @@ export function AgentChat(props = {}) {
         // reconnecting-while-streaming state reads one word everywhere instead of
         // the head saying "streaming…" while the controls say "reconnecting…".
         busy ? (status || 'streaming…') : (messages.length ? messages.length + (messages.length === 1 ? ' message' : ' messages') : ''))),
-    h('div', { class: 'agentchat-thread', ref: threadRef(messages.length), role: 'log', 'aria-label': 'conversation' },
-      emptyState,
-      ...rows.filter(Boolean),
-      showWorkingTail
-        ? h('div', { key: '_working', class: 'agentchat-working', role: 'status', 'aria-live': 'polite' },
-            h('span', { class: 'chat-thinking-dots', 'aria-hidden': 'true' }, h('span'), h('span'), h('span')),
-            h('span', { class: 'agentchat-working-text' }, 'working…'))
-        : null),
+    h('div', { class: 'agentchat-thread-wrap' },
+      h('div', { class: 'agentchat-thread', ref: threadRef(messages.length), role: 'log', 'aria-label': 'conversation' },
+        emptyState,
+        ...rows.filter(Boolean),
+        showWorkingTail
+          ? h('div', { key: '_working', class: 'agentchat-working', role: 'status', 'aria-live': 'polite' },
+              h('span', { class: 'chat-thinking-dots', 'aria-hidden': 'true' }, h('span'), h('span'), h('span')),
+              h('span', { class: 'agentchat-working-text' }, 'working…'))
+          : null),
+      // Jump-to-latest: hidden until the scroll listener adds .show (user scrolled
+      // up). Clicking returns to the live edge. Pure-DOM, like the kit's other
+      // stateless chrome, so the host needn't thread scroll state through state.
+      h('button', { class: 'agentchat-jump', type: 'button', 'aria-label': 'jump to latest', title: 'jump to latest',
+        onclick: (e) => scrollThreadToBottom(e.currentTarget) },
+        Icon('arrow-down', { size: 16 }), h('span', { class: 'agentchat-jump-label' }, 'latest'))),
     composer,
   );
 }

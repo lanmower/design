@@ -81,23 +81,38 @@ export function ConversationList({ sessions = [], selected, groups, search,
 }
 
 // SessionCard — one running session in the live dashboard. Status dot, agent /
-// model / cwd, elapsed, live counter, and per-session controls that each act on
-// this session's id independently.
+// model / cwd, elapsed, live counter, last activity, and per-session controls
+// that each act on this session's id independently.
 //
-//   session : { sid, agent, model, cwd, elapsed, counter, status }
+//   session : { sid, agent, model, cwd, elapsed, counter, lastActivity, currentTool, status }
 //   actions : { onStop, onOpen, onResume, onView } (any subset)
+// `counter` carries the live activity tally (e.g. "12 ev · 3 tools"); `lastActivity`
+// the relative time of the most-recent event ("4s ago"); `currentTool` the tool
+// name a still-running turn is executing - together they distinguish a busy
+// session from a stuck one (a frozen elapsed alone reads identically for both).
 export function SessionCard({ session = {}, onStop, onOpen, onResume, onView } = {}) {
   const s = session;
   const statusTone = s.status === 'error' ? 'flame' : 'live';
+  // The stat line composes elapsed + live counter; the activity line carries the
+  // last-activity time and the current tool so a card shows MOTION, not just a
+  // start offset. Both are middot-joined (kept product separator).
+  const statBits = [s.elapsed != null ? s.elapsed : null, s.counter != null ? s.counter : null].filter((x) => x != null && x !== '');
+  const activityBits = [
+    s.currentTool ? 'running: ' + s.currentTool : null,
+    s.lastActivity ? 'last ' + s.lastActivity : null,
+  ].filter(Boolean);
   return h('div', { class: 'ds-dash-card' + (s.status === 'error' ? ' is-error' : ''), role: 'group', 'aria-label': 'session ' + (s.agent || s.sid) },
     h('div', { class: 'ds-dash-card-head' },
       h('span', { class: 'status-dot-disc ' + (statusTone === 'live' ? 'status-dot-live' : 'status-dot-error'), 'aria-hidden': 'true' }),
+      // Status is words + the disc, never colour alone (WCAG 1.4.1): the disc is
+      // aria-hidden, so the visible/AT status word carries the state.
+      h('span', { class: 'ds-dash-status ' + (s.status === 'error' ? 'is-error' : 'is-running') }, s.status === 'error' ? 'error' : 'running'),
       h('span', { class: 'ds-dash-agent' }, s.agent || 'agent'),
       s.model ? h('span', { class: 'ds-dash-model' }, s.model) : null),
     h('div', { class: 'ds-dash-meta' },
       s.cwd ? h('span', { class: 'ds-dash-cwd', title: s.cwd }, s.cwd) : null,
-      h('span', { class: 'ds-dash-stat' },
-        (s.elapsed != null ? s.elapsed : '') + (s.counter != null ? (s.elapsed != null ? ' · ' : '') + s.counter : ''))),
+      statBits.length ? h('span', { class: 'ds-dash-stat' }, statBits.join(' · ')) : null,
+      activityBits.length ? h('span', { class: 'ds-dash-activity' }, activityBits.join(' · ')) : null),
     h('div', { class: 'ds-dash-actions', role: 'group', 'aria-label': 'session actions' },
       onOpen ? Btn({ key: 'open', onClick: () => onOpen(s), children: 'open' }) : null,
       onResume ? Btn({ key: 'resume', onClick: () => onResume(s), children: 'resume' }) : null,
@@ -106,10 +121,14 @@ export function SessionCard({ session = {}, onStop, onOpen, onResume, onView } =
 }
 
 // SessionDashboard — grid of SessionCards for ALL live sessions, managed at once.
-//   sessions : [{ sid, agent, model, cwd, elapsed, counter, status }]
+//   sessions : [{ sid, agent, model, cwd, elapsed, counter, lastActivity, currentTool, status }]
 //   actions  : { onStop, onOpen, onResume, onView } passed to each card
+//   onStopAll : OPTIONAL bulk control - stop every running session at once
 //   emptyText, offline : explicit states
-export function SessionDashboard({ sessions = [], onStop, onOpen, onResume, onView,
+// The bulk header is the "manage many at once" affordance: a live count plus a
+// stop-all button, so a user running several agents does not have to hunt each
+// card's stop. Rendered only when there are sessions AND onStopAll is wired.
+export function SessionDashboard({ sessions = [], onStop, onOpen, onResume, onView, onStopAll,
                                    emptyText = 'No live sessions', offline = false } = {}) {
   if (offline) {
     return h('div', { class: 'ds-dash-state ds-dash-state-error', role: 'status' }, 'Backend offline — live sessions unavailable');
@@ -117,7 +136,12 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onResume, onVi
   if (!sessions.length) {
     return h('div', { class: 'ds-dash-state', role: 'status' }, emptyText);
   }
-  return h('div', { class: 'ds-dash-grid', role: 'list', 'aria-label': 'live sessions' },
+  const header = h('div', { class: 'ds-dash-header', role: 'group', 'aria-label': 'live session controls' },
+    h('span', { class: 'ds-dash-count', role: 'status', 'aria-live': 'polite' },
+      sessions.length + ' running'),
+    onStopAll ? Btn({ key: 'stopall', danger: true, onClick: () => onStopAll(sessions), children: 'stop all' }) : null);
+  const grid = h('div', { class: 'ds-dash-grid', role: 'list', 'aria-label': 'live sessions' },
     ...sessions.map((s) => h('div', { key: s.sid, role: 'listitem' },
       SessionCard({ session: s, onStop, onOpen, onResume, onView }))));
+  return h('div', { class: 'ds-dash' }, header, grid);
 }

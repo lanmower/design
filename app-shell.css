@@ -1071,6 +1071,39 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   flex-direction: column;
   gap: 4px;
 }
+.ds-file-grid:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-2); }
+
+/* Listing wrapper holds the optional filter + sort header above the grid. */
+.ds-file-listing { display: flex; flex-direction: column; gap: var(--space-2); min-height: 0; }
+.ds-file-filter { padding: 0 0 var(--space-1); }
+.ds-file-filter-input {
+  width: 100%; padding: 8px 12px; font-size: var(--fs-sm);
+  background: var(--bg); color: var(--fg);
+  border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
+}
+.ds-file-filter-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-file-sort { display: flex; gap: var(--space-2); padding: 0 var(--space-2) var(--space-1); }
+.ds-file-sort-btn {
+  font-size: var(--fs-tiny); font-family: var(--ff-mono); color: var(--fg-3);
+  background: none; border: none; cursor: pointer; padding: 2px 4px; border-radius: var(--r-1);
+}
+.ds-file-sort-btn:hover { color: var(--fg-2); background: var(--bg-2); }
+.ds-file-sort-btn.active { color: var(--accent); }
+.ds-file-sort-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* Skeleton shimmer rows shown while a directory loads. */
+.ds-file-row-skeleton { cursor: default; pointer-events: none; }
+.ds-skel { display: inline-block; border-radius: var(--r-1); background: var(--bg-2); position: relative; overflow: hidden; }
+.ds-skel::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, var(--bg-3), transparent);
+  transform: translateX(-100%); animation: ds-skel-shimmer 1.2s infinite;
+}
+.ds-skel-icon { width: 22px; height: 22px; }
+.ds-skel-title { height: 12px; width: 60%; }
+.ds-skel-meta { height: 10px; width: 64px; margin-left: auto; }
+@keyframes ds-skel-shimmer { 100% { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .ds-skel::after { animation: none; } }
 
 /* File row — linear layout (icon · title · meta · actions) */
 .ds-file-row {
@@ -2806,7 +2839,8 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 
 /* Content column */
 .ws-content { grid-area: content; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
-.ws-crumb { flex: 0 0 auto; border-bottom: var(--bw-hair) solid var(--bg-3); }
+.ws-crumb { flex: 0 0 auto; display: flex; align-items: center; gap: var(--space-1); border-bottom: var(--bw-hair) solid var(--bg-3); }
+.ws-crumb-main { flex: 1 1 auto; min-width: 0; }
 .ws-main { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; }
 .ws-main:focus { outline: none; }
 
@@ -2841,10 +2875,24 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
     grid-template-areas: "content";
   }
   .ws-rail { position: fixed; inset: 0 auto 0 0; width: var(--ws-rail-w-collapsed); z-index: 40; }
-  .ws-sessions { position: fixed; inset: 0 auto 0 var(--ws-rail-w-collapsed); width: min(var(--ws-sessions-w), 80vw); z-index: 39; transform: translateX(-110%); transition: transform var(--dur-base) var(--ease); }
+  .ws-sessions { position: fixed; inset: 0 auto 0 var(--ws-rail-w-collapsed); width: min(var(--ws-sessions-w), 80vw); z-index: 42; transform: translateX(-110%); transition: transform var(--dur-base) var(--ease); }
   .ws-shell.ws-sessions-open .ws-sessions { transform: translateX(0); }
-  .ws-pane { position: fixed; inset: 0 0 0 auto; width: min(var(--ws-pane-w), 85vw); z-index: 41; transform: translateX(110%); }
-  .ws-shell:not(.ws-pane-collapsed) .ws-pane { transform: translateX(0); }
+  /* On mobile the pane is a drawer driven by .ws-pane-open (an explicit open
+     intent), NOT by :not(.ws-pane-collapsed) - the desktop collapse default is
+     "open" which would otherwise pop the pane over the thread on every load. */
+  .ws-pane { position: fixed; inset: 0 0 0 auto; width: min(var(--ws-pane-w), 85vw); z-index: 42; transform: translateX(110%); transition: transform var(--dur-base) var(--ease); }
+  .ws-shell.ws-pane-open .ws-pane { transform: translateX(0); }
   .ws-content { grid-area: content; padding-left: var(--ws-rail-w-collapsed); }
   .ws-rail-collapsed .ws-rail-item-label, .ws-rail-collapsed .ws-rail-brand { display: none; }
+  /* Tap-scrim behind an open drawer; dismiss on click. Hidden unless a drawer
+     is open so it never blocks the content area on desktop. */
+  .ws-scrim { display: none; position: fixed; inset: 0; z-index: 41; background: color-mix(in srgb, var(--fg) 38%, transparent); }
+  .ws-shell.ws-sessions-open .ws-scrim, .ws-shell.ws-pane-open .ws-scrim { display: block; }
+  /* The mobile drawer-toggle affordances live in the crumb bar. */
+  .ws-drawer-toggle { display: inline-flex; }
 }
+/* Drawer toggles are mobile-only chrome; hidden on the desktop grid. */
+.ws-drawer-toggle { display: none; align-items: center; justify-content: center; width: 40px; height: 40px; border: none; background: none; color: var(--fg-2); cursor: pointer; border-radius: var(--r-1); }
+.ws-drawer-toggle:hover { background: var(--bg-2); color: var(--fg); }
+.ws-drawer-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ws-scrim { display: none; }

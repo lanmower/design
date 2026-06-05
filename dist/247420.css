@@ -1472,6 +1472,39 @@
   flex-direction: column;
   gap: 4px;
 }
+.ds-247420 .ds-file-grid:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-2); }
+
+/* Listing wrapper holds the optional filter + sort header above the grid. */
+.ds-247420 .ds-file-listing { display: flex; flex-direction: column; gap: var(--space-2); min-height: 0; }
+.ds-247420 .ds-file-filter { padding: 0 0 var(--space-1); }
+.ds-247420 .ds-file-filter-input {
+  width: 100%; padding: 8px 12px; font-size: var(--fs-sm);
+  background: var(--bg); color: var(--fg);
+  border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
+}
+.ds-247420 .ds-file-filter-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-247420 .ds-file-sort { display: flex; gap: var(--space-2); padding: 0 var(--space-2) var(--space-1); }
+.ds-247420 .ds-file-sort-btn {
+  font-size: var(--fs-tiny); font-family: var(--ff-mono); color: var(--fg-3);
+  background: none; border: none; cursor: pointer; padding: 2px 4px; border-radius: var(--r-1);
+}
+.ds-247420 .ds-file-sort-btn:hover { color: var(--fg-2); background: var(--bg-2); }
+.ds-247420 .ds-file-sort-btn.active { color: var(--accent); }
+.ds-247420 .ds-file-sort-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* Skeleton shimmer rows shown while a directory loads. */
+.ds-247420 .ds-file-row-skeleton { cursor: default; pointer-events: none; }
+.ds-247420 .ds-skel { display: inline-block; border-radius: var(--r-1); background: var(--bg-2); position: relative; overflow: hidden; }
+.ds-247420 .ds-skel::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, var(--bg-3), transparent);
+  transform: translateX(-100%); animation: ds-skel-shimmer 1.2s infinite;
+}
+.ds-247420 .ds-skel-icon { width: 22px; height: 22px; }
+.ds-247420 .ds-skel-title { height: 12px; width: 60%; }
+.ds-247420 .ds-skel-meta { height: 10px; width: 64px; margin-left: auto; }
+@keyframes ds-skel-shimmer { 100% { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .ds-247420 .ds-skel::after { animation: none; } }
 
 /* File row — linear layout (icon · title · meta · actions) */
 .ds-247420 .ds-file-row {
@@ -3198,7 +3231,8 @@
 
 /* Content column */
 .ds-247420 .ws-content { grid-area: content; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
-.ds-247420 .ws-crumb { flex: 0 0 auto; border-bottom: var(--bw-hair) solid var(--bg-3); }
+.ds-247420 .ws-crumb { flex: 0 0 auto; display: flex; align-items: center; gap: var(--space-1); border-bottom: var(--bw-hair) solid var(--bg-3); }
+.ds-247420 .ws-crumb-main { flex: 1 1 auto; min-width: 0; }
 .ds-247420 .ws-main { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; }
 .ds-247420 .ws-main:focus { outline: none; }
 
@@ -3233,13 +3267,27 @@
     grid-template-areas: "content";
   }
   .ds-247420 .ws-rail { position: fixed; inset: 0 auto 0 0; width: var(--ws-rail-w-collapsed); z-index: 40; }
-  .ds-247420 .ws-sessions { position: fixed; inset: 0 auto 0 var(--ws-rail-w-collapsed); width: min(var(--ws-sessions-w), 80vw); z-index: 39; transform: translateX(-110%); transition: transform var(--dur-base) var(--ease); }
+  .ds-247420 .ws-sessions { position: fixed; inset: 0 auto 0 var(--ws-rail-w-collapsed); width: min(var(--ws-sessions-w), 80vw); z-index: 42; transform: translateX(-110%); transition: transform var(--dur-base) var(--ease); }
   .ds-247420 .ws-shell.ws-sessions-open .ws-sessions { transform: translateX(0); }
-  .ds-247420 .ws-pane { position: fixed; inset: 0 0 0 auto; width: min(var(--ws-pane-w), 85vw); z-index: 41; transform: translateX(110%); }
-  .ds-247420 .ws-shell:not(.ws-pane-collapsed) .ws-pane { transform: translateX(0); }
+  /* On mobile the pane is a drawer driven by .ws-pane-open (an explicit open
+     intent), NOT by :not(.ws-pane-collapsed) - the desktop collapse default is
+     "open" which would otherwise pop the pane over the thread on every load. */
+  .ds-247420 .ws-pane { position: fixed; inset: 0 0 0 auto; width: min(var(--ws-pane-w), 85vw); z-index: 42; transform: translateX(110%); transition: transform var(--dur-base) var(--ease); }
+  .ds-247420 .ws-shell.ws-pane-open .ws-pane { transform: translateX(0); }
   .ds-247420 .ws-content { grid-area: content; padding-left: var(--ws-rail-w-collapsed); }
   .ds-247420 .ws-rail-collapsed .ws-rail-item-label, .ds-247420 .ws-rail-collapsed .ws-rail-brand { display: none; }
+  /* Tap-scrim behind an open drawer; dismiss on click. Hidden unless a drawer
+     is open so it never blocks the content area on desktop. */
+  .ds-247420 .ws-scrim { display: none; position: fixed; inset: 0; z-index: 41; background: color-mix(in srgb, var(--fg) 38%, transparent); }
+  .ds-247420 .ws-shell.ws-sessions-open .ws-scrim, .ds-247420 .ws-shell.ws-pane-open .ws-scrim { display: block; }
+  /* The mobile drawer-toggle affordances live in the crumb bar. */
+  .ds-247420 .ws-drawer-toggle { display: inline-flex; }
 }
+/* Drawer toggles are mobile-only chrome; hidden on the desktop grid. */
+.ds-247420 .ws-drawer-toggle { display: none; align-items: center; justify-content: center; width: 40px; height: 40px; border: none; background: none; color: var(--fg-2); cursor: pointer; border-radius: var(--r-1); }
+.ds-247420 .ws-drawer-toggle:hover { background: var(--bg-2); color: var(--fg); }
+.ds-247420 .ws-drawer-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ds-247420 .ws-scrim { display: none; }
 
 /* community.css */
 /* ============================================================
@@ -4882,6 +4930,8 @@
 }
 .ds-247420 .agentchat-title { font-size: 1em; margin: 0; }
 .ds-247420 .agentchat-sub { font-size: .85em; color: var(--fg-3); }
+/* Thread wrapper hosts the absolutely-positioned jump-to-latest button. */
+.ds-247420 .agentchat-thread-wrap { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .ds-247420 .agentchat-thread {
   flex: 1;
   min-height: 0;
@@ -4890,6 +4940,39 @@
   flex-direction: column;
   gap: var(--space-2, 8px);
 }
+
+/* Jump-to-latest: hidden until the thread scroll listener adds .show. */
+.ds-247420 .agentchat-jump {
+  position: absolute; right: 16px; bottom: 12px; z-index: 3;
+  display: none; align-items: center; gap: .35em;
+  padding: .4em .8em; font: inherit; font-size: .8em; cursor: pointer;
+  border-radius: 999px; border: var(--bw-hair) solid var(--rule);
+  background: var(--bg-2); color: var(--fg-2, var(--fg));
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--fg) 14%, transparent);
+}
+.ds-247420 .agentchat-jump.show { display: inline-flex; }
+.ds-247420 .agentchat-jump:hover { background: var(--bg-3); }
+.ds-247420 .agentchat-jump:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Streaming caret: a thin blinking bar at the live edge of an assistant turn. */
+.ds-247420 .chat-stream-caret {
+  display: inline-block; width: 2px; height: 1.05em; margin-left: 1px;
+  vertical-align: text-bottom; background: var(--accent, var(--fg));
+  animation: chat-caret-blink 1s step-end infinite;
+}
+@keyframes chat-caret-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .ds-247420 .chat-stream-caret { animation: none; opacity: .8; } }
+
+/* Per-message hover-revealed action row (copy / retry / edit). */
+.ds-247420 .chat-msg-actions { display: flex; gap: 2px; margin-top: 3px; opacity: 0; transition: opacity var(--dur-snap, .12s) var(--ease, ease); }
+.ds-247420 .chat-msg:hover .chat-msg-actions, .ds-247420 .chat-msg:focus-within .chat-msg-actions { opacity: 1; }
+.ds-247420 .chat-msg-action {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; padding: 0; cursor: pointer;
+  border: none; border-radius: var(--r-1, 4px); background: none; color: var(--fg-3);
+}
+.ds-247420 .chat-msg-action:hover { background: var(--bg-2); color: var(--fg); }
+.ds-247420 .chat-msg-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; opacity: 1; }
 
 /* Empty state: a fresh thread is an invitation, not a void. */
 .ds-247420 .agentchat-empty {
@@ -4983,7 +5066,7 @@
 .ds-247420 .ds-session-head { flex: 0 0 auto; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border-bottom: var(--bw-hair) solid var(--bg-3); }
 .ds-247420 .ds-session-new {
   display: flex; align-items: center; gap: var(--space-2); justify-content: center;
-  padding: var(--space-2) var(--space-3); min-height: 40px;
+  padding: var(--space-2) var(--space-3); min-height: 44px;
   background: var(--accent); color: var(--accent-fg, var(--bg)); border: none;
   border-radius: var(--r-1); cursor: pointer; font-family: var(--ff-body);
   font-size: var(--fs-sm); font-weight: 600;
@@ -4991,13 +5074,17 @@
 .ds-247420 .ds-session-new:hover { filter: brightness(1.08); }
 .ds-247420 .ds-session-new:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .ds-247420 .ds-session-search {
-  width: 100%; padding: var(--space-2); min-height: 36px;
+  width: 100%; padding: var(--space-2) var(--space-3); min-height: 44px;
   background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); color: var(--fg);
   border-radius: var(--r-1); font-family: var(--ff-body); font-size: var(--fs-sm);
 }
 .ds-247420 .ds-session-search:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .ds-247420 .ds-session-list, .ds-247420 .ds-session-groups { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-2); }
-.ds-247420 .ds-session-group-label { font-size: var(--fs-tiny); color: var(--fg-3); text-transform: uppercase; letter-spacing: .04em; padding: var(--space-2) var(--space-2) var(--space-1); }
+/* Grouped rows (Today/Yesterday/...) lay out like the flat list; the section
+   label sticks to the top of the scroll area for Claude-Desktop-style headers. */
+.ds-247420 .ds-session-group { display: flex; flex-direction: column; }
+.ds-247420 .ds-session-group-rows { display: flex; flex-direction: column; gap: 2px; }
+.ds-247420 .ds-session-group-label { position: sticky; top: 0; z-index: 1; background: var(--bg-1, var(--bg)); font-size: var(--fs-tiny); color: var(--fg-3); text-transform: uppercase; letter-spacing: .04em; padding: var(--space-2) var(--space-2) var(--space-1); }
 .ds-247420 .ds-session-row {
   position: relative; display: flex; align-items: center; gap: var(--space-2);
   width: 100%; padding: var(--space-2); min-height: 52px; margin-bottom: 2px;
@@ -5025,15 +5112,23 @@
 /* ----------------------------------------------------------------------------
    SessionDashboard — grid of live-session cards.
 ---------------------------------------------------------------------------- */
+.ds-247420 .ds-dash { display: flex; flex-direction: column; min-height: 0; }
+.ds-247420 .ds-dash-header { flex: 0 0 auto; display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4) 0; }
+.ds-247420 .ds-dash-count { font-size: var(--fs-sm); color: var(--fg-2); font-weight: 600; }
+.ds-247420 .ds-dash-header .btn, .ds-247420 .ds-dash-header .btn-primary { margin-left: auto; }
 .ds-247420 .ds-dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-3); padding: var(--space-4); }
 .ds-247420 .ds-dash-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-2); }
 .ds-247420 .ds-dash-card.is-error { border-color: var(--flame); }
 .ds-247420 .ds-dash-card-head { display: flex; align-items: center; gap: var(--space-2); }
+.ds-247420 .ds-dash-status { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+.ds-247420 .ds-dash-status.is-running { color: var(--green); }
+.ds-247420 .ds-dash-status.is-error { color: var(--flame); }
 .ds-247420 .ds-dash-agent { font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
 .ds-247420 .ds-dash-model { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); margin-left: auto; }
 .ds-247420 .ds-dash-meta { display: flex; flex-direction: column; gap: 2px; }
 .ds-247420 .ds-dash-cwd { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-247420 .ds-dash-stat { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-2); }
+.ds-247420 .ds-dash-activity { font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-247420 .ds-dash-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-1); }
 .ds-247420 .ds-dash-state { padding: var(--space-6) var(--space-4); text-align: center; color: var(--fg-3); font-size: var(--fs-body); }
 .ds-247420 .ds-dash-state-error { color: var(--flame); }

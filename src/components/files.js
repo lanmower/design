@@ -77,7 +77,49 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
     );
 }
 
-export function FileGrid({ files = [], onOpen, onAction, emptyText = 'no files here yet', columns = 'auto' } = {}) {
+// FileSkeleton — placeholder shimmer rows shown while a directory loads, so the
+// grid does not flash from a bare spinner to a full list (predictable perceived
+// perf, the file-manager feel). `rows` controls how many ghost rows render.
+export function FileSkeleton({ rows = 8 } = {}) {
+    return h('div', { class: 'ds-file-grid ds-file-skeleton', 'aria-hidden': 'true' },
+        ...Array.from({ length: Math.max(1, rows) }, (_, i) => h('div', { key: 'sk' + i, class: 'ds-file-row ds-file-row-skeleton' },
+            h('span', { class: 'ds-skel ds-skel-icon' }),
+            h('span', { class: 'ds-skel ds-skel-title' }),
+            h('span', { class: 'ds-skel ds-skel-meta' })))
+    );
+}
+
+// Sort a file list by a key (name/size/modified/type), dirs-first always so the
+// hierarchy reads top-down regardless of sort. `dir` is 'asc'|'desc'.
+// `modifiedTs` (epoch ms) is used for the modified sort when present, since the
+// `modified` field is a pre-formatted relative string the host passes for display.
+export function sortFiles(files = [], sort = 'name', dir = 'asc') {
+    const mul = dir === 'desc' ? -1 : 1;
+    const cmp = (a, b) => {
+        // Directories always cluster before files; within a cluster, apply the sort.
+        const ad = a.type === 'dir' ? 0 : 1, bd = b.type === 'dir' ? 0 : 1;
+        if (ad !== bd) return ad - bd;
+        let r = 0;
+        if (sort === 'size') r = (a.size || 0) - (b.size || 0);
+        else if (sort === 'modified') r = (a.modifiedTs || 0) - (b.modifiedTs || 0);
+        else if (sort === 'type') r = String(a.type || '').localeCompare(String(b.type || ''));
+        else r = String(a.name || '').localeCompare(String(b.name || ''), undefined, { numeric: true, sensitivity: 'base' });
+        return r * mul || String(a.name || '').localeCompare(String(b.name || ''));
+    };
+    return files.slice().sort(cmp);
+}
+
+// FileGrid — the directory listing. Optional in-grid sort + filter make it a
+// real file manager rather than a static dump:
+//   sort   : { key, dir, onSort(key) }  - clickable column headers (name/size/modified)
+//   filter : { value, onInput, placeholder } - a quick in-dir name filter
+//   onOpen(f) opens a row; onAction(act,f) wires the per-row download/rename/delete.
+// Keyboard nav: the grid is a focusable listbox - ArrowUp/Down move the active
+// row, Enter opens it, Backspace asks the host to go up (onUp). The host keeps no
+// focus state; the grid tracks it on the DOM via roving tabindex.
+export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'no files here yet',
+                          columns = 'auto', sort, filter, loading = false } = {}) {
+    if (loading) return FileSkeleton({});
     if (!files.length) return EmptyState({ text: emptyText });
     const gridAttrs = {};
     if (columns !== 'auto' && columns > 0) {
@@ -89,7 +131,27 @@ export function FileGrid({ files = [], onOpen, onAction, emptyText = 'no files h
             gap: 'var(--space-3)'
         };
     }
-    return h('div', { class: 'ds-file-grid', ...gridAttrs },
+    // Keyboard: roving focus over the .ds-file-open buttons inside the grid.
+    const onKeyDown = (e) => {
+        const grid = e.currentTarget;
+        const opens = Array.from(grid.querySelectorAll('.ds-file-open:not([disabled])'));
+        if (!opens.length) return;
+        const cur = opens.indexOf(document.activeElement);
+        if (e.key === 'ArrowDown') { e.preventDefault(); opens[Math.min(opens.length - 1, cur + 1)]?.focus(); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); (cur <= 0 ? opens[0] : opens[cur - 1])?.focus(); }
+        else if (e.key === 'Home') { e.preventDefault(); opens[0]?.focus(); }
+        else if (e.key === 'End') { e.preventDefault(); opens[opens.length - 1]?.focus(); }
+        else if (e.key === 'Backspace') { e.preventDefault(); onUp && onUp(); }
+    };
+    const head = sort ? FileSortHeader(sort) : null;
+    const filterBar = filter ? h('div', { class: 'ds-file-filter' },
+        h('input', {
+            class: 'ds-file-filter-input', type: 'search',
+            value: filter.value || '', placeholder: filter.placeholder || 'Filter files',
+            'aria-label': filter.placeholder || 'Filter files in this directory',
+            oninput: (e) => filter.onInput && filter.onInput(e.target.value),
+        })) : null;
+    const grid = h('div', { class: 'ds-file-grid', role: 'listbox', 'aria-label': 'files', tabindex: '0', onkeydown: onKeyDown, ...gridAttrs },
         ...files.map((f, i) => FileRow({
             key: f.path || f.name + i,
             name: f.name, type: f.type, size: f.size, modified: f.modified, code: f.code, active: f.active,
@@ -97,6 +159,23 @@ export function FileGrid({ files = [], onOpen, onAction, emptyText = 'no files h
             onAction: onAction ? (act) => onAction(act, f) : null
         }))
     );
+    return (head || filterBar)
+        ? h('div', { class: 'ds-file-listing' }, filterBar, head, grid)
+        : grid;
+}
+
+// Clickable column headers for FileGrid sort. Active column shows its direction
+// as an ASCII caret word (asc/desc) - never a glyph arrow.
+function FileSortHeader({ key: active = 'name', dir = 'asc', onSort } = {}) {
+    const cols = [['name', 'name'], ['size', 'size'], ['modified', 'modified']];
+    return h('div', { class: 'ds-file-sort', role: 'group', 'aria-label': 'sort files' },
+        ...cols.map(([k, label]) => h('button', {
+            key: k, type: 'button',
+            class: 'ds-file-sort-btn' + (active === k ? ' active' : ''),
+            'aria-pressed': active === k ? 'true' : 'false',
+            'aria-label': 'sort by ' + label + (active === k ? ' (' + (dir === 'asc' ? 'ascending' : 'descending') + ')' : ''),
+            onclick: () => onSort && onSort(k),
+        }, label + (active === k ? ' ' + (dir === 'asc' ? 'asc' : 'desc') : ''))));
 }
 
 export function FileToolbar({ left = [], right = [] } = {}) {

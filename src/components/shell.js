@@ -292,6 +292,37 @@ function toggleWs(which) {
     } catch (_) {}
 }
 
+// Toggle a mobile WorkspaceShell DRAWER (sessions or pane). Distinct from the
+// desktop width-collapse (toggleWs): on mobile the columns are fixed overlays
+// revealed by .ws-sessions-open / .ws-pane-open. Opening one closes the other
+// (only one drawer at a time over the content). Esc + scrim dismiss call this
+// with open=false. Pure-DOM, matching the AppShell toggleSide pattern.
+function toggleWsDrawer(which, open) {
+    const shell = document.querySelector('.ws-shell');
+    if (!shell) return;
+    const cls = which === 'pane' ? 'ws-pane-open' : 'ws-sessions-open';
+    const other = which === 'pane' ? 'ws-sessions-open' : 'ws-pane-open';
+    const next = open != null ? open : !shell.classList.contains(cls);
+    shell.classList.toggle(cls, next);
+    if (next) shell.classList.remove(other);
+    const btn = document.querySelector('.ws-' + which + '-drawer-toggle');
+    if (btn) btn.setAttribute('aria-expanded', next ? 'true' : 'false');
+    // When opening, move focus into the drawer and arm an Esc-to-close once.
+    if (next) {
+        const drawer = shell.querySelector(which === 'pane' ? '.ws-pane' : '.ws-sessions');
+        const focusable = drawer && drawer.querySelector('button, a, input, [tabindex]');
+        if (focusable) try { focusable.focus(); } catch (_) {}
+        const onKey = (e) => { if (e.key === 'Escape') { toggleWsDrawer(which, false); document.removeEventListener('keydown', onKey); if (btn) try { btn.focus(); } catch (_) {} } };
+        document.addEventListener('keydown', onKey);
+    }
+}
+function closeWsDrawers() {
+    const shell = document.querySelector('.ws-shell');
+    if (!shell) return;
+    shell.classList.remove('ws-sessions-open', 'ws-pane-open');
+    document.querySelectorAll('.ws-sessions-drawer-toggle, .ws-pane-drawer-toggle').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+}
+
 // Read persisted collapse state for a WorkspaceShell column so the layout is
 // predictable across reloads (Claude-Desktop keeps the rail where you left it).
 function wsCollapsed(which, fallback) {
@@ -341,17 +372,43 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
         h('nav', { class: 'ws-rail', role: 'navigation', 'aria-label': railLabel },
             h('button', {
                 class: 'ws-rail-toggle', type: 'button',
-                'aria-label': 'collapse navigation', 'aria-expanded': railIsCollapsed ? 'false' : 'true',
+                // Label reflects the ACTION the click performs (expand when
+                // collapsed, collapse when expanded), not a static word - a
+                // stale "collapse navigation" on an already-collapsed rail
+                // mis-announces the control to AT.
+                'aria-label': railIsCollapsed ? 'expand navigation' : 'collapse navigation',
+                title: railIsCollapsed ? 'expand navigation' : 'collapse navigation',
+                'aria-expanded': railIsCollapsed ? 'false' : 'true',
                 onclick: () => toggleWs('rail'),
             }, Icon('menu')),
             rail || null),
-        // Optional sessions column.
+        // Tap-scrim behind an open mobile drawer; click anywhere dismisses.
+        h('div', { class: 'ws-scrim', 'aria-hidden': 'true', onclick: () => closeWsDrawers() }),
+        // Optional sessions column. On mobile it is a drawer; selecting a row
+        // (any button click inside) auto-closes it, mirroring AppShell.
         hasSessions
-            ? h('div', { class: 'ws-sessions', role: 'complementary', 'aria-label': 'conversations' }, sessions)
+            ? h('div', { class: 'ws-sessions', role: 'complementary', 'aria-label': 'conversations',
+                onclick: (e) => { if (narrow && e.target.closest('button, a')) closeWsDrawers(); } }, sessions)
             : null,
-        // Primary content column, with an optional thin crumb bar on top.
+        // Primary content column, with an optional thin crumb bar on top. On
+        // mobile the crumb hosts the drawer toggles (sessions on the left, pane
+        // on the right) so both overlay columns are reachable - without them the
+        // conversation list and context pane are dead on <=900px.
         h('div', { class: 'ws-content' },
-            crumb ? h('div', { class: 'ws-crumb' }, crumb) : null,
+            crumb
+                ? h('div', { class: 'ws-crumb' },
+                    hasSessions ? h('button', {
+                        class: 'ws-drawer-toggle ws-sessions-drawer-toggle', type: 'button',
+                        'aria-label': 'toggle conversations', 'aria-expanded': 'false',
+                        onclick: () => toggleWsDrawer('sessions'),
+                    }, Icon('thread')) : null,
+                    h('div', { class: 'ws-crumb-main' }, crumb),
+                    hasPane ? h('button', {
+                        class: 'ws-drawer-toggle ws-pane-drawer-toggle', type: 'button',
+                        'aria-label': 'toggle context pane', 'aria-expanded': 'false',
+                        onclick: () => toggleWsDrawer('pane'),
+                    }, Icon('page')) : null)
+                : null,
             h('main', { class: 'ws-main' + (narrow ? ' narrow' : ''), id: 'ws-main', tabindex: '-1' },
                 ...(Array.isArray(main) ? main : [main])),
             status || null),
@@ -360,7 +417,9 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
             ? h('aside', { class: 'ws-pane', role: 'complementary', 'aria-label': paneLabel },
                 h('button', {
                     class: 'ws-pane-toggle', type: 'button',
-                    'aria-label': 'toggle context pane', 'aria-expanded': paneIsCollapsed ? 'false' : 'true',
+                    'aria-label': paneIsCollapsed ? 'show context pane' : 'hide context pane',
+                    title: paneIsCollapsed ? 'show context pane' : 'hide context pane',
+                    'aria-expanded': paneIsCollapsed ? 'false' : 'true',
                     onclick: () => toggleWs('pane'),
                 }, Icon(paneIsCollapsed ? 'chevron-left' : 'chevron-right')),
                 pane)

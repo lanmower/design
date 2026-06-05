@@ -223,7 +223,7 @@ function renderPart(p, key) {
     return node;
 }
 
-export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name }) {
+export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name, streaming, actions }) {
     _stats.messages += 1;
     // Support legacy 'who' prop, prefer 'role' with mapping:
     //   'user'      -> 'you'   (right-aligned, accent bubble)
@@ -247,6 +247,11 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     if (typing) bodyNodes = [h('div', { class: 'chat-bubble', key: 'typb' }, h('span', { class: 'chat-typing' }, h('span'), h('span'), h('span')))];
     else if (parts && parts.length) bodyNodes = parts.map((p, i) => renderPart(p, i));
     else bodyNodes = [h('div', { class: 'chat-bubble', key: 't' }, ...renderInline(text || ''))];
+    // A blinking caret at the stream head: while an assistant turn is streaming
+    // AND already shows content (so the inline typing dots have stopped), append
+    // a thin caret so the live edge reads as "still writing", not "done". Drawn as
+    // a CSS element, not a glyph character.
+    if (streaming && !typing) bodyNodes = [...bodyNodes, h('span', { key: '_caret', class: 'chat-stream-caret', 'aria-hidden': 'true' })];
     const reactionRow = reactions && reactions.length
         ? h('div', { class: 'chat-reactions' },
             ...reactions.map((r, i) => h('span', { class: 'rxn' + (r.you ? ' you' : ''), key: 'r' + i, 'aria-label': `${r.emoji} reaction (${String(r.count)} ${String(r.count) === '1' ? 'reaction' : 'reactions'})${r.you ? ' - you reacted' : ''}` },
@@ -260,7 +265,19 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     if (time) metaItems.push(h('span', { class: 't', key: 'ti' }, time));
     if (tickNode) metaItems.push(tickNode);
     const meta = metaItems.length ? h('div', { class: 'chat-meta' }, ...metaItems) : null;
-    const stack = h('div', { class: 'chat-stack' }, ...bodyNodes, reactionRow, meta);
+    // Per-message actions (copy / retry / edit) — a hover-revealed control row
+    // below the bubble, the way Claude-Desktop surfaces message-level actions.
+    // Each action is { label, icon, onClick, title }. Kept icon-only with an
+    // accessible name; no decorative glyphs (the Icon set is line-SVG).
+    const actionRow = (actions && actions.length)
+        ? h('div', { class: 'chat-msg-actions', role: 'group', 'aria-label': 'message actions' },
+            ...actions.filter(Boolean).map((a, i) => h('button', {
+                key: 'ma' + i, type: 'button', class: 'chat-msg-action',
+                title: a.title || a.label, 'aria-label': a.label || a.title,
+                onclick: (e) => { e.preventDefault(); a.onClick && a.onClick(e); },
+            }, a.icon ? Icon(a.icon, { size: 14 }) : (a.label || ''))))
+        : null;
+    const stack = h('div', { class: 'chat-stack' }, ...bodyNodes, reactionRow, actionRow, meta);
     // Centered roles (system/tool/thinking) skip the avatar column entirely so
     // the bubble owns the full row — the chrome reads as out-of-band signal,
     // not a participant turn.
