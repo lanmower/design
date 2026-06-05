@@ -46,7 +46,27 @@ export function makeChatPage(ctx) {
     return async function chat(h0) {
         const root = ctx.root;
         const skills = [...h0.pi.skills.values()];
-        const providers = await fetch('/api/providers').then(r => r.json()).catch(() => []);
+        let providers = await fetch('/api/providers').then(r => r.json()).catch(() => []);
+        if (!Array.isArray(providers)) providers = [];
+        // Static deploy (no freddie-server, so /api/providers 404s): probe the
+        // acptoapi gateway directly and, when it answers, surface it as a real
+        // configured provider with its model list. Without this the dashboard
+        // tells the user to "run a gateway" even though one is live and chat works.
+        if (!providers.some(p => p.configured)) {
+            try {
+                const cfg = (window.__debug?.instances?.i1?.host?.fs?.readJson?.('/etc/freddie/freddie.json', null)) || {};
+                const baseUrl = (cfg?.providers?.openai?.baseUrl || 'http://localhost:4800').replace(/\/+$/, '');
+                const ac = new AbortController();
+                const t = setTimeout(() => ac.abort(), 4000);
+                const r = await fetch(baseUrl + '/v1/models', { signal: ac.signal }).catch(() => null);
+                clearTimeout(t);
+                if (r && r.ok) {
+                    const j = await r.json().catch(() => null);
+                    const models = Array.isArray(j?.data) ? j.data.map(m => m.id) : [];
+                    providers = [{ id: 'acptoapi', name: 'acptoapi gateway (' + baseUrl + ')', configured: true, models: ['auto', ...models] }, ...providers];
+                }
+            } catch {}
+        }
         const configuredProviders = providers.filter(p => p.configured);
 
         const chatState = window.__fd_chatState = window.__fd_chatState || {
@@ -81,15 +101,98 @@ export function makeChatPage(ctx) {
             if (!trimmed) return;
             chatState.messages.push({ role: 'user', content: trimmed });
             chatState.busy = true;
+            chatState.progress = 'agent thinking…';
             chatState.abort = new AbortController();
             saveRecentPath(chatState.cwd);
             syncMessages();
             renderPage();
             try {
                 const body = { prompt: trimmed, cwd: chatState.cwd || undefined, skill: chatState.skill || undefined, provider: chatState.provider || undefined, model: chatState.model || undefined, sessionId: chatState.sessionId || undefined };
-                const resp = await fetch('/api/chat', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal: chatState.abort.signal });
-                const text = await resp.text();
-                const events = parseSseEvents(text);
+                let resp;
+                try {
+                    resp = await fetch('/api/chat', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal: chatState.abort.signal });
+                } catch (fetchErr) {
+                    resp = null;
+                }
+                let text = '';
+                let events = [];
+                if (resp && resp.ok) {
+                    text = await resp.text();
+                    events = parseSseEvents(text);
+                } else if (typeof window !== 'undefined' && typeof window.__thebirdRunAgent === 'function') {
+                    // Static deploy with an in-page agent runtime (e.g. thebird): drive
+                    // the REAL multi-step agent loop (host tools + acptoapi gateway +
+                    // tool execution) instead of a single bare completion, so the model
+                    // emits tool_calls, the loop executes them, feeds results back, and
+                    // iterates. We synthesize the same {event:'message'} stream the
+                    // server path produces so the render loop below is unchanged. The
+                    // window global is the opt-in: hosts without it keep single-shot.
+                    try {
+                        let stepN = 0;
+                        const onUpdate = (snap) => {
+                            try {
+                                const msgs = (snap && snap.context && snap.context.messages) || [];
+                                const toolMsgs = msgs.filter(m => m.role === 'tool');
+                                const lastAssist = [...msgs].reverse().find(m => m.role === 'assistant' && Array.isArray(m.tool_calls) && m.tool_calls.length);
+                                const running = lastAssist && lastAssist.tool_calls[0] && (lastAssist.tool_calls[0].function?.name || lastAssist.tool_calls[0].name);
+                                stepN = toolMsgs.length;
+                                chatState.progress = running
+                                    ? ('agent: ' + running + ' (step ' + (stepN + 1) + ')…')
+                                    : ('agent thinking' + (stepN ? ' (step ' + stepN + ')' : '') + '…');
+                                renderPage();
+                            } catch {}
+                        };
+                        const out = await window.__thebirdRunAgent({ prompt: trimmed, onUpdate });
+                        const turnMsgs = (out && Array.isArray(out.messages)) ? out.messages : [];
+                        for (const m of turnMsgs) {
+                            if (m.role === 'assistant' && Array.isArray(m.tool_calls) && m.tool_calls.length) {
+                                const parts = [];
+                                if (m.content) parts.push({ type: 'text', text: String(m.content) });
+                                for (const tc of m.tool_calls) {
+                                    const rawArgs = tc.function?.arguments ?? tc.arguments;
+                                    let input = {};
+                                    if (rawArgs && typeof rawArgs === 'object') input = rawArgs;
+                                    else if (typeof rawArgs === 'string') { try { input = JSON.parse(rawArgs || '{}'); } catch { input = {}; } }
+                                    parts.push({ type: 'tool_use', name: tc.function?.name || tc.name, input });
+                                }
+                                events.push({ event: 'message', data: { role: 'assistant', content: parts } });
+                            } else if (m.role === 'tool') {
+                                events.push({ event: 'message', data: { role: 'tool', content: [{ content: String(m.content ?? '') }] } });
+                            }
+                        }
+                        const finalText = (out && out.result) || (out && out.error ? 'error: ' + out.error : '');
+                        if (finalText) events.push({ event: 'message', data: { role: 'assistant', content: [{ type: 'text', text: String(finalText) }] } });
+                        if (!events.length) events.push({ event: 'message', data: { role: 'assistant', content: [{ type: 'text', text: '' }] } });
+                    } catch (e) {
+                        events = [{ event: 'error', data: { error: e?.message || String(e) } }];
+                    }
+                } else {
+                    // Static deploy without an in-page agent runtime: single direct
+                    // acptoapi /v1/chat/completions call (no tool loop — one shot).
+                    const cfg = (window.__debug?.instances?.i1?.host?.fs?.readJson?.('/etc/freddie/freddie.json', null)) || {};
+                    const baseUrl = cfg?.providers?.openai?.baseUrl || 'http://localhost:4800';
+                    try {
+                        const url = baseUrl.replace(/\/+$/, '') + '/v1/chat/completions';
+                        const reqBody = { model: chatState.model || cfg?.providers?.openai?.model || 'auto', messages: [{ role: 'user', content: trimmed }] };
+                        const r2 = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(reqBody), signal: chatState.abort.signal });
+                        if (!r2.ok) {
+                            const errText = await r2.text().catch(() => '');
+                            events = [{ event: 'error', data: { error: 'acptoapi ' + r2.status + ': ' + errText.slice(0, 200) } }];
+                        } else {
+                            const j = await r2.json();
+                            const content = j?.choices?.[0]?.message?.content || '';
+                            const tool_calls = j?.choices?.[0]?.message?.tool_calls;
+                            const parts = [];
+                            if (content) parts.push({ type: 'text', text: content });
+                            if (Array.isArray(tool_calls)) {
+                                for (const tc of tool_calls) parts.push({ type: 'tool_use', name: tc.function?.name, input: (() => { try { return JSON.parse(tc.function?.arguments || '{}'); } catch { return {}; } })() });
+                            }
+                            events = [{ event: 'message', data: { role: 'assistant', content: parts.length ? parts : [{ type: 'text', text: '' }] } }];
+                        }
+                    } catch (e) {
+                        events = [{ event: 'error', data: { error: e?.message || String(e) } }];
+                    }
+                }
                 let assistantContent = '';
                 for (const { event, data } of events) {
                     if (event === 'start' && data.sessionId) chatState.sessionId = data.sessionId;
@@ -140,6 +243,7 @@ export function makeChatPage(ctx) {
             }
             chatState.abort = null;
             chatState.busy = false;
+            chatState.progress = '';
             syncMessages();
             renderPage();
         };
@@ -152,7 +256,9 @@ export function makeChatPage(ctx) {
             const host = getChatHost();
             if (host) {
                 host.busy = chatState.busy;
-                host.placeholder = chatState.busy ? 'agent working…' : 'describe what you want to do in the working directory…';
+                host.placeholder = chatState.busy
+                    ? (chatState.progress || 'agent working…')
+                    : 'describe what you want to do in the working directory…';
             }
             // Refresh disabled state on header buttons.
             const newBtn = root.querySelector('.fd-chat-new');
