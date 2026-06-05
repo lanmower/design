@@ -2711,3 +2711,140 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   .app-topbar > :last-child { display: none; }
   .brand { font-size: var(--fs-tiny); }
 }
+
+/* ----------------------------------------------------------------------------
+   WorkspaceShell — Claude-Desktop / cowork three-column app shell.
+   Columns: [ws-rail] [ws-sessions?] [ws-content] [ws-pane?]
+   Collapse via .ws-rail-collapsed / .ws-pane-collapsed classes on .ws-shell.
+   All sizing/colour from kit tokens; no hardcoded palette.
+---------------------------------------------------------------------------- */
+.ws-shell {
+  --ws-rail-w: 232px;
+  --ws-rail-w-collapsed: 60px;
+  --ws-sessions-w: 296px;
+  --ws-pane-w: 320px;
+  display: grid;
+  grid-template-columns: var(--ws-rail-w) var(--ws-sessions-w) 1fr var(--ws-pane-w);
+  grid-template-areas: "rail sessions content pane";
+  height: 100%;
+  min-height: 0;
+  background: var(--bg);
+  color: var(--fg);
+}
+.ws-shell.ws-no-sessions { grid-template-columns: var(--ws-rail-w) 1fr var(--ws-pane-w); grid-template-areas: "rail content pane"; }
+.ws-shell.ws-no-pane.ws-no-sessions { grid-template-columns: var(--ws-rail-w) 1fr; grid-template-areas: "rail content"; }
+.ws-shell.ws-no-pane:not(.ws-no-sessions) { grid-template-columns: var(--ws-rail-w) var(--ws-sessions-w) 1fr; grid-template-areas: "rail sessions content"; }
+.ws-shell.ws-rail-collapsed { --ws-rail-w: var(--ws-rail-w-collapsed); }
+.ws-shell.ws-pane-collapsed { --ws-pane-w: 0px; }
+
+/* Rail (left nav) */
+.ws-rail {
+  grid-area: rail;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bg-2);
+  border-right: var(--bw-hair) solid var(--bg-3);
+  overflow: hidden;
+  transition: width var(--dur-base) var(--ease);
+}
+.ws-rail-toggle {
+  position: absolute; top: var(--space-2); right: var(--space-2);
+  width: 36px; height: 36px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; border: none; color: var(--fg-2);
+  border-radius: var(--r-1); cursor: pointer;
+}
+.ws-rail-toggle:hover { background: var(--bg-3); color: var(--fg); }
+.ws-rail-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ws-rail-inner { display: flex; flex-direction: column; min-height: 0; flex: 1; padding: var(--space-3) var(--space-2); gap: var(--space-2); }
+.ws-rail-head { display: flex; align-items: center; min-height: 36px; padding: 0 var(--space-2); }
+.ws-rail-brand { font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-body); color: var(--fg); white-space: nowrap; overflow: hidden; }
+.ws-rail-action {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) var(--space-3); margin: var(--space-1) 0;
+  background: var(--accent); color: var(--accent-fg, var(--bg));
+  border: none; border-radius: var(--r-1); cursor: pointer;
+  font-family: var(--ff-body); font-size: var(--fs-sm); font-weight: 600;
+  min-height: 40px; white-space: nowrap; overflow: hidden;
+}
+.ws-rail-action:hover { filter: brightness(1.08); }
+.ws-rail-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ws-rail-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; flex: 1; min-height: 0; overflow-y: auto; }
+.ws-rail-item {
+  display: flex; align-items: center; gap: var(--space-2);
+  width: 100%; padding: var(--space-2); min-height: 44px;
+  background: transparent; border: none; color: var(--fg-2);
+  border-radius: var(--r-1); cursor: pointer; text-align: left;
+  font-family: var(--ff-body); font-size: var(--fs-sm); white-space: nowrap; overflow: hidden;
+}
+.ws-rail-item:hover { background: var(--bg-3); color: var(--fg); }
+.ws-rail-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ws-rail-item.active { background: var(--accent-tint); color: var(--fg); box-shadow: inset 2px 0 0 var(--accent); }
+.ws-rail-item-label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.ws-rail-item-count { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); }
+.ws-rail-foot { margin-top: auto; padding-top: var(--space-2); border-top: var(--bw-hair) solid var(--bg-3); }
+
+/* Collapsed rail: icon-only — hide text labels, center icons, drop toggle's far-right pin */
+.ws-rail-collapsed .ws-rail-brand,
+.ws-rail-collapsed .ws-rail-action-label,
+.ws-rail-collapsed .ws-rail-item-label,
+.ws-rail-collapsed .ws-rail-item-count { display: none; }
+.ws-rail-collapsed .ws-rail-item,
+.ws-rail-collapsed .ws-rail-action { justify-content: center; gap: 0; }
+.ws-rail-collapsed .ws-rail-head { justify-content: center; }
+
+/* Sessions column */
+.ws-sessions {
+  grid-area: sessions;
+  min-height: 0; display: flex; flex-direction: column;
+  background: var(--bg); border-right: var(--bw-hair) solid var(--bg-3);
+  overflow: hidden;
+}
+.ws-no-sessions .ws-sessions { display: none; }
+
+/* Content column */
+.ws-content { grid-area: content; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.ws-crumb { flex: 0 0 auto; border-bottom: var(--bw-hair) solid var(--bg-3); }
+.ws-main { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; }
+.ws-main:focus { outline: none; }
+
+/* Right context pane */
+.ws-pane {
+  grid-area: pane; position: relative;
+  min-height: 0; display: flex; flex-direction: column;
+  background: var(--bg-2); border-left: var(--bw-hair) solid var(--bg-3);
+  overflow: hidden; transition: width var(--dur-base) var(--ease);
+}
+.ws-pane-collapsed .ws-pane { width: 0; border-left: none; }
+.ws-pane-collapsed .ws-pane > :not(.ws-pane-toggle) { display: none; }
+.ws-pane-toggle {
+  position: absolute; top: var(--space-2); left: calc(-1 * var(--space-5));
+  width: 28px; height: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); color: var(--fg-2);
+  border-radius: var(--r-1); cursor: pointer; z-index: 2;
+}
+.ws-pane-toggle:hover { background: var(--bg-3); color: var(--fg); }
+.ws-pane-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Responsive: below 900px collapse to a single content column; rail+sessions+pane
+   become overlay drawers the host can toggle, or simply hide on mobile. We keep it
+   honest: stack rail (icon row) over content, hide sessions+pane unless toggled. */
+@media (max-width: 900px) {
+  .ws-shell,
+  .ws-shell.ws-no-sessions,
+  .ws-shell.ws-no-pane,
+  .ws-shell.ws-no-pane.ws-no-sessions {
+    grid-template-columns: 1fr;
+    grid-template-areas: "content";
+  }
+  .ws-rail { position: fixed; inset: 0 auto 0 0; width: var(--ws-rail-w-collapsed); z-index: 40; }
+  .ws-sessions { position: fixed; inset: 0 auto 0 var(--ws-rail-w-collapsed); width: min(var(--ws-sessions-w), 80vw); z-index: 39; transform: translateX(-110%); transition: transform var(--dur-base) var(--ease); }
+  .ws-shell.ws-sessions-open .ws-sessions { transform: translateX(0); }
+  .ws-pane { position: fixed; inset: 0 0 0 auto; width: min(var(--ws-pane-w), 85vw); z-index: 41; transform: translateX(110%); }
+  .ws-shell:not(.ws-pane-collapsed) .ws-pane { transform: translateX(0); }
+  .ws-content { grid-area: content; padding-left: var(--ws-rail-w-collapsed); }
+  .ws-rail-collapsed .ws-rail-item-label, .ws-rail-collapsed .ws-rail-brand { display: none; }
+}

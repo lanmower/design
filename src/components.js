@@ -6,6 +6,7 @@ export const h = webjsx.createElement;
 export {
     Brand, Chip, Btn, Glyph, Icon, IconButton, Badge,
     Topbar, Crumb, Side, Status, AppShell,
+    WorkspaceShell, WorkspaceRail,
     Heading, Lede, Dot, Rail
 } from './components/shell.js';
 
@@ -25,6 +26,12 @@ export {
 } from './components/chat.js';
 
 export { AgentChat } from './components/agent-chat.js';
+
+export {
+    ConversationList, SessionCard, SessionDashboard
+} from './components/sessions.js';
+
+export { ContextPane } from './components/context-pane.js';
 
 export {
     fileGlyph, fmtFileSize,

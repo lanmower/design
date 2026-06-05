@@ -192,3 +192,90 @@
   .agentchat-cwd-text { max-width: 42vw; }
   .agentchat-controls { gap: .4em; }
 }
+
+/* ----------------------------------------------------------------------------
+   Global status disc — a CSS-drawn status indicator (no text glyph) usable
+   outside .agentchat-status (session rows, dashboard cards). Tone via modifier.
+---------------------------------------------------------------------------- */
+.status-dot-disc {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--fg-3); flex: 0 0 auto;
+}
+.status-dot-disc.status-dot-live { background: var(--green); }
+.status-dot-disc.status-dot-error { background: var(--flame); }
+
+/* ----------------------------------------------------------------------------
+   ConversationList — left-rail "Chats" column.
+---------------------------------------------------------------------------- */
+.ds-sessions { display: flex; flex-direction: column; min-height: 0; height: 100%; }
+.ds-session-head { flex: 0 0 auto; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border-bottom: var(--bw-hair) solid var(--bg-3); }
+.ds-session-new {
+  display: flex; align-items: center; gap: var(--space-2); justify-content: center;
+  padding: var(--space-2) var(--space-3); min-height: 40px;
+  background: var(--accent); color: var(--accent-fg, var(--bg)); border: none;
+  border-radius: var(--r-1); cursor: pointer; font-family: var(--ff-body);
+  font-size: var(--fs-sm); font-weight: 600;
+}
+.ds-session-new:hover { filter: brightness(1.08); }
+.ds-session-new:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ds-session-search {
+  width: 100%; padding: var(--space-2); min-height: 36px;
+  background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); color: var(--fg);
+  border-radius: var(--r-1); font-family: var(--ff-body); font-size: var(--fs-sm);
+}
+.ds-session-search:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-session-list, .ds-session-groups { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-2); }
+.ds-session-group-label { font-size: var(--fs-tiny); color: var(--fg-3); text-transform: uppercase; letter-spacing: .04em; padding: var(--space-2) var(--space-2) var(--space-1); }
+.ds-session-row {
+  position: relative; display: flex; align-items: center; gap: var(--space-2);
+  width: 100%; padding: var(--space-2); min-height: 52px; margin-bottom: 2px;
+  background: transparent; border: none; border-radius: var(--r-1);
+  cursor: pointer; text-align: left; color: var(--fg);
+}
+.ds-session-row:hover { background: var(--bg-2); }
+.ds-session-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ds-session-row.active { background: var(--accent-tint); box-shadow: inset 2px 0 0 var(--accent); }
+.ds-session-row.rail-green::before, .ds-session-row.rail-purple::before, .ds-session-row.rail-flame::before {
+  content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 3px;
+}
+.ds-session-row.rail-green::before { background: var(--green); }
+.ds-session-row.rail-purple::before { background: var(--purple, var(--accent)); }
+.ds-session-row.rail-flame::before { background: var(--flame); }
+.ds-session-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ds-session-title { font-size: var(--fs-sm); color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ds-session-sub { font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ds-session-meta { display: flex; align-items: center; gap: var(--space-2); flex: 0 0 auto; }
+.ds-session-agent { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); }
+.ds-session-unread { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; }
+.ds-session-state { padding: var(--space-5) var(--space-3); text-align: center; color: var(--fg-3); font-size: var(--fs-sm); }
+.ds-session-state-error { color: var(--flame); }
+
+/* ----------------------------------------------------------------------------
+   SessionDashboard — grid of live-session cards.
+---------------------------------------------------------------------------- */
+.ds-dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-3); padding: var(--space-4); }
+.ds-dash-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-2); }
+.ds-dash-card.is-error { border-color: var(--flame); }
+.ds-dash-card-head { display: flex; align-items: center; gap: var(--space-2); }
+.ds-dash-agent { font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+.ds-dash-model { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); margin-left: auto; }
+.ds-dash-meta { display: flex; flex-direction: column; gap: 2px; }
+.ds-dash-cwd { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ds-dash-stat { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-2); }
+.ds-dash-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-1); }
+.ds-dash-state { padding: var(--space-6) var(--space-4); text-align: center; color: var(--fg-3); font-size: var(--fs-body); }
+.ds-dash-state-error { color: var(--flame); }
+
+@media (max-width: 640px) {
+  .ds-dash-grid { grid-template-columns: 1fr; padding: var(--space-3); }
+}
+
+/* ----------------------------------------------------------------------------
+   ContextPane — compact right-hand context panel for the chat surface.
+---------------------------------------------------------------------------- */
+.ds-context { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-3); }
+.ds-context .panel { background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-2); }
+.ds-context .row { font-size: var(--fs-sm); }
+.ds-context .row .meta { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-2); }
+.ds-context .row .sub { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ds-context-actions { display: flex; gap: var(--space-2); }

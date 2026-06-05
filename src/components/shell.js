@@ -277,6 +277,136 @@ export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
     );
 }
 
+// Toggle a named WorkspaceShell column (left rail or right pane). Pure-DOM like
+// toggleSide: WorkspaceShell is stateless chrome, the collapsed class lives on
+// .ws-shell and is read by both CSS and the toggle buttons' aria-expanded.
+function toggleWs(which) {
+    const shell = document.querySelector('.ws-shell');
+    if (!shell) return;
+    const cls = which === 'pane' ? 'ws-pane-collapsed' : 'ws-rail-collapsed';
+    const nowCollapsed = shell.classList.toggle(cls);
+    const btn = document.querySelector('.ws-' + which + '-toggle');
+    if (btn) btn.setAttribute('aria-expanded', nowCollapsed ? 'false' : 'true');
+    try {
+        localStorage.setItem('ds.ws.' + which, nowCollapsed ? 'collapsed' : 'open');
+    } catch (_) {}
+}
+
+// Read persisted collapse state for a WorkspaceShell column so the layout is
+// predictable across reloads (Claude-Desktop keeps the rail where you left it).
+function wsCollapsed(which, fallback) {
+    try {
+        const v = localStorage.getItem('ds.ws.' + which);
+        if (v === 'collapsed') return true;
+        if (v === 'open') return false;
+    } catch (_) {}
+    return !!fallback;
+}
+
+// WorkspaceShell — a Claude-Desktop / cowork three-(or four-)column app shell.
+//
+//   rail   : the persistent left workspace nav (icon+label items, collapsible
+//            to icon-only). Pass the result of WorkspaceRail() or any vnode.
+//   sessions: an OPTIONAL second column (a conversation/session list) shown
+//            between the rail and the main content. Null hides it.
+//   main   : the primary content column (chat thread, files view, dashboard...).
+//   pane   : an OPTIONAL right context pane (per-conversation context, file
+//            preview...). Null hides it; collapsible when present.
+//   crumb  : an optional thin top chrome bar (breadcrumb + status), spanning
+//            the content area only (the rail has its own header).
+//   status : an optional footer.
+//   narrow : caller's isNarrow() — drives the mobile single-column collapse.
+//   railCollapsed / paneCollapsed : initial collapse (persisted state wins).
+//
+// Pure stateless chrome (props in, vnode out). Collapse is DOM-class + a
+// persisted flag, so the host does not have to thread collapse state through its
+// own store. Visual styling lives in app-shell.css (.ws-*).
+export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narrow,
+                                 railCollapsed = false, paneCollapsed = false,
+                                 railLabel = 'workspace navigation',
+                                 paneLabel = 'context' } = {}) {
+    const hasSessions = Boolean(sessions);
+    const hasPane = Boolean(pane);
+    const railIsCollapsed = wsCollapsed('rail', railCollapsed);
+    const paneIsCollapsed = hasPane ? wsCollapsed('pane', paneCollapsed) : true;
+    const shellCls = 'ws-shell'
+        + (railIsCollapsed ? ' ws-rail-collapsed' : '')
+        + (hasPane ? '' : ' ws-no-pane')
+        + (hasPane && paneIsCollapsed ? ' ws-pane-collapsed' : '')
+        + (hasSessions ? '' : ' ws-no-sessions')
+        + (narrow ? ' narrow' : '');
+    return h('div', { class: shellCls },
+        h('a', { href: '#ws-main', class: 'skip-link' }, 'skip to main content'),
+        // Left rail column. Its own toggle collapses it to icon-only.
+        h('nav', { class: 'ws-rail', role: 'navigation', 'aria-label': railLabel },
+            h('button', {
+                class: 'ws-rail-toggle', type: 'button',
+                'aria-label': 'collapse navigation', 'aria-expanded': railIsCollapsed ? 'false' : 'true',
+                onclick: () => toggleWs('rail'),
+            }, Icon('menu')),
+            rail || null),
+        // Optional sessions column.
+        hasSessions
+            ? h('div', { class: 'ws-sessions', role: 'complementary', 'aria-label': 'conversations' }, sessions)
+            : null,
+        // Primary content column, with an optional thin crumb bar on top.
+        h('div', { class: 'ws-content' },
+            crumb ? h('div', { class: 'ws-crumb' }, crumb) : null,
+            h('main', { class: 'ws-main' + (narrow ? ' narrow' : ''), id: 'ws-main', tabindex: '-1' },
+                ...(Array.isArray(main) ? main : [main])),
+            status || null),
+        // Optional right context pane with its own collapse toggle.
+        hasPane
+            ? h('aside', { class: 'ws-pane', role: 'complementary', 'aria-label': paneLabel },
+                h('button', {
+                    class: 'ws-pane-toggle', type: 'button',
+                    'aria-label': 'toggle context pane', 'aria-expanded': paneIsCollapsed ? 'false' : 'true',
+                    onclick: () => toggleWs('pane'),
+                }, Icon(paneIsCollapsed ? 'chevron-left' : 'chevron-right')),
+                pane)
+            : null,
+    );
+}
+
+// WorkspaceRail — the contents of the WorkspaceShell left rail: a brand/header,
+// a primary action (New chat), and a list of nav items. Each item collapses to
+// an icon when the rail is collapsed (the label is kept in the DOM for AT and
+// shown via CSS when expanded).
+//
+//   brand   : short product name shown in the rail header.
+//   action  : { label, icon, onClick } a prominent primary button (New chat).
+//   items   : [{ key, label, icon, active, count, onClick }] nav entries.
+//   footer  : optional vnode pinned to the rail bottom (e.g. settings/theme).
+export function WorkspaceRail({ brand = '247420', action, items = [], footer } = {}) {
+    return h('div', { class: 'ws-rail-inner' },
+        h('div', { class: 'ws-rail-head' },
+            h('span', { class: 'ws-rail-brand' }, brand)),
+        action
+            ? h('button', {
+                class: 'ws-rail-action', type: 'button',
+                'aria-label': action.label,
+                onclick: action.onClick || null,
+            }, action.icon ? Icon(action.icon) : null, h('span', { class: 'ws-rail-action-label' }, action.label))
+            : null,
+        h('ul', { class: 'ws-rail-nav', role: 'list' },
+            ...items.map((it) => h('li', { key: it.key || it.label, role: 'listitem' },
+                h('button', {
+                    type: 'button',
+                    class: 'ws-rail-item' + (it.active ? ' active' : ''),
+                    'aria-current': it.active ? 'page' : null,
+                    'aria-label': it.label + (it.count ? ' (' + it.count + ')' : ''),
+                    title: it.label,
+                    onclick: it.onClick || null,
+                },
+                    it.icon ? Icon(it.icon) : h('span', { class: 'ws-rail-item-glyph', 'aria-hidden': 'true' }),
+                    h('span', { class: 'ws-rail-item-label' }, it.label),
+                    (it.count != null && it.count !== 0 && it.count !== '0')
+                        ? h('span', { class: 'ws-rail-item-count', 'aria-hidden': 'true' }, String(it.count))
+                        : null)))),
+        footer ? h('div', { class: 'ws-rail-foot' }, footer) : null,
+    );
+}
+
 export function Heading({ level = 1, children, style = '', 'aria-level': ariaLevel }) {
     return h('h' + level, { style, 'aria-level': ariaLevel != null ? String(ariaLevel) : null }, children);
 }
