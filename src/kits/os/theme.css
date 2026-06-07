@@ -1307,3 +1307,43 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   line-height: 1.2;
   margin: 0;
 }
+
+/* gm memory browser — recall hits rendered as interactive, prunable cards
+   (thebird's gm app, docs/apps.js recall panel). */
+.ds-247420 .gm-recall-hits {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0;
+}
+.ds-247420 .gm-recall-hit {
+  border: 1px solid color-mix(in oklab, var(--fg) 14%, transparent);
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: color-mix(in oklab, var(--bg) 92%, var(--fg) 2%);
+}
+.ds-247420 .gm-recall-hit.is-pruned {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+.ds-247420 .gm-recall-meta {
+  font-family: var(--os-mono, ui-monospace, monospace);
+  font-size: 11px;
+  color: color-mix(in oklab, var(--fg) 60%, transparent);
+  margin-bottom: 4px;
+}
+.ds-247420 .gm-recall-text {
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.ds-247420 .gm-recall-acts {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+.ds-247420 .gm-recall-forget {
+  font-size: 11px;
+  padding: 2px 8px;
+}
