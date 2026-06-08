@@ -330,7 +330,10 @@ export function ShortcutHelpDialog({ open = false, onClose, registry } = {}) {
             ...Object.entries(groups).map(([scope, rows]) =>
                 h('section', { class: 'ds-kbd-group' },
                     h('h3', null, scope),
-                    h('ul', null, ...rows.map(r => h('li', null, h(ShortcutHint, { combo: r.combo }))))
+                    h('ul', null, ...rows.map(r => h('li', { class: 'ds-kbd-row' },
+                        h(ShortcutHint, { combo: r.combo }),
+                        (r.label || r.description) ? h('span', { class: 'ds-kbd-label' }, r.label || r.description) : null
+                    )))
                 )
             )
         )
