@@ -1347,3 +1347,139 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   font-size: 11px;
   padding: 2px 8px;
 }
+
+/* ============================================================
+ * thebird RESPONSIVE PERFECTION layer (desk / tablet / mobile).
+ * Appended LAST so .ds-247420-scoped rules here win source order over the
+ * earlier brand overrides (.ds-247420 .wm-root{inset:0!important} at the
+ * "bars overlay" block, .ds-247420 .wm-bar{height:34px!important}, the
+ * unconditional .ds-247420 .os-instances{display:flex}) that were silently
+ * defeating the @media(max-width:767px)/(768-1023px) contracts. Every rule
+ * below is a measured fix for a confirmed responsive-audit finding.
+ *
+ * View classes: desktop >1023px (free-float windows, full menubar);
+ * tablet 768..1023px (side-rail, wm-root left-offset); mobile <=767px AND
+ * short landscape phones (full-screen windows, collapsed menubar, bottom
+ * scroll-snap taskbar). Touch sizing is driven by (pointer:coarse) so it
+ * also covers the landscape-phone band that width-only queries miss.
+ * ============================================================ */
+
+/* --- mobile bar height: the kit intends a touch-friendly 52px; the brand
+ * layer pinned --os-bar-h-mobile to 34px which left no room for 44px tap
+ * targets in the bar. Restore 52px on mobile/touch. --- */
+@media (max-width: 767px), (max-height: 500px) and (orientation: landscape) {
+  .ds-247420 { --os-bar-h-mobile: 52px !important; --os-bar-h: 52px !important; }
+}
+
+/* --- mobile + landscape-phone full-screen windows. The earlier
+ * .ds-247420 .wm-root{inset:0!important} forced windows over the bars so the
+ * titlebar close button landed under the menubar (occluded, untappable) and
+ * window content underlapped the taskbar. Re-assert the bar-inset at scoped
+ * specificity so windows sit BETWEEN the bars. --- */
+@media (max-width: 767px), (max-height: 500px) and (orientation: landscape) {
+  .ds-247420 .wm-root {
+    top: calc(var(--os-bar-h) + env(safe-area-inset-top, 0px)) !important;
+    bottom: calc(var(--os-bar-h) + env(safe-area-inset-bottom, 0px)) !important;
+    inset: calc(var(--os-bar-h) + env(safe-area-inset-top, 0px)) 0
+           calc(var(--os-bar-h) + env(safe-area-inset-bottom, 0px)) 0 !important;
+  }
+  .ds-247420 .wm-win {
+    position: absolute !important;
+    left: 0 !important; top: 0 !important;
+    width: 100% !important; height: 100% !important;
+    border: none !important; border-radius: 0 !important; box-shadow: none !important;
+  }
+  /* titlebar must host a 44px close button -> 44px bar (beats the 34px brand clamp) */
+  .ds-247420 .wm-bar {
+    height: 44px !important; min-height: 44px !important;
+    padding: 0 10px !important; align-items: center !important;
+    pointer-events: none;
+  }
+  .ds-247420 .wm-bar .wm-title { pointer-events: auto; }
+  .ds-247420 .wm-bar .wm-btns { pointer-events: auto; }
+  /* hide min+max on mobile full-screen; keep close at 44x44 fully inside the bar */
+  .ds-247420 .wm-btns .wm-btn:nth-child(1),
+  .ds-247420 .wm-btns .wm-btn:nth-child(2) { display: none !important; }
+  .ds-247420 .wm-btns .wm-btn:nth-child(3) {
+    width: 44px !important; height: 44px !important;
+    border-radius: var(--r-1, 6px) !important;
+    background: var(--os-bg-3) !important; color: var(--os-fg) !important;
+  }
+  .ds-247420 .wm-resize { display: none !important; }
+  /* collapse the menubar workspace cluster on mobile (the unconditional
+   * .ds-247420 .os-instances{display:flex} otherwise leaves it visible) */
+  .ds-247420 .os-menubar .os-instances,
+  .ds-247420 .os-instances { display: none !important; }
+  .ds-247420 .os-menubar [data-role="add"],
+  .ds-247420 .tb-sess-add { display: none !important; }
+}
+
+/* --- landscape-phone (short + wide + touch): also hide the side-rail that the
+ * 768-1023 tablet band would otherwise show, and force the mobile menubar. --- */
+@media (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
+  .ds-247420 .os-side-rail { display: none !important; }
+}
+
+/* --- tablet (768..1023): the side-rail offset for .wm-root was defeated by
+ * the scoped inset:0; re-assert it at scoped specificity using the inset
+ * shorthand so it actually wins. --- */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .ds-247420 .wm-root {
+    left: var(--os-rail-w) !important;
+    inset: 0 0 0 var(--os-rail-w) !important;
+  }
+}
+
+/* --- universal touch tap-target floor (pointer:coarse covers tablets AND
+ * landscape phones that width-only queries miss). Every interactive control
+ * the audit measured below 44px is lifted to the --os-tap (44px) token. --- */
+@media (pointer: coarse) {
+  /* window chrome */
+  .ds-247420 .wm-btns .wm-btn { min-width: var(--os-tap, 44px); min-height: var(--os-tap, 44px); }
+  .ds-247420 .wm-resize { width: var(--os-tap, 44px); height: var(--os-tap, 44px); }
+  /* taskbar tasks (also widen and snap on the whole touch band, not mobile-only) */
+  .ds-247420 .os-task {
+    min-height: var(--os-tap, 44px); min-width: 120px;
+    padding: 10px 14px; scroll-snap-align: start;
+  }
+  .ds-247420 .os-taskbar { scroll-snap-type: x proximity; }
+  /* menubar workspace controls (when shown on tablet) */
+  .ds-247420 .os-menubar .tb-sess-x { min-width: var(--os-tap, 44px); min-height: var(--os-tap, 44px); }
+  .ds-247420 .tb-sess-chip { min-height: var(--os-tap, 44px); }
+  .ds-247420 .tb-sess-add { min-height: var(--os-tap, 44px); }
+  /* modal controls */
+  .ds-247420 .tb-sess-modal-input { height: var(--os-tap, 44px); min-height: var(--os-tap, 44px); }
+  .ds-247420 .tb-sess-modal-btn { min-height: var(--os-tap, 44px); }
+  .ds-247420 .tb-sess-modal-x { min-width: var(--os-tap, 44px); min-height: var(--os-tap, 44px); }
+  /* files-app rows + per-row actions */
+  .ds-247420 .fsb-row { min-height: var(--os-tap, 44px); }
+  .ds-247420 .fsb-act {
+    min-width: var(--os-tap, 44px); min-height: var(--os-tap, 44px);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  /* chat composer controls */
+  .ds-247420 .chat-composer .send { width: var(--os-tap, 44px); height: var(--os-tap, 44px); }
+  .ds-247420 .cc-toggle { min-height: var(--os-tap, 44px); }
+}
+
+/* --- files-app row actions must reveal on coarse pointers too (the existing
+ * trigger keyed only on hover:none, which fails on hybrid touch+hover
+ * tablets that also report a hover-capable pointer). --- */
+@media (hover: none), (pointer: coarse) {
+  .ds-247420 .fsb-actions { opacity: 1; }
+}
+
+/* --- modals: a content-tall card had no max-height and the overlay did not
+ * scroll, so the footer (primary action) was stranded off-canvas. Cap the
+ * card to the visible viewport, scroll the body, honor safe-area. --- */
+.ds-247420 .tb-sess-overlay {
+  overflow-y: auto;
+  padding: max(12px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px))
+           max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
+}
+.ds-247420 .tb-sess-modal { max-height: calc(100svh - 24px); display: flex; flex-direction: column; }
+.ds-247420 .tb-sess-modal-body { overflow-y: auto; min-height: 0; }
+
+/* --- browser-pane: the generic .app-pane 16px prose padding stranded the
+ * iframe 16px on every side; the browser pane is full-bleed. --- */
+.ds-247420 .app-pane.browser-app { padding: 0 !important; }
