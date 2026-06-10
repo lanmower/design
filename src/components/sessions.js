@@ -21,7 +21,8 @@ const h = webjsx.createElement;
 //   emptyText, loading, error  : explicit states
 export function ConversationList({ sessions = [], selected, groups, search, caption,
                                    onSelect, onNew, newLabel = 'New chat',
-                                   emptyText = 'No conversations yet', loading = false, error = null } = {}) {
+                                   emptyText = 'No conversations yet', loading = false, error = null,
+                                   loadingText = 'Loading conversations…' } = {}) {
   const rowFor = (s, i) => h('button', {
     // Stable key: prefer sid, else position - a missing/duplicate sid would make
     // key undefined and crash webjsx applyDiff ("reading 'key'" of undefined).
@@ -53,7 +54,7 @@ export function ConversationList({ sessions = [], selected, groups, search, capt
   // are uniformly keyed; non-row states render a single unkeyed status line.
   let inner;
   if (loading) {
-    inner = [h('div', { key: 'st', class: 'ds-session-state', role: 'status', 'aria-live': 'polite' }, 'Loading conversations…')];
+    inner = [h('div', { key: 'st', class: 'ds-session-state', role: 'status', 'aria-live': 'polite' }, loadingText)];
   } else if (error) {
     inner = [h('div', { key: 'st', class: 'ds-session-state ds-session-state-error', role: 'status' }, String(error))];
   } else if (!sessions.length) {
@@ -83,6 +84,30 @@ export function ConversationList({ sessions = [], selected, groups, search, capt
     // identical rows are disambiguated.
     caption ? h('div', { key: 'cap', class: 'ds-session-caption' }, caption) : null,
     body);
+}
+
+// SessionMeta — a middot-separated metadata strip for a session detail surface.
+//   items : [{ label, value, title, onCopy }]
+// Each item is a span (label dimmed, value mono) with an optional per-item copy
+// button; the strip flex-wraps at narrow widths. Class is .ds-session-meta-strip
+// (the bare .ds-session-meta is already taken by ConversationList row meta).
+export function SessionMeta({ items = [] } = {}) {
+  if (!items.length) return null;
+  return h('div', { class: 'ds-session-meta-strip', role: 'group', 'aria-label': 'session metadata' },
+    ...items.map((it, i) => h('span', {
+      key: 'sm-' + (it.label != null ? it.label : i),
+      class: 'ds-session-meta-item',
+      title: it.title || null,
+    },
+      [
+        it.label != null ? h('span', { key: 'l', class: 'ds-session-meta-label' }, it.label) : null,
+        h('span', { key: 'v', class: 'ds-session-meta-value' }, it.value != null ? String(it.value) : ''),
+        it.onCopy ? h('button', {
+          key: 'c', type: 'button', class: 'ds-session-meta-copy',
+          'aria-label': 'copy ' + (it.title || it.label || 'value'),
+          onclick: () => it.onCopy(it.value),
+        }, 'copy') : null,
+      ].filter(Boolean))));
 }
 
 // SessionCard — one running session in the live dashboard. Status dot, agent /
@@ -154,7 +179,14 @@ export function SessionCard({ session = {}, onStop, onOpen, onView, active = fal
 // still tells the user the dashboard is listening (vs a dropped stream).
 const STREAM_WORD = { connected: 'listening for activity', connecting: 'connecting to live stream…', lost: 'live stream lost — retrying…' };
 
+// The stop-all / stop-selected danger buttons are two-step (host-driven, the kit
+// is stateless): the first click fires onArmStop* so the host flips confirming*
+// true and re-renders; the armed button reads 'stop N sessions - press again'
+// and only THAT click fires the real onStopAll/onStopSelected. Hosts that wire
+// no onArmStop* keep the old single-click behavior.
 export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStopAll, onStopSelected,
+                                   confirmingStopAll = false, confirmingStopSelected = false,
+                                   onArmStopAll, onArmStopSelected,
                                    sort, filter, errorsOnly = false, onErrorsOnly,
                                    selectable = false, selected, onToggleSelect,
                                    activeSid, streamState,
@@ -194,8 +226,16 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
     streamLine,
     h('span', { class: 'spread' }),
     selectable && selCount && onStopSelected
-      ? Btn({ key: 'stopsel', danger: true, onClick: () => onStopSelected([...selSet]), children: 'stop selected' })
-      : (onStopAll ? Btn({ key: 'stopall', danger: true, onClick: () => onStopAll(sessions), children: 'stop all' }) : null),
+      ? (onArmStopSelected && !confirmingStopSelected
+          ? Btn({ key: 'stopsel', danger: true, onClick: () => onArmStopSelected([...selSet]), children: 'stop selected' })
+          : Btn({ key: 'stopsel', danger: true, onClick: () => onStopSelected([...selSet]),
+                  children: confirmingStopSelected ? 'stop ' + selCount + ' sessions - press again' : 'stop selected' }))
+      : (onStopAll
+          ? (onArmStopAll && !confirmingStopAll
+              ? Btn({ key: 'stopall', danger: true, onClick: () => onArmStopAll(sessions), children: 'stop all' })
+              : Btn({ key: 'stopall', danger: true, onClick: () => onStopAll(sessions),
+                      children: confirmingStopAll ? 'stop ' + sessions.length + ' sessions - press again' : 'stop all' }))
+          : null),
     toolbar);
   const grid = h('div', { class: 'ds-dash-grid', role: 'list', 'aria-label': 'live sessions' },
     ...sessions.map((s) => h('div', { key: s.sid, role: 'listitem' },

@@ -190,6 +190,50 @@
 .agentchat-empty-suggestion:hover { background: color-mix(in srgb, var(--accent, var(--fg)) 12%, transparent); }
 .agentchat-empty-suggestion:focus-visible { outline: 2px solid var(--accent, var(--fg)); outline-offset: 2px; }
 
+/* Guided install path in the empty state: copy line + monospaced command rows
+   (each with its own copy button) + a recheck button. No animation. */
+.agentchat-install {
+  margin-top: var(--space-4, 16px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+  text-align: left;
+  width: 100%;
+}
+.agentchat-install-text { margin: 0; font-size: .9em; color: var(--fg-3); }
+.agentchat-install-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-1, 4px); }
+.agentchat-install-row {
+  display: flex; align-items: center; gap: var(--space-2, 8px);
+  padding: var(--space-1, 4px) var(--space-2, 8px);
+  border: var(--bw-hair) solid var(--rule);
+  border-radius: var(--r-1, 4px);
+  background: var(--bg-2);
+}
+.agentchat-install-agent { flex: 0 0 auto; font-size: var(--fs-tiny); color: var(--fg-3); min-width: 8ch; }
+.agentchat-install-cmd {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: var(--ff-mono); font-size: var(--fs-sm); color: var(--fg-2, var(--fg));
+}
+.agentchat-install-copy {
+  flex: 0 0 auto; cursor: pointer; padding: 2px 8px; min-height: 24px;
+  border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 4px);
+  background: none; color: var(--fg-3);
+  font-family: var(--ff-body); font-size: var(--fs-tiny);
+}
+.agentchat-install-copy:hover { background: var(--bg-3); color: var(--fg); }
+.agentchat-install-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.agentchat-install-actions { display: flex; justify-content: flex-start; }
+
+/* Host-supplied transcript export actions riding the controls row. */
+.agentchat-export-act {
+  cursor: pointer; padding: 4px 10px; min-height: 32px;
+  border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 4px);
+  background: none; color: var(--fg-3);
+  font-family: var(--ff-body); font-size: var(--fs-tiny);
+}
+.agentchat-export-act:hover { background: var(--bg-2); color: var(--fg); }
+.agentchat-export-act:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
 /* "working" tail: a long silent tool call shouldn't read as frozen. */
 .agentchat-working {
   display: flex;
@@ -472,4 +516,28 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
   .chat-msg-action { min-width: 44px; height: 44px; }
   .ds-dash-select { min-width: 44px; min-height: 44px; }
   .ds-file-more-btn, .ds-roots-tab, .ds-dash-errors-toggle { min-height: 44px; }
+  .agentchat-export-act { min-height: 44px; }
+  .agentchat-install-copy { min-height: 44px; min-width: 44px; }
+}
+
+/* --- SessionMeta: middot-separated session metadata strip. Class is
+   .ds-session-meta-strip (.ds-session-meta is taken by ConversationList row
+   meta above). Wraps at narrow widths. --- */
+.ds-session-meta-strip {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2);
+  font-size: var(--fs-tiny); color: var(--fg-3);
+}
+.ds-session-meta-item { display: inline-flex; align-items: center; gap: var(--space-1); min-width: 0; }
+.ds-session-meta-item + .ds-session-meta-item::before { content: '\00B7'; color: var(--fg-3); margin-right: var(--space-1); }
+.ds-session-meta-label { color: var(--fg-3); }
+.ds-session-meta-value { font-family: var(--ff-mono); color: var(--fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-session-meta-copy {
+  padding: 2px 8px; min-height: 24px; cursor: pointer;
+  background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1);
+  color: var(--fg-3); font-family: var(--ff-body); font-size: var(--fs-micro);
+}
+.ds-session-meta-copy:hover { background: var(--bg-3); color: var(--fg); }
+.ds-session-meta-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (pointer: coarse), (max-width: 640px) {
+  .ds-session-meta-copy { min-height: 44px; min-width: 44px; }
 }

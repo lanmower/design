@@ -13,7 +13,7 @@
 //   cwd       : the chat working directory (string) or falsy for server default
 //   toolCount : number of tool calls running in the current live turn (>=0)
 //   usage     : OPTIONAL last-turn usage { inputTokens, outputTokens, costUsd, turns, durationMs }
-//   session   : OPTIONAL session metadata { id, messages, startedAt } shown as a block
+//   session   : OPTIONAL whole-conversation totals { turns, cost } shown as a block
 //   onSetCwd  : optional callback for the "set working directory" affordance
 //
 // No decorative glyphs — words + the kit's Icon SVGs only.
@@ -34,10 +34,11 @@ function fmtTok(n) {
 export function ContextPane({ agent, model, cwd, toolCount = 0, usage, session, onSetCwd } = {}) {
     const running = Number(toolCount) > 0;
     const hasUsage = usage && (usage.inputTokens != null || usage.outputTokens != null || usage.costUsd != null);
+    const hasSession = session && (session.turns != null || session.cost != null);
     // Empty state: before an agent is picked AND with no usage/session, four
     // placeholder rows (agent: none / model: dash / ...) read as a dead panel.
     // Show one honest line instead.
-    if (!agent && !hasUsage && !session && !cwd) {
+    if (!agent && !hasUsage && !hasSession && !cwd) {
         return h('div', { class: 'ds-context' },
             h('div', { class: 'ds-context-empty', role: 'status' },
                 'No active conversation — start a chat to see context here'),
@@ -66,6 +67,14 @@ export function ContextPane({ agent, model, cwd, toolCount = 0, usage, session, 
             ],
         }),
     ];
+    // Conversation block: whole-session totals (turn count + accumulated cost)
+    // between the context panel and the per-turn usage panel.
+    if (hasSession) {
+        const sesRows = [];
+        if (session.turns != null) sesRows.push(Row({ title: 'turns', meta: String(session.turns) }));
+        if (session.cost != null) sesRows.push(Row({ title: 'total cost', meta: '$' + Number(session.cost).toFixed(4) }));
+        panels.push(Panel({ title: 'conversation', children: sesRows }));
+    }
     // Usage block: surface the last turn's token/cost/turn/duration so the
     // result event is no longer silently dropped.
     if (hasUsage) {

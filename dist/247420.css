@@ -3300,6 +3300,48 @@
 .ds-247420 .ws-drawer-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .ds-247420 .ws-scrim { display: none; }
 
+/* ============================================================
+   Row title highlight, expanded-row actions, filter pills.
+   ============================================================ */
+
+/* Highlighted match inside a Row title (Row `highlight` prop). */
+.ds-247420 .ds-hl { background: color-mix(in oklab, var(--accent) 25%, transparent); color: inherit; border-radius: 2px; }
+
+/* Action strip rendered inside an EXPANDED Row (Row `actions` prop). The
+   buttons stop propagation so they never fire the row onClick. */
+.ds-247420 .row-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); width: 100%; padding-top: var(--space-2); }
+.ds-247420 .row-act {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 4px 10px; min-height: 28px;
+  background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1);
+  color: var(--fg-2); font-family: var(--ff-body); font-size: var(--fs-tiny); cursor: pointer;
+  transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+}
+.ds-247420 .row-act:hover { background: var(--bg-3); color: var(--fg); }
+.ds-247420 .row-act:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* FilterPills - a group of pill toggle buttons (aria-pressed). */
+.ds-247420 .ds-filter-pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.ds-247420 .ds-filter-pill {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 4px 12px; min-height: 28px;
+  background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: 999px;
+  color: var(--fg-2); font-family: var(--ff-body); font-size: var(--fs-tiny); cursor: pointer;
+  transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+}
+.ds-247420 .ds-filter-pill:hover { background: var(--bg-3); color: var(--fg); }
+.ds-247420 .ds-filter-pill.active { background: var(--accent-tint); color: var(--accent); border-color: var(--accent); }
+.ds-247420 .ds-filter-pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* Touch floor for the new small controls. */
+@media (pointer: coarse) {
+  .ds-247420 .row-act, .ds-247420 .ds-filter-pill { min-height: 44px; }
+}
+
+/* Disabled file actions (read-only row / in-flight mutation) stay visible but inert. */
+.ds-247420 .ds-file-act:disabled { opacity: .45; cursor: default; }
+.ds-247420 .ds-file-act:disabled:hover { background: transparent; color: var(--fg-3); }
+
 /* community.css */
 /* ============================================================
    247420 design system — community surface (Discord-style chat)
@@ -5021,6 +5063,50 @@
 .ds-247420 .agentchat-empty-suggestion:hover { background: color-mix(in srgb, var(--accent, var(--fg)) 12%, transparent); }
 .ds-247420 .agentchat-empty-suggestion:focus-visible { outline: 2px solid var(--accent, var(--fg)); outline-offset: 2px; }
 
+/* Guided install path in the empty state: copy line + monospaced command rows
+   (each with its own copy button) + a recheck button. No animation. */
+.ds-247420 .agentchat-install {
+  margin-top: var(--space-4, 16px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+  text-align: left;
+  width: 100%;
+}
+.ds-247420 .agentchat-install-text { margin: 0; font-size: .9em; color: var(--fg-3); }
+.ds-247420 .agentchat-install-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-1, 4px); }
+.ds-247420 .agentchat-install-row {
+  display: flex; align-items: center; gap: var(--space-2, 8px);
+  padding: var(--space-1, 4px) var(--space-2, 8px);
+  border: var(--bw-hair) solid var(--rule);
+  border-radius: var(--r-1, 4px);
+  background: var(--bg-2);
+}
+.ds-247420 .agentchat-install-agent { flex: 0 0 auto; font-size: var(--fs-tiny); color: var(--fg-3); min-width: 8ch; }
+.ds-247420 .agentchat-install-cmd {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: var(--ff-mono); font-size: var(--fs-sm); color: var(--fg-2, var(--fg));
+}
+.ds-247420 .agentchat-install-copy {
+  flex: 0 0 auto; cursor: pointer; padding: 2px 8px; min-height: 24px;
+  border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 4px);
+  background: none; color: var(--fg-3);
+  font-family: var(--ff-body); font-size: var(--fs-tiny);
+}
+.ds-247420 .agentchat-install-copy:hover { background: var(--bg-3); color: var(--fg); }
+.ds-247420 .agentchat-install-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-247420 .agentchat-install-actions { display: flex; justify-content: flex-start; }
+
+/* Host-supplied transcript export actions riding the controls row. */
+.ds-247420 .agentchat-export-act {
+  cursor: pointer; padding: 4px 10px; min-height: 32px;
+  border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 4px);
+  background: none; color: var(--fg-3);
+  font-family: var(--ff-body); font-size: var(--fs-tiny);
+}
+.ds-247420 .agentchat-export-act:hover { background: var(--bg-2); color: var(--fg); }
+.ds-247420 .agentchat-export-act:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
 /* "working" tail: a long silent tool call shouldn't read as frozen. */
 .ds-247420 .agentchat-working {
   display: flex;
@@ -5303,6 +5389,30 @@
   .ds-247420 .chat-msg-action { min-width: 44px; height: 44px; }
   .ds-247420 .ds-dash-select { min-width: 44px; min-height: 44px; }
   .ds-247420 .ds-file-more-btn, .ds-247420 .ds-roots-tab, .ds-247420 .ds-dash-errors-toggle { min-height: 44px; }
+  .ds-247420 .agentchat-export-act { min-height: 44px; }
+  .ds-247420 .agentchat-install-copy { min-height: 44px; min-width: 44px; }
+}
+
+/* --- SessionMeta: middot-separated session metadata strip. Class is
+   .ds-session-meta-strip (.ds-session-meta is taken by ConversationList row
+   meta above). Wraps at narrow widths. --- */
+.ds-247420 .ds-session-meta-strip {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2);
+  font-size: var(--fs-tiny); color: var(--fg-3);
+}
+.ds-247420 .ds-session-meta-item { display: inline-flex; align-items: center; gap: var(--space-1); min-width: 0; }
+.ds-247420 .ds-session-meta-item + .ds-session-meta-item::before { content: '\00B7'; color: var(--fg-3); margin-right: var(--space-1); }
+.ds-247420 .ds-session-meta-label { color: var(--fg-3); }
+.ds-247420 .ds-session-meta-value { font-family: var(--ff-mono); color: var(--fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-247420 .ds-session-meta-copy {
+  padding: 2px 8px; min-height: 24px; cursor: pointer;
+  background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1);
+  color: var(--fg-3); font-family: var(--ff-body); font-size: var(--fs-micro);
+}
+.ds-247420 .ds-session-meta-copy:hover { background: var(--bg-3); color: var(--fg); }
+.ds-247420 .ds-session-meta-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (pointer: coarse), (max-width: 640px) {
+  .ds-247420 .ds-session-meta-copy { min-height: 44px; min-width: 44px; }
 }
 
 /* editor-primitives.css */

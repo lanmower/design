@@ -16,7 +16,7 @@ export {
     WorksList, WritingList, Manifesto, Section, PageHeader,
     Kpi, Table, SearchInput, TextField, Select, EventList,
     HomeView, ProjectView, Form,
-    Spinner, Skeleton, Alert
+    Spinner, Skeleton, Alert, FilterPills
 } from './components/content.js';
 
 export {
@@ -28,7 +28,7 @@ export {
 export { AgentChat } from './components/agent-chat.js';
 
 export {
-    ConversationList, SessionCard, SessionDashboard
+    ConversationList, SessionCard, SessionDashboard, SessionMeta
 } from './components/sessions.js';
 
 export { ContextPane } from './components/context-pane.js';

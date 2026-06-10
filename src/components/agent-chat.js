@@ -55,7 +55,7 @@ function scrollThreadToBottom(btn) {
 // The agent picker: agent-then-model, not a flat model list. Unavailable agents
 // are disabled (unless installable via npx). Ordering is the host's concern.
 function AgentControls({ agents, selectedAgent, models, selectedModel, busy, status, modelsLoading,
-                         onSelectAgent, onSelectModel, onNewChat, onStop }) {
+                         onSelectAgent, onSelectModel, onNewChat, onStop, exportActions }) {
   const agentOptions = (agents || []).map((a) => ({
     value: a.id,
     label: a.name + (a.available === false ? (a.npxInstallable ? ' (via npx)' : ' (not installed)') : ''),
@@ -85,6 +85,16 @@ function AgentControls({ agents, selectedAgent, models, selectedModel, busy, sta
     h('span', { key: 'st', class: 'agentchat-status', role: 'status', 'aria-live': 'polite' },
       h('span', { class: 'status-dot-disc ' + (busy ? 'status-dot-live' : ''), 'aria-hidden': 'true' }),
       h('span', {}, status || (busy ? 'streaming…' : 'ready'))),
+    // Host-supplied transcript actions (copy-all / export-md / export-json):
+    // small text-labeled buttons riding the same controls row. All siblings in
+    // this h(...) call are keyed VElements or null — never bare strings.
+    ...(exportActions && exportActions.length
+      ? exportActions.map((a, i) => h('button', {
+          key: 'exp' + i, type: 'button', class: 'agentchat-export-act',
+          title: a.title || a.label,
+          onclick: () => a.onClick && a.onClick(),
+        }, a.label))
+      : []),
   );
 }
 
@@ -124,8 +134,10 @@ export function AgentChat(props = {}) {
     canSend = true,
     suggestions = [], onSuggestionClick,
     onCopyMessage, onRetryMessage, onEditMessage,
+    confirmEdit = false, onArmEdit,
     avatar, composerContext,
     followups = [], onFollowupClick,
+    installHint, exportActions = [],
   } = props;
 
   const name = agentName || (agents.find((a) => a.id === selectedAgent)?.name) || selectedAgent || 'agent';
@@ -194,7 +206,10 @@ export function AgentChat(props = {}) {
       const built = [];
       if (onCopyMessage) built.push({ label: 'copy', icon: 'copy', title: 'copy message', onClick: () => onCopyMessage(m) });
       if (isAssistant && onRetryMessage && i === lastIdx) built.push({ label: 'retry', icon: 'refresh', title: 'retry this turn', onClick: () => onRetryMessage(m) });
-      if (!isAssistant && onEditMessage) built.push({ label: 'edit', icon: 'pencil', title: 'edit and resend', onClick: () => onEditMessage(m) });
+      // With confirmEdit the host arms its own confirm affordance (onArmEdit)
+      // instead of resending immediately; the kit stays stateless either way.
+      if (!isAssistant && onEditMessage) built.push({ label: 'edit', icon: 'pencil', title: 'edit and resend',
+        onClick: () => (confirmEdit && onArmEdit) ? onArmEdit(m) : onEditMessage(m) });
       if (built.length) actions = built;
     }
     return ChatMessage({
@@ -253,12 +268,40 @@ export function AgentChat(props = {}) {
                 key: 'sug' + i, type: 'button', class: 'agentchat-empty-suggestion',
                 onclick: () => { const t = typeof s === 'string' ? s : (s.prompt || s.text || ''); if (onSuggestionClick) onSuggestionClick(t); },
               }, typeof s === 'string' ? s : (s.label || s.text || s.prompt))))
+          : null,
+        // Guided install path for a brand-new user with zero installed agents:
+        // a plain copy line, a monospaced command per row (each with its own
+        // copy button, pure-DOM label flip like the code-block copy), and a
+        // recheck button so the user needn't reload after installing.
+        installHint
+          ? h('div', { class: 'agentchat-install', role: 'group', 'aria-label': 'install an agent' },
+              installHint.text ? h('p', { class: 'agentchat-install-text' }, installHint.text) : null,
+              (installHint.commands && installHint.commands.length)
+                ? h('ul', { class: 'agentchat-install-list' },
+                    ...installHint.commands.map((c, i) => h('li', { key: 'inst' + i, class: 'agentchat-install-row' },
+                      h('span', { class: 'agentchat-install-agent' }, c.agent),
+                      h('code', { class: 'agentchat-install-cmd' }, c.command),
+                      h('button', {
+                        type: 'button', class: 'agentchat-install-copy',
+                        'aria-label': 'copy install command for ' + c.agent, title: 'copy command',
+                        onclick: (e) => {
+                          const btn = e.currentTarget;
+                          navigator.clipboard && navigator.clipboard.writeText(c.command);
+                          btn.textContent = 'copied';
+                          setTimeout(() => { btn.textContent = 'copy'; }, 1200);
+                        },
+                      }, 'copy'))))
+                : null,
+              installHint.onRecheck
+                ? h('div', { class: 'agentchat-install-actions' },
+                    Btn({ onClick: () => installHint.onRecheck(), children: 'recheck agents', title: 'Re-check installed agents' }))
+                : null)
           : null)
     : null;
 
   return h('div', { class: 'agentchat' },
     AgentControls({ agents, selectedAgent, models, selectedModel, busy, status, modelsLoading,
-                    onSelectAgent, onSelectModel, onNewChat, onStop }),
+                    onSelectAgent, onSelectModel, onNewChat, onStop, exportActions }),
     CwdBar({ cwd, editing: cwdEditing, draft: cwdDraft,
              onEdit: onCwdEdit, onSave: onCwdSave, onCancel: onCwdCancel, onClear: onCwdClear, onDraft: onCwdDraft }),
     ...(banners || []).filter(Boolean),

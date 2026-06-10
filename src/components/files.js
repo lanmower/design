@@ -43,7 +43,12 @@ export function FileIcon({ type = 'other' } = {}) {
     return h('span', { class: 'ds-file-icon', 'data-file-type': type, 'aria-label': TYPE_LABELS[type] || 'file', role: 'img' }, Icon(fileGlyph(type)));
 }
 
-export function FileRow({ name, type = 'other', size, modified, code, onOpen, onAction, active, key, permissions, locked } = {}) {
+// Default action set for FileRow. A host without mutation endpoints passes a
+// narrower `actions` list (e.g. ['download']) so the row renders no dead controls.
+const FILE_ROW_ACTIONS = ['download', 'rename', 'delete'];
+
+export function FileRow({ name, type = 'other', size, modified, code, onOpen, onAction, active, key, permissions, locked,
+                          actions = FILE_ROW_ACTIONS, busy = false } = {}) {
     // permissions: ['read','write'] | ['read'] | 'EACCES'. A no-access entry can
     // be listed (the dir stat saw it) but not opened — show an ASCII tag and
     // disable the open button so the row reads honestly instead of silently
@@ -54,7 +59,29 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
     const meta = [type === 'dir' ? null : fmtFileSize(size), modified || null, permTag].filter(Boolean).join(' · ');
     const typeLabel = TYPE_LABELS[type] || 'file';
     const accessibleLabel = `${typeLabel}: ${name}${meta ? ` (${meta})` : ''}`;
-    const canOpen = onOpen && !noAccess;
+    const canOpen = onOpen && !noAccess && !busy;
+    // Mutation actions on a read-only/no-access row render disabled (with a
+    // 'read-only' title) instead of vanishing, so the affordance reads honestly.
+    // `busy` (in-flight mutation) disables every control on the row.
+    const mutateDisabled = busy || readOnly || noAccess;
+    const actBtn = (act, title, ariaLabel, icon, warn) => h('button', {
+        key: 'act-' + act,
+        type: 'button',
+        class: 'ds-file-act' + (warn ? ' ds-file-act-warn' : ''),
+        title: mutateDisabled && act !== 'download' ? 'read-only' : title,
+        'aria-label': ariaLabel,
+        disabled: (act === 'download' ? busy : mutateDisabled) ? true : null,
+        'aria-disabled': (act === 'download' ? busy : mutateDisabled) ? 'true' : null,
+        onclick: () => onAction(act),
+    }, Icon(icon));
+    const actionBtns = onAction ? [
+        actions.indexOf('download') !== -1 && type !== 'dir'
+            ? actBtn('download', 'download', `download ${name}`, 'arrow-down', false) : null,
+        actions.indexOf('rename') !== -1
+            ? actBtn('rename', 'rename', `rename ${name}`, 'pencil', false) : null,
+        actions.indexOf('delete') !== -1
+            ? actBtn('delete', 'delete', `delete ${name}`, 'x', true) : null,
+    ].filter(Boolean) : [];
     // A role=button row containing real <button> action controls is invalid
     // HTML (interactive nesting). Instead the row is a plain container and the
     // primary "open" affordance is itself a real <button> (native keyboard +
@@ -63,6 +90,7 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
         key,
         class: 'ds-file-row row' + (active ? ' active' : '') + (noAccess ? ' is-locked' : ''),
         'data-file-type': type,
+        'aria-busy': busy ? 'true' : null,
     },
         h('button', {
             type: 'button',
@@ -77,10 +105,8 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
             h('span', { class: 'title' }, name),
             h('span', { class: 'ds-file-meta meta', 'aria-label': meta ? `metadata: ${meta}` : null }, meta || '—')
         ),
-        onAction ? h('span', { class: 'ds-file-actions', role: 'group', 'aria-label': `actions for ${name}` },
-            h('button', { class: 'ds-file-act', title: 'download', 'aria-label': `download ${name}`, onclick: () => onAction('download') }, Icon('arrow-down')),
-            h('button', { class: 'ds-file-act', title: 'rename', 'aria-label': `rename ${name}`, onclick: () => onAction('rename') }, Icon('pencil')),
-            h('button', { class: 'ds-file-act ds-file-act-warn', title: 'delete', 'aria-label': `delete ${name}`, onclick: () => onAction('delete') }, Icon('x'))
+        actionBtns.length ? h('span', { class: 'ds-file-actions', role: 'group', 'aria-label': `actions for ${name}` },
+            ...actionBtns
         ) : null
     );
 }
@@ -133,7 +159,7 @@ const FILE_GRID_CAP = 200;
 
 export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No files here yet',
                           columns = 'auto', sort, filter, loading = false,
-                          shown, onShowMore } = {}) {
+                          shown, onShowMore, actions, busy } = {}) {
     if (loading) return FileSkeleton({});
     if (!files.length) return EmptyState({ text: emptyText });
     // Cap the rendered rows. `shown` (host-controlled) overrides the default cap
@@ -179,6 +205,8 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
             key: f.path || f.name + i,
             name: f.name, type: f.type, size: f.size, modified: f.modified, code: f.code, active: f.active,
             permissions: f.permissions, locked: f.locked,
+            actions: actions != null ? actions : undefined,
+            busy: busy != null ? !!busy : !!f.busy,
             onOpen: onOpen ? () => onOpen(f) : null,
             onAction: onAction ? (act) => onAction(act, f) : null
         }))

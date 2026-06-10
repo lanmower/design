@@ -6,9 +6,9 @@ import * as webjsx from '../../vendor/webjsx/index.js';
 import { Btn, Heading, Lede, Dot, Icon } from './shell.js';
 const h = webjsx.createElement;
 
-export function Panel({ title, count, right, style = '', children, kind }) {
+export function Panel({ title, count, right, style = '', children, kind, id }) {
     const cls = 'panel' + (kind ? ' panel-' + kind : '');
-    return h('div', { class: cls, style },
+    return h('div', { class: cls, style, id: id || null },
         title != null ? h('div', { class: 'panel-head' },
             h('span', {}, title),
             right != null ? right : (count != null ? h('span', {}, String(count)) : null)
@@ -20,7 +20,30 @@ export function Panel({ title, count, right, style = '', children, kind }) {
 // Card — semantic alias of Panel; behaves identically.
 export const Card = Panel;
 
-export function Row({ code, rank, title, sub, meta, active, state = 'default', onClick, key, style, href, kind, cols, leading, trailing, target, selected, rail, expanded }) {
+// Split a title string around case-insensitive matches of `highlight`, wrapping
+// hits in <mark class="ds-hl">. Every segment is a keyed span so the children
+// array never mixes keyed VElements with bare strings (webjsx applyDiff crashes
+// on mixed keying).
+function highlightTitle(title, highlight) {
+    const text = String(title);
+    const needle = String(highlight).toLowerCase();
+    if (!needle) return text;
+    const lower = text.toLowerCase();
+    const segs = [];
+    let pos = 0, n = 0;
+    while (pos <= text.length) {
+        const hit = lower.indexOf(needle, pos);
+        if (hit === -1) break;
+        if (hit > pos) segs.push(h('span', { key: 'hs' + n++ }, text.slice(pos, hit)));
+        segs.push(h('mark', { key: 'hs' + n++, class: 'ds-hl' }, text.slice(hit, hit + needle.length)));
+        pos = hit + needle.length;
+    }
+    if (!segs.length) return text;
+    if (pos < text.length) segs.push(h('span', { key: 'hs' + n++ }, text.slice(pos)));
+    return segs;
+}
+
+export function Row({ code, rank, title, sub, meta, active, state = 'default', onClick, key, style, href, kind, cols, leading, trailing, target, selected, rail, expanded, highlight, actions }) {
     // `rank` is an alias for `code` (the leading monospace index); callers use
     // either name. `rail` renders a thin colour bar at the row's leading edge as
     // a status indicator (tone: green | purple | flame | <any token>).
@@ -52,10 +75,32 @@ export function Row({ code, rank, title, sub, meta, active, state = 'default', o
     }
     if (isDisabled) props['aria-disabled'] = 'true';
     if (isActive && (isLink || isButton)) props['aria-current'] = isActive ? 'page' : null;
+    // `highlight` wraps case-insensitive matches in the title in <mark class="ds-hl">.
+    // The segments live inside a single wrapper span so the title's child list
+    // never mixes keyed and unkeyed siblings.
+    const titleNode = (highlight && typeof title === 'string')
+        ? h('span', {}, ...[].concat(highlightTitle(title, highlight)))
+        : title;
+    // `actions` render ONLY when the row is expanded, as a sibling action strip
+    // inside the row container; each button stops propagation so it never fires
+    // the row onClick.
+    const actionRow = (expanded === true && Array.isArray(actions) && actions.length)
+        ? h('span', { class: 'row-actions', role: 'group', 'aria-label': 'row actions' },
+            ...actions.map((a, i) => h('button', {
+                key: 'ract' + i,
+                type: 'button',
+                class: 'row-act',
+                title: a.title || a.label,
+                'aria-label': a.title || a.label,
+                onclick: (e) => { e.stopPropagation(); a.onClick && a.onClick(e); },
+                onkeydown: (e) => { e.stopPropagation(); },
+            }, a.label)))
+        : null;
     return h(isLink ? 'a' : 'div', props,
         leading != null ? leading : (codeVal != null ? h('span', { class: 'code' }, codeVal) : null),
-        h('span', { class: 'title' }, title, sub ? h('span', { class: 'sub' }, sub) : null),
-        trailing != null ? trailing : (meta != null ? h('span', { class: 'meta' }, meta) : null));
+        h('span', { class: 'title' }, titleNode, sub ? h('span', { class: 'sub' }, sub) : null),
+        trailing != null ? trailing : (meta != null ? h('span', { class: 'meta' }, meta) : null),
+        actionRow);
 }
 
 export function RowLink({ code, title, sub, meta, href = '#', key, target }) {
@@ -253,11 +298,12 @@ export function ProjectView({ project = {}, copied, onCopy } = {}) {
     ].filter(Boolean).flat();
 }
 
-export function PageHeader({ title, lede, eyebrow, right, compact }) {
+export function PageHeader({ title, lede, eyebrow, right, compact, id }) {
     // `compact` drops the large leading/trailing section margins so a PageHeader
     // used as a page's first element top-aligns cleanly without the consumer
-    // having to !important-override the .ds-section margin.
-    return h('section', { class: 'ds-section' + (compact ? ' ds-section-compact' : '') },
+    // having to !important-override the .ds-section margin. `id` lands on the
+    // outermost section so the header can serve as a deep-link anchor.
+    return h('section', { class: 'ds-section' + (compact ? ' ds-section-compact' : ''), id: id || null },
         eyebrow ? h('span', { class: 'eyebrow' }, eyebrow) : null,
         title != null ? h('h1', {}, title) : null,
         lede != null ? h('p', { class: 'lede' }, lede) : null,
@@ -407,6 +453,21 @@ export function Skeleton({ height = '1em', width = '100%', count = 1, label = 'l
             h('div', { key: String(i), class: 'ds-skeleton', style: `height:${h_};width:${w_};`, 'aria-hidden': 'true' })
         )
     );
+}
+
+// FilterPills — a role=group of pill toggle buttons for quick category filters.
+// `options` is [{ id, label }]; `selected` the active id; clicking a pill calls
+// onSelect(id). Pressed state is announced via aria-pressed.
+export function FilterPills({ options = [], selected, onSelect, label = 'filters' } = {}) {
+    if (!options.length) return null;
+    return h('div', { class: 'ds-filter-pills', role: 'group', 'aria-label': label },
+        ...options.map((o) => h('button', {
+            key: 'fp-' + o.id,
+            type: 'button',
+            class: 'ds-filter-pill' + (o.id === selected ? ' active' : ''),
+            'aria-pressed': o.id === selected ? 'true' : 'false',
+            onclick: () => onSelect && onSelect(o.id),
+        }, o.label != null ? o.label : o.id)));
 }
 
 export function Alert({ kind = 'info', children, onDismiss, title, key } = {}) {
