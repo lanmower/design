@@ -31,8 +31,11 @@ export function fileGlyph(type) {
     return TYPE_ICON[type] || TYPE_ICON.other;
 }
 
+// The canonical kit byte formatter (chat.js re-exports it as fmtBytes). One
+// format everywhere: '0 B' for zero; the em-dash means unknown/null ONLY.
 export function fmtFileSize(bytes) {
-    if (bytes == null || bytes === 0) return '—';
+    if (bytes == null) return '—';
+    if (bytes === 0) return '0 B';
     const u = ['B', 'KB', 'MB', 'GB', 'TB'];
     let i = 0, n = bytes;
     while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
@@ -278,11 +281,27 @@ export function DropZone({ children, dragover, onDrop, onDragOver, onDragLeave, 
     );
 }
 
-export function UploadProgress({ items = [] } = {}) {
+// UploadProgress — per-file upload rows. Error rows are recoverable, not dead
+// ends: each item may carry `actions` ([{ label, onClick }], e.g. 'replace' on
+// a 409 collision) and the host may wire `onDismiss(item, index)` so error rows
+// can be cleared without waiting for the next successful batch.
+export function UploadProgress({ items = [], onDismiss } = {}) {
     if (!items.length) return null;
     return h('div', { class: 'ds-upload-progress' },
         ...items.map((it, i) => {
             const status = it.error ? 'error' : (it.done ? 'complete' : `uploading ${it.pct || 0}%`);
+            const rowActions = [
+                ...((it.actions || []).map((a, ai) => h('button', {
+                    key: 'ua' + ai, type: 'button', class: 'ds-upload-act',
+                    'aria-label': `${a.label} ${it.name}`,
+                    onclick: () => a.onClick && a.onClick(it, i),
+                }, a.label))),
+                (it.error && onDismiss) ? h('button', {
+                    key: 'ud', type: 'button', class: 'ds-upload-act',
+                    'aria-label': `dismiss ${it.name}`,
+                    onclick: () => onDismiss(it, i),
+                }, 'dismiss') : null,
+            ].filter(Boolean);
             return h('div', {
                 key: it.name + i,
                 class: 'ds-upload-item' + (it.done ? ' done' : '') + (it.error ? ' error' : ''),
@@ -297,7 +316,8 @@ export function UploadProgress({ items = [] } = {}) {
                 h('span', { class: 'ds-upload-bar' },
                     h('span', { class: 'ds-upload-fill', 'data-pct': String(Math.max(0, Math.min(100, it.pct || 0))), 'aria-hidden': 'true' })
                 ),
-                h('span', { class: 'ds-upload-pct', 'aria-hidden': 'true' }, (it.error ? 'err' : (it.done ? 'ok' : (it.pct || 0) + '%')))
+                h('span', { class: 'ds-upload-pct', 'aria-hidden': 'true' }, (it.error ? 'err' : (it.done ? 'ok' : (it.pct || 0) + '%'))),
+                rowActions.length ? h('span', { class: 'ds-upload-actions', role: 'group', 'aria-label': `actions for ${it.name}` }, ...rowActions) : null
             );
         })
     );

@@ -28,6 +28,14 @@ const baseAutoScroll = (msgCount) => makeThreadAutoScroll(() => msgCount);
 // the bottom (the IntersectionObserver gate), so reading back-history is no
 // longer fought; the button is the explicit way back to the live edge.
 const NEAR_BOTTOM_PX = 80;
+
+// Thread window: how many trailing turns render by default (hosts override via
+// shownMessages; grow with onShowEarlier).
+export const MESSAGE_CAP = 100;
+// A single streaming message beyond this many chars renders only a tail window
+// per frame (O(tail), not O(turn)); the settled turn renders full markdown once.
+const STREAM_TAIL_THRESHOLD = 20000;
+const STREAM_TAIL_WINDOW = 4000;
 const threadRef = (msgCount) => {
   const auto = baseAutoScroll(msgCount);
   return (el) => {
@@ -99,14 +107,22 @@ function AgentControls({ agents, selectedAgent, models, selectedModel, busy, sta
 }
 
 // A working-directory bar: shows where the agent will run, editable + clearable.
-function CwdBar({ cwd, editing, draft, onEdit, onSave, onCancel, onClear, onDraft }) {
+// `error`/`checking` give inline validation feedback while typing/blur (the host
+// debounces its /api/stat probe and sets these): a plain-language line renders
+// under the input (aria-describedby) and save stays disabled while either is set.
+function CwdBar({ cwd, editing, draft, onEdit, onSave, onCancel, onClear, onDraft, error, checking }) {
   if (editing) {
+    const hint = checking ? 'checking…' : (error || null);
     return h('div', { class: 'agentchat-cwd agentchat-cwd-editing', role: 'group', 'aria-label': 'Set working directory' },
       h('input', { class: 'agentchat-cwd-input', type: 'text', value: draft ?? cwd ?? '',
         placeholder: 'absolute path (blank = server default)',
+        'aria-describedby': hint ? 'agentchat-cwd-hint' : null,
+        'aria-invalid': error ? 'true' : null,
         oninput: (e) => onDraft && onDraft(e.target.value) }),
-      Btn({ key: 'save', primary: true, onClick: () => onSave && onSave(), children: 'save' }),
-      Btn({ key: 'cancel', onClick: () => onCancel && onCancel(), children: 'cancel' }));
+      Btn({ key: 'save', primary: true, disabled: !!(error || checking), onClick: () => onSave && onSave(), children: 'save' }),
+      Btn({ key: 'cancel', onClick: () => onCancel && onCancel(), children: 'cancel' }),
+      hint ? h('span', { key: 'hint', id: 'agentchat-cwd-hint', role: 'status', 'aria-live': 'polite',
+        class: 'agentchat-cwd-hint' + (error ? ' is-error' : ' is-checking') }, hint) : null);
   }
   return h('div', { class: 'agentchat-cwd', role: 'group', 'aria-label': 'Working directory' },
     h('span', { class: 'agentchat-cwd-text', title: cwd || 'server default working directory' },
@@ -127,7 +143,7 @@ export function AgentChat(props = {}) {
   const {
     agents = [], selectedAgent = '', models = [], selectedModel = '', modelsLoading = false,
     messages = [], busy = false, draft = '', status, banners = [],
-    cwd = '', cwdEditing = false, cwdDraft,
+    cwd = '', cwdEditing = false, cwdDraft, cwdError, cwdChecking = false,
     agentName, placeholder,
     onSelectAgent, onSelectModel, onSend, onStop, onNewChat, onInput,
     onCwdEdit, onCwdSave, onCwdCancel, onCwdClear, onCwdDraft,
@@ -138,11 +154,20 @@ export function AgentChat(props = {}) {
     avatar, composerContext,
     followups = [], onFollowupClick,
     installHint, exportActions = [],
+    onPasteFiles, onDropFiles,
+    shownMessages, onShowEarlier,
   } = props;
 
   const name = agentName || (agents.find((a) => a.id === selectedAgent)?.name) || selectedAgent || 'agent';
   const lastIdx = messages.length - 1;
   const lastMsg = messages[lastIdx];
+  // Windowed thread render (mirrors FileGrid's cap): only the last `limit`
+  // turns build vnodes each frame; a keyed 'show N earlier turns' row at the
+  // top grows the window via onShowEarlier (host keeps state.chat.shownMessages
+  // and resets it on newChat/loadSession). A 500-turn conversation no longer
+  // rebuilds 500 ChatMessage vnodes per streaming rAF tick.
+  const msgLimit = shownMessages != null ? shownMessages : MESSAGE_CAP;
+  const msgStart = Math.max(0, messages.length - msgLimit);
   // True when streaming but the live assistant turn already shows content/parts,
   // so its inline typing dots have stopped — a long silent tool call would
   // otherwise read as frozen. We append a standalone "working" indicator below.
@@ -151,7 +176,8 @@ export function AgentChat(props = {}) {
   // so an interleaved turn (parts-only, no m.content) is not treated as empty.
   const msgHasBody = (m) => !!(m.content || (Array.isArray(m.parts) && m.parts.length));
   const showWorkingTail = busy && lastMsg && lastMsg.role === 'assistant' && msgHasBody(lastMsg);
-  const rows = messages.map((m, i) => {
+  const rows = messages.slice(msgStart).map((m, wi) => {
+    const i = wi + msgStart; // absolute index — streaming/caret/actions logic keys off the real lastIdx
     const isAssistant = m.role === 'assistant';
     const isStreaming = busy && i === lastIdx && isAssistant;
     const hasParts = Array.isArray(m.parts) && m.parts.length > 0;
@@ -179,6 +205,17 @@ export function AgentChat(props = {}) {
         // use — only the inner content swaps on settle, so the bubble box does
         // not reflow/jump when the turn finishes and renders real markdown.
         if (isStreaming && part.kind === 'md') {
+          const txt = part.text || '';
+          // Giant streamed block: re-rendering the whole accumulated string per
+          // rAF is O(n^2) across the turn. Past the threshold, render a preShell
+          // bubble with a 'streaming · N KB so far' head plus only the last
+          // STREAM_TAIL_WINDOW chars; full markdown renders once on settle.
+          if (txt.length > STREAM_TAIL_THRESHOLD) {
+            parts.push({ kind: 'text', mdShell: true, preShell: true,
+              text: txt.slice(-STREAM_TAIL_WINDOW),
+              streamHead: 'streaming · ' + Math.round(txt.length / 1024) + ' KB so far' });
+            continue;
+          }
           // If the streaming prose contains a code fence, the inline renderer
           // (which has no triple-backtick handling) would show it as run-on text
           // with literal ``` and no monospace, then snap into a styled <pre> on
@@ -224,9 +261,24 @@ export function AgentChat(props = {}) {
       typing: emptyStreaming,
       streaming,
       actions,
+      // Out-of-band notices (plain copy, neutral tone): m.stopped marks a
+      // cancelled turn; m.incomplete marks a turn whose stream dropped without
+      // replay. Retry rides the existing actions row.
+      stopped: m.stopped,
+      incomplete: m.incomplete,
       parts: emptyStreaming ? undefined : (parts.length ? parts : [{ kind: 'text', text: '' }]),
     });
   });
+  // Keyed 'show N earlier turns' control at the top of the window. A keyed
+  // VElement like every row sibling (webjsx keying discipline).
+  const earlierRow = msgStart > 0
+    ? h('div', { key: '_earlier', class: 'agentchat-earlier' },
+        h('span', { class: 'agentchat-earlier-count', role: 'status', 'aria-live': 'polite' },
+          'showing ' + (messages.length - msgStart) + ' of ' + messages.length + ' turns'),
+        onShowEarlier ? h('button', { type: 'button', class: 'agentchat-earlier-btn',
+          onclick: () => onShowEarlier(Math.min(messages.length, msgLimit + MESSAGE_CAP)) },
+          'show ' + Math.min(MESSAGE_CAP, msgStart) + ' earlier turns') : null)
+    : null;
 
   // While streaming, the composer's send button becomes an inline stop button
   // (busy + onCancel) so the user can halt the turn from where their hands
@@ -241,6 +293,11 @@ export function AgentChat(props = {}) {
     onCancel: busy && onStop ? () => onStop() : undefined,
     // The active target (agent / model / cwd-basename) at the point of typing.
     context: composerContext,
+    // Paste/drop file intents (image paste, file drop) — host-wired; the
+    // composer itself always preventDefaults the drop so the browser never
+    // navigates away from a live session.
+    onPasteFiles,
+    onDropFiles,
   });
 
   // Contextual follow-up chips below the last SETTLED assistant turn (claude.ai/
@@ -302,7 +359,7 @@ export function AgentChat(props = {}) {
   return h('div', { class: 'agentchat' },
     AgentControls({ agents, selectedAgent, models, selectedModel, busy, status, modelsLoading,
                     onSelectAgent, onSelectModel, onNewChat, onStop, exportActions }),
-    CwdBar({ cwd, editing: cwdEditing, draft: cwdDraft,
+    CwdBar({ cwd, editing: cwdEditing, draft: cwdDraft, error: cwdError, checking: cwdChecking,
              onEdit: onCwdEdit, onSave: onCwdSave, onCancel: onCwdCancel, onClear: onCwdClear, onDraft: onCwdDraft }),
     ...(banners || []).filter(Boolean),
     h('div', { class: 'agentchat-head', role: 'banner' },
@@ -315,6 +372,7 @@ export function AgentChat(props = {}) {
     h('div', { class: 'agentchat-thread-wrap' },
       h('div', { class: 'agentchat-thread', ref: threadRef(messages.length), role: 'log', 'aria-label': 'conversation' },
         emptyState,
+        earlierRow,
         ...rows.filter(Boolean),
         showWorkingTail
           ? h('div', { key: '_working', class: 'agentchat-working', role: 'status', 'aria-live': 'polite' },

@@ -8,7 +8,7 @@ const h = webjsx.createElement;
 // Monotonic id source for aria-labelledby wiring between a modal and its head.
 let _modalSeq = 0;
 
-function Backdrop({ onClose, children, kind = '', labelledBy } = {}) {
+function Backdrop({ onClose, children, kind = '', labelledBy, busy = false } = {}) {
     // webjsx invokes a ref callback with the element on mount and with null on
     // unmount. We stash the per-element keydown teardown on the node itself so
     // the null branch can run it — otherwise the document/element listener leaks
@@ -26,9 +26,12 @@ function Backdrop({ onClose, children, kind = '', labelledBy } = {}) {
         const lastFocusable = focusables[focusables.length - 1];
 
         const handleKeydown = (e) => {
-            // Escape closes the modal
+            // Escape closes the modal — unless a mutation is in flight (the live
+            // busy state is read off the data-busy attribute, which re-renders;
+            // this handler's closure is bound once at mount).
             if (e.key === 'Escape') {
                 e.preventDefault();
+                if (el.dataset.busy === '1') return;
                 if (onClose) onClose();
                 return;
             }
@@ -52,22 +55,61 @@ function Backdrop({ onClose, children, kind = '', labelledBy } = {}) {
             }
         };
 
-        el.addEventListener('keydown', handleKeydown);
-        el._dsModalTeardown = () => el.removeEventListener('keydown', handleKeydown);
-        // Auto-focus on open — always, not only when focus sits on <body>.
-        // Prefer an element explicitly marked [autofocus].
-        const preferred = modal.querySelector('[autofocus]') || firstFocusable;
-        if (preferred) preferred.focus();
+        // Escape must close the modal no matter where focus sits (re-renders
+        // can bounce focus out of the dialog), so listen at document level
+        // for the modal's lifetime.
+        document.addEventListener('keydown', handleKeydown, true);
+        // Record the invoker BEFORE the modal steals focus, so close (confirm,
+        // cancel, Escape, backdrop click) restores keyboard/AT focus to where
+        // the user was (e.g. the FileGrid row button) instead of <body>.
+        // Re-mounts mid-lifetime (every app render re-runs this ref) keep the
+        // ORIGINAL invoker and never re-steal focus from the user.
+        const invoker = el.contains(document.activeElement) ? (Backdrop._invoker || document.activeElement) : document.activeElement;
+        if (!Backdrop._invoker) Backdrop._invoker = invoker;
+        el._dsModalTeardown = (removed) => {
+            document.removeEventListener('keydown', handleKeydown, true);
+            // Only restore focus when the modal is genuinely going away (not a
+            // re-render remount) and focus is not already somewhere useful.
+            if (removed && Backdrop._invoker && Backdrop._invoker.focus && Backdrop._invoker.isConnected) {
+                try { Backdrop._invoker.focus(); } catch {}
+            }
+            if (removed) Backdrop._invoker = null;
+        };
+        // Auto-focus on open - only when focus is not already inside the modal
+        // (re-renders must not yank the caret around).
+        if (!el.contains(document.activeElement)) {
+            const preferred = modal.querySelector('[autofocus]') || firstFocusable;
+            if (preferred) preferred.focus();
+        }
     };
 
     return h('div', {
         class: 'ds-modal-backdrop',
+        // Live busy flag read by the mount-bound Escape handler + backdrop click.
+        'data-busy': busy ? '1' : '0',
         ref: (el) => {
-            if (el) backdropRef(el);
-            else if (Backdrop._last && Backdrop._last._dsModalTeardown) { Backdrop._last._dsModalTeardown(); Backdrop._last = null; }
-            if (el) Backdrop._last = el;
+            if (el) {
+                // A remount in the same tick (render churn) is not a close:
+                // cancel the pending removal teardown before re-binding.
+                Backdrop._pendingRemoval = false;
+                backdropRef(el);
+                Backdrop._last = el;
+            } else if (Backdrop._last && Backdrop._last._dsModalTeardown) {
+                const t = Backdrop._last._dsModalTeardown;
+                Backdrop._last = null;
+                Backdrop._pendingRemoval = true;
+                t(false); // always unhook the document listener now
+                queueMicrotask(() => {
+                    // Still gone next microtask -> genuine close: restore focus.
+                    if (Backdrop._pendingRemoval) { t(true); Backdrop._pendingRemoval = false; }
+                });
+            }
         },
-        onclick: (e) => { if (e.target === e.currentTarget && onClose) onClose(); }
+        onclick: (e) => {
+            if (e.target !== e.currentTarget) return;
+            if (e.currentTarget.dataset.busy === '1') return; // no mid-flight close
+            if (onClose) onClose();
+        }
     },
         h('div', {
             class: 'ds-modal' + (kind ? ' ds-modal-' + kind : ''),
@@ -81,13 +123,14 @@ function Backdrop({ onClose, children, kind = '', labelledBy } = {}) {
 // FileViewer all funnel through this so the ds-modal markup is authored once.
 // `actions` is an array of vnodes (already using the Btn primitive). Any of the
 // slots may be omitted.
-function Modal({ onClose, kind = '', head, headClass = '', headAttrs = {}, body, bodyClass = 'ds-modal-body', bodyAttrs = {}, actions } = {}) {
+function Modal({ onClose, kind = '', head, headClass = '', headAttrs = {}, body, bodyClass = 'ds-modal-body', bodyAttrs = {}, actions, busy = false } = {}) {
     // Give the head a stable id so the dialog can point aria-labelledby at it,
     // exposing the title as the dialog's accessible name to screen readers.
     const headId = head != null ? ('ds-modal-head-' + (++_modalSeq)) : null;
     return Backdrop({
         onClose,
         kind,
+        busy,
         labelledBy: headId,
         children: [
             head != null ? h('div', { id: headId, class: ('ds-modal-head' + (headClass ? ' ' + headClass : '')), ...headAttrs }, ...(Array.isArray(head) ? head : [head])) : null,
@@ -97,40 +140,56 @@ function Modal({ onClose, kind = '', head, headClass = '', headAttrs = {}, body,
     });
 }
 
-export function ConfirmDialog({ title = 'confirm', message, confirmLabel = 'confirm', cancelLabel = 'cancel', destructive, onConfirm, onCancel } = {}) {
+// A role=alert error line rendered INSIDE the modal body (so a 409/403 from a
+// mutation is visible at the point of action, inside the focus trap — not a
+// sibling stuck in page flow behind the fixed backdrop).
+function modalError(error) {
+    return error ? h('p', { class: 'ds-modal-error field-error', role: 'alert' }, String(error)) : null;
+}
+
+// `error` renders inside .ds-modal-body (role=alert, error tone). `busy`
+// disables both action buttons AND the Escape/backdrop close paths; the confirm
+// label flips to `busyLabel` (default 'working…') so the in-flight state reads.
+export function ConfirmDialog({ title = 'confirm', message, confirmLabel = 'confirm', cancelLabel = 'cancel', destructive, onConfirm, onCancel, error, busy = false, busyLabel = 'working…' } = {}) {
     return Modal({
         onClose: onCancel,
         kind: 'small',
+        busy,
         head: title,
-        body: message || '',
+        body: [message || '', modalError(error)].filter(Boolean),
         actions: [
-            Btn({ onClick: onCancel, children: cancelLabel }),
-            Btn({ primary: true, danger: !!destructive, onClick: onConfirm, children: confirmLabel })
+            Btn({ onClick: onCancel, disabled: busy, children: cancelLabel }),
+            Btn({ primary: true, danger: !!destructive, disabled: busy, onClick: onConfirm, children: busy ? busyLabel : confirmLabel })
         ]
     });
 }
 
-export function PromptDialog({ title = 'name', value = '', placeholder = '', confirmLabel = 'ok', cancelLabel = 'cancel', onConfirm, onCancel, onInput } = {}) {
+export function PromptDialog({ title = 'name', value = '', placeholder = '', confirmLabel = 'ok', cancelLabel = 'cancel', onConfirm, onCancel, onInput, error, busy = false, busyLabel = 'working…' } = {}) {
     return Modal({
         onClose: onCancel,
         kind: 'small',
+        busy,
         head: title,
-        body: h('input', {
+        body: [h('input', {
             class: 'input ds-modal-input',
             type: 'text',
             value,
             placeholder,
             autofocus: true,
+            disabled: busy ? true : null,
+            'aria-invalid': error ? 'true' : null,
             oninput: (e) => onInput && onInput(e.target.value),
             onkeydown: (e) => {
-                if (e.key === 'Enter') { e.preventDefault(); onConfirm && onConfirm(e.target.value); }
-                if (e.key === 'Escape') { e.preventDefault(); onCancel && onCancel(); }
+                // IME guard: the Enter that commits a CJK composition must not confirm.
+                if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); if (!busy) onConfirm && onConfirm(e.target.value); }
+                if (e.key === 'Escape') { e.preventDefault(); if (!busy) onCancel && onCancel(); }
             }
-        }),
+        }), modalError(error)].filter(Boolean),
         actions: [
-            Btn({ onClick: onCancel, children: cancelLabel }),
+            Btn({ onClick: onCancel, disabled: busy, children: cancelLabel }),
             Btn({
                 primary: true,
+                disabled: busy,
                 // Read the live input value, not the closed-over `value` prop:
                 // consumers update their state in oninput without re-rendering
                 // (to avoid caret jump), so the prop is stale at click time.
@@ -139,7 +198,7 @@ export function PromptDialog({ title = 'name', value = '', placeholder = '', con
                     const inp = e.currentTarget.closest('.ds-modal')?.querySelector('.ds-modal-input');
                     onConfirm(inp ? inp.value : value);
                 },
-                children: confirmLabel
+                children: busy ? busyLabel : confirmLabel
             })
         ]
     });

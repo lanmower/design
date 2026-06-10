@@ -8,6 +8,19 @@ import { Btn, Icon } from './shell.js';
 import { Select, SearchInput } from './content.js';
 const h = webjsx.createElement;
 
+// ONE duration format for every surface (live cards, running panel, session
+// meta, context pane): <60s -> 'Ns', <1h -> 'Nm Ss', else 'Nh Nm'. Durations
+// roll s -> m -> h instead of an hour-long run reading '3712s'.
+export function fmtDuration(ms) {
+  if (ms == null || !isFinite(ms) || ms < 0) return '';
+  const s = Math.round(ms / 1000);
+  if (s < 60) return s + 's';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + 'm ' + (s % 60) + 's';
+  const hrs = Math.floor(m / 60);
+  return hrs + 'h ' + (m % 60) + 'm';
+}
+
 // ConversationList — the Claude-Desktop "Chats" column. Sessions grouped by a
 // caller-supplied group label, each row showing title/project, relative time,
 // agent badge, and a running/new-event indicator. Selecting a row switches the
@@ -36,8 +49,10 @@ export function ConversationList({ sessions = [], selected, groups, search, capt
     // applyDiff crashes "reading 'key'"). Keep these unkeyed and filter nulls so
     // each h() call gets a clean, consistent child list.
     h('span', { class: 'ds-session-main' }, [
-      h('span', { class: 'ds-session-title' }, s.title || s.project || s.sid || ''),
-      (s.project || s.time) ? h('span', { class: 'ds-session-sub' },
+      // Two-sided truncation: the CSS ellipsis is paired with a title= carrying
+      // the full string, so a long title/project is recoverable on hover.
+      h('span', { class: 'ds-session-title', title: s.title || s.project || s.sid || null }, s.title || s.project || s.sid || ''),
+      (s.project || s.time) ? h('span', { class: 'ds-session-sub', title: s.project || null },
         [s.project, s.time].filter(Boolean).join(' · ')) : null,
     ].filter(Boolean)),
     h('span', { class: 'ds-session-meta' }, [
@@ -125,36 +140,50 @@ export function SessionMeta({ items = [] } = {}) {
 // no current tool) — it reads as `idle` with a NON-pulsing disc so a stuck agent
 // is visually distinct from a busy one (a frozen elapsed alone reads identically
 // for both, which is the high-severity oversight gap this closes).
-const STATUS_WORD = { error: 'error', stale: 'idle', running: 'running' };
-const STATUS_DISC = { error: 'status-dot-error', stale: 'status-dot-stale', running: 'status-dot-live' };
+// `session.stopping` is the in-flight cancel state: the stop button disables
+// with label 'stopping…' and the status word flips to 'stopping', so the click
+// visibly took and cannot re-fire while the host waits for the active poll.
+// `session.external` marks a session we observe (ccsniff stream) but do not own
+// (no process to kill): the stop button is suppressed, an 'external' tag renders
+// in the head, and the host wires onView to open it in history instead.
+// `session.title` is the SAME string the conversation rails use, rendered as
+// the card heading so the rail row and its dashboard card share one identity.
+// `session.elapsedMs` (raw ms) is formatted internally via fmtDuration; the
+// pre-formatted `elapsed` string remains as a legacy fallback.
+const STATUS_WORD = { error: 'error', stale: 'idle', running: 'running', stopping: 'stopping' };
+const STATUS_DISC = { error: 'status-dot-error', stale: 'status-dot-stale', running: 'status-dot-live', stopping: 'status-dot-connecting' };
 
 export function SessionCard({ session = {}, onStop, onOpen, onView, active = false,
                              selectable = false, selected = false, onToggleSelect } = {}) {
   const s = session;
-  const st = s.status === 'error' ? 'error' : (s.status === 'stale' ? 'stale' : 'running');
+  const st = s.stopping ? 'stopping' : (s.status === 'error' ? 'error' : (s.status === 'stale' ? 'stale' : 'running'));
   // The stat line composes elapsed + live counter; the activity line carries the
   // last-activity time and the current tool so a card shows MOTION, not just a
   // start offset. Both are middot-joined (kept product separator).
-  const statBits = [s.elapsed != null ? s.elapsed : null, s.counter != null ? s.counter : null].filter((x) => x != null && x !== '');
+  const elapsedText = s.elapsedMs != null ? fmtDuration(s.elapsedMs) : (s.elapsed != null ? s.elapsed : null);
+  const statBits = [elapsedText, s.counter != null ? s.counter : null].filter((x) => x != null && x !== '');
   const activityBits = [
     s.currentTool ? 'running: ' + s.currentTool : null,
     s.lastActivity ? 'last ' + s.lastActivity : null,
   ].filter(Boolean);
-  const cls = 'ds-dash-card is-' + st + (active ? ' is-active' : '') + (selected ? ' is-selected' : '');
-  return h('div', { class: cls, role: 'group', 'aria-label': 'session ' + (s.agent || s.sid), 'aria-current': active ? 'true' : null },
+  const cls = 'ds-dash-card is-' + st + (active ? ' is-active' : '') + (selected ? ' is-selected' : '') + (s.external ? ' is-external' : '');
+  return h('div', { class: cls, role: 'group', 'aria-label': 'session ' + (s.title || s.agent || s.sid), 'aria-current': active ? 'true' : null },
+    // Shared session identity: the same title the conversation rails show.
+    s.title ? h('div', { class: 'ds-dash-title', title: s.title }, s.title) : null,
     h('div', { class: 'ds-dash-card-head' },
       selectable ? h('button', {
         type: 'button', class: 'ds-dash-select', role: 'checkbox',
         'aria-checked': selected ? 'true' : 'false',
-        'aria-label': (selected ? 'deselect' : 'select') + ' session ' + (s.agent || s.sid),
+        'aria-label': (selected ? 'deselect' : 'select') + ' session ' + (s.title || s.agent || s.sid),
         onclick: () => onToggleSelect && onToggleSelect(s),
       }, selected ? '[x]' : '[ ]') : null,
       h('span', { class: 'status-dot-disc ' + STATUS_DISC[st], 'aria-hidden': 'true' }),
       // Status is words + the disc, never colour alone (WCAG 1.4.1): the disc is
       // aria-hidden, so the visible/AT status word carries the state.
       h('span', { class: 'ds-dash-status is-' + st }, STATUS_WORD[st]),
-      h('span', { class: 'ds-dash-agent' }, s.agent || 'agent'),
-      s.model ? h('span', { class: 'ds-dash-model' }, s.model) : null),
+      s.external ? h('span', { class: 'ds-dash-external' }, 'external') : null,
+      h('span', { class: 'ds-dash-agent', title: s.agent || null }, s.agent || 'agent'),
+      s.model ? h('span', { class: 'ds-dash-model', title: s.model }, s.model) : null),
     h('div', { class: 'ds-dash-meta' },
       s.cwd ? h('span', { class: 'ds-dash-cwd', title: s.cwd }, s.cwd) : null,
       statBits.length ? h('span', { class: 'ds-dash-stat' }, statBits.join(' · ')) : null,
@@ -163,8 +192,10 @@ export function SessionCard({ session = {}, onStop, onOpen, onView, active = fal
       // open and resume collapsed into one 'open' action (they both just reopen
       // the session in chat); 'events' kept for the read-only event view.
       onOpen ? Btn({ key: 'open', onClick: () => onOpen(s), children: 'open' }) : null,
-      onView ? Btn({ key: 'view', onClick: () => onView(s), children: 'events' }) : null,
-      onStop ? Btn({ key: 'stop', danger: true, onClick: () => onStop(s), children: 'stop' }) : null));
+      onView ? Btn({ key: 'view', onClick: () => onView(s), children: s.external ? 'open in history' : 'events' }) : null,
+      // External sessions get no stop control: we own no process to kill.
+      (onStop && !s.external) ? Btn({ key: 'stop', danger: true, disabled: !!s.stopping,
+        onClick: () => !s.stopping && onStop(s), children: s.stopping ? 'stopping…' : 'stop' }) : null));
 }
 
 // SessionDashboard — grid of SessionCards for ALL live sessions, managed at once.
@@ -177,7 +208,14 @@ export function SessionCard({ session = {}, onStop, onOpen, onView, active = fal
 // card's stop. Rendered only when there are sessions AND onStopAll is wired.
 // Streamstate words: the live-stream health signal so "connected, zero running"
 // still tells the user the dashboard is listening (vs a dropped stream).
-const STREAM_WORD = { connected: 'listening for activity', connecting: 'connecting to live stream…', lost: 'live stream lost — retrying…' };
+// One connection vocabulary across the crumb, settings chip, and the dashboard
+// stream line: connected / connecting / offline ('lost' kept as a legacy alias).
+const STREAM_WORD = {
+  connected: 'listening for activity',
+  connecting: 'connecting to live stream…',
+  offline: 'live stream offline — retrying…',
+  lost: 'live stream offline — retrying…',
+};
 
 // The stop-all / stop-selected danger buttons are two-step (host-driven, the kit
 // is stateless): the first click fires onArmStop* so the host flips confirming*
@@ -196,6 +234,9 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
   }
   const selSet = selected instanceof Set ? selected : new Set(selected || []);
   const selCount = selSet.size;
+  // While any session is mid-cancel the bulk control reads disabled
+  // 'stopping N…' so a bulk stop visibly takes instead of staying re-firable.
+  const stoppingCount = sessions.filter((s) => s.stopping).length;
   // The stream-state line always renders (even with zero sessions) so a
   // connected-but-idle dashboard reads differently from an offline one.
   const streamLine = streamState
@@ -225,7 +266,9 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
       selectable && selCount ? selCount + ' selected' : sessions.length + ' running'),
     streamLine,
     h('span', { class: 'spread' }),
-    selectable && selCount && onStopSelected
+    stoppingCount > 0 && (onStopSelected || onStopAll)
+      ? Btn({ key: 'stopbusy', danger: true, disabled: true, children: 'stopping ' + stoppingCount + '…' })
+      : (selectable && selCount && onStopSelected
       ? (onArmStopSelected && !confirmingStopSelected
           ? Btn({ key: 'stopsel', danger: true, onClick: () => onArmStopSelected([...selSet]), children: 'stop selected' })
           : Btn({ key: 'stopsel', danger: true, onClick: () => onStopSelected([...selSet]),
@@ -235,7 +278,7 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
               ? Btn({ key: 'stopall', danger: true, onClick: () => onArmStopAll(sessions), children: 'stop all' })
               : Btn({ key: 'stopall', danger: true, onClick: () => onStopAll(sessions),
                       children: confirmingStopAll ? 'stop ' + sessions.length + ' sessions - press again' : 'stop all' }))
-          : null),
+          : null)),
     toolbar);
   const grid = h('div', { class: 'ds-dash-grid', role: 'list', 'aria-label': 'live sessions' },
     ...sessions.map((s) => h('div', { key: s.sid, role: 'listitem' },

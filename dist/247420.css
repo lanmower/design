@@ -1700,6 +1700,19 @@
 .ds-247420 .ds-upload-item.done .ds-upload-pct { color: var(--success); }
 .ds-247420 .ds-upload-item.error .ds-upload-fill { background: var(--warn); }
 .ds-247420 .ds-upload-item.error .ds-upload-pct { color: var(--warn); }
+/* Per-row upload recovery actions (replace / dismiss) — error rows are not dead ends. */
+.ds-247420 .ds-upload-item { grid-template-columns: minmax(0, 1fr) 120px 44px auto; }
+.ds-247420 .ds-upload-actions { display: inline-flex; gap: var(--space-1); justify-content: flex-end; }
+.ds-247420 .ds-upload-act {
+  padding: 2px 10px; min-height: 24px; cursor: pointer;
+  background: var(--bg); border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1);
+  color: var(--fg-2); font-family: var(--ff-body); font-size: var(--fs-micro);
+}
+.ds-247420 .ds-upload-act:hover { background: var(--bg-3); color: var(--fg); }
+.ds-247420 .ds-upload-act:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (hover: none), (pointer: coarse) {
+  .ds-247420 .ds-upload-act { min-height: 44px; min-width: 44px; }
+}
 
 /* Empty state */
 .ds-247420 .ds-file-empty {
@@ -1757,6 +1770,14 @@
   font-family: inherit; font-size: var(--fs-sm);
 }
 .ds-247420 .ds-modal-input:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* In-body modal error (role=alert): mutation failures (409/403) surface INSIDE
+   the dialog, not behind the fixed overlay. */
+.ds-247420 .ds-modal-error {
+  margin: var(--space-2) 0 0; padding: 8px 10px;
+  border: var(--bw-hair) solid var(--flame); border-radius: var(--r-2);
+  background: color-mix(in oklab, var(--flame) 12%, var(--bg));
+  color: var(--flame); font-size: var(--fs-xs);
+}
 .ds-247420 .btn-primary.danger {
   background: var(--warn);
   border-color: var(--warn);
@@ -1886,10 +1907,12 @@
 .ds-247420 .ds-file-row:hover .ds-file-check,
 .ds-247420 .ds-file-row:focus-within .ds-file-check,
 .ds-247420 .ds-file-check.on { opacity: 1; }
-/* Touch / coarse-pointer devices have no hover — keep checkboxes visible so
-   multi-select is reachable without a pointer. */
+/* Touch / coarse-pointer devices have no hover — keep checkboxes AND the
+   per-row action buttons (rename/delete/download) visible so the file manager
+   is fully reachable without a pointer (e.g. an iPad in landscape). */
 @media (hover: none), (pointer: coarse) {
   .ds-247420 .ds-file-check { opacity: 1; }
+  .ds-247420 .ds-file-actions { opacity: 1; }
 }
 .ds-247420 .ds-file-check.on { background: var(--accent); border-color: var(--accent); }
 .ds-247420 .ds-file-row.selected {
@@ -5414,6 +5437,97 @@
 @media (pointer: coarse), (max-width: 640px) {
   .ds-247420 .ds-session-meta-copy { min-height: 44px; min-width: 44px; }
 }
+
+/* ============================================================================
+   Logic/predictability sweep (2026-06-10): composer ergonomics, turn notices,
+   windowed thread, dashboard stopping/external states, cwd validation.
+============================================================================ */
+
+/* Enter-to-send hint: visible while the composer is focused or carries a
+   draft; hidden under 420px to save rows. */
+.ds-247420 .chat-composer-hint {
+  display: none; padding: 2px var(--space-3) 0;
+  font-size: var(--fs-micro); color: var(--fg-3);
+}
+.ds-247420 .chat-composer:focus-within .chat-composer-hint,
+.ds-247420 .chat-composer.has-draft .chat-composer-hint { display: block; }
+@media (max-width: 420px) {
+  .ds-247420 .chat-composer .chat-composer-hint { display: none; }
+}
+
+/* Transient composer note (paste/drop not supported), aria-live polite. */
+.ds-247420 .chat-composer-note {
+  padding: 4px var(--space-3); font-size: var(--fs-tiny); color: var(--fg-2);
+}
+
+/* Drag-over ring: token accent, never a hex. */
+.ds-247420 .chat-composer.dragover { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--r-2); }
+
+/* Per-bit composer context: only the bit that owns a control is a button. */
+.ds-247420 .chat-composer-context-bit {
+  display: inline; padding: 0; margin: 0;
+  background: none; border: none; cursor: pointer;
+  font: inherit; color: inherit; text-decoration: underline dotted;
+}
+.ds-247420 .chat-composer-context-bit:hover { color: var(--fg-2); }
+.ds-247420 .chat-composer-context-bit:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (pointer: coarse) {
+  .ds-247420 .chat-composer-context-bit { min-height: 44px; }
+}
+
+/* Out-of-band turn notices: neutral tone (NOT error red) — a stopped or
+   incomplete turn must not read as a finished answer. */
+.ds-247420 .chat-msg-notice {
+  margin-top: var(--space-1); padding: 6px 10px;
+  border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
+  background: var(--bg-2); color: var(--fg-2); font-size: var(--fs-tiny);
+}
+.ds-247420 .chat-msg-notice.is-incomplete { border-style: dashed; }
+
+/* Tail-window streaming head ('streaming · N KB so far'). */
+.ds-247420 .chat-stream-head {
+  padding: 2px 0 6px; font-family: var(--ff-mono);
+  font-size: var(--fs-micro); color: var(--fg-3);
+}
+
+/* Windowed thread: 'show N earlier turns' control at the top. */
+.ds-247420 .agentchat-earlier {
+  display: flex; align-items: center; justify-content: center;
+  gap: var(--space-3); padding: var(--space-2) var(--space-3);
+}
+.ds-247420 .agentchat-earlier-count { font-size: var(--fs-tiny); color: var(--fg-3); }
+.ds-247420 .agentchat-earlier-btn {
+  padding: 4px 12px; min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
+  border-radius: var(--r-1); background: var(--bg-2); color: var(--fg-2); cursor: pointer;
+  font-family: var(--ff-body); font-size: var(--fs-tiny);
+}
+.ds-247420 .agentchat-earlier-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (pointer: coarse) {
+  .ds-247420 .agentchat-earlier-btn { min-height: 44px; }
+}
+
+/* Inline cwd validation line (checking / error) under the cwd input. */
+.ds-247420 .agentchat-cwd-hint { font-size: var(--fs-tiny); color: var(--fg-3); }
+.ds-247420 .agentchat-cwd-hint.is-error { color: var(--flame); }
+
+/* Dashboard: shared session title heading (same string as the rails). */
+.ds-247420 .ds-dash-title {
+  font-size: var(--fs-body); font-weight: 600; color: var(--fg);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Stopping state: in-flight cancel reads distinctly from running/error. */
+.ds-247420 .ds-dash-status.is-stopping { color: var(--amber, #d9a93a); }
+
+/* External (observed, not owned) session card: no stop control exists. */
+.ds-247420 .ds-dash-external {
+  padding: 1px 6px; border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-pill);
+  font-size: var(--fs-micro); color: var(--fg-3); text-transform: uppercase; letter-spacing: .03em;
+}
+.ds-247420 .ds-dash-card.is-external { border-style: dashed; }
+
+/* One connection vocabulary: offline (is-lost kept as legacy alias). */
+.ds-247420 .ds-dash-stream.is-offline { color: var(--flame); }
 
 /* editor-primitives.css */
 /* editor-primitives.css — chrome for in-engine editors, inspectors, IDEs,

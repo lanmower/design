@@ -20,15 +20,15 @@ export {
 } from './components/content.js';
 
 export {
-    fmtBytes, renderInline,
+    fmtBytes, renderInline, hasSelectionInside,
     ChatMessage, ChatComposer, Chat,
     AICAT_FACE, AICatPortrait, AICat
 } from './components/chat.js';
 
-export { AgentChat } from './components/agent-chat.js';
+export { AgentChat, MESSAGE_CAP } from './components/agent-chat.js';
 
 export {
-    ConversationList, SessionCard, SessionDashboard, SessionMeta
+    ConversationList, SessionCard, SessionDashboard, SessionMeta, fmtDuration
 } from './components/sessions.js';
 
 export { ContextPane } from './components/context-pane.js';

@@ -4,20 +4,19 @@
 
 import * as webjsx from '../../vendor/webjsx/index.js';
 import { renderMarkdownCached, highlightCodeBlockCached, initializeCachesEagerly, getCacheStats } from '../markdown-cache.js';
+import { isDegraded as isMarkdownDegraded } from '../markdown.js';
 import { register } from '../debug.js';
 import { Icon } from './shell.js';
+import { fmtFileSize } from './files.js';
 
 const h = webjsx.createElement;
 let _stats = { messages: 0, lastKindCounts: {} };
 let _cacheInitialized = false;
 
-export function fmtBytes(n) {
-    if (n == null) return '';
-    if (n < 1024) return n + ' B';
-    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
-    if (n < 1024 * 1024 * 1024) return (n / (1024 * 1024)).toFixed(1) + ' MB';
-    return (n / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
-}
+// ONE byte format across the kit: fmtFileSize (files.js) is canonical; the old
+// divergent fmtBytes ('0.0 KB' for zero, no B tier) is gone — this alias keeps
+// existing imports working while rendering the same string as the Files grid.
+export const fmtBytes = fmtFileSize;
 
 // Reject dangerous URL schemes (javascript:, data:, vbscript:, file:) so an
 // inline markdown link or an image src built from untrusted text can't smuggle a
@@ -73,10 +72,21 @@ function ensureCachesInit() {
     initializeCachesEagerly().catch((err) => console.warn('[247420] cache init error:', err));
 }
 
+// True when the user has a non-collapsed text selection anchored inside `el`.
+// Used to pause auto-scroll (and by hosts to pause streaming re-renders) so
+// select-and-copy from a still-streaming message is not wiped every frame.
+export function hasSelectionInside(el) {
+    const sel = typeof document !== 'undefined' && document.getSelection ? document.getSelection() : null;
+    return !!(sel && !sel.isCollapsed && sel.anchorNode && el && el.contains(sel.anchorNode));
+}
+
 // Build a ref callback that keeps a scroll container pinned to the bottom when
 // new messages arrive AND the user is already at the bottom (sentinel visible).
 // `getCount` returns the current message count so the observer compares against
 // live state. Shared by Chat, AICat, and AgentChat.
+// CONTRACT: auto-scroll pauses while the user holds a non-collapsed selection
+// inside the thread (hasSelectionInside) — the same guard hosts apply to their
+// streaming re-render pass — and resumes once the selection collapses.
 export function makeThreadAutoScroll(getCount) {
     return (el) => {
         if (!el) return;
@@ -88,6 +98,7 @@ export function makeThreadAutoScroll(getCount) {
             el.appendChild(sentinel);
         }
         const obs = new IntersectionObserver((entries) => {
+            if (hasSelectionInside(el)) return; // don't fight an active selection
             const count = String(getCount());
             if (entries[0]?.isIntersecting && el.dataset.msgCount !== count) {
                 el.scrollTop = el.scrollHeight - el.clientHeight;
@@ -135,8 +146,12 @@ export function injectCodeCopy(container) {
 function MdNode(p) {
     const refSink = (el) => {
         if (!el) return;
-        if (el.dataset.mdSrc === p.text) return;
-        el.dataset.mdSrc = p.text || '';
+        // Version the per-element source key with a degraded marker: a bubble
+        // rendered while the markdown loader was down re-renders (real markdown)
+        // once the loader recovers, instead of staying plain-escaped forever.
+        const srcKey = (isMarkdownDegraded() ? '~degraded~' : '') + (p.text || '');
+        if (el.dataset.mdSrc === srcKey) return;
+        el.dataset.mdSrc = srcKey;
         renderMarkdownCached(p.text || '').then((html) => { el.innerHTML = html; injectCodeCopy(el); });
     };
     return h('div', { class: 'chat-bubble chat-md', ref: refSink });
@@ -216,10 +231,14 @@ function ThinkingNode(p) {
 
 const PART_RENDERERS = {
     text:  (p) => p.preShell
-        // Streaming prose that already contains a code fence renders as a plain
-        // monospaced <pre> so it does not reflow from prose to a styled block on
-        // settle (no Prism mid-stream). The settled turn renders real markdown.
-        ? h('div', { class: 'chat-bubble chat-md chat-stream-pre' }, h('pre', {}, h('code', {}, p.text || '')))
+        // Streaming prose that already contains a code fence (or a huge tail
+        // window) renders as a plain monospaced <pre> so it does not reflow from
+        // prose to a styled block on settle (no Prism mid-stream). The settled
+        // turn renders real markdown. `streamHead` is an optional head line for
+        // the tail-window path ('streaming · N KB so far').
+        ? h('div', { class: 'chat-bubble chat-md chat-stream-pre' },
+            ...[p.streamHead ? h('div', { key: 'sh', class: 'chat-stream-head', role: 'status', 'aria-live': 'polite' }, p.streamHead) : null,
+               h('pre', { key: 'pre' }, h('code', {}, p.text || ''))].filter(Boolean))
         : h('div', { class: 'chat-bubble' + (p.mdShell ? ' chat-md' : '') }, ...renderInline(p.text || '')),
     md:    (p) => MdNode(p),
     code:  (p) => CodeNode(p),
@@ -270,7 +289,7 @@ function renderPart(p, key) {
     return node;
 }
 
-export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name, streaming, actions }) {
+export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name, streaming, actions, incomplete, stopped }) {
     _stats.messages += 1;
     // Support legacy 'who' prop, prefer 'role' with mapping:
     //   'user'      -> 'you'   (right-aligned, accent bubble)
@@ -299,6 +318,17 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     // a thin caret so the live edge reads as "still writing", not "done". Drawn as
     // a CSS element, not a glyph character.
     if (streaming && !typing) bodyNodes = [...bodyNodes, h('span', { key: '_caret', class: 'chat-stream-caret', 'aria-hidden': 'true' })];
+    // Out-of-band turn notices, plain copy in a NEUTRAL tone (not error red):
+    //   stopped    — the turn was cancelled (locally or remotely); truncated
+    //                output must not read as a finished answer.
+    //   incomplete — the connection dropped mid-turn and events were not
+    //                replayed; the response may be missing content.
+    // Pass true for the default copy or a string to override it. Retry rides
+    // the existing per-message actions row.
+    if (stopped) bodyNodes = [...bodyNodes, h('div', { key: '_stopped', class: 'chat-msg-notice is-stopped', role: 'status' },
+        typeof stopped === 'string' ? stopped : 'stopped — this turn was cancelled before it finished')];
+    if (incomplete) bodyNodes = [...bodyNodes, h('div', { key: '_incomplete', class: 'chat-msg-notice is-incomplete', role: 'status' },
+        typeof incomplete === 'string' ? incomplete : 'connection dropped mid-turn — the response may be incomplete')];
     const reactionRow = reactions && reactions.length
         ? h('div', { class: 'chat-reactions' },
             ...reactions.map((r, i) => h('span', { class: 'rxn' + (r.you ? ' you' : ''), key: 'r' + i, 'aria-label': `${r.emoji} reaction (${String(r.count)} ${String(r.count) === '1' ? 'reaction' : 'reactions'})${r.you ? ' - you reacted' : ''}` },
@@ -333,7 +363,24 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     return h('div', { key, class: cls }, resolvedWho === 'you' ? stack : av, resolvedWho === 'you' ? av : stack);
 }
 
-export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu, onCancel, busy, placeholder = 'message…', disabled, context }) {
+// Transient, non-blocking composer note (aria-live polite): e.g. a pasted image
+// when no onPasteFiles handler is wired. Pure-DOM, auto-clears.
+function flashComposerNote(composerEl, text) {
+    if (!composerEl) return;
+    let note = composerEl.querySelector('.chat-composer-note');
+    if (!note) {
+        note = document.createElement('div');
+        note.className = 'chat-composer-note';
+        note.setAttribute('role', 'status');
+        note.setAttribute('aria-live', 'polite');
+        composerEl.appendChild(note);
+    }
+    note.textContent = text;
+    clearTimeout(note._dsNoteTimer);
+    note._dsNoteTimer = setTimeout(() => { note.remove(); }, 2600);
+}
+
+export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu, onCancel, busy, placeholder = 'message…', disabled, context, onPasteFiles, onDropFiles }) {
     // Keep a handle to the live textarea so send() reads the actual DOM value
     // (not the possibly-lagging `value` prop) and so we can sync the DOM value
     // only when it genuinely differs — re-applying `value` on every parent
@@ -370,23 +417,81 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
     };
     // Optional context line shown above the textarea: agent / model / cwd at the
     // point of typing (the way Claude-Desktop surfaces the active target inline).
-    // `context` is { bits:[...strings], onClick? }; bits are middot-joined (kept
-    // product separator). Clickable when onClick is wired (opens the picker).
-    const contextLine = (context && context.bits && context.bits.length)
-        ? h(context.onClick ? 'button' : 'div', {
+    // `context` is { bits:[...], onClick? }. Bits may be plain strings (inert
+    // text) or { text, onClick, title } objects — a bit with its own onClick
+    // renders as an inline button (.chat-composer-context-bit) so e.g. the cwd
+    // segment routes to the cwd editor WITHOUT making the whole line one giant
+    // click target. Legacy whole-line context.onClick is honored only when no
+    // bit carries its own handler. All children are keyed VElements.
+    const ctxBits = (context && context.bits) ? context.bits.filter(Boolean) : [];
+    const hasBitClicks = ctxBits.some((b) => b && typeof b === 'object' && b.onClick);
+    let contextLine = null;
+    if (ctxBits.length && hasBitClicks) {
+        const kids = [];
+        ctxBits.forEach((b, i) => {
+            if (i) kids.push(h('span', { key: 'csep' + i, class: 'chat-composer-context-sep', 'aria-hidden': 'true' }, ' · '));
+            const isObj = b && typeof b === 'object';
+            const text = isObj ? (b.text || '') : String(b);
+            if (isObj && b.onClick) kids.push(h('button', {
+                key: 'cbit' + i, type: 'button', class: 'chat-composer-context-bit',
+                title: b.title || null, 'aria-label': b.title || text,
+                onclick: (e) => { e.preventDefault(); b.onClick(e); },
+            }, text));
+            else kids.push(h('span', { key: 'cbit' + i, class: 'chat-composer-context-text' }, text));
+        });
+        contextLine = h('div', { class: 'chat-composer-context' }, ...kids);
+    } else if (ctxBits.length) {
+        const joined = ctxBits.map((b) => (b && typeof b === 'object') ? (b.text || '') : String(b)).filter(Boolean).join(' · ');
+        contextLine = h(context.onClick ? 'button' : 'div', {
             class: 'chat-composer-context', type: context.onClick ? 'button' : null,
-            'aria-label': context.onClick ? ('change target: ' + context.bits.join(' · ')) : null,
+            'aria-label': context.onClick ? ('change target: ' + joined) : null,
             onclick: context.onClick ? (e) => { e.preventDefault(); context.onClick(e); } : null,
-          }, context.bits.filter(Boolean).join(' · '))
-        : null;
-    return h('div', { class: 'chat-composer' },
+        }, joined);
+    }
+    const hasDraft = !!(value && value.trim());
+    return h('div', {
+        class: 'chat-composer' + (hasDraft ? ' has-draft' : ''),
+        // A drop on the composer must NEVER navigate the browser away from the
+        // live session: preventDefault on both dragover and drop, route files to
+        // the optional onDropFiles handler, ring via .dragover.
+        ondragover: (e) => { e.preventDefault(); e.currentTarget.classList.add('dragover'); },
+        ondragleave: (e) => { e.currentTarget.classList.remove('dragover'); },
+        ondrop: (e) => {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            const files = e.dataTransfer && e.dataTransfer.files;
+            if (files && files.length) {
+                if (onDropFiles) onDropFiles(files);
+                else flashComposerNote(e.currentTarget, 'dropped files are not supported here yet');
+            }
+        },
+    },
         contextLine,
         h('textarea', { ref: taRef, placeholder, rows: 1, 'aria-label': 'message input',
             oninput: autoGrow,
+            onpaste: (e) => {
+                const cd = e.clipboardData;
+                // Image/file clipboard data with no accompanying text: never
+                // silently dropped — route to onPasteFiles or tell the user.
+                if (cd && cd.files && cd.files.length && !cd.getData('text')) {
+                    e.preventDefault();
+                    if (onPasteFiles) onPasteFiles(cd.files);
+                    else flashComposerNote(e.currentTarget.closest('.chat-composer'), 'images are not supported yet');
+                }
+            },
             onkeydown: (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+                // Escape stops generation (the stop button's "(Esc)" title is
+                // now truthful) before falling through to any host blur handling.
+                if (e.key === 'Escape' && busy && onCancel) { e.preventDefault(); onCancel(e); return; }
+                // IME guard: the Enter that commits a CJK composition must never
+                // send (isComposing; keyCode 229 covers older engines).
+                if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); send(); }
                 if (e.key === ';' && e.ctrlKey) { e.preventDefault(); onEmoji && onEmoji(e); }
             } }),
+        // Enter-to-send affordance (Claude-Desktop style): a muted hint visible
+        // while the composer is focused or carries a draft; hidden under 420px
+        // (CSS) to save rows. Middot is kept product typography.
+        h('div', { class: 'chat-composer-hint', 'aria-hidden': 'true' }, 'Enter to send · Shift+Enter for a new line'),
         h('div', { class: 'chat-composer-toolbar' },
             onAttach ? h('button', { type: 'button', class: 'composer-btn', onclick: (e) => { e.preventDefault(); onAttach(e); }, 'aria-label': 'attach file', title: 'attach file' }, Icon('paperclip')) : null,
             onEmoji ? h('button', { type: 'button', class: 'composer-btn', onclick: (e) => { e.preventDefault(); onEmoji(e); }, 'aria-label': 'emoji picker', title: 'emoji picker (Ctrl+;)' }, Icon('smile')) : null,

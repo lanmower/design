@@ -2,7 +2,7 @@
 // Ensures libraries are loaded once globally, reused for all subsequent renders.
 // Tracks initialization status and render timings.
 
-import { renderMarkdown, ensureReady as ensureMarkdownReady } from './markdown.js';
+import { renderMarkdown, ensureReady as ensureMarkdownReady, isDegraded as isMarkdownDegraded } from './markdown.js';
 import { highlightAllUnder, ensurePrism } from './highlight.js';
 import { register } from './debug.js';
 
@@ -84,19 +84,23 @@ export async function renderMarkdownCached(text) {
         return _renderCache.get(hash);
     }
 
-    // Ensure markdown is ready (cached after first init)
-    if (!_markdownInitialized) {
-        await ensureMarkdownReady();
-        _markdownInitialized = true;
-    }
+    // Ensure markdown is ready. NOT latched behind _markdownInitialized: a
+    // failed loader must be retried on a later render (markdown.js owns the
+    // retry backoff), otherwise an offline boot is sticky-degraded forever.
+    await ensureMarkdownReady();
+    _markdownInitialized = !isMarkdownDegraded();
 
     const html = await renderMarkdown(text);
 
-    // Store in content cache (limit to 500 entries to prevent unbounded growth)
-    _renderCache.set(hash, html);
-    if (_renderCache.size > 500) {
-        const first = _renderCache.keys().next().value;
-        _renderCache.delete(first);
+    // Store in content cache (limit to 500 entries to prevent unbounded growth).
+    // Never cache degraded (escaped-fallback) output: when the loader recovers,
+    // the same content must re-render as real markdown, not replay the fallback.
+    if (!isMarkdownDegraded()) {
+        _renderCache.set(hash, html);
+        if (_renderCache.size > 500) {
+            const first = _renderCache.keys().next().value;
+            _renderCache.delete(first);
+        }
     }
 
     const renderMs = performance.now() - t0;

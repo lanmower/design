@@ -541,3 +541,94 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 @media (pointer: coarse), (max-width: 640px) {
   .ds-session-meta-copy { min-height: 44px; min-width: 44px; }
 }
+
+/* ============================================================================
+   Logic/predictability sweep (2026-06-10): composer ergonomics, turn notices,
+   windowed thread, dashboard stopping/external states, cwd validation.
+============================================================================ */
+
+/* Enter-to-send hint: visible while the composer is focused or carries a
+   draft; hidden under 420px to save rows. */
+.chat-composer-hint {
+  display: none; padding: 2px var(--space-3) 0;
+  font-size: var(--fs-micro); color: var(--fg-3);
+}
+.chat-composer:focus-within .chat-composer-hint,
+.chat-composer.has-draft .chat-composer-hint { display: block; }
+@media (max-width: 420px) {
+  .chat-composer .chat-composer-hint { display: none; }
+}
+
+/* Transient composer note (paste/drop not supported), aria-live polite. */
+.chat-composer-note {
+  padding: 4px var(--space-3); font-size: var(--fs-tiny); color: var(--fg-2);
+}
+
+/* Drag-over ring: token accent, never a hex. */
+.chat-composer.dragover { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--r-2); }
+
+/* Per-bit composer context: only the bit that owns a control is a button. */
+.chat-composer-context-bit {
+  display: inline; padding: 0; margin: 0;
+  background: none; border: none; cursor: pointer;
+  font: inherit; color: inherit; text-decoration: underline dotted;
+}
+.chat-composer-context-bit:hover { color: var(--fg-2); }
+.chat-composer-context-bit:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (pointer: coarse) {
+  .chat-composer-context-bit { min-height: 44px; }
+}
+
+/* Out-of-band turn notices: neutral tone (NOT error red) — a stopped or
+   incomplete turn must not read as a finished answer. */
+.chat-msg-notice {
+  margin-top: var(--space-1); padding: 6px 10px;
+  border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
+  background: var(--bg-2); color: var(--fg-2); font-size: var(--fs-tiny);
+}
+.chat-msg-notice.is-incomplete { border-style: dashed; }
+
+/* Tail-window streaming head ('streaming · N KB so far'). */
+.chat-stream-head {
+  padding: 2px 0 6px; font-family: var(--ff-mono);
+  font-size: var(--fs-micro); color: var(--fg-3);
+}
+
+/* Windowed thread: 'show N earlier turns' control at the top. */
+.agentchat-earlier {
+  display: flex; align-items: center; justify-content: center;
+  gap: var(--space-3); padding: var(--space-2) var(--space-3);
+}
+.agentchat-earlier-count { font-size: var(--fs-tiny); color: var(--fg-3); }
+.agentchat-earlier-btn {
+  padding: 4px 12px; min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
+  border-radius: var(--r-1); background: var(--bg-2); color: var(--fg-2); cursor: pointer;
+  font-family: var(--ff-body); font-size: var(--fs-tiny);
+}
+.agentchat-earlier-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (pointer: coarse) {
+  .agentchat-earlier-btn { min-height: 44px; }
+}
+
+/* Inline cwd validation line (checking / error) under the cwd input. */
+.agentchat-cwd-hint { font-size: var(--fs-tiny); color: var(--fg-3); }
+.agentchat-cwd-hint.is-error { color: var(--flame); }
+
+/* Dashboard: shared session title heading (same string as the rails). */
+.ds-dash-title {
+  font-size: var(--fs-body); font-weight: 600; color: var(--fg);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Stopping state: in-flight cancel reads distinctly from running/error. */
+.ds-dash-status.is-stopping { color: var(--amber, #d9a93a); }
+
+/* External (observed, not owned) session card: no stop control exists. */
+.ds-dash-external {
+  padding: 1px 6px; border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-pill);
+  font-size: var(--fs-micro); color: var(--fg-3); text-transform: uppercase; letter-spacing: .03em;
+}
+.ds-dash-card.is-external { border-style: dashed; }
+
+/* One connection vocabulary: offline (is-lost kept as legacy alias). */
+.ds-dash-stream.is-offline { color: var(--flame); }

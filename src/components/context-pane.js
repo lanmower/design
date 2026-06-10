@@ -21,6 +21,7 @@
 import * as webjsx from '../../vendor/webjsx/index.js';
 import { Panel, Row } from './content.js';
 import { Btn } from './shell.js';
+import { fmtDuration } from './sessions.js';
 
 const h = webjsx.createElement;
 
@@ -83,7 +84,8 @@ export function ContextPane({ agent, model, cwd, toolCount = 0, usage, session, 
         if (usage.outputTokens != null) tokRows.push(Row({ title: 'output', meta: fmtTok(usage.outputTokens) + ' tok' }));
         if (usage.costUsd != null) tokRows.push(Row({ title: 'cost', meta: '$' + usage.costUsd.toFixed(4) }));
         if (usage.turns != null) tokRows.push(Row({ title: 'turns', meta: String(usage.turns) }));
-        if (usage.durationMs != null) tokRows.push(Row({ title: 'duration', meta: (usage.durationMs / 1000).toFixed(1) + 's' }));
+        // One duration vocabulary kit-wide: shared fmtDuration (s -> m -> h).
+        if (usage.durationMs != null) tokRows.push(Row({ title: 'duration', meta: fmtDuration(usage.durationMs) }));
         panels.push(Panel({ title: 'last turn', children: tokRows }));
     }
     return h('div', { class: 'ds-context' },

@@ -321,7 +321,8 @@ export function SearchInput({ value = '', placeholder = 'search…', onInput, on
         'aria-label': label || placeholder,
         value,
         oninput: onInput ? (e) => onInput(e.target.value, e) : null,
-        onkeydown: onSubmit ? (e) => { if (e.key === 'Enter') onSubmit(e.target.value, e); } : null
+        // IME guard: the Enter that commits a CJK composition must not submit.
+        onkeydown: onSubmit ? (e) => { if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) onSubmit(e.target.value, e); } : null
     });
 }
 
