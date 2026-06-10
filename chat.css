@@ -147,10 +147,12 @@
 .chat-msg-actions { display: flex; gap: 2px; margin-top: 3px; opacity: 0; transition: opacity var(--dur-snap, .12s) var(--ease, ease); }
 .chat-msg:hover .chat-msg-actions, .chat-msg:focus-within .chat-msg-actions { opacity: 1; }
 .chat-msg-action {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 26px; height: 26px; padding: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  min-width: 26px; height: 26px; padding: 0 6px; cursor: pointer;
   border: none; border-radius: var(--r-1, 4px); background: none; color: var(--fg-3);
+  font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
+.chat-msg-action-label { font-size: var(--fs-tiny); }
 .chat-msg-action:hover { background: var(--bg-2); color: var(--fg); }
 .chat-msg-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; opacity: 1; }
 
@@ -232,12 +234,27 @@
    Global status disc — a CSS-drawn status indicator (no text glyph) usable
    outside .agentchat-status (session rows, dashboard cards). Tone via modifier.
 ---------------------------------------------------------------------------- */
+/* Single canonical status disc — one source for live/error/connecting/stale
+   everywhere (crumb dot, conversation row, dashboard card, composer status).
+   The app's index.html disc/pulse override is deleted in favour of this. Only
+   the -live disc pulses; -stale is deliberately static (a stuck session must NOT
+   read as busy). Pulse colour is derived from --accent via color-mix so it
+   tracks the theme instead of a hardcoded rgba. */
 .status-dot-disc {
   display: inline-block; width: 8px; height: 8px; border-radius: 50%;
   background: var(--fg-3); flex: 0 0 auto;
 }
-.status-dot-disc.status-dot-live { background: var(--green); }
+.status-dot-disc.status-dot-live { background: var(--accent); animation: status-disc-pulse 1.8s ease-in-out infinite; }
 .status-dot-disc.status-dot-error { background: var(--flame); }
+.status-dot-disc.status-dot-connecting { background: var(--amber, #d9a93a); }
+.status-dot-disc.status-dot-stale { background: var(--amber, #d9a93a); }
+@keyframes status-disc-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 55%, transparent); }
+  50%      { box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 0%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .status-dot-disc.status-dot-live { animation: none; }
+}
 
 /* ----------------------------------------------------------------------------
    ConversationList — left-rail "Chats" column.
@@ -277,8 +294,10 @@
 .ds-session-row.rail-green::before, .ds-session-row.rail-purple::before, .ds-session-row.rail-flame::before {
   content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 3px;
 }
-.ds-session-row.rail-green::before { background: var(--green); }
-.ds-session-row.rail-purple::before { background: var(--purple, var(--accent)); }
+/* Rail tones MUST match .row.rail-* in app-shell.css so the same semantic state
+   reads as one colour across the conversation list and content rows. */
+.ds-session-row.rail-green::before { background: var(--accent); }
+.ds-session-row.rail-purple::before { background: var(--purple-2, #7F18A4); }
 .ds-session-row.rail-flame::before { background: var(--flame); }
 .ds-session-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .ds-session-title { font-size: var(--fs-sm); color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -326,3 +345,131 @@
 .ds-context .row .meta { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-2); }
 .ds-context .row .sub { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-context-actions { display: flex; gap: var(--space-2); }
+
+/* ============================================================================
+   Cohesion sweep (gui-cohesion.js): one-product polish across surfaces.
+============================================================================ */
+
+/* --- A1/A2/E3: per-block code copy. The <pre> is wrapped in .chat-code-block
+   (position:relative) so the copy button sits top-right and reveals on hover/
+   focus-within, matching the .chat-msg-actions pattern. The structured CodeNode
+   head + preview head place the button inline (always visible). --- */
+.chat-code-block { position: relative; }
+.chat-code-copy {
+  position: absolute; top: 6px; right: 6px;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 48px; min-height: 24px; padding: 2px 8px;
+  border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 4px);
+  background: var(--bg-2); color: var(--fg-2); cursor: pointer;
+  font-family: var(--ff-body); font-size: var(--fs-tiny);
+  opacity: 0; transition: opacity var(--dur-snap, .12s) var(--ease, ease);
+}
+.chat-code-block:hover .chat-code-copy, .chat-code-block:focus-within .chat-code-copy { opacity: 1; }
+.chat-code-copy.is-copied { color: var(--accent); border-color: var(--accent); }
+.chat-code-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; opacity: 1; }
+/* Head-placed copy (structured CodeNode + FilePreviewCode) is always visible. */
+.chat-code-head .spread { flex: 1; }
+.chat-code-copy-head { position: static; opacity: 1; }
+
+/* --- B1: streaming pre shell — monospaced bubble while a fenced block streams,
+   so it does not reflow prose->block on settle. --- */
+.chat-stream-pre pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: var(--ff-mono); font-size: var(--fs-sm); }
+
+/* --- A5: composer context line (agent / model / cwd at point of typing). --- */
+.chat-composer-context {
+  display: block; width: 100%; text-align: left; padding: 4px var(--space-3) 0;
+  background: none; border: none; cursor: default; color: var(--fg-3);
+  font-family: var(--ff-mono); font-size: var(--fs-tiny);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+button.chat-composer-context { cursor: pointer; }
+button.chat-composer-context:hover { color: var(--fg-2); }
+button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* --- B2: follow-up chips below the last settled assistant turn. --- */
+.agentchat-followups { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-2) var(--space-3); }
+
+/* --- C1: stale/idle dashboard status (static, NOT pulsing). --- */
+.ds-dash-status.is-stale { color: var(--amber, #d9a93a); }
+.ds-dash-status.is-running { color: var(--accent); }
+
+/* --- C2: dashboard sort/filter toolbar + stream-state line. --- */
+.ds-dash-toolbar { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.ds-dash-stream { font-size: var(--fs-tiny); color: var(--fg-3); }
+.ds-dash-stream.is-lost { color: var(--flame); }
+.ds-dash-stream.is-connecting { color: var(--amber, #d9a93a); }
+.ds-dash-header .spread { flex: 1; }
+.ds-dash-errors-toggle {
+  padding: 4px 10px; min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
+  border-radius: var(--r-1); background: var(--bg-2); color: var(--fg-2);
+  cursor: pointer; font-family: var(--ff-body); font-size: var(--fs-tiny);
+}
+.ds-dash-errors-toggle.active { background: var(--accent-tint); color: var(--accent); border-color: var(--accent); }
+.ds-dash-errors-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* --- C3: per-card select checkbox. --- */
+.ds-dash-select {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 24px; min-height: 24px; padding: 0; cursor: pointer;
+  border: none; background: none; color: var(--fg-3);
+  font-family: var(--ff-mono); font-size: var(--fs-sm);
+}
+.ds-dash-select[aria-checked="true"] { color: var(--accent); }
+.ds-dash-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* --- C5: active dashboard card (current conversation). --- */
+.ds-dash-card.is-active { box-shadow: inset 2px 0 0 var(--accent); }
+.ds-dash-card.is-selected { background: var(--accent-tint); }
+.ds-dash-card.is-stale { opacity: .92; }
+
+/* --- H3: dashboard live disc pulses; stale/error do not (handled by H1). --- */
+
+/* --- C6: per-tab conversation-list caption. --- */
+.ds-session-caption { padding: var(--space-2) var(--space-3) 0; font-size: var(--fs-tiny); color: var(--fg-3); }
+
+/* --- F1: context-pane empty state. --- */
+.ds-context-empty { padding: var(--space-4) var(--space-3); color: var(--fg-3); font-size: var(--fs-sm); line-height: 1.5; }
+
+/* --- E1: inline file preview pane (split view, non-modal). --- */
+.ds-preview-pane { display: flex; flex-direction: column; min-height: 0; height: 100%; overflow: hidden; }
+.ds-preview-pane:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ds-preview-pane .ds-preview-body { flex: 1; min-height: 0; overflow: auto; }
+.ds-preview-pane-empty { align-items: center; justify-content: center; color: var(--fg-3); font-size: var(--fs-sm); }
+.ds-preview-code-wrap { display: flex; flex-direction: column; min-height: 0; }
+.ds-preview-code-head { flex: 0 0 auto; }
+/* --- E2: prev/next stepper in preview head. --- */
+.ds-preview-step { display: inline-flex; gap: 2px; }
+.ds-preview-step .ds-file-act { min-width: 40px; padding: 0 6px; font-family: var(--ff-body); font-size: var(--fs-tiny); }
+
+/* --- D1: file grid "show more" row. --- */
+.ds-file-more { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); justify-content: center; }
+.ds-file-more-count { font-size: var(--fs-tiny); color: var(--fg-3); }
+.ds-file-more-btn {
+  padding: 4px 12px; min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
+  border-radius: var(--r-1); background: var(--bg-2); color: var(--fg-2); cursor: pointer;
+  font-family: var(--ff-body); font-size: var(--fs-tiny);
+}
+.ds-file-more-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* --- D3: locked/no-access file row. --- */
+.ds-file-row.is-locked { opacity: .6; }
+
+/* --- D4: roots picker segmented control. --- */
+.ds-roots-picker { display: inline-flex; gap: 2px; padding: 2px; background: var(--bg-2); border-radius: var(--r-1); }
+.ds-roots-tab {
+  padding: 4px 10px; min-height: 32px; border: none; border-radius: var(--r-1);
+  background: none; color: var(--fg-3); cursor: pointer;
+  font-family: var(--ff-body); font-size: var(--fs-tiny);
+}
+.ds-roots-tab.active { background: var(--bg); color: var(--fg); }
+.ds-roots-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* --- H4: touch targets. On a coarse pointer / narrow screen the hover-revealed
+   action rows are made permanently visible and small controls floor to 44px so
+   they are reachable by finger. --- */
+@media (pointer: coarse), (max-width: 640px) {
+  .chat-msg-actions { opacity: 1; }
+  .chat-code-copy { opacity: 1; }
+  .chat-msg-action { min-width: 44px; height: 44px; }
+  .ds-dash-select { min-width: 44px; min-height: 44px; }
+  .ds-file-more-btn, .ds-roots-tab, .ds-dash-errors-toggle { min-height: 44px; }
+}

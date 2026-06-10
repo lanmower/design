@@ -33,6 +33,16 @@ function fmtTok(n) {
 
 export function ContextPane({ agent, model, cwd, toolCount = 0, usage, session, onSetCwd } = {}) {
     const running = Number(toolCount) > 0;
+    const hasUsage = usage && (usage.inputTokens != null || usage.outputTokens != null || usage.costUsd != null);
+    // Empty state: before an agent is picked AND with no usage/session, four
+    // placeholder rows (agent: none / model: dash / ...) read as a dead panel.
+    // Show one honest line instead.
+    if (!agent && !hasUsage && !session && !cwd) {
+        return h('div', { class: 'ds-context' },
+            h('div', { class: 'ds-context-empty', role: 'status' },
+                'No active conversation — start a chat to see context here'),
+            onSetCwd ? h('div', { class: 'ds-context-actions' }, Btn({ onClick: onSetCwd, children: 'set working dir' })) : null);
+    }
     // Each Panel's children array is all-unkeyed (no key prop on any sibling),
     // so webjsx never sees a mixed keyed/unkeyed array here.
     const panels = [
@@ -58,7 +68,7 @@ export function ContextPane({ agent, model, cwd, toolCount = 0, usage, session, 
     ];
     // Usage block: surface the last turn's token/cost/turn/duration so the
     // result event is no longer silently dropped.
-    if (usage && (usage.inputTokens != null || usage.outputTokens != null || usage.costUsd != null)) {
+    if (hasUsage) {
         const tokRows = [];
         if (usage.inputTokens != null) tokRows.push(Row({ title: 'input', meta: fmtTok(usage.inputTokens) + ' tok' }));
         if (usage.outputTokens != null) tokRows.push(Row({ title: 'output', meta: fmtTok(usage.outputTokens) + ' tok' }));

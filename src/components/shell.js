@@ -140,7 +140,11 @@ const ICON_PATHS = {
     folder: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
     upload: '<path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/>',
     download: '<path d="M12 4v12M7 11l5 5 5-5"/><path d="M5 20h14"/>',
-    'corner-up-left': '<path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v6"/>'
+    'corner-up-left': '<path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v6"/>',
+    // clipboard/copy — for the per-block code copy + message copy action, so the
+    // copy affordance reads as copy, not the lined-document `page` glyph.
+    copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/>',
+    clipboard: '<rect x="8" y="4" width="8" height="4" rx="1"/><path d="M8 6H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2"/>'
 };
 // Raw-DOM consumers (no webjsx render in scope) need the SVG as a markup string
 // rather than an h() vnode. Same path table, same viewBox/stroke contract as
@@ -355,15 +359,21 @@ function wsCollapsed(which, fallback) {
 export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narrow,
                                  railCollapsed = false, paneCollapsed = false,
                                  railLabel = 'workspace navigation',
-                                 paneLabel = 'context' } = {}) {
+                                 paneLabel = 'context', stableFrame = false } = {}) {
     const hasSessions = Boolean(sessions);
     const hasPane = Boolean(pane);
+    // Stable frame: keep the pane grid TRACK present even when this tab has no
+    // pane, so the shell does not re-flow its column count (4/3/2) on every tab
+    // switch - the loudest "separate pages" tell. The track collapses to width 0
+    // (ws-pane-collapsed) instead of being removed (ws-no-pane), so chat/history/
+    // files/live/settings all keep the same column geometry.
+    const keepPaneTrack = stableFrame && !hasPane;
     const railIsCollapsed = wsCollapsed('rail', railCollapsed);
     const paneIsCollapsed = hasPane ? wsCollapsed('pane', paneCollapsed) : true;
     const shellCls = 'ws-shell'
         + (railIsCollapsed ? ' ws-rail-collapsed' : '')
-        + (hasPane ? '' : ' ws-no-pane')
-        + (hasPane && paneIsCollapsed ? ' ws-pane-collapsed' : '')
+        + ((hasPane || keepPaneTrack) ? '' : ' ws-no-pane')
+        + (((hasPane && paneIsCollapsed) || keepPaneTrack) ? ' ws-pane-collapsed' : '')
         + (hasSessions ? '' : ' ws-no-sessions')
         + (narrow ? ' narrow' : '');
     return h('div', { class: shellCls },

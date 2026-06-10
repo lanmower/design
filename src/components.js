@@ -35,13 +35,13 @@ export { ContextPane } from './components/context-pane.js';
 
 export {
     fileGlyph, fmtFileSize,
-    FileIcon, FileRow, FileGrid, FileSkeleton, sortFiles, FileToolbar,
+    FileIcon, FileRow, FileGrid, FileSkeleton, sortFiles, FileToolbar, RootsPicker,
     DropZone, UploadProgress, EmptyState, BreadcrumbPath
 } from './components/files.js';
 
 export {
     ConfirmDialog, PromptDialog,
-    FilePreviewMedia, FilePreviewCode, FilePreviewText, FileViewer
+    FilePreviewMedia, FilePreviewCode, FilePreviewText, FileViewer, FilePreviewPane
 } from './components/files-modals.js';
 
 export {

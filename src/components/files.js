@@ -43,26 +43,34 @@ export function FileIcon({ type = 'other' } = {}) {
     return h('span', { class: 'ds-file-icon', 'data-file-type': type, 'aria-label': TYPE_LABELS[type] || 'file', role: 'img' }, Icon(fileGlyph(type)));
 }
 
-export function FileRow({ name, type = 'other', size, modified, code, onOpen, onAction, active, key } = {}) {
-    const meta = [type === 'dir' ? null : fmtFileSize(size), modified || null].filter(Boolean).join(' · ');
+export function FileRow({ name, type = 'other', size, modified, code, onOpen, onAction, active, key, permissions, locked } = {}) {
+    // permissions: ['read','write'] | ['read'] | 'EACCES'. A no-access entry can
+    // be listed (the dir stat saw it) but not opened — show an ASCII tag and
+    // disable the open button so the row reads honestly instead of silently
+    // failing on click.
+    const noAccess = locked || permissions === 'EACCES' || (Array.isArray(permissions) && permissions.length === 0);
+    const readOnly = !noAccess && Array.isArray(permissions) && permissions.indexOf('write') === -1 && permissions.indexOf('read') !== -1;
+    const permTag = noAccess ? 'no access' : (readOnly ? 'read-only' : null);
+    const meta = [type === 'dir' ? null : fmtFileSize(size), modified || null, permTag].filter(Boolean).join(' · ');
     const typeLabel = TYPE_LABELS[type] || 'file';
     const accessibleLabel = `${typeLabel}: ${name}${meta ? ` (${meta})` : ''}`;
+    const canOpen = onOpen && !noAccess;
     // A role=button row containing real <button> action controls is invalid
     // HTML (interactive nesting). Instead the row is a plain container and the
     // primary "open" affordance is itself a real <button> (native keyboard +
     // semantics); the per-file action buttons sit alongside it as siblings.
     return h('div', {
         key,
-        class: 'ds-file-row row' + (active ? ' active' : ''),
+        class: 'ds-file-row row' + (active ? ' active' : '') + (noAccess ? ' is-locked' : ''),
         'data-file-type': type,
     },
         h('button', {
             type: 'button',
             class: 'ds-file-open',
-            onclick: onOpen || null,
-            'aria-label': accessibleLabel,
+            onclick: canOpen ? onOpen : null,
+            'aria-label': accessibleLabel + (noAccess ? ' (no access)' : ''),
             'aria-pressed': active ? 'true' : 'false',
-            disabled: onOpen ? null : true,
+            disabled: canOpen ? null : true,
         },
             code != null ? h('span', { class: 'code', 'aria-label': `code: ${code}` }, code) : null,
             FileIcon({ type }),
@@ -117,10 +125,22 @@ export function sortFiles(files = [], sort = 'name', dir = 'asc') {
 // Keyboard nav: the grid is a focusable listbox - ArrowUp/Down move the active
 // row, Enter opens it, Backspace asks the host to go up (onUp). The host keeps no
 // focus state; the grid tracks it on the DOM via roving tabindex.
-export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'no files here yet',
-                          columns = 'auto', sort, filter, loading = false } = {}) {
+// How many rows to render before the "show more" cap kicks in. A node_modules-
+// scale directory would otherwise flood the DOM with thousands of rows (and make
+// the roving-tabindex querySelectorAll scan O(n) per keypress). Render the first
+// CAP and a "show N more" row, mirroring the History tab's "load N older".
+const FILE_GRID_CAP = 200;
+
+export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No files here yet',
+                          columns = 'auto', sort, filter, loading = false,
+                          shown, onShowMore } = {}) {
     if (loading) return FileSkeleton({});
     if (!files.length) return EmptyState({ text: emptyText });
+    // Cap the rendered rows. `shown` (host-controlled) overrides the default cap
+    // so "show more" can grow it; otherwise default to FILE_GRID_CAP.
+    const limit = shown != null ? shown : FILE_GRID_CAP;
+    const capped = files.length > limit;
+    const visible = capped ? files.slice(0, limit) : files;
     const gridAttrs = {};
     if (columns !== 'auto' && columns > 0) {
         const col = Math.max(1, Math.min(4, Math.floor(columns)));
@@ -151,16 +171,30 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'no f
             'aria-label': filter.placeholder || 'Filter files in this directory',
             oninput: (e) => filter.onInput && filter.onInput(e.target.value),
         })) : null;
-    const grid = h('div', { class: 'ds-file-grid', role: 'listbox', 'aria-label': 'files', tabindex: '0', onkeydown: onKeyDown, ...gridAttrs },
-        ...files.map((f, i) => FileRow({
+    // role=group not listbox: the rows contain real <button> action controls, so
+    // listbox/option semantics are invalid (an option can't host interactive
+    // children). Keyboard nav still works via roving focus over the open buttons.
+    const grid = h('div', { class: 'ds-file-grid', role: 'group', 'aria-label': 'files', tabindex: '0', onkeydown: onKeyDown, ...gridAttrs },
+        ...visible.map((f, i) => FileRow({
             key: f.path || f.name + i,
             name: f.name, type: f.type, size: f.size, modified: f.modified, code: f.code, active: f.active,
+            permissions: f.permissions, locked: f.locked,
             onOpen: onOpen ? () => onOpen(f) : null,
             onAction: onAction ? (act) => onAction(act, f) : null
         }))
     );
-    return (head || filterBar)
-        ? h('div', { class: 'ds-file-listing' }, filterBar, head, grid)
+    // A count + "show more" affordance so a capped large dir reads as "more
+    // exist", not "this is everything". aria-live announces the shown/total.
+    const more = capped
+        ? h('div', { class: 'ds-file-more' },
+            h('span', { class: 'ds-file-more-count', role: 'status', 'aria-live': 'polite' },
+                'showing ' + visible.length + ' of ' + files.length),
+            onShowMore ? h('button', { type: 'button', class: 'ds-file-more-btn',
+                onclick: () => onShowMore(Math.min(files.length, limit + FILE_GRID_CAP)) },
+                'show ' + Math.min(FILE_GRID_CAP, files.length - limit) + ' more') : null)
+        : null;
+    return (head || filterBar || more)
+        ? h('div', { class: 'ds-file-listing' }, filterBar, head, grid, more)
         : grid;
 }
 
@@ -183,6 +217,21 @@ export function FileToolbar({ left = [], right = [] } = {}) {
         h('div', { class: 'ds-file-toolbar-left' }, ...left),
         h('div', { class: 'ds-file-toolbar-right' }, ...right)
     );
+}
+
+// RootsPicker — a segmented control for choosing among multiple allowed FS roots
+// (so the app stops borrowing the history-tab .pill markup). Each root is
+// { id, label }; `selected` is the active id. role=tablist for AT navigation.
+export function RootsPicker({ roots = [], selected, onSelect, label = 'roots' } = {}) {
+    if (!roots.length) return null;
+    return h('div', { class: 'ds-roots-picker', role: 'tablist', 'aria-label': label },
+        ...roots.map((r) => h('button', {
+            key: 'root-' + (r.id != null ? r.id : r.label),
+            type: 'button', role: 'tab',
+            class: 'ds-roots-tab' + ((r.id != null ? r.id : r.label) === selected ? ' active' : ''),
+            'aria-selected': (r.id != null ? r.id : r.label) === selected ? 'true' : 'false',
+            onclick: () => onSelect && onSelect(r.id != null ? r.id : r.label),
+        }, r.label || r.id)));
 }
 
 export function DropZone({ children, dragover, onDrop, onDragOver, onDragLeave, label = 'drop files here', onPick } = {}) {

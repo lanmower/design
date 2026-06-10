@@ -5,6 +5,7 @@
 
 import * as webjsx from '../../vendor/webjsx/index.js';
 import { Btn, Icon } from './shell.js';
+import { Select, SearchInput } from './content.js';
 const h = webjsx.createElement;
 
 // ConversationList — the Claude-Desktop "Chats" column. Sessions grouped by a
@@ -18,7 +19,7 @@ const h = webjsx.createElement;
 //   search   : { value, onInput, placeholder } inline filter (optional)
 //   onSelect(session), onNew() : intents
 //   emptyText, loading, error  : explicit states
-export function ConversationList({ sessions = [], selected, groups, search,
+export function ConversationList({ sessions = [], selected, groups, search, caption,
                                    onSelect, onNew, newLabel = 'New chat',
                                    emptyText = 'No conversations yet', loading = false, error = null } = {}) {
   const rowFor = (s, i) => h('button', {
@@ -77,6 +78,10 @@ export function ConversationList({ sessions = [], selected, groups, search,
         'aria-label': search.placeholder || 'Search conversations',
         oninput: (e) => search.onInput && search.onInput(e.target.value),
       }) : null),
+    // Per-tab caption telling the user what selecting a row does on this surface
+    // (chat = resume the conversation, history = browse its events) so visually
+    // identical rows are disambiguated.
+    caption ? h('div', { key: 'cap', class: 'ds-session-caption' }, caption) : null,
     body);
 }
 
@@ -90,9 +95,18 @@ export function ConversationList({ sessions = [], selected, groups, search,
 // the relative time of the most-recent event ("4s ago"); `currentTool` the tool
 // name a still-running turn is executing - together they distinguish a busy
 // session from a stuck one (a frozen elapsed alone reads identically for both).
-export function SessionCard({ session = {}, onStop, onOpen, onResume, onView } = {}) {
+// `status` is one of: 'error' | 'stale' | 'running'. A 'stale' session is one
+// the host has determined is alive but not making progress (no recent activity,
+// no current tool) — it reads as `idle` with a NON-pulsing disc so a stuck agent
+// is visually distinct from a busy one (a frozen elapsed alone reads identically
+// for both, which is the high-severity oversight gap this closes).
+const STATUS_WORD = { error: 'error', stale: 'idle', running: 'running' };
+const STATUS_DISC = { error: 'status-dot-error', stale: 'status-dot-stale', running: 'status-dot-live' };
+
+export function SessionCard({ session = {}, onStop, onOpen, onView, active = false,
+                             selectable = false, selected = false, onToggleSelect } = {}) {
   const s = session;
-  const statusTone = s.status === 'error' ? 'flame' : 'live';
+  const st = s.status === 'error' ? 'error' : (s.status === 'stale' ? 'stale' : 'running');
   // The stat line composes elapsed + live counter; the activity line carries the
   // last-activity time and the current tool so a card shows MOTION, not just a
   // start offset. Both are middot-joined (kept product separator).
@@ -101,12 +115,19 @@ export function SessionCard({ session = {}, onStop, onOpen, onResume, onView } =
     s.currentTool ? 'running: ' + s.currentTool : null,
     s.lastActivity ? 'last ' + s.lastActivity : null,
   ].filter(Boolean);
-  return h('div', { class: 'ds-dash-card' + (s.status === 'error' ? ' is-error' : ''), role: 'group', 'aria-label': 'session ' + (s.agent || s.sid) },
+  const cls = 'ds-dash-card is-' + st + (active ? ' is-active' : '') + (selected ? ' is-selected' : '');
+  return h('div', { class: cls, role: 'group', 'aria-label': 'session ' + (s.agent || s.sid), 'aria-current': active ? 'true' : null },
     h('div', { class: 'ds-dash-card-head' },
-      h('span', { class: 'status-dot-disc ' + (statusTone === 'live' ? 'status-dot-live' : 'status-dot-error'), 'aria-hidden': 'true' }),
+      selectable ? h('button', {
+        type: 'button', class: 'ds-dash-select', role: 'checkbox',
+        'aria-checked': selected ? 'true' : 'false',
+        'aria-label': (selected ? 'deselect' : 'select') + ' session ' + (s.agent || s.sid),
+        onclick: () => onToggleSelect && onToggleSelect(s),
+      }, selected ? '[x]' : '[ ]') : null,
+      h('span', { class: 'status-dot-disc ' + STATUS_DISC[st], 'aria-hidden': 'true' }),
       // Status is words + the disc, never colour alone (WCAG 1.4.1): the disc is
       // aria-hidden, so the visible/AT status word carries the state.
-      h('span', { class: 'ds-dash-status ' + (s.status === 'error' ? 'is-error' : 'is-running') }, s.status === 'error' ? 'error' : 'running'),
+      h('span', { class: 'ds-dash-status is-' + st }, STATUS_WORD[st]),
       h('span', { class: 'ds-dash-agent' }, s.agent || 'agent'),
       s.model ? h('span', { class: 'ds-dash-model' }, s.model) : null),
     h('div', { class: 'ds-dash-meta' },
@@ -114,8 +135,9 @@ export function SessionCard({ session = {}, onStop, onOpen, onResume, onView } =
       statBits.length ? h('span', { class: 'ds-dash-stat' }, statBits.join(' · ')) : null,
       activityBits.length ? h('span', { class: 'ds-dash-activity' }, activityBits.join(' · ')) : null),
     h('div', { class: 'ds-dash-actions', role: 'group', 'aria-label': 'session actions' },
+      // open and resume collapsed into one 'open' action (they both just reopen
+      // the session in chat); 'events' kept for the read-only event view.
       onOpen ? Btn({ key: 'open', onClick: () => onOpen(s), children: 'open' }) : null,
-      onResume ? Btn({ key: 'resume', onClick: () => onResume(s), children: 'resume' }) : null,
       onView ? Btn({ key: 'view', onClick: () => onView(s), children: 'events' }) : null,
       onStop ? Btn({ key: 'stop', danger: true, onClick: () => onStop(s), children: 'stop' }) : null));
 }
@@ -128,20 +150,56 @@ export function SessionCard({ session = {}, onStop, onOpen, onResume, onView } =
 // The bulk header is the "manage many at once" affordance: a live count plus a
 // stop-all button, so a user running several agents does not have to hunt each
 // card's stop. Rendered only when there are sessions AND onStopAll is wired.
-export function SessionDashboard({ sessions = [], onStop, onOpen, onResume, onView, onStopAll,
+// Streamstate words: the live-stream health signal so "connected, zero running"
+// still tells the user the dashboard is listening (vs a dropped stream).
+const STREAM_WORD = { connected: 'listening for activity', connecting: 'connecting to live stream…', lost: 'live stream lost — retrying…' };
+
+export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStopAll, onStopSelected,
+                                   sort, filter, errorsOnly = false, onErrorsOnly,
+                                   selectable = false, selected, onToggleSelect,
+                                   activeSid, streamState,
                                    emptyText = 'No live sessions', offline = false } = {}) {
   if (offline) {
     return h('div', { class: 'ds-dash-state ds-dash-state-error', role: 'status' }, 'Backend offline — live sessions unavailable');
   }
+  const selSet = selected instanceof Set ? selected : new Set(selected || []);
+  const selCount = selSet.size;
+  // The stream-state line always renders (even with zero sessions) so a
+  // connected-but-idle dashboard reads differently from an offline one.
+  const streamLine = streamState
+    ? h('span', { class: 'ds-dash-stream is-' + streamState, role: 'status', 'aria-live': 'polite' }, STREAM_WORD[streamState] || streamState)
+    : null;
+  const toolbar = (sort || filter || onErrorsOnly)
+    ? h('div', { class: 'ds-dash-toolbar', role: 'group', 'aria-label': 'sort and filter sessions' },
+        filter ? SearchInput({ key: 'filt', value: filter.value || '', label: filter.placeholder || 'Filter sessions', placeholder: filter.placeholder || 'Filter sessions', onInput: (v) => filter.onInput && filter.onInput(v) }) : null,
+        sort ? Select({ key: 'sort', value: sort.value || 'status', title: 'Sort sessions',
+          options: [
+            { value: 'status', label: 'sort: status' },
+            { value: 'elapsed', label: 'sort: elapsed' },
+            { value: 'activity', label: 'sort: last activity' },
+            { value: 'errors', label: 'sort: errors first' },
+          ], onChange: (v) => sort.onChange && sort.onChange(v) }) : null,
+        onErrorsOnly ? h('button', { key: 'eo', type: 'button', class: 'ds-dash-errors-toggle' + (errorsOnly ? ' active' : ''),
+          'aria-pressed': errorsOnly ? 'true' : 'false', onclick: () => onErrorsOnly(!errorsOnly) }, 'errors only') : null)
+    : null;
   if (!sessions.length) {
-    return h('div', { class: 'ds-dash-state', role: 'status' }, emptyText);
+    return h('div', { class: 'ds-dash' },
+      h('div', { class: 'ds-dash-header', role: 'group', 'aria-label': 'live session controls' },
+        h('span', { class: 'ds-dash-count', role: 'status', 'aria-live': 'polite' }, '0 running'), streamLine),
+      h('div', { class: 'ds-dash-state', role: 'status' }, emptyText));
   }
   const header = h('div', { class: 'ds-dash-header', role: 'group', 'aria-label': 'live session controls' },
     h('span', { class: 'ds-dash-count', role: 'status', 'aria-live': 'polite' },
-      sessions.length + ' running'),
-    onStopAll ? Btn({ key: 'stopall', danger: true, onClick: () => onStopAll(sessions), children: 'stop all' }) : null);
+      selectable && selCount ? selCount + ' selected' : sessions.length + ' running'),
+    streamLine,
+    h('span', { class: 'spread' }),
+    selectable && selCount && onStopSelected
+      ? Btn({ key: 'stopsel', danger: true, onClick: () => onStopSelected([...selSet]), children: 'stop selected' })
+      : (onStopAll ? Btn({ key: 'stopall', danger: true, onClick: () => onStopAll(sessions), children: 'stop all' }) : null),
+    toolbar);
   const grid = h('div', { class: 'ds-dash-grid', role: 'list', 'aria-label': 'live sessions' },
     ...sessions.map((s) => h('div', { key: s.sid, role: 'listitem' },
-      SessionCard({ session: s, onStop, onOpen, onResume, onView }))));
+      SessionCard({ session: s, onStop, onOpen, onView, active: s.sid === activeSid,
+                    selectable, selected: selSet.has(s.sid), onToggleSelect }))));
   return h('div', { class: 'ds-dash' }, header, grid);
 }

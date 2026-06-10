@@ -124,6 +124,8 @@ export function AgentChat(props = {}) {
     canSend = true,
     suggestions = [], onSuggestionClick,
     onCopyMessage, onRetryMessage, onEditMessage,
+    avatar, composerContext,
+    followups = [], onFollowupClick,
   } = props;
 
   const name = agentName || (agents.find((a) => a.id === selectedAgent)?.name) || selectedAgent || 'agent';
@@ -164,7 +166,16 @@ export function AgentChat(props = {}) {
         // container shape (.chat-md padding/spacing) the settled markdown will
         // use — only the inner content swaps on settle, so the bubble box does
         // not reflow/jump when the turn finishes and renders real markdown.
-        if (isStreaming && part.kind === 'md') parts.push({ kind: 'text', text: part.text, mdShell: true });
+        if (isStreaming && part.kind === 'md') {
+          // If the streaming prose contains a code fence, the inline renderer
+          // (which has no triple-backtick handling) would show it as run-on text
+          // with literal ``` and no monospace, then snap into a styled <pre> on
+          // settle (a visible reflow during the most-watched moment). Detect a
+          // fence and render the bubble as a cheap monospaced <pre> shell instead
+          // (no Prism mid-stream, so no O(n^2)) so it does not reflow on settle.
+          if (part.text && part.text.indexOf('```') !== -1) parts.push({ kind: 'text', text: part.text, mdShell: true, preShell: true });
+          else parts.push({ kind: 'text', text: part.text, mdShell: true });
+        }
         else parts.push(part);
       }
     }
@@ -181,7 +192,7 @@ export function AgentChat(props = {}) {
     let actions;
     if (!isStreaming && msgHasBody(m)) {
       const built = [];
-      if (onCopyMessage) built.push({ label: 'copy', icon: 'page', title: 'copy message', onClick: () => onCopyMessage(m) });
+      if (onCopyMessage) built.push({ label: 'copy', icon: 'copy', title: 'copy message', onClick: () => onCopyMessage(m) });
       if (isAssistant && onRetryMessage && i === lastIdx) built.push({ label: 'retry', icon: 'refresh', title: 'retry this turn', onClick: () => onRetryMessage(m) });
       if (!isAssistant && onEditMessage) built.push({ label: 'edit', icon: 'pencil', title: 'edit and resend', onClick: () => onEditMessage(m) });
       if (built.length) actions = built;
@@ -190,6 +201,9 @@ export function AgentChat(props = {}) {
       key: m.id || String(i),
       who: isAssistant ? 'them' : 'you',
       aicat: isAssistant,
+      // A stable per-agent product mark (host passes a small line-SVG via
+      // `avatar`) instead of a per-agent letter initial that shifts identity.
+      avatar: isAssistant ? (m.avatar != null ? m.avatar : avatar) : undefined,
       name: isAssistant ? name : 'you',
       time: m.time || '',
       typing: emptyStreaming,
@@ -210,7 +224,20 @@ export function AgentChat(props = {}) {
     onInput: (v) => onInput && onInput(v),
     onSend: (v) => onSend && onSend(v),
     onCancel: busy && onStop ? () => onStop() : undefined,
+    // The active target (agent / model / cwd-basename) at the point of typing.
+    context: composerContext,
   });
+
+  // Contextual follow-up chips below the last SETTLED assistant turn (claude.ai/
+  // code / cowork surface these after a turn, not only on an empty thread). Shown
+  // only when not busy and the last message is an assistant turn with body.
+  const followupRow = (!busy && followups && followups.length && lastMsg && lastMsg.role === 'assistant' && msgHasBody(lastMsg))
+    ? h('div', { class: 'agentchat-followups', role: 'group', 'aria-label': 'suggested follow-ups' },
+        ...followups.map((s, i) => h('button', {
+          key: 'fu' + i, type: 'button', class: 'agentchat-empty-suggestion agentchat-followup',
+          onclick: () => { const t = typeof s === 'string' ? s : (s.prompt || s.text || ''); if (onFollowupClick) onFollowupClick(t); else if (onSuggestionClick) onSuggestionClick(t); },
+        }, typeof s === 'string' ? s : (s.label || s.text || s.prompt))))
+    : null;
 
   // Empty state: a fresh thread is a void without this. Mirrors the kit's Chat
   // empty surface (title, sub, optional starter prompts) so AgentChat opens to
@@ -250,7 +277,8 @@ export function AgentChat(props = {}) {
           ? h('div', { key: '_working', class: 'agentchat-working', role: 'status', 'aria-live': 'polite' },
               h('span', { class: 'chat-thinking-dots', 'aria-hidden': 'true' }, h('span'), h('span'), h('span')),
               h('span', { class: 'agentchat-working-text' }, 'working…'))
-          : null),
+          : null,
+        followupRow),
       // Jump-to-latest: hidden until the scroll listener adds .show (user scrolled
       // up). Clicking returns to the live edge. Pure-DOM, like the kit's other
       // stateless chrome, so the host needn't thread scroll state through state.

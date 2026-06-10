@@ -879,6 +879,10 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   /* On mobile, fold meta under the title and keep actions inline. */
   .ds-file-row .ds-file-meta { font-size: var(--fs-micro); }
   .ds-file-row .ds-file-actions { opacity: 1; }
+  /* H4: floor finger-sized controls so file actions/sort/filter/breadcrumb are
+     reachable by touch (cohesion sweep). */
+  .ds-file-act, .ds-file-sort-btn, .ds-crumb-seg { min-height: 44px; }
+  .ds-file-filter-input { min-height: 44px; }
 
   /* Chat */
   .chat-stack { max-width: 100%; min-width: 0; }
@@ -2767,6 +2771,13 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ws-shell.ws-no-sessions { grid-template-columns: var(--ws-rail-w) 1fr var(--ws-pane-w); grid-template-areas: "rail content pane"; }
 .ws-shell.ws-no-pane.ws-no-sessions { grid-template-columns: var(--ws-rail-w) 1fr; grid-template-areas: "rail content"; }
 .ws-shell.ws-no-pane:not(.ws-no-sessions) { grid-template-columns: var(--ws-rail-w) var(--ws-sessions-w) 1fr; grid-template-areas: "rail sessions content"; }
+/* G1 stable frame: when a tab has no pane but asks to keep the column geometry
+   (ws-no-pane + ws-pane-collapsed), KEEP the 4-track grid with the pane track
+   at width 0 instead of collapsing to a 3-track layout - so the shell does not
+   re-flow its column count on tab switch. The pane track stays present (0px),
+   so chat/history/files/live/settings share one geometry. */
+.ws-shell.ws-no-pane.ws-pane-collapsed:not(.ws-no-sessions) { grid-template-columns: var(--ws-rail-w) var(--ws-sessions-w) 1fr var(--ws-pane-w); grid-template-areas: "rail sessions content pane"; }
+.ws-shell.ws-no-pane.ws-pane-collapsed.ws-no-sessions { grid-template-columns: var(--ws-rail-w) 1fr var(--ws-pane-w); grid-template-areas: "rail content pane"; }
 .ws-shell.ws-rail-collapsed { --ws-rail-w: var(--ws-rail-w-collapsed); }
 .ws-shell.ws-pane-collapsed { --ws-pane-w: 0px; }
 

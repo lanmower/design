@@ -100,12 +100,44 @@ export function makeThreadAutoScroll(getCount) {
     };
 }
 
+// Inject a per-block copy button into every <pre> inside a rendered-markdown
+// container. claude.ai/code and Claude Desktop give EVERY fenced block a hover
+// copy affordance; the chat surface had only a whole-message copy. Idempotent:
+// marks each <pre> with data-copy-wired so re-renders don't stack buttons. The
+// button reveals on .chat-code-block:hover/:focus-within (CSS) and flips its
+// label copy -> copied for ~1.6s. Drawn with a real icon + word, no glyph.
+export function injectCodeCopy(container) {
+    if (!container) return;
+    container.querySelectorAll('pre').forEach((pre) => {
+        if (pre.dataset.copyWired === '1') return;
+        pre.dataset.copyWired = '1';
+        // Wrap the <pre> in a position:relative shell so the button can sit
+        // top-right without disturbing code layout.
+        const shell = document.createElement('div');
+        shell.className = 'chat-code-block';
+        pre.parentNode.insertBefore(shell, pre);
+        shell.appendChild(pre);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chat-code-copy';
+        btn.setAttribute('aria-label', 'copy code');
+        btn.textContent = 'copy';
+        btn.addEventListener('click', () => {
+            const code = pre.innerText;
+            const done = () => { btn.textContent = 'copied'; btn.classList.add('is-copied'); setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('is-copied'); }, 1600); };
+            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done).catch(() => {});
+            else { try { const t = document.createElement('textarea'); t.value = code; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch {} }
+        });
+        shell.appendChild(btn);
+    });
+}
+
 function MdNode(p) {
     const refSink = (el) => {
         if (!el) return;
         if (el.dataset.mdSrc === p.text) return;
         el.dataset.mdSrc = p.text || '';
-        renderMarkdownCached(p.text || '').then((html) => { el.innerHTML = html; });
+        renderMarkdownCached(p.text || '').then((html) => { el.innerHTML = html; injectCodeCopy(el); });
     };
     return h('div', { class: 'chat-bubble chat-md', ref: refSink });
 }
@@ -121,10 +153,20 @@ function CodeNode(p) {
         el.dataset.codeKey = codeKey;
         highlightCodeBlockCached(el);
     };
+    // Copy the raw code (not the highlighted DOM) for the structured CodeNode.
+    const onCopy = (e) => {
+        const btn = e.currentTarget;
+        const code = p.code || '';
+        const done = () => { btn.textContent = 'copied'; btn.classList.add('is-copied'); setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('is-copied'); }, 1600); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done).catch(() => {});
+        else { try { const t = document.createElement('textarea'); t.value = code; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch {} }
+    };
     return h('div', { class: 'chat-bubble chat-code', ref: refSink },
         h('div', { class: 'chat-code-head' },
             h('span', { class: 'lang' }, p.lang || 'code'),
-            p.filename ? h('span', { class: 'name' }, p.filename) : null
+            p.filename ? h('span', { class: 'name' }, p.filename) : null,
+            h('span', { class: 'spread' }),
+            h('button', { type: 'button', class: 'chat-code-copy chat-code-copy-head', 'aria-label': 'copy code', onclick: onCopy }, 'copy')
         ),
         h('pre', {}, h('code', { class: p.lang ? 'lang-' + p.lang + ' language-' + p.lang : '' }, p.code || ''))
     );
@@ -173,7 +215,12 @@ function ThinkingNode(p) {
 }
 
 const PART_RENDERERS = {
-    text:  (p) => h('div', { class: 'chat-bubble' + (p.mdShell ? ' chat-md' : '') }, ...renderInline(p.text || '')),
+    text:  (p) => p.preShell
+        // Streaming prose that already contains a code fence renders as a plain
+        // monospaced <pre> so it does not reflow from prose to a styled block on
+        // settle (no Prism mid-stream). The settled turn renders real markdown.
+        ? h('div', { class: 'chat-bubble chat-md chat-stream-pre' }, h('pre', {}, h('code', {}, p.text || '')))
+        : h('div', { class: 'chat-bubble' + (p.mdShell ? ' chat-md' : '') }, ...renderInline(p.text || '')),
     md:    (p) => MdNode(p),
     code:  (p) => CodeNode(p),
     tool:        (p) => ToolCallNode(p),
@@ -275,7 +322,8 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
                 key: 'ma' + i, type: 'button', class: 'chat-msg-action',
                 title: a.title || a.label, 'aria-label': a.label || a.title,
                 onclick: (e) => { e.preventDefault(); a.onClick && a.onClick(e); },
-            }, a.icon ? Icon(a.icon, { size: 14 }) : (a.label || ''))))
+            }, a.icon ? Icon(a.icon, { size: 14 }) : null,
+               a.label ? h('span', { class: 'chat-msg-action-label' }, a.label) : null)))
         : null;
     const stack = h('div', { class: 'chat-stack' }, ...bodyNodes, reactionRow, actionRow, meta);
     // Centered roles (system/tool/thinking) skip the avatar column entirely so
@@ -285,7 +333,7 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     return h('div', { key, class: cls }, resolvedWho === 'you' ? stack : av, resolvedWho === 'you' ? av : stack);
 }
 
-export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu, onCancel, busy, placeholder = 'message…', disabled }) {
+export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu, onCancel, busy, placeholder = 'message…', disabled, context }) {
     // Keep a handle to the live textarea so send() reads the actual DOM value
     // (not the possibly-lagging `value` prop) and so we can sync the DOM value
     // only when it genuinely differs — re-applying `value` on every parent
@@ -320,7 +368,19 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
         el.style.height = 'auto';
         el.style.height = Math.min(el.scrollHeight, 200) + 'px';
     };
+    // Optional context line shown above the textarea: agent / model / cwd at the
+    // point of typing (the way Claude-Desktop surfaces the active target inline).
+    // `context` is { bits:[...strings], onClick? }; bits are middot-joined (kept
+    // product separator). Clickable when onClick is wired (opens the picker).
+    const contextLine = (context && context.bits && context.bits.length)
+        ? h(context.onClick ? 'button' : 'div', {
+            class: 'chat-composer-context', type: context.onClick ? 'button' : null,
+            'aria-label': context.onClick ? ('change target: ' + context.bits.join(' · ')) : null,
+            onclick: context.onClick ? (e) => { e.preventDefault(); context.onClick(e); } : null,
+          }, context.bits.filter(Boolean).join(' · '))
+        : null;
     return h('div', { class: 'chat-composer' },
+        contextLine,
         h('textarea', { ref: taRef, placeholder, rows: 1, 'aria-label': 'message input',
             oninput: autoGrow,
             onkeydown: (e) => {
