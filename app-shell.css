@@ -154,6 +154,9 @@ pre .n { color: var(--green-2); }
    ============================================================ */
 .app {
   display: flex; flex-direction: column;
+  /* Offset parent for the sidebar drawer/scrim/toggle, which are absolute so
+     they overlay THIS shell (a thebird WM window) rather than the viewport. */
+  position: relative;
   min-height: 100vh;
   /* Definite height so the flex column resolves height:100% for descendants
      (e.g. a full-height chat) at every breakpoint, not just where a desktop
@@ -2662,14 +2665,20 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
    ============================================================ */
 
 /* Tablet + Mobile: side rail becomes off-canvas drawer (≤900px) */
-@media (max-width: 900px) {
+/* Sidebar drawer collapse keys on the SHELL width (@container on .app, which is
+   container-type:inline-size) — NOT the viewport. Full-page (freddie) the shell
+   == viewport so this is identical to the old @media(max-width:900px); embedded
+   in a thebird WM window the drawer + hamburger appear when the WINDOW is narrow
+   even on a wide desktop. Drawer/scrim/toggle are absolute (anchored to .app), so
+   they overlay the window, not the page. */
+@container (max-width: 900px) {
   .app-body,
   .app-body.no-side { grid-template-columns: 1fr !important; }
   .app-side-shell {
-    position: fixed;
+    position: absolute;
     left: 0; top: var(--app-topbar-h);
-    height: calc(100vh - var(--app-topbar-h) - var(--app-status-h));
-    width: 280px; max-width: 80vw;
+    height: calc(100% - var(--app-topbar-h) - var(--app-status-h));
+    width: 280px; max-width: 80%;
     transform: translateX(-100%);
     transition: transform var(--dur-base, 240ms) var(--ease, ease);
     z-index: 50;
@@ -2703,21 +2712,24 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   .app-main { padding-left: var(--space-3); padding-right: var(--space-3); }
 }
 
-/* Drawer scrim — lives inside .app-body, shown when drawer open ≤900px */
+/* Drawer scrim — absolute so it covers THIS shell, shown when drawer open and
+   the shell is narrow (@container on .app). */
 .app-side-scrim {
   display: none;
-  position: fixed; inset: 0;
+  position: absolute; inset: 0;
   background: color-mix(in oklab, var(--bg) 60%, transparent);
   z-index: 49;
 }
-@media (max-width: 900px) {
+@container (max-width: 900px) {
   .app-body.side-open .app-side-scrim { display: block; }
 }
 
-/* Mobile nav toggle (hamburger) — hidden on desktop, shown ≤900px */
+/* Nav toggle (hamburger) — hidden when the shell is wide, shown when the shell
+   itself is narrow (@container on .app). Absolute so it sits in THIS shell's
+   topbar, not pinned to the viewport corner. */
 .app-side-toggle {
   display: none;
-  position: fixed; top: calc((var(--app-topbar-h) - 44px) / 2); left: 10px;
+  position: absolute; top: calc((var(--app-topbar-h) - 44px) / 2); left: 10px;
   z-index: 51;
   /* 44x44 minimum hit area (WCAG 2.5.5 / Apple HIG) - 36px is below the
      reliable-tap threshold on touch. */
@@ -2730,7 +2742,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   cursor: pointer;
 }
 .app-side-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-@media (max-width: 900px) {
+@container (max-width: 900px) {
   .app-side-toggle { display: inline-flex; }
   .app-topbar .brand { margin-left: 44px; }
 }

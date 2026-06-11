@@ -453,7 +453,7 @@ html, body {
     .wm-bar .wm-btns { pointer-events: auto; }
     .wm-btns .wm-btn:nth-child(1), .wm-btns .wm-btn:nth-child(2) { display: none !important; }
     .wm-btns .wm-btn:nth-child(3) { width: 44px !important; height: 44px !important; border-radius: var(--r-1, 6px) !important; background: var(--os-bg-3) !important; color: var(--os-fg) !important; }
-    .wm-resize { display: none !important; }
+    .wm-resize, .wm-edge { display: none !important; }
 }
 
 /* ---- data-attr theme/accent: deferred to the canonical theme ----
@@ -1405,7 +1405,7 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
     border-radius: var(--r-1, 6px) !important;
     background: var(--os-bg-3) !important; color: var(--os-fg) !important;
   }
-  .ds-247420 .wm-resize { display: none !important; }
+  .ds-247420 .wm-resize, .ds-247420 .wm-edge { display: none !important; }
   /* collapse the menubar workspace cluster on mobile (the unconditional
    * .ds-247420 .os-instances{display:flex} otherwise leaves it visible) */
   .ds-247420 .os-menubar .os-instances,

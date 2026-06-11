@@ -46,10 +46,19 @@ export function renderWindow(opts = {}) {
     bodyEl.className = 'wm-body';
     setBodyContent(bodyEl, body);
 
-    const resize = document.createElement('div');
-    resize.className = 'wm-resize';
+    // Resize affordances: one grip per edge + corner. `data-dir` carries the
+    // direction (n/s/e/w/ne/nw/se/sw) to the consumer's resize math. The SE
+    // corner keeps the visible diagonal grip glyph (.wm-resize); the other
+    // seven are invisible hit-zones (.wm-edge) styled in wm.css.
+    const DIRS = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
+    const grips = DIRS.map(dir => {
+        const g = document.createElement('div');
+        g.className = dir === 'se' ? 'wm-resize' : 'wm-edge';
+        g.dataset.dir = dir;
+        return g;
+    });
 
-    el.append(bar, bodyEl, resize);
+    el.append(bar, bodyEl, ...grips);
 
     minBtn.addEventListener('click', e => { e.stopPropagation(); callbacks.onMinimize && callbacks.onMinimize(); });
     maxBtn.addEventListener('click', e => { e.stopPropagation(); callbacks.onMaximize && callbacks.onMaximize(); });
@@ -66,11 +75,11 @@ export function renderWindow(opts = {}) {
         if (callbacks.onDragStart) callbacks.onDragStart(e, { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight });
     });
 
-    resize.addEventListener('pointerdown', e => {
+    grips.forEach(g => g.addEventListener('pointerdown', e => {
         e.stopPropagation();
         focus();
-        if (callbacks.onResizeStart) callbacks.onResizeStart(e, { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight });
-    });
+        if (callbacks.onResizeStart) callbacks.onResizeStart(e, { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight, dir: g.dataset.dir });
+    }));
 
     applyFocused(el, focused);
     applyMaximized(el, maximized);

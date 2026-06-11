@@ -240,14 +240,18 @@ export function Status({ left = [], right = [] } = {}) {
     );
 }
 
-// Toggle the mobile sidebar drawer. Pure-DOM because AppShell is stateless
-// chrome; the class lives on .app-body and is read by the <=900px media query.
-function toggleSide(open) {
-    const body = document.querySelector('.app-body');
+// Toggle the sidebar drawer. Pure-DOM because AppShell is stateless chrome; the
+// class lives on .app-body and is read by the @container(max-width:900px) query.
+// `fromEl` scopes the toggle to the shell that owns the clicked control — without
+// it, document.querySelector grabs the FIRST .app-body on the page, so a second
+// dashboard instance (multiple thebird WM windows) would toggle the wrong drawer.
+function toggleSide(open, fromEl) {
+    const shell = (fromEl && fromEl.closest && fromEl.closest('.app')) || document;
+    const body = shell.querySelector('.app-body');
     if (!body) return;
     const next = open != null ? open : !body.classList.contains('side-open');
     body.classList.toggle('side-open', next);
-    const btn = document.querySelector('.app-side-toggle');
+    const btn = shell.querySelector('.app-side-toggle');
     if (btn) btn.setAttribute('aria-expanded', next ? 'true' : 'false');
 }
 
@@ -267,12 +271,12 @@ export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
         hasSide ? h('button', {
             class: 'app-side-toggle', type: 'button',
             'aria-label': 'toggle navigation', 'aria-expanded': 'false', 'aria-controls': 'app-main',
-            onclick: () => toggleSide(),
+            onclick: (e) => toggleSide(null, e.currentTarget),
         }, Icon('menu')) : null,
         chrome,
         h('div', { class: 'app-body' + (hasSide ? '' : ' no-side') },
-            h('div', { class: 'app-side-scrim', 'aria-hidden': 'true', onclick: () => toggleSide(false) }),
-            h('div', { class: 'app-side-shell', onclick: (e) => { if (e.target.closest('a')) toggleSide(false); } }, sideNode),
+            h('div', { class: 'app-side-scrim', 'aria-hidden': 'true', onclick: (e) => toggleSide(false, e.currentTarget) }),
+            h('div', { class: 'app-side-shell', onclick: (e) => { if (e.target.closest('a')) toggleSide(false, e.currentTarget); } }, sideNode),
             // tabindex=-1 so the skip-link (href="#app-main") actually moves
             // keyboard focus into the main region, not just scroll to it.
             h('main', { class: 'app-main' + (narrow ? ' narrow' : ''), id: 'app-main', tabindex: '-1' }, ...(Array.isArray(main) ? main : [main]))
