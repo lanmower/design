@@ -53,7 +53,11 @@ export function Row({ code, rank, title, sub, meta, active, state = 'default', o
     const isLink = kind === 'link' || (href != null && !onClick);
     const isButton = !isLink && !!onClick;
     const stateCls = state === 'disabled' ? ' row-state-disabled' : (state === 'error' ? ' row-state-error' : '');
-    const cls = 'row' + (isActive ? ' active' : '') + stateCls + (cols ? ' row-grid' : '') + (rail ? ' rail-' + rail : '');
+    // With no leading/code, the title would otherwise land in the narrow code
+    // column and wrap; `row-nocode` collapses that column so the title gets the
+    // full width (meta still pinned right).
+    const noLead = codeVal == null && leading == null;
+    const cls = 'row' + (isActive ? ' active' : '') + stateCls + (cols ? ' row-grid' : '') + (noLead && !cols ? ' row-nocode' : '') + (rail ? ' rail-' + rail : '');
     const isDisabled = state === 'disabled';
     const props = { key, class: cls, style: cols ? `${style ? style + ';' : ''}grid-template-columns:${cols}` : style };
     if (isLink) {
@@ -168,7 +172,7 @@ export function WorksList({ works = [], openedIndex = -1, onToggle }) {
                     // Expand affordance: a chevron icon (down when open, right when
                     // collapsed) separated from the meta text by a CSS gap, not a
                     // literal +/- with a double-space.
-                    meta: h('span', { class: 'ds-works-meta', style: 'display:inline-flex;align-items:center;gap:.4em' },
+                    meta: h('span', { class: 'ds-works-meta' },
                         w.meta != null ? h('span', {}, w.meta) : null,
                         Icon(isOpen ? 'chevron-down' : 'chevron-right')),
                     active: isOpen,

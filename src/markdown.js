@@ -52,3 +52,13 @@ export async function renderMarkdown(src) {
     const raw = _marked.parse(String(src));
     return _purify.sanitize(raw);
 }
+
+// Sanitize already-rendered HTML before it touches innerHTML. For any surface
+// that injects host/user-authored HTML (e.g. a wiki page body), this is the
+// single XSS gate — DOMPurify strips scripts/handlers. If the purifier hasn't
+// loaded, we safe-fail by escaping (raw tags show as text, never execute).
+export async function sanitizeHtml(html) {
+    const ok = await ensureReady();
+    if (!ok) return escapeHtml(html);
+    return _purify.sanitize(String(html));
+}

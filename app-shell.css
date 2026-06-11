@@ -41,7 +41,7 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-::selection { background: var(--mascot); color: var(--ink); }
+::selection { background: color-mix(in oklab, var(--accent) 24%, var(--bg-2)); color: var(--fg); }
 
 /* Every root has a CQ container so fluid type can resolve to a meaningful inline-size. */
 .app, [class*="kit-"], .ds-stage {
@@ -578,12 +578,17 @@ body.canvas-host { background: transparent !important; }
 .row.rail-purple::before { background: var(--purple-2, #7F18A4); }
 .row.rail-flame::before  { background: var(--flame); }
 .row-grid { /* explicit grid-template-columns set inline */ }
+/* A row with no leading code/index drops the empty first column so the title
+   takes the full width instead of wrapping in the narrow code gutter. */
+.row.row-nocode { grid-template-columns: minmax(0, 1fr) auto; }
 
 .row .code  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
 .row .title { font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-lg); line-height: var(--lh-snug, 1.3); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; min-width: 0; }
 .row .title .sub { font-family: var(--ff-body); font-weight: 400; font-size: var(--fs-sm); color: var(--fg-3); }
 .row .sub   { font-family: var(--ff-body); font-weight: 400; font-size: var(--fs-sm); color: var(--fg-3); }
 .row .meta  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; align-self: center; }
+/* WorksList meta pairs a label with a disclosure chevron, inline-aligned. */
+.ds-works-meta { display: inline-flex; align-items: center; gap: .4em; }
 
 a.row { text-decoration: none; }
 
@@ -1935,36 +1940,43 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   .chat-msg:nth-child(n+4) { animation-delay: 0.15s; }
 }
 
+/* Calm composer (claude.ai/code): ONE bordered rounded-rect shell holding the
+   context line, a borderless textarea, the hint, and an inline send button -
+   not a stadium pill + a floating round send. The shell carries the border and
+   the focus ring; the textarea fills it transparently. flex-wrap lets the
+   context line and hint occupy their own rows above/below the input row. */
 .chat-composer {
-  display: flex; align-items: flex-end; gap: 8px;
-  padding: var(--space-3) 0 0;
-  border-top: 1px solid color-mix(in oklab, var(--fg) 8%, transparent);
+  display: flex; align-items: flex-end; flex-wrap: wrap; gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+  background: var(--bg);
+  border: var(--bw-hair) solid var(--rule);
+  border-radius: var(--r-2);
   flex-shrink: 0;
+  transition: border-color var(--dur-snap) var(--ease), box-shadow var(--dur-snap) var(--ease);
+}
+.chat-composer:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 18%, transparent);
 }
 .chat-composer textarea {
-  flex: 1; padding: 12px 16px;
-  background: var(--bg-2); color: var(--fg);
-  border: 1px solid transparent; border-radius: var(--r-pill);
+  flex: 1; min-width: 0; padding: 8px 4px;
+  background: none; color: var(--fg);
+  border: none; border-radius: 0;
   font-family: inherit; font-size: var(--fs-sm);
-  line-height: 1.4; resize: none;
-  min-height: 44px; max-height: 200px;
+  line-height: 1.45; resize: none;
+  min-height: 28px; max-height: 200px;
   box-sizing: border-box; overflow-y: auto;
   scrollbar-width: thin;
 }
 .chat-composer textarea::placeholder { color: var(--fg-3); }
-.chat-composer textarea:focus {
-  background: var(--bg-2);
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 20%, transparent);
-  outline: none;
-}
+.chat-composer textarea:focus { background: none; border: none; box-shadow: none; outline: none; }
 .chat-composer .send {
-  width: 44px; height: 44px; border-radius: 50%;
+  width: 36px; height: 36px; border-radius: var(--r-1);
   background: var(--accent); color: var(--accent-fg);
   border: 0; cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  transition: background var(--dur-snap, .15s) var(--ease, ease), transform .1s ease;
+  transition: background var(--dur-snap, .15s) var(--ease, ease);
 }
 .chat-composer .send:disabled { opacity: .5; cursor: not-allowed; }
 /* Ghost icon buttons in the toolbar (attach / emoji / more) — NOT the round
@@ -1978,8 +1990,8 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   transition: background var(--dur-snap, .15s) var(--ease, ease), color var(--dur-snap, .15s) var(--ease, ease);
 }
 .composer-btn:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
-.chat-composer .send:hover { transform: scale(1.04); }
-.chat-composer .send:active { transform: scale(0.96); }
+.chat-composer .send:hover { filter: brightness(1.08); }
+.chat-composer .send:active { filter: brightness(0.94); }
 .chat-composer .send:focus-visible,
 .composer-btn:focus-visible {
   outline: 2px solid var(--accent);
@@ -2836,6 +2848,12 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ws-shell.ws-no-pane.ws-pane-collapsed.ws-no-sessions { grid-template-columns: var(--ws-rail-w) 1fr var(--ws-pane-w); grid-template-areas: "rail content pane"; }
 .ws-shell.ws-rail-collapsed { --ws-rail-w: var(--ws-rail-w-collapsed); }
 .ws-shell.ws-pane-collapsed { --ws-pane-w: 0px; }
+/* Ease the rail/pane collapse. Track COUNT stays stable on collapse (only a
+   width var flips), so grid-template-columns is animatable; reduced-motion
+   drops it to an instant swap. */
+@media (prefers-reduced-motion: no-preference) {
+  .ws-shell { transition: grid-template-columns var(--dur-base) var(--ease); }
+}
 
 /* Rail (left nav) */
 .ws-rail {
@@ -2906,9 +2924,17 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 
 /* Content column */
 .ws-content { grid-area: content; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
-.ws-crumb { flex: 0 0 auto; display: flex; align-items: center; gap: var(--space-1); border-bottom: var(--bw-hair) solid var(--bg-3); }
+/* Crumb band is the top chrome of the content column: a stable height so the
+   top edge aligns with the rail head, and a left gutter matching .ws-main so
+   the trail text is not flush against the rail border. */
+.ws-crumb { flex: 0 0 auto; min-height: 48px; padding: 0 var(--space-4); display: flex; align-items: center; gap: var(--space-1); border-bottom: var(--bw-hair) solid var(--bg-3); }
 .ws-crumb-main { flex: 1 1 auto; min-width: 0; }
-.ws-main { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; }
+/* Content column gutter. Claude-Code-class calm: file grid / dashboard / event
+   list / history get a generous, consistent inner gutter instead of butting
+   against the 1px column borders. The chat tab opts out via .ws-main--flush
+   because the chat thread carries its own --measure gutter. */
+.ws-main { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; padding: var(--space-4) var(--space-5); }
+.ws-main.ws-main--flush { padding: 0; }
 .ws-main:focus { outline: none; }
 
 /* Right context pane */
@@ -2953,8 +2979,11 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   .ws-rail-collapsed .ws-rail-item-label, .ws-rail-collapsed .ws-rail-brand { display: none; }
   /* Tap-scrim behind an open drawer; dismiss on click. Hidden unless a drawer
      is open so it never blocks the content area on desktop. */
-  .ws-scrim { display: none; position: fixed; inset: 0; z-index: 41; background: color-mix(in srgb, var(--fg) 38%, transparent); }
-  .ws-shell.ws-sessions-open .ws-scrim, .ws-shell.ws-pane-open .ws-scrim { display: block; }
+  /* Scrim is always present on mobile so it can FADE with the drawer instead of
+     hard-appearing via a display toggle; pointer-events gate keeps it inert
+     while closed. Reduced-motion users get the global transition kill -> instant. */
+  .ws-scrim { display: block; opacity: 0; pointer-events: none; position: fixed; inset: 0; z-index: 41; background: color-mix(in srgb, var(--fg) 38%, transparent); transition: opacity var(--dur-base) var(--ease); }
+  .ws-shell.ws-sessions-open .ws-scrim, .ws-shell.ws-pane-open .ws-scrim { opacity: 1; pointer-events: auto; }
   /* The mobile drawer-toggle affordances live in the crumb bar. */
   .ws-drawer-toggle { display: inline-flex; }
 }

@@ -2,6 +2,7 @@
 
 import * as webjsx from '../../vendor/webjsx/index.js';
 import { Icon } from './shell.js';
+import { sanitizeHtml } from '../markdown.js';
 const h = webjsx.createElement;
 
 // Clamp a count to a compact badge string (matches the rail's 99+ convention),
@@ -391,7 +392,13 @@ export function PageView({ title = '', html = '', isAdmin = false, onEdit } = {}
         ),
         h('div', {
             class: 'cm-page-body',
-            ref: (el) => { if (el) el.innerHTML = html || '<p class="cm-page-empty">This page is empty.</p>'; }
+            // Page bodies are host/user-authored HTML, so they pass through the
+            // DOMPurify gate before innerHTML — never injected raw (stored-XSS gate).
+            ref: (el) => {
+                if (!el) return;
+                if (!html) { el.innerHTML = '<p class="cm-page-empty">This page is empty.</p>'; return; }
+                sanitizeHtml(html).then((clean) => { el.innerHTML = clean; });
+            }
         })
     );
 }
