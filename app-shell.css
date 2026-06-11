@@ -534,41 +534,56 @@ body.canvas-host { background: transparent !important; }
   grid-template-columns: minmax(80px, 12ch) minmax(0, 1fr) auto;
   gap: var(--space-3);
   align-items: baseline;
-  padding: 18px 22px;
+  padding: 16px 22px;
   background: var(--bg);
   border-radius: var(--r-2);
   color: var(--fg);
   position: relative;
-  transition: background var(--dur-snap) var(--ease), padding var(--dur-base) var(--ease);
+  /* Only background + the leading rail animate; padding/size never change on
+     interaction, so they are deliberately absent (a padding transition here was
+     dead and misleading). */
+  transition: background var(--dur-snap) var(--ease);
 }
-.row + .row { margin-top: 4px; }
+.row + .row { margin-top: 2px; }
 .row::before {
   content: '';
-  position: absolute; left: 6px; top: 22%; bottom: 22%; width: 3px;
-  background: transparent; border-radius: 3px;
-  transition: background var(--dur-snap) var(--ease);
+  position: absolute; left: 7px; top: 0; bottom: 0; width: 3px;
+  margin: auto 0;
+  height: 0;                 /* collapsed by default; reveals from centre */
+  background: var(--rule-strong);
+  border-radius: var(--r-pill);
+  opacity: 0;
+  transition: height var(--dur-base) var(--ease), opacity var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease);
 }
 /* A clickable row (onClick -> role=button, or a link row) is interactive, so it
    carries a pointer cursor; without this the click affordance is invisible. */
 .row[role="button"], a.row { cursor: pointer; }
-.row:hover { background: var(--bg-2); }
-.row:hover::before { background: var(--rule-strong); }
+/* Hover reveals the rail (grows from centre) only on interactive rows — a static
+   row should not signal an affordance it does not have. */
+.row[role="button"]:hover, a.row:hover { background: var(--bg-2); }
+.row[role="button"]:hover::before, a.row:hover::before { height: 56%; opacity: 1; }
 .row.active { background: color-mix(in oklab, var(--accent) 10%, var(--bg-2)); }
-.row.active::before { background: var(--accent); }
+.row.active::before { height: 64%; opacity: 1; background: var(--accent); }
+.row.active .title { color: var(--accent); }
 .row.row-state-disabled { opacity: 0.5; pointer-events: none; }
 .row.row-state-error { background: color-mix(in oklab, var(--flame) 10%, var(--bg-2)); }
-.row.row-state-error::before { background: var(--flame); }
+.row.row-state-error::before { height: 64%; opacity: 1; background: var(--flame); }
 /* rail tones — a persistent status colour on the leading rail (the ::before
-   bar). Active/hover/error still win via their own rules below source order. */
+   bar). Always shown (a status indicator, not a hover affordance). Active/error
+   still win via their own rules below in source order. */
+.row.rail-green::before,
+.row.rail-purple::before,
+.row.rail-flame::before { height: 56%; opacity: 1; }
 .row.rail-green::before  { background: var(--accent); }
 .row.rail-purple::before { background: var(--purple-2, #7F18A4); }
 .row.rail-flame::before  { background: var(--flame); }
 .row-grid { /* explicit grid-template-columns set inline */ }
 
-.row .code  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); }
-.row .title { font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-lg); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.row .code  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
+.row .title { font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-lg); line-height: var(--lh-snug, 1.3); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; min-width: 0; }
+.row .title .sub { font-family: var(--ff-body); font-weight: 400; font-size: var(--fs-sm); color: var(--fg-3); }
 .row .sub   { font-family: var(--ff-body); font-weight: 400; font-size: var(--fs-sm); color: var(--fg-3); }
-.row .meta  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); text-align: right; }
+.row .meta  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; align-self: center; }
 
 a.row { text-decoration: none; }
 

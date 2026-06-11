@@ -1,8 +1,8 @@
 // Performance test harness for markdown & Prism cache optimization.
 // Measures load times, render performance, and verifies correctness.
-// Run: node src/markdown-cache-perf-test.js
+// Run: node scripts/markdown-cache-perf-test.js
 
-import { renderMarkdownCached, highlightCodeBlockCached, initializeCachesEagerly, getCacheStats, resetCacheState } from './markdown-cache.js';
+import { renderMarkdownCached, highlightCodeBlockCached, initializeCachesEagerly, getCacheStats, resetCacheState } from '../src/markdown-cache.js';
 
 const SAMPLE_MARKDOWN = `
 # Hello World

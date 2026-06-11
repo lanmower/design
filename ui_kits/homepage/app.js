@@ -33,11 +33,11 @@ const works = [
 ];
 
 const posts = [
-    { date: '2026.04.14', title: 'we were here first', tag: '// lore', href: '#' },
-    { date: '2026.03.22', title: 'gm v0.4 postmortem, or: why state machines', tag: '// gm', href: '#' },
-    { date: '2026.02.09', title: 'push-to-talk is a protocol, not a feature', tag: '// zellous', href: '#' },
-    { date: '2025.12.11', title: 'against the vibe-coded interface', tag: '// manifesto', href: '#' },
-    { date: '2025.10.03', title: 'notes on shipping weird', tag: '// notes', href: '#' }
+    { date: '2026.04.14', title: 'we were here first', tag: 'lore', href: '#' },
+    { date: '2026.03.22', title: 'gm v0.4 postmortem, or: why state machines', tag: 'gm', href: '#' },
+    { date: '2026.02.09', title: 'push-to-talk is a protocol, not a feature', tag: 'zellous', href: '#' },
+    { date: '2025.12.11', title: 'against the vibe-coded interface', tag: 'manifesto', href: '#' },
+    { date: '2025.10.03', title: 'notes on shipping weird', tag: 'notes', href: '#' }
 ];
 
 const manifesto = [
@@ -71,14 +71,14 @@ function App() {
                     meta: s.live ? 'live' : 'wip'
                 }))
             }),
-            Section({ id: 'works', title: '// works', eyebrow: '08 of ~61',
+            Section({ id: 'works', title: 'works', eyebrow: '08 of ~61',
                 children: WorksList({
                     works, openedIndex: state.opened,
                     onToggle: (i) => { state.opened = i; render(); }
                 }) }),
-            Section({ id: 'writing', title: '// recent writing',
+            Section({ id: 'writing', title: 'recent writing',
                 children: WritingList({ posts }) }),
-            Section({ id: 'manifesto', title: '// manifesto · rough draft',
+            Section({ id: 'manifesto', title: 'manifesto · rough draft',
                 children: Manifesto({ paragraphs: manifesto }) })
         ],
         status: Status({

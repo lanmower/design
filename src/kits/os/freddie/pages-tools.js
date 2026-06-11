@@ -139,7 +139,7 @@ export function makeToolsPages(ctx) {
             const out = h('div', { id: 'fd-batch-out' });
             const root = ctx.root;
             return [
-                Section({ title: '// batch runner', children: [
+                Section({ title: 'batch runner', children: [
                     Panel({ title: 'run prompts', children: form({
                         fields: [{ name: 'prompts', kind: 'textarea', placeholder: 'one prompt per line' }, { name: 'concurrency', type: 'number', value: '4' }],
                         submit: 'run',
