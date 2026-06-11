@@ -252,7 +252,11 @@ export function AgentChat(props = {}) {
     return ChatMessage({
       key: m.id || String(i),
       who: isAssistant ? 'them' : 'you',
-      aicat: isAssistant,
+      // Claude-Code-web layout: flat full-width turns (no avatar disc, no colored
+      // bubble), distinguished by a role label + a faint assistant background.
+      // aicat is left OFF so the mascot tint never reaches the agent surface.
+      flat: true,
+      aicat: false,
       // A stable per-agent product mark (host passes a small line-SVG via
       // `avatar`) instead of a per-agent letter initial that shifts identity.
       avatar: isAssistant ? (m.avatar != null ? m.avatar : avatar) : undefined,

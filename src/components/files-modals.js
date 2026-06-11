@@ -3,6 +3,7 @@
 import * as webjsx from '../../vendor/webjsx/index.js';
 import { Btn, Icon } from './shell.js';
 import { fileGlyph, fmtFileSize } from './files.js';
+import { highlightAllUnder } from '../highlight.js';
 const h = webjsx.createElement;
 
 // Monotonic id source for aria-labelledby wiring between a modal and its head.
@@ -205,7 +206,29 @@ export function PromptDialog({ title = 'name', value = '', placeholder = '', con
 }
 
 export function FilePreviewMedia({ src, type = 'other', name } = {}) {
-    if (type === 'image') return h('img', { class: 'ds-preview-media', src, alt: name || '' });
+    if (type === 'image') {
+        // Fit-to-pane (default) vs actual-size (1:1) toggle + a checkerboard so
+        // transparency reads. The toggle flips a class on the img in-place and
+        // reports the natural pixel dimensions into its own caption on load.
+        const onToggle = (e) => {
+            const wrap = e.currentTarget.closest('.ds-preview-media-wrap');
+            const img = wrap && wrap.querySelector('.ds-preview-media');
+            if (!img) return;
+            const actual = img.classList.toggle('is-actual');
+            e.currentTarget.textContent = actual ? 'fit to pane' : 'actual size';
+        };
+        const onLoad = (e) => {
+            const img = e.currentTarget;
+            const cap = img.closest('.ds-preview-media-wrap');
+            const dim = cap && cap.querySelector('.ds-preview-media-dim');
+            if (dim && img.naturalWidth) dim.textContent = img.naturalWidth + ' x ' + img.naturalHeight + ' px';
+        };
+        return h('div', { class: 'ds-preview-media-wrap' },
+            h('img', { class: 'ds-preview-media ds-preview-media-alpha', src, alt: name || '', onload: onLoad }),
+            h('div', { class: 'ds-preview-media-controls' },
+                h('span', { class: 'ds-preview-media-dim', 'aria-live': 'polite' }, ''),
+                h('button', { type: 'button', class: 'chat-code-copy', onclick: onToggle }, 'actual size')));
+    }
     if (type === 'video') return h('video', { class: 'ds-preview-media', src, controls: true });
     if (type === 'audio') return h('audio', { class: 'ds-preview-audio', src, controls: true });
     return h('div', { class: 'ds-preview-fallback' },
@@ -230,9 +253,28 @@ export function FilePreviewCode({ content = '', lang, filename } = {}) {
             filename ? h('span', { class: 'name' }, filename) : null,
             h('span', { class: 'spread' }),
             h('button', { type: 'button', class: 'chat-code-copy chat-code-copy-head', 'aria-label': 'copy code', onclick: onCopy }, 'copy')),
-        h('pre', { class: 'ds-preview-code' + (lang ? ' lang-' + lang : '') },
-            h('code', { class: lang ? 'language-' + lang : '' }, content))
+        codeBody({ content, lang })
     );
+}
+
+// The code body: a non-selectable line-number gutter + the highlighted code.
+// A ref triggers Prism over the <code> after mount (the bundle only auto-runs
+// Prism in the chat path), so the file preview is token-colored like Claude
+// Code's file pane. lineNumbers defaults on for code, off for plaintext.
+function codeBody({ content = '', lang } = {}) {
+    const wantGutter = !!lang;
+    const lineCount = content ? content.split('\n').length : 1;
+    const gutter = wantGutter
+        ? h('div', { class: 'ds-preview-gutter', 'aria-hidden': 'true' },
+            Array.from({ length: lineCount }, (_, i) => String(i + 1)).join('\n'))
+        : null;
+    const highlightRef = (el) => {
+        if (!el) return;
+        try { highlightAllUnder(el); } catch {}
+    };
+    return h('pre', { class: 'ds-preview-code' + (lang ? ' lang-' + lang : '') + (wantGutter ? ' has-gutter' : ''), ref: highlightRef },
+        gutter,
+        h('code', { class: lang ? 'language-' + lang : '' }, content));
 }
 
 export function FilePreviewText({ content = '', truncated } = {}) {

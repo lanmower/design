@@ -128,6 +128,18 @@ export function injectCodeCopy(container) {
         shell.className = 'chat-code-block';
         pre.parentNode.insertBefore(shell, pre);
         shell.appendChild(pre);
+        // Surface the fenced language as a small header tab (claude.ai/code
+        // shows the language on every block, not just the structured CodeNode).
+        // The highlighter sets language-xx / lang-xx on the inner <code>.
+        const codeEl = pre.querySelector('code');
+        const langCls = codeEl && (codeEl.className || '').match(/(?:language|lang)-([a-z0-9+#]+)/i);
+        if (langCls && langCls[1]) {
+            const lang = document.createElement('span');
+            lang.className = 'chat-code-lang';
+            lang.setAttribute('aria-hidden', 'true');
+            lang.textContent = langCls[1];
+            shell.appendChild(lang);
+        }
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'chat-code-copy';
@@ -289,7 +301,7 @@ function renderPart(p, key) {
     return node;
 }
 
-export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name, streaming, actions, incomplete, stopped }) {
+export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name, streaming, actions, incomplete, stopped, flat }) {
     _stats.messages += 1;
     // Support legacy 'who' prop, prefer 'role' with mapping:
     //   'user'      -> 'you'   (right-aligned, accent bubble)
@@ -304,7 +316,11 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
             : role)
         : who;
     const isCentered = resolvedWho === 'system' || resolvedWho === 'tool' || resolvedWho === 'thinking';
-    const cls = 'chat-msg ' + resolvedWho + (aicat && resolvedWho === 'them' ? ' aicat' : '') + (isCentered ? ' centered' : '');
+    // Flat layout (Claude-Code-web): full-width, avatar-less turns with a role
+    // label above the content and a faint assistant background, instead of the
+    // messenger avatar-disc + colored-bubble layout (kept for the chat demo).
+    const isFlat = flat && !isCentered;
+    const cls = 'chat-msg ' + resolvedWho + (aicat && resolvedWho === 'them' ? ' aicat' : '') + (isCentered ? ' centered' : '') + (isFlat ? ' chat-msg-flat' : '');
     const fallbackAvatar = avatar != null
         ? avatar
         : (resolvedWho === 'you' ? 'u' : (name ? String(name).trim().charAt(0).toUpperCase() || '?' : '?'));
@@ -355,11 +371,18 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
             }, a.icon ? Icon(a.icon, { size: 14 }) : null,
                a.label ? h('span', { class: 'chat-msg-action-label' }, a.label) : null)))
         : null;
-    const stack = h('div', { class: 'chat-stack' }, ...bodyNodes, reactionRow, actionRow, meta);
+    // Flat layout leads the turn with a small role label (You / agent name)
+    // above the content, the way claude.ai/code titles each turn.
+    const roleLabel = isFlat
+        ? h('div', { class: 'chat-role', key: '_role' }, resolvedWho === 'you' ? 'You' : (name || 'Assistant'))
+        : null;
+    const stack = h('div', { class: 'chat-stack' }, roleLabel, ...bodyNodes, reactionRow, actionRow, meta);
     // Centered roles (system/tool/thinking) skip the avatar column entirely so
     // the bubble owns the full row — the chrome reads as out-of-band signal,
     // not a participant turn.
     if (isCentered) return h('div', { key, class: cls }, stack);
+    // Flat turns drop the avatar column entirely (full-width content).
+    if (isFlat) return h('div', { key, class: cls }, stack);
     return h('div', { key, class: cls }, resolvedWho === 'you' ? stack : av, resolvedWho === 'you' ? av : stack);
 }
 

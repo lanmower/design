@@ -10,8 +10,8 @@ const FILE_GRID_MIN_COL = '240px';
 
 const FILE_TYPES = ['dir', 'image', 'video', 'audio', 'code', 'text', 'archive', 'document', 'symlink', 'other'];
 const TYPE_ICON = {
-    dir: 'file', image: 'file', video: 'file-video', audio: 'file-audio', code: 'file-code',
-    text: 'file-text', archive: 'file-zip', document: 'file-text', symlink: 'file', other: 'file'
+    dir: 'folder', image: 'file-image', video: 'file-video', audio: 'file-audio', code: 'file-code',
+    text: 'file-text', archive: 'file-zip', document: 'file-text', symlink: 'link', other: 'file'
 };
 
 const TYPE_LABELS = {

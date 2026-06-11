@@ -69,7 +69,13 @@ export function ConversationList({ sessions = [], selected, groups, search, capt
   // are uniformly keyed; non-row states render a single unkeyed status line.
   let inner;
   if (loading) {
-    inner = [h('div', { key: 'st', class: 'ds-session-state', role: 'status', 'aria-live': 'polite' }, loadingText)];
+    // Shape-matched skeleton rows during the cold ccsniff index walk (the rail
+    // showed a bare line before) - Claude-Desktop skeletons its sidebar on load.
+    inner = [
+      h('div', { key: 'st', class: 'ds-session-state', role: 'status', 'aria-live': 'polite' }, loadingText),
+      ...Array.from({ length: 5 }, (_, i) => h('div', { key: 'sk' + i, class: 'ds-session-row-skeleton', 'aria-hidden': 'true' },
+        h('div', { class: 'ds-skel ds-skel-title' }), h('div', { class: 'ds-skel ds-skel-meta' }))),
+    ];
   } else if (error) {
     inner = [h('div', { key: 'st', class: 'ds-session-state ds-session-state-error', role: 'status' }, String(error))];
   } else if (!sessions.length) {
@@ -161,41 +167,51 @@ export function SessionCard({ session = {}, onStop, onOpen, onView, active = fal
   // last-activity time and the current tool so a card shows MOTION, not just a
   // start offset. Both are middot-joined (kept product separator).
   const elapsedText = s.elapsedMs != null ? fmtDuration(s.elapsedMs) : (s.elapsed != null ? s.elapsed : null);
-  const statBits = [elapsedText, s.counter != null ? s.counter : null].filter((x) => x != null && x !== '');
+  // At-a-glance cost/usage (the prompt's named command-center signal). Null-safe:
+  // sessions with no cost source (external tally rows) simply omit the segment.
+  const tokText = s.tokens != null ? (typeof s.tokens === 'number' ? s.tokens.toLocaleString() : s.tokens) + ' tok' : null;
+  const costText = s.cost != null ? (typeof s.cost === 'number' ? '$' + s.cost.toFixed(4) : String(s.cost)) : null;
+  const statBits = [elapsedText, s.counter != null ? s.counter : null, tokText, costText].filter((x) => x != null && x !== '');
   const activityBits = [
     s.currentTool ? 'running: ' + s.currentTool : null,
     s.lastActivity ? 'last ' + s.lastActivity : null,
   ].filter(Boolean);
-  const cls = 'ds-dash-card is-' + st + (active ? ' is-active' : '') + (selected ? ' is-selected' : '') + (s.external ? ' is-external' : '');
+  const cls = 'ds-dash-card is-' + st + (active ? ' is-active' : '') + (selected ? ' is-selected' : '') + (s.external ? ' is-external' : '') + (s.isNew ? ' is-new' : '');
+  // EVERY children array is filter(Boolean)'d: webjsx applyDiff crashes
+  // (reading 'key') on a bare null among VElement siblings, so a null cwd /
+  // model / external flag must never reach a positional child slot.
+  const head = h('div', { class: 'ds-dash-card-head' }, ...[
+    selectable ? h('button', {
+      type: 'button', class: 'ds-dash-select', role: 'checkbox',
+      'aria-checked': selected ? 'true' : 'false',
+      'aria-label': (selected ? 'deselect' : 'select') + ' session ' + (s.title || s.agent || s.sid),
+      onclick: () => onToggleSelect && onToggleSelect(s),
+    }, selected ? '[x]' : '[ ]') : null,
+    h('span', { class: 'status-dot-disc ' + STATUS_DISC[st], 'aria-hidden': 'true' }),
+    h('span', { class: 'ds-dash-status is-' + st }, STATUS_WORD[st]),
+    s.external ? h('span', { class: 'ds-dash-external' }, 'external') : null,
+    h('span', { class: 'ds-dash-agent', title: s.agent || null }, s.agent || 'agent'),
+    s.model ? h('span', { class: 'ds-dash-model', title: s.model }, s.model) : null,
+  ].filter(Boolean));
+  const meta = h('div', { class: 'ds-dash-meta' }, ...[
+    s.cwd ? h('span', { class: 'ds-dash-cwd', title: s.cwd }, s.cwd) : null,
+    statBits.length ? h('span', { class: 'ds-dash-stat' }, statBits.join(' · ')) : null,
+    activityBits.length ? h('span', { class: 'ds-dash-activity' }, activityBits.join(' · ')) : null,
+  ].filter(Boolean));
+  const actions = h('div', { class: 'ds-dash-actions', role: 'group', 'aria-label': 'session actions' }, ...[
+    onOpen ? Btn({ key: 'open', primary: true, 'aria-label': 'open session', onClick: () => onOpen(s),
+      children: [Icon('external-link', { size: 14 }), h('span', {}, 'open')] }) : null,
+    onView ? Btn({ key: 'view', 'aria-label': s.external ? 'open in history' : 'view events', onClick: () => onView(s),
+      children: [Icon('file-text', { size: 14 }), h('span', {}, s.external ? 'history' : 'events')] }) : null,
+    (onStop && !s.external) ? Btn({ key: 'stop', danger: true, disabled: !!s.stopping, 'aria-label': 'stop session',
+      onClick: () => !s.stopping && onStop(s),
+      children: [Icon('square', { size: 14 }), h('span', {}, s.stopping ? 'stopping…' : 'stop')] }) : null,
+  ].filter(Boolean));
   return h('div', { class: cls, role: 'group', 'aria-label': 'session ' + (s.title || s.agent || s.sid), 'aria-current': active ? 'true' : null },
-    // Shared session identity: the same title the conversation rails show.
-    s.title ? h('div', { class: 'ds-dash-title', title: s.title }, s.title) : null,
-    h('div', { class: 'ds-dash-card-head' },
-      selectable ? h('button', {
-        type: 'button', class: 'ds-dash-select', role: 'checkbox',
-        'aria-checked': selected ? 'true' : 'false',
-        'aria-label': (selected ? 'deselect' : 'select') + ' session ' + (s.title || s.agent || s.sid),
-        onclick: () => onToggleSelect && onToggleSelect(s),
-      }, selected ? '[x]' : '[ ]') : null,
-      h('span', { class: 'status-dot-disc ' + STATUS_DISC[st], 'aria-hidden': 'true' }),
-      // Status is words + the disc, never colour alone (WCAG 1.4.1): the disc is
-      // aria-hidden, so the visible/AT status word carries the state.
-      h('span', { class: 'ds-dash-status is-' + st }, STATUS_WORD[st]),
-      s.external ? h('span', { class: 'ds-dash-external' }, 'external') : null,
-      h('span', { class: 'ds-dash-agent', title: s.agent || null }, s.agent || 'agent'),
-      s.model ? h('span', { class: 'ds-dash-model', title: s.model }, s.model) : null),
-    h('div', { class: 'ds-dash-meta' },
-      s.cwd ? h('span', { class: 'ds-dash-cwd', title: s.cwd }, s.cwd) : null,
-      statBits.length ? h('span', { class: 'ds-dash-stat' }, statBits.join(' · ')) : null,
-      activityBits.length ? h('span', { class: 'ds-dash-activity' }, activityBits.join(' · ')) : null),
-    h('div', { class: 'ds-dash-actions', role: 'group', 'aria-label': 'session actions' },
-      // open and resume collapsed into one 'open' action (they both just reopen
-      // the session in chat); 'events' kept for the read-only event view.
-      onOpen ? Btn({ key: 'open', onClick: () => onOpen(s), children: 'open' }) : null,
-      onView ? Btn({ key: 'view', onClick: () => onView(s), children: s.external ? 'open in history' : 'events' }) : null,
-      // External sessions get no stop control: we own no process to kill.
-      (onStop && !s.external) ? Btn({ key: 'stop', danger: true, disabled: !!s.stopping,
-        onClick: () => !s.stopping && onStop(s), children: s.stopping ? 'stopping…' : 'stop' }) : null));
+    ...[
+      s.title ? h('div', { class: 'ds-dash-title', title: s.title }, s.title) : null,
+      head, meta, actions,
+    ].filter(Boolean));
 }
 
 // SessionDashboard — grid of SessionCards for ALL live sessions, managed at once.
@@ -226,7 +242,7 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
                                    confirmingStopAll = false, confirmingStopSelected = false,
                                    onArmStopAll, onArmStopSelected,
                                    sort, filter, errorsOnly = false, onErrorsOnly,
-                                   selectable = false, selected, onToggleSelect,
+                                   selectable = false, selected, onToggleSelect, onSelectAll, onClearSelection,
                                    activeSid, streamState,
                                    emptyText = 'No live sessions', offline = false } = {}) {
   if (offline) {
@@ -239,11 +255,37 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
   const stoppingCount = sessions.filter((s) => s.stopping).length;
   // The stream-state line always renders (even with zero sessions) so a
   // connected-but-idle dashboard reads differently from an offline one.
+  // The stream line leads with a status disc so a connected dashboard visibly
+  // PULSES that it is listening (the command-center heartbeat), connecting/offline
+  // show a static disc. The disc is aria-hidden; the word carries the state.
+  const streamDisc = streamState
+    ? 'status-dot-disc ' + (streamState === 'connected' ? 'status-dot-live'
+        : streamState === 'connecting' ? 'status-dot-connecting' : 'status-dot-error')
+    : null;
   const streamLine = streamState
-    ? h('span', { class: 'ds-dash-stream is-' + streamState, role: 'status', 'aria-live': 'polite' }, STREAM_WORD[streamState] || streamState)
+    ? h('span', { key: 'stream', class: 'ds-dash-stream-disc' },
+        h('span', { class: streamDisc, 'aria-hidden': 'true' }),
+        h('span', { class: 'ds-dash-stream is-' + streamState, role: 'status', 'aria-live': 'polite' }, STREAM_WORD[streamState] || streamState))
+    : null;
+  // At-a-glance status breakdown for the command-center header.
+  const counts = sessions.reduce((a, s) => {
+    const k = s.status === 'error' ? 'error' : (s.status === 'stale' ? 'idle' : 'running');
+    a[k] = (a[k] || 0) + 1; return a;
+  }, {});
+  const breakdownSegs = [
+    counts.running ? { k: 'running', t: counts.running + ' running' } : null,
+    counts.idle ? { k: 'idle', t: counts.idle + ' idle' } : null,
+    counts.error ? { k: 'error', t: counts.error + ' error' + (counts.error === 1 ? '' : 's') } : null,
+  ].filter(Boolean);
+  const breakdown = breakdownSegs.length
+    ? h('span', { key: 'bd', class: 'ds-dash-breakdown', role: 'status', 'aria-live': 'polite' },
+        ...breakdownSegs.flatMap((seg, i) => [
+          i ? h('span', { key: 'bsep' + i, class: 'ds-dash-breakdown-sep', 'aria-hidden': 'true' }, ' · ') : null,
+          h('span', { key: 'bseg' + i, class: 'seg is-' + seg.k }, seg.t),
+        ].filter(Boolean)))
     : null;
   const toolbar = (sort || filter || onErrorsOnly)
-    ? h('div', { class: 'ds-dash-toolbar', role: 'group', 'aria-label': 'sort and filter sessions' },
+    ? h('div', { key: 'tb', class: 'ds-dash-toolbar', role: 'group', 'aria-label': 'sort and filter sessions' },
         filter ? SearchInput({ key: 'filt', value: filter.value || '', label: filter.placeholder || 'Filter sessions', placeholder: filter.placeholder || 'Filter sessions', onInput: (v) => filter.onInput && filter.onInput(v) }) : null,
         sort ? Select({ key: 'sort', value: sort.value || 'status', title: 'Sort sessions',
           options: [
@@ -258,31 +300,70 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
   if (!sessions.length) {
     return h('div', { class: 'ds-dash' },
       h('div', { class: 'ds-dash-header', role: 'group', 'aria-label': 'live session controls' },
-        h('span', { class: 'ds-dash-count', role: 'status', 'aria-live': 'polite' }, '0 running'), streamLine),
+        ...[h('span', { key: 'cnt', class: 'ds-dash-count', role: 'status', 'aria-live': 'polite' }, '0 running'), streamLine].filter(Boolean)),
       h('div', { class: 'ds-dash-state', role: 'status' }, emptyText));
   }
-  const header = h('div', { class: 'ds-dash-header', role: 'group', 'aria-label': 'live session controls' },
-    h('span', { class: 'ds-dash-count', role: 'status', 'aria-live': 'polite' },
-      selectable && selCount ? selCount + ' selected' : sessions.length + ' running'),
-    streamLine,
-    h('span', { class: 'spread' }),
-    stoppingCount > 0 && (onStopSelected || onStopAll)
+  // Tri-state select-all over the selectable (non-external) sessions.
+  const selectableSids = sessions.filter((s) => !s.external).map((s) => s.sid);
+  const selOfVisible = selectableSids.filter((sid) => selSet.has(sid)).length;
+  const allState = selOfVisible === 0 ? 'false' : (selOfVisible === selectableSids.length ? 'true' : 'mixed');
+  const selectAllCtl = (selectable && onSelectAll && selectableSids.length)
+    ? h('button', { key: 'selall', type: 'button', class: 'ds-dash-selectall', role: 'checkbox',
+        'aria-checked': allState, 'aria-label': allState === 'true' ? 'clear selection' : 'select all sessions',
+        onclick: () => (allState === 'true' && onClearSelection) ? onClearSelection() : onSelectAll(selectableSids) },
+        h('span', { 'aria-hidden': 'true' }, allState === 'true' ? '[x]' : allState === 'mixed' ? '[-]' : '[ ]'),
+        h('span', {}, 'all'))
+    : null;
+  const clearCtl = (selectable && selCount && onClearSelection)
+    ? h('button', { key: 'selclr', type: 'button', class: 'ds-dash-clear', onclick: () => onClearSelection() }, 'clear')
+    : null;
+  const stopBtn = stoppingCount > 0 && (onStopSelected || onStopAll)
       ? Btn({ key: 'stopbusy', danger: true, disabled: true, children: 'stopping ' + stoppingCount + '…' })
       : (selectable && selCount && onStopSelected
       ? (onArmStopSelected && !confirmingStopSelected
           ? Btn({ key: 'stopsel', danger: true, onClick: () => onArmStopSelected([...selSet]), children: 'stop selected' })
-          : Btn({ key: 'stopsel', danger: true, onClick: () => onStopSelected([...selSet]),
+          : Btn({ key: 'stopsel', danger: true, className: confirmingStopSelected ? 'is-armed' : null, onClick: () => onStopSelected([...selSet]),
                   children: confirmingStopSelected ? 'stop ' + selCount + ' sessions - press again' : 'stop selected' }))
       : (onStopAll
           ? (onArmStopAll && !confirmingStopAll
               ? Btn({ key: 'stopall', danger: true, onClick: () => onArmStopAll(sessions), children: 'stop all' })
-              : Btn({ key: 'stopall', danger: true, onClick: () => onStopAll(sessions),
+              : Btn({ key: 'stopall', danger: true, className: confirmingStopAll ? 'is-armed' : null, onClick: () => onStopAll(sessions),
                       children: confirmingStopAll ? 'stop ' + sessions.length + ' sessions - press again' : 'stop all' }))
-          : null)),
-    toolbar);
-  const grid = h('div', { class: 'ds-dash-grid', role: 'list', 'aria-label': 'live sessions' },
-    ...sessions.map((s) => h('div', { key: s.sid, role: 'listitem' },
-      SessionCard({ session: s, onStop, onOpen, onView, active: s.sid === activeSid,
-                    selectable, selected: selSet.has(s.sid), onToggleSelect }))));
-  return h('div', { class: 'ds-dash' }, header, grid);
+          : null));
+  // Build header children as a filtered array: webjsx applyDiff crashes
+  // (reading 'key') when a bare null sits among keyed siblings, so never pass
+  // a conditional child positionally - filter it out first.
+  const headerKids = [
+    selectable && selCount
+      ? h('span', { key: 'cnt', class: 'ds-dash-count', role: 'status', 'aria-live': 'polite' }, selCount + ' selected')
+      : (breakdown || h('span', { key: 'cnt', class: 'ds-dash-count', role: 'status', 'aria-live': 'polite' }, sessions.length + ' running')),
+    selectAllCtl, clearCtl, streamLine,
+    h('span', { key: 'spread', class: 'spread' }),
+    stopBtn, toolbar,
+  ].filter(Boolean);
+  const header = h('div', { class: 'ds-dash-header', role: 'group', 'aria-label': 'live session controls' }, ...headerKids);
+  // Status-bucketed command center: when sorting by status (the default), the
+  // grid renders labelled sections (Errored / Running / Idle / External) so a
+  // pile of sessions reads as scannable groups. Other sorts collapse to one
+  // flat grid (the sort already orders them).
+  const grouped = !sort || !sort.value || sort.value === 'status';
+  const cardOf = (s) => h('div', { key: s.sid, role: 'listitem' },
+    SessionCard({ session: s, onStop, onOpen, onView, active: s.sid === activeSid,
+                  selectable, selected: selSet.has(s.sid), onToggleSelect }));
+  let body;
+  if (grouped) {
+    const buckets = [
+      { key: 'error', label: 'Errored', rows: sessions.filter((s) => !s.external && s.status === 'error') },
+      { key: 'running', label: 'Running', rows: sessions.filter((s) => !s.external && s.status !== 'error' && s.status !== 'stale') },
+      { key: 'idle', label: 'Idle', rows: sessions.filter((s) => !s.external && s.status === 'stale') },
+      { key: 'external', label: 'External', rows: sessions.filter((s) => s.external) },
+    ].filter((b) => b.rows.length);
+    body = h('div', { class: 'ds-dash-groups' },
+      ...buckets.map((b) => h('div', { key: 'grp' + b.key, class: 'ds-dash-group', role: 'group', 'aria-label': b.label + ' sessions' },
+        h('div', { class: 'ds-dash-group-label' }, b.label + ' · ' + b.rows.length),
+        h('div', { class: 'ds-dash-grid', role: 'list', 'aria-label': b.label + ' sessions' }, ...b.rows.map(cardOf)))));
+  } else {
+    body = h('div', { class: 'ds-dash-grid', role: 'list', 'aria-label': 'live sessions' }, ...sessions.map(cardOf));
+  }
+  return h('div', { class: 'ds-dash' }, header, body);
 }

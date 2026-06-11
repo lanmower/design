@@ -15,11 +15,12 @@ export function Chip({ tone = '', children }) {
     return h('span', { class: 'chip' + (tone ? ' tone-' + tone : '') }, children);
 }
 
-export function Btn({ href, variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled }) {
+export function Btn({ href, variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled, className }) {
     // Support legacy primary/ghost props for backward compatibility, but prefer variant
     const resolvedVariant = variant !== 'default' ? variant : (primary ? 'primary' : (ghost ? 'ghost' : (danger ? 'danger' : 'default')));
     const cls = (resolvedVariant === 'primary' ? 'btn-primary' : (resolvedVariant === 'ghost' ? 'btn-ghost' : (resolvedVariant === 'danger' ? 'btn-primary danger' : 'btn')))
-        + (disabled ? ' is-disabled' : '');
+        + (disabled ? ' is-disabled' : '')
+        + (className ? ' ' + className : '');
     const onclick = (e) => {
         if (disabled) { e.preventDefault(); return; }
         if (onClick) onClick(e);
@@ -29,6 +30,10 @@ export function Btn({ href, variant = 'default', children, onClick, 'aria-label'
     // A real navigational href renders an anchor; everything else is an action
     // button and renders a native <button> (correct semantics + keyboard
     // activation for free, no role=button / href="#" scroll-jump hack).
+    // children may be a string OR an array of vnodes (e.g. icon + label); spread
+    // arrays so each vnode is a real child - passing the array as a single child
+    // produces a nested array webjsx applyDiff cannot key-diff (reading 'key').
+    const kids = Array.isArray(children) ? children : [children];
     const isLink = href != null && href !== '' && href !== '#';
     if (isLink) {
         return h('a', {
@@ -37,14 +42,14 @@ export function Btn({ href, variant = 'default', children, onClick, 'aria-label'
             'aria-disabled': disabled ? 'true' : null,
             tabindex: disabled ? '-1' : null,
             onclick
-        }, children);
+        }, ...kids);
     }
     return h('button', {
         type: 'button', class: cls,
         disabled: disabled ? true : null,
         'aria-label': ariaName,
         onclick
-    }, children);
+    }, ...kids);
 }
 
 export function IconButton({ icon, onClick, title, size = 'base', variant = 'ghost', disabled = false }) {
@@ -138,6 +143,9 @@ const ICON_PATHS = {
     contrast: '<circle cx="12" cy="12" r="9"/><path d="M12 3v18a9 9 0 0 0 0-18z" fill="currentColor"/>',
     // file-browser icons (replace folder/file emoji + arrow glyphs in fs apps)
     folder: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    'folder-open': '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2H5l-2 9z"/><path d="M3 18l2-9h17l-2 9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    'file-image': '<path d="M6 3h8l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><circle cx="9.5" cy="12.5" r="1.5"/><path d="M18 19l-4-4-3 3-2-2-3 3"/>',
+    link: '<path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/>',
     upload: '<path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/>',
     download: '<path d="M12 4v12M7 11l5 5 5-5"/><path d="M5 20h14"/>',
     'corner-up-left': '<path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v6"/>',
@@ -363,7 +371,7 @@ function wsCollapsed(which, fallback) {
 export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narrow,
                                  railCollapsed = false, paneCollapsed = false,
                                  railLabel = 'workspace navigation',
-                                 paneLabel = 'context', stableFrame = false } = {}) {
+                                 paneLabel = 'context', stableFrame = false, mainFlush = false } = {}) {
     const hasSessions = Boolean(sessions);
     const hasPane = Boolean(pane);
     // Stable frame: keep the pane grid TRACK present even when this tab has no
@@ -423,7 +431,7 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
                         onclick: () => toggleWsDrawer('pane'),
                     }, Icon('page')) : null)
                 : null,
-            h('main', { class: 'ws-main' + (narrow ? ' narrow' : ''), id: 'ws-main', tabindex: '-1' },
+            h('main', { class: 'ws-main' + (narrow ? ' narrow' : '') + (mainFlush ? ' ws-main--flush' : ''), id: 'ws-main', tabindex: '-1' },
                 ...(Array.isArray(main) ? main : [main])),
             status || null),
         // Optional right context pane with its own collapse toggle.
