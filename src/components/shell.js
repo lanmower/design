@@ -15,7 +15,7 @@ export function Chip({ tone = '', children }) {
     return h('span', { class: 'chip' + (tone ? ' tone-' + tone : '') }, children);
 }
 
-export function Btn({ href, variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled, className }) {
+export function Btn({ href, variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled, className, key }) {
     // Support legacy primary/ghost props for backward compatibility, but prefer variant
     const resolvedVariant = variant !== 'default' ? variant : (primary ? 'primary' : (ghost ? 'ghost' : (danger ? 'danger' : 'default')));
     const cls = (resolvedVariant === 'primary' ? 'btn-primary' : (resolvedVariant === 'ghost' ? 'btn-ghost' : (resolvedVariant === 'danger' ? 'btn-primary danger' : 'btn')))
@@ -37,6 +37,7 @@ export function Btn({ href, variant = 'default', children, onClick, 'aria-label'
     const isLink = href != null && href !== '' && href !== '#';
     if (isLink) {
         return h('a', {
+            key,
             class: cls, href,
             'aria-label': ariaName,
             'aria-disabled': disabled ? 'true' : null,
@@ -45,6 +46,7 @@ export function Btn({ href, variant = 'default', children, onClick, 'aria-label'
         }, ...kids);
     }
     return h('button', {
+        key,
         type: 'button', class: cls,
         disabled: disabled ? true : null,
         'aria-label': ariaName,
@@ -159,6 +161,9 @@ const ICON_PATHS = {
 // Icon(); use innerHTML = iconMarkup(name). Keeps the icon paths upstream so
 // raw-DOM call sites never reintroduce decorative glyph literals.
 export function iconMarkup(name, { size = 16 } = {}) {
+    // Accept the props-object shape too - every sibling component takes a
+    // single object, so Icon({name}) is what the barrel trains consumers to try.
+    if (name && typeof name === 'object') ({ name, size = 16 } = name);
     const inner = ICON_PATHS[name];
     if (!inner) return '';
     return '<svg class="ds-icon ds-icon-' + name + '" width="' + size + '" height="' + size +
@@ -166,6 +171,7 @@ export function iconMarkup(name, { size = 16 } = {}) {
         ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
 }
 export function Icon(name, { size = 16 } = {}) {
+    if (name && typeof name === 'object') ({ name, size = 16 } = name);
     const inner = ICON_PATHS[name];
     if (!inner) return h('span', { class: 'glyph', 'aria-hidden': 'true' }, '');
     return h('svg', {

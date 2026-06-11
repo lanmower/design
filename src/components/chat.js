@@ -164,6 +164,11 @@ function MdNode(p) {
         const srcKey = (isMarkdownDegraded() ? '~degraded~' : '') + (p.text || '');
         if (el.dataset.mdSrc === srcKey) return;
         el.dataset.mdSrc = srcKey;
+        // Markdown stack still loading (or down): paint the raw text
+        // synchronously so streamed tokens are visible the same frame they
+        // arrive (an empty bubble until the CDN import resolves reads as a
+        // hang); the resolved render swaps in sanitized markdown in place.
+        if (isMarkdownDegraded()) el.textContent = p.text || '';
         renderMarkdownCached(p.text || '').then((html) => { el.innerHTML = html; injectCodeCopy(el); });
     };
     return h('div', { class: 'chat-bubble chat-md', ref: refSink });
@@ -446,25 +451,37 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
     // segment routes to the cwd editor WITHOUT making the whole line one giant
     // click target. Legacy whole-line context.onClick is honored only when no
     // bit carries its own handler. All children are keyed VElements.
-    const ctxBits = (context && context.bits) ? context.bits.filter(Boolean) : [];
-    const hasBitClicks = ctxBits.some((b) => b && typeof b === 'object' && b.onClick);
+    // Normalize FIRST (a bit may carry `text` or `label`), then drop empties -
+    // separators must only ever sit between bits that actually render. An
+    // object bit whose text resolved empty used to leave a dangling trailing
+    // middot AND an invisible zero-width button.
+    const ctxBits = ((context && context.bits) ? context.bits : [])
+        .map((b) => {
+            if (b == null) return null;
+            if (typeof b === 'object') {
+                const text = b.text || b.label || '';
+                return text ? { text, onClick: b.onClick, title: b.title } : null;
+            }
+            const text = String(b);
+            return text ? { text } : null;
+        })
+        .filter(Boolean);
+    const hasBitClicks = ctxBits.some((b) => b.onClick);
     let contextLine = null;
     if (ctxBits.length && hasBitClicks) {
         const kids = [];
         ctxBits.forEach((b, i) => {
             if (i) kids.push(h('span', { key: 'csep' + i, class: 'chat-composer-context-sep', 'aria-hidden': 'true' }, ' · '));
-            const isObj = b && typeof b === 'object';
-            const text = isObj ? (b.text || '') : String(b);
-            if (isObj && b.onClick) kids.push(h('button', {
+            if (b.onClick) kids.push(h('button', {
                 key: 'cbit' + i, type: 'button', class: 'chat-composer-context-bit',
-                title: b.title || null, 'aria-label': b.title || text,
+                title: b.title || null, 'aria-label': b.title || b.text,
                 onclick: (e) => { e.preventDefault(); b.onClick(e); },
-            }, text));
-            else kids.push(h('span', { key: 'cbit' + i, class: 'chat-composer-context-text' }, text));
+            }, b.text));
+            else kids.push(h('span', { key: 'cbit' + i, class: 'chat-composer-context-text' }, b.text));
         });
         contextLine = h('div', { class: 'chat-composer-context' }, ...kids);
     } else if (ctxBits.length) {
-        const joined = ctxBits.map((b) => (b && typeof b === 'object') ? (b.text || '') : String(b)).filter(Boolean).join(' · ');
+        const joined = ctxBits.map((b) => b.text).join(' · ');
         contextLine = h(context.onClick ? 'button' : 'div', {
             class: 'chat-composer-context', type: context.onClick ? 'button' : null,
             'aria-label': context.onClick ? ('change target: ' + joined) : null,

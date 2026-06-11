@@ -211,7 +211,7 @@ export const sessions = makePage((ctx) => {
                 s.msgLoading ? loadingState('loading messages…')
                     : (s.messages || []).length ? (s.messages).map((m, i) => ChatMessage({ role: m.role, text: m.content || m.text || '', time: m.ts ? fmtTime(m.ts) : '', key: i }))
                         : emptyState('no messages')) : null,
-        ];
+        ].filter(Boolean);
     };
 });
 
@@ -249,13 +249,13 @@ export const projects = makePage((ctx) => {
                     active: p.name === activeName,
                     trailing: h('span', { class: 'fd-row-actions' },
                         p.name !== activeName ? Btn({ children: 'activate', onClick: () => activate(p.name) }) : Chip({ tone: 'ok', children: 'active' }),
-                        p.name !== 'default' ? Btn({ danger: true, children: 'delete', onClick: () => del(p.name) }) : null),
+                        p.name !== 'default' ? Btn({ variant: 'danger', children: 'delete', onClick: () => del(p.name) }) : null),
                 })) : emptyState('no projects')),
             section('new project',
                 TextField({ label: 'name', value: s.newName, onInput: (v) => { s.newName = v; }, placeholder: 'my-project' }),
                 TextField({ label: 'path (optional)', value: s.newPath, onInput: (v) => { s.newPath = v; }, placeholder: 'C:/path/to/dir' }),
-                Btn({ primary: true, disabled: s.busy, children: s.busy ? 'working…' : 'create', onClick: create })),
-        ];
+                Btn({ variant: 'primary', disabled: s.busy, children: s.busy ? 'working…' : 'create', onClick: create })),
+        ].filter(Boolean);
     };
 });
 
@@ -274,7 +274,7 @@ export const agents = makePage((ctx) => {
             s.error && s.data ? refreshError(s.error) : null,
             Kpi({ items: [[d.count ?? 0, 'active'], [d.turns ?? 0, 'total turns'], [d.last_activity ? fmtAgo(d.last_activity) : '—', 'last activity']] }),
             section('detail', Table({ headers: ['field', 'value'], rows: Object.entries(d).map(([k, v]) => [k, String(v)]) })),
-        ];
+        ].filter(Boolean);
     };
 });
 
@@ -303,7 +303,7 @@ export const analytics = makePage((ctx) => {
             s.error && (s.sampler || s.avail) ? refreshError(s.error) : null,
             Kpi({ items: [[ok + '/' + samp.length, 'providers up'], [sum.total_models ?? '—', 'models'], [sum.usable_in_any_mode ?? '—', 'usable']] }),
             section('sampler', samp.length ? Table({ headers: ['provider', 'available', 'fails'], rows: Object.entries(s.sampler.status).map(([k, v]) => [k, v.available === false ? 'no' : 'yes', String(v.failCount ?? 0)]) }) : emptyState('no sampler data')),
-        ];
+        ].filter(Boolean);
     };
 });
 
@@ -337,7 +337,7 @@ export const models = makePage((ctx) => {
         const cached = s.cached || {};
         const status = s.sampler?.status || {};
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'models', lede: providers.length + ' providers', right: Btn({ primary: true, disabled: s.discovering, children: s.discovering ? 'discovering…' : 'discover', onClick: discover }) }),
+            PageHeader({ eyebrow: 'freddie', title: 'models', lede: providers.length + ' providers', right: Btn({ variant: 'primary', disabled: s.discovering, children: s.discovering ? 'discovering…' : 'discover', onClick: discover }) }),
             liveRegion(s.discovering ? 'discovering models' : ''),
             section('providers', providers.length ? Table({
                 headers: ['provider', 'sampler', 'cached models'],
@@ -377,12 +377,12 @@ export const cron = makePage((ctx) => {
             noteAlert(s.note),
             section('jobs', list.length ? list.map((j, i) => Row({
                 key: i, code: j.enabled ? Icon('play') : Icon('pause'), title: j.cron, sub: trunc(j.prompt, TRUNC_SUB).text,
-                trailing: Btn({ danger: true, children: 'delete', onClick: () => del(j.id) }),
+                trailing: Btn({ variant: 'danger', children: 'delete', onClick: () => del(j.id) }),
             })) : emptyState('no cron jobs')),
             section('new job',
                 TextField({ label: 'cron expression', value: s.expr, onInput: (v) => { s.expr = v; }, placeholder: '0 9 * * *' }),
                 TextField({ label: 'prompt', value: s.prompt, multiline: true, onInput: (v) => { s.prompt = v; }, placeholder: 'what to run…' }),
-                Btn({ primary: true, disabled: s.busy, children: s.busy ? 'working…' : 'add job', onClick: add })),
+                Btn({ variant: 'primary', disabled: s.busy, children: s.busy ? 'working…' : 'add job', onClick: add })),
         ];
     };
 });
@@ -405,7 +405,7 @@ export const skills = makePage((ctx) => {
                     onClick: () => ctx.set({ open: s.open === i ? null : i }), active: s.open === i }),
                 s.open === i ? h('pre', { class: 'fd-pre fd-skill-body' }, sk.body || sk.content || '(no body)') : null,
             )) : emptyState('no skills')),
-        ];
+        ].filter(Boolean);
     };
 });
 
@@ -456,8 +456,8 @@ export const config = makePage((ctx) => {
             ) : emptyState('no scalar config keys')),
             section('raw', h('pre', { class: 'fd-pre' }, JSON.stringify(cfg, null, 2))),
             section('actions',
-                Btn({ primary: true, disabled: s.busy || !Object.keys(s.edited).length, children: s.busy ? 'saving…' : 'save changes', onClick: save })),
-        ];
+                Btn({ variant: 'primary', disabled: s.busy || !Object.keys(s.edited).length, children: s.busy ? 'saving…' : 'save changes', onClick: save })),
+        ].filter(Boolean);
     };
 });
 
@@ -506,11 +506,11 @@ export const env = makePage((ctx) => {
                     trailing: h('span', { class: 'fd-row-actions' },
                         a.set ? Chip({ tone: 'ok', children: 'set' }) : Chip({ tone: 'neutral', children: 'unset' }),
                         TextField({ type: 'password', value: s.draft[a.provider] || '', onInput: (v) => { s.draft[a.provider] = v; }, placeholder: 'paste key', 'aria-label': 'key for ' + a.provider }),
-                        Btn({ primary: true, disabled: s.busy === a.provider, children: s.busy === a.provider ? '…' : 'save', onClick: () => setKey(a.provider) }),
-                        (a.set && a.source === 'stored') ? Btn({ danger: true, disabled: s.busy === a.provider, children: 'remove', onClick: () => removeKey(a.provider) }) : null),
+                        Btn({ variant: 'primary', disabled: s.busy === a.provider, children: s.busy === a.provider ? '…' : 'save', onClick: () => setKey(a.provider) }),
+                        (a.set && a.source === 'stored') ? Btn({ variant: 'danger', disabled: s.busy === a.provider, children: 'remove', onClick: () => removeKey(a.provider) }) : null),
                 })) : emptyState('no providers')),
             otherRows.length ? section('other environment', Table({ headers: ['key', 'status'], rows: otherRows })) : null,
-        ];
+        ].filter(Boolean);
     };
 });
 
@@ -536,7 +536,7 @@ export const tools = makePage((ctx) => {
                 ctx.state.open === t.name ? h('pre', { class: 'fd-pre' }, JSON.stringify(t.schema || t, null, 2)) : null,
             )))),
             list.length ? null : emptyState('no tools match'),
-        ];
+        ].filter(Boolean);
     };
 });
 
@@ -560,7 +560,7 @@ export const batch = makePage((ctx) => {
             section('prompts',
                 TextField({ label: 'prompts (one per line)', value: s.prompts, multiline: true, rows: 6, onInput: (v) => { s.prompts = v; } }),
                 TextField({ label: 'concurrency', type: 'number', min: 1, 'aria-label': 'batch concurrency', value: String(s.concurrency), onInput: (v) => { s.concurrency = v; } }),
-                Btn({ primary: true, disabled: s.busy, children: s.busy ? 'running…' : 'run batch', onClick: run })),
+                Btn({ variant: 'primary', disabled: s.busy, children: s.busy ? 'running…' : 'run batch', onClick: run })),
             s.result ? section('result', (() => {
                 const r = s.result;
                 const items = Array.isArray(r.results) ? r.results : (Array.isArray(r) ? r : null);
@@ -572,7 +572,7 @@ export const batch = makePage((ctx) => {
                     }) }),
                 ];
             })()) : null,
-        ];
+        ].filter(Boolean);
     };
 });
 
@@ -592,7 +592,7 @@ export const gateway = makePage((ctx) => {
             PageHeader({ eyebrow: 'freddie', title: 'gateway', lede: 'messaging platform status' }),
             s.error && s.data ? refreshError(s.error) : null,
             section('platforms', rows.length ? Table({ headers: ['platform', 'status'], rows }) : emptyState('no platforms configured')),
-        ];
+        ].filter(Boolean);
     };
 });
 
@@ -632,14 +632,14 @@ export const chains = makePage((ctx) => {
             noteAlert(s.note),
             section('chains', Array.isArray(chainsList) && chainsList.length ? chainsList.map((c, i) => Row({
                 key: i, title: c.name || c, sub: Array.isArray(c.links) ? c.links.join(' -> ') : '',
-                trailing: Btn({ danger: true, children: 'delete', onClick: () => del(c.name || c) }),
+                trailing: Btn({ variant: 'danger', children: 'delete', onClick: () => del(c.name || c) }),
             })) : emptyState('no chains defined')),
             section('new chain',
                 TextField({ label: 'name', value: s.name, onInput: (v) => { s.name = v; } }),
                 TextField({ label: 'links (comma-separated models)', value: s.links, onInput: (v) => { s.links = v; }, placeholder: 'mistral/large, openrouter/auto' }),
-                Btn({ primary: true, disabled: s.busy, children: s.busy ? 'working…' : 'create chain', onClick: create })),
+                Btn({ variant: 'primary', disabled: s.busy, children: s.busy ? 'working…' : 'create chain', onClick: create })),
             s.cfg ? section('config', h('pre', { class: 'fd-pre' }, JSON.stringify(s.cfg, null, 2))) : null,
-        ];
+        ].filter(Boolean);
     };
 });
 
@@ -661,7 +661,7 @@ export const machines = makePage((ctx) => {
                 headers: ['kind', 'key', 'state'],
                 rows: list.map(m => [m.kind || '—', m.key || m.machine_id || '—', m.state || m.value || truncJson(m)]),
             }) : emptyState('no live machines')),
-        ];
+        ].filter(Boolean);
     };
 });
 
@@ -689,7 +689,7 @@ export const health = makePage((ctx) => {
             s.error && (s.health || s.providers) ? refreshError(s.error) : null,
             section('checks', Object.keys(hd).length ? Table({ headers: ['check', 'status'], rows: Object.entries(hd).map(([k, v]) => [k, typeof v === 'object' ? truncJson(v) : (v === true ? Chip({ tone: 'ok', children: 'ok' }) : v === false ? Chip({ tone: 'miss', children: 'no' }) : String(v))]) }) : emptyState('no health data')),
             provs.length ? section('providers', Table({ headers: ['provider', 'status'], rows: provs.map(p => { const n = typeof p === 'string' ? p : p.name || p.id; const ok = typeof p === 'object' ? (p.ok ?? p.available) : null; return [n, ok == null ? '—' : (ok ? Chip({ tone: 'ok', children: 'up' }) : Chip({ tone: 'miss', children: 'down' }))]; }) })) : null,
-        ];
+        ].filter(Boolean);
     };
 });
 
@@ -716,7 +716,7 @@ export const debug = makePage((ctx) => {
                 key: i, title: name, onClick: () => loadLogs(name), active: s.sub === name,
             })) : emptyState('no debug subsystems')),
             s.sub ? section('logs · ' + s.sub, h('pre', { class: 'fd-pre' }, JSON.stringify(s.logs, null, 2))) : null,
-        ];
+        ].filter(Boolean);
     };
 });
 

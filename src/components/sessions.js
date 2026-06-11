@@ -199,11 +199,11 @@ export function SessionCard({ session = {}, onStop, onOpen, onView, active = fal
     activityBits.length ? h('span', { class: 'ds-dash-activity' }, activityBits.join(' · ')) : null,
   ].filter(Boolean));
   const actions = h('div', { class: 'ds-dash-actions', role: 'group', 'aria-label': 'session actions' }, ...[
-    onOpen ? Btn({ key: 'open', primary: true, 'aria-label': 'open session', onClick: () => onOpen(s),
+    onOpen ? Btn({ key: 'open', variant: 'primary', 'aria-label': 'open session', onClick: () => onOpen(s),
       children: [Icon('external-link', { size: 14 }), h('span', {}, 'open')] }) : null,
     onView ? Btn({ key: 'view', 'aria-label': s.external ? 'open in history' : 'view events', onClick: () => onView(s),
       children: [Icon('file-text', { size: 14 }), h('span', {}, s.external ? 'history' : 'events')] }) : null,
-    (onStop && !s.external) ? Btn({ key: 'stop', danger: true, disabled: !!s.stopping, 'aria-label': 'stop session',
+    (onStop && !s.external) ? Btn({ key: 'stop', variant: 'danger', disabled: !!s.stopping, 'aria-label': 'stop session',
       onClick: () => !s.stopping && onStop(s),
       children: [Icon('square', { size: 14 }), h('span', {}, s.stopping ? 'stopping…' : 'stop')] }) : null,
   ].filter(Boolean));
@@ -244,7 +244,7 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
                                    sort, filter, errorsOnly = false, onErrorsOnly,
                                    selectable = false, selected, onToggleSelect, onSelectAll, onClearSelection,
                                    activeSid, streamState,
-                                   emptyText = 'No live sessions', offline = false } = {}) {
+                                   emptyText = 'No live sessions', emptyAction, offline = false } = {}) {
   if (offline) {
     return h('div', { class: 'ds-dash-state ds-dash-state-error', role: 'status' }, 'Backend offline — live sessions unavailable');
   }
@@ -297,12 +297,11 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
         onErrorsOnly ? h('button', { key: 'eo', type: 'button', class: 'ds-dash-errors-toggle' + (errorsOnly ? ' active' : ''),
           'aria-pressed': errorsOnly ? 'true' : 'false', onclick: () => onErrorsOnly(!errorsOnly) }, 'errors only') : null)
     : null;
-  if (!sessions.length) {
-    return h('div', { class: 'ds-dash' },
-      h('div', { class: 'ds-dash-header', role: 'group', 'aria-label': 'live session controls' },
-        ...[h('span', { key: 'cnt', class: 'ds-dash-count', role: 'status', 'aria-live': 'polite' }, '0 running'), streamLine].filter(Boolean)),
-      h('div', { class: 'ds-dash-state', role: 'status' }, emptyText));
-  }
+  // NOTE: no separate empty-branch return. The empty state renders as a KEYED
+  // child of the same stable body wrapper the populated states use - swapping
+  // an unkeyed .ds-dash-state for keyed group children used to crash webjsx
+  // applyDiff (reading 'key') the moment the first session appeared, leaving a
+  // half-applied DOM ('1 running' header over 'No live sessions' body).
   // Tri-state select-all over the selectable (non-external) sessions.
   const selectableSids = sessions.filter((s) => !s.external).map((s) => s.sid);
   const selOfVisible = selectableSids.filter((sid) => selSet.has(sid)).length;
@@ -318,16 +317,16 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
     ? h('button', { key: 'selclr', type: 'button', class: 'ds-dash-clear', onclick: () => onClearSelection() }, 'clear')
     : null;
   const stopBtn = stoppingCount > 0 && (onStopSelected || onStopAll)
-      ? Btn({ key: 'stopbusy', danger: true, disabled: true, children: 'stopping ' + stoppingCount + '…' })
+      ? Btn({ key: 'stopbusy', variant: 'danger', disabled: true, children: 'stopping ' + stoppingCount + '…' })
       : (selectable && selCount && onStopSelected
       ? (onArmStopSelected && !confirmingStopSelected
-          ? Btn({ key: 'stopsel', danger: true, onClick: () => onArmStopSelected([...selSet]), children: 'stop selected' })
-          : Btn({ key: 'stopsel', danger: true, className: confirmingStopSelected ? 'is-armed' : null, onClick: () => onStopSelected([...selSet]),
+          ? Btn({ key: 'stopsel', variant: 'danger', onClick: () => onArmStopSelected([...selSet]), children: 'stop selected' })
+          : Btn({ key: 'stopsel', variant: 'danger', className: confirmingStopSelected ? 'is-armed' : null, onClick: () => onStopSelected([...selSet]),
                   children: confirmingStopSelected ? 'stop ' + selCount + ' sessions - press again' : 'stop selected' }))
       : (onStopAll
           ? (onArmStopAll && !confirmingStopAll
-              ? Btn({ key: 'stopall', danger: true, onClick: () => onArmStopAll(sessions), children: 'stop all' })
-              : Btn({ key: 'stopall', danger: true, className: confirmingStopAll ? 'is-armed' : null, onClick: () => onStopAll(sessions),
+              ? Btn({ key: 'stopall', variant: 'danger', onClick: () => onArmStopAll(sessions), children: 'stop all' })
+              : Btn({ key: 'stopall', variant: 'danger', className: confirmingStopAll ? 'is-armed' : null, onClick: () => onStopAll(sessions),
                       children: confirmingStopAll ? 'stop ' + sessions.length + ' sessions - press again' : 'stop all' }))
           : null));
   // Build header children as a filtered array: webjsx applyDiff crashes
@@ -336,10 +335,14 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
   const headerKids = [
     selectable && selCount
       ? h('span', { key: 'cnt', class: 'ds-dash-count', role: 'status', 'aria-live': 'polite' }, selCount + ' selected')
-      : (breakdown || h('span', { key: 'cnt', class: 'ds-dash-count', role: 'status', 'aria-live': 'polite' }, sessions.length + ' running')),
+      : (breakdown || h('span', { key: 'cnt', class: 'ds-dash-count', role: 'status', 'aria-live': 'polite' },
+          sessions.length ? sessions.length + ' running' : '0 running')),
     selectAllCtl, clearCtl, streamLine,
     h('span', { key: 'spread', class: 'spread' }),
-    stopBtn, toolbar,
+    // No stop control without a session to stop; the empty dashboard keeps
+    // only the count, heartbeat, and (when wired) filter/sort chrome.
+    sessions.length ? stopBtn : null,
+    toolbar,
   ].filter(Boolean);
   const header = h('div', { class: 'ds-dash-header', role: 'group', 'aria-label': 'live session controls' }, ...headerKids);
   // Status-bucketed command center: when sorting by status (the default), the
@@ -350,20 +353,31 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
   const cardOf = (s) => h('div', { key: s.sid, role: 'listitem' },
     SessionCard({ session: s, onStop, onOpen, onView, active: s.sid === activeSid,
                   selectable, selected: selSet.has(s.sid), onToggleSelect }));
-  let body;
-  if (grouped) {
+  // ONE stable body wrapper across every state (empty / grouped / flat), with
+  // KEYED children - the ConversationList stable-keyed-body rule. Diffing
+  // happens on the children, never by swapping the container's shape.
+  let bodyKids;
+  if (!sessions.length) {
+    bodyKids = [h('div', { key: 'empty', class: 'ds-dash-state', role: 'status' },
+      ...[
+        h('span', { key: 'et' }, emptyText),
+        (emptyAction && emptyAction.onClick)
+          ? Btn({ key: 'ea', onClick: emptyAction.onClick, children: emptyAction.label || 'start a chat' })
+          : null,
+      ].filter(Boolean))];
+  } else if (grouped) {
     const buckets = [
       { key: 'error', label: 'Errored', rows: sessions.filter((s) => !s.external && s.status === 'error') },
       { key: 'running', label: 'Running', rows: sessions.filter((s) => !s.external && s.status !== 'error' && s.status !== 'stale') },
       { key: 'idle', label: 'Idle', rows: sessions.filter((s) => !s.external && s.status === 'stale') },
       { key: 'external', label: 'External', rows: sessions.filter((s) => s.external) },
     ].filter((b) => b.rows.length);
-    body = h('div', { class: 'ds-dash-groups' },
-      ...buckets.map((b) => h('div', { key: 'grp' + b.key, class: 'ds-dash-group', role: 'group', 'aria-label': b.label + ' sessions' },
-        h('div', { class: 'ds-dash-group-label' }, b.label + ' · ' + b.rows.length),
-        h('div', { class: 'ds-dash-grid', role: 'list', 'aria-label': b.label + ' sessions' }, ...b.rows.map(cardOf)))));
+    bodyKids = buckets.map((b) => h('div', { key: 'grp' + b.key, class: 'ds-dash-group', role: 'group', 'aria-label': b.label + ' sessions' },
+      h('div', { key: 'gl', class: 'ds-dash-group-label' }, b.label + ' · ' + b.rows.length),
+      h('div', { key: 'gg', class: 'ds-dash-grid', role: 'list', 'aria-label': b.label + ' sessions' }, ...b.rows.map(cardOf))));
   } else {
-    body = h('div', { class: 'ds-dash-grid', role: 'list', 'aria-label': 'live sessions' }, ...sessions.map(cardOf));
+    bodyKids = [h('div', { key: 'flat', class: 'ds-dash-grid', role: 'list', 'aria-label': 'live sessions' }, ...sessions.map(cardOf))];
   }
+  const body = h('div', { key: 'body', class: 'ds-dash-groups' }, ...bodyKids);
   return h('div', { class: 'ds-dash' }, header, body);
 }

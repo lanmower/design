@@ -151,7 +151,7 @@ function modalError(error) {
 // `error` renders inside .ds-modal-body (role=alert, error tone). `busy`
 // disables both action buttons AND the Escape/backdrop close paths; the confirm
 // label flips to `busyLabel` (default 'working…') so the in-flight state reads.
-export function ConfirmDialog({ title = 'confirm', message, confirmLabel = 'confirm', cancelLabel = 'cancel', destructive, onConfirm, onCancel, error, busy = false, busyLabel = 'working…' } = {}) {
+export function ConfirmDialog({ title = 'Are you sure?', message, confirmLabel = 'confirm', cancelLabel = 'cancel', destructive, onConfirm, onCancel, error, busy = false, busyLabel = 'working…' } = {}) {
     return Modal({
         onClose: onCancel,
         kind: 'small',
@@ -160,12 +160,12 @@ export function ConfirmDialog({ title = 'confirm', message, confirmLabel = 'conf
         body: [message || '', modalError(error)].filter(Boolean),
         actions: [
             Btn({ onClick: onCancel, disabled: busy, children: cancelLabel }),
-            Btn({ primary: true, danger: !!destructive, disabled: busy, onClick: onConfirm, children: busy ? busyLabel : confirmLabel })
+            Btn({ variant: 'primary', disabled: busy, onClick: onConfirm, children: busy ? busyLabel : confirmLabel })
         ]
     });
 }
 
-export function PromptDialog({ title = 'name', value = '', placeholder = '', confirmLabel = 'ok', cancelLabel = 'cancel', onConfirm, onCancel, onInput, error, busy = false, busyLabel = 'working…' } = {}) {
+export function PromptDialog({ title = 'Enter a name', value = '', placeholder = '', confirmLabel = 'ok', cancelLabel = 'cancel', onConfirm, onCancel, onInput, error, busy = false, busyLabel = 'working…' } = {}) {
     return Modal({
         onClose: onCancel,
         kind: 'small',

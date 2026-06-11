@@ -180,10 +180,20 @@ const FILE_GRID_CAP = 200;
 export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No files here yet',
                           columns = 'auto', sort, filter, loading = false,
                           shown, onShowMore, actions, busy,
-                          selectable = false, marked, onMark, onSelectAll, onClearSelection,
+                          // Canonical multi-select contract (shared with
+                          // SessionDashboard): selected/onToggleSelect.
+                          // marked/onMark are accepted FileGrid aliases.
+                          selectable = false, selected, onToggleSelect,
+                          marked = selected, onMark = onToggleSelect,
+                          onSelectAll, onClearSelection,
                           density = 'list', onDensity, thumbUrl } = {}) {
-    if (loading) return FileSkeleton({});
+    // Skeleton ONLY for a cold load. A refresh of a populated grid (rename /
+    // delete / upload round-trip) keeps the rows on screen and dims them -
+    // flashing the whole directory to shimmer rows on every mutation reads as
+    // data loss.
+    if (loading && !files.length) return FileSkeleton({});
     if (!files.length) return EmptyState({ text: emptyText });
+    const refreshing = loading && files.length > 0;
     // Cap the rendered rows. `shown` (host-controlled) overrides the default cap
     // so "show more" can grow it; otherwise default to FILE_GRID_CAP.
     const limit = shown != null ? shown : FILE_GRID_CAP;
@@ -264,8 +274,9 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
     // listbox/option semantics are invalid (an option can't host interactive
     // children). Keyboard nav still works via roving focus over the open buttons.
     const grid = h('div', {
-        class: 'ds-file-grid' + (isThumb ? ' ds-file-grid-thumb' : ''),
+        class: 'ds-file-grid' + (isThumb ? ' ds-file-grid-thumb' : '') + (refreshing ? ' is-refreshing' : ''),
         role: 'group', 'aria-label': 'files', tabindex: '0',
+        'aria-busy': refreshing ? 'true' : 'false',
         // Always concrete (webjsx's attribute diff can leave a null-valued
         // attribute unset when toggling away from the default).
         'data-density': density || 'list',
@@ -401,8 +412,13 @@ export function RootsPicker({ roots = [], selected, onSelect, label = 'roots' } 
 }
 
 export function DropZone({ children, dragover, onDrop, onDragOver, onDragLeave, label = 'drop files here', onPick } = {}) {
+    // With children the zone is a passive WRAPPER: content renders normally and
+    // the dashed affordance appears only while a drag is over it (real file
+    // managers never burn a permanent band on a maybe-drop). Without children
+    // it keeps the explicit picker-block look.
+    const kids = Array.isArray(children) ? children : children ? [children] : [];
     return h('div', {
-        class: 'ds-dropzone' + (dragover ? ' dragover' : ''),
+        class: 'ds-dropzone' + (kids.length ? ' ds-dropzone--wrap' : '') + (dragover ? ' dragover' : ''),
         ondragover: (e) => { e.preventDefault(); onDragOver && onDragOver(e); },
         ondragleave: (e) => { onDragLeave && onDragLeave(e); },
         ondrop: (e) => { e.preventDefault(); onDrop && onDrop(e.dataTransfer.files); }
@@ -412,7 +428,7 @@ export function DropZone({ children, dragover, onDrop, onDragOver, onDragLeave, 
             h('span', { class: 'ds-dropzone-label' }, label),
             onPick ? Btn({ onClick: onPick, children: 'pick files' }) : null
         ),
-        ...(Array.isArray(children) ? children : children ? [children] : [])
+        ...kids
     );
 }
 

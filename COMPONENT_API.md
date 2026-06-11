@@ -21,6 +21,108 @@ This document describes all exported components, their prop signatures, and stan
 - Old: `primary={true}`, `ghost={true}` [ ]
 - New: `variant: 'primary' | 'ghost' | 'default'` [x]
 
+**Multi-select contract** (shared by FileGrid and SessionDashboard):
+- `selectable` (bool), `selected` (Set keyed by entity id/path),
+  `onToggleSelect(item, { range })`, `onSelectAll()`, `onClearSelection()`
+- FileGrid also accepts `marked`/`onMark` as aliases of `selected`/`onToggleSelect`.
+
+---
+
+## Workspace Surfaces
+
+The flagship application surfaces (an agent-chat product is composed from these).
+
+### WorkspaceShell
+A Claude-Desktop-style three-(or four-)column app shell.
+
+```js
+WorkspaceShell({
+  rail,                  // left nav vnode (usually WorkspaceRail())
+  sessions,              // OPTIONAL second column (ConversationList); null hides it
+  main,                  // primary content column (vnode or array)
+  pane,                  // OPTIONAL right context pane; null hides it
+  crumb,                 // optional thin top chrome bar over the content column
+  status,                // optional footer (Status())
+  narrow,                // caller's isNarrow() - drives drawer auto-close behavior
+  railCollapsed, paneCollapsed,  // initial collapse (persisted state wins)
+  stableFrame,           // keep the pane grid TRACK at width 0 when this tab has
+                         // no pane, so the column count never re-flows on tab switch
+  mainFlush,             // remove .ws-main's content gutter (chat self-gutters)
+  railLabel, paneLabel,  // aria labels
+})
+```
+Responsive: the pane track yields at <=1480px (right overlay drawer via
+`.ws-pane-open`), the sessions track at <=1100px (left drawer via
+`.ws-sessions-open`), and below 900px the rail drops to a fixed icon strip with
+a single content column. The crumb bar hosts the drawer toggles.
+
+### WorkspaceRail
+`WorkspaceRail({ brand, action: {label, icon, onClick}, items: [{key, label, icon, active, count, onClick}], footer })`
+
+### ConversationList
+The persistent conversation rail ("Chats" column).
+
+`ConversationList({ sessions: [{sid, title, project, agent, time, running, unread, rail}], selected, groups: [{label, sids}], search: {value, placeholder, onInput}, caption, onSelect(session), onNew(), newLabel, emptyText, loading, loadingText, error })`
+
+Loading renders shape-matched skeleton rows. The body is one stable keyed
+wrapper across loading/empty/populated states (webjsx applyDiff requirement).
+
+### SessionDashboard
+The live multi-session command center.
+
+`SessionDashboard({ sessions, onStop, onOpen, onView, onStopAll, onStopSelected, onArmStopAll, onArmStopSelected, confirmingStopAll, confirmingStopSelected, sort: {value, onChange}, filter: {value, placeholder, onInput}, errorsOnly, onErrorsOnly, selectable, selected: Set, onToggleSelect, onSelectAll, onClearSelection, activeSid, streamState: 'connected'|'connecting'|'lost'|'offline', emptyText, emptyAction: {label, onClick}, offline })`
+
+Session shape: `{ sid, realSid, title, agent, model, cwd, elapsedMs, counter, lastActivity, currentTool, status: 'running'|'stale'|'error', stopping, external, isNew, cost, tokens }`.
+Status-sorted renders bucketed groups (Errored/Running/Idle/External); other sorts render flat.
+
+### SessionCard
+One running session. Same `session` shape as above; `external` suppresses stop and renders a read-only card.
+
+### ContextPane
+`ContextPane({ agent, model, cwd, toolCount, usage: {inputTokens, outputTokens, costUsd, turns, durationMs}, session: {turns, cost}, onSetCwd })`
+The change-cwd affordance rides ON the working-dir row; all-zero session totals hide the conversation block.
+
+### AgentChat
+The reusable multi-agent chat surface (pure component, host wires transport).
+
+```js
+AgentChat({
+  agents, selectedAgent, models, selectedModel, modelsLoading,
+  messages,              // [{id, role, content, time, parts}] - parts may be
+                         // strings or {kind:'tool'|'md'|...} structured parts
+  busy, draft, status, banners,
+  cwd, cwdEditing, cwdDraft, cwdError, cwdChecking,
+  agentName, placeholder, canSend,
+  suggestions, onSuggestionClick,
+  onSelectAgent, onSelectModel, onSend, onStop, onNewChat, onInput,
+  onCwdEdit, onCwdSave, onCwdCancel, onCwdClear, onCwdDraft,
+  onCopyMessage, onRetryMessage, onEditMessage, confirmEdit, onArmEdit,
+  avatar, composerContext,   // {bits: [string | {text|label, title, onClick}]}
+  followups, onFollowupClick,
+  installHint, exportActions,
+  onPasteFiles(files), onDropFiles(files),   // NOTE the names - not onPasteImage
+  shownMessages, onShowEarlier,              // windowed thread (default cap 100)
+})
+```
+
+### FileGrid (selection + density props)
+Beyond the base listing props:
+
+`FileGrid({ ..., selectable, selected: Set (keyed by path), onToggleSelect(f, {range}), onSelectAll(keys), onClearSelection, density: 'list'|'compact'|'thumb', onDensity, thumbUrl(f) })`
+`marked`/`onMark` are accepted aliases for `selected`/`onToggleSelect`.
+`loading` with rows present dims the grid in place (`is-refreshing`); skeleton renders only on a cold load.
+
+### BulkBar
+`BulkBar({ count, noun, nounPlural, actions: [{label, danger, onClick}], onClear, busy })` - pluralizes `-y` nouns.
+
+### FileToolbar / RootsPicker / DropZone
+`FileToolbar({ left, right })`; `RootsPicker({ roots: [{id, label}], selected, onSelect, label })`;
+`DropZone({ children, dragover, onDrop(files), onDragOver, onDragLeave, label, onPick })` - with children it is a
+passive wrapper whose dashed affordance overlays ONLY during a drag; without children it is an explicit picker block.
+
+### FilePreviewPane
+Inline (non-modal) split-view file preview; the modal FileViewer remains the <900px fallback.
+
 ---
 
 ## Shell Components
@@ -97,6 +199,18 @@ Glyph({ children, color })
 |------|------|---------|-------------|
 | `children` | string | - | Icon/symbol (emoji or Unicode) |
 | `color` | string | - | CSS color value |
+
+### Icon
+Monochrome inline-SVG line icon (stroke = currentColor). Both call forms are accepted:
+
+```js
+Icon('folder', { size: 16 })    // positional (original)
+Icon({ name: 'folder', size: 16 })  // props-object (matches every sibling component)
+```
+
+Unknown names render a blank decorative span (no throw). The canonical name list
+is the `ICON_PATHS` table in `src/components/shell.js`. `iconMarkup(name|{name,size})`
+returns the same SVG as a markup string for raw-DOM consumers.
 
 ### Topbar
 Application header with brand, search, and nav items.
@@ -731,7 +845,7 @@ Btn({ variant: 'default', children: 'Default' })
 ```
 
 **Migration Path:**
-- Old `primary` and `ghost` props still work but trigger deprecation notices in development
+- Old `primary` and `ghost` props still work (resolved silently; `variant` wins when both are present)
 - Update gradually per codebase
 - Full removal planned for v1.0
 
@@ -785,15 +899,22 @@ ChatMessage({ role: 'assistant', text: 'hi' })
 
 ## CSS Classes Reference
 
-Components emit predictable CSS classes for styling:
+The real class taxonomy (enforced by `scripts/lint-classes.mjs` at build time):
 
-- `.btn`, `.btn-primary`, `.btn-ghost`
-- `.row`, `.row.active`, `.row-grid`
-- `.chat-msg`, `.chat-msg.you`, `.chat-msg.them`
-- `.ds-ep-tree-item`, `.ds-ep-tree-item.selected`
-- `.cm-channel-item`, `.cm-channel-item.active`, `.cm-channel-item.voice-active`
+- `ds-*` — scoped primitives (rows, grids, dialogs, dashboards, previews)
+- `app-*` — AppShell chrome (topbar, status bar, crumb)
+- `ws-*` — WorkspaceShell chrome (rail, sessions, content, pane, drawers, scrim)
+- `chat-*` / `agentchat-*` / `aicat-*` — chat surfaces
+- `cm-*` — community surfaces; `ov-*` — overlay primitives; `vx-*` — voice; `fd-*` — freddie
+- **Public utility classes** (intentional, stable API): `.btn`, `.btn-primary`, `.btn-ghost`,
+  `.row`, `.panel`, `.seg`, `.crumb`, `.glyph`, `.status-dot-disc`
+- **Legacy bare internals** (frozen — always styled under a prefixed parent; do
+  NOT add new ones, and avoid global consumer rules on these words inside the
+  mount root): `name`, `size`, `icon`, `count`, `sep`, `leaf`, `cap`, `thumb`,
+  `desc`, `tick`, `meta`, `sub`, `title`, `spread`, and the rest of the
+  allowlist in `scripts/lint-classes.mjs`.
 
-All components follow the pattern: `<component>-<element>` or `ds-<scope>-<element>` for scoped variants.
+State modifiers use `is-*` / `.active` / `.show`; rail tones use `rail-*`; badge tones use `tone-*`.
 
 ---
 

@@ -183,7 +183,7 @@ export function WorksList({ works = [], openedIndex = -1, onToggle }) {
                         h('p', { class: 'ds-work-body' }, w.body)
                     ),
                     h('div', { class: 'ds-work-actions' },
-                        Btn({ primary: true, href: w.href || '#', children: 'open ->' }),
+                        Btn({ variant: 'primary', href: w.href || '#', children: 'open ->' }),
                         Btn({ href: w.source || '#', children: 'source' })
                     )
                 ) : null
@@ -302,11 +302,24 @@ export function ProjectView({ project = {}, copied, onCopy } = {}) {
     ].filter(Boolean).flat();
 }
 
-export function PageHeader({ title, lede, eyebrow, right, compact, id }) {
+export function PageHeader({ title, lede, eyebrow, right, compact, dense, id }) {
     // `compact` drops the large leading/trailing section margins so a PageHeader
     // used as a page's first element top-aligns cleanly without the consumer
     // having to !important-override the .ds-section margin. `id` lands on the
     // outermost section so the header can serve as a deep-link anchor.
+    // `dense` is the content-first working-surface form: one row - a small
+    // heading with the lede beside it, clamped to a single muted line - instead
+    // of a display H1 over a paragraph. App surfaces (files, dashboards,
+    // settings) should not spend 150px of fold on an intro.
+    if (dense) {
+        return h('section', { class: 'ds-section ds-section-compact ds-page-header-dense', id: id || null },
+            h('div', { class: 'ds-page-header-dense-row' },
+                ...[
+                    title != null ? h('h1', { key: 'dh' }, title) : null,
+                    lede != null ? h('span', { key: 'dl', class: 'ds-page-header-dense-lede', title: typeof lede === 'string' ? lede : null }, lede) : null,
+                    right != null ? h('div', { key: 'dr', class: 'ds-page-header-right' }, ...(Array.isArray(right) ? right : [right])) : null,
+                ].filter(Boolean)));
+    }
     return h('section', { class: 'ds-section' + (compact ? ' ds-section-compact' : ''), id: id || null },
         eyebrow ? h('span', { class: 'eyebrow' }, eyebrow) : null,
         title != null ? h('h1', {}, title) : null,
@@ -379,8 +392,20 @@ export function Select({ label, value = '', options = [], onChange, name, key, p
     );
 }
 
-export function EventList({ items, events, emptyText = 'no events', rankPad = 3 }) {
+export function EventList({ items, events, emptyText = 'no events', rankPad = 3, loading = false, loadingText = 'loading events…' }) {
     const list = items || events || [];
+    // Shape-matched skeleton rows for the slow first events fetch (the ccsniff
+    // cold walk can take 30-90s) - a lone spinner collapses the whole pane.
+    // Keying discipline mirrors ConversationList: a single keyed wrapper with
+    // all-keyed siblings (webjsx applyDiff crashes on mixed keyed/unkeyed).
+    if (loading && !list.length) {
+        return h('section', { class: 'ds-section ds-event-list' },
+            h('div', { key: 'st', role: 'status', 'aria-live': 'polite', class: 'ds-event-state lede' }, loadingText),
+            ...Array.from({ length: 7 }, (_, i) => h('div', { key: 'sk' + i, class: 'ds-event-row-skeleton', 'aria-hidden': 'true' },
+                h('span', { key: 'r', class: 'ds-skel ds-skel-rank' }),
+                h('span', { key: 't', class: 'ds-skel ds-skel-title' }),
+                h('span', { key: 'm', class: 'ds-skel ds-skel-meta' }))));
+    }
     if (!list.length) return h('p', { class: 'lede' }, emptyText);
     return h('section', { class: 'ds-section ds-event-list' },
         ...list.map((it, i) => Row({

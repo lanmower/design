@@ -59,6 +59,10 @@ export function ContextPane({ agent, model, cwd, toolCount = 0, usage, session, 
                     // Use the rail tone consistently with the GUI-wide semantics:
                     // green = active/ok. A default cwd carries no rail (neutral).
                     rail: cwd ? 'green' : null,
+                    // The change-cwd affordance belongs ON the working-dir fact,
+                    // not as a button floating under the panels.
+                    onClick: onSetCwd || undefined,
+                    meta: onSetCwd ? 'change' : undefined,
                 }),
                 Row({
                     title: 'running tools',
@@ -69,8 +73,9 @@ export function ContextPane({ agent, model, cwd, toolCount = 0, usage, session, 
         }),
     ];
     // Conversation block: whole-session totals (turn count + accumulated cost)
-    // between the context panel and the per-turn usage panel.
-    if (hasSession) {
+    // between the context panel and the per-turn usage panel. All-zero totals
+    // are noise, not context - hide the block until there is a conversation.
+    if (hasSession && (Number(session.turns) > 0 || Number(session.cost) > 0)) {
         const sesRows = [];
         if (session.turns != null) sesRows.push(Row({ title: 'turns', meta: String(session.turns) }));
         if (session.cost != null) sesRows.push(Row({ title: 'total cost', meta: '$' + Number(session.cost).toFixed(4) }));
@@ -88,11 +93,6 @@ export function ContextPane({ agent, model, cwd, toolCount = 0, usage, session, 
         if (usage.durationMs != null) tokRows.push(Row({ title: 'duration', meta: fmtDuration(usage.durationMs) }));
         panels.push(Panel({ title: 'last turn', children: tokRows }));
     }
-    return h('div', { class: 'ds-context' },
-        ...panels,
-        onSetCwd
-            ? h('div', { class: 'ds-context-actions' },
-                Btn({ onClick: onSetCwd, children: 'set working dir' }))
-            : null,
-    );
+    // The cwd action lives on the working-dir row above; no floating footer button.
+    return h('div', { class: 'ds-context' }, ...panels);
 }

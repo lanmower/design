@@ -34,19 +34,26 @@ export function ThemeToggle({ compact = false, onChange } = {}) {
     const current = getTheme();
 
     if (compact) {
-        const resolved = resolvedTheme();
-        const label = current === 'auto' ? `auto (${resolved})` : (current === 'ink' ? 'dark' : 'light');
+        // Plain words only - 'ink'/'paper' are internal theme codenames a user
+        // never chose; the resolved scheme rides in the title, not the label.
+        const resolvedWord = resolvedTheme() === 'ink' ? 'dark' : 'light';
+        const word = current === 'auto' ? 'auto' : (current === 'ink' ? 'dark' : 'light');
+        const label = 'theme: ' + word;
         return h('button', {
             class: 'btn ds-theme-toggle',
             type: 'button',
-            'aria-label': 'theme: ' + label,
-            title: 'theme: ' + label + ' — click to cycle',
+            'aria-label': label,
+            title: label + (current === 'auto' ? ' (currently ' + resolvedWord + ')' : '') + ' — click to cycle',
             onclick: () => {
                 const next = current === 'auto' ? 'paper' : (current === 'paper' ? 'ink' : 'auto');
                 applyTheme(next);
                 if (onChange) try { onChange(next); } catch {}
             }
-        }, label);
+        },
+        // CSS-drawn half-disc so the control still reads as the theme switch
+        // when the label is hidden (icon-only rail strip).
+        h('span', { class: 'ds-theme-disc', 'aria-hidden': 'true' }),
+        h('span', { class: 'ds-theme-toggle-label' }, label));
     }
 
     return h('div', {

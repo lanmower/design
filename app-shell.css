@@ -143,8 +143,8 @@ pre {
   margin: 0;
   border-radius: var(--r-3);
 }
-pre .k { color: var(--mascot); }
-pre .s { color: var(--sun); }
+pre .k { color: var(--code-str-alt, var(--mascot)); }
+pre .s { color: var(--code-string, var(--green)); }
 pre .c { color: var(--fg-3); }
 pre .n { color: var(--green-2); }
 
@@ -386,13 +386,21 @@ body.canvas-host { background: transparent !important; }
   width: 100%;
   min-height: var(--app-status-h);
   padding: 10px var(--pad-x);
-  font-family: var(--ff-mono); font-size: var(--fs-xs);
+  /* Status chrome is prose, not code - mono is reserved for code/paths. */
+  font-family: var(--ff-body); font-size: var(--fs-xs);
   color: var(--fg-3);
   border-top: 1px solid var(--rule);
 }
-.app-status .item { color: inherit; }
+.app-status .item { color: inherit; white-space: nowrap; }
 .app-status .item:first-of-type { color: var(--accent); }
 .app-status .spread { flex: 1; }
+/* The status bar NEVER wraps: at narrow widths the trailing items (hints,
+   agent target) drop in priority order instead of breaking mid-word onto a
+   second line. */
+.app-status { flex-wrap: nowrap; overflow: hidden; }
+@media (max-width: 1100px) {
+  .app-status .item:last-of-type:not(:only-of-type) { display: none; }
+}
 
 /* ============================================================
    Primitives
@@ -439,7 +447,8 @@ body.canvas-host { background: transparent !important; }
 .ds-icon-btn-ghost:hover { background: var(--bg-2); }
 .ds-icon-btn-primary { background: var(--accent); color: var(--accent-fg); }
 .ds-icon-btn-primary:hover { background: var(--fg); color: var(--bg); }
-.ds-icon-btn-danger { background: var(--flame); color: var(--paper); }
+/* warn = destructive ACTION tone; flame stays exclusively error STATUS. */
+.ds-icon-btn-danger { background: var(--warn); color: var(--paper); }
 .ds-icon-btn-danger:hover { filter: brightness(1.1); }
 .ds-icon-btn:active { transform: translateY(1px); }
 .ds-icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -513,11 +522,15 @@ body.canvas-host { background: transparent !important; }
 .panel.panel-wide   { background: transparent; }
 .panel-head {
   display: flex; align-items: baseline; justify-content: space-between;
-  padding: var(--space-4) var(--space-5) var(--space-3);
+  /* Shares the .panel-body 16px side padding so the caps label and the body
+     rows sit on ONE left axis (the old 24/32 padding was authored for the
+     pre-padding .panel-wide era and indented the label 16px past its content). */
+  padding: var(--space-2) var(--space-3);
   font-size: var(--fs-xs); font-weight: 600;
   color: var(--fg-3);
   letter-spacing: var(--tr-caps); text-transform: uppercase;
 }
+.panel.panel-wide .panel-head { padding-left: 0; padding-right: 0; }
 .panel-head > :last-child {
   font-weight: 500; color: var(--fg-3);
   font-family: var(--ff-mono); letter-spacing: 0;
@@ -585,6 +598,12 @@ body.canvas-host { background: transparent !important; }
 .row .code  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
 .row .title { font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-lg); line-height: var(--lh-snug, 1.3); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; min-width: 0; }
 .row .title .sub { font-family: var(--ff-body); font-weight: 400; font-size: var(--fs-sm); color: var(--fg-3); }
+/* App typescale: list rows are quiet working chrome (the 18px/600 default is a
+   marketing-surface voice). One size for ALL app list rows - matches
+   .ds-file-row/.ds-session-title at fs-sm/500; values mirror the kit's own
+   mobile block below. Marketing pages without data-typescale keep the default. */
+[data-typescale="app"] .row { padding: 12px 16px; }
+[data-typescale="app"] .row .title { font-size: var(--fs-sm); font-weight: 500; }
 .row .sub   { font-family: var(--ff-body); font-weight: 400; font-size: var(--fs-sm); color: var(--fg-3); }
 .row .meta  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; align-self: center; }
 /* WorksList meta pairs a label with a disclosure chevron, inline-aligned. */
@@ -1030,8 +1049,8 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
     padding: 12px 18px; font-size: var(--fs-sm);
   }
 
-  /* Panel */
-  .panel-head { padding: var(--space-4) var(--space-4); }
+  /* Panel - keep the head on the body's left axis at laptop widths too. */
+  .panel-head { padding: var(--space-2) var(--space-3); }
   .panel-body { padding: var(--space-2) var(--space-3); }
 
   /* Hero — fluid base font-size; only width unconstrained on tablet. */
@@ -1103,13 +1122,15 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 
 /* Listing wrapper holds the optional filter + sort header above the grid. */
 .ds-file-listing { display: flex; flex-direction: column; gap: var(--space-2); min-height: 0; }
-.ds-file-filter { padding: 0 0 var(--space-1); }
+/* The quick filter is a compact control, not a full-width form row - a giant
+   input above the grid reads as a search page and costs fold height. */
+.ds-file-filter { padding: 0 0 var(--space-1); display: flex; justify-content: flex-end; }
 .ds-file-filter-input {
-  width: 100%; padding: 8px 12px; font-size: var(--fs-sm);
+  width: min(280px, 100%); padding: 6px 12px; font-size: var(--fs-sm);
   background: var(--bg); color: var(--fg);
-  border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
+  border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1);
 }
-.ds-file-filter-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-file-filter-input:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
 .ds-file-sort { display: flex; gap: var(--space-2); padding: 0 var(--space-2) var(--space-1); }
 .ds-file-sort-btn {
   font-size: var(--fs-tiny); font-family: var(--ff-mono); color: var(--fg-3);
@@ -1121,6 +1142,16 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 
 /* Skeleton shimmer rows shown while a directory loads. */
 .ds-file-row-skeleton { cursor: default; pointer-events: none; }
+/* In-place refresh: dim the populated grid instead of swapping it for shimmer
+   rows (the rows stay; the round-trip reads as a settle, not a reload). */
+.ds-file-grid.is-refreshing { opacity: .6; }
+@media (prefers-reduced-motion: no-preference) {
+  .ds-file-grid { transition: opacity .15s var(--ease); }
+}
+/* EventList loading skeleton (shares the .ds-skel shimmer base above). */
+.ds-event-row-skeleton { display: flex; align-items: center; gap: var(--space-3); padding: 12px 16px; pointer-events: none; }
+.ds-skel-rank { height: 12px; width: 2.5ch; }
+.ds-event-state { padding: var(--space-2) 16px; }
 .ds-skel { display: inline-block; border-radius: var(--r-1); background: var(--bg-2); position: relative; overflow: hidden; }
 .ds-skel::after {
   content: ''; position: absolute; inset: 0;
@@ -1169,7 +1200,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-file-row[data-file-type="code"]     { border-left-width: 3px; border-left-color: var(--green-2); }
 .ds-file-row[data-file-type="text"]     { border-left-width: 3px; border-left-color: var(--ink-3); }
 .ds-file-row[data-file-type="archive"]  { border-left-width: 3px; border-left-color: var(--flame); }
-.ds-file-row[data-file-type="document"] { border-left-width: 3px; border-left-color: var(--sun); }
+.ds-file-row[data-file-type="document"] { border-left-width: 3px; border-left-color: var(--amber, var(--sun)); }
 .ds-file-row[data-file-type="symlink"]  { border-left-width: 3px; border-left-color: var(--purple); }
 .ds-file-row[data-file-type="other"]    { border-left-width: 3px; border-left-color: var(--fg-3); }
 
@@ -1200,7 +1231,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-file-row[data-file-type="audio"]    .ds-file-icon { color: var(--sky); }
 .ds-file-row[data-file-type="code"]     .ds-file-icon { color: var(--green-2); }
 .ds-file-row[data-file-type="archive"]  .ds-file-icon { color: var(--flame); }
-.ds-file-row[data-file-type="document"] .ds-file-icon { color: var(--sun); }
+.ds-file-row[data-file-type="document"] .ds-file-icon { color: var(--amber, var(--sun)); }
 
 /* Row actions — hidden until hover/focus, revealed without layout shift. */
 .ds-file-actions {
@@ -1250,6 +1281,19 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   background: var(--bg-2); border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
 }
 .ds-bulkbar-count { font-size: var(--fs-tiny); color: var(--fg-2); }
+/* BulkBar is a toolbar (it even declares role=toolbar): compact rect buttons,
+   quiet destructive outline - the app arm-confirms destructive bulk actions
+   via ConfirmDialog, so the strip never needs a loud CTA. */
+.ds-bulkbar .btn, .ds-bulkbar .btn-primary {
+  padding: 5px 12px; min-height: 32px; border-radius: var(--r-1); font-weight: 500;
+}
+.ds-bulkbar .btn { background: transparent; border: var(--bw-hair) solid var(--rule); color: var(--fg-2); }
+.ds-bulkbar .btn:hover { background: var(--bg-2); color: var(--fg); }
+.ds-bulkbar .btn-primary.danger { background: transparent; color: var(--warn); border: var(--bw-hair) solid var(--warn); }
+.ds-bulkbar .btn-primary.danger:hover { background: color-mix(in oklab, var(--warn) 12%, transparent); color: var(--warn); }
+@media (pointer: coarse) {
+  .ds-bulkbar .btn, .ds-bulkbar .btn-primary { min-height: 44px; }
+}
 
 /* Density picker — list / compact / thumbnails. */
 .ds-density {
@@ -1336,6 +1380,11 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .app-main > div > .ds-file-stage,
 .app-main .ds-file-stage { padding-top: 0; }
 
+/* Full-width files stack: the stage's space-3 vertical beat without its
+   920px cap/auto-margins, so the roots / toolbar / bulkbar / uploads / grid
+   bands keep one consistent rhythm instead of touching edge-to-edge. */
+.ds-files-stack { display: flex; flex-direction: column; gap: var(--space-3); min-height: 0; }
+
 /* Breadcrumb path */
 .ds-crumb-path {
   display: flex; align-items: center; flex-wrap: wrap; gap: 2px;
@@ -1356,9 +1405,37 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   display: flex; align-items: center; justify-content: space-between;
   gap: var(--space-2); flex-wrap: wrap;
 }
+/* Dense page header: one row, small heading, single-line muted lede. The
+   working surfaces (files, live, history, settings) lead with content, not a
+   display H1 + paragraph that costs the first 150px of every fold. */
+.ds-page-header-dense { margin: 0 0 var(--space-3); }
+.ds-page-header-dense-row { display: flex; align-items: baseline; gap: var(--space-3); min-width: 0; }
+.ds-page-header-dense-row h1 {
+  margin: 0; font-size: var(--fs-lg); line-height: 1.3; font-weight: 600;
+  letter-spacing: normal; flex: 0 0 auto;
+}
+.ds-page-header-dense-lede {
+  flex: 1 1 auto; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: var(--fs-sm); color: var(--fg-3);
+}
+.ds-page-header-dense .ds-page-header-right { flex: 0 0 auto; margin-left: auto; }
 .ds-file-toolbar-left,
 .ds-file-toolbar-right {
   display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;
+}
+/* Toolbar-scoped buttons: quiet, compact, rectangular - a toolbar is chrome,
+   not a CTA row; the stadium pill stays for real page-level actions. */
+.ds-file-toolbar .btn, .ds-file-toolbar .btn-ghost {
+  padding: 5px 12px; min-height: 32px;
+  border-radius: var(--r-1);
+  font-weight: 500;
+  background: transparent;
+  border: var(--bw-hair) solid var(--rule); color: var(--fg-2);
+}
+.ds-file-toolbar .btn:hover, .ds-file-toolbar .btn-ghost:hover { background: var(--bg-2); color: var(--fg); }
+@media (pointer: coarse) {
+  .ds-file-toolbar .btn, .ds-file-toolbar .btn-ghost { min-height: 44px; }
 }
 .ds-meta-mono {
   font-family: var(--ff-mono); font-size: var(--fs-xs);
@@ -1400,6 +1477,20 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   0%, 100% { border-color: var(--accent); }
   50% { border-color: color-mix(in oklab, var(--accent) 45%, transparent); }
 }
+/* Wrapper form (has children): no permanent chrome - the content renders as if
+   the zone were not there, and the dashed affordance overlays it ONLY while a
+   drag is in flight. */
+.ds-dropzone--wrap { position: relative; border: none; border-radius: 0; background: transparent; }
+.ds-dropzone--wrap > .ds-dropzone-inner { display: none; }
+.ds-dropzone--wrap.dragover > .ds-dropzone-inner {
+  display: flex; position: absolute; inset: 0; z-index: 5;
+  margin: 0; padding: var(--space-3);
+  align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--bg) 84%, transparent);
+  outline: var(--bw-rule) dashed var(--accent); outline-offset: -6px;
+  border-radius: var(--r-3);
+}
+.ds-dropzone--wrap.dragover { animation: none; }
 
 /* Upload progress */
 .ds-upload-progress { display: flex; flex-direction: column; gap: 6px; }
@@ -1593,7 +1684,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   border-radius: var(--r-pill); color: var(--fg);
   font-family: inherit; font-size: var(--fs-xs);
 }
-.ds-filter-input:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ds-filter-input:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
 
 /* Loading skeleton — placeholder rows while a directory loads. */
 .ds-file-grid-loading { display: flex; flex-direction: column; gap: 4px; }
@@ -1620,43 +1711,18 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-file-row[draggable="true"] { cursor: grab; }
 .ds-file-row[draggable="true"]:active { cursor: grabbing; }
 
-/* Multi-select — per-row checkbox overlay + selected state + bulk bar. */
+/* (A stale duplicate multi-select block used to live here: an absolute-overlay
+   .ds-file-check hidden until hover, plus .ds-file-check.on / .ds-file-row.selected
+   / .ds-bulk-bar rules NO component ever emits. Being later in source at equal
+   specificity it clobbered the real in-flow checkbox at ~1243 - the shipped
+   multi-select rendered invisible-until-hover with clipped brackets. The live
+   rules are the earlier block; only the still-load-bearing bits remain below.) */
 .ds-file-row { position: relative; }
-.ds-file-check {
-  position: absolute; left: 4px; top: 50%; transform: translateY(-50%);
-  width: 18px; height: 18px; padding: 0; z-index: 1;
-  display: inline-flex; align-items: center; justify-content: center;
-  border: var(--bw-hair) solid var(--rule); border-radius: 5px;
-  background: var(--bg); color: var(--accent-fg);
-  font-size: var(--fs-micro); line-height: 1; cursor: pointer;
-  opacity: 0; transition: opacity var(--dur-base) var(--ease), background var(--dur-snap) var(--ease);
-}
-.ds-file-row:hover .ds-file-check,
-.ds-file-row:focus-within .ds-file-check,
-.ds-file-check.on { opacity: 1; }
-/* Touch / coarse-pointer devices have no hover — keep checkboxes AND the
-   per-row action buttons (rename/delete/download) visible so the file manager
-   is fully reachable without a pointer (e.g. an iPad in landscape). */
+/* Touch / coarse-pointer devices have no hover — keep the per-row action
+   buttons (rename/delete/download) visible so the file manager is fully
+   reachable without a pointer (e.g. an iPad in landscape). */
 @media (hover: none), (pointer: coarse) {
-  .ds-file-check { opacity: 1; }
   .ds-file-actions { opacity: 1; }
-}
-.ds-file-check.on { background: var(--accent); border-color: var(--accent); }
-.ds-file-row.selected {
-  background: var(--accent-tint);
-  border-color: var(--accent);
-}
-.ds-file-row.selected:hover { background: color-mix(in oklab, var(--accent) 22%, var(--bg)); }
-
-.ds-bulk-bar {
-  display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2);
-  padding: 10px 14px; border-radius: var(--r-2);
-  background: var(--accent-tint);
-  border: var(--bw-hair) solid var(--accent);
-  position: sticky; top: var(--space-2); z-index: 2;
-}
-.ds-bulk-count {
-  font-weight: 600; font-size: var(--fs-sm); margin-right: auto;
 }
 
 /* Keyboard-shortcuts hint — compact two-column legend. */
@@ -1699,6 +1765,13 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-theme-toggle.btn {
   font-family: var(--ff-mono); font-size: var(--fs-xs);
   display: inline-flex; align-items: center; gap: 6px;
+}
+/* CSS-drawn half-disc mark on the compact theme toggle: keeps the control
+   legible when its text label is hidden (icon-only rail strip). */
+.ds-theme-disc {
+  flex: 0 0 auto; width: 14px; height: 14px; border-radius: 50%;
+  border: var(--bw-hair) solid var(--fg-3);
+  background: linear-gradient(90deg, var(--fg-3) 0 50%, transparent 50% 100%);
 }
 
 /* ============================================================
@@ -1880,10 +1953,10 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .chat-bubble.chat-code .token.atrule,
 .chat-bubble.chat-code .token.selector { color: var(--accent); }
 .chat-bubble.chat-code .token.string,
-.chat-bubble.chat-code .token.attr-value { color: var(--mascot); }
+.chat-bubble.chat-code .token.attr-value { color: var(--code-str-alt, var(--mascot)); }
 .chat-bubble.chat-code .token.comment { color: var(--fg-3); font-style: italic; }
 .chat-bubble.chat-code .token.number,
-.chat-bubble.chat-code .token.boolean { color: var(--sun); }
+.chat-bubble.chat-code .token.boolean { color: var(--code-num, var(--sun)); }
 .chat-bubble.chat-code .token.punctuation { color: var(--fg-2); }
 .chat-bubble.chat-code .token.property,
 .chat-bubble.chat-code .token.attr-name { color: var(--sky); }
@@ -2052,7 +2125,9 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   display: flex; align-items: flex-end; flex-wrap: wrap; gap: var(--space-2);
   padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
   background: var(--bg);
-  border: var(--bw-hair) solid var(--rule);
+  /* The composer sits bg-on-bg: the 14% --rule hairline is ~1.3:1 on paper,
+     leaving the primary input near-invisible at rest - use the strong rule. */
+  border: var(--bw-hair) solid var(--rule-strong);
   border-radius: var(--r-2);
   flex-shrink: 0;
   transition: border-color var(--dur-snap) var(--ease), box-shadow var(--dur-snap) var(--ease);
@@ -2066,7 +2141,9 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   background: none; color: var(--fg);
   border: none; border-radius: 0;
   font-family: inherit; font-size: var(--fs-sm);
-  line-height: 1.45; resize: none;
+  /* 1.5 is the value that actually renders (a later polish block used to
+     re-declare it; the sizing block now states the truth). */
+  line-height: 1.5; resize: none;
   min-height: 28px; max-height: 200px;
   box-sizing: border-box; overflow-y: auto;
   scrollbar-width: thin;
@@ -2133,13 +2210,19 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 /* ── select primitive ─────────────────────────────────────────────────── */
 .ds-select {
     width: 100%;
-    padding: 10px 14px;
+    min-width: 0;
+    padding: 10px 30px 10px 14px; /* right gap clears the chevron */
     background: var(--bg-2);
     border: 0;
     border-radius: var(--r-2);
     font-family: inherit;
     font-size: var(--fs-sm);
     color: var(--fg);
+    /* Clip long option text gracefully - a select that cuts 'Claude Sonnet
+       (latest' mid-parenthesis reads as broken; ellipsis reads as truncated. */
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
     appearance: none;
     background-image: linear-gradient(45deg, transparent 50%, var(--fg-3) 50%),
         linear-gradient(135deg, var(--fg-3) 50%, transparent 50%);
@@ -2148,15 +2231,12 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
     background-repeat: no-repeat;
     cursor: pointer;
 }
-.ds-select:focus { box-shadow: inset 0 0 0 2px var(--accent); }
+.ds-select:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
 .ds-select:hover { background-color: var(--bg-3); }
 
-/* ── chat composer autogrow polish ────────────────────────────────────── */
+/* ── chat composer autogrow polish (sizing lives in the primary block) ── */
 .chat-composer textarea {
-    resize: none;
-    overflow-y: auto;
     transition: height var(--dur-snap) var(--ease);
-    line-height: 1.5;
 }
 .chat-composer textarea:disabled {
     opacity: 0.5;
@@ -3059,36 +3139,109 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ws-pane-toggle:hover { background: var(--bg-3); color: var(--fg); }
 .ws-pane-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* Responsive: below 900px collapse to a single content column; rail+sessions+pane
-   become overlay drawers the host can toggle, or simply hide on mobile. We keep it
-   honest: stack rail (icon row) over content, hide sessions+pane unless toggled. */
+/* Drawer toggles and the scrim are hidden by default and revealed by the staged
+   media blocks BELOW - these base rules must precede those blocks in source
+   order: at equal specificity the later rule wins regardless of media, so a
+   trailing display:none silently kills every drawer affordance (shipped bug:
+   the mobile drawers were dead because these lines used to sit last). */
+.ws-drawer-toggle { display: none; align-items: center; justify-content: center; width: 40px; height: 40px; border: none; background: none; color: var(--fg-2); cursor: pointer; border-radius: var(--r-1); }
+.ws-scrim { display: none; }
+
+/* Responsive: the columns yield to the CONTENT in stages - the main column is
+   the product, so the right pane gives way first, the sessions list second,
+   and only below 900px does the rail itself drop to a fixed icon strip. Yielded
+   columns stay reachable as overlay drawers (.ws-pane-open / .ws-sessions-open,
+   toggled from the crumb bar) over a shared fade scrim. Before this staging the
+   4-track grid survived down to 901px and crushed the chat thread to ~245px
+   while the 320px context pane kept its full width. */
+
+/* Stage 1 (<=1480px): drop the pane TRACK; the context pane becomes a right
+   overlay drawer. */
+@media (max-width: 1480px) {
+  .ws-shell,
+  .ws-shell.ws-no-pane,
+  .ws-shell.ws-pane-collapsed,
+  .ws-shell.ws-no-pane.ws-pane-collapsed:not(.ws-no-sessions) {
+    grid-template-columns: var(--ws-rail-w) var(--ws-sessions-w) minmax(0, 1fr);
+    grid-template-areas: "rail sessions content";
+  }
+  .ws-shell.ws-no-sessions,
+  .ws-shell.ws-no-pane.ws-no-sessions,
+  .ws-shell.ws-no-pane.ws-pane-collapsed.ws-no-sessions {
+    grid-template-columns: var(--ws-rail-w) minmax(0, 1fr);
+    grid-template-areas: "rail content";
+  }
+  /* Drawer width is a literal: --ws-pane-w is 0px while pane-collapsed, and a
+     desktop-collapsed pane must still open as a full drawer. */
+  .ws-pane {
+    position: fixed; inset: 0 0 0 auto;
+    width: min(340px, 85vw);
+    z-index: 42; transform: translateX(110%);
+    transition: transform var(--dur-base) var(--ease);
+  }
+  .ws-shell.ws-pane-open .ws-pane { transform: translateX(0); width: min(340px, 85vw); }
+  .ws-shell.ws-pane-open.ws-pane-collapsed .ws-pane { border-left: var(--bw-hair) solid var(--bg-3); }
+  .ws-shell.ws-pane-open.ws-pane-collapsed .ws-pane > :not(.ws-pane-toggle) { display: revert; }
+  /* The desktop collapse chevron is meaningless in drawer mode. */
+  .ws-pane-toggle { display: none; }
+  .ws-pane-drawer-toggle { display: inline-flex; }
+  /* Scrim is always present from this stage down so it FADES with the drawer
+     instead of hard-appearing; pointer-events gate keeps it inert while closed. */
+  .ws-scrim { display: block; opacity: 0; pointer-events: none; position: fixed; inset: 0; z-index: 41; background: color-mix(in srgb, var(--fg) 38%, transparent); transition: opacity var(--dur-base) var(--ease); }
+  .ws-shell.ws-sessions-open .ws-scrim, .ws-shell.ws-pane-open .ws-scrim { opacity: 1; pointer-events: auto; }
+}
+
+/* Stage 2 (<=1100px): drop the sessions TRACK; the conversation list becomes a
+   left overlay drawer. */
+@media (max-width: 1100px) {
+  .ws-shell,
+  .ws-shell.ws-no-pane,
+  .ws-shell.ws-pane-collapsed,
+  .ws-shell.ws-no-sessions,
+  .ws-shell.ws-no-pane.ws-no-sessions,
+  .ws-shell.ws-no-pane.ws-pane-collapsed:not(.ws-no-sessions),
+  .ws-shell.ws-no-pane.ws-pane-collapsed.ws-no-sessions {
+    grid-template-columns: var(--ws-rail-w) minmax(0, 1fr);
+    grid-template-areas: "rail content";
+  }
+  .ws-sessions {
+    position: fixed; inset: 0 auto 0 0;
+    width: min(var(--ws-sessions-w), 80vw);
+    z-index: 42; transform: translateX(-110%);
+    transition: transform var(--dur-base) var(--ease);
+    border-right: var(--bw-hair) solid var(--bg-3);
+  }
+  .ws-shell.ws-sessions-open .ws-sessions { transform: translateX(0); }
+  .ws-sessions-drawer-toggle { display: inline-flex; }
+}
+
+/* Stage 3 (<=900px): single content column; the rail drops to a fixed icon-only
+   strip. Labels hide UNCONDITIONALLY here - a 60px rail showing clipped label
+   text ('age', 'Ne') is the worst of both worlds. */
 @media (max-width: 900px) {
   .ws-shell,
   .ws-shell.ws-no-sessions,
   .ws-shell.ws-no-pane,
-  .ws-shell.ws-no-pane.ws-no-sessions {
-    grid-template-columns: 1fr;
+  .ws-shell.ws-pane-collapsed,
+  .ws-shell.ws-no-pane.ws-no-sessions,
+  .ws-shell.ws-no-pane.ws-pane-collapsed:not(.ws-no-sessions),
+  .ws-shell.ws-no-pane.ws-pane-collapsed.ws-no-sessions {
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas: "content";
   }
   .ws-rail { position: fixed; inset: 0 auto 0 0; width: var(--ws-rail-w-collapsed); z-index: 40; }
-  .ws-sessions { position: fixed; inset: 0 auto 0 var(--ws-rail-w-collapsed); width: min(var(--ws-sessions-w), 80vw); z-index: 42; transform: translateX(-110%); transition: transform var(--dur-base) var(--ease); }
-  .ws-shell.ws-sessions-open .ws-sessions { transform: translateX(0); }
-  /* On mobile the pane is a drawer driven by .ws-pane-open (an explicit open
-     intent), NOT by :not(.ws-pane-collapsed) - the desktop collapse default is
-     "open" which would otherwise pop the pane over the thread on every load. */
-  .ws-pane { position: fixed; inset: 0 0 0 auto; width: min(var(--ws-pane-w), 85vw); z-index: 42; transform: translateX(110%); transition: transform var(--dur-base) var(--ease); }
-  .ws-shell.ws-pane-open .ws-pane { transform: translateX(0); }
+  .ws-rail .ws-rail-brand,
+  .ws-rail .ws-rail-action-label,
+  .ws-rail .ws-rail-item-label,
+  .ws-rail .ws-rail-item-count,
+  .ws-rail .ds-theme-toggle-label { display: none; }
+  .ws-rail .ws-rail-item, .ws-rail .ws-rail-action { justify-content: center; gap: 0; }
+  .ws-rail .ws-rail-head { justify-content: center; }
+  /* Expand/collapse is meaningless on the icon strip. */
+  .ws-rail-toggle { display: none; }
+  .ws-rail-foot { display: flex; justify-content: center; }
+  .ws-sessions { inset: 0 auto 0 var(--ws-rail-w-collapsed); }
   .ws-content { grid-area: content; padding-left: var(--ws-rail-w-collapsed); }
-  .ws-rail-collapsed .ws-rail-item-label, .ws-rail-collapsed .ws-rail-brand { display: none; }
-  /* Tap-scrim behind an open drawer; dismiss on click. Hidden unless a drawer
-     is open so it never blocks the content area on desktop. */
-  /* Scrim is always present on mobile so it can FADE with the drawer instead of
-     hard-appearing via a display toggle; pointer-events gate keeps it inert
-     while closed. Reduced-motion users get the global transition kill -> instant. */
-  .ws-scrim { display: block; opacity: 0; pointer-events: none; position: fixed; inset: 0; z-index: 41; background: color-mix(in srgb, var(--fg) 38%, transparent); transition: opacity var(--dur-base) var(--ease); }
-  .ws-shell.ws-sessions-open .ws-scrim, .ws-shell.ws-pane-open .ws-scrim { opacity: 1; pointer-events: auto; }
-  /* The mobile drawer-toggle affordances live in the crumb bar. */
-  .ws-drawer-toggle { display: inline-flex; }
   /* The Crumb's narrow collapse elsewhere keys on the .app @container, which
      does not exist inside WorkspaceShell - mirror it here so the crumb bar
      cannot overflow a narrow viewport (trail hides, leaf ellipsizes, the
@@ -3099,11 +3252,8 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   .ws-crumb .app-crumb .leaf { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   .ws-crumb .app-crumb .crumb-right { margin-left: 0; flex-wrap: wrap; min-width: 0; display: inline-flex; }
 }
-/* Drawer toggles are mobile-only chrome; hidden on the desktop grid. */
-.ws-drawer-toggle { display: none; align-items: center; justify-content: center; width: 40px; height: 40px; border: none; background: none; color: var(--fg-2); cursor: pointer; border-radius: var(--r-1); }
 .ws-drawer-toggle:hover { background: var(--bg-2); color: var(--fg); }
 .ws-drawer-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.ws-scrim { display: none; }
 
 /* ============================================================
    Row title highlight, expanded-row actions, filter pills.

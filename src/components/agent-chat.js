@@ -14,6 +14,7 @@ import * as webjsx from '../../vendor/webjsx/index.js';
 import { ChatComposer, ChatMessage, makeThreadAutoScroll } from './chat.js';
 import { Select } from './content.js';
 import { Btn, Icon } from './shell.js';
+import { initializeCachesEagerly } from '../markdown-cache.js';
 
 const h = webjsx.createElement;
 
@@ -119,7 +120,7 @@ function CwdBar({ cwd, editing, draft, onEdit, onSave, onCancel, onClear, onDraf
         'aria-describedby': hint ? 'agentchat-cwd-hint' : null,
         'aria-invalid': error ? 'true' : null,
         oninput: (e) => onDraft && onDraft(e.target.value) }),
-      Btn({ key: 'save', primary: true, disabled: !!(error || checking), onClick: () => onSave && onSave(), children: 'save' }),
+      Btn({ key: 'save', variant: 'primary', disabled: !!(error || checking), onClick: () => onSave && onSave(), children: 'save' }),
       Btn({ key: 'cancel', onClick: () => onCancel && onCancel(), children: 'cancel' }),
       hint ? h('span', { key: 'hint', id: 'agentchat-cwd-hint', role: 'status', 'aria-live': 'polite',
         class: 'agentchat-cwd-hint' + (error ? ' is-error' : ' is-checking') }, hint) : null);
@@ -157,6 +158,11 @@ export function AgentChat(props = {}) {
     onPasteFiles, onDropFiles,
     shownMessages, onShowEarlier,
   } = props;
+
+  // Warm the markdown/Prism stack the moment the surface mounts so the CDN
+  // round-trip never starts mid-first-response. Self-idempotent (internal
+  // _initPromise), so the per-render call is free after the first.
+  initializeCachesEagerly().catch((err) => console.warn('[247420] cache init error:', err));
 
   const name = agentName || (agents.find((a) => a.id === selectedAgent)?.name) || selectedAgent || 'agent';
   const lastIdx = messages.length - 1;
@@ -251,7 +257,7 @@ export function AgentChat(props = {}) {
     }
     return ChatMessage({
       key: m.id || String(i),
-      who: isAssistant ? 'them' : 'you',
+      role: isAssistant ? 'assistant' : 'user',
       // Claude-Code-web layout: flat full-width turns (no avatar disc, no colored
       // bubble), distinguished by a role label + a faint assistant background.
       // aicat is left OFF so the mascot tint never reaches the agent surface.

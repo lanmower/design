@@ -35,9 +35,21 @@
 
   /* Signals */
   --sun:         #F5C344;
-  --flame:       #FF5A1F;
+  /* Error/status tones are theme-tuned: the root values are the LIGHT (paper)
+     pair (flame 4.74:1, amber 4.5+:1 on paper); the dark blocks below restore
+     the originals (#FF5A1F / #D9A93A) which were tuned on ink and fail on
+     paper (2.9:1 / 2.0:1). */
+  --flame:       #C53E00;
+  --amber:       #8A6512;
   --sky:         #3A6EFF;
   --warn:        #E0241A;
+  /* Syntax-token aliases: light values pass 4.5:1 on paper; the dark blocks
+     restore the bright dark-tuned originals. Components reference ONLY these. */
+  --code-string:  var(--green);
+  --code-keyword: #2453C9;
+  --code-fn:      #B84300;
+  --code-str-alt: var(--mascot-deep);
+  --code-num:     #946300;
   --danger:      oklch(0.55 0.18 25);
   --success:     var(--green-2);
   --live:        var(--green);
@@ -246,6 +258,13 @@ select:focus-visible {
   --accent-fg: var(--ink);
   --accent-bright: var(--green-2);
   --danger:    oklch(0.68 0.19 25);
+  --flame:     #FF5A1F;
+  --amber:     #D9A93A;
+  --code-string:  var(--green-2);
+  --code-keyword: var(--sky);
+  --code-fn:      var(--flame);
+  --code-str-alt: var(--mascot);
+  --code-num:     var(--sun);
 }
 
 /* NOTE: the [data-theme="auto"] block below intentionally duplicates the
@@ -272,6 +291,13 @@ select:focus-visible {
     --accent:    var(--accent-bright, var(--green-2));
     --accent-fg: var(--ink);
     --accent-bright: var(--green-2);
+    --flame:     #FF5A1F;
+    --amber:     #D9A93A;
+    --code-string:  var(--green-2);
+    --code-keyword: var(--sky);
+    --code-fn:      var(--flame);
+    --code-str-alt: var(--mascot);
+    --code-num:     var(--sun);
   }
 }
 
@@ -310,6 +336,11 @@ select:focus-visible {
   --cat-sun: inherit;
   --cat-flame: inherit;
   --cat-sky: inherit;
+  --code-string: inherit;
+  --code-keyword: inherit;
+  --code-fn: inherit;
+  --code-str-alt: inherit;
+  --code-num: inherit;
 }
 
 /* ============================================================
@@ -326,6 +357,8 @@ select:focus-visible {
   --bg: var(--paper); --bg-2: var(--paper-2); --bg-3: var(--paper-3);
   --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
   --accent: var(--green); --accent-fg: var(--paper);
+  /* A paper island under a dark ancestor must not inherit the dark signal pair. */
+  --flame: #C53E00; --amber: #8A6512;
 }
 
 /* thebird — warm-paper brand preset. A first-class swappable theme: it lives

@@ -11,6 +11,8 @@ import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
 import { lintTokensOrThrow } from './lint-tokens.mjs';
 import { lintGlyphsOrThrow } from './lint-glyphs.mjs';
+import { lintNullChildrenOrThrow } from './lint-null-children.mjs';
+import { lintClassesOrThrow } from './lint-classes.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -26,6 +28,17 @@ lintTokensOrThrow();
 // glyph (the machine-shaped tell the design system bans). Same unconditional
 // placement so the regression guard holds under any runner.
 lintGlyphsOrThrow();
+
+// Null-children gate: webjsx applyDiff crashes (reading 'key') on a bare null
+// among VElement siblings - every conditional-children array must be
+// .filter(Boolean)'d. Two live crashes are on record; this lint makes the
+// discipline durable instead of comment-maintained.
+lintNullChildrenOrThrow();
+
+// Class-prefix gate: components emit only family-prefixed (or frozen-legacy)
+// class tokens, so kit internals never collide with consumer CSS inside the
+// .ds-247420 mount scope.
+lintClassesOrThrow();
 
 const SCOPE = '.ds-247420';
 

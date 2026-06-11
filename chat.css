@@ -20,6 +20,13 @@
 .agentchat-controls .select,
 .agentchat-controls [role="combobox"] { min-width: 130px; max-width: 240px; }
 .agentchat-controls .ds-select { min-width: 130px; max-width: 240px; }
+/* One shared control metric for the most-seen chrome row (mirrors the
+   .ds-dash-toolbar precedent): selects, buttons, export acts all 32px / r-1. */
+.agentchat-controls .ds-select { min-height: 32px; padding: 4px 28px 4px 10px; font-size: var(--fs-sm); border-radius: var(--r-1); }
+.agentchat-controls .btn, .agentchat-controls .btn-primary { padding: 5px 12px; min-height: 32px; border-radius: var(--r-1); font-weight: 500; }
+@media (pointer: coarse) {
+  .agentchat-controls .ds-select, .agentchat-controls .btn, .agentchat-controls .btn-primary { min-height: 44px; }
+}
 
 /* Narrow viewports: let the agent/model selects share the row two-up, then
    stack full-width on the smallest screens, and drop the status to its own
@@ -42,7 +49,7 @@
   gap: .4em;
   white-space: nowrap;
   margin-left: auto;
-  font-size: .85em;
+  font-size: var(--fs-tiny);
   color: var(--fg-3);
 }
 /* status disc — a CSS-drawn dot, not a glyph; pulses while streaming */
@@ -68,7 +75,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-2, 8px);
-  font-size: .85em;
+  font-size: var(--fs-tiny);
   color: var(--fg-3);
   flex-wrap: wrap;
 }
@@ -109,7 +116,7 @@
   gap: .5em;
 }
 .agentchat-title { font-size: 1em; margin: 0; }
-.agentchat-sub { font-size: .85em; color: var(--fg-3); }
+.agentchat-sub { font-size: var(--fs-tiny); color: var(--fg-3); }
 /* Thread wrapper hosts the absolutely-positioned jump-to-latest button. */
 .agentchat-thread-wrap { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .agentchat-thread {
@@ -125,7 +132,7 @@
 .agentchat-jump {
   position: absolute; right: 16px; bottom: 12px; z-index: 3;
   display: none; align-items: center; gap: .35em;
-  padding: .4em .8em; font: inherit; font-size: .8em; cursor: pointer;
+  padding: .4em .8em; font: inherit; font-size: var(--fs-tiny); cursor: pointer;
   border-radius: 999px; border: var(--bw-hair) solid var(--rule);
   background: var(--bg-2); color: var(--fg-2, var(--fg));
   box-shadow: 0 2px 8px color-mix(in srgb, var(--fg) 14%, transparent);
@@ -169,7 +176,7 @@
   max-width: 46ch;
 }
 .agentchat-empty-title { margin: 0; font-size: 1.05em; color: var(--fg-2, var(--fg)); }
-.agentchat-empty-sub { margin: 0; font-size: .9em; }
+.agentchat-empty-sub { margin: 0; font-size: var(--fs-sm); }
 .agentchat-empty-suggestions {
   display: flex;
   flex-wrap: wrap;
@@ -180,7 +187,7 @@
 .agentchat-empty-suggestion {
   cursor: pointer;
   font: inherit;
-  font-size: .85em;
+  font-size: var(--fs-tiny);
   padding: .4em .8em;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--fg) 16%, transparent);
@@ -200,7 +207,7 @@
   text-align: left;
   width: 100%;
 }
-.agentchat-install-text { margin: 0; font-size: .9em; color: var(--fg-3); }
+.agentchat-install-text { margin: 0; font-size: var(--fs-sm); color: var(--fg-3); }
 .agentchat-install-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-1, 4px); }
 .agentchat-install-row {
   display: flex; align-items: center; gap: var(--space-2, 8px);
@@ -241,7 +248,7 @@
   gap: .5em;
   padding: .3em .2em;
   color: var(--fg-3);
-  font-size: .85em;
+  font-size: var(--fs-tiny);
 }
 .agentchat-working-text { color: var(--fg-3); }
 /* Self-contained dots (chat-thinking-dots lives in a kit sheet not bundled
@@ -304,28 +311,40 @@
    ConversationList — left-rail "Chats" column.
 ---------------------------------------------------------------------------- */
 .ds-sessions { display: flex; flex-direction: column; min-height: 0; height: 100%; }
-.ds-session-head { flex: 0 0 auto; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border-bottom: var(--bw-hair) solid var(--bg-3); }
+/* One row: quiet icon new-chat beside the search. The list's new-chat must not
+   repeat the rail's primary CTA - two identical green buttons on screen at
+   once read as a layout mistake, and the rail action already owns 'new'. */
+.ds-session-head { flex: 0 0 auto; display: flex; flex-direction: row; align-items: center; gap: var(--space-2); padding: var(--space-3); border-bottom: var(--bw-hair) solid var(--bg-3); }
 .ds-session-new {
-  display: flex; align-items: center; gap: var(--space-2); justify-content: center;
-  padding: var(--space-2) var(--space-3); min-height: 44px;
-  background: var(--accent); color: var(--accent-fg, var(--bg)); border: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0;
+  flex: 0 0 auto; order: 2;
+  width: 36px; min-height: 36px; padding: 0;
+  background: transparent; color: var(--fg-2);
+  border: var(--bw-hair) solid var(--rule);
   border-radius: var(--r-1); cursor: pointer; font-family: var(--ff-body);
-  font-size: var(--fs-sm); font-weight: 600;
+  font-size: var(--fs-sm); font-weight: 500;
 }
-.ds-session-new:hover { filter: brightness(1.08); }
+.ds-session-new > span { display: none; }
+.ds-session-new:hover { background: var(--bg-2); color: var(--fg); }
+.ds-session-search { order: 1; flex: 1 1 auto; min-width: 0; }
 .ds-session-new:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .ds-session-search {
-  width: 100%; padding: var(--space-2) var(--space-3); min-height: 44px;
+  width: 100%; padding: var(--space-1) var(--space-3); min-height: 36px;
   background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); color: var(--fg);
   border-radius: var(--r-1); font-family: var(--ff-body); font-size: var(--fs-sm);
 }
-.ds-session-search:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-session-search:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+/* Touch floor (must FOLLOW the base rules - same specificity, order decides). */
+@media (pointer: coarse) {
+  .ds-session-new { width: 44px; min-height: 44px; }
+  .ds-session-search { min-height: 44px; }
+}
 .ds-session-list, .ds-session-groups { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-2); }
 /* Grouped rows (Today/Yesterday/...) lay out like the flat list; the section
    label sticks to the top of the scroll area for Claude-Desktop-style headers. */
 .ds-session-group { display: flex; flex-direction: column; }
 .ds-session-group-rows { display: flex; flex-direction: column; gap: 2px; }
-.ds-session-group-label { position: sticky; top: 0; z-index: 1; background: var(--bg-1, var(--bg)); font-size: var(--fs-tiny); color: var(--fg-3); text-transform: uppercase; letter-spacing: .04em; padding: var(--space-2) var(--space-2) var(--space-1); }
+.ds-session-group-label { position: sticky; top: 0; z-index: 1; background: var(--bg-1, var(--bg)); font-size: var(--fs-tiny); font-weight: 600; color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-caps); padding: var(--space-2) var(--space-2) var(--space-1); }
 .ds-session-row {
   position: relative; display: flex; align-items: center; gap: var(--space-2);
   width: 100%; padding: var(--space-2); min-height: 52px; margin-bottom: 2px;
@@ -356,9 +375,22 @@
    SessionDashboard — grid of live-session cards.
 ---------------------------------------------------------------------------- */
 .ds-dash { display: flex; flex-direction: column; min-height: 0; }
-.ds-dash-header { flex: 0 0 auto; display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4) 0; }
+.ds-dash-header { flex: 0 0 auto; display: flex; align-items: center; gap: var(--space-3); row-gap: var(--space-2); flex-wrap: wrap; padding: var(--space-3) var(--space-4) 0; }
 .ds-dash-count { font-size: var(--fs-sm); color: var(--fg-2); font-weight: 600; }
-.ds-dash-header .btn, .ds-dash-header .btn-primary { margin-left: auto; }
+/* Stop is a quiet destructive control in chrome, not a page-level red CTA;
+   it only goes loud while ARMED (the one-shot press-again confirm). */
+.ds-dash-header .btn, .ds-dash-header .btn-primary {
+  margin-left: 0;
+  padding: 5px 12px; min-height: 32px; border-radius: var(--r-1); font-weight: 500;
+}
+.ds-dash-header .btn-primary.danger {
+  background: transparent; color: var(--warn);
+  border: var(--bw-hair) solid var(--warn);
+}
+.ds-dash-header .btn-primary.danger:hover {
+  background: color-mix(in oklab, var(--warn) 12%, transparent); color: var(--warn);
+}
+.ds-dash-header .btn-primary.danger.is-armed { background: var(--warn); color: var(--paper); border-color: var(--warn); }
 .ds-dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-3); padding: var(--space-4); }
 .ds-dash-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-2); }
 .ds-dash-card.is-error { border-color: var(--flame); }
@@ -385,7 +417,6 @@
 ---------------------------------------------------------------------------- */
 .ds-context { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-3); }
 .ds-context .panel { background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-2); }
-.ds-context .row { font-size: var(--fs-sm); }
 .ds-context .row .meta { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-2); }
 .ds-context .row .sub { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-context-actions { display: flex; gap: var(--space-2); }
@@ -438,7 +469,18 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 .ds-dash-status.is-running { color: var(--accent); }
 
 /* --- C2: dashboard sort/filter toolbar + stream-state line. --- */
+/* The toolbar is part of the ONE header row (count | heartbeat ... filter,
+   sort, errors-only, stop): compact controls that align on a shared 32px
+   height, never a stacked full-width form column. */
 .ds-dash-toolbar { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.ds-dash-toolbar .ds-search-input {
+  width: 200px; min-height: 32px; padding: 5px 10px;
+  font-size: var(--fs-sm); border-radius: var(--r-1);
+}
+.ds-dash-toolbar .ds-select, .ds-dash-toolbar select {
+  min-height: 32px; padding: 4px 10px; font-size: var(--fs-sm);
+  width: auto; border-radius: var(--r-1);
+}
 .ds-dash-stream { font-size: var(--fs-tiny); color: var(--fg-3); }
 .ds-dash-stream.is-lost { color: var(--flame); }
 .ds-dash-stream.is-connecting { color: var(--amber, #d9a93a); }
@@ -649,7 +691,7 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 .chat-msg-flat.you { background: none; }
 .chat-msg-flat .chat-stack { max-width: var(--measure); width: 100%; margin: 0; align-items: stretch; }
 .chat-msg-flat.you .chat-stack { align-items: stretch; }
-.chat-role { font-size: var(--fs-tiny); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--fg-3); margin-bottom: var(--space-1); }
+.chat-role { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); margin-bottom: var(--space-1); }
 .chat-msg-flat.you .chat-role { color: var(--accent); }
 .chat-msg-flat .chat-bubble { background: none; border: none; border-radius: 0; padding: 0; max-width: 100%; box-shadow: none; transform: none; }
 .chat-msg-flat.you .chat-bubble { background: none; color: inherit; }
@@ -690,7 +732,7 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 .chat-msg .chat-tool.tool-error .chat-tool-status { color: var(--flame); background: color-mix(in oklab, var(--flame) 12%, transparent); }
 .chat-tool-body { border-top: var(--bw-hair) solid var(--rule); padding: var(--space-2) var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
 .chat-tool-section { display: flex; flex-direction: column; gap: var(--space-1); }
-.chat-tool-section-label { font-size: var(--fs-micro); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--fg-3); }
+.chat-tool-section-label { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); }
 .chat-tool-pre { margin: 0; padding: var(--space-2); background: var(--bg-2); border-radius: var(--r-1); font-family: var(--ff-mono); font-size: var(--fs-tiny); line-height: 1.45; overflow-x: auto; max-height: 320px; overflow-y: auto; }
 .chat-tool-pre.is-error { color: var(--flame); }
 .chat-tool-pre.chat-tool-empty { color: var(--fg-3); }
@@ -729,7 +771,7 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 
 /* Live command-center: status-bucket groups + header breakdown + heartbeat. */
 .ds-dash-group { display: flex; flex-direction: column; gap: var(--space-2); }
-.ds-dash-group-label { font-size: var(--fs-micro); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--fg-3); padding: 0 var(--space-1); }
+.ds-dash-group-label { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); padding: 0 var(--space-1); }
 .ds-dash-breakdown { display: flex; align-items: center; gap: var(--space-1); font-size: var(--fs-sm); color: var(--fg-2); }
 .ds-dash-breakdown .seg.is-running { color: var(--green); font-weight: 600; }
 .ds-dash-breakdown .seg.is-error { color: var(--flame); font-weight: 600; }
@@ -755,9 +797,9 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 .ds-preview-code .token.comment, .ds-preview-code .token.prolog, .ds-preview-code .token.doctype, .ds-preview-code .token.cdata { color: var(--fg-3); }
 .ds-preview-code .token.punctuation { color: var(--fg-2); }
 .ds-preview-code .token.property, .ds-preview-code .token.tag, .ds-preview-code .token.boolean, .ds-preview-code .token.number, .ds-preview-code .token.constant, .ds-preview-code .token.symbol { color: var(--purple-2, #7F18A4); }
-.ds-preview-code .token.selector, .ds-preview-code .token.attr-name, .ds-preview-code .token.string, .ds-preview-code .token.char, .ds-preview-code .token.builtin { color: var(--green-2, #3A9A34); }
-.ds-preview-code .token.atrule, .ds-preview-code .token.attr-value, .ds-preview-code .token.keyword { color: var(--sky, #3A6EFF); }
-.ds-preview-code .token.function, .ds-preview-code .token.class-name { color: var(--flame); }
+.ds-preview-code .token.selector, .ds-preview-code .token.attr-name, .ds-preview-code .token.string, .ds-preview-code .token.char, .ds-preview-code .token.builtin { color: var(--code-string, var(--green)); }
+.ds-preview-code .token.atrule, .ds-preview-code .token.attr-value, .ds-preview-code .token.keyword { color: var(--code-keyword, var(--sky)); }
+.ds-preview-code .token.function, .ds-preview-code .token.class-name { color: var(--code-fn, var(--flame)); }
 .ds-preview-code.has-gutter { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 var(--space-2); }
 .ds-preview-code.has-gutter code { display: block; min-width: 0; overflow-x: auto; }
 .ds-preview-gutter { user-select: none; text-align: right; padding: 0 var(--space-2) 0 0; color: var(--fg-3); border-right: var(--bw-hair) solid var(--rule); font-family: var(--ff-mono); white-space: pre; line-height: inherit; }
@@ -769,3 +811,34 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
   background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0;
 }
 .ds-preview-media.is-actual { max-width: none; max-height: none; }
+
+/* ----------------------------------------------------------------------------
+   Compact-button tiers — ONE spec for the small quiet rect buttons that eight
+   surfaces used to clone with drifting metrics/tones. chat.css loads after
+   app-shell.css in the bundle, so these same-specificity rules win by order.
+   Tier A (toolbar-grade, 32px) matches .ds-file-toolbar .btn, the reference;
+   tier B (inline-row-grade, 24px) for actions inside dense row strips.
+   Hover/focus/active-state rules on the originals still apply.
+---------------------------------------------------------------------------- */
+.row-act, .ds-dash-errors-toggle, .agentchat-export-act, .ds-file-more-btn {
+  min-height: 32px; padding: 5px 12px; border-radius: var(--r-1);
+  font-family: var(--ff-body); font-size: var(--fs-tiny); font-weight: 500;
+  background: transparent; border: var(--bw-hair) solid var(--rule); color: var(--fg-2);
+  cursor: pointer;
+}
+.row-act:hover, .ds-dash-errors-toggle:hover, .agentchat-export-act:hover, .ds-file-more-btn:hover {
+  background: var(--bg-2); color: var(--fg);
+}
+.agentchat-install-copy, .ds-upload-act, .ds-session-meta-copy {
+  min-height: 24px; padding: 2px 8px; border-radius: var(--r-1);
+  font-family: var(--ff-body); font-size: var(--fs-tiny);
+  background: transparent; border: var(--bw-hair) solid var(--rule); color: var(--fg-3);
+  cursor: pointer;
+}
+.agentchat-install-copy:hover, .ds-upload-act:hover, .ds-session-meta-copy:hover {
+  background: var(--bg-2); color: var(--fg);
+}
+@media (pointer: coarse) {
+  .row-act, .ds-dash-errors-toggle, .agentchat-export-act, .ds-file-more-btn,
+  .agentchat-install-copy, .ds-upload-act, .ds-session-meta-copy { min-height: 44px; }
+}

@@ -1,7 +1,7 @@
 {
   "name": "anentrypoint-design",
   "version": "0.0.208",
-  "description": "247420 design system SDK — webjsx + modified ripple-ui, single-file ESM bundle for reproducible use of the AnEntrypoint design.",
+  "description": "247420 design system SDK \u2014 webjsx + modified ripple-ui, single-file ESM bundle for reproducible use of the AnEntrypoint design.",
   "type": "module",
   "main": "./dist/247420.js",
   "module": "./dist/247420.js",
@@ -67,7 +67,9 @@
   ],
   "scripts": {
     "lint:tokens": "node scripts/lint-tokens.mjs",
-    "build": "node scripts/build.mjs"
+    "build": "node scripts/build.mjs",
+    "lint:null-children": "node scripts/lint-null-children.mjs",
+    "lint:classes": "node scripts/lint-classes.mjs"
   },
   "repository": {
     "type": "git",
