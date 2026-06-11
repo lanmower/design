@@ -27,10 +27,10 @@ const EXEMPT_FILES = new Set([
 ]);
 
 // The banned decorative-glyph class. NOT included (intentionally allowed):
-//   ⌘ (Mac Command key — industry-standard key symbol)
+//   ⌘ ⇧ ⌥ ⌃ ⇪ ⏎ ⌫ (Mac/keyboard key symbols — industry-standard, not decorative)
 //   · (middle-dot separator), — (em-dash), … (ellipsis), › ‹ » « (text seps left to authors)
 //   functional JS operators (=>, ??, ?., >=, <=) — those are ASCII, never matched here
-const GLYPH_RE = /[●○◆◉◈▸▾▴◀▶★☆✓✗✕✖✔⟶⇒•◦‣◔↓↑→←⏸⏭ℹ⚠⚒◈▷▭▰◎◐▢↗◌▤▦♪§◫⊞❖✷✢]/;
+const GLYPH_RE = /[●○◆◉◈▸▾▴◀▶★☆✓✗✕✖✔⟶⇒•◦‣◔↓↑→←⏸⏭ℹ⚠⚒◈▷▭▰◎◐▢↗◌▤▦♪§◫⊞❖✷✢⟳↻↺⥁⟲⌛⏳♻]/;
 
 // Per-file allowlist: a line is exempt if it contains the substring AND the
 // file matches. Keep tiny and audited.

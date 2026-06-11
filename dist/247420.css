@@ -2475,6 +2475,12 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+/* Reusable spin utility: rotates the element (e.g. a refresh Icon used as a
+   busy indicator) via the shared spinner-rotate keyframe. Respects reduced
+   motion. Use instead of a decorative rotation glyph. */
+.ds-247420 .ds-spin { animation: spinner-rotate 0.8s linear infinite; transform-origin: center; }
+@media (prefers-reduced-motion: reduce) { .ds-247420 .ds-spin { animation: none; } }
+
 .ds-247420 .loading { position: relative; }
 .ds-247420 .loading::after {
   content: '';

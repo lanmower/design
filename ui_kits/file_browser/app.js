@@ -1,6 +1,6 @@
 import * as webjsx from 'webjsx';
 import {
-    Topbar, Crumb, AppShell, Status, Btn,
+    Topbar, Crumb, AppShell, Status, Btn, Icon,
     FileGrid, FileToolbar, DropZone, UploadProgress, BreadcrumbPath,
     ConfirmDialog, PromptDialog, FileViewer,
     FilePreviewMedia, FilePreviewCode, FilePreviewText
@@ -148,7 +148,7 @@ function App() {
         }),
         FileToolbar({
             left: [
-                Btn({ onClick: pickFiles, children: '⇪ upload' }),
+                Btn({ onClick: pickFiles, 'aria-label': 'upload', children: [Icon('upload'), ' upload'] }),
                 Btn({ onClick: () => {
                     state.prompt = {
                         title: 'new folder',

@@ -1,5 +1,5 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status, AppShell, Panel, Heading, Lede, Chip } from 'ds/components.js';
+import { Topbar, Crumb, Status, AppShell, Panel, Heading, Lede, Chip, Icon } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
 
@@ -32,7 +32,7 @@ function Provider({ glyph, label, provider }) {
         },
         disabled: isLoading
     },
-        h('span', { style: 'font-family:var(--ff-mono);color:var(--panel-text-3)' }, isLoading ? '⟳' : glyph),
+        h('span', { class: isLoading ? 'ds-spin' : null, style: 'font-family:var(--ff-mono);color:var(--panel-text-3);display:inline-flex' }, isLoading ? Icon('refresh') : glyph),
         h('span', {}, isLoading ? 'redirecting…' : label)
     );
 }

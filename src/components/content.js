@@ -107,8 +107,8 @@ export function RowLink({ code, title, sub, meta, href = '#', key, target }) {
     return Row({ code, title, sub, meta, href, kind: 'link', key, target });
 }
 
-export function Section({ title, eyebrow, children }) {
-    return h('section', { class: 'ds-section' },
+export function Section({ title, eyebrow, children, id }) {
+    return h('section', { class: 'ds-section', id: id || null },
         eyebrow ? h('span', { class: 'eyebrow' }, eyebrow) : null,
         title ? h('h3', {}, title) : null,
         ...(Array.isArray(children) ? children : [children])
