@@ -36,7 +36,7 @@ export { ContextPane } from './components/context-pane.js';
 export {
     fileGlyph, fmtFileSize,
     FileIcon, FileRow, FileGrid, FileSkeleton, sortFiles, FileToolbar, RootsPicker,
-    DropZone, UploadProgress, EmptyState, BreadcrumbPath
+    DropZone, UploadProgress, EmptyState, BreadcrumbPath, BulkBar
 } from './components/files.js';
 
 export {

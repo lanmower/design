@@ -51,7 +51,7 @@ export function FileIcon({ type = 'other' } = {}) {
 const FILE_ROW_ACTIONS = ['download', 'rename', 'delete'];
 
 export function FileRow({ name, type = 'other', size, modified, code, onOpen, onAction, active, key, permissions, locked,
-                          actions = FILE_ROW_ACTIONS, busy = false } = {}) {
+                          actions = FILE_ROW_ACTIONS, busy = false, selectable = false, marked = false, onMark } = {}) {
     // permissions: ['read','write'] | ['read'] | 'EACCES'. A no-access entry can
     // be listed (the dir stat saw it) but not opened — show an ASCII tag and
     // disable the open button so the row reads honestly instead of silently
@@ -85,17 +85,27 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
         actions.indexOf('delete') !== -1
             ? actBtn('delete', 'delete', `delete ${name}`, 'x', true) : null,
     ].filter(Boolean) : [];
+    // Multi-select checkbox — a sibling control before the open button so the
+    // row stays valid HTML (no interactive nesting). A no-access entry cannot
+    // be marked (bulk mutations would fail on it anyway).
+    const checkCtl = selectable ? h('button', {
+        key: 'mark',
+        type: 'button',
+        class: 'ds-file-check' + (marked ? ' is-marked' : ''),
+        role: 'checkbox',
+        'aria-checked': marked ? 'true' : 'false',
+        'aria-label': (marked ? 'unselect ' : 'select ') + name,
+        disabled: (noAccess || busy) ? true : null,
+        onclick: onMark ? (e) => onMark({ range: !!e.shiftKey }) : null,
+    }, h('span', { 'aria-hidden': 'true' }, marked ? '[x]' : '[ ]')) : null;
     // A role=button row containing real <button> action controls is invalid
     // HTML (interactive nesting). Instead the row is a plain container and the
     // primary "open" affordance is itself a real <button> (native keyboard +
     // semantics); the per-file action buttons sit alongside it as siblings.
-    return h('div', {
-        key,
-        class: 'ds-file-row row' + (active ? ' active' : '') + (noAccess ? ' is-locked' : ''),
-        'data-file-type': type,
-        'aria-busy': busy ? 'true' : null,
-    },
+    const rowKids = [
+        checkCtl,
         h('button', {
+            key: 'open',
             type: 'button',
             class: 'ds-file-open',
             onclick: canOpen ? onOpen : null,
@@ -108,10 +118,17 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
             h('span', { class: 'title' }, name),
             h('span', { class: 'ds-file-meta meta', 'aria-label': meta ? `metadata: ${meta}` : null }, meta || '—')
         ),
-        actionBtns.length ? h('span', { class: 'ds-file-actions', role: 'group', 'aria-label': `actions for ${name}` },
+        actionBtns.length ? h('span', { key: 'acts', class: 'ds-file-actions', role: 'group', 'aria-label': `actions for ${name}` },
             ...actionBtns
-        ) : null
-    );
+        ) : null,
+    ].filter(Boolean);
+    return h('div', {
+        key,
+        class: 'ds-file-row row' + (active ? ' active' : '') + (noAccess ? ' is-locked' : '')
+            + (marked ? ' is-marked' : '') + (selectable ? ' is-selectable' : ''),
+        'data-file-type': type,
+        'aria-busy': busy ? 'true' : null,
+    }, ...rowKids);
 }
 
 // FileSkeleton — placeholder shimmer rows shown while a directory loads, so the
@@ -162,7 +179,9 @@ const FILE_GRID_CAP = 200;
 
 export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No files here yet',
                           columns = 'auto', sort, filter, loading = false,
-                          shown, onShowMore, actions, busy } = {}) {
+                          shown, onShowMore, actions, busy,
+                          selectable = false, marked, onMark, onSelectAll, onClearSelection,
+                          density = 'list', onDensity, thumbUrl } = {}) {
     if (loading) return FileSkeleton({});
     if (!files.length) return EmptyState({ text: emptyText });
     // Cap the rendered rows. `shown` (host-controlled) overrides the default cap
@@ -170,8 +189,9 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
     const limit = shown != null ? shown : FILE_GRID_CAP;
     const capped = files.length > limit;
     const visible = capped ? files.slice(0, limit) : files;
+    const isThumb = density === 'thumb';
     const gridAttrs = {};
-    if (columns !== 'auto' && columns > 0) {
+    if (!isThumb && columns !== 'auto' && columns > 0) {
         const col = Math.max(1, Math.min(4, Math.floor(columns)));
         gridAttrs['data-columns'] = String(col);
         gridAttrs.style = {
@@ -180,19 +200,59 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
             gap: 'var(--space-3)'
         };
     }
-    // Keyboard: roving focus over the .ds-file-open buttons inside the grid.
+    // Multi-select bookkeeping. Entries are keyed by path (fallback name); a
+    // locked/EACCES entry is never selectable — bulk mutations would fail on it.
+    const entryKeyOf = (f) => f.path || f.name;
+    const isLockedEntry = (f) => f.locked || f.permissions === 'EACCES'
+        || (Array.isArray(f.permissions) && f.permissions.length === 0);
+    const selSet = marked instanceof Set ? marked : new Set(marked || []);
+    const selectableKeys = selectable ? visible.filter((f) => !isLockedEntry(f)).map(entryKeyOf) : [];
+    // Keyboard: roving focus over the open buttons inside the grid (rows and
+    // thumbnail cells share the pattern). Ctrl/Cmd+A selects all SHOWN rows.
     const onKeyDown = (e) => {
         const grid = e.currentTarget;
-        const opens = Array.from(grid.querySelectorAll('.ds-file-open:not([disabled])'));
-        if (!opens.length) return;
+        const opens = Array.from(grid.querySelectorAll('.ds-file-open:not([disabled]), .ds-file-cell-open:not([disabled])'));
         const cur = opens.indexOf(document.activeElement);
         if (e.key === 'ArrowDown') { e.preventDefault(); opens[Math.min(opens.length - 1, cur + 1)]?.focus(); }
         else if (e.key === 'ArrowUp') { e.preventDefault(); (cur <= 0 ? opens[0] : opens[cur - 1])?.focus(); }
         else if (e.key === 'Home') { e.preventDefault(); opens[0]?.focus(); }
         else if (e.key === 'End') { e.preventDefault(); opens[opens.length - 1]?.focus(); }
         else if (e.key === 'Backspace') { e.preventDefault(); onUp && onUp(); }
+        else if ((e.key === 'a' || e.key === 'A') && (e.ctrlKey || e.metaKey)
+                 && selectable && onSelectAll && selectableKeys.length) {
+            e.preventDefault(); onSelectAll(selectableKeys);
+        }
     };
     const head = sort ? FileSortHeader(sort) : null;
+    // Tri-state select-all over the selectable SHOWN rows (the cap label below
+    // already tells the user more rows exist beyond the window).
+    const selOfVisible = selectableKeys.filter((k) => selSet.has(k)).length;
+    const allState = selOfVisible === 0 ? 'false' : (selOfVisible === selectableKeys.length ? 'true' : 'mixed');
+    const selectAllCtl = (selectable && onSelectAll && selectableKeys.length)
+        ? h('button', { key: 'selall', type: 'button', class: 'ds-file-selectall', role: 'checkbox',
+            'aria-checked': allState,
+            'aria-label': allState === 'true' ? 'clear selection' : 'select all ' + selectableKeys.length + ' shown files',
+            onclick: () => (allState === 'true' && onClearSelection) ? onClearSelection() : onSelectAll(selectableKeys) },
+            h('span', { 'aria-hidden': 'true' }, allState === 'true' ? '[x]' : allState === 'mixed' ? '[-]' : '[ ]'),
+            h('span', {}, 'all'))
+        : null;
+    // Density picker — list / compact / thumbnails. A radiogroup, not tabs:
+    // it switches presentation of the same content, not panels.
+    const densityCtl = onDensity
+        ? h('div', { key: 'density', class: 'ds-density', role: 'radiogroup', 'aria-label': 'view density' },
+            ...DENSITIES.map(([k, label]) => h('button', {
+                key: 'd-' + k, type: 'button', role: 'radio',
+                class: 'ds-density-btn' + (density === k ? ' active' : ''),
+                'aria-checked': density === k ? 'true' : 'false',
+                onclick: () => { if (density !== k) onDensity(k); },
+            }, label)))
+        : null;
+    const controlsKids = [selectAllCtl, head,
+        (selectAllCtl || head) && densityCtl ? h('span', { key: 'spread', class: 'spread' }) : null,
+        densityCtl].filter(Boolean);
+    const controls = controlsKids.length
+        ? h('div', { class: 'ds-file-controls' }, ...controlsKids)
+        : null;
     const filterBar = filter ? h('div', { class: 'ds-file-filter' },
         h('input', {
             class: 'ds-file-filter-input', type: 'search',
@@ -203,16 +263,32 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
     // role=group not listbox: the rows contain real <button> action controls, so
     // listbox/option semantics are invalid (an option can't host interactive
     // children). Keyboard nav still works via roving focus over the open buttons.
-    const grid = h('div', { class: 'ds-file-grid', role: 'group', 'aria-label': 'files', tabindex: '0', onkeydown: onKeyDown, ...gridAttrs },
-        ...visible.map((f, i) => FileRow({
-            key: f.path || f.name + i,
-            name: f.name, type: f.type, size: f.size, modified: f.modified, code: f.code, active: f.active,
-            permissions: f.permissions, locked: f.locked,
-            actions: actions != null ? actions : undefined,
-            busy: busy != null ? !!busy : !!f.busy,
-            onOpen: onOpen ? () => onOpen(f) : null,
-            onAction: onAction ? (act) => onAction(act, f) : null
-        }))
+    const grid = h('div', {
+        class: 'ds-file-grid' + (isThumb ? ' ds-file-grid-thumb' : ''),
+        role: 'group', 'aria-label': 'files', tabindex: '0',
+        // Always concrete (webjsx's attribute diff can leave a null-valued
+        // attribute unset when toggling away from the default).
+        'data-density': density || 'list',
+        onkeydown: onKeyDown, ...gridAttrs },
+        ...visible.map((f, i) => isThumb
+            ? FileCell({
+                key: f.path || f.name + i, f,
+                selectable, marked: selSet.has(entryKeyOf(f)),
+                onMark: onMark ? (opts) => onMark(f, opts) : null,
+                onOpen,
+                thumb: (thumbUrl && f.type === 'image') ? thumbUrl(f) : null,
+            })
+            : FileRow({
+                key: f.path || f.name + i,
+                name: f.name, type: f.type, size: f.size, modified: f.modified, code: f.code, active: f.active,
+                permissions: f.permissions, locked: f.locked,
+                actions: actions != null ? actions : undefined,
+                busy: busy != null ? !!busy : !!f.busy,
+                selectable, marked: selSet.has(entryKeyOf(f)),
+                onMark: onMark ? (opts) => onMark(f, opts) : null,
+                onOpen: onOpen ? () => onOpen(f) : null,
+                onAction: onAction ? (act) => onAction(act, f) : null
+            }))
     );
     // A count + "show more" affordance so a capped large dir reads as "more
     // exist", not "this is everything". aria-live announces the shown/total.
@@ -224,9 +300,68 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
                 onclick: () => onShowMore(Math.min(files.length, limit + FILE_GRID_CAP)) },
                 'show ' + Math.min(FILE_GRID_CAP, files.length - limit) + ' more') : null)
         : null;
-    return (head || filterBar || more)
-        ? h('div', { class: 'ds-file-listing' }, filterBar, head, grid, more)
+    return (controls || filterBar || more)
+        ? h('div', { class: 'ds-file-listing' }, filterBar, controls, grid, more)
         : grid;
+}
+
+const DENSITIES = [['list', 'list'], ['compact', 'compact'], ['thumb', 'thumbnails']];
+
+// FileCell — the thumbnail-density tile. Image entries show a real (lazy)
+// thumbnail through the host's confined thumbUrl; everything else keeps its
+// type icon. Same open/mark semantics as FileRow, same no-nesting rule.
+function FileCell({ key, f = {}, selectable = false, marked = false, onMark, onOpen, thumb } = {}) {
+    const noAccess = f.locked || f.permissions === 'EACCES'
+        || (Array.isArray(f.permissions) && f.permissions.length === 0);
+    const canOpen = onOpen && !noAccess;
+    const typeLabel = TYPE_LABELS[f.type] || 'file';
+    const kids = [
+        selectable ? h('button', {
+            key: 'mark', type: 'button',
+            class: 'ds-file-check ds-file-cell-check' + (marked ? ' is-marked' : ''),
+            role: 'checkbox', 'aria-checked': marked ? 'true' : 'false',
+            'aria-label': (marked ? 'unselect ' : 'select ') + f.name,
+            disabled: noAccess ? true : null,
+            onclick: onMark ? (e) => onMark({ range: !!e.shiftKey }) : null,
+        }, h('span', { 'aria-hidden': 'true' }, marked ? '[x]' : '[ ]')) : null,
+        h('button', {
+            key: 'open', type: 'button', class: 'ds-file-cell-open',
+            onclick: canOpen ? () => onOpen(f) : null,
+            disabled: canOpen ? null : true,
+            'aria-label': typeLabel + ': ' + f.name + (noAccess ? ' (no access)' : ''),
+        },
+            h('span', { class: 'ds-file-cell-media' },
+                thumb
+                    ? h('img', { class: 'ds-file-cell-thumb', src: thumb, alt: '', loading: 'lazy' })
+                    : FileIcon({ type: f.type })),
+            h('span', { class: 'ds-file-cell-name', title: f.name }, f.name),
+            h('span', { class: 'ds-file-cell-meta' }, f.type === 'dir' ? 'folder' : fmtFileSize(f.size))),
+    ].filter(Boolean);
+    return h('div', {
+        key,
+        class: 'ds-file-cell' + (marked ? ' is-marked' : '') + (f.active ? ' active' : '') + (noAccess ? ' is-locked' : ''),
+        'data-file-type': f.type,
+    }, ...kids);
+}
+
+// BulkBar — the act-on-selection strip shown while a multi-select is active.
+// Host renders it above the grid; `actions` are [{ label, onClick, danger,
+// disabled }]; `busy` disables everything while a bulk operation is in flight.
+export function BulkBar({ count = 0, noun = 'file', nounPlural, actions = [], onClear, busy = false } = {}) {
+    if (!count) return null;
+    // 'entry' pluralizes to 'entries', not 'entrys' - handle the -y noun class
+    // unless the host passes an explicit plural.
+    const plural = nounPlural || (/[^aeiou]y$/.test(noun) ? noun.slice(0, -1) + 'ies' : noun + 's');
+    const kids = [
+        h('span', { key: 'count', class: 'ds-bulkbar-count', role: 'status', 'aria-live': 'polite' },
+            count + ' ' + (count === 1 ? noun : plural) + ' selected'),
+        ...actions.map((a, i) => Btn({
+            key: 'bba' + i, danger: !!a.danger, disabled: busy || a.disabled,
+            onClick: a.onClick, children: a.label,
+        })),
+        onClear ? Btn({ key: 'bbclear', disabled: busy, onClick: onClear, children: 'clear selection' }) : null,
+    ].filter(Boolean);
+    return h('div', { class: 'ds-bulkbar', role: 'toolbar', 'aria-label': 'bulk file actions', 'aria-busy': busy ? 'true' : null }, ...kids);
 }
 
 // Clickable column headers for FileGrid sort. Active column shows its direction

@@ -503,10 +503,10 @@ body.canvas-host { background: transparent !important; }
    ============================================================ */
 .panel {
   background: var(--panel-1, var(--bg-2));
-  border-radius: var(--r-3);
+  border: var(--bw-hair) solid var(--rule);
+  border-radius: var(--r-2);
   margin: 0 0 var(--space-5);
   padding: var(--space-3);
-  box-shadow: var(--panel-shadow);
   position: relative;
 }
 .panel.panel-inline { background: var(--bg-2); padding: var(--space-3) var(--space-3); }
@@ -895,10 +895,10 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
     gap: 3px;
   }
   .ds-file-row {
-    grid-template-columns: 22px minmax(0, 1fr) auto;
-    gap: 10px; padding: 10px 12px;
+    gap: 8px; padding: 10px 12px;
     font-size: var(--fs-xs);
   }
+  .ds-file-open { gap: 10px; }
   /* On mobile, fold meta under the title and keep actions inline. */
   .ds-file-row .ds-file-meta { font-size: var(--fs-micro); }
   .ds-file-row .ds-file-actions { opacity: 1; }
@@ -906,6 +906,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
      reachable by touch (cohesion sweep). */
   .ds-file-act, .ds-file-sort-btn, .ds-crumb-seg { min-height: 44px; }
   .ds-file-filter-input { min-height: 44px; }
+  .ds-file-check, .ds-file-selectall, .ds-density-btn { min-height: 44px; min-width: 44px; }
 
   /* Chat */
   .chat-stack { max-width: 100%; min-width: 0; }
@@ -1132,10 +1133,13 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 @keyframes ds-skel-shimmer { 100% { transform: translateX(100%); } }
 @media (prefers-reduced-motion: reduce) { .ds-skel::after { animation: none; } }
 
-/* File row — linear layout (icon · title · meta · actions) */
+/* File row — linear layout (checkbox? · open-button[code · icon · title · meta] · actions).
+   The row is a flex strip; the open <button> is the stretching member and lays
+   out the entry's own columns. It needs a full reset (UA button chrome off)
+   because FileRow wraps the row content in a real button for native keyboard
+   semantics. */
 .ds-file-row {
-  display: grid; grid-template-columns: 26px minmax(0, 1fr) auto auto;
-  gap: 14px; align-items: center;
+  display: flex; align-items: center; gap: 10px;
   padding: 11px 16px; background: var(--bg);
   border: var(--bw-hair) solid transparent;
   border-radius: var(--r-2); color: var(--fg);
@@ -1144,6 +1148,14 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
               border-color var(--dur-snap) var(--ease),
               transform var(--dur-snap) var(--ease);
 }
+.ds-file-open {
+  display: flex; align-items: center; gap: 14px;
+  flex: 1 1 auto; min-width: 0;
+  background: none; border: 0; padding: 0; margin: 0;
+  color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.ds-file-open[disabled] { cursor: default; }
+.ds-file-open:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-1); }
 .ds-file-row:hover {
   background: var(--bg-2);
   border-color: var(--rule);
@@ -1165,7 +1177,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-file-row .title {
   font-weight: 500; font-size: var(--fs-sm);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  min-width: 0;
+  min-width: 0; flex: 1 1 auto;
 }
 .ds-file-row .code {
   font-family: var(--ff-mono); font-size: var(--fs-micro);
@@ -1206,6 +1218,99 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 }
 .ds-file-act:hover { background: var(--bg-3); color: var(--fg); }
 .ds-file-act-warn:hover { background: color-mix(in oklab, var(--warn) 18%, var(--bg)); color: var(--warn); }
+
+/* Multi-select — per-row checkbox, header tri-state, bulk action strip. */
+.ds-file-check {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 28px; height: 28px; padding: 0 4px;
+  background: transparent; border: 0; border-radius: var(--r-1);
+  font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3);
+  cursor: pointer;
+  transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+}
+.ds-file-check:hover { background: var(--bg-3); color: var(--fg); }
+.ds-file-check.is-marked { color: var(--accent); }
+.ds-file-check:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-file-check[disabled] { opacity: 0.4; cursor: default; }
+.ds-file-row.is-marked { background: var(--accent-tint); border-color: var(--accent); }
+.ds-file-selectall {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-2);
+  cursor: pointer; background: none; border: none;
+  padding: var(--space-1); border-radius: var(--r-1);
+}
+.ds-file-selectall:hover { background: var(--bg-2); color: var(--fg); }
+.ds-file-selectall:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-file-controls { display: flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-2) var(--space-1); flex-wrap: wrap; }
+.ds-file-controls .spread { flex: 1 1 auto; }
+.ds-file-controls .ds-file-sort { padding: 0; }
+.ds-bulkbar {
+  display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;
+  padding: var(--space-1) var(--space-2);
+  background: var(--bg-2); border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
+}
+.ds-bulkbar-count { font-size: var(--fs-tiny); color: var(--fg-2); }
+
+/* Density picker — list / compact / thumbnails. */
+.ds-density {
+  display: inline-flex; gap: 2px; padding: 2px;
+  background: var(--bg-2); border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1);
+}
+.ds-density-btn {
+  font-size: var(--fs-tiny); color: var(--fg-2);
+  background: none; border: none; cursor: pointer;
+  padding: 2px var(--space-2); border-radius: calc(var(--r-1) - 2px);
+  transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+}
+.ds-density-btn:hover { color: var(--fg); }
+.ds-density-btn.active { background: var(--accent-tint); color: var(--accent); }
+.ds-density-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* Compact density — tighter rows for long listings. */
+.ds-file-grid[data-density="compact"] { gap: 2px; }
+.ds-file-grid[data-density="compact"] .ds-file-row { padding: 5px 12px; gap: 10px; }
+.ds-file-grid[data-density="compact"] .ds-file-row .title { font-size: var(--fs-xs); }
+.ds-file-grid[data-density="compact"] .ds-file-row .ds-file-meta { font-size: var(--fs-micro); }
+.ds-file-grid[data-density="compact"] .ds-file-icon { width: 20px; height: 20px; font-size: 13px; }
+
+/* Thumbnail density — tile grid; image entries carry a real lazy thumbnail. */
+.ds-file-grid-thumb {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: var(--space-3); align-items: start;
+}
+.ds-file-cell {
+  position: relative;
+  background: var(--bg); border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
+  overflow: hidden;
+  transition: border-color var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease);
+}
+.ds-file-cell:hover { border-color: var(--fg-3); }
+.ds-file-cell.active { border-color: var(--accent); background: var(--accent-tint); }
+.ds-file-cell.is-marked { border-color: var(--accent); background: var(--accent-tint); }
+.ds-file-cell.is-locked { opacity: 0.6; }
+.ds-file-cell-open {
+  display: flex; flex-direction: column; align-items: stretch; gap: var(--space-1);
+  width: 100%; padding: var(--space-1); margin: 0;
+  background: none; border: none; cursor: pointer; color: var(--fg);
+}
+.ds-file-cell-open[disabled] { cursor: default; }
+.ds-file-cell-open:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--r-2); }
+.ds-file-cell-media {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; aspect-ratio: 4 / 3;
+  background: var(--bg-2); border-radius: var(--r-1); overflow: hidden;
+}
+.ds-file-cell-media .ds-file-icon { width: 34px; height: 34px; font-size: 24px; }
+.ds-file-cell-thumb { width: 100%; height: 100%; object-fit: cover; }
+.ds-file-cell-name {
+  font-size: var(--fs-tiny); text-align: left;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ds-file-cell-meta { font-family: var(--ff-mono); font-size: var(--fs-micro); color: var(--fg-3); text-align: left; }
+.ds-file-cell-check {
+  position: absolute; top: 4px; left: 4px; z-index: 1;
+  background: color-mix(in oklab, var(--bg) 78%, transparent);
+}
 
 /* Card mode — opt-in via data-columns; switches the list to a grid. */
 .ds-file-grid[data-columns] { display: grid; gap: var(--space-3); }
@@ -1589,7 +1694,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-segmented .ds-seg-btn:hover { color: var(--fg); }
 .ds-segmented .ds-seg-btn.is-on {
   background: var(--bg); color: var(--fg);
-  box-shadow: var(--shadow-1);
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule);
 }
 .ds-theme-toggle.btn {
   font-family: var(--ff-mono); font-size: var(--fs-xs);
@@ -1795,7 +1900,6 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .chat-msg:hover .chat-image,
 .chat-image:hover {
   border-color: color-mix(in oklab, var(--accent) 35%, transparent);
-  box-shadow: 0 4px 16px color-mix(in oklab, var(--fg) 12%, transparent);
 }
 .chat-image img { display: block; width: 100%; height: auto; max-height: 360px; object-fit: cover; }
 .chat-image .cap,
@@ -1836,7 +1940,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   border-radius: 12px; overflow: hidden; max-width: min(100%, 480px);
   transition: box-shadow 0.12s ease, border-color 0.12s ease;
 }
-.chat-msg:hover .chat-pdf { border-color: color-mix(in oklab, var(--accent) 30%, transparent); box-shadow: 0 2px 12px color-mix(in oklab, var(--fg) 6%, transparent); }
+.chat-msg:hover .chat-pdf { border-color: color-mix(in oklab, var(--accent) 30%, transparent); }
 .chat-pdf-head {
   display: flex; align-items: center; gap: 10px; padding: 10px 14px;
   background: color-mix(in oklab, var(--fg) 5%, var(--bg-2));
@@ -1864,7 +1968,6 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .chat-link:hover {
   background: var(--bg-3);
   border-color: color-mix(in oklab, var(--accent) 40%, transparent);
-  box-shadow: 0 2px 12px color-mix(in oklab, var(--fg) 8%, transparent);
 }
 .chat-link:not(:has(.thumb)):not(:has(img)) { grid-template-columns: 1fr; }
 .chat-link .thumb,
@@ -2986,6 +3089,15 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   .ws-shell.ws-sessions-open .ws-scrim, .ws-shell.ws-pane-open .ws-scrim { opacity: 1; pointer-events: auto; }
   /* The mobile drawer-toggle affordances live in the crumb bar. */
   .ws-drawer-toggle { display: inline-flex; }
+  /* The Crumb's narrow collapse elsewhere keys on the .app @container, which
+     does not exist inside WorkspaceShell - mirror it here so the crumb bar
+     cannot overflow a narrow viewport (trail hides, leaf ellipsizes, the
+     right cluster wraps under instead of pushing past the edge). */
+  .ws-crumb { padding-top: 6px; padding-bottom: 6px; }
+  .ws-crumb .app-crumb { flex-wrap: wrap; min-width: 0; }
+  .ws-crumb .app-crumb > .sep, .ws-crumb .app-crumb > span:not(.crumb-right):not(.leaf) { display: none; }
+  .ws-crumb .app-crumb .leaf { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .ws-crumb .app-crumb .crumb-right { margin-left: 0; flex-wrap: wrap; min-width: 0; display: inline-flex; }
 }
 /* Drawer toggles are mobile-only chrome; hidden on the desktop grid. */
 .ws-drawer-toggle { display: none; align-items: center; justify-content: center; width: 40px; height: 40px; border: none; background: none; color: var(--fg-2); cursor: pointer; border-radius: var(--r-1); }
