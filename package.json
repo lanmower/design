@@ -1,6 +1,6 @@
 {
   "name": "anentrypoint-design",
-  "version": "0.0.206",
+  "version": "0.0.207",
   "description": "247420 design system SDK — webjsx + modified ripple-ui, single-file ESM bundle for reproducible use of the AnEntrypoint design.",
   "type": "module",
   "main": "./dist/247420.js",
