@@ -305,13 +305,58 @@ export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
 function toggleWs(which) {
     const shell = document.querySelector('.ws-shell');
     if (!shell) return;
-    const cls = which === 'pane' ? 'ws-pane-collapsed' : 'ws-rail-collapsed';
+    const cls = which === 'pane' ? 'ws-pane-collapsed'
+        : which === 'sessions' ? 'ws-sessions-collapsed'
+        : 'ws-rail-collapsed';
     const nowCollapsed = shell.classList.toggle(cls);
-    const btn = document.querySelector('.ws-' + which + '-toggle');
-    if (btn) btn.setAttribute('aria-expanded', nowCollapsed ? 'false' : 'true');
+    document.querySelectorAll('.ws-' + which + '-toggle').forEach((btn) =>
+        btn.setAttribute('aria-expanded', nowCollapsed ? 'false' : 'true'));
     try {
         localStorage.setItem('ds.ws.' + which, nowCollapsed ? 'collapsed' : 'open');
     } catch (_) {}
+}
+
+// Column resize: read the current rendered track width and write a clamped inline
+// --ws-<col>-w on .ws-shell (inline overrides the fluid clamp base), persisted.
+const WS_RESIZE_CLAMP = { rail: [60, 360], sessions: [200, 520], pane: [240, 560] };
+function wsResize(col, dx) {
+    const shell = document.querySelector('.ws-shell');
+    if (!shell) return;
+    const track = shell.querySelector('.ws-' + col);
+    const cur = track ? track.getBoundingClientRect().width : 0;
+    const [lo, hi] = WS_RESIZE_CLAMP[col] || [120, 600];
+    const next = Math.max(lo, Math.min(hi, Math.round(cur + dx)));
+    shell.style.setProperty('--ws-' + col + '-w', next + 'px');
+    try { localStorage.setItem('ds.ws.w.' + col, String(next)); } catch (_) {}
+}
+function seedWsWidths(el) {
+    if (!el) return;
+    ['rail', 'sessions', 'pane'].forEach((col) => {
+        try {
+            const v = localStorage.getItem('ds.ws.w.' + col);
+            if (v && /^\d+$/.test(v)) el.style.setProperty('--ws-' + col + '-w', v + 'px');
+        } catch (_) {}
+    });
+}
+function WsResizer(col) {
+    const onKey = (e) => {
+        if (e.key === 'ArrowLeft') { e.preventDefault(); wsResize(col, -16); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); wsResize(col, 16); }
+    };
+    const onDown = (e) => {
+        e.preventDefault();
+        let lastX = e.clientX;
+        const move = (ev) => { const dx = ev.clientX - lastX; lastX = ev.clientX; wsResize(col, dx); };
+        const up = () => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); document.body.style.cursor = ''; };
+        document.addEventListener('pointermove', move);
+        document.addEventListener('pointerup', up);
+        document.body.style.cursor = 'col-resize';
+    };
+    return h('div', {
+        class: 'ws-resizer ws-resizer-' + col, role: 'separator', tabindex: '0',
+        'aria-orientation': 'vertical', 'aria-label': 'resize ' + col + ' column (arrow keys)',
+        onpointerdown: onDown, onkeydown: onKey,
+    });
 }
 
 // Toggle a mobile WorkspaceShell DRAWER (sessions or pane). Distinct from the
@@ -394,7 +439,7 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
         + (((hasPane && paneIsCollapsed) || keepPaneTrack) ? ' ws-pane-collapsed' : '')
         + (hasSessions ? '' : ' ws-no-sessions')
         + (narrow ? ' narrow' : '');
-    return h('div', { class: shellCls },
+    return h('div', { class: shellCls, ref: seedWsWidths },
         h('a', { href: '#ws-main', class: 'skip-link' }, 'skip to main content'),
         // Left rail column. Its own toggle collapses it to icon-only.
         h('nav', { class: 'ws-rail', role: 'navigation', 'aria-label': railLabel },
@@ -430,6 +475,13 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
                         'aria-label': 'toggle conversations', 'aria-expanded': 'false',
                         onclick: () => toggleWsDrawer('sessions'),
                     }, Icon('thread')) : null,
+                    // Desktop-only sessions collapse (reclaims its width for a
+                    // full-width thread/grid). Hidden on mobile via CSS.
+                    hasSessions ? h('button', {
+                        class: 'ws-desktop-toggle ws-sessions-toggle', type: 'button',
+                        'aria-label': 'collapse conversations', title: 'collapse conversations',
+                        'aria-expanded': 'true', onclick: () => toggleWs('sessions'),
+                    }, Icon('chevron-left')) : null,
                     h('div', { class: 'ws-crumb-main' }, crumb),
                     hasPane ? h('button', {
                         class: 'ws-drawer-toggle ws-pane-drawer-toggle', type: 'button',
@@ -452,6 +504,10 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
                 }, Icon(paneIsCollapsed ? 'chevron-left' : 'chevron-right')),
                 pane)
             : null,
+        // Keyboard/pointer column resize handles (desktop only).
+        (!narrow && !railIsCollapsed) ? WsResizer('rail') : null,
+        (!narrow && hasSessions) ? WsResizer('sessions') : null,
+        (!narrow && hasPane && !paneIsCollapsed) ? WsResizer('pane') : null,
     );
 }
 

@@ -190,7 +190,7 @@ pre .n { color: var(--green-2); }
 body.canvas-host { background: transparent !important; }
 
 :root {
-  --app-status-h: var(--size-base);
+  --app-status-h: 26px;
   --app-topbar-h: var(--size-lg);
   --app-crumb-h: var(--size-sm);
 }
@@ -384,14 +384,15 @@ body.canvas-host { background: transparent !important; }
 .app-status {
   display: flex; align-items: center; gap: var(--space-3);
   width: 100%;
-  min-height: var(--app-status-h);
-  padding: 10px var(--pad-x);
+  height: var(--app-status-h); min-height: var(--app-status-h);
+  /* A thin desktop status strip, not a webpage footer band. */
+  padding: 0 var(--space-4);
   /* Status chrome is prose, not code - mono is reserved for code/paths. */
-  font-family: var(--ff-body); font-size: var(--fs-xs);
+  font-family: var(--ff-body); font-size: var(--fs-xs); line-height: 1.2;
   color: var(--fg-3);
   border-top: 1px solid var(--rule);
 }
-.app-status .item { color: inherit; white-space: nowrap; }
+.app-status .item { color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .app-status .item:first-of-type { color: var(--accent); }
 .app-status .spread { flex: 1; }
 /* The status bar NEVER wraps: at narrow widths the trailing items (hints,
@@ -406,13 +407,14 @@ body.canvas-host { background: transparent !important; }
    Primitives
    ============================================================ */
 .btn, .btn-primary, .btn-ghost {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 13px 22px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 14px; min-height: 32px;
   font-family: var(--ff-body);
   font-weight: 600; font-size: var(--fs-sm);
   text-decoration: none;
   cursor: pointer;
-  border-radius: var(--r-pill);
+  /* Rounded-rect app chrome, not a marketing-page stadium CTA. */
+  border-radius: var(--r-1);
   border: 0;
   transition: transform var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
@@ -3007,10 +3009,13 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
    All sizing/colour from kit tokens; no hardcoded palette.
 ---------------------------------------------------------------------------- */
 .ws-shell {
-  --ws-rail-w: 232px;
+  /* Fluid chrome columns: shrink on small laptops, breathe on ultrawide, so the
+     ~848px of fixed chrome no longer eats a constant slab. An inline --ws-*-w
+     written by a resize drag overrides these (inline wins), pinning the width. */
+  --ws-rail-w: clamp(200px, 16vw, 260px);
   --ws-rail-w-collapsed: 60px;
-  --ws-sessions-w: 296px;
-  --ws-pane-w: 320px;
+  --ws-sessions-w: clamp(248px, 22vw, 360px);
+  --ws-pane-w: clamp(288px, 24vw, 420px);
   display: grid;
   grid-template-columns: var(--ws-rail-w) var(--ws-sessions-w) 1fr var(--ws-pane-w);
   grid-template-areas: "rail sessions content pane";
@@ -3031,6 +3036,21 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ws-shell.ws-no-pane.ws-pane-collapsed.ws-no-sessions { grid-template-columns: var(--ws-rail-w) 1fr var(--ws-pane-w); grid-template-areas: "rail content pane"; }
 .ws-shell.ws-rail-collapsed { --ws-rail-w: var(--ws-rail-w-collapsed); }
 .ws-shell.ws-pane-collapsed { --ws-pane-w: 0px; }
+/* Sessions column desktop collapse (parity with the pane collapse), reclaiming
+   its width for a full-width thread/grid. */
+.ws-shell.ws-sessions-collapsed { --ws-sessions-w: 0px; }
+.ws-sessions-collapsed .ws-sessions { overflow: hidden; border-right: none; }
+.ws-sessions-collapsed .ws-sessions > * { display: none; }
+/* Column resize handles: a thin keyboard-accessible separator pinned to the
+   right edge of each chrome track; drag (or ArrowLeft/Right) writes a clamped
+   inline --ws-*-w. */
+.ws-resizer { grid-row: 1 / -1; align-self: stretch; justify-self: end; width: 8px; margin-right: -4px; z-index: 5; cursor: col-resize; background: transparent; border: none; padding: 0; touch-action: none; }
+.ws-resizer::after { content: ""; display: block; width: 2px; height: 100%; margin: 0 auto; background: transparent; transition: background var(--dur-snap) var(--ease); }
+.ws-resizer:hover::after, .ws-resizer:focus-visible::after { background: var(--accent); }
+.ws-resizer:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ws-resizer.ws-resizer-rail { grid-column: 1; }
+.ws-resizer.ws-resizer-sessions { grid-column: 2; }
+.ws-resizer.ws-resizer-pane { grid-column: 3; justify-self: end; }
 /* Ease the rail/pane collapse. Track COUNT stays stable on collapse (only a
    width var flips), so grid-template-columns is animatable; reduced-motion
    drops it to an instant swap. */
@@ -3145,6 +3165,11 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
    trailing display:none silently kills every drawer affordance (shipped bug:
    the mobile drawers were dead because these lines used to sit last). */
 .ws-drawer-toggle { display: none; align-items: center; justify-content: center; width: 40px; height: 40px; border: none; background: none; color: var(--fg-2); cursor: pointer; border-radius: var(--r-1); }
+/* Desktop-only chrome toggle (sessions collapse): inverse of the mobile drawer-toggle. */
+.ws-desktop-toggle { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: none; background: none; color: var(--fg-2); cursor: pointer; border-radius: var(--r-1); }
+.ws-desktop-toggle:hover { background: var(--bg-2); color: var(--fg); }
+.ws-desktop-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 900px) { .ws-desktop-toggle { display: none; } }
 .ws-scrim { display: none; }
 
 /* Responsive: the columns yield to the CONTENT in stages - the main column is

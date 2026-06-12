@@ -125,7 +125,7 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2, 8px);
+  gap: calc(var(--space-2, 8px) * var(--density, 1));
 }
 
 /* Jump-to-latest: hidden until the thread scroll listener adds .show. */
@@ -391,7 +391,8 @@
   background: color-mix(in oklab, var(--warn) 12%, transparent); color: var(--warn);
 }
 .ds-dash-header .btn-primary.danger.is-armed { background: var(--warn); color: var(--paper); border-color: var(--warn); }
-.ds-dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-3); padding: var(--space-4); }
+.ds-dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-2); padding: var(--space-3); }
+@media (min-width: 1500px) { .ds-dash-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } }
 .ds-dash-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-2); }
 .ds-dash-card.is-error { border-color: var(--flame); }
 .ds-dash-card-head { display: flex; align-items: center; gap: var(--space-2); }
@@ -686,7 +687,10 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
    avatar-disc + colored-bubble layout. AgentChat passes flat:true; the demo
    Chat keeps the bubble layout. Turns are full-width to --measure; the user vs
    assistant distinction is a role label + a faint assistant background. */
-.chat-msg-flat { display: block; padding: var(--space-3) var(--space-4); margin: 0; background: none; border-radius: var(--r-2); }
+/* Center the flat turn at the reading measure so a wide content column does not
+   dump a one-sided dead gutter (claude.ai/code centers the thread). Padding
+   scales through --density so data-density=compact tightens the thread. */
+.chat-msg-flat { display: block; max-width: var(--measure); margin-inline: auto; padding: calc(var(--space-3) * var(--density, 1)) var(--space-4); margin-block: 0; background: none; border-radius: var(--r-2); }
 .chat-msg-flat.them { background: color-mix(in oklab, var(--fg) 3%, transparent); }
 .chat-msg-flat.you { background: none; }
 .chat-msg-flat .chat-stack { max-width: var(--measure); width: 100%; margin: 0; align-items: stretch; }
@@ -841,4 +845,9 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 @media (pointer: coarse) {
   .row-act, .ds-dash-errors-toggle, .agentchat-export-act, .ds-file-more-btn,
   .agentchat-install-copy, .ds-upload-act, .ds-session-meta-copy { min-height: 44px; }
+}
+
+/* 11th run: ultrawide widens the reading measure where there is room. */
+@media (min-width: 1600px) {
+  .agentchat-thread { --measure: 84ch; }
 }
