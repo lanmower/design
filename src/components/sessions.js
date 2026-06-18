@@ -198,8 +198,11 @@ export function SessionCard({ session = {}, onStop, onOpen, onView, active = fal
   const meta = h('div', { class: 'ds-dash-meta' }, ...[
     s.cwd ? h('span', { class: 'ds-dash-cwd', title: s.cwd }, s.cwd) : null,
     (statBits.length || costText) ? h('span', { class: 'ds-dash-stat' },
-      statBits.join(' · '),
-      costText ? h('span', { class: 'ds-dash-stat-cost' }, (statBits.length ? ' · ' : '') + costText) : null
+      ...[
+        statBits.length ? statBits.join(' · ') : null,
+        (statBits.length && costText) ? ' · ' : null,
+        costText ? h('span', { class: 'ds-dash-stat-cost' }, costText) : null,
+      ].filter(Boolean)
     ) : null,
     activityBits.length ? h('span', { class: 'ds-dash-activity' }, activityBits.join(' · ')) : null,
   ].filter(Boolean));

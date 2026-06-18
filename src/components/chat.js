@@ -215,6 +215,19 @@ function ToolCallNode(p) {
     // collapse on success unless the caller explicitly overrides with open:true.
     const defaultOpen = p.open != null ? !!p.open : (status === 'running' || status === 'error');
     const iconName = status === 'running' ? 'refresh' : (status === 'error' ? 'warn' : 'check');
+    const copyText = (txt) => (e) => {
+        const b = e.currentTarget;
+        const done = () => {
+            b.textContent = 'copied';
+            b.classList.add('is-copied');
+            setTimeout(() => { b.textContent = 'copy'; b.classList.remove('is-copied'); }, 1600);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(() => {});
+        else { try { const t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch {} }
+    };
+    const sectionLabel = (text, txt) => h('div', { class: 'chat-tool-section-label' },
+        h('span', {}, text),
+        h('button', { type: 'button', class: 'chat-code-copy chat-tool-copy', 'aria-label': 'copy ' + text, onclick: copyText(txt) }, 'copy'));
     return h('details', { class: 'chat-bubble chat-tool tool-' + status, open: defaultOpen },
         h('summary', { class: 'chat-tool-head' },
             h('span', { class: 'chat-tool-icon', 'aria-hidden': 'true' }, Icon(iconName, { size: 14 })),
@@ -224,10 +237,10 @@ function ToolCallNode(p) {
         ),
         h('div', { class: 'chat-tool-body' },
             h('div', { class: 'chat-tool-section' },
-                h('div', { class: 'chat-tool-section-label' }, 'args'),
+                sectionLabel('args', argsText),
                 h('pre', { class: 'chat-tool-pre' }, h('code', {}, argsText))),
             resultText ? h('div', { class: 'chat-tool-section' },
-                h('div', { class: 'chat-tool-section-label' }, p.error ? 'error' : 'result'),
+                sectionLabel(p.error ? 'error' : 'result', resultText),
                 h('pre', { class: 'chat-tool-pre' + (p.error ? ' is-error' : '') }, h('code', {}, resultText)))
                 // A finished tool with no output would otherwise render no result
                 // section, reading identically to a still-running tool. Show an

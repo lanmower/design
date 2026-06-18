@@ -199,11 +199,12 @@
     font: inherit;
     min-width: 0; width: 100%;
 }
-.ds-ep-propfield-value input:focus,
-.ds-ep-propfield-value select:focus,
-.ds-ep-propfield-value textarea:focus {
+.ds-ep-propfield-value input:focus-visible,
+.ds-ep-propfield-value select:focus-visible,
+.ds-ep-propfield-value textarea:focus-visible {
     outline: none;
     border-color: var(--accent);
+    box-shadow: var(--focus-ring-inset);
 }
 .ds-ep-propfield-hint {
     grid-column: 1 / -1;

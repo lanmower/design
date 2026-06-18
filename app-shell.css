@@ -450,7 +450,7 @@ body.canvas-host { background: transparent !important; }
 .ds-icon-btn-primary { background: var(--accent); color: var(--accent-fg); }
 .ds-icon-btn-primary:hover { background: var(--fg); color: var(--bg); }
 /* warn = destructive ACTION tone; flame stays exclusively error STATUS. */
-.ds-icon-btn-danger { background: var(--warn); color: var(--paper); }
+.ds-icon-btn-danger { background: var(--warn); color: var(--on-color); }
 .ds-icon-btn-danger:hover { filter: brightness(1.1); }
 .ds-icon-btn:active { transform: translateY(1px); }
 .ds-icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -472,10 +472,10 @@ body.canvas-host { background: transparent !important; }
 .ds-badge.tone-purple  { background: var(--purple-tint); color: var(--purple-deep); }
 .ds-badge.tone-mascot  { background: var(--mascot-tint); color: var(--ink); }
 .ds-badge.tone-sun     { background: var(--sun);         color: var(--ink); }
-.ds-badge.tone-flame   { background: var(--flame);       color: var(--paper); }
+.ds-badge.tone-flame   { background: var(--flame);       color: var(--on-color); }
 .ds-badge.tone-live    { background: var(--green-tint);  color: var(--green-deep); }
 .ds-badge.tone-wip     { background: var(--bg-3);        color: var(--fg-2); }
-.ds-badge.tone-error   { background: var(--flame);       color: var(--paper); }
+.ds-badge.tone-error   { background: var(--flame);       color: var(--on-color); }
 .ds-badge.tone-success { background: var(--green-tint);  color: var(--green-deep); }
 .ds-badge.tone-neutral { background: var(--bg-3);        color: var(--fg-2); }
 
@@ -492,14 +492,14 @@ body.canvas-host { background: transparent !important; }
 .chip.tone-purple  { background: var(--purple-tint); color: var(--purple-deep); }
 .chip.tone-mascot  { background: var(--mascot-tint); color: var(--ink); }
 .chip.tone-sun     { background: var(--sun);         color: var(--ink); }
-.chip.tone-flame   { background: var(--flame);       color: var(--paper); }
+.chip.tone-flame   { background: var(--flame);       color: var(--on-color); }
 .chip.tone-live    { background: var(--green-tint);  color: var(--green-deep); }
 .chip.tone-wip     { background: var(--bg-3);        color: var(--fg-2); }
-.chip.tone-error    { background: var(--flame);       color: var(--paper); }
+.chip.tone-error    { background: var(--flame);       color: var(--on-color); }
 .chip.tone-success  { background: var(--green-tint);  color: var(--green-deep); }
 .chip.tone-disabled { background: var(--bg-3);        color: var(--fg-3); }
 .chip.tone-ok       { background: var(--green-tint);  color: var(--green-deep); }
-.chip.tone-miss     { background: var(--flame);       color: var(--paper); }
+.chip.tone-miss     { background: var(--flame);       color: var(--on-color); }
 .chip.tone-neutral  { background: var(--bg-3);        color: var(--fg-2); }
 
 .glyph {
@@ -538,6 +538,8 @@ body.canvas-host { background: transparent !important; }
   font-family: var(--ff-mono); letter-spacing: 0;
 }
 .panel-body { padding: var(--space-2) var(--space-3) var(--space-3); }
+.panel-body > * { margin: 0; }
+.panel-body > * + * { margin-top: var(--space-3); }
 .panel.panel-wide .panel-body { padding: 0; }
 
 /* ============================================================
@@ -560,6 +562,21 @@ body.canvas-host { background: transparent !important; }
   transition: background var(--dur-snap) var(--ease);
 }
 .row + .row { margin-top: 2px; }
+/* `detail` drops to its own full-width line. The row is a grid, so span every
+   track (grid-column 1/-1); flex-basis:100% covers the flex-row fallback. */
+.ds-row-detail {
+  white-space: pre-wrap;
+  font-family: var(--ff-mono);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug, 1.3);
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: var(--r-1);
+  overflow-x: auto;
+  flex-basis: 100%;
+  grid-column: 1 / -1;
+}
 .row::before {
   content: '';
   position: absolute; left: 7px; top: 0; bottom: 0; width: 3px;
@@ -943,8 +960,6 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   .chat-msg:hover { padding: 4px 0; margin: 0; background: transparent; }
   .chat-composer { padding: 8px; gap: 6px; }
   .chat-composer textarea { padding: 10px 12px; font-size: var(--fs-sm); }
-  .chat-composer .send,
-  .chat-composer button { width: 40px; height: 40px; font-size: 16px; }
 
   /* KPI Cards */
   .kpi {
@@ -1333,9 +1348,10 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   background: var(--bg-2); border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1);
 }
 .ds-density-btn {
-  font-size: var(--fs-tiny); color: var(--fg-2);
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; color: var(--fg-2);
   background: none; border: none; cursor: pointer;
-  padding: 2px var(--space-2); border-radius: calc(var(--r-1) - 2px);
+  padding: 0; border-radius: calc(var(--r-1) - 2px);
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
 .ds-density-btn:hover { color: var(--fg); }
@@ -1784,6 +1800,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   transition: color var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
 }
 .ds-segmented .ds-seg-btn:hover { color: var(--fg); }
+.ds-segmented .ds-seg-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .ds-segmented .ds-seg-btn.is-on {
   background: var(--bg); color: var(--fg);
   box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule);
@@ -1931,9 +1948,19 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   color: color-mix(in oklab, currentColor 75%, transparent); font-style: italic;
 }
 .chat-bubble.chat-md pre {
-  background: color-mix(in oklab, var(--fg) 8%, transparent);
-  padding: 10px 12px; border-radius: 6px; overflow-x: auto;
-  font-family: var(--ff-mono); font-size: 0.9em; margin: 8px 0;
+  background: var(--bg);
+  border: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
+  padding: 12px 16px; border-radius: var(--r-1); overflow-x: auto;
+  font-family: var(--ff-mono); font-size: var(--fs-xs); line-height: 1.55;
+  color: var(--fg); margin: 8px 0;
+}
+/* When injectCodeCopy has wrapped the fence (.chat-code-block), reserve room
+   for the absolute .chat-code-lang tab. This selector outranks the bare
+   .chat-code-block pre reservation in chat.css, which the 2-class md pre
+   selector above would otherwise override. */
+.chat-code-block .chat-bubble.chat-md pre,
+.chat-bubble.chat-md .chat-code-block pre {
+  padding-top: calc(var(--space-3) + 4px);
 }
 /* Markdown tables + horizontal rules: agents routinely emit them, but they were
    unstyled (bare unspaced cells, vanished rules). */
@@ -2169,6 +2196,14 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   border-color: var(--accent);
   box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 18%, transparent);
 }
+.chat-composer.is-error,
+.chat-composer:has(textarea[aria-invalid="true"]) {
+  border-color: var(--flame);
+}
+.chat-composer.is-error:focus-within,
+.chat-composer:has(textarea[aria-invalid="true"]):focus-within {
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--flame) 22%, transparent);
+}
 .chat-composer textarea {
   flex: 1; min-width: 0; padding: 8px 4px;
   background: none; color: var(--fg);
@@ -2184,7 +2219,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .chat-composer textarea::placeholder { color: var(--fg-3); }
 .chat-composer textarea:focus { background: none; border: none; box-shadow: none; outline: none; }
 .chat-composer .send {
-  width: 36px; height: 36px; border-radius: var(--r-1);
+  border-radius: var(--r-1);
   background: var(--accent); color: var(--accent-fg);
   border: 0; cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center;
@@ -2192,10 +2227,10 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   transition: background var(--dur-snap, .15s) var(--ease, ease);
 }
 .chat-composer .send:disabled { opacity: .5; cursor: not-allowed; }
-/* Ghost icon buttons in the toolbar (attach / emoji / more) — NOT the round
-   accent send button. */
+/* Ghost icon buttons in the toolbar (attach / emoji / more). Size + radius are
+   owned by .chat-composer-toolbar .composer-btn in chat.css (32px / --r-1,
+   44px coarse); this base rule keeps only the shared appearance. */
 .composer-btn {
-  width: 40px; height: 40px; border-radius: 50%;
   background: transparent; color: var(--fg-3);
   border: 0; cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center;
@@ -2291,9 +2326,6 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 @media (max-height: 500px) and (orientation: landscape) {
     .chat-composer { padding: 6px 0; }
     .chat-composer textarea { min-height: 44px; max-height: 120px; }
-    /* Keep the send button at the 44x44 minimum tap target even in the
-       space-constrained landscape layout. */
-    .chat-composer .send, .chat-composer button { width: 44px; height: 44px; font-size: 14px; }
 }
 
 /* ============================================================
@@ -2436,7 +2468,6 @@ input[type="checkbox"], input[type="radio"] {
   position: absolute;
   left: 0; right: 0; height: 2px;
   background: var(--accent);
-  animation: pulse-line 0.6s ease-in-out infinite;
 }
 .list-item.drag-before::before { top: -2px; }
 .list-item.drag-after::after { bottom: -2px; }
@@ -2444,6 +2475,10 @@ input[type="checkbox"], input[type="radio"] {
 @keyframes pulse-line {
   0%, 100% { opacity: 0.3; }
   50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .list-item.drag-before::before,
+  .list-item.drag-after::after { animation: pulse-line 0.6s ease-in-out infinite; }
 }
 
 /* ------------------------------------------------------------
@@ -2459,7 +2494,6 @@ input[type="checkbox"], input[type="radio"] {
   min-width: 160px;
   z-index: calc(var(--z-overlay, 1000) + 1);
   padding: 4px 0;
-  animation: context-menu-in 0.15s ease-out;
 }
 
 @keyframes context-menu-in {
@@ -2471,6 +2505,9 @@ input[type="checkbox"], input[type="radio"] {
     opacity: 1;
     transform: scale(1) translateY(0);
   }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ds-context-menu { animation: context-menu-in 0.15s ease-out; }
 }
 
 .ds-context-menu-item {
@@ -2728,6 +2765,10 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   padding: var(--space-8) var(--space-4);
   text-align: center; color: var(--fg-3);
 }
+.empty-state--inline {
+  flex-direction: row; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) 0; text-align: left;
+}
 .empty-state-icon {
   font-size: 48px; opacity: 0.4;
 }
@@ -2772,7 +2813,6 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   padding: var(--space-3) var(--space-4);
   max-width: 320px;
   box-shadow: 0 10px 40px color-mix(in oklab, var(--fg) 20%, transparent);
-  animation: toast-slide-in 0.3s ease-out;
   z-index: calc(var(--z-overlay, 1000) + 10);
 }
 
@@ -2785,6 +2825,9 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
     opacity: 1;
     transform: translateX(0);
   }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .toast { animation: toast-slide-in 0.3s ease-out; }
 }
 
 .toast.error { border-color: var(--warn); }
@@ -2812,11 +2855,13 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   height: 4px;
   border-radius: 50%;
   background: var(--accent);
-  animation: ds-bounce 1.4s infinite ease-in-out;
 }
-.ds-spinner span:nth-child(1) { animation-delay: 0s; }
-.ds-spinner span:nth-child(2) { animation-delay: 0.18s; }
-.ds-spinner span:nth-child(3) { animation-delay: 0.36s; }
+@media (prefers-reduced-motion: no-preference) {
+  .ds-spinner span { animation: ds-bounce 1.4s infinite ease-in-out; }
+  .ds-spinner span:nth-child(1) { animation-delay: 0s; }
+  .ds-spinner span:nth-child(2) { animation-delay: 0.18s; }
+  .ds-spinner span:nth-child(3) { animation-delay: 0.36s; }
+}
 
 .ds-spinner-lg { height: 24px; gap: 6px; }
 .ds-spinner-lg span { width: 6px; height: 6px; }
@@ -3094,6 +3139,13 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 @media (max-width: 1480px) { .ws-resizer.ws-resizer-pane { display: none; } }
 @media (max-width: 1100px) { .ws-resizer.ws-resizer-sessions { display: none; } }
 @media (max-width: 900px)  { .ws-resizer { display: none; } }
+/* A resizer must also vanish once its TRACK is desktop-collapsed: a 0px (pane/
+   sessions) or 60px icon-only (rail) track has no width to drag, and a drag would
+   write an INLINE --ws-*-w that overrides the collapse var (inline wins), fighting
+   the collapse state. Mirror the breakpoint guards for the collapse classes. */
+.ws-rail-collapsed .ws-resizer-rail,
+.ws-sessions-collapsed .ws-resizer-sessions,
+.ws-pane-collapsed .ws-resizer-pane { display: none; }
 /* Coarse-pointer hit target for hybrid touch laptops above the drawer breakpoint
    (the 8px sliver is un-grabbable by touch). */
 @media (pointer: coarse) { .ws-resizer { width: 16px; margin-right: -8px; } }
@@ -3194,16 +3246,10 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   overflow: hidden; transition: width var(--dur-base) var(--ease);
 }
 .ws-pane-collapsed .ws-pane { width: 0; border-left: none; }
-.ws-pane-collapsed .ws-pane > :not(.ws-pane-toggle) { display: none; }
-.ws-pane-toggle {
-  position: absolute; top: var(--space-2); left: calc(-1 * var(--space-5));
-  width: 28px; height: 28px;
-  display: inline-flex; align-items: center; justify-content: center;
-  background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); color: var(--fg-2);
-  border-radius: var(--r-1); cursor: pointer; z-index: 2;
+.ws-pane-collapsed .ws-pane > * { display: none; }
+@media (pointer: coarse) {
+  .ws-rail-toggle { width: 44px; height: 44px; }
 }
-.ws-pane-toggle:hover { background: var(--bg-3); color: var(--fg); }
-.ws-pane-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* Drawer toggles and the scrim are hidden by default and revealed by the staged
    media blocks BELOW - these base rules must precede those blocks in source
@@ -3216,6 +3262,10 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ws-desktop-toggle:hover { background: var(--bg-2); color: var(--fg); }
 .ws-desktop-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 900px) { .ws-desktop-toggle { display: none; } }
+/* The pane collapse toggle is meaningless once the pane TRACK is dropped (the
+   pane becomes a mobile overlay drawer at <=1480px, reached via its own
+   drawer-toggle), so hide this crumb control past that breakpoint. */
+@media (max-width: 1480px) { .ws-pane-toggle { display: none; } }
 .ws-scrim { display: none; }
 
 /* Responsive: the columns yield to the CONTENT in stages - the main column is
@@ -3252,9 +3302,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   }
   .ws-shell.ws-pane-open .ws-pane { transform: translateX(0); width: min(340px, 85vw); }
   .ws-shell.ws-pane-open.ws-pane-collapsed .ws-pane { border-left: var(--bw-hair) solid var(--bg-3); }
-  .ws-shell.ws-pane-open.ws-pane-collapsed .ws-pane > :not(.ws-pane-toggle) { display: revert; }
-  /* The desktop collapse chevron is meaningless in drawer mode. */
-  .ws-pane-toggle { display: none; }
+  .ws-shell.ws-pane-open.ws-pane-collapsed .ws-pane > * { display: revert; }
   .ws-pane-drawer-toggle { display: inline-flex; }
   /* Scrim is always present from this stage down so it FADES with the drawer
      instead of hard-appearing; pointer-events gate keeps it inert while closed. */

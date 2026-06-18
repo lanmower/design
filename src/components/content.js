@@ -43,7 +43,7 @@ function highlightTitle(title, highlight) {
     return segs;
 }
 
-export function Row({ code, rank, title, sub, meta, active, state = 'default', onClick, key, style, href, kind, cols, leading, trailing, target, selected, rail, expanded, highlight, actions }) {
+export function Row({ code, rank, title, sub, meta, active, state = 'default', onClick, key, style, href, kind, cols, leading, trailing, target, selected, rail, expanded, highlight, actions, detail }) {
     // `rank` is an alias for `code` (the leading monospace index); callers use
     // either name. `rail` renders a thin colour bar at the row's leading edge as
     // a status indicator (tone: green | purple | flame | <any token>).
@@ -105,12 +105,15 @@ export function Row({ code, rank, title, sub, meta, active, state = 'default', o
     // state. green is the unremarkable default - announcing "ok" everywhere would
     // be AT noise - so it emits nothing.
     const railWord = rail === 'flame' ? 'error' : rail === 'purple' ? 'subagent' : null;
+    // `detail` renders as a sibling block AFTER the title/meta children (its own
+    // line via flex-basis:100% in .ds-row-detail), not inside the title span.
     return h(isLink ? 'a' : 'div', props,
         railWord ? h('span', { class: 'sr-only' }, railWord) : null,
         leading != null ? leading : (codeVal != null ? h('span', { class: 'code' }, codeVal) : null),
         h('span', { class: 'title' }, titleNode, sub ? h('span', { class: 'sub' }, sub) : null),
         trailing != null ? trailing : (meta != null ? h('span', { class: 'meta' }, meta) : null),
-        actionRow);
+        actionRow,
+        detail != null ? h('pre', { class: 'ds-row-detail' }, detail) : null);
 }
 
 export function RowLink({ code, title, sub, meta, href = '#', key, target }) {

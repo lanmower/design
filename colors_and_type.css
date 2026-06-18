@@ -18,6 +18,8 @@
   --ink:         #131318;
   --ink-2:       #25252C;
   --ink-3:       #54545A; /* WCAG AAA on --paper (~7.1:1); was #6A6A70 (AA only) */
+  --ink-3-dark:  #464650; /* dark theme bg-3 (tier-3 surface) */
+  --paper-3-dark: #B4B4BC; /* dark theme fg-3 (tier-3 text)   */
 
   /* Lore palette */
   --green:       #247420;
@@ -250,10 +252,10 @@ select:focus-visible {
   color-scheme: dark;
   --bg:        var(--ink);
   --bg-2:      var(--ink-2);
-  --bg-3:      #464650;
+  --bg-3:      var(--ink-3-dark);
   --fg:        var(--paper);
   --fg-2:      var(--paper-2);
-  --fg-3:      #B4B4BC;
+  --fg-3:      var(--paper-3-dark);
   --panel-bg:  var(--bg);
   --panel-bg-2: var(--bg-2);
   --panel-0:   var(--bg);
@@ -280,18 +282,20 @@ select:focus-visible {
   --code-num:     var(--sun);
 }
 
-/* NOTE: the [data-theme="auto"] block below intentionally duplicates the
-   [data-theme="ink"/"dark"] block above. They are NOT literally identical —
-   the explicit-dark block also overrides --danger for contrast — so they are
-   kept separate rather than consolidated to avoid a behavior change. */
+/* NOTE: the [data-theme="auto"] block below mirrors the
+   [data-theme="ink"/"dark"] block above token-for-token. 'auto + OS-dark' and
+   'explicit dark' are the same visual context and resolve every token —
+   including --danger — identically. The two are kept as separate selectors
+   only because one is media-gated; a future de-drift can consolidate them into
+   a shared selector list once a build step can hoist the media query. */
 @media (prefers-color-scheme: dark) {
   [data-theme="auto"] {
     --bg:        var(--ink);
     --bg-2:      var(--ink-2);
-    --bg-3:      #464650;
+    --bg-3:      var(--ink-3-dark);
     --fg:        var(--paper);
     --fg-2:      var(--paper-2);
-    --fg-3:      #B4B4BC;
+    --fg-3:      var(--paper-3-dark);
     --panel-bg:  var(--bg);
     --panel-bg-2: var(--bg-2);
     --panel-0:   var(--bg);
@@ -304,6 +308,7 @@ select:focus-visible {
     --accent:    var(--accent-bright, var(--green-2));
     --accent-fg: var(--ink);
     --accent-bright: var(--green-2);
+    --danger:    oklch(0.68 0.19 25);
     --flame:     #FF5A1F;
     --amber:     #D9A93A;
     --warn:      #FF5A52;
@@ -373,7 +378,7 @@ select:focus-visible {
   --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
   --accent: var(--green); --accent-fg: var(--paper);
   /* A paper island under a dark ancestor must not inherit the dark signal pair. */
-  --flame: #C53E00; --amber: #8A6512;
+  --flame: #C53E00; --amber: #8A6512; --warn: #E0241A; --sky: #3A6EFF;
 }
 
 /* thebird — warm-paper brand preset. A first-class swappable theme: it lives

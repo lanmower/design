@@ -296,6 +296,13 @@ export function useKeyboardShortcut(map = {}, { scope = 'global', enabled = true
 
 export function ShortcutHint({ combo, kind = 'kbd' } = {}) { return h('kbd', { class: 'ds-kbd ds-kbd-' + kind }, formatShortcut(combo || '')); }
 
+export function ShortcutList({ shortcuts = [] } = {}) {
+    return h('div', { class: 'ds-shortcuts-hint' },
+        ...shortcuts.map(s => h('div', { class: 'ds-shortcut-row' },
+            h('kbd', { class: 'ds-kbd' }, s.keys || s.combo || ''),
+            h('span', { class: 'ds-kbd-label' }, s.desc || s.description || s.label || ''))));
+}
+
 export function useKeyboardShortcutHelp() { return { registry: Array.from(SHORTCUT_REGISTRY) }; }
 export function ShortcutHelpDialog({ open = false, onClose, registry } = {}) {
     if (!open) return null;

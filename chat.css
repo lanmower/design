@@ -97,17 +97,19 @@
   font: inherit;
 }
 .agentchat-cwd-btn:hover { border-color: var(--accent); }
-.agentchat-cwd-btn:focus-visible { outline: 2px solid var(--accent, var(--fg)); outline-offset: 2px; }
+.agentchat-cwd-btn:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 .agentchat-cwd-input {
   flex: 1;
   min-width: 12ch;
   background: var(--bg-2);
-  border: 1px solid var(--rule);
+  border: var(--bw-hair) solid var(--rule);
   color: var(--fg);
-  border-radius: 6px;
+  border-radius: var(--r-1);
   padding: 4px 8px;
   font: inherit;
 }
+.agentchat-cwd-input:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
+.agentchat-cwd-input[aria-invalid='true'] { border-color: var(--flame); box-shadow: inset 0 0 0 var(--bw-hair) var(--flame); }
 
 /* head + thread */
 .agentchat-head {
@@ -315,17 +317,28 @@
 /* Each variant carries a non-colour channel (fill vs halo vs hollow ring) so the
    states stay distinguishable for colour-blind users and when stale/connecting
    would otherwise share a hue. Mirrors the rail-tone shape differentiation. */
-.status-dot-disc.status-dot-live { background: var(--accent); animation: status-disc-pulse 1.8s ease-in-out infinite; }
+/* One canonical stale tone (disc + word + rail share it) — a muted grey-warn,
+   deliberately desaturated so it is NOT the saturated --amber used by
+   connecting/connecting-stream (which would re-collide hues). */
+:root { --stale: color-mix(in oklab, var(--warn) 70%, var(--fg-3)); }
+/* Live: a persistent faint concentric ring (resting shape channel, independent
+   of motion) with the pulse layered on top — so even at the pulse trough the
+   disc reads as solid-fill + ring, never a bare solid that aliases stale. */
+.status-dot-disc.status-dot-live { background: var(--accent); box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 30%, transparent); animation: status-disc-pulse 1.8s ease-in-out infinite; }
 .status-dot-disc.status-dot-error { background: var(--flame); box-shadow: 0 0 0 1.5px color-mix(in oklab, var(--flame) 38%, transparent); }
 .status-dot-disc.status-dot-connecting { background: transparent; box-shadow: inset 0 0 0 2px var(--amber); }
-.status-dot-disc.status-dot-stale { background: color-mix(in oklab, var(--warn) 70%, var(--fg-3)); }
+/* Stale: a muted ring with a hollow centre — silhouette distinct from live's
+   filled disc and connecting's amber hollow ring (hue + inset core). */
+.status-dot-disc.status-dot-stale { background: transparent; box-shadow: inset 0 0 0 1px var(--stale), inset 0 0 0 3px var(--bg); }
 @keyframes status-disc-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 55%, transparent); }
-  50%      { box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 0%, transparent); }
+  /* First shadow is the persistent resting ring; second is the animated halo —
+     the ring is always present so the trough never collapses to a bare solid. */
+  0%, 100% { box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 30%, transparent), 0 0 0 2px color-mix(in oklab, var(--accent) 55%, transparent); }
+  50%      { box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 30%, transparent), 0 0 0 6px color-mix(in oklab, var(--accent) 0%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) {
-  /* Keep the live disc shape-differentiated without motion: a static concentric ring. */
-  .status-dot-disc.status-dot-live { animation: none; box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 35%, transparent); }
+  /* The base rule already carries the persistent ring; just stop the pulse. */
+  .status-dot-disc.status-dot-live { animation: none; }
 }
 
 /* ----------------------------------------------------------------------------
@@ -492,7 +505,7 @@
 }
 button.chat-composer-context { cursor: pointer; }
 button.chat-composer-context:hover { color: var(--fg-2); }
-button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 /* Composer send/cancel button row: a non-wrapping cluster pinned to the
    bottom-right of the flex-end composer (was unstyled, so the send button
@@ -512,7 +525,7 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 .agentchat-followups { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-2) var(--space-3); }
 
 /* --- C1: stale/idle dashboard status (static, NOT pulsing). --- */
-.ds-dash-status.is-stale { color: var(--amber); }
+.ds-dash-status.is-stale { color: var(--stale); }
 .ds-dash-status.is-running { color: var(--accent); }
 
 /* --- C2: dashboard sort/filter toolbar + stream-state line. --- */
@@ -556,7 +569,7 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 /* Stale/idle card: a positive amber inset bar (mirrors is-active) so a stuck
    agent is flagged in a dense grid, not merely faded near-invisibly. The word
    'idle' co-carries state, so this stays colour-blind safe. */
-.ds-dash-card.is-stale { box-shadow: inset 2px 0 0 var(--amber); }
+.ds-dash-card.is-stale { box-shadow: inset 2px 0 0 var(--stale); }
 
 /* --- H3: dashboard live disc pulses; stale/error do not (handled by H1). --- */
 
@@ -666,7 +679,7 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
   font: inherit; color: inherit; text-decoration: underline dotted;
 }
 .chat-composer-context-bit:hover { color: var(--fg-2); }
-.chat-composer-context-bit:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.chat-composer-context-bit:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 @media (pointer: coarse) {
   .chat-composer-context-bit { min-height: 44px; }
 }
@@ -745,6 +758,11 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 .chat-msg-flat.you .chat-role { color: var(--accent); }
 .chat-msg-flat .chat-bubble { background: none; border: none; border-radius: 0; padding: 0; max-width: 100%; box-shadow: none; transform: none; }
 .chat-msg-flat.you .chat-bubble { background: none; color: inherit; }
+/* Flat user turns reset their bubble to transparent, but the messenger rule
+   (.chat-msg.you .chat-bubble code) tints inline code on --accent-fg, which is
+   invisible/wrong on the bare page surface. Reset to the neutral fg-10% tint the
+   sibling assistant turns get (wins over app-shell.css by later source order). */
+.chat-msg-flat.you .chat-bubble code { background: color-mix(in oklab, var(--fg) 10%, transparent); }
 /* Flat turns strip the bubble padding, so the role label sat 4px above the first
    paragraph and the .them tint hugged text flush. Restore reading rhythm + give
    the tinted assistant row inner breathing room so it reads as a card. */
@@ -768,6 +786,16 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
    ladder stays monotonic): assistant 5% > its 3% rest; user 4% > transparent. */
 .chat-msg-flat.them:hover { background: color-mix(in oklab, var(--fg) 5%, transparent); }
 .chat-msg-flat.you:hover { background: color-mix(in oklab, var(--fg) 4%, transparent); }
+/* A turn whose only assistant content is a bordered tool card or code block
+   already carries its own --bg surface + rule border; the turn-level .them tint
+   would stack a second, wider-than-measure surface behind it. Suppress it so the
+   card is the single surface (claude.ai/code keeps tool cards on bare canvas).
+   Selectors mirror the breakout pair above so suppression + widening always
+   cover the same turns. */
+.chat-msg-flat.them:has(.chat-tool),
+.chat-msg-flat.them:has(.chat-bubble.chat-code),
+.chat-msg-flat.them:has(.chat-tool):hover,
+.chat-msg-flat.them:has(.chat-bubble.chat-code):hover { background: none; }
 .chat-msg-flat:hover .chat-bubble { transform: none; box-shadow: none; background: none; }
 .chat-msg-flat .chat-avatar { display: none; }
 
@@ -806,7 +834,9 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 .chat-msg .chat-tool.tool-done .chat-tool-status { color: var(--success); background: color-mix(in oklab, var(--success) 12%, transparent); }
 .chat-tool-body { border-top: var(--bw-hair) solid var(--rule); padding: var(--space-2) var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
 .chat-tool-section { display: flex; flex-direction: column; gap: var(--space-1); }
-.chat-tool-section-label { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); }
+.chat-tool-section-label { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); }
+.chat-tool-copy { position: static; opacity: 0; }
+.chat-tool-section:hover .chat-tool-copy, .chat-tool-section:focus-within .chat-tool-copy { opacity: 1; }
 .chat-tool-pre { margin: 0; padding: var(--space-2); background: var(--bg-2); border-radius: var(--r-1); font-family: var(--ff-mono); font-size: var(--fs-tiny); line-height: 1.45; overflow-x: auto; max-height: 320px; overflow-y: auto; }
 .chat-tool-pre.is-error { color: var(--flame); }
 .chat-tool-pre.chat-tool-empty { color: var(--fg-3); }
@@ -842,6 +872,11 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
    accent), placed last so its inset bar wins source order over is-active/is-stale.
    The full-perimeter border-color (line ~396) stays for extra severity emphasis. */
 .ds-dash-card.is-error { box-shadow: inset 2px 0 0 var(--flame); }
+/* A newly-arrived AND errored card: keep the LEFT inset bar flame (severity
+   precedence, never accent) while restoring the is-new arrival outline as a
+   full-perimeter accent glow that does not collide with the flame bar. Placed
+   after both is-new and is-error so it wins source order. */
+.ds-dash-card.is-new.is-error { box-shadow: inset 2px 0 0 var(--flame), 0 0 0 1px color-mix(in oklab, var(--accent) 40%, transparent); }
 @media (prefers-reduced-motion: no-preference) {
   .ds-dash-card.is-new { animation: ds-card-in var(--dur-slow) var(--ease); }
 }
@@ -851,9 +886,17 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 .ds-dash-group { display: flex; flex-direction: column; gap: var(--space-2); }
 .ds-dash-group-label { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); padding: 0 var(--space-1); }
 .ds-dash-breakdown { display: flex; align-items: center; gap: var(--space-1); font-size: var(--fs-sm); color: var(--fg-2); }
-.ds-dash-breakdown .seg.is-running { color: var(--accent); font-weight: 600; }
-.ds-dash-breakdown .seg.is-error { color: var(--flame); font-weight: 600; }
-.ds-dash-breakdown .seg.is-idle { color: var(--amber); font-weight: 600; }
+/* Shape-channel discs mirror the .status-dot-disc vocabulary (solid /
+   solid+halo / hollow ring) so a colour-blind user can scan the breakdown by
+   shape, not hue alone. CSS-drawn discs, not glyphs (glyph policy clean). */
+.ds-dash-breakdown .seg { display: inline-flex; align-items: center; gap: var(--space-1); font-weight: 600; }
+.ds-dash-breakdown .seg::before { content: ''; width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.ds-dash-breakdown .seg.is-running { color: var(--accent); }
+.ds-dash-breakdown .seg.is-running::before { background: var(--accent); }
+.ds-dash-breakdown .seg.is-error { color: var(--flame); }
+.ds-dash-breakdown .seg.is-error::before { background: var(--flame); box-shadow: 0 0 0 1.5px color-mix(in oklab, var(--flame) 38%, transparent); }
+.ds-dash-breakdown .seg.is-idle { color: var(--amber); }
+.ds-dash-breakdown .seg.is-idle::before { background: transparent; box-shadow: inset 0 0 0 2px var(--amber); }
 .ds-dash-stream-disc { display: inline-flex; align-items: center; gap: var(--space-1); }
 .ds-dash-selectall { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--fs-tiny); color: var(--fg-2); cursor: pointer; background: none; border: none; padding: var(--space-1); }
 .ds-dash-selectall:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -925,3 +968,18 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 @media (min-width: 1600px) {
   .agentchat-thread { --measure: 84ch; }
 }
+
+/* Stop/cancel composer control: re-tone the accent send button as a quiet
+   neutral control so 'stop generating' reads as distinct from accent send.
+   Flame/warn stay reserved (flame=error STATUS, warn=destructive ACTION); a
+   neutral quiet tone is the claude-code-aligned read for an in-flight stop. */
+.chat-composer .send.cancel {
+  background: var(--bg-3);
+  color: var(--fg);
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule-strong, var(--rule));
+}
+.chat-composer .send.cancel:hover {
+  background: color-mix(in oklab, var(--fg) 8%, var(--bg-3));
+  filter: none;
+}
+.chat-composer .send.cancel:active { filter: brightness(0.96); }

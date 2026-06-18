@@ -66,7 +66,7 @@ export {
 
 export {
     useDraggable, useDropTarget, useNumberScrub, usePointerDrag, Reorderable,
-    useKeyboardShortcut, formatShortcut, ShortcutHint,
+    useKeyboardShortcut, formatShortcut, ShortcutHint, ShortcutList,
     useKeyboardShortcutHelp, ShortcutHelpDialog
 } from './components/interaction-primitives.js';
 

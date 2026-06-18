@@ -55,9 +55,12 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
     const noAccess = locked || permissions === 'EACCES' || (Array.isArray(permissions) && permissions.length === 0);
     const readOnly = !noAccess && Array.isArray(permissions) && permissions.indexOf('write') === -1 && permissions.indexOf('read') !== -1;
     const permTag = noAccess ? 'no access' : (readOnly ? 'read-only' : null);
-    const meta = [type === 'dir' ? null : fmtFileSize(size), modified || null, permTag].filter(Boolean).join(' · ');
+    // permTag is rendered as its own chip (a SHAPE channel, not folded into the
+    // muted meta text) - so drop it from the meta join, but keep it in the
+    // accessible label so AT still announces the restriction.
+    const meta = [type === 'dir' ? null : fmtFileSize(size), modified || null].filter(Boolean).join(' · ');
     const typeLabel = TYPE_LABELS[type] || 'file';
-    const accessibleLabel = `${typeLabel}: ${name}${meta ? ` (${meta})` : ''}`;
+    const accessibleLabel = `${typeLabel}: ${name}${meta ? ` (${meta})` : ''}${permTag ? ', ' + permTag : ''}`;
     const canOpen = onOpen && !noAccess && !busy;
     // Mutation actions on a read-only/no-access row render disabled (with a
     // 'read-only' title) instead of vanishing, so the affordance reads honestly.
@@ -109,10 +112,13 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
             'aria-pressed': active ? 'true' : 'false',
             disabled: canOpen ? null : true,
         },
-            code != null ? h('span', { class: 'code', 'aria-label': `code: ${code}` }, code) : null,
-            FileIcon({ type }),
-            h('span', { class: 'title' }, name),
-            h('span', { class: 'ds-file-meta meta', 'aria-label': meta ? `metadata: ${meta}` : null }, meta || '—')
+            ...[
+                code != null ? h('span', { class: 'code', 'aria-label': `code: ${code}` }, code) : null,
+                FileIcon({ type }),
+                h('span', { class: 'title' }, name),
+                h('span', { class: 'ds-file-meta meta', 'aria-label': meta ? `metadata: ${meta}` : null }, meta || '—'),
+                permTag ? h('span', { class: 'ds-file-perm-tag' + (noAccess ? ' is-noaccess' : ''), 'aria-hidden': 'true' }, permTag) : null,
+            ].filter(Boolean)
         ),
         actionBtns.length ? h('span', { key: 'acts', class: 'ds-file-actions', role: 'group', 'aria-label': `actions for ${name}` },
             ...actionBtns
@@ -121,6 +127,7 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
     return h('div', {
         key,
         class: 'ds-file-row row' + (active ? ' active' : '') + (noAccess ? ' is-locked' : '')
+            + (readOnly ? ' is-restricted' : '')
             + (marked ? ' is-marked' : '') + (selectable ? ' is-selectable' : ''),
         'data-file-type': type,
         'aria-busy': busy ? 'true' : null,
@@ -130,7 +137,7 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
 // FileSkeleton — placeholder shimmer rows shown while a directory loads, so the
 // grid does not flash from a bare spinner to a full list (predictable perceived
 // perf, the file-manager feel). `rows` controls how many ghost rows render.
-export function FileSkeleton({ rows = 8 } = {}) {
+export function FileSkeleton({ rows = 12 } = {}) {
     return h('div', { class: 'ds-file-grid ds-file-skeleton', 'aria-hidden': 'true' },
         ...Array.from({ length: Math.max(1, rows) }, (_, i) => h('div', { key: 'sk' + i, class: 'ds-file-row ds-file-row-skeleton' },
             h('span', { class: 'ds-skel ds-skel-icon' }),
@@ -173,7 +180,7 @@ export function sortFiles(files = [], sort = 'name', dir = 'asc') {
 // CAP and a "show N more" row, mirroring the History tab's "load N older".
 const FILE_GRID_CAP = 200;
 
-export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No files here yet',
+export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No files here yet', emptyAction,
                           sort, filter, loading = false,
                           shown, onShowMore, actions, busy,
                           // Canonical multi-select contract (shared with
@@ -187,8 +194,14 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
     // delete / upload round-trip) keeps the rows on screen and dims them -
     // flashing the whole directory to shimmer rows on every mutation reads as
     // data loss.
-    if (loading && !files.length) return FileSkeleton({});
-    if (!files.length) return EmptyState({ text: emptyText });
+    if (loading && !files.length) return FileSkeleton({ rows: 12 });
+    // A filtered miss is NOT an empty directory: when the in-grid filter narrows
+    // to zero matches, the host still passes an empty `files` array - but we must
+    // keep the controls toolbar (the filter input that caused the miss) mounted so
+    // the user can clear/edit it to recover. Only a genuinely-empty directory (no
+    // active filter) gets the bare cold EmptyState early-return.
+    const hasFilter = !!(filter && (filter.value || '').length > 0);
+    if (!files.length && !hasFilter) return EmptyState({ text: emptyText, glyph: Icon('folder-open', { size: 28 }), action: emptyAction });
     const refreshing = loading && files.length > 0;
     // Cap the rendered rows. `shown` (host-controlled) overrides the default cap
     // so "show more" can grow it; otherwise default to FILE_GRID_CAP.
@@ -241,12 +254,20 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
     // it switches presentation of the same content, not panels.
     const densityCtl = onDensity
         ? h('div', { key: 'density', class: 'ds-density', role: 'radiogroup', 'aria-label': 'view density' },
-            ...DENSITIES.map(([k, label]) => h('button', {
+            ...DENSITIES.map(([k, label], idx) => h('button', {
                 key: 'd-' + k, type: 'button', role: 'radio',
                 class: 'ds-density-btn' + (density === k ? ' active' : ''),
                 'aria-checked': density === k ? 'true' : 'false',
+                // Icon-led, but the density name stays the accessible name
+                // (aria-label) + the native tooltip (title) so the control reads
+                // dense without losing its label.
+                'aria-label': label, title: label,
+                // Single tab stop: the checked radio is tabbable, the rest are
+                // roved. Arrow/Home/End move + select (selection follows focus).
+                tabindex: density === k ? '0' : '-1',
+                onkeydown: (e) => rovingRadio(e, idx, DENSITIES, (tk) => { if (density !== tk) onDensity(tk); }),
                 onclick: () => { if (density !== k) onDensity(k); },
-            }, label)))
+            }, Icon(DENSITY_ICONS[k], { size: 15 }))))
         : null;
     // One toolbar baseline: filter + select-all + sort sit left, density is
     // pushed right by the spread. The filter used to be a separate right-aligned
@@ -266,10 +287,16 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
     const controls = controlsKids.length
         ? h('div', { class: 'ds-file-controls' }, ...controlsKids)
         : null;
+    // A filtered miss (zero rows but an active filter) renders the EmptyState
+    // INSIDE the listing, below the controls toolbar, so the filter input stays
+    // mounted and editable - the user can clear/edit it to recover instead of
+    // being stranded with no toolbar (the early-return only fires for a genuinely
+    // empty directory). The host passes filter-aware copy via emptyText.
+    const filteredEmpty = !files.length && hasFilter;
     // role=group not listbox: the rows contain real <button> action controls, so
     // listbox/option semantics are invalid (an option can't host interactive
     // children). Keyboard nav still works via roving focus over the open buttons.
-    const grid = h('div', {
+    const grid = filteredEmpty ? EmptyState({ text: emptyText, glyph: Icon('folder-open', { size: 28 }) }) : h('div', {
         class: 'ds-file-grid' + (isThumb ? ' ds-file-grid-thumb' : '') + (refreshing ? ' is-refreshing' : ''),
         role: 'group', 'aria-label': 'files', tabindex: '0',
         'aria-busy': refreshing ? 'true' : 'false',
@@ -313,6 +340,25 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
 }
 
 const DENSITIES = [['list', 'list'], ['compact', 'compact'], ['thumb', 'thumbnails']];
+const DENSITY_ICONS = { list: 'rows', compact: 'rows-tight', thumb: 'grid' };
+
+// Roving-radiogroup keyboard helper (the WAI-ARIA radio pattern): a radiogroup
+// is a SINGLE tab stop where Arrow/Home/End move AND select among options, with
+// selection following focus. `items` is the ordered [[key, ...], ...] list;
+// `onSelect(targetKey)` is the same handler the onclick fires. Mouse path is
+// unchanged - this only adds keyboard navigation.
+function rovingRadio(e, idx, items, onSelect) {
+    let target = -1;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') target = (idx - 1 + items.length) % items.length;
+    else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') target = (idx + 1) % items.length;
+    else if (e.key === 'Home') target = 0;
+    else if (e.key === 'End') target = items.length - 1;
+    else return;
+    e.preventDefault();
+    onSelect(items[target][0]);
+    const sib = e.currentTarget.parentNode && e.currentTarget.parentNode.children[target];
+    sib && sib.focus();
+}
 
 // FileCell — the thumbnail-density tile. Image entries show a real (lazy)
 // thumbnail through the host's confined thumbUrl; everything else keeps its
@@ -470,10 +516,20 @@ export function UploadProgress({ items = [], onDismiss } = {}) {
     );
 }
 
-export function EmptyState({ text = 'nothing here', glyph = Icon('circle') } = {}) {
+export function EmptyState({ text = 'nothing here', glyph = Icon('circle'), action } = {}) {
+    // action: { onClick, label } - an optional CTA (e.g. 'go up' / 'upload a
+    // file'), mirroring the SessionDashboard emptyAction contract so an empty
+    // directory is not a dead end. Children are built as an array + filtered so
+    // the keyed Btn never sits beside an unkeyed span (webjsx applyDiff 'key'
+    // crash on mixed keyed/unkeyed siblings).
     return h('div', { class: 'ds-file-empty', role: 'status' },
-        h('span', { class: 'ds-file-empty-glyph', 'aria-hidden': 'true' }, glyph),
-        h('span', { class: 'ds-file-empty-text' }, text)
+        ...[
+            h('span', { key: 'glyph', class: 'ds-file-empty-glyph', 'aria-hidden': 'true' }, glyph),
+            h('span', { key: 'text', class: 'ds-file-empty-text' }, text),
+            (action && action.onClick)
+                ? Btn({ key: 'ea', onClick: action.onClick, children: action.label || 'go up' })
+                : null,
+        ].filter(Boolean)
     );
 }
 

@@ -146,6 +146,10 @@ const ICON_PATHS = {
     // file-browser icons (replace folder/file emoji + arrow glyphs in fs apps)
     folder: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
     'folder-open': '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2H5l-2 9z"/><path d="M3 18l2-9h17l-2 9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    // density-picker icons (list / compact / thumbnail view modes)
+    rows: '<path d="M4 6h16M4 12h16M4 18h16"/>',
+    'rows-tight': '<path d="M4 5h16M4 9h16M4 13h16M4 17h16"/>',
+    grid: '<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>',
     'file-image': '<path d="M6 3h8l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><circle cx="9.5" cy="12.5" r="1.5"/><path d="M18 19l-4-4-3 3-2-2-3 3"/>',
     link: '<path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/>',
     upload: '<path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/>',
@@ -318,12 +322,17 @@ function toggleWs(which) {
 
 // Column resize: read the current rendered track width and write a clamped inline
 // --ws-<col>-w on .ws-shell (inline overrides the fluid clamp base), persisted.
-// Bounds are derived from the CSS fluid clamp() floors/ceilings in app-shell.css
-// (--ws-rail-w clamp(200,16vw,260); sessions clamp(248,22vw,360); pane
-// clamp(288,24vw,420)) so a drag/arrow can never shrink a column below its
-// designed floor (the collapsed rail is a SEPARATE class, not a resize target)
-// nor grow past the ultrawide ceiling.
-const WS_RESIZE_CLAMP = { rail: [200, 260], sessions: [248, 360], pane: [288, 420] };
+// Floors match the CSS fluid clamp() floors in app-shell.css (--ws-rail-w
+// clamp(200,16vw,260); sessions clamp(248,22vw,360); pane clamp(288,24vw,420))
+// so a drag/arrow can never shrink a column below its designed minimum (the
+// collapsed rail is a SEPARATE class, not a resize target). The ceilings are
+// INTENTIONALLY raised above the fluid clamp() mid-term ceilings: on wide
+// viewports the 16/22/24vw mid term already pins each column to its clamp
+// ceiling, so a ceiling-equals-clamp bound made the outward drag inert there.
+// The higher resize ceilings let a deliberate drag/arrow grow a column past its
+// auto-fluid width (the inline --ws-<col>-w override pins the chosen width past
+// the clamp base).
+const WS_RESIZE_CLAMP = { rail: [200, 320], sessions: [248, 520], pane: [288, 640] };
 function wsResize(col, dx, persist = true) {
     const shell = document.querySelector('.ws-shell');
     if (!shell) return;
@@ -505,6 +514,15 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
                         'aria-expanded': 'true', onclick: () => toggleWs('sessions'),
                     }, Icon('chevron-left')) : null,
                     h('div', { class: 'ws-crumb-main' }, crumb),
+                    // Desktop-only context-pane collapse, on the same crumb-level
+                    // chrome idiom as the sessions toggle. Hidden on mobile via CSS.
+                    hasPane ? h('button', {
+                        class: 'ws-desktop-toggle ws-pane-toggle', type: 'button',
+                        'aria-label': paneIsCollapsed ? 'show context pane' : 'hide context pane',
+                        title: paneIsCollapsed ? 'show context pane' : 'hide context pane',
+                        'aria-expanded': paneIsCollapsed ? 'false' : 'true',
+                        onclick: () => toggleWs('pane'),
+                    }, Icon(paneIsCollapsed ? 'chevron-left' : 'chevron-right')) : null,
                     hasPane ? h('button', {
                         class: 'ws-drawer-toggle ws-pane-drawer-toggle', type: 'button',
                         'aria-label': 'toggle context pane', 'aria-expanded': 'false',
@@ -514,16 +532,10 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
             h('main', { class: 'ws-main' + (narrow ? ' narrow' : '') + (mainFlush ? ' ws-main--flush' : ''), id: 'ws-main', tabindex: '-1' },
                 ...(Array.isArray(main) ? main : [main])),
             status || null),
-        // Optional right context pane with its own collapse toggle.
+        // Optional right context pane. Its desktop collapse toggle now lives in
+        // the crumb cluster, alongside the sessions toggle.
         hasPane
             ? h('aside', { class: 'ws-pane', role: 'complementary', 'aria-label': paneLabel },
-                h('button', {
-                    class: 'ws-pane-toggle', type: 'button',
-                    'aria-label': paneIsCollapsed ? 'show context pane' : 'hide context pane',
-                    title: paneIsCollapsed ? 'show context pane' : 'hide context pane',
-                    'aria-expanded': paneIsCollapsed ? 'false' : 'true',
-                    onclick: () => toggleWs('pane'),
-                }, Icon(paneIsCollapsed ? 'chevron-left' : 'chevron-right')),
                 pane)
             : null,
         // Keyboard/pointer column resize handles (desktop only).

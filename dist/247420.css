@@ -20,6 +20,8 @@
   --ink:         #131318;
   --ink-2:       #25252C;
   --ink-3:       #54545A; /* WCAG AAA on --paper (~7.1:1); was #6A6A70 (AA only) */
+  --ink-3-dark:  #464650; /* dark theme bg-3 (tier-3 surface) */
+  --paper-3-dark: #B4B4BC; /* dark theme fg-3 (tier-3 text)   */
 
   /* Lore palette */
   --green:       #247420;
@@ -252,10 +254,10 @@
   color-scheme: dark;
   --bg:        var(--ink);
   --bg-2:      var(--ink-2);
-  --bg-3:      #464650;
+  --bg-3:      var(--ink-3-dark);
   --fg:        var(--paper);
   --fg-2:      var(--paper-2);
-  --fg-3:      #B4B4BC;
+  --fg-3:      var(--paper-3-dark);
   --panel-bg:  var(--bg);
   --panel-bg-2: var(--bg-2);
   --panel-0:   var(--bg);
@@ -282,18 +284,20 @@
   --code-num:     var(--sun);
 }
 
-/* NOTE: the [data-theme="auto"] block below intentionally duplicates the
-   [data-theme="ink"/"dark"] block above. They are NOT literally identical —
-   the explicit-dark block also overrides --danger for contrast — so they are
-   kept separate rather than consolidated to avoid a behavior change. */
+/* NOTE: the [data-theme="auto"] block below mirrors the
+   [data-theme="ink"/"dark"] block above token-for-token. 'auto + OS-dark' and
+   'explicit dark' are the same visual context and resolve every token —
+   including --danger — identically. The two are kept as separate selectors
+   only because one is media-gated; a future de-drift can consolidate them into
+   a shared selector list once a build step can hoist the media query. */
 @media (prefers-color-scheme: dark) {
   .ds-247420[data-theme="auto"] {
     --bg:        var(--ink);
     --bg-2:      var(--ink-2);
-    --bg-3:      #464650;
+    --bg-3:      var(--ink-3-dark);
     --fg:        var(--paper);
     --fg-2:      var(--paper-2);
-    --fg-3:      #B4B4BC;
+    --fg-3:      var(--paper-3-dark);
     --panel-bg:  var(--bg);
     --panel-bg-2: var(--bg-2);
     --panel-0:   var(--bg);
@@ -306,6 +310,7 @@
     --accent:    var(--accent-bright, var(--green-2));
     --accent-fg: var(--ink);
     --accent-bright: var(--green-2);
+    --danger:    oklch(0.68 0.19 25);
     --flame:     #FF5A1F;
     --amber:     #D9A93A;
     --warn:      #FF5A52;
@@ -375,7 +380,7 @@
   --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
   --accent: var(--green); --accent-fg: var(--paper);
   /* A paper island under a dark ancestor must not inherit the dark signal pair. */
-  --flame: #C53E00; --amber: #8A6512;
+  --flame: #C53E00; --amber: #8A6512; --warn: #E0241A; --sky: #3A6EFF;
 }
 
 /* thebird — warm-paper brand preset. A first-class swappable theme: it lives
@@ -899,7 +904,7 @@
 .ds-247420 .ds-icon-btn-primary { background: var(--accent); color: var(--accent-fg); }
 .ds-247420 .ds-icon-btn-primary:hover { background: var(--fg); color: var(--bg); }
 /* warn = destructive ACTION tone; flame stays exclusively error STATUS. */
-.ds-247420 .ds-icon-btn-danger { background: var(--warn); color: var(--paper); }
+.ds-247420 .ds-icon-btn-danger { background: var(--warn); color: var(--on-color); }
 .ds-247420 .ds-icon-btn-danger:hover { filter: brightness(1.1); }
 .ds-247420 .ds-icon-btn:active { transform: translateY(1px); }
 .ds-247420 .ds-icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -921,10 +926,10 @@
 .ds-247420 .ds-badge.tone-purple  { background: var(--purple-tint); color: var(--purple-deep); }
 .ds-247420 .ds-badge.tone-mascot  { background: var(--mascot-tint); color: var(--ink); }
 .ds-247420 .ds-badge.tone-sun     { background: var(--sun);         color: var(--ink); }
-.ds-247420 .ds-badge.tone-flame   { background: var(--flame);       color: var(--paper); }
+.ds-247420 .ds-badge.tone-flame   { background: var(--flame);       color: var(--on-color); }
 .ds-247420 .ds-badge.tone-live    { background: var(--green-tint);  color: var(--green-deep); }
 .ds-247420 .ds-badge.tone-wip     { background: var(--bg-3);        color: var(--fg-2); }
-.ds-247420 .ds-badge.tone-error   { background: var(--flame);       color: var(--paper); }
+.ds-247420 .ds-badge.tone-error   { background: var(--flame);       color: var(--on-color); }
 .ds-247420 .ds-badge.tone-success { background: var(--green-tint);  color: var(--green-deep); }
 .ds-247420 .ds-badge.tone-neutral { background: var(--bg-3);        color: var(--fg-2); }
 
@@ -941,14 +946,14 @@
 .ds-247420 .chip.tone-purple  { background: var(--purple-tint); color: var(--purple-deep); }
 .ds-247420 .chip.tone-mascot  { background: var(--mascot-tint); color: var(--ink); }
 .ds-247420 .chip.tone-sun     { background: var(--sun);         color: var(--ink); }
-.ds-247420 .chip.tone-flame   { background: var(--flame);       color: var(--paper); }
+.ds-247420 .chip.tone-flame   { background: var(--flame);       color: var(--on-color); }
 .ds-247420 .chip.tone-live    { background: var(--green-tint);  color: var(--green-deep); }
 .ds-247420 .chip.tone-wip     { background: var(--bg-3);        color: var(--fg-2); }
-.ds-247420 .chip.tone-error    { background: var(--flame);       color: var(--paper); }
+.ds-247420 .chip.tone-error    { background: var(--flame);       color: var(--on-color); }
 .ds-247420 .chip.tone-success  { background: var(--green-tint);  color: var(--green-deep); }
 .ds-247420 .chip.tone-disabled { background: var(--bg-3);        color: var(--fg-3); }
 .ds-247420 .chip.tone-ok       { background: var(--green-tint);  color: var(--green-deep); }
-.ds-247420 .chip.tone-miss     { background: var(--flame);       color: var(--paper); }
+.ds-247420 .chip.tone-miss     { background: var(--flame);       color: var(--on-color); }
 .ds-247420 .chip.tone-neutral  { background: var(--bg-3);        color: var(--fg-2); }
 
 .ds-247420 .glyph {
@@ -987,6 +992,8 @@
   font-family: var(--ff-mono); letter-spacing: 0;
 }
 .ds-247420 .panel-body { padding: var(--space-2) var(--space-3) var(--space-3); }
+.ds-247420 .panel-body > * { margin: 0; }
+.ds-247420 .panel-body > * + * { margin-top: var(--space-3); }
 .ds-247420 .panel.panel-wide .panel-body { padding: 0; }
 
 /* ============================================================
@@ -1009,6 +1016,21 @@
   transition: background var(--dur-snap) var(--ease);
 }
 .ds-247420 .row + .row { margin-top: 2px; }
+/* `detail` drops to its own full-width line. The row is a grid, so span every
+   track (grid-column 1/-1); flex-basis:100% covers the flex-row fallback. */
+.ds-247420 .ds-row-detail {
+  white-space: pre-wrap;
+  font-family: var(--ff-mono);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug, 1.3);
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: var(--r-1);
+  overflow-x: auto;
+  flex-basis: 100%;
+  grid-column: 1 / -1;
+}
 .ds-247420 .row::before {
   content: '';
   position: absolute; left: 7px; top: 0; bottom: 0; width: 3px;
@@ -1392,8 +1414,6 @@
   .ds-247420 .chat-msg:hover { padding: 4px 0; margin: 0; background: transparent; }
   .ds-247420 .chat-composer { padding: 8px; gap: 6px; }
   .ds-247420 .chat-composer textarea { padding: 10px 12px; font-size: var(--fs-sm); }
-  .ds-247420 .chat-composer .send,
-  .ds-247420 .chat-composer button { width: 40px; height: 40px; font-size: 16px; }
 
   /* KPI Cards */
   .ds-247420 .kpi {
@@ -1782,9 +1802,10 @@
   background: var(--bg-2); border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1);
 }
 .ds-247420 .ds-density-btn {
-  font-size: var(--fs-tiny); color: var(--fg-2);
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; color: var(--fg-2);
   background: none; border: none; cursor: pointer;
-  padding: 2px var(--space-2); border-radius: calc(var(--r-1) - 2px);
+  padding: 0; border-radius: calc(var(--r-1) - 2px);
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
 .ds-247420 .ds-density-btn:hover { color: var(--fg); }
@@ -2233,6 +2254,7 @@
   transition: color var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
 }
 .ds-247420 .ds-segmented .ds-seg-btn:hover { color: var(--fg); }
+.ds-247420 .ds-segmented .ds-seg-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .ds-247420 .ds-segmented .ds-seg-btn.is-on {
   background: var(--bg); color: var(--fg);
   box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule);
@@ -2380,9 +2402,19 @@
   color: color-mix(in oklab, currentColor 75%, transparent); font-style: italic;
 }
 .ds-247420 .chat-bubble.chat-md pre {
-  background: color-mix(in oklab, var(--fg) 8%, transparent);
-  padding: 10px 12px; border-radius: 6px; overflow-x: auto;
-  font-family: var(--ff-mono); font-size: 0.9em; margin: 8px 0;
+  background: var(--bg);
+  border: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
+  padding: 12px 16px; border-radius: var(--r-1); overflow-x: auto;
+  font-family: var(--ff-mono); font-size: var(--fs-xs); line-height: 1.55;
+  color: var(--fg); margin: 8px 0;
+}
+/* When injectCodeCopy has wrapped the fence (.chat-code-block), reserve room
+   for the absolute .chat-code-lang tab. This selector outranks the bare
+   .chat-code-block pre reservation in chat.css, which the 2-class md pre
+   selector above would otherwise override. */
+.ds-247420 .chat-code-block .chat-bubble.chat-md pre,
+.ds-247420 .chat-bubble.chat-md .chat-code-block pre {
+  padding-top: calc(var(--space-3) + 4px);
 }
 /* Markdown tables + horizontal rules: agents routinely emit them, but they were
    unstyled (bare unspaced cells, vanished rules). */
@@ -2618,6 +2650,14 @@
   border-color: var(--accent);
   box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 18%, transparent);
 }
+.ds-247420 .chat-composer.is-error,
+.ds-247420 .chat-composer:has(textarea[aria-invalid="true"]) {
+  border-color: var(--flame);
+}
+.ds-247420 .chat-composer.is-error:focus-within,
+.ds-247420 .chat-composer:has(textarea[aria-invalid="true"]):focus-within {
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--flame) 22%, transparent);
+}
 .ds-247420 .chat-composer textarea {
   flex: 1; min-width: 0; padding: 8px 4px;
   background: none; color: var(--fg);
@@ -2633,7 +2673,7 @@
 .ds-247420 .chat-composer textarea::placeholder { color: var(--fg-3); }
 .ds-247420 .chat-composer textarea:focus { background: none; border: none; box-shadow: none; outline: none; }
 .ds-247420 .chat-composer .send {
-  width: 36px; height: 36px; border-radius: var(--r-1);
+  border-radius: var(--r-1);
   background: var(--accent); color: var(--accent-fg);
   border: 0; cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center;
@@ -2641,10 +2681,10 @@
   transition: background var(--dur-snap, .15s) var(--ease, ease);
 }
 .ds-247420 .chat-composer .send:disabled { opacity: .5; cursor: not-allowed; }
-/* Ghost icon buttons in the toolbar (attach / emoji / more) — NOT the round
-   accent send button. */
+/* Ghost icon buttons in the toolbar (attach / emoji / more). Size + radius are
+   owned by .chat-composer-toolbar .composer-btn in chat.css (32px / --r-1,
+   44px coarse); this base rule keeps only the shared appearance. */
 .ds-247420 .composer-btn {
-  width: 40px; height: 40px; border-radius: 50%;
   background: transparent; color: var(--fg-3);
   border: 0; cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center;
@@ -2740,9 +2780,6 @@
 @media (max-height: 500px) and (orientation: landscape) {
     .ds-247420 .chat-composer { padding: 6px 0; }
     .ds-247420 .chat-composer textarea { min-height: 44px; max-height: 120px; }
-    /* Keep the send button at the 44x44 minimum tap target even in the
-       space-constrained landscape layout. */
-    .ds-247420 .chat-composer .send, .ds-247420 .chat-composer button { width: 44px; height: 44px; font-size: 14px; }
 }
 
 /* ============================================================
@@ -2878,7 +2915,6 @@
   position: absolute;
   left: 0; right: 0; height: 2px;
   background: var(--accent);
-  animation: pulse-line 0.6s ease-in-out infinite;
 }
 .ds-247420 .list-item.drag-before::before { top: -2px; }
 .ds-247420 .list-item.drag-after::after { bottom: -2px; }
@@ -2886,6 +2922,10 @@
 @keyframes pulse-line {
   0%, 100% { opacity: 0.3; }
   50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ds-247420 .list-item.drag-before::before,
+  .ds-247420 .list-item.drag-after::after { animation: pulse-line 0.6s ease-in-out infinite; }
 }
 
 /* ------------------------------------------------------------
@@ -2901,7 +2941,6 @@
   min-width: 160px;
   z-index: calc(var(--z-overlay, 1000) + 1);
   padding: 4px 0;
-  animation: context-menu-in 0.15s ease-out;
 }
 
 @keyframes context-menu-in {
@@ -2913,6 +2952,9 @@
     opacity: 1;
     transform: scale(1) translateY(0);
   }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ds-247420 .ds-context-menu { animation: context-menu-in 0.15s ease-out; }
 }
 
 .ds-247420 .ds-context-menu-item {
@@ -3168,6 +3210,10 @@
   padding: var(--space-8) var(--space-4);
   text-align: center; color: var(--fg-3);
 }
+.ds-247420 .empty-state--inline {
+  flex-direction: row; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) 0; text-align: left;
+}
 .ds-247420 .empty-state-icon {
   font-size: 48px; opacity: 0.4;
 }
@@ -3212,7 +3258,6 @@
   padding: var(--space-3) var(--space-4);
   max-width: 320px;
   box-shadow: 0 10px 40px color-mix(in oklab, var(--fg) 20%, transparent);
-  animation: toast-slide-in 0.3s ease-out;
   z-index: calc(var(--z-overlay, 1000) + 10);
 }
 
@@ -3225,6 +3270,9 @@
     opacity: 1;
     transform: translateX(0);
   }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ds-247420 .toast { animation: toast-slide-in 0.3s ease-out; }
 }
 
 .ds-247420 .toast.error { border-color: var(--warn); }
@@ -3252,11 +3300,13 @@
   height: 4px;
   border-radius: 50%;
   background: var(--accent);
-  animation: ds-bounce 1.4s infinite ease-in-out;
 }
-.ds-247420 .ds-spinner span:nth-child(1) { animation-delay: 0s; }
-.ds-247420 .ds-spinner span:nth-child(2) { animation-delay: 0.18s; }
-.ds-247420 .ds-spinner span:nth-child(3) { animation-delay: 0.36s; }
+@media (prefers-reduced-motion: no-preference) {
+  .ds-247420 .ds-spinner span { animation: ds-bounce 1.4s infinite ease-in-out; }
+  .ds-247420 .ds-spinner span:nth-child(1) { animation-delay: 0s; }
+  .ds-247420 .ds-spinner span:nth-child(2) { animation-delay: 0.18s; }
+  .ds-247420 .ds-spinner span:nth-child(3) { animation-delay: 0.36s; }
+}
 
 .ds-247420 .ds-spinner-lg { height: 24px; gap: 6px; }
 .ds-247420 .ds-spinner-lg span { width: 6px; height: 6px; }
@@ -3534,6 +3584,13 @@
 @media (max-width: 1480px) { .ds-247420 .ws-resizer.ws-resizer-pane { display: none; } }
 @media (max-width: 1100px) { .ds-247420 .ws-resizer.ws-resizer-sessions { display: none; } }
 @media (max-width: 900px)  { .ds-247420 .ws-resizer { display: none; } }
+/* A resizer must also vanish once its TRACK is desktop-collapsed: a 0px (pane/
+   sessions) or 60px icon-only (rail) track has no width to drag, and a drag would
+   write an INLINE --ws-*-w that overrides the collapse var (inline wins), fighting
+   the collapse state. Mirror the breakpoint guards for the collapse classes. */
+.ds-247420 .ws-rail-collapsed .ws-resizer-rail,
+.ds-247420 .ws-sessions-collapsed .ws-resizer-sessions,
+.ds-247420 .ws-pane-collapsed .ws-resizer-pane { display: none; }
 /* Coarse-pointer hit target for hybrid touch laptops above the drawer breakpoint
    (the 8px sliver is un-grabbable by touch). */
 @media (pointer: coarse) { .ds-247420 .ws-resizer { width: 16px; margin-right: -8px; } }
@@ -3634,16 +3691,10 @@
   overflow: hidden; transition: width var(--dur-base) var(--ease);
 }
 .ds-247420 .ws-pane-collapsed .ws-pane { width: 0; border-left: none; }
-.ds-247420 .ws-pane-collapsed .ws-pane > :not(.ws-pane-toggle) { display: none; }
-.ds-247420 .ws-pane-toggle {
-  position: absolute; top: var(--space-2); left: calc(-1 * var(--space-5));
-  width: 28px; height: 28px;
-  display: inline-flex; align-items: center; justify-content: center;
-  background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); color: var(--fg-2);
-  border-radius: var(--r-1); cursor: pointer; z-index: 2;
+.ds-247420 .ws-pane-collapsed .ws-pane > * { display: none; }
+@media (pointer: coarse) {
+  .ds-247420 .ws-rail-toggle { width: 44px; height: 44px; }
 }
-.ds-247420 .ws-pane-toggle:hover { background: var(--bg-3); color: var(--fg); }
-.ds-247420 .ws-pane-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* Drawer toggles and the scrim are hidden by default and revealed by the staged
    media blocks BELOW - these base rules must precede those blocks in source
@@ -3656,6 +3707,10 @@
 .ds-247420 .ws-desktop-toggle:hover { background: var(--bg-2); color: var(--fg); }
 .ds-247420 .ws-desktop-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 900px) { .ds-247420 .ws-desktop-toggle { display: none; } }
+/* The pane collapse toggle is meaningless once the pane TRACK is dropped (the
+   pane becomes a mobile overlay drawer at <=1480px, reached via its own
+   drawer-toggle), so hide this crumb control past that breakpoint. */
+@media (max-width: 1480px) { .ds-247420 .ws-pane-toggle { display: none; } }
 .ds-247420 .ws-scrim { display: none; }
 
 /* Responsive: the columns yield to the CONTENT in stages - the main column is
@@ -3692,9 +3747,7 @@
   }
   .ds-247420 .ws-shell.ws-pane-open .ws-pane { transform: translateX(0); width: min(340px, 85vw); }
   .ds-247420 .ws-shell.ws-pane-open.ws-pane-collapsed .ws-pane { border-left: var(--bw-hair) solid var(--bg-3); }
-  .ds-247420 .ws-shell.ws-pane-open.ws-pane-collapsed .ws-pane > :not(.ws-pane-toggle) { display: revert; }
-  /* The desktop collapse chevron is meaningless in drawer mode. */
-  .ds-247420 .ws-pane-toggle { display: none; }
+  .ds-247420 .ws-shell.ws-pane-open.ws-pane-collapsed .ws-pane > * { display: revert; }
   .ds-247420 .ws-pane-drawer-toggle { display: inline-flex; }
   /* Scrim is always present from this stage down so it FADES with the drawer
      instead of hard-appearing; pointer-events gate keeps it inert while closed. */
@@ -5440,17 +5493,19 @@
   font: inherit;
 }
 .ds-247420 .agentchat-cwd-btn:hover { border-color: var(--accent); }
-.ds-247420 .agentchat-cwd-btn:focus-visible { outline: 2px solid var(--accent, var(--fg)); outline-offset: 2px; }
+.ds-247420 .agentchat-cwd-btn:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 .ds-247420 .agentchat-cwd-input {
   flex: 1;
   min-width: 12ch;
   background: var(--bg-2);
-  border: 1px solid var(--rule);
+  border: var(--bw-hair) solid var(--rule);
   color: var(--fg);
-  border-radius: 6px;
+  border-radius: var(--r-1);
   padding: 4px 8px;
   font: inherit;
 }
+.ds-247420 .agentchat-cwd-input:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
+.ds-247420 .agentchat-cwd-input[aria-invalid='true'] { border-color: var(--flame); box-shadow: inset 0 0 0 var(--bw-hair) var(--flame); }
 
 /* head + thread */
 .ds-247420 .agentchat-head {
@@ -5658,17 +5713,28 @@
 /* Each variant carries a non-colour channel (fill vs halo vs hollow ring) so the
    states stay distinguishable for colour-blind users and when stale/connecting
    would otherwise share a hue. Mirrors the rail-tone shape differentiation. */
-.ds-247420 .status-dot-disc.status-dot-live { background: var(--accent); animation: status-disc-pulse 1.8s ease-in-out infinite; }
+/* One canonical stale tone (disc + word + rail share it) — a muted grey-warn,
+   deliberately desaturated so it is NOT the saturated --amber used by
+   connecting/connecting-stream (which would re-collide hues). */
+.ds-247420 { --stale: color-mix(in oklab, var(--warn) 70%, var(--fg-3)); }
+/* Live: a persistent faint concentric ring (resting shape channel, independent
+   of motion) with the pulse layered on top — so even at the pulse trough the
+   disc reads as solid-fill + ring, never a bare solid that aliases stale. */
+.ds-247420 .status-dot-disc.status-dot-live { background: var(--accent); box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 30%, transparent); animation: status-disc-pulse 1.8s ease-in-out infinite; }
 .ds-247420 .status-dot-disc.status-dot-error { background: var(--flame); box-shadow: 0 0 0 1.5px color-mix(in oklab, var(--flame) 38%, transparent); }
 .ds-247420 .status-dot-disc.status-dot-connecting { background: transparent; box-shadow: inset 0 0 0 2px var(--amber); }
-.ds-247420 .status-dot-disc.status-dot-stale { background: color-mix(in oklab, var(--warn) 70%, var(--fg-3)); }
+/* Stale: a muted ring with a hollow centre — silhouette distinct from live's
+   filled disc and connecting's amber hollow ring (hue + inset core). */
+.ds-247420 .status-dot-disc.status-dot-stale { background: transparent; box-shadow: inset 0 0 0 1px var(--stale), inset 0 0 0 3px var(--bg); }
 @keyframes status-disc-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 55%, transparent); }
-  50%      { box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 0%, transparent); }
+  /* First shadow is the persistent resting ring; second is the animated halo —
+     the ring is always present so the trough never collapses to a bare solid. */
+  0%, 100% { box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 30%, transparent), 0 0 0 2px color-mix(in oklab, var(--accent) 55%, transparent); }
+  50%      { box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 30%, transparent), 0 0 0 6px color-mix(in oklab, var(--accent) 0%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) {
-  /* Keep the live disc shape-differentiated without motion: a static concentric ring. */
-  .ds-247420 .status-dot-disc.status-dot-live { animation: none; box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 35%, transparent); }
+  /* The base rule already carries the persistent ring; just stop the pulse. */
+  .ds-247420 .status-dot-disc.status-dot-live { animation: none; }
 }
 
 /* ----------------------------------------------------------------------------
@@ -5835,7 +5901,7 @@
 }
 .ds-247420 button.chat-composer-context { cursor: pointer; }
 .ds-247420 button.chat-composer-context:hover { color: var(--fg-2); }
-.ds-247420 button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-247420 button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 /* Composer send/cancel button row: a non-wrapping cluster pinned to the
    bottom-right of the flex-end composer (was unstyled, so the send button
@@ -5855,7 +5921,7 @@
 .ds-247420 .agentchat-followups { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-2) var(--space-3); }
 
 /* --- C1: stale/idle dashboard status (static, NOT pulsing). --- */
-.ds-247420 .ds-dash-status.is-stale { color: var(--amber); }
+.ds-247420 .ds-dash-status.is-stale { color: var(--stale); }
 .ds-247420 .ds-dash-status.is-running { color: var(--accent); }
 
 /* --- C2: dashboard sort/filter toolbar + stream-state line. --- */
@@ -5899,7 +5965,7 @@
 /* Stale/idle card: a positive amber inset bar (mirrors is-active) so a stuck
    agent is flagged in a dense grid, not merely faded near-invisibly. The word
    'idle' co-carries state, so this stays colour-blind safe. */
-.ds-247420 .ds-dash-card.is-stale { box-shadow: inset 2px 0 0 var(--amber); }
+.ds-247420 .ds-dash-card.is-stale { box-shadow: inset 2px 0 0 var(--stale); }
 
 /* --- H3: dashboard live disc pulses; stale/error do not (handled by H1). --- */
 
@@ -6009,7 +6075,7 @@
   font: inherit; color: inherit; text-decoration: underline dotted;
 }
 .ds-247420 .chat-composer-context-bit:hover { color: var(--fg-2); }
-.ds-247420 .chat-composer-context-bit:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-247420 .chat-composer-context-bit:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 @media (pointer: coarse) {
   .ds-247420 .chat-composer-context-bit { min-height: 44px; }
 }
@@ -6088,6 +6154,11 @@
 .ds-247420 .chat-msg-flat.you .chat-role { color: var(--accent); }
 .ds-247420 .chat-msg-flat .chat-bubble { background: none; border: none; border-radius: 0; padding: 0; max-width: 100%; box-shadow: none; transform: none; }
 .ds-247420 .chat-msg-flat.you .chat-bubble { background: none; color: inherit; }
+/* Flat user turns reset their bubble to transparent, but the messenger rule
+   (.chat-msg.you .chat-bubble code) tints inline code on --accent-fg, which is
+   invisible/wrong on the bare page surface. Reset to the neutral fg-10% tint the
+   sibling assistant turns get (wins over app-shell.css by later source order). */
+.ds-247420 .chat-msg-flat.you .chat-bubble code { background: color-mix(in oklab, var(--fg) 10%, transparent); }
 /* Flat turns strip the bubble padding, so the role label sat 4px above the first
    paragraph and the .them tint hugged text flush. Restore reading rhythm + give
    the tinted assistant row inner breathing room so it reads as a card. */
@@ -6111,6 +6182,16 @@
    ladder stays monotonic): assistant 5% > its 3% rest; user 4% > transparent. */
 .ds-247420 .chat-msg-flat.them:hover { background: color-mix(in oklab, var(--fg) 5%, transparent); }
 .ds-247420 .chat-msg-flat.you:hover { background: color-mix(in oklab, var(--fg) 4%, transparent); }
+/* A turn whose only assistant content is a bordered tool card or code block
+   already carries its own --bg surface + rule border; the turn-level .them tint
+   would stack a second, wider-than-measure surface behind it. Suppress it so the
+   card is the single surface (claude.ai/code keeps tool cards on bare canvas).
+   Selectors mirror the breakout pair above so suppression + widening always
+   cover the same turns. */
+.ds-247420 .chat-msg-flat.them:has(.chat-tool),
+.ds-247420 .chat-msg-flat.them:has(.chat-bubble.chat-code),
+.ds-247420 .chat-msg-flat.them:has(.chat-tool):hover,
+.ds-247420 .chat-msg-flat.them:has(.chat-bubble.chat-code):hover { background: none; }
 .ds-247420 .chat-msg-flat:hover .chat-bubble { transform: none; box-shadow: none; background: none; }
 .ds-247420 .chat-msg-flat .chat-avatar { display: none; }
 
@@ -6149,7 +6230,9 @@
 .ds-247420 .chat-msg .chat-tool.tool-done .chat-tool-status { color: var(--success); background: color-mix(in oklab, var(--success) 12%, transparent); }
 .ds-247420 .chat-tool-body { border-top: var(--bw-hair) solid var(--rule); padding: var(--space-2) var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
 .ds-247420 .chat-tool-section { display: flex; flex-direction: column; gap: var(--space-1); }
-.ds-247420 .chat-tool-section-label { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); }
+.ds-247420 .chat-tool-section-label { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); }
+.ds-247420 .chat-tool-copy { position: static; opacity: 0; }
+.ds-247420 .chat-tool-section:hover .chat-tool-copy, .ds-247420 .chat-tool-section:focus-within .chat-tool-copy { opacity: 1; }
 .ds-247420 .chat-tool-pre { margin: 0; padding: var(--space-2); background: var(--bg-2); border-radius: var(--r-1); font-family: var(--ff-mono); font-size: var(--fs-tiny); line-height: 1.45; overflow-x: auto; max-height: 320px; overflow-y: auto; }
 .ds-247420 .chat-tool-pre.is-error { color: var(--flame); }
 .ds-247420 .chat-tool-pre.chat-tool-empty { color: var(--fg-3); }
@@ -6185,6 +6268,11 @@
    accent), placed last so its inset bar wins source order over is-active/is-stale.
    The full-perimeter border-color (line ~396) stays for extra severity emphasis. */
 .ds-247420 .ds-dash-card.is-error { box-shadow: inset 2px 0 0 var(--flame); }
+/* A newly-arrived AND errored card: keep the LEFT inset bar flame (severity
+   precedence, never accent) while restoring the is-new arrival outline as a
+   full-perimeter accent glow that does not collide with the flame bar. Placed
+   after both is-new and is-error so it wins source order. */
+.ds-247420 .ds-dash-card.is-new.is-error { box-shadow: inset 2px 0 0 var(--flame), 0 0 0 1px color-mix(in oklab, var(--accent) 40%, transparent); }
 @media (prefers-reduced-motion: no-preference) {
   .ds-247420 .ds-dash-card.is-new { animation: ds-card-in var(--dur-slow) var(--ease); }
 }
@@ -6194,9 +6282,17 @@
 .ds-247420 .ds-dash-group { display: flex; flex-direction: column; gap: var(--space-2); }
 .ds-247420 .ds-dash-group-label { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); padding: 0 var(--space-1); }
 .ds-247420 .ds-dash-breakdown { display: flex; align-items: center; gap: var(--space-1); font-size: var(--fs-sm); color: var(--fg-2); }
-.ds-247420 .ds-dash-breakdown .seg.is-running { color: var(--accent); font-weight: 600; }
-.ds-247420 .ds-dash-breakdown .seg.is-error { color: var(--flame); font-weight: 600; }
-.ds-247420 .ds-dash-breakdown .seg.is-idle { color: var(--amber); font-weight: 600; }
+/* Shape-channel discs mirror the .status-dot-disc vocabulary (solid /
+   solid+halo / hollow ring) so a colour-blind user can scan the breakdown by
+   shape, not hue alone. CSS-drawn discs, not glyphs (glyph policy clean). */
+.ds-247420 .ds-dash-breakdown .seg { display: inline-flex; align-items: center; gap: var(--space-1); font-weight: 600; }
+.ds-247420 .ds-dash-breakdown .seg::before { content: ''; width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.ds-247420 .ds-dash-breakdown .seg.is-running { color: var(--accent); }
+.ds-247420 .ds-dash-breakdown .seg.is-running::before { background: var(--accent); }
+.ds-247420 .ds-dash-breakdown .seg.is-error { color: var(--flame); }
+.ds-247420 .ds-dash-breakdown .seg.is-error::before { background: var(--flame); box-shadow: 0 0 0 1.5px color-mix(in oklab, var(--flame) 38%, transparent); }
+.ds-247420 .ds-dash-breakdown .seg.is-idle { color: var(--amber); }
+.ds-247420 .ds-dash-breakdown .seg.is-idle::before { background: transparent; box-shadow: inset 0 0 0 2px var(--amber); }
 .ds-247420 .ds-dash-stream-disc { display: inline-flex; align-items: center; gap: var(--space-1); }
 .ds-247420 .ds-dash-selectall { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--fs-tiny); color: var(--fg-2); cursor: pointer; background: none; border: none; padding: var(--space-1); }
 .ds-247420 .ds-dash-selectall:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -6267,6 +6363,21 @@
 @media (min-width: 1600px) {
   .ds-247420 .agentchat-thread { --measure: 84ch; }
 }
+
+/* Stop/cancel composer control: re-tone the accent send button as a quiet
+   neutral control so 'stop generating' reads as distinct from accent send.
+   Flame/warn stay reserved (flame=error STATUS, warn=destructive ACTION); a
+   neutral quiet tone is the claude-code-aligned read for an in-flight stop. */
+.ds-247420 .chat-composer .send.cancel {
+  background: var(--bg-3);
+  color: var(--fg);
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule-strong, var(--rule));
+}
+.ds-247420 .chat-composer .send.cancel:hover {
+  background: color-mix(in oklab, var(--fg) 8%, var(--bg-3));
+  filter: none;
+}
+.ds-247420 .chat-composer .send.cancel:active { filter: brightness(0.96); }
 
 /* editor-primitives.css */
 /* editor-primitives.css — chrome for in-engine editors, inspectors, IDEs,
@@ -6470,11 +6581,12 @@
     font: inherit;
     min-width: 0; width: 100%;
 }
-.ds-247420 .ds-ep-propfield-value input:focus,
-.ds-247420 .ds-ep-propfield-value select:focus,
-.ds-247420 .ds-ep-propfield-value textarea:focus {
+.ds-247420 .ds-ep-propfield-value input:focus-visible,
+.ds-247420 .ds-ep-propfield-value select:focus-visible,
+.ds-247420 .ds-ep-propfield-value textarea:focus-visible {
     outline: none;
     border-color: var(--accent);
+    box-shadow: var(--focus-ring-inset);
 }
 .ds-247420 .ds-ep-propfield-hint {
     grid-column: 1 / -1;
@@ -7705,10 +7817,10 @@
 .ds-247420 .health-summary { display: flex; flex-wrap: wrap; gap: .4em; margin: .6em 0; }
 .ds-247420 .health-chip {
   font-family: var(--ff-mono, ui-monospace, monospace);
-  font-size: .8rem; padding: .15em .55em; border-radius: 6px;
+  font-size: .8rem; padding: .15em .55em; border-radius: var(--r-1, 6px);
   background: color-mix(in srgb, var(--fg) 8%, transparent);
   color: var(--fg-2);
-  border: 1px solid color-mix(in srgb, var(--fg) 12%, transparent);
+  border: var(--bw-hair, 1px) solid color-mix(in srgb, var(--fg) 12%, transparent);
 }
 .ds-247420 .health-summary.health-ok .health-chip:first-child {
   color: var(--accent);
@@ -7726,9 +7838,9 @@
 }
 .ds-247420 .cwd-bar-btn {
   cursor: pointer; font: inherit; line-height: 1.3;
-  padding: .15em .55em; border-radius: 6px;
+  padding: .15em .55em; border-radius: var(--r-1, 6px);
   background: color-mix(in srgb, var(--fg) 8%, transparent);
-  border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+  border: var(--bw-hair, 1px) solid color-mix(in srgb, var(--fg) 14%, transparent);
   color: var(--fg-2);
 }
 .ds-247420 .cwd-bar-btn:hover { background: color-mix(in srgb, var(--fg) 14%, transparent); }
@@ -7804,7 +7916,7 @@
   .ds-247420 #app { min-height: auto; display: block; height: auto; }
   .ds-247420 .skip-link, .ds-247420 .status-dot, .ds-247420 .history-actions, .ds-247420 .chat-composer { display: none !important; }
   .ds-247420 .app, .ds-247420 .app-main, .ds-247420 .panel, .ds-247420 .chat, .ds-247420 .chat-thread {
-    background: #fff !important; color: #000 !important; box-shadow: none !important;
+    background: var(--paper) !important; color: var(--ink) !important; box-shadow: none !important;
   }
 }
 
