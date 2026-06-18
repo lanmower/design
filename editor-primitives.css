@@ -247,7 +247,7 @@
     font: var(--fs-tiny, 12px)/1.3 var(--ff-mono, monospace);
     min-width: 0;
 }
-.ds-input-bare:focus { outline: none; border-color: var(--accent); }
+.ds-input-bare:focus-visible { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring-inset); }
 /* A property field whose control spans the full panel width (label above,
    control below) — used for wide segmented controls that would clip in the
    narrow value column. */

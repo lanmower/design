@@ -318,8 +318,13 @@ function toggleWs(which) {
 
 // Column resize: read the current rendered track width and write a clamped inline
 // --ws-<col>-w on .ws-shell (inline overrides the fluid clamp base), persisted.
-const WS_RESIZE_CLAMP = { rail: [60, 360], sessions: [200, 520], pane: [240, 560] };
-function wsResize(col, dx) {
+// Bounds are derived from the CSS fluid clamp() floors/ceilings in app-shell.css
+// (--ws-rail-w clamp(200,16vw,260); sessions clamp(248,22vw,360); pane
+// clamp(288,24vw,420)) so a drag/arrow can never shrink a column below its
+// designed floor (the collapsed rail is a SEPARATE class, not a resize target)
+// nor grow past the ultrawide ceiling.
+const WS_RESIZE_CLAMP = { rail: [200, 260], sessions: [248, 360], pane: [288, 420] };
+function wsResize(col, dx, persist = true) {
     const shell = document.querySelector('.ws-shell');
     if (!shell) return;
     const track = shell.querySelector('.ws-' + col);
@@ -327,7 +332,11 @@ function wsResize(col, dx) {
     const [lo, hi] = WS_RESIZE_CLAMP[col] || [120, 600];
     const next = Math.max(lo, Math.min(hi, Math.round(cur + dx)));
     shell.style.setProperty('--ws-' + col + '-w', next + 'px');
-    try { localStorage.setItem('ds.ws.w.' + col, String(next)); } catch (_) {}
+    const handle = shell.querySelector('.ws-resizer-' + col);
+    if (handle) handle.setAttribute('aria-valuenow', String(next));
+    // Commit to storage only on a settled move (pointerup / keyboard), not on
+    // every pointermove frame (that fired dozens of synchronous writes per drag).
+    if (persist) { try { localStorage.setItem('ds.ws.w.' + col, String(next)); } catch (_) {} }
 }
 function seedWsWidths(el) {
     if (!el) return;
@@ -340,22 +349,35 @@ function seedWsWidths(el) {
 }
 function WsResizer(col) {
     const onKey = (e) => {
-        if (e.key === 'ArrowLeft') { e.preventDefault(); wsResize(col, -16); }
-        else if (e.key === 'ArrowRight') { e.preventDefault(); wsResize(col, 16); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); wsResize(col, -16, true); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); wsResize(col, 16, true); }
     };
     const onDown = (e) => {
         e.preventDefault();
         let lastX = e.clientX;
-        const move = (ev) => { const dx = ev.clientX - lastX; lastX = ev.clientX; wsResize(col, dx); };
-        const up = () => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); document.body.style.cursor = ''; };
+        const move = (ev) => { const dx = ev.clientX - lastX; lastX = ev.clientX; wsResize(col, dx, false); };
+        const up = () => {
+            document.removeEventListener('pointermove', move);
+            document.removeEventListener('pointerup', up);
+            document.body.style.cursor = '';
+            wsResize(col, 0, true); // commit the settled width once
+        };
         document.addEventListener('pointermove', move);
         document.addEventListener('pointerup', up);
         document.body.style.cursor = 'col-resize';
     };
+    const [lo, hi] = WS_RESIZE_CLAMP[col] || [120, 600];
+    // Seed aria-valuenow from the rendered track width so AT announces real widths.
+    const seedNow = (el) => {
+        if (!el) return;
+        const track = el.closest('.ws-shell') && el.closest('.ws-shell').querySelector('.ws-' + col);
+        if (track) el.setAttribute('aria-valuenow', String(Math.round(track.getBoundingClientRect().width)));
+    };
     return h('div', {
         class: 'ws-resizer ws-resizer-' + col, role: 'separator', tabindex: '0',
         'aria-orientation': 'vertical', 'aria-label': 'resize ' + col + ' column (arrow keys)',
-        onpointerdown: onDown, onkeydown: onKey,
+        'aria-valuemin': String(lo), 'aria-valuemax': String(hi),
+        onpointerdown: onDown, onkeydown: onKey, ref: seedNow,
     });
 }
 
@@ -550,8 +572,8 @@ export function WorkspaceRail({ brand = '247420', action, items = [], footer } =
     );
 }
 
-export function Heading({ level = 1, children, style = '', 'aria-level': ariaLevel }) {
-    return h('h' + level, { style, 'aria-level': ariaLevel != null ? String(ariaLevel) : null }, children);
+export function Heading({ level = 1, children, style = '', class: className = '', 'aria-level': ariaLevel }) {
+    return h('h' + level, { class: className || null, style, 'aria-level': ariaLevel != null ? String(ariaLevel) : null }, children);
 }
 
 export function Lede({ children }) {

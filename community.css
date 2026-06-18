@@ -1166,7 +1166,11 @@
   .cm-vs-btn,
   .cm-user-btn,
   .cm-ch-spinner,
-  .cm-ch-voice-badge {
+  .cm-ch-voice-badge,
+  .vx-ptt,
+  .vx-ptt-glow,
+  .vx-vad-meter,
+  .vx-vad-fill {
     transition: none !important;
     animation: none !important;
   }

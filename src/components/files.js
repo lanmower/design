@@ -4,10 +4,6 @@ import * as webjsx from '../../vendor/webjsx/index.js';
 import { Btn, Icon } from './shell.js';
 const h = webjsx.createElement;
 
-// Minimum column width for the responsive file grid (minmax floor). Named so
-// the magic 240px isn't buried in the gridTemplateColumns string.
-const FILE_GRID_MIN_COL = '240px';
-
 const FILE_TYPES = ['dir', 'image', 'video', 'audio', 'code', 'text', 'archive', 'document', 'symlink', 'other'];
 const TYPE_ICON = {
     dir: 'folder', image: 'file-image', video: 'file-video', audio: 'file-audio', code: 'file-code',
@@ -178,7 +174,7 @@ export function sortFiles(files = [], sort = 'name', dir = 'asc') {
 const FILE_GRID_CAP = 200;
 
 export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No files here yet',
-                          columns = 'auto', sort, filter, loading = false,
+                          sort, filter, loading = false,
                           shown, onShowMore, actions, busy,
                           // Canonical multi-select contract (shared with
                           // SessionDashboard): selected/onToggleSelect.
@@ -200,16 +196,11 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
     const capped = files.length > limit;
     const visible = capped ? files.slice(0, limit) : files;
     const isThumb = density === 'thumb';
+    // NOTE: the old `columns`-driven data-columns card-mode was removed - it placed
+    // flex list-rows into a 2-4 col grid (squashed rows, mis-sized actions) and was
+    // a half-wired third layout never exposed by the density radiogroup (list/
+    // compact/thumb). Thumb density is the canonical multi-column grid.
     const gridAttrs = {};
-    if (!isThumb && columns !== 'auto' && columns > 0) {
-        const col = Math.max(1, Math.min(4, Math.floor(columns)));
-        gridAttrs['data-columns'] = String(col);
-        gridAttrs.style = {
-            display: 'grid',
-            gridTemplateColumns: `repeat(${col}, minmax(${FILE_GRID_MIN_COL}, 1fr))`,
-            gap: 'var(--space-3)'
-        };
-    }
     // Multi-select bookkeeping. Entries are keyed by path (fallback name); a
     // locked/EACCES entry is never selectable — bulk mutations would fail on it.
     const entryKeyOf = (f) => f.path || f.name;
@@ -257,19 +248,24 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
                 onclick: () => { if (density !== k) onDensity(k); },
             }, label)))
         : null;
-    const controlsKids = [selectAllCtl, head,
-        (selectAllCtl || head) && densityCtl ? h('span', { key: 'spread', class: 'spread' }) : null,
+    // One toolbar baseline: filter + select-all + sort sit left, density is
+    // pushed right by the spread. The filter used to be a separate right-aligned
+    // strip ABOVE controls, giving two strips with conflicting alignment.
+    const filterCtl = filter ? h('input', {
+        key: 'filter',
+        class: 'ds-file-filter-input', type: 'search',
+        value: filter.value || '', placeholder: filter.placeholder || 'Filter files',
+        'aria-label': filter.placeholder || 'Filter files in this directory',
+        oninput: (e) => filter.onInput && filter.onInput(e.target.value),
+    }) : null;
+    const leftKids = [filterCtl, selectAllCtl, head].filter(Boolean);
+    const controlsKids = [
+        ...leftKids,
+        (leftKids.length && densityCtl) ? h('span', { key: 'spread', class: 'spread' }) : null,
         densityCtl].filter(Boolean);
     const controls = controlsKids.length
         ? h('div', { class: 'ds-file-controls' }, ...controlsKids)
         : null;
-    const filterBar = filter ? h('div', { class: 'ds-file-filter' },
-        h('input', {
-            class: 'ds-file-filter-input', type: 'search',
-            value: filter.value || '', placeholder: filter.placeholder || 'Filter files',
-            'aria-label': filter.placeholder || 'Filter files in this directory',
-            oninput: (e) => filter.onInput && filter.onInput(e.target.value),
-        })) : null;
     // role=group not listbox: the rows contain real <button> action controls, so
     // listbox/option semantics are invalid (an option can't host interactive
     // children). Keyboard nav still works via roving focus over the open buttons.
@@ -311,8 +307,8 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
                 onclick: () => onShowMore(Math.min(files.length, limit + FILE_GRID_CAP)) },
                 'show ' + Math.min(FILE_GRID_CAP, files.length - limit) + ' more') : null)
         : null;
-    return (controls || filterBar || more)
-        ? h('div', { class: 'ds-file-listing' }, filterBar, controls, grid, more)
+    return (controls || more)
+        ? h('div', { class: 'ds-file-listing' }, controls, grid, more)
         : grid;
 }
 

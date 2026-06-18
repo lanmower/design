@@ -268,6 +268,23 @@
 @media (prefers-reduced-motion: reduce) {
   .agentchat-working .chat-thinking-dots span { animation: none; opacity: .7; }
 }
+/* Standalone thinking part (ThinkingNode renders .chat-bubble.chat-thinking with
+   .chat-thinking-dots + .chat-thinking-text OUTSIDE the .agentchat-working tail).
+   Without these base rules the dots are invisible empty spans and the text has
+   no muted tone. Reuse the agentchat-dot-bounce keyframe. */
+.chat-thinking { display: flex; align-items: center; gap: .5em; color: var(--fg-3); font-size: var(--fs-tiny); background: none; padding: .3em .2em; }
+.chat-thinking-text { color: var(--fg-3); }
+.chat-thinking-dots { display: inline-flex; gap: 3px; }
+.chat-thinking-dots span {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--fg); opacity: .4;
+  animation: agentchat-dot-bounce 1.2s infinite ease-in-out;
+}
+.chat-thinking-dots span:nth-child(2) { animation-delay: .15s; }
+.chat-thinking-dots span:nth-child(3) { animation-delay: .3s; }
+@media (prefers-reduced-motion: reduce) {
+  .chat-thinking-dots span { animation: none; opacity: .7; }
+}
 
 /* Responsive: the control cluster + cwd bar must stay usable on phones/tablets.
    The cwd path can't eat the row beside its label + buttons on a narrow screen. */
@@ -295,16 +312,20 @@
   display: inline-block; width: 8px; height: 8px; border-radius: 50%;
   background: var(--fg-3); flex: 0 0 auto;
 }
+/* Each variant carries a non-colour channel (fill vs halo vs hollow ring) so the
+   states stay distinguishable for colour-blind users and when stale/connecting
+   would otherwise share a hue. Mirrors the rail-tone shape differentiation. */
 .status-dot-disc.status-dot-live { background: var(--accent); animation: status-disc-pulse 1.8s ease-in-out infinite; }
-.status-dot-disc.status-dot-error { background: var(--flame); }
-.status-dot-disc.status-dot-connecting { background: var(--amber); }
-.status-dot-disc.status-dot-stale { background: var(--amber); }
+.status-dot-disc.status-dot-error { background: var(--flame); box-shadow: 0 0 0 1.5px color-mix(in oklab, var(--flame) 38%, transparent); }
+.status-dot-disc.status-dot-connecting { background: transparent; box-shadow: inset 0 0 0 2px var(--amber); }
+.status-dot-disc.status-dot-stale { background: color-mix(in oklab, var(--warn) 70%, var(--fg-3)); }
 @keyframes status-disc-pulse {
   0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 55%, transparent); }
   50%      { box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 0%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .status-dot-disc.status-dot-live { animation: none; }
+  /* Keep the live disc shape-differentiated without motion: a static concentric ring. */
+  .status-dot-disc.status-dot-live { animation: none; box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 35%, transparent); }
 }
 
 /* ----------------------------------------------------------------------------
@@ -367,7 +388,9 @@
 .ds-session-sub { font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-session-meta { display: flex; align-items: center; gap: var(--space-2); flex: 0 0 auto; }
 .ds-session-agent { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); }
-.ds-session-unread { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; }
+/* New-activity cue is a hollow accent RING so it stays shape-distinct from the
+   running live disc (a solid pulsing accent dot) for colour-blind / reduced-motion users. */
+.ds-session-unread { width: 8px; height: 8px; border-radius: 50%; background: transparent; box-shadow: inset 0 0 0 2px var(--accent); display: inline-block; }
 .ds-session-state { padding: var(--space-5) var(--space-3); text-align: center; color: var(--fg-3); font-size: var(--fs-sm); }
 .ds-session-state-error { color: var(--flame); }
 
@@ -397,13 +420,15 @@
 .ds-dash-card.is-error { border-color: var(--flame); }
 .ds-dash-card-head { display: flex; align-items: center; gap: var(--space-2); }
 .ds-dash-status { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
-.ds-dash-status.is-running { color: var(--green); }
+/* running tone unified on --accent (the later is-running rule + the live disc all
+   use --accent); the dead var(--green) duplicate that lived here was removed. */
 .ds-dash-status.is-error { color: var(--flame); }
 .ds-dash-agent { font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
 .ds-dash-model { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); margin-left: auto; }
 .ds-dash-meta { display: flex; flex-direction: column; gap: 2px; }
 .ds-dash-cwd { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-dash-stat { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-2); }
+.ds-dash-stat-cost { color: var(--fg); font-weight: 600; }
 .ds-dash-activity { font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-dash-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-1); }
 .ds-dash-state { padding: var(--space-6) var(--space-4); text-align: center; color: var(--fg-3); font-size: var(--fs-body); }
@@ -450,6 +475,13 @@
 /* --- B1: streaming pre shell — monospaced bubble while a fenced block streams,
    so it does not reflow prose->block on settle. --- */
 .chat-stream-pre pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: var(--ff-mono); font-size: var(--fs-sm); }
+/* Persistent minimal chrome so a fenced block does not pop a border + lang tab +
+   copy button only on settle - the streaming slab already reads as a code block. */
+.chat-stream-pre { position: relative; }
+.chat-stream-pre pre {
+  border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1);
+  padding: var(--space-3); background: color-mix(in oklab, var(--fg) 4%, transparent);
+}
 
 /* --- A5: composer context line (agent / model / cwd at point of typing). --- */
 .chat-composer-context {
@@ -466,6 +498,15 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
    bottom-right of the flex-end composer (was unstyled, so the send button
    could wrap below the textarea instead of anchoring like claude.ai/code). */
 .chat-composer-toolbar { display: flex; align-items: center; gap: var(--space-1); flex: 0 0 auto; margin-left: auto; align-self: flex-end; }
+/* Unify the toolbar cluster on one 32px / --r-1 square metric (the round 40px
+   ghost buttons + 36px square send read as two button systems; the kit moved
+   .btn* off --r-pill). chat.css loads after app-shell.css so this wins by order. */
+.chat-composer-toolbar .composer-btn,
+.chat-composer-toolbar .send { width: 32px; height: 32px; border-radius: var(--r-1); }
+@media (pointer: coarse) {
+  .chat-composer-toolbar .composer-btn,
+  .chat-composer-toolbar .send { width: 44px; height: 44px; }
+}
 
 /* --- B2: follow-up chips below the last settled assistant turn. --- */
 .agentchat-followups { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-2) var(--space-3); }
@@ -704,6 +745,25 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 .chat-msg-flat.you .chat-role { color: var(--accent); }
 .chat-msg-flat .chat-bubble { background: none; border: none; border-radius: 0; padding: 0; max-width: 100%; box-shadow: none; transform: none; }
 .chat-msg-flat.you .chat-bubble { background: none; color: inherit; }
+/* Flat turns strip the bubble padding, so the role label sat 4px above the first
+   paragraph and the .them tint hugged text flush. Restore reading rhythm + give
+   the tinted assistant row inner breathing room so it reads as a card. */
+.chat-msg-flat .chat-role { margin-bottom: var(--space-2); }
+.chat-msg-flat .chat-md { line-height: 1.65; }
+.chat-msg-flat .chat-md p { margin: 8px 0; }
+.chat-msg-flat.them { padding-block: calc(var(--space-3) * var(--density, 1) + 2px); }
+/* Inline backtick code (renderInline tags <code class=chat-tick>) - was a dead
+   class relying on the generic .chat-bubble code rule, so notices / non-bubble
+   surfaces got unstyled monospace. Self-style it regardless of container. */
+.chat-tick { font-family: var(--ff-mono); font-size: .92em; background: color-mix(in oklab, var(--fg) 10%, transparent); padding: 1px 6px; border-radius: var(--r-1); }
+/* Structured tool/code output earns more width than running prose (claude.ai/code
+   lets diffs/tables break out wider than the reading measure). A flat turn that
+   contains a tool card or code block widens itself AND its stack past --measure;
+   prose-only turns stay clamped. */
+.chat-msg-flat:has(.chat-tool),
+.chat-msg-flat:has(.chat-bubble.chat-code) { max-width: calc(var(--measure) + 14ch); }
+.chat-msg-flat:has(.chat-tool) .chat-stack,
+.chat-msg-flat:has(.chat-bubble.chat-code) .chat-stack { max-width: calc(var(--measure) + 14ch); }
 /* Hover tint exceeds each role's REST tint so the row gives feedback (and the
    ladder stays monotonic): assistant 5% > its 3% rest; user 4% > transparent. */
 .chat-msg-flat.them:hover { background: color-mix(in oklab, var(--fg) 5%, transparent); }
@@ -791,9 +851,9 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 .ds-dash-group { display: flex; flex-direction: column; gap: var(--space-2); }
 .ds-dash-group-label { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); padding: 0 var(--space-1); }
 .ds-dash-breakdown { display: flex; align-items: center; gap: var(--space-1); font-size: var(--fs-sm); color: var(--fg-2); }
-.ds-dash-breakdown .seg.is-running { color: var(--green); font-weight: 600; }
+.ds-dash-breakdown .seg.is-running { color: var(--accent); font-weight: 600; }
 .ds-dash-breakdown .seg.is-error { color: var(--flame); font-weight: 600; }
-.ds-dash-breakdown .seg.is-idle { color: var(--amber); }
+.ds-dash-breakdown .seg.is-idle { color: var(--amber); font-weight: 600; }
 .ds-dash-stream-disc { display: inline-flex; align-items: center; gap: var(--space-1); }
 .ds-dash-selectall { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--fs-tiny); color: var(--fg-2); cursor: pointer; background: none; border: none; padding: var(--space-1); }
 .ds-dash-selectall:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }

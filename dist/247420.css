@@ -1580,12 +1580,14 @@
 .ds-247420 .ds-file-listing { display: flex; flex-direction: column; gap: var(--space-2); min-height: 0; }
 /* The quick filter is a compact control, not a full-width form row - a giant
    input above the grid reads as a search page and costs fold height. */
-.ds-247420 .ds-file-filter { padding: 0 0 var(--space-1); display: flex; justify-content: flex-end; }
+/* The filter is now an inline item in the single .ds-file-controls toolbar row
+   (the standalone right-aligned .ds-file-filter strip was removed). */
 .ds-247420 .ds-file-filter-input {
   width: min(280px, 100%); padding: 6px 12px; font-size: var(--fs-sm);
   background: var(--bg); color: var(--fg);
   border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1);
 }
+.ds-247420 .ds-file-controls .ds-file-filter-input { flex: 0 1 220px; }
 .ds-247420 .ds-file-filter-input:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
 .ds-247420 .ds-file-sort { display: flex; gap: var(--space-2); padding: 0 var(--space-2) var(--space-1); }
 .ds-247420 .ds-file-sort-btn {
@@ -1715,7 +1717,7 @@
    role=checkbox/aria-checked name+state. */
 .ds-247420 .ds-check-box {
   width: 15px; height: 15px; box-sizing: border-box; flex: 0 0 auto; position: relative;
-  border: 1.5px solid var(--rule); border-radius: 4px;
+  border: 1.5px solid var(--fg-3); border-radius: 4px;
   transition: background var(--dur-snap) var(--ease), border-color var(--dur-snap) var(--ease);
 }
 .ds-247420 .is-marked > .ds-check-box,
@@ -1727,14 +1729,14 @@
 }
 .ds-247420[aria-checked="mixed"] > .ds-check-box { background: var(--accent); border-color: var(--accent); }
 .ds-247420[aria-checked="mixed"] > .ds-check-box::after {
-  content: ""; position: absolute; left: 2px; right: 2px; top: 50%; height: 1.5px; margin-top: -0.75px; background: var(--bg);
+  content: ""; position: absolute; left: 3px; right: 3px; top: 6px; height: 2px; background: var(--bg); border-radius: 1px;
 }
 
 .ds-247420 .ds-file-check {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 28px; height: 28px; padding: 0 4px;
   background: transparent; border: 0; border-radius: var(--r-1);
-  font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3);
+  color: var(--fg-3);
   cursor: pointer;
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
@@ -1825,6 +1827,16 @@
 }
 .ds-247420 .ds-file-cell-media .ds-file-icon { width: 34px; height: 34px; font-size: 24px; }
 .ds-247420 .ds-file-cell-thumb { width: 100%; height: 100%; object-fit: cover; }
+/* Per-type icon tints on thumb tiles so the grid keeps the colour-coding the
+   list rows already carry (mirrors .ds-file-row[data-file-type] .ds-file-icon). */
+.ds-247420 .ds-file-cell[data-file-type="dir"]      .ds-file-icon { color: var(--accent); }
+.ds-247420 .ds-file-cell[data-file-type="image"]    .ds-file-icon { color: var(--mascot); }
+.ds-247420 .ds-file-cell[data-file-type="video"]    .ds-file-icon { color: var(--purple-2); }
+.ds-247420 .ds-file-cell[data-file-type="audio"]    .ds-file-icon { color: var(--sky); }
+.ds-247420 .ds-file-cell[data-file-type="code"]     .ds-file-icon { color: var(--green-2); }
+.ds-247420 .ds-file-cell[data-file-type="archive"]  .ds-file-icon { color: var(--flame); }
+.ds-247420 .ds-file-cell[data-file-type="document"] .ds-file-icon { color: var(--amber); }
+.ds-247420 .ds-file-cell[data-file-type="symlink"]  .ds-file-icon { color: var(--purple); }
 .ds-247420 .ds-file-cell-name {
   font-size: var(--fs-tiny); text-align: left;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -1834,13 +1846,6 @@
   position: absolute; top: 4px; left: 4px; z-index: 1;
   background: color-mix(in oklab, var(--bg) 78%, transparent);
 }
-
-/* Card mode — opt-in via data-columns; switches the list to a grid. */
-.ds-247420 .ds-file-grid[data-columns] { display: grid; gap: var(--space-3); }
-.ds-247420 .ds-file-grid[data-columns="1"] { grid-template-columns: 1fr; }
-.ds-247420 .ds-file-grid[data-columns="2"] { grid-template-columns: repeat(2, 1fr); }
-.ds-247420 .ds-file-grid[data-columns="3"] { grid-template-columns: repeat(3, 1fr); }
-.ds-247420 .ds-file-grid[data-columns="4"] { grid-template-columns: repeat(4, 1fr); }
 
 /* ============================================================
    File browser surface — stage, toolbar, breadcrumb, dropzone,
@@ -2165,21 +2170,12 @@
 }
 .ds-247420 .ds-filter-input:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
 
-/* Loading skeleton — placeholder rows while a directory loads. */
-.ds-247420 .ds-file-grid-loading { display: flex; flex-direction: column; gap: 4px; }
-.ds-247420 .ds-file-skeleton {
-  height: 48px; border-radius: var(--r-2);
-  background: linear-gradient(90deg,
-    var(--bg) 0%, var(--bg-2) 50%, var(--bg) 100%);
-  background-size: 200% 100%;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .ds-247420 .ds-file-skeleton { animation: ds-skeleton-shimmer 1.2s var(--ease) infinite; }
-}
-@keyframes ds-skeleton-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
+/* Loading skeleton: FileSkeleton renders `.ds-file-grid.ds-file-skeleton` with
+   `.ds-file-row.ds-file-row-skeleton` rows whose inner `.ds-skel` children shimmer
+   (via .ds-skel::after). The container therefore inherits the .ds-file-grid layout
+   and must NOT be a single 48px gradient bar (that collapsed every row and double-
+   shimmered). The dead .ds-file-grid-loading rule + unused ds-skeleton-shimmer
+   keyframe were removed; only the inner .ds-skel children animate. */
 
 /* Drag-to-move drop target highlight on a directory row. */
 .ds-247420 .ds-file-row.ds-drop-target {
@@ -2388,6 +2384,13 @@
   padding: 10px 12px; border-radius: 6px; overflow-x: auto;
   font-family: var(--ff-mono); font-size: 0.9em; margin: 8px 0;
 }
+/* Markdown tables + horizontal rules: agents routinely emit them, but they were
+   unstyled (bare unspaced cells, vanished rules). */
+.ds-247420 .chat-bubble.chat-md table { border-collapse: collapse; width: auto; max-width: 100%; margin: 8px 0; font-size: .95em; display: block; overflow-x: auto; }
+.ds-247420 .chat-bubble.chat-md th,
+.ds-247420 .chat-bubble.chat-md td { border: var(--bw-hair) solid var(--rule); padding: 4px 10px; text-align: left; }
+.ds-247420 .chat-bubble.chat-md th { background: color-mix(in oklab, var(--fg) 5%, transparent); font-weight: 600; }
+.ds-247420 .chat-bubble.chat-md hr { border: 0; border-top: var(--bw-hair) solid var(--rule); margin: 12px 0; }
 
 .ds-247420 .chat-msg .chat-bubble.chat-code,
 .ds-247420 .chat-msg.you .chat-bubble.chat-code,
@@ -3525,6 +3528,15 @@
 .ds-247420 .ws-resizer.ws-resizer-rail { grid-column: 1; }
 .ds-247420 .ws-resizer.ws-resizer-sessions { grid-column: 2; }
 .ds-247420 .ws-resizer.ws-resizer-pane { grid-column: 3; justify-self: end; }
+/* A resizer must vanish once its TRACK is removed by the staging media blocks,
+   else dragging it writes a --ws-*-w var that no longer affects the now-fixed
+   drawer (a dead handle). Mirror the 1480 / 1100 / 900 staging exactly. */
+@media (max-width: 1480px) { .ds-247420 .ws-resizer.ws-resizer-pane { display: none; } }
+@media (max-width: 1100px) { .ds-247420 .ws-resizer.ws-resizer-sessions { display: none; } }
+@media (max-width: 900px)  { .ds-247420 .ws-resizer { display: none; } }
+/* Coarse-pointer hit target for hybrid touch laptops above the drawer breakpoint
+   (the 8px sliver is un-grabbable by touch). */
+@media (pointer: coarse) { .ds-247420 .ws-resizer { width: 16px; margin-right: -8px; } }
 /* Ease the rail/pane collapse. Track COUNT stays stable on collapse (only a
    width var flips), so grid-template-columns is animatable; reduced-motion
    drops it to an instant swap. */
@@ -4965,7 +4977,11 @@
   .ds-247420 .cm-vs-btn,
   .ds-247420 .cm-user-btn,
   .ds-247420 .cm-ch-spinner,
-  .ds-247420 .cm-ch-voice-badge {
+  .ds-247420 .cm-ch-voice-badge,
+  .ds-247420 .vx-ptt,
+  .ds-247420 .vx-ptt-glow,
+  .ds-247420 .vx-vad-meter,
+  .ds-247420 .vx-vad-fill {
     transition: none !important;
     animation: none !important;
   }
@@ -5595,6 +5611,23 @@
 @media (prefers-reduced-motion: reduce) {
   .ds-247420 .agentchat-working .chat-thinking-dots span { animation: none; opacity: .7; }
 }
+/* Standalone thinking part (ThinkingNode renders .chat-bubble.chat-thinking with
+   .chat-thinking-dots + .chat-thinking-text OUTSIDE the .agentchat-working tail).
+   Without these base rules the dots are invisible empty spans and the text has
+   no muted tone. Reuse the agentchat-dot-bounce keyframe. */
+.ds-247420 .chat-thinking { display: flex; align-items: center; gap: .5em; color: var(--fg-3); font-size: var(--fs-tiny); background: none; padding: .3em .2em; }
+.ds-247420 .chat-thinking-text { color: var(--fg-3); }
+.ds-247420 .chat-thinking-dots { display: inline-flex; gap: 3px; }
+.ds-247420 .chat-thinking-dots span {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--fg); opacity: .4;
+  animation: agentchat-dot-bounce 1.2s infinite ease-in-out;
+}
+.ds-247420 .chat-thinking-dots span:nth-child(2) { animation-delay: .15s; }
+.ds-247420 .chat-thinking-dots span:nth-child(3) { animation-delay: .3s; }
+@media (prefers-reduced-motion: reduce) {
+  .ds-247420 .chat-thinking-dots span { animation: none; opacity: .7; }
+}
 
 /* Responsive: the control cluster + cwd bar must stay usable on phones/tablets.
    The cwd path can't eat the row beside its label + buttons on a narrow screen. */
@@ -5622,16 +5655,20 @@
   display: inline-block; width: 8px; height: 8px; border-radius: 50%;
   background: var(--fg-3); flex: 0 0 auto;
 }
+/* Each variant carries a non-colour channel (fill vs halo vs hollow ring) so the
+   states stay distinguishable for colour-blind users and when stale/connecting
+   would otherwise share a hue. Mirrors the rail-tone shape differentiation. */
 .ds-247420 .status-dot-disc.status-dot-live { background: var(--accent); animation: status-disc-pulse 1.8s ease-in-out infinite; }
-.ds-247420 .status-dot-disc.status-dot-error { background: var(--flame); }
-.ds-247420 .status-dot-disc.status-dot-connecting { background: var(--amber); }
-.ds-247420 .status-dot-disc.status-dot-stale { background: var(--amber); }
+.ds-247420 .status-dot-disc.status-dot-error { background: var(--flame); box-shadow: 0 0 0 1.5px color-mix(in oklab, var(--flame) 38%, transparent); }
+.ds-247420 .status-dot-disc.status-dot-connecting { background: transparent; box-shadow: inset 0 0 0 2px var(--amber); }
+.ds-247420 .status-dot-disc.status-dot-stale { background: color-mix(in oklab, var(--warn) 70%, var(--fg-3)); }
 @keyframes status-disc-pulse {
   0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 55%, transparent); }
   50%      { box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 0%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ds-247420 .status-dot-disc.status-dot-live { animation: none; }
+  /* Keep the live disc shape-differentiated without motion: a static concentric ring. */
+  .ds-247420 .status-dot-disc.status-dot-live { animation: none; box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 35%, transparent); }
 }
 
 /* ----------------------------------------------------------------------------
@@ -5694,7 +5731,9 @@
 .ds-247420 .ds-session-sub { font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-247420 .ds-session-meta { display: flex; align-items: center; gap: var(--space-2); flex: 0 0 auto; }
 .ds-247420 .ds-session-agent { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); }
-.ds-247420 .ds-session-unread { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; }
+/* New-activity cue is a hollow accent RING so it stays shape-distinct from the
+   running live disc (a solid pulsing accent dot) for colour-blind / reduced-motion users. */
+.ds-247420 .ds-session-unread { width: 8px; height: 8px; border-radius: 50%; background: transparent; box-shadow: inset 0 0 0 2px var(--accent); display: inline-block; }
 .ds-247420 .ds-session-state { padding: var(--space-5) var(--space-3); text-align: center; color: var(--fg-3); font-size: var(--fs-sm); }
 .ds-247420 .ds-session-state-error { color: var(--flame); }
 
@@ -5724,13 +5763,15 @@
 .ds-247420 .ds-dash-card.is-error { border-color: var(--flame); }
 .ds-247420 .ds-dash-card-head { display: flex; align-items: center; gap: var(--space-2); }
 .ds-247420 .ds-dash-status { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
-.ds-247420 .ds-dash-status.is-running { color: var(--green); }
+/* running tone unified on --accent (the later is-running rule + the live disc all
+   use --accent); the dead var(--green) duplicate that lived here was removed. */
 .ds-247420 .ds-dash-status.is-error { color: var(--flame); }
 .ds-247420 .ds-dash-agent { font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
 .ds-247420 .ds-dash-model { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); margin-left: auto; }
 .ds-247420 .ds-dash-meta { display: flex; flex-direction: column; gap: 2px; }
 .ds-247420 .ds-dash-cwd { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-247420 .ds-dash-stat { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-2); }
+.ds-247420 .ds-dash-stat-cost { color: var(--fg); font-weight: 600; }
 .ds-247420 .ds-dash-activity { font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-247420 .ds-dash-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-1); }
 .ds-247420 .ds-dash-state { padding: var(--space-6) var(--space-4); text-align: center; color: var(--fg-3); font-size: var(--fs-body); }
@@ -5777,6 +5818,13 @@
 /* --- B1: streaming pre shell — monospaced bubble while a fenced block streams,
    so it does not reflow prose->block on settle. --- */
 .ds-247420 .chat-stream-pre pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: var(--ff-mono); font-size: var(--fs-sm); }
+/* Persistent minimal chrome so a fenced block does not pop a border + lang tab +
+   copy button only on settle - the streaming slab already reads as a code block. */
+.ds-247420 .chat-stream-pre { position: relative; }
+.ds-247420 .chat-stream-pre pre {
+  border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1);
+  padding: var(--space-3); background: color-mix(in oklab, var(--fg) 4%, transparent);
+}
 
 /* --- A5: composer context line (agent / model / cwd at point of typing). --- */
 .ds-247420 .chat-composer-context {
@@ -5793,6 +5841,15 @@
    bottom-right of the flex-end composer (was unstyled, so the send button
    could wrap below the textarea instead of anchoring like claude.ai/code). */
 .ds-247420 .chat-composer-toolbar { display: flex; align-items: center; gap: var(--space-1); flex: 0 0 auto; margin-left: auto; align-self: flex-end; }
+/* Unify the toolbar cluster on one 32px / --r-1 square metric (the round 40px
+   ghost buttons + 36px square send read as two button systems; the kit moved
+   .btn* off --r-pill). chat.css loads after app-shell.css so this wins by order. */
+.ds-247420 .chat-composer-toolbar .composer-btn,
+.ds-247420 .chat-composer-toolbar .send { width: 32px; height: 32px; border-radius: var(--r-1); }
+@media (pointer: coarse) {
+  .ds-247420 .chat-composer-toolbar .composer-btn,
+  .ds-247420 .chat-composer-toolbar .send { width: 44px; height: 44px; }
+}
 
 /* --- B2: follow-up chips below the last settled assistant turn. --- */
 .ds-247420 .agentchat-followups { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-2) var(--space-3); }
@@ -6031,6 +6088,25 @@
 .ds-247420 .chat-msg-flat.you .chat-role { color: var(--accent); }
 .ds-247420 .chat-msg-flat .chat-bubble { background: none; border: none; border-radius: 0; padding: 0; max-width: 100%; box-shadow: none; transform: none; }
 .ds-247420 .chat-msg-flat.you .chat-bubble { background: none; color: inherit; }
+/* Flat turns strip the bubble padding, so the role label sat 4px above the first
+   paragraph and the .them tint hugged text flush. Restore reading rhythm + give
+   the tinted assistant row inner breathing room so it reads as a card. */
+.ds-247420 .chat-msg-flat .chat-role { margin-bottom: var(--space-2); }
+.ds-247420 .chat-msg-flat .chat-md { line-height: 1.65; }
+.ds-247420 .chat-msg-flat .chat-md p { margin: 8px 0; }
+.ds-247420 .chat-msg-flat.them { padding-block: calc(var(--space-3) * var(--density, 1) + 2px); }
+/* Inline backtick code (renderInline tags <code class=chat-tick>) - was a dead
+   class relying on the generic .chat-bubble code rule, so notices / non-bubble
+   surfaces got unstyled monospace. Self-style it regardless of container. */
+.ds-247420 .chat-tick { font-family: var(--ff-mono); font-size: .92em; background: color-mix(in oklab, var(--fg) 10%, transparent); padding: 1px 6px; border-radius: var(--r-1); }
+/* Structured tool/code output earns more width than running prose (claude.ai/code
+   lets diffs/tables break out wider than the reading measure). A flat turn that
+   contains a tool card or code block widens itself AND its stack past --measure;
+   prose-only turns stay clamped. */
+.ds-247420 .chat-msg-flat:has(.chat-tool),
+.ds-247420 .chat-msg-flat:has(.chat-bubble.chat-code) { max-width: calc(var(--measure) + 14ch); }
+.ds-247420 .chat-msg-flat:has(.chat-tool) .chat-stack,
+.ds-247420 .chat-msg-flat:has(.chat-bubble.chat-code) .chat-stack { max-width: calc(var(--measure) + 14ch); }
 /* Hover tint exceeds each role's REST tint so the row gives feedback (and the
    ladder stays monotonic): assistant 5% > its 3% rest; user 4% > transparent. */
 .ds-247420 .chat-msg-flat.them:hover { background: color-mix(in oklab, var(--fg) 5%, transparent); }
@@ -6118,9 +6194,9 @@
 .ds-247420 .ds-dash-group { display: flex; flex-direction: column; gap: var(--space-2); }
 .ds-247420 .ds-dash-group-label { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); padding: 0 var(--space-1); }
 .ds-247420 .ds-dash-breakdown { display: flex; align-items: center; gap: var(--space-1); font-size: var(--fs-sm); color: var(--fg-2); }
-.ds-247420 .ds-dash-breakdown .seg.is-running { color: var(--green); font-weight: 600; }
+.ds-247420 .ds-dash-breakdown .seg.is-running { color: var(--accent); font-weight: 600; }
 .ds-247420 .ds-dash-breakdown .seg.is-error { color: var(--flame); font-weight: 600; }
-.ds-247420 .ds-dash-breakdown .seg.is-idle { color: var(--amber); }
+.ds-247420 .ds-dash-breakdown .seg.is-idle { color: var(--amber); font-weight: 600; }
 .ds-247420 .ds-dash-stream-disc { display: inline-flex; align-items: center; gap: var(--space-1); }
 .ds-247420 .ds-dash-selectall { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--fs-tiny); color: var(--fg-2); cursor: pointer; background: none; border: none; padding: var(--space-1); }
 .ds-247420 .ds-dash-selectall:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -6442,7 +6518,7 @@
     font: var(--fs-tiny, 12px)/1.3 var(--ff-mono, monospace);
     min-width: 0;
 }
-.ds-247420 .ds-input-bare:focus { outline: none; border-color: var(--accent); }
+.ds-247420 .ds-input-bare:focus-visible { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring-inset); }
 /* A property field whose control spans the full panel width (label above,
    control below) — used for wide segmented controls that would clip in the
    narrow value column. */
@@ -7731,6 +7807,31 @@
     background: #fff !important; color: #000 !important; box-shadow: none !important;
   }
 }
+
+/* marketing.css */
+/* marketing.css — landing / docs site surface family (the agentgui flatspace
+ * site renderer composes these instead of carrying inline style= props). Every
+ * selector is written pre-scoped under `.ds-247420` so the build's selector-
+ * prefixer leaves it untouched (consumers mount on <html class="ds-247420">).
+ * All values read kit tokens — no hardcoded hex, no inline design in the app. */
+
+.ds-247420 .site-panel { margin: var(--space-2); }
+
+/* Hero block */
+.ds-247420 .site-hero { padding: 24px 22px; }
+.ds-247420 .site-hero-h { margin: 0 0 var(--space-2); }
+.ds-247420 .site-hero-body { margin: var(--space-2) 0 var(--space-3); color: var(--fg-2); max-width: 64ch; }
+.ds-247420 .site-chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 var(--space-3); }
+.ds-247420 .site-cta-row { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+/* Quickstart CLI block — these .cli/.prompt/.cmd nodes were previously unstyled. */
+.ds-247420 .site-cli { padding: 16px 22px; }
+.ds-247420 .site-cli .cli { display: flex; gap: var(--space-2); font-family: var(--ff-mono); font-size: var(--fs-sm); padding: 2px 0; }
+.ds-247420 .site-cli .prompt { color: var(--fg-3); user-select: none; flex: 0 0 auto; }
+.ds-247420 .site-cli .cmd { color: var(--fg); white-space: pre-wrap; word-break: break-word; }
+
+/* Embedded legacy doc (iframe wrapper) */
+.ds-247420 .site-embed { width: 100%; height: calc(100vh - 180px); min-height: 520px; border: 0; border-radius: var(--r-1); background: var(--bg-2); display: block; }
 
 /* spoint/loading-screen.css */
 /* Loading-screen kit styles. Scoped under .ds-247420 at build time.

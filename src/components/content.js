@@ -6,8 +6,8 @@ import * as webjsx from '../../vendor/webjsx/index.js';
 import { Btn, Heading, Lede, Dot, Icon } from './shell.js';
 const h = webjsx.createElement;
 
-export function Panel({ title, count, right, style = '', children, kind, id }) {
-    const cls = 'panel' + (kind ? ' panel-' + kind : '');
+export function Panel({ title, count, right, style = '', class: className = '', children, kind, id }) {
+    const cls = 'panel' + (kind ? ' panel-' + kind : '') + (className ? ' ' + className : '');
     return h('div', { class: cls, style, id: id || null },
         title != null ? h('div', { class: 'panel-head' },
             h('span', {}, title),

@@ -171,7 +171,9 @@ export function SessionCard({ session = {}, onStop, onOpen, onView, active = fal
   // sessions with no cost source (external tally rows) simply omit the segment.
   const tokText = s.tokens != null ? (typeof s.tokens === 'number' ? s.tokens.toLocaleString() : s.tokens) + ' tok' : null;
   const costText = s.cost != null ? (typeof s.cost === 'number' ? '$' + s.cost.toFixed(4) : String(s.cost)) : null;
-  const statBits = [elapsedText, s.counter != null ? s.counter : null, tokText, costText].filter((x) => x != null && x !== '');
+  // Cost is rendered as its own emphasized segment (not buried in the mono run)
+  // so the command-center cost-at-a-glance signal is scannable.
+  const statBits = [elapsedText, s.counter != null ? s.counter : null, tokText].filter((x) => x != null && x !== '');
   const activityBits = [
     s.currentTool ? 'running: ' + s.currentTool : null,
     s.lastActivity ? 'last ' + s.lastActivity : null,
@@ -195,7 +197,10 @@ export function SessionCard({ session = {}, onStop, onOpen, onView, active = fal
   ].filter(Boolean));
   const meta = h('div', { class: 'ds-dash-meta' }, ...[
     s.cwd ? h('span', { class: 'ds-dash-cwd', title: s.cwd }, s.cwd) : null,
-    statBits.length ? h('span', { class: 'ds-dash-stat' }, statBits.join(' · ')) : null,
+    (statBits.length || costText) ? h('span', { class: 'ds-dash-stat' },
+      statBits.join(' · '),
+      costText ? h('span', { class: 'ds-dash-stat-cost' }, (statBits.length ? ' · ' : '') + costText) : null
+    ) : null,
     activityBits.length ? h('span', { class: 'ds-dash-activity' }, activityBits.join(' · ')) : null,
   ].filter(Boolean));
   const actions = h('div', { class: 'ds-dash-actions', role: 'group', 'aria-label': 'session actions' }, ...[
