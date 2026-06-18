@@ -916,6 +916,32 @@ The real class taxonomy (enforced by `scripts/lint-classes.mjs` at build time):
 
 State modifiers use `is-*` / `.active` / `.show`; rail tones use `rail-*`; badge tones use `tone-*`.
 
+### Bundled stylesheets
+
+`scripts/build.mjs` concatenates the root CSS files into the scoped `dist/247420.css`:
+`colors_and_type.css` (tokens) -> `app-shell.css` -> `community.css` -> `chat.css` ->
+`editor-primitives.css` -> `community-app.css` -> **`app-surfaces.css`** -> the spoint kit sheets.
+`app-surfaces.css` holds consumer-app application-surface styling (the agentgui pills, cwd bar,
+resume banner, health chips, settings grid, history empty state, boot splash, scrollbar theming,
+focus rings, print) so a consuming app keeps NO design content of its own; its selectors are
+written pre-scoped `.ds-247420 ...` (the build prefixer leaves already-scoped selectors untouched).
+`lint-glyphs` scans these root CSS files (via `SCAN_ROOT_FILES`) in addition to `src/`, so a
+decorative glyph in shipped CSS fails the build.
+
+### Focus + multi-select tokens/classes
+
+- Unified focus tokens (colors_and_type.css): `--focus-color` / `--focus-w` / `--focus-offset`
+  for outset rings, and `--focus-ring-inset` for bordered text fields. Keyboard rings use
+  `:focus-visible` (never bare `:focus`, so a mouse click draws no ring).
+- `.ds-check-box` — a CSS-drawn multi-select checkbox (bordered box, accent fill + border-drawn
+  tick on `.is-marked` or `[aria-checked="true"]`, dash on `[aria-checked="mixed"]`). Used by
+  FileRow/FileCell, the file/session select-all, and SessionCard select. Replaces `[x]/[ ]` text;
+  AT keeps the `role=checkbox` + `aria-checked` name/state.
+- Dashboard card status rails (chat.css): `is-error` (flame inset, strongest) > `is-stale`
+  (amber inset) > `is-active`/`is-new` (accent inset). Tool-card status pills: `tool-running`
+  (accent) / `tool-error` (flame) / `tool-done` (success). `Row()` rail tones differentiate by
+  SHAPE (taller bar = error, gapped fill = subagent) plus an sr-only status word, not hue alone.
+
 ---
 
 ## Accessibility Standards

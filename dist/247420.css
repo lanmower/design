@@ -199,22 +199,31 @@
   --size-sm:     32px;
   --size-base:   42px;
   --size-lg:     56px;
+
+  /* Unified focus-ring tokens (single source for the design system). Outset
+     rings (the default) tokenize colour+width+offset; bordered text fields use
+     the inset variant. Deliberate negative offsets on edge-flush/clipping
+     containers stay literal. */
+  --focus-color:       var(--accent);
+  --focus-w:           2px;
+  --focus-offset:      2px;
+  --focus-ring-inset:  inset 0 0 0 var(--focus-w) var(--focus-color);
 }
 
 /* ============================================================
    Focus-visible styles for keyboard navigation
    ============================================================ */
 .ds-247420 :focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 /* Button variants with focus-visible */
 .ds-247420 .btn:focus-visible,
 .ds-247420 .btn-primary:focus-visible,
 .ds-247420 .btn-ghost:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 /* Link focus-visible */
@@ -262,6 +271,10 @@
   --danger:    oklch(0.68 0.19 25);
   --flame:     #FF5A1F;
   --amber:     #D9A93A;
+  /* warn/sky dark-tuned pairs (mirror flame/amber): the :root paper values
+     (#E0241A / #3A6EFF) are too dark on ink; these clear AA 4.5:1 on --ink. */
+  --warn:      #FF5A52;
+  --sky:       #6E9BFF;
   --code-string:  var(--green-2);
   --code-keyword: var(--sky);
   --code-fn:      var(--flame);
@@ -295,6 +308,8 @@
     --accent-bright: var(--green-2);
     --flame:     #FF5A1F;
     --amber:     #D9A93A;
+    --warn:      #FF5A52;
+    --sky:       #6E9BFF;
     --code-string:  var(--green-2);
     --code-keyword: var(--sky);
     --code-fn:      var(--flame);
@@ -1024,8 +1039,13 @@
 .ds-247420 .row.rail-purple::before,
 .ds-247420 .row.rail-flame::before { height: 56%; opacity: 1; }
 .ds-247420 .row.rail-green::before  { background: var(--accent); }
-.ds-247420 .row.rail-purple::before { background: var(--purple-2, #7F18A4); }
+.ds-247420 .row.rail-purple::before { background: var(--purple-2); }
 .ds-247420 .row.rail-flame::before  { background: var(--flame); }
+/* Differentiate the rail by SHAPE, not hue alone (color-blind safety): error
+   reads as a taller solid bar, subagent as a dashed/gapped fill, ok stays the
+   short solid bar. Paired with the sr-only status word emitted by Row(). */
+.ds-247420 .row.rail-flame::before  { height: 64%; }
+.ds-247420 .row.rail-purple::before { background: repeating-linear-gradient(var(--purple-2) 0 4px, transparent 4px 7px); }
 .ds-247420 .row-grid { /* explicit grid-template-columns set inline */ }
 /* A row with no leading code/index drops the empty first column so the title
    takes the full width instead of wrapping in the narrow code gutter. */
@@ -1261,8 +1281,8 @@
   border: 0; border-radius: var(--r-2);
   box-shadow: inset 0 0 0 1px var(--rule);
 }
-.ds-247420 .row-form input:focus,
-.ds-247420 .row-form textarea:focus { box-shadow: inset 0 0 0 2px var(--accent); }
+.ds-247420 .row-form input:focus-visible,
+.ds-247420 .row-form textarea:focus-visible { box-shadow: var(--focus-ring-inset); }
 
 /* Field char counter (TextField maxLength) */
 .ds-247420 .ds-field-count {
@@ -1283,9 +1303,9 @@
    Responsive Design — Mobile (480px), Tablet (1024px), Desktop (1440px+)
    ============================================================ */
 
-/* ────────────────────────────────────────────────────────────────────
+/* --------------------------------------------------------------------
    Mobile Portrait Breakpoint (480px and below)
-   ────────────────────────────────────────────────────────────────────── */
+   ---------------------------------------------------------------------- */
 @media (max-width: 480px) {
   /* App Layout: single-column + drawer is handled once in the ≤900px block;
      no need to re-declare grid-template-columns here (was a redundant !important). */
@@ -1409,9 +1429,9 @@
   .ds-247420 .cli .copy { padding: 6px 12px; font-size: var(--fs-micro); }
 }
 
-/* ────────────────────────────────────────────────────────────────────
+/* --------------------------------------------------------------------
    Container Query Responsive (720px and below)
-   ────────────────────────────────────────────────────────────────────── */
+   ---------------------------------------------------------------------- */
 @container (max-width: 760px) {
   .ds-247420 .app-body { grid-template-columns: 1fr !important; }
   .ds-247420 .app-side-shell { border-right: 0; border-bottom: 1px solid var(--rule); }
@@ -1421,9 +1441,9 @@
   .ds-247420 .row .sub { grid-column: 1 / -1; order: 3; }
 }
 
-/* ────────────────────────────────────────────────────────────────────
+/* --------------------------------------------------------------------
    Tablet Landscape Breakpoint (768px to 1024px)
-   ────────────────────────────────────────────────────────────────────── */
+   ---------------------------------------------------------------------- */
 @media (min-width: 481px) and (max-width: 1024px) {
   /* App Layout — side handled by 900px drawer block; restore for 901-1024 */
   .ds-247420 .app-side a {
@@ -1500,9 +1520,9 @@
   }
 }
 
-/* ────────────────────────────────────────────────────────────────────
+/* --------------------------------------------------------------------
    Mid Breakpoint (768px and below) — collapse sidebar + simplify row grid
-   ────────────────────────────────────────────────────────────────────── */
+   ---------------------------------------------------------------------- */
 @media (max-width: 768px) {
   /* Sidebar stacks above main rather than sitting beside it */
   .ds-247420 .app-body { grid-template-columns: 1fr; }
@@ -1517,9 +1537,9 @@
   .ds-247420 .row .sub { grid-column: 1 / -1; }
 }
 
-/* ────────────────────────────────────────────────────────────────────
+/* --------------------------------------------------------------------
    Desktop Breakpoint Enhancements (1025px and up)
-   ────────────────────────────────────────────────────────────────────── */
+   ---------------------------------------------------------------------- */
 @media (min-width: 1025px) {
   /* Chat Bubbles */
   .ds-247420 .chat-stack { max-width: min(70%, 480px); }
@@ -1540,7 +1560,7 @@
 .ds-247420 .ds-chat-md { font-size: var(--fs-sm); line-height: 1.6; }
 .ds-247420 .ds-chat-composer { display: flex; gap: 8px; padding: var(--space-4); }
 .ds-247420 .ds-chat-composer input { flex: 1; padding: 13px 18px; background: var(--bg-2); border: 0; border-radius: var(--r-pill); font-family: inherit; font-size: var(--fs-sm); color: var(--fg); }
-.ds-247420 .ds-chat-composer input:focus { box-shadow: inset 0 0 0 2px var(--accent); }
+.ds-247420 .ds-chat-composer input:focus-visible { box-shadow: var(--focus-ring-inset); }
 
 /* ============================================================
    File surface — responsive grid + row layouts
@@ -1566,7 +1586,7 @@
   background: var(--bg); color: var(--fg);
   border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1);
 }
-.ds-247420 .ds-file-filter-input:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+.ds-247420 .ds-file-filter-input:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
 .ds-247420 .ds-file-sort { display: flex; gap: var(--space-2); padding: 0 var(--space-2) var(--space-1); }
 .ds-247420 .ds-file-sort-btn {
   font-size: var(--fs-tiny); font-family: var(--ff-mono); color: var(--fg-3);
@@ -1687,6 +1707,29 @@
 .ds-247420 .ds-file-act-warn:hover { background: color-mix(in oklab, var(--warn) 18%, var(--bg)); color: var(--warn); }
 
 /* Multi-select — per-row checkbox, header tri-state, bulk action strip. */
+/* CSS-drawn multi-select checkbox: a bordered box that fills with the accent +
+   a border-drawn tick when its parent button is .is-marked or aria-checked.
+   Shared by FileRow/FileCell (.is-marked) and the file/session select-all +
+   SessionCard select (aria-checked true/mixed) since the bundle concatenates
+   all CSS. Replaces the old [x]/[ ] bracket text - no glyphs, AT keeps the
+   role=checkbox/aria-checked name+state. */
+.ds-247420 .ds-check-box {
+  width: 15px; height: 15px; box-sizing: border-box; flex: 0 0 auto; position: relative;
+  border: 1.5px solid var(--rule); border-radius: 4px;
+  transition: background var(--dur-snap) var(--ease), border-color var(--dur-snap) var(--ease);
+}
+.ds-247420 .is-marked > .ds-check-box,
+.ds-247420[aria-checked="true"] > .ds-check-box { background: var(--accent); border-color: var(--accent); }
+.ds-247420 .is-marked > .ds-check-box::after,
+.ds-247420[aria-checked="true"] > .ds-check-box::after {
+  content: ""; position: absolute; left: 4px; top: 1px; width: 4px; height: 8px;
+  border: solid var(--bg); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg);
+}
+.ds-247420[aria-checked="mixed"] > .ds-check-box { background: var(--accent); border-color: var(--accent); }
+.ds-247420[aria-checked="mixed"] > .ds-check-box::after {
+  content: ""; position: absolute; left: 2px; right: 2px; top: 50%; height: 1.5px; margin-top: -0.75px; background: var(--bg);
+}
+
 .ds-247420 .ds-file-check {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 28px; height: 28px; padding: 0 4px;
@@ -1716,7 +1759,7 @@
   padding: var(--space-1) var(--space-2);
   background: var(--bg-2); border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
 }
-.ds-247420 .ds-bulkbar-count { font-size: var(--fs-tiny); color: var(--fg-2); }
+.ds-247420 .ds-bulkbar-count { font-size: var(--fs-sm); font-weight: 600; color: var(--fg-2); }
 /* BulkBar is a toolbar (it even declares role=toolbar): compact rect buttons,
    quiet destructive outline - the app arm-confirms destructive bulk actions
    via ConfirmDialog, so the strip never needs a loud CTA. */
@@ -1977,7 +2020,7 @@
 .ds-247420 .ds-file-empty-glyph { font-size: 34px; opacity: 0.55; }
 .ds-247420 .ds-file-empty-text { font-size: var(--fs-sm); }
 
-/* ── Modals ───────────────────────────────────────────────── */
+/* -- Modals ------------------------------------------------- */
 .ds-247420 .ds-modal-backdrop {
   position: fixed; inset: 0; z-index: var(--z-modal, 800);
   display: flex; align-items: center; justify-content: center;
@@ -2023,7 +2066,7 @@
   border-radius: var(--r-2); color: var(--fg);
   font-family: inherit; font-size: var(--fs-sm);
 }
-.ds-247420 .ds-modal-input:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ds-247420 .ds-modal-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* In-body modal error (role=alert): mutation failures (409/403) surface INSIDE
    the dialog, not behind the fixed overlay. */
 .ds-247420 .ds-modal-error {
@@ -2038,7 +2081,7 @@
   color: var(--on-color);
 }
 
-/* ── Preview ──────────────────────────────────────────────── */
+/* -- Preview ------------------------------------------------ */
 .ds-247420 .ds-preview-head {
   display: flex; align-items: center; gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
@@ -2111,7 +2154,7 @@
   .ds-247420 .ds-file-stage { padding: var(--space-3) var(--space-2); }
 }
 
-/* ── File browser UX affordances ──────────────────────────── */
+/* -- File browser UX affordances ---------------------------- */
 /* Toolbar filter input — compact search box. */
 .ds-247420 .ds-filter-input {
   width: clamp(120px, 22vw, 220px);
@@ -2120,7 +2163,7 @@
   border-radius: var(--r-pill); color: var(--fg);
   font-family: inherit; font-size: var(--fs-xs);
 }
-.ds-247420 .ds-filter-input:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+.ds-247420 .ds-filter-input:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
 
 /* Loading skeleton — placeholder rows while a directory loads. */
 .ds-247420 .ds-file-grid-loading { display: flex; flex-direction: column; gap: 4px; }
@@ -2643,7 +2686,7 @@
 .ds-247420 .app-side a .glyph { font-family: var(--ff-mono); font-size: 13px; font-weight: 600; color: var(--fg-3); text-align: center; }
 .ds-247420 .app-side a.active .glyph { color: var(--accent); }
 
-/* ── select primitive ─────────────────────────────────────────────────── */
+/* -- select primitive --------------------------------------------------- */
 .ds-247420 .ds-select {
     width: 100%;
     min-width: 0;
@@ -2667,10 +2710,10 @@
     background-repeat: no-repeat;
     cursor: pointer;
 }
-.ds-247420 .ds-select:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+.ds-247420 .ds-select:focus-visible { box-shadow: var(--focus-ring-inset); }
 .ds-247420 .ds-select:hover { background-color: var(--bg-3); }
 
-/* ── chat composer autogrow polish (sizing lives in the primary block) ── */
+/* -- chat composer autogrow polish (sizing lives in the primary block) -- */
 .ds-247420 .chat-composer textarea {
     transition: height var(--dur-snap) var(--ease);
 }
@@ -2679,7 +2722,7 @@
     cursor: not-allowed;
 }
 
-/* ── mobile responsive: chat ──────────────────────────────────────────── */
+/* -- mobile responsive: chat -------------------------------------------- */
 @media (max-width: 768px) {
     .ds-247420 .chat-stack { max-width: 100%; }
     .ds-247420 .chat-msg { padding: 4px 0; }
@@ -2704,9 +2747,9 @@
    Comprehensive improvements for perfect UX across all surfaces
    ============================================================ */
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Component States — Disabled, Loading, Error, Success
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 /* Disabled state for all interactive elements */
 .ds-247420 .btn:disabled, .ds-247420 .btn-primary:disabled, .ds-247420 .btn-ghost:disabled, .ds-247420 button:disabled, .ds-247420[disabled] {
@@ -2754,9 +2797,9 @@
   opacity: 0.8;
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Enhanced Button Micro-Interactions
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 /* Button scale feedback on active */
 .ds-247420 .btn:active:not(:disabled),
@@ -2783,9 +2826,9 @@
   -webkit-touch-callout: none;
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Drag-and-Drop Styles
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 /* Draggable element */
 .ds-247420[draggable="true"], .ds-247420 .draggable {
@@ -2842,9 +2885,9 @@
   50% { opacity: 1; }
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Context Menu Styles
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 .ds-247420 .ds-context-menu {
   position: absolute;
@@ -2906,9 +2949,9 @@
   cursor: context-menu;
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Enhanced Form Inputs
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 .ds-247420 input[type="text"],
 .ds-247420 input[type="email"],
@@ -2934,7 +2977,7 @@
   color: var(--fg-3);
 }
 
-/* ── Field controls: themed base for TextField / Select / SearchInput ──
+/* -- Field controls: themed base for TextField / Select / SearchInput --
    Root fix: previously only `transition` was set, so themed apps got
    browser-default white boxes in dark mode and labels collided with inputs
    because `.ds-field` had no layout. */
@@ -2983,7 +3026,7 @@
 .ds-247420 .ds-field .ds-select:focus-visible,
 .ds-247420 .ds-search-input:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 2px var(--accent);
+  box-shadow: var(--focus-ring-inset);
 }
 .ds-247420 .ds-field input:disabled,
 .ds-247420 .ds-field textarea:disabled,
@@ -3021,9 +3064,9 @@
   color: var(--fg);
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Accessibility Enhancements
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 /* Enhanced focus-visible for all interactive elements */
 .ds-247420[role="button"]:focus-visible,
@@ -3052,11 +3095,17 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  /* Kill the residual paint frame of looping skeleton/shimmer placeholders and
+     give reduced-motion users a steady placeholder fill instead. */
+  .ds-247420 .skeleton, .ds-247420 .ds-skeleton, .ds-247420 .ds-session-row-skeleton .ds-skel {
+    animation: none !important;
+    background: var(--bg-2) !important;
+  }
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Performance
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 /* Limit layout/style containment to self-contained components. `paint` is
    intentionally omitted — it clips focus rings, tooltips and dropdowns that
@@ -3065,9 +3114,9 @@
   contain: layout style;
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Mobile Touch Optimizations
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 @media (hover: none) and (pointer: coarse) {
   /* Mobile devices: larger touch targets, faster responses */
@@ -3096,9 +3145,9 @@
   }
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Theme Transition Smoothness
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 /* Scoped to the DS wrapper so the design system never reaches out and
    animates the host document's html/body. */
@@ -3107,9 +3156,9 @@
               color var(--dur-base) var(--ease);
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Empty State & Loading States
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 .ds-247420 .empty-state {
   display: flex; flex-direction: column; align-items: center; gap: var(--space-4);
@@ -3147,9 +3196,9 @@
 .ds-247420 .skeleton-line { height: 12px; margin-bottom: 12px; }
 .ds-247420 .skeleton-title { height: 24px; margin-bottom: 16px; width: 60%; }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Toast Notification Styles
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 .ds-247420 .toast {
   position: fixed;
@@ -3555,7 +3604,7 @@
 /* Crumb band is the top chrome of the content column: a stable height so the
    top edge aligns with the rail head, and a left gutter matching .ws-main so
    the trail text is not flush against the rail border. */
-.ds-247420 .ws-crumb { flex: 0 0 auto; min-height: 48px; padding: 0 var(--space-4); display: flex; align-items: center; gap: var(--space-1); border-bottom: var(--bw-hair) solid var(--bg-3); }
+.ds-247420 .ws-crumb { flex: 0 0 auto; min-height: 48px; padding: 0 var(--space-5); display: flex; align-items: center; gap: var(--space-1); border-bottom: var(--bw-hair) solid var(--bg-3); }
 .ds-247420 .ws-crumb-main { flex: 1 1 auto; min-width: 0; }
 /* Content column gutter. Claude-Code-class calm: file grid / dashboard / event
    list / history get a generous, consistent inner gutter instead of butting
@@ -5455,14 +5504,14 @@
 }
 .ds-247420 .agentchat-empty-title { margin: 0; font-size: 1.05em; color: var(--fg-2, var(--fg)); }
 .ds-247420 .agentchat-empty-sub { margin: 0; font-size: var(--fs-sm); }
-.ds-247420 .agentchat-empty-suggestions {
+.ds-247420 .agentchat-empty-suggestions, .ds-247420 .chat-empty-suggestions {
   display: flex;
   flex-wrap: wrap;
   gap: .5em;
   justify-content: center;
   margin-top: .5em;
 }
-.ds-247420 .agentchat-empty-suggestion {
+.ds-247420 .agentchat-empty-suggestion, .ds-247420 .chat-empty-suggestion {
   cursor: pointer;
   font: inherit;
   font-size: var(--fs-tiny);
@@ -5472,8 +5521,8 @@
   background: color-mix(in srgb, var(--fg) 5%, transparent);
   color: var(--fg-2, var(--fg));
 }
-.ds-247420 .agentchat-empty-suggestion:hover { background: color-mix(in srgb, var(--accent, var(--fg)) 12%, transparent); }
-.ds-247420 .agentchat-empty-suggestion:focus-visible { outline: 2px solid var(--accent, var(--fg)); outline-offset: 2px; }
+.ds-247420 .agentchat-empty-suggestion:hover, .ds-247420 .chat-empty-suggestion:hover { background: color-mix(in srgb, var(--accent, var(--fg)) 12%, transparent); }
+.ds-247420 .agentchat-empty-suggestion:focus-visible, .ds-247420 .chat-empty-suggestion:focus-visible { outline: 2px solid var(--accent, var(--fg)); outline-offset: 2px; }
 
 /* Guided install path in the empty state: copy line + monospaced command rows
    (each with its own copy button) + a recheck button. No animation. */
@@ -5575,8 +5624,8 @@
 }
 .ds-247420 .status-dot-disc.status-dot-live { background: var(--accent); animation: status-disc-pulse 1.8s ease-in-out infinite; }
 .ds-247420 .status-dot-disc.status-dot-error { background: var(--flame); }
-.ds-247420 .status-dot-disc.status-dot-connecting { background: var(--amber, #d9a93a); }
-.ds-247420 .status-dot-disc.status-dot-stale { background: var(--amber, #d9a93a); }
+.ds-247420 .status-dot-disc.status-dot-connecting { background: var(--amber); }
+.ds-247420 .status-dot-disc.status-dot-stale { background: var(--amber); }
 @keyframes status-disc-pulse {
   0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 55%, transparent); }
   50%      { box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 0%, transparent); }
@@ -5638,7 +5687,7 @@
 /* Rail tones MUST match .row.rail-* in app-shell.css so the same semantic state
    reads as one colour across the conversation list and content rows. */
 .ds-247420 .ds-session-row.rail-green::before { background: var(--accent); }
-.ds-247420 .ds-session-row.rail-purple::before { background: var(--purple-2, #7F18A4); }
+.ds-247420 .ds-session-row.rail-purple::before { background: var(--purple-2); }
 .ds-247420 .ds-session-row.rail-flame::before { background: var(--flame); }
 .ds-247420 .ds-session-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .ds-247420 .ds-session-title { font-size: var(--fs-sm); color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -5740,11 +5789,16 @@
 .ds-247420 button.chat-composer-context:hover { color: var(--fg-2); }
 .ds-247420 button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
+/* Composer send/cancel button row: a non-wrapping cluster pinned to the
+   bottom-right of the flex-end composer (was unstyled, so the send button
+   could wrap below the textarea instead of anchoring like claude.ai/code). */
+.ds-247420 .chat-composer-toolbar { display: flex; align-items: center; gap: var(--space-1); flex: 0 0 auto; margin-left: auto; align-self: flex-end; }
+
 /* --- B2: follow-up chips below the last settled assistant turn. --- */
 .ds-247420 .agentchat-followups { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-2) var(--space-3); }
 
 /* --- C1: stale/idle dashboard status (static, NOT pulsing). --- */
-.ds-247420 .ds-dash-status.is-stale { color: var(--amber, #d9a93a); }
+.ds-247420 .ds-dash-status.is-stale { color: var(--amber); }
 .ds-247420 .ds-dash-status.is-running { color: var(--accent); }
 
 /* --- C2: dashboard sort/filter toolbar + stream-state line. --- */
@@ -5762,7 +5816,7 @@
 }
 .ds-247420 .ds-dash-stream { font-size: var(--fs-tiny); color: var(--fg-3); }
 .ds-247420 .ds-dash-stream.is-lost { color: var(--flame); }
-.ds-247420 .ds-dash-stream.is-connecting { color: var(--amber, #d9a93a); }
+.ds-247420 .ds-dash-stream.is-connecting { color: var(--amber); }
 .ds-247420 .ds-dash-header .spread { flex: 1; }
 .ds-247420 .ds-dash-errors-toggle {
   padding: 4px 10px; min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
@@ -5788,7 +5842,7 @@
 /* Stale/idle card: a positive amber inset bar (mirrors is-active) so a stuck
    agent is flagged in a dense grid, not merely faded near-invisibly. The word
    'idle' co-carries state, so this stays colour-blind safe. */
-.ds-247420 .ds-dash-card.is-stale { box-shadow: inset 2px 0 0 var(--amber, #d9a93a); }
+.ds-247420 .ds-dash-card.is-stale { box-shadow: inset 2px 0 0 var(--amber); }
 
 /* --- H3: dashboard live disc pulses; stale/error do not (handled by H1). --- */
 
@@ -5945,7 +5999,7 @@
 }
 
 /* Stopping state: in-flight cancel reads distinctly from running/error. */
-.ds-247420 .ds-dash-status.is-stopping { color: var(--amber, #d9a93a); }
+.ds-247420 .ds-dash-status.is-stopping { color: var(--amber); }
 
 /* External (observed, not owned) session card: no stop control exists. */
 .ds-247420 .ds-dash-external {
@@ -5977,8 +6031,10 @@
 .ds-247420 .chat-msg-flat.you .chat-role { color: var(--accent); }
 .ds-247420 .chat-msg-flat .chat-bubble { background: none; border: none; border-radius: 0; padding: 0; max-width: 100%; box-shadow: none; transform: none; }
 .ds-247420 .chat-msg-flat.you .chat-bubble { background: none; color: inherit; }
-.ds-247420 .chat-msg-flat:hover { background: color-mix(in oklab, var(--fg) 3%, transparent); }
-.ds-247420 .chat-msg-flat.you:hover { background: color-mix(in oklab, var(--fg) 2%, transparent); }
+/* Hover tint exceeds each role's REST tint so the row gives feedback (and the
+   ladder stays monotonic): assistant 5% > its 3% rest; user 4% > transparent. */
+.ds-247420 .chat-msg-flat.them:hover { background: color-mix(in oklab, var(--fg) 5%, transparent); }
+.ds-247420 .chat-msg-flat.you:hover { background: color-mix(in oklab, var(--fg) 4%, transparent); }
 .ds-247420 .chat-msg-flat:hover .chat-bubble { transform: none; box-shadow: none; background: none; }
 .ds-247420 .chat-msg-flat .chat-avatar { display: none; }
 
@@ -6012,6 +6068,9 @@
 }
 .ds-247420 .chat-msg .chat-tool.tool-running .chat-tool-status { color: var(--accent); background: color-mix(in oklab, var(--accent) 12%, transparent); }
 .ds-247420 .chat-msg .chat-tool.tool-error .chat-tool-status { color: var(--flame); background: color-mix(in oklab, var(--flame) 12%, transparent); }
+/* Completed tool: a positive (success) tone so done reads distinctly from the
+   neutral pill and from the accent-toned running pill (--success = green-2). */
+.ds-247420 .chat-msg .chat-tool.tool-done .chat-tool-status { color: var(--success); background: color-mix(in oklab, var(--success) 12%, transparent); }
 .ds-247420 .chat-tool-body { border-top: var(--bw-hair) solid var(--rule); padding: var(--space-2) var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
 .ds-247420 .chat-tool-section { display: flex; flex-direction: column; gap: var(--space-1); }
 .ds-247420 .chat-tool-section-label { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); }
@@ -6046,6 +6105,10 @@
 }
 @keyframes ds-arm-pulse { 0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--warn) 55%, transparent); } 100% { box-shadow: 0 0 0 6px color-mix(in oklab, var(--warn) 0%, transparent); } }
 .ds-247420 .ds-dash-card.is-new { box-shadow: inset 2px 0 0 var(--accent), 0 0 0 1px color-mix(in oklab, var(--accent) 40%, transparent); }
+/* Error card carries the strongest left-bar tone (flame > stale amber > active
+   accent), placed last so its inset bar wins source order over is-active/is-stale.
+   The full-perimeter border-color (line ~396) stays for extra severity emphasis. */
+.ds-247420 .ds-dash-card.is-error { box-shadow: inset 2px 0 0 var(--flame); }
 @media (prefers-reduced-motion: no-preference) {
   .ds-247420 .ds-dash-card.is-new { animation: ds-card-in var(--dur-slow) var(--ease); }
 }
@@ -6057,7 +6120,7 @@
 .ds-247420 .ds-dash-breakdown { display: flex; align-items: center; gap: var(--space-1); font-size: var(--fs-sm); color: var(--fg-2); }
 .ds-247420 .ds-dash-breakdown .seg.is-running { color: var(--green); font-weight: 600; }
 .ds-247420 .ds-dash-breakdown .seg.is-error { color: var(--flame); font-weight: 600; }
-.ds-247420 .ds-dash-breakdown .seg.is-idle { color: var(--amber, #d9a93a); }
+.ds-247420 .ds-dash-breakdown .seg.is-idle { color: var(--amber); }
 .ds-247420 .ds-dash-stream-disc { display: inline-flex; align-items: center; gap: var(--space-1); }
 .ds-247420 .ds-dash-selectall { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--fs-tiny); color: var(--fg-2); cursor: pointer; background: none; border: none; padding: var(--space-1); }
 .ds-247420 .ds-dash-selectall:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -6078,7 +6141,7 @@
 .ds-247420 .ds-preview-code code { color: var(--fg); }
 .ds-247420 .ds-preview-code .token.comment, .ds-247420 .ds-preview-code .token.prolog, .ds-247420 .ds-preview-code .token.doctype, .ds-247420 .ds-preview-code .token.cdata { color: var(--fg-3); }
 .ds-247420 .ds-preview-code .token.punctuation { color: var(--fg-2); }
-.ds-247420 .ds-preview-code .token.property, .ds-247420 .ds-preview-code .token.tag, .ds-247420 .ds-preview-code .token.boolean, .ds-247420 .ds-preview-code .token.number, .ds-247420 .ds-preview-code .token.constant, .ds-247420 .ds-preview-code .token.symbol { color: var(--purple-2, #7F18A4); }
+.ds-247420 .ds-preview-code .token.property, .ds-247420 .ds-preview-code .token.tag, .ds-247420 .ds-preview-code .token.boolean, .ds-247420 .ds-preview-code .token.number, .ds-247420 .ds-preview-code .token.constant, .ds-247420 .ds-preview-code .token.symbol { color: var(--purple-2); }
 .ds-247420 .ds-preview-code .token.selector, .ds-247420 .ds-preview-code .token.attr-name, .ds-247420 .ds-preview-code .token.string, .ds-247420 .ds-preview-code .token.char, .ds-247420 .ds-preview-code .token.builtin { color: var(--code-string, var(--green)); }
 .ds-247420 .ds-preview-code .token.atrule, .ds-247420 .ds-preview-code .token.attr-value, .ds-247420 .ds-preview-code .token.keyword { color: var(--code-keyword, var(--sky)); }
 .ds-247420 .ds-preview-code .token.function, .ds-247420 .ds-preview-code .token.class-name { color: var(--code-fn, var(--flame)); }
@@ -7442,6 +7505,231 @@
   padding: 16px;
   overflow-y: auto;
   align-content: start;
+}
+
+/* app-surfaces.css */
+/* app-surfaces.css — agentgui application-surface styling.
+ *
+ * Owns every design decision for the agentgui consumer app's own surfaces
+ * (the bits the app composes around the flagship kit components): the project
+ * filter pills, the working-directory bar, the resume banner, the backend
+ * health chips, the settings two-column grid, the history empty state, the
+ * boot splash, the chat control cluster, and the cross-cutting base (scrollbar
+ * theming, focus rings, print). These previously lived as a hand-rolled inline
+ * \3c style> block in agentgui's index.html; the kit now owns them so NO design
+ * content lives in the consumer app.
+ *
+ * Every selector is written pre-scoped under `.ds-247420` (the consumer mounts
+ * on <html class="ds-247420">), so the build's selector-prefixer leaves them
+ * untouched rather than mis-compounding the `[attr]` / `*` / bare-element
+ * selectors. All colour/space/radius/font values read from kit tokens
+ * (colors_and_type.css) — there are no app-local colour fallbacks. */
+
+/* Visually-hidden but screen-reader-available (aria-live announcer, labels). */
+.ds-247420 .sr-only {
+  position: absolute !important; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+/* Base: full-height app root reading kit tokens. */
+.ds-247420, .ds-247420 body { margin: 0; height: 100%; }
+.ds-247420 body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--ff-display, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif);
+}
+.ds-247420 #app { height: 100vh; height: 100dvh; }
+.ds-247420 #app > * { height: 100%; }
+
+/* Themed thin scrollbars — the native chrome scrollbar is chunky/light and
+   clashes with the dark theme on the history sidebar and settings column. */
+.ds-247420 * {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--fg) 22%, transparent) transparent;
+}
+.ds-247420 *::-webkit-scrollbar { width: 9px; height: 9px; }
+.ds-247420 *::-webkit-scrollbar-track { background: transparent; }
+.ds-247420 *::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--fg) 20%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.ds-247420 *::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--fg) 34%, transparent);
+  background-clip: padding-box;
+}
+
+/* We move focus to the page heading on tab change for AT users; suppress the
+   resulting outline box on those programmatically-focused elements. */
+.ds-247420 [data-prog-focus]:focus,
+.ds-247420 [data-prog-focus]:focus-visible { outline: none !important; box-shadow: none !important; }
+
+/* The connection-dot disc + pulse are the kit's canonical .status-dot-disc;
+   only the inline-flex wrapper layout stays here. */
+.ds-247420 .status-dot { display: inline-flex; align-items: center; gap: .4em; white-space: nowrap; }
+
+/* Resume banner. */
+.ds-247420 .resume-banner {
+  padding: .6em .8em;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: var(--r-1, 8px);
+  display: flex; justify-content: space-between; align-items: center; gap: .75em;
+  margin-bottom: .75em;
+}
+
+/* History action buttons. */
+.ds-247420 .history-actions { display: flex; gap: .5em; padding: 0 0 .75em 0; flex-wrap: wrap; }
+
+/* Empty / loading state. */
+.ds-247420 .empty-state { display: flex; gap: 8px; align-items: center; padding: .5em 0; white-space: normal; }
+.ds-247420 p.empty-state { text-align: left; padding: .6em 0; color: var(--fg-3); }
+
+/* Project filter pills. */
+.ds-247420 .pill-row { display: flex; flex-wrap: wrap; gap: .35em; padding: .35em 0; }
+.ds-247420 .pill {
+  cursor: pointer; padding: .25em .7em; border-radius: 999px;
+  border: 1px solid transparent; background: transparent;
+  font: inherit; color: inherit; line-height: 1.4;
+  transition: background-color .15s ease, border-color .15s ease;
+  min-height: 28px;
+}
+.ds-247420 .pill:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.ds-247420 .pill.pill-active {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.ds-247420 .pill:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+
+/* Subagent toggle (the control itself is the kit Checkbox). */
+.ds-247420 .subagent-toggle { padding: .4em 0; min-height: 32px; }
+
+.ds-247420 .field-error { color: var(--warn); }
+
+/* Boot splash: static text painted with the HTML, replaced by the first mount. */
+.ds-247420 .boot-splash { height: 100%; min-height: 60vh; display: flex; align-items: center; justify-content: center; color: var(--fg-3); font-size: .9rem; }
+
+/* Chat control cluster in the crumb bar: model picker, +new, status. */
+.ds-247420 .chat-controls { display: flex; align-items: center; gap: .6em; flex-wrap: wrap; }
+.ds-247420 .chat-controls > * { flex: 0 0 auto; }
+.ds-247420 .chat-controls select,
+.ds-247420 .chat-controls .select,
+.ds-247420 .chat-controls [role="combobox"] { min-width: 130px; max-width: 220px; }
+.ds-247420 .chat-controls .status-dot { white-space: nowrap; }
+
+/* Main content region layout: every tab is a min-height:0 scroll host; the
+   chat tab additionally flexes as a column so the thread fills the viewport. */
+.ds-247420 .agentgui-main { min-height: 0; }
+.ds-247420 .agentgui-main-chat { display: flex; flex-direction: column; flex: 1; }
+.ds-247420 .agentgui-main .ds-section { margin: 0 0 var(--space-4, 16px); }
+
+/* Readable backend health summary (replaces raw JSON dump). */
+.ds-247420 .health-summary { display: flex; flex-wrap: wrap; gap: .4em; margin: .6em 0; }
+.ds-247420 .health-chip {
+  font-family: var(--ff-mono, ui-monospace, monospace);
+  font-size: .8rem; padding: .15em .55em; border-radius: 6px;
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+  color: var(--fg-2);
+  border: 1px solid color-mix(in srgb, var(--fg) 12%, transparent);
+}
+.ds-247420 .health-summary.health-ok .health-chip:first-child {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+/* Compact working-directory bar. */
+.ds-247420 .cwd-bar {
+  display: flex; align-items: center; gap: .5em; flex-wrap: wrap;
+  padding: .15em 0 .5em; font-size: .85rem;
+}
+.ds-247420 .cwd-bar-text {
+  font-family: var(--ff-mono, ui-monospace, monospace);
+  color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60vw;
+}
+.ds-247420 .cwd-bar-btn {
+  cursor: pointer; font: inherit; line-height: 1.3;
+  padding: .15em .55em; border-radius: 6px;
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+  color: var(--fg-2);
+}
+.ds-247420 .cwd-bar-btn:hover { background: color-mix(in srgb, var(--fg) 14%, transparent); }
+.ds-247420 .cwd-bar-btn:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+
+/* History no-session empty state: fill the void with a centered prompt. */
+.ds-247420 .history-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: .4em; text-align: center; min-height: 50vh; color: var(--fg-3);
+}
+.ds-247420 .history-empty-title { margin: 0; font-size: 1.05rem; color: var(--fg-2); }
+.ds-247420 .history-empty-sub { margin: 0; max-width: 42ch; }
+
+/* Settings: two-column on wide screens (backend + agents). */
+.ds-247420 .settings-grid {
+  display: grid; gap: var(--space-4, 16px);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+.ds-247420 .agentgui-main-settings .settings-grid { margin-top: 0; }
+
+/* The kit Chat head computes its own zero-padded count and ignores our sub
+   prop; hide it (streaming state shows via the title + busy banner). */
+.ds-247420 .chat-head .sub { display: none; }
+
+/* Event-list row hover + search-result flash. */
+.ds-247420 .ds-event-list .row[role="button"]:hover { background: color-mix(in srgb, var(--fg) 5%, transparent); }
+.ds-247420 .ds-event-list .row.event-flash { animation: agentgui-event-flash 2s ease-out; }
+
+/* Chat composer: hide the idle scrollbar on the (empty/short) textarea. */
+.ds-247420 .chat-composer textarea { overflow-y: auto; scrollbar-width: thin; }
+.ds-247420 .chat-composer textarea:not(:focus) { overflow-y: hidden; }
+
+/* Generic interactive focus ring for app-emitted controls. */
+.ds-247420 button:focus-visible,
+.ds-247420 [tabindex]:focus-visible,
+.ds-247420 a:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+
+/* Settings-panel field spacing utilities (replace app.js inline style= margins). */
+.ds-247420 .agentgui-field-mb { margin: 0 0 .5em; }
+.ds-247420 .agentgui-field-my { margin: .5em 0; }
+
+@keyframes agentgui-event-flash {
+  0%   { background: color-mix(in srgb, var(--accent) 40%, transparent); }
+  100% { background: transparent; }
+}
+
+@media (min-width: 900px) {
+  .ds-247420 .settings-grid { grid-template-columns: minmax(0, 420px) minmax(0, 1fr); }
+}
+
+/* Tablet: keep the chat control cluster from wrapping the status dot alone. */
+@media (max-width: 900px) {
+  .ds-247420 .chat-controls select,
+  .ds-247420 .chat-controls .select,
+  .ds-247420 .chat-controls [role="combobox"] { min-width: 110px; max-width: 170px; }
+}
+
+/* Touch targets on small screens. */
+@media (max-width: 640px) {
+  .ds-247420 .pill { min-height: 36px; padding: .4em .8em; }
+  .ds-247420 .history-actions { gap: .75em; }
+  .ds-247420 .history-actions .btn, .ds-247420 .history-actions button { min-height: 44px; }
+  .ds-247420 .cwd-bar-text { max-width: 42vw; }
+  .ds-247420 .cwd-bar { gap: .3em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-247420 .ds-event-list .row.event-flash { animation: none; outline: 2px solid var(--accent); }
+}
+
+@media print {
+  .ds-247420 #app { min-height: auto; display: block; height: auto; }
+  .ds-247420 .skip-link, .ds-247420 .status-dot, .ds-247420 .history-actions, .ds-247420 .chat-composer { display: none !important; }
+  .ds-247420 .app, .ds-247420 .app-main, .ds-247420 .panel, .ds-247420 .chat, .ds-247420 .chat-thread {
+    background: #fff !important; color: #000 !important; box-shadow: none !important;
+  }
 }
 
 /* spoint/loading-screen.css */

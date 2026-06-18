@@ -197,22 +197,31 @@
   --size-sm:     32px;
   --size-base:   42px;
   --size-lg:     56px;
+
+  /* Unified focus-ring tokens (single source for the design system). Outset
+     rings (the default) tokenize colour+width+offset; bordered text fields use
+     the inset variant. Deliberate negative offsets on edge-flush/clipping
+     containers stay literal. */
+  --focus-color:       var(--accent);
+  --focus-w:           2px;
+  --focus-offset:      2px;
+  --focus-ring-inset:  inset 0 0 0 var(--focus-w) var(--focus-color);
 }
 
 /* ============================================================
    Focus-visible styles for keyboard navigation
    ============================================================ */
 :focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 /* Button variants with focus-visible */
 .btn:focus-visible,
 .btn-primary:focus-visible,
 .btn-ghost:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 /* Link focus-visible */
@@ -260,6 +269,10 @@ select:focus-visible {
   --danger:    oklch(0.68 0.19 25);
   --flame:     #FF5A1F;
   --amber:     #D9A93A;
+  /* warn/sky dark-tuned pairs (mirror flame/amber): the :root paper values
+     (#E0241A / #3A6EFF) are too dark on ink; these clear AA 4.5:1 on --ink. */
+  --warn:      #FF5A52;
+  --sky:       #6E9BFF;
   --code-string:  var(--green-2);
   --code-keyword: var(--sky);
   --code-fn:      var(--flame);
@@ -293,6 +306,8 @@ select:focus-visible {
     --accent-bright: var(--green-2);
     --flame:     #FF5A1F;
     --amber:     #D9A93A;
+    --warn:      #FF5A52;
+    --sky:       #6E9BFF;
     --code-string:  var(--green-2);
     --code-keyword: var(--sky);
     --code-fn:      var(--flame);

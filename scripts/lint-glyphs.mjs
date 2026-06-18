@@ -19,6 +19,15 @@ const root = path.resolve(__dirname, '..');
 // plugkit spool — none are hand-authored design surfaces.
 const SCAN_DIRS = ['src', 'ui_kits', 'slides', 'site'];
 const SCAN_EXT = new Set(['.js', '.mjs', '.css', '.html']);
+// The bundled root CSS files (app-shell.css, chat.css, etc.) are the design
+// system's shipped styling but live at the repo root, outside SCAN_DIRS — they
+// previously escaped the glyph lint entirely (box-drawing comment dividers
+// slipped through). Scan them explicitly so a decorative glyph in shipped CSS
+// fails the build.
+const SCAN_ROOT_FILES = [
+    'app-shell.css', 'chat.css', 'colors_and_type.css', 'community.css',
+    'community-app.css', 'editor-primitives.css', 'app-surfaces.css',
+];
 
 // Files that are DELIBERATE glyph showcases or documentation of the unicode
 // surface itself — exempt wholesale.
@@ -60,6 +69,7 @@ export function findGlyphViolations() {
     const violations = [];
     const files = [];
     for (const d of SCAN_DIRS) walk(path.join(root, d), files);
+    for (const f of SCAN_ROOT_FILES) { const p = path.join(root, f); if (fs.existsSync(p)) files.push(p); }
     for (const file of files) {
         const rel = path.relative(root, file).split(path.sep).join('/');
         if (EXEMPT_FILES.has(rel)) continue;

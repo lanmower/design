@@ -97,7 +97,7 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
         'aria-label': (marked ? 'unselect ' : 'select ') + name,
         disabled: (noAccess || busy) ? true : null,
         onclick: onMark ? (e) => onMark({ range: !!e.shiftKey }) : null,
-    }, h('span', { 'aria-hidden': 'true' }, marked ? '[x]' : '[ ]')) : null;
+    }, h('span', { class: 'ds-check-box', 'aria-hidden': 'true' })) : null;
     // A role=button row containing real <button> action controls is invalid
     // HTML (interactive nesting). Instead the row is a plain container and the
     // primary "open" affordance is itself a real <button> (native keyboard +
@@ -243,7 +243,7 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
             'aria-checked': allState,
             'aria-label': allState === 'true' ? 'clear selection' : 'select all ' + selectableKeys.length + ' shown files',
             onclick: () => (allState === 'true' && onClearSelection) ? onClearSelection() : onSelectAll(selectableKeys) },
-            h('span', { 'aria-hidden': 'true' }, allState === 'true' ? '[x]' : allState === 'mixed' ? '[-]' : '[ ]'),
+            h('span', { class: 'ds-check-box', 'aria-hidden': 'true' }),
             h('span', {}, 'all'))
         : null;
     // Density picker — list / compact / thumbnails. A radiogroup, not tabs:
@@ -334,7 +334,7 @@ function FileCell({ key, f = {}, selectable = false, marked = false, onMark, onO
             'aria-label': (marked ? 'unselect ' : 'select ') + f.name,
             disabled: noAccess ? true : null,
             onclick: onMark ? (e) => onMark({ range: !!e.shiftKey }) : null,
-        }, h('span', { 'aria-hidden': 'true' }, marked ? '[x]' : '[ ]')) : null,
+        }, h('span', { class: 'ds-check-box', 'aria-hidden': 'true' })) : null,
         h('button', {
             key: 'open', type: 'button', class: 'ds-file-cell-open',
             onclick: canOpen ? () => onOpen(f) : null,

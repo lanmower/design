@@ -100,7 +100,13 @@ export function Row({ code, rank, title, sub, meta, active, state = 'default', o
                 onkeydown: (e) => { e.stopPropagation(); },
             }, a.label)))
         : null;
+    // Color is not the only status channel: emit a visually-hidden word for the
+    // meaningful rail tones (error/subagent) so AT and color-blind users get the
+    // state. green is the unremarkable default - announcing "ok" everywhere would
+    // be AT noise - so it emits nothing.
+    const railWord = rail === 'flame' ? 'error' : rail === 'purple' ? 'subagent' : null;
     return h(isLink ? 'a' : 'div', props,
+        railWord ? h('span', { class: 'sr-only' }, railWord) : null,
         leading != null ? leading : (codeVal != null ? h('span', { class: 'code' }, codeVal) : null),
         h('span', { class: 'title' }, titleNode, sub ? h('span', { class: 'sub' }, sub) : null),
         trailing != null ? trailing : (meta != null ? h('span', { class: 'meta' }, meta) : null),

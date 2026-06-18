@@ -186,7 +186,7 @@ export function SessionCard({ session = {}, onStop, onOpen, onView, active = fal
       'aria-checked': selected ? 'true' : 'false',
       'aria-label': (selected ? 'deselect' : 'select') + ' session ' + (s.title || s.agent || s.sid),
       onclick: () => onToggleSelect && onToggleSelect(s),
-    }, selected ? '[x]' : '[ ]') : null,
+    }, h('span', { class: 'ds-check-box', 'aria-hidden': 'true' })) : null,
     h('span', { class: 'status-dot-disc ' + STATUS_DISC[st], 'aria-hidden': 'true' }),
     h('span', { class: 'ds-dash-status is-' + st }, STATUS_WORD[st]),
     s.external ? h('span', { class: 'ds-dash-external' }, 'external') : null,
@@ -310,7 +310,7 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
     ? h('button', { key: 'selall', type: 'button', class: 'ds-dash-selectall', role: 'checkbox',
         'aria-checked': allState, 'aria-label': allState === 'true' ? 'clear selection' : 'select all sessions',
         onclick: () => (allState === 'true' && onClearSelection) ? onClearSelection() : onSelectAll(selectableSids) },
-        h('span', { 'aria-hidden': 'true' }, allState === 'true' ? '[x]' : allState === 'mixed' ? '[-]' : '[ ]'),
+        h('span', { class: 'ds-check-box', 'aria-hidden': 'true' }),
         h('span', {}, 'all'))
     : null;
   const clearCtl = (selectable && selCount && onClearSelection)

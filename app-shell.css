@@ -590,8 +590,13 @@ body.canvas-host { background: transparent !important; }
 .row.rail-purple::before,
 .row.rail-flame::before { height: 56%; opacity: 1; }
 .row.rail-green::before  { background: var(--accent); }
-.row.rail-purple::before { background: var(--purple-2, #7F18A4); }
+.row.rail-purple::before { background: var(--purple-2); }
 .row.rail-flame::before  { background: var(--flame); }
+/* Differentiate the rail by SHAPE, not hue alone (color-blind safety): error
+   reads as a taller solid bar, subagent as a dashed/gapped fill, ok stays the
+   short solid bar. Paired with the sr-only status word emitted by Row(). */
+.row.rail-flame::before  { height: 64%; }
+.row.rail-purple::before { background: repeating-linear-gradient(var(--purple-2) 0 4px, transparent 4px 7px); }
 .row-grid { /* explicit grid-template-columns set inline */ }
 /* A row with no leading code/index drops the empty first column so the title
    takes the full width instead of wrapping in the narrow code gutter. */
@@ -827,8 +832,8 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   border: 0; border-radius: var(--r-2);
   box-shadow: inset 0 0 0 1px var(--rule);
 }
-.row-form input:focus,
-.row-form textarea:focus { box-shadow: inset 0 0 0 2px var(--accent); }
+.row-form input:focus-visible,
+.row-form textarea:focus-visible { box-shadow: var(--focus-ring-inset); }
 
 /* Field char counter (TextField maxLength) */
 .ds-field-count {
@@ -849,9 +854,9 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
    Responsive Design — Mobile (480px), Tablet (1024px), Desktop (1440px+)
    ============================================================ */
 
-/* ────────────────────────────────────────────────────────────────────
+/* --------------------------------------------------------------------
    Mobile Portrait Breakpoint (480px and below)
-   ────────────────────────────────────────────────────────────────────── */
+   ---------------------------------------------------------------------- */
 @media (max-width: 480px) {
   /* App Layout: single-column + drawer is handled once in the ≤900px block;
      no need to re-declare grid-template-columns here (was a redundant !important). */
@@ -975,9 +980,9 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   .cli .copy { padding: 6px 12px; font-size: var(--fs-micro); }
 }
 
-/* ────────────────────────────────────────────────────────────────────
+/* --------------------------------------------------------------------
    Container Query Responsive (720px and below)
-   ────────────────────────────────────────────────────────────────────── */
+   ---------------------------------------------------------------------- */
 @container (max-width: 760px) {
   .app-body { grid-template-columns: 1fr !important; }
   .app-side-shell { border-right: 0; border-bottom: 1px solid var(--rule); }
@@ -987,9 +992,9 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   .row .sub { grid-column: 1 / -1; order: 3; }
 }
 
-/* ────────────────────────────────────────────────────────────────────
+/* --------------------------------------------------------------------
    Tablet Landscape Breakpoint (768px to 1024px)
-   ────────────────────────────────────────────────────────────────────── */
+   ---------------------------------------------------------------------- */
 @media (min-width: 481px) and (max-width: 1024px) {
   /* App Layout — side handled by 900px drawer block; restore for 901-1024 */
   .app-side a {
@@ -1066,9 +1071,9 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   }
 }
 
-/* ────────────────────────────────────────────────────────────────────
+/* --------------------------------------------------------------------
    Mid Breakpoint (768px and below) — collapse sidebar + simplify row grid
-   ────────────────────────────────────────────────────────────────────── */
+   ---------------------------------------------------------------------- */
 @media (max-width: 768px) {
   /* Sidebar stacks above main rather than sitting beside it */
   .app-body { grid-template-columns: 1fr; }
@@ -1083,9 +1088,9 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   .row .sub { grid-column: 1 / -1; }
 }
 
-/* ────────────────────────────────────────────────────────────────────
+/* --------------------------------------------------------------------
    Desktop Breakpoint Enhancements (1025px and up)
-   ────────────────────────────────────────────────────────────────────── */
+   ---------------------------------------------------------------------- */
 @media (min-width: 1025px) {
   /* Chat Bubbles */
   .chat-stack { max-width: min(70%, 480px); }
@@ -1106,7 +1111,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-chat-md { font-size: var(--fs-sm); line-height: 1.6; }
 .ds-chat-composer { display: flex; gap: 8px; padding: var(--space-4); }
 .ds-chat-composer input { flex: 1; padding: 13px 18px; background: var(--bg-2); border: 0; border-radius: var(--r-pill); font-family: inherit; font-size: var(--fs-sm); color: var(--fg); }
-.ds-chat-composer input:focus { box-shadow: inset 0 0 0 2px var(--accent); }
+.ds-chat-composer input:focus-visible { box-shadow: var(--focus-ring-inset); }
 
 /* ============================================================
    File surface — responsive grid + row layouts
@@ -1132,7 +1137,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   background: var(--bg); color: var(--fg);
   border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1);
 }
-.ds-file-filter-input:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+.ds-file-filter-input:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
 .ds-file-sort { display: flex; gap: var(--space-2); padding: 0 var(--space-2) var(--space-1); }
 .ds-file-sort-btn {
   font-size: var(--fs-tiny); font-family: var(--ff-mono); color: var(--fg-3);
@@ -1253,6 +1258,29 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-file-act-warn:hover { background: color-mix(in oklab, var(--warn) 18%, var(--bg)); color: var(--warn); }
 
 /* Multi-select — per-row checkbox, header tri-state, bulk action strip. */
+/* CSS-drawn multi-select checkbox: a bordered box that fills with the accent +
+   a border-drawn tick when its parent button is .is-marked or aria-checked.
+   Shared by FileRow/FileCell (.is-marked) and the file/session select-all +
+   SessionCard select (aria-checked true/mixed) since the bundle concatenates
+   all CSS. Replaces the old [x]/[ ] bracket text - no glyphs, AT keeps the
+   role=checkbox/aria-checked name+state. */
+.ds-check-box {
+  width: 15px; height: 15px; box-sizing: border-box; flex: 0 0 auto; position: relative;
+  border: 1.5px solid var(--rule); border-radius: 4px;
+  transition: background var(--dur-snap) var(--ease), border-color var(--dur-snap) var(--ease);
+}
+.is-marked > .ds-check-box,
+[aria-checked="true"] > .ds-check-box { background: var(--accent); border-color: var(--accent); }
+.is-marked > .ds-check-box::after,
+[aria-checked="true"] > .ds-check-box::after {
+  content: ""; position: absolute; left: 4px; top: 1px; width: 4px; height: 8px;
+  border: solid var(--bg); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg);
+}
+[aria-checked="mixed"] > .ds-check-box { background: var(--accent); border-color: var(--accent); }
+[aria-checked="mixed"] > .ds-check-box::after {
+  content: ""; position: absolute; left: 2px; right: 2px; top: 50%; height: 1.5px; margin-top: -0.75px; background: var(--bg);
+}
+
 .ds-file-check {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 28px; height: 28px; padding: 0 4px;
@@ -1282,7 +1310,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   padding: var(--space-1) var(--space-2);
   background: var(--bg-2); border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
 }
-.ds-bulkbar-count { font-size: var(--fs-tiny); color: var(--fg-2); }
+.ds-bulkbar-count { font-size: var(--fs-sm); font-weight: 600; color: var(--fg-2); }
 /* BulkBar is a toolbar (it even declares role=toolbar): compact rect buttons,
    quiet destructive outline - the app arm-confirms destructive bulk actions
    via ConfirmDialog, so the strip never needs a loud CTA. */
@@ -1543,7 +1571,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-file-empty-glyph { font-size: 34px; opacity: 0.55; }
 .ds-file-empty-text { font-size: var(--fs-sm); }
 
-/* ── Modals ───────────────────────────────────────────────── */
+/* -- Modals ------------------------------------------------- */
 .ds-modal-backdrop {
   position: fixed; inset: 0; z-index: var(--z-modal, 800);
   display: flex; align-items: center; justify-content: center;
@@ -1589,7 +1617,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   border-radius: var(--r-2); color: var(--fg);
   font-family: inherit; font-size: var(--fs-sm);
 }
-.ds-modal-input:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ds-modal-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* In-body modal error (role=alert): mutation failures (409/403) surface INSIDE
    the dialog, not behind the fixed overlay. */
 .ds-modal-error {
@@ -1604,7 +1632,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   color: var(--on-color);
 }
 
-/* ── Preview ──────────────────────────────────────────────── */
+/* -- Preview ------------------------------------------------ */
 .ds-preview-head {
   display: flex; align-items: center; gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
@@ -1677,7 +1705,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   .ds-file-stage { padding: var(--space-3) var(--space-2); }
 }
 
-/* ── File browser UX affordances ──────────────────────────── */
+/* -- File browser UX affordances ---------------------------- */
 /* Toolbar filter input — compact search box. */
 .ds-filter-input {
   width: clamp(120px, 22vw, 220px);
@@ -1686,7 +1714,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   border-radius: var(--r-pill); color: var(--fg);
   font-family: inherit; font-size: var(--fs-xs);
 }
-.ds-filter-input:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+.ds-filter-input:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
 
 /* Loading skeleton — placeholder rows while a directory loads. */
 .ds-file-grid-loading { display: flex; flex-direction: column; gap: 4px; }
@@ -2209,7 +2237,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .app-side a .glyph { font-family: var(--ff-mono); font-size: 13px; font-weight: 600; color: var(--fg-3); text-align: center; }
 .app-side a.active .glyph { color: var(--accent); }
 
-/* ── select primitive ─────────────────────────────────────────────────── */
+/* -- select primitive --------------------------------------------------- */
 .ds-select {
     width: 100%;
     min-width: 0;
@@ -2233,10 +2261,10 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
     background-repeat: no-repeat;
     cursor: pointer;
 }
-.ds-select:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+.ds-select:focus-visible { box-shadow: var(--focus-ring-inset); }
 .ds-select:hover { background-color: var(--bg-3); }
 
-/* ── chat composer autogrow polish (sizing lives in the primary block) ── */
+/* -- chat composer autogrow polish (sizing lives in the primary block) -- */
 .chat-composer textarea {
     transition: height var(--dur-snap) var(--ease);
 }
@@ -2245,7 +2273,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
     cursor: not-allowed;
 }
 
-/* ── mobile responsive: chat ──────────────────────────────────────────── */
+/* -- mobile responsive: chat -------------------------------------------- */
 @media (max-width: 768px) {
     .chat-stack { max-width: 100%; }
     .chat-msg { padding: 4px 0; }
@@ -2270,9 +2298,9 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
    Comprehensive improvements for perfect UX across all surfaces
    ============================================================ */
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Component States — Disabled, Loading, Error, Success
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 /* Disabled state for all interactive elements */
 .btn:disabled, .btn-primary:disabled, .btn-ghost:disabled,
@@ -2324,9 +2352,9 @@ textarea.error {
   opacity: 0.8;
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Enhanced Button Micro-Interactions
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 /* Button scale feedback on active */
 .btn:active:not(:disabled),
@@ -2356,9 +2384,9 @@ input[type="checkbox"], input[type="radio"] {
   -webkit-touch-callout: none;
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Drag-and-Drop Styles
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 /* Draggable element */
 [draggable="true"], .draggable {
@@ -2415,9 +2443,9 @@ input[type="checkbox"], input[type="radio"] {
   50% { opacity: 1; }
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Context Menu Styles
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 .ds-context-menu {
   position: absolute;
@@ -2479,9 +2507,9 @@ input[type="checkbox"], input[type="radio"] {
   cursor: context-menu;
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Enhanced Form Inputs
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 input[type="text"],
 input[type="email"],
@@ -2507,7 +2535,7 @@ textarea::placeholder {
   color: var(--fg-3);
 }
 
-/* ── Field controls: themed base for TextField / Select / SearchInput ──
+/* -- Field controls: themed base for TextField / Select / SearchInput --
    Root fix: previously only `transition` was set, so themed apps got
    browser-default white boxes in dark mode and labels collided with inputs
    because `.ds-field` had no layout. */
@@ -2556,7 +2584,7 @@ textarea::placeholder {
 .ds-field .ds-select:focus-visible,
 .ds-search-input:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 2px var(--accent);
+  box-shadow: var(--focus-ring-inset);
 }
 .ds-field input:disabled,
 .ds-field textarea:disabled,
@@ -2594,9 +2622,9 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   color: var(--fg);
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Accessibility Enhancements
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 /* Enhanced focus-visible for all interactive elements */
 [role="button"]:focus-visible,
@@ -2625,11 +2653,17 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  /* Kill the residual paint frame of looping skeleton/shimmer placeholders and
+     give reduced-motion users a steady placeholder fill instead. */
+  .skeleton, .ds-skeleton, .ds-session-row-skeleton .ds-skel {
+    animation: none !important;
+    background: var(--bg-2) !important;
+  }
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Performance
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 /* Limit layout/style containment to self-contained components. `paint` is
    intentionally omitted — it clips focus rings, tooltips and dropdowns that
@@ -2638,9 +2672,9 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   contain: layout style;
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Mobile Touch Optimizations
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 @media (hover: none) and (pointer: coarse) {
   /* Mobile devices: larger touch targets, faster responses */
@@ -2671,9 +2705,9 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   }
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Theme Transition Smoothness
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 /* Scoped to the DS wrapper so the design system never reaches out and
    animates the host document's html/body. */
@@ -2682,9 +2716,9 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
               color var(--dur-base) var(--ease);
 }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Empty State & Loading States
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 .empty-state {
   display: flex; flex-direction: column; align-items: center; gap: var(--space-4);
@@ -2722,9 +2756,9 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .skeleton-line { height: 12px; margin-bottom: 12px; }
 .skeleton-title { height: 24px; margin-bottom: 16px; width: 60%; }
 
-/* ────────────────────────────────────────────────────────────
+/* ------------------------------------------------------------
    Toast Notification Styles
-   ────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------- */
 
 .toast {
   position: fixed;
@@ -3130,7 +3164,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 /* Crumb band is the top chrome of the content column: a stable height so the
    top edge aligns with the rail head, and a left gutter matching .ws-main so
    the trail text is not flush against the rail border. */
-.ws-crumb { flex: 0 0 auto; min-height: 48px; padding: 0 var(--space-4); display: flex; align-items: center; gap: var(--space-1); border-bottom: var(--bw-hair) solid var(--bg-3); }
+.ws-crumb { flex: 0 0 auto; min-height: 48px; padding: 0 var(--space-5); display: flex; align-items: center; gap: var(--space-1); border-bottom: var(--bw-hair) solid var(--bg-3); }
 .ws-crumb-main { flex: 1 1 auto; min-width: 0; }
 /* Content column gutter. Claude-Code-class calm: file grid / dashboard / event
    list / history get a generous, consistent inner gutter instead of butting

@@ -177,14 +177,14 @@
 }
 .agentchat-empty-title { margin: 0; font-size: 1.05em; color: var(--fg-2, var(--fg)); }
 .agentchat-empty-sub { margin: 0; font-size: var(--fs-sm); }
-.agentchat-empty-suggestions {
+.agentchat-empty-suggestions, .chat-empty-suggestions {
   display: flex;
   flex-wrap: wrap;
   gap: .5em;
   justify-content: center;
   margin-top: .5em;
 }
-.agentchat-empty-suggestion {
+.agentchat-empty-suggestion, .chat-empty-suggestion {
   cursor: pointer;
   font: inherit;
   font-size: var(--fs-tiny);
@@ -194,8 +194,8 @@
   background: color-mix(in srgb, var(--fg) 5%, transparent);
   color: var(--fg-2, var(--fg));
 }
-.agentchat-empty-suggestion:hover { background: color-mix(in srgb, var(--accent, var(--fg)) 12%, transparent); }
-.agentchat-empty-suggestion:focus-visible { outline: 2px solid var(--accent, var(--fg)); outline-offset: 2px; }
+.agentchat-empty-suggestion:hover, .chat-empty-suggestion:hover { background: color-mix(in srgb, var(--accent, var(--fg)) 12%, transparent); }
+.agentchat-empty-suggestion:focus-visible, .chat-empty-suggestion:focus-visible { outline: 2px solid var(--accent, var(--fg)); outline-offset: 2px; }
 
 /* Guided install path in the empty state: copy line + monospaced command rows
    (each with its own copy button) + a recheck button. No animation. */
@@ -297,8 +297,8 @@
 }
 .status-dot-disc.status-dot-live { background: var(--accent); animation: status-disc-pulse 1.8s ease-in-out infinite; }
 .status-dot-disc.status-dot-error { background: var(--flame); }
-.status-dot-disc.status-dot-connecting { background: var(--amber, #d9a93a); }
-.status-dot-disc.status-dot-stale { background: var(--amber, #d9a93a); }
+.status-dot-disc.status-dot-connecting { background: var(--amber); }
+.status-dot-disc.status-dot-stale { background: var(--amber); }
 @keyframes status-disc-pulse {
   0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 55%, transparent); }
   50%      { box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 0%, transparent); }
@@ -360,7 +360,7 @@
 /* Rail tones MUST match .row.rail-* in app-shell.css so the same semantic state
    reads as one colour across the conversation list and content rows. */
 .ds-session-row.rail-green::before { background: var(--accent); }
-.ds-session-row.rail-purple::before { background: var(--purple-2, #7F18A4); }
+.ds-session-row.rail-purple::before { background: var(--purple-2); }
 .ds-session-row.rail-flame::before { background: var(--flame); }
 .ds-session-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .ds-session-title { font-size: var(--fs-sm); color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -462,11 +462,16 @@ button.chat-composer-context { cursor: pointer; }
 button.chat-composer-context:hover { color: var(--fg-2); }
 button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
+/* Composer send/cancel button row: a non-wrapping cluster pinned to the
+   bottom-right of the flex-end composer (was unstyled, so the send button
+   could wrap below the textarea instead of anchoring like claude.ai/code). */
+.chat-composer-toolbar { display: flex; align-items: center; gap: var(--space-1); flex: 0 0 auto; margin-left: auto; align-self: flex-end; }
+
 /* --- B2: follow-up chips below the last settled assistant turn. --- */
 .agentchat-followups { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-2) var(--space-3); }
 
 /* --- C1: stale/idle dashboard status (static, NOT pulsing). --- */
-.ds-dash-status.is-stale { color: var(--amber, #d9a93a); }
+.ds-dash-status.is-stale { color: var(--amber); }
 .ds-dash-status.is-running { color: var(--accent); }
 
 /* --- C2: dashboard sort/filter toolbar + stream-state line. --- */
@@ -484,7 +489,7 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 }
 .ds-dash-stream { font-size: var(--fs-tiny); color: var(--fg-3); }
 .ds-dash-stream.is-lost { color: var(--flame); }
-.ds-dash-stream.is-connecting { color: var(--amber, #d9a93a); }
+.ds-dash-stream.is-connecting { color: var(--amber); }
 .ds-dash-header .spread { flex: 1; }
 .ds-dash-errors-toggle {
   padding: 4px 10px; min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
@@ -510,7 +515,7 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 /* Stale/idle card: a positive amber inset bar (mirrors is-active) so a stuck
    agent is flagged in a dense grid, not merely faded near-invisibly. The word
    'idle' co-carries state, so this stays colour-blind safe. */
-.ds-dash-card.is-stale { box-shadow: inset 2px 0 0 var(--amber, #d9a93a); }
+.ds-dash-card.is-stale { box-shadow: inset 2px 0 0 var(--amber); }
 
 /* --- H3: dashboard live disc pulses; stale/error do not (handled by H1). --- */
 
@@ -667,7 +672,7 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 }
 
 /* Stopping state: in-flight cancel reads distinctly from running/error. */
-.ds-dash-status.is-stopping { color: var(--amber, #d9a93a); }
+.ds-dash-status.is-stopping { color: var(--amber); }
 
 /* External (observed, not owned) session card: no stop control exists. */
 .ds-dash-external {
@@ -699,8 +704,10 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 .chat-msg-flat.you .chat-role { color: var(--accent); }
 .chat-msg-flat .chat-bubble { background: none; border: none; border-radius: 0; padding: 0; max-width: 100%; box-shadow: none; transform: none; }
 .chat-msg-flat.you .chat-bubble { background: none; color: inherit; }
-.chat-msg-flat:hover { background: color-mix(in oklab, var(--fg) 3%, transparent); }
-.chat-msg-flat.you:hover { background: color-mix(in oklab, var(--fg) 2%, transparent); }
+/* Hover tint exceeds each role's REST tint so the row gives feedback (and the
+   ladder stays monotonic): assistant 5% > its 3% rest; user 4% > transparent. */
+.chat-msg-flat.them:hover { background: color-mix(in oklab, var(--fg) 5%, transparent); }
+.chat-msg-flat.you:hover { background: color-mix(in oklab, var(--fg) 4%, transparent); }
 .chat-msg-flat:hover .chat-bubble { transform: none; box-shadow: none; background: none; }
 .chat-msg-flat .chat-avatar { display: none; }
 
@@ -734,6 +741,9 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 }
 .chat-msg .chat-tool.tool-running .chat-tool-status { color: var(--accent); background: color-mix(in oklab, var(--accent) 12%, transparent); }
 .chat-msg .chat-tool.tool-error .chat-tool-status { color: var(--flame); background: color-mix(in oklab, var(--flame) 12%, transparent); }
+/* Completed tool: a positive (success) tone so done reads distinctly from the
+   neutral pill and from the accent-toned running pill (--success = green-2). */
+.chat-msg .chat-tool.tool-done .chat-tool-status { color: var(--success); background: color-mix(in oklab, var(--success) 12%, transparent); }
 .chat-tool-body { border-top: var(--bw-hair) solid var(--rule); padding: var(--space-2) var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
 .chat-tool-section { display: flex; flex-direction: column; gap: var(--space-1); }
 .chat-tool-section-label { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); }
@@ -768,6 +778,10 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 }
 @keyframes ds-arm-pulse { 0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--warn) 55%, transparent); } 100% { box-shadow: 0 0 0 6px color-mix(in oklab, var(--warn) 0%, transparent); } }
 .ds-dash-card.is-new { box-shadow: inset 2px 0 0 var(--accent), 0 0 0 1px color-mix(in oklab, var(--accent) 40%, transparent); }
+/* Error card carries the strongest left-bar tone (flame > stale amber > active
+   accent), placed last so its inset bar wins source order over is-active/is-stale.
+   The full-perimeter border-color (line ~396) stays for extra severity emphasis. */
+.ds-dash-card.is-error { box-shadow: inset 2px 0 0 var(--flame); }
 @media (prefers-reduced-motion: no-preference) {
   .ds-dash-card.is-new { animation: ds-card-in var(--dur-slow) var(--ease); }
 }
@@ -779,7 +793,7 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 .ds-dash-breakdown { display: flex; align-items: center; gap: var(--space-1); font-size: var(--fs-sm); color: var(--fg-2); }
 .ds-dash-breakdown .seg.is-running { color: var(--green); font-weight: 600; }
 .ds-dash-breakdown .seg.is-error { color: var(--flame); font-weight: 600; }
-.ds-dash-breakdown .seg.is-idle { color: var(--amber, #d9a93a); }
+.ds-dash-breakdown .seg.is-idle { color: var(--amber); }
 .ds-dash-stream-disc { display: inline-flex; align-items: center; gap: var(--space-1); }
 .ds-dash-selectall { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--fs-tiny); color: var(--fg-2); cursor: pointer; background: none; border: none; padding: var(--space-1); }
 .ds-dash-selectall:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -800,7 +814,7 @@ button.chat-composer-context:focus-visible { outline: 2px solid var(--accent); o
 .ds-preview-code code { color: var(--fg); }
 .ds-preview-code .token.comment, .ds-preview-code .token.prolog, .ds-preview-code .token.doctype, .ds-preview-code .token.cdata { color: var(--fg-3); }
 .ds-preview-code .token.punctuation { color: var(--fg-2); }
-.ds-preview-code .token.property, .ds-preview-code .token.tag, .ds-preview-code .token.boolean, .ds-preview-code .token.number, .ds-preview-code .token.constant, .ds-preview-code .token.symbol { color: var(--purple-2, #7F18A4); }
+.ds-preview-code .token.property, .ds-preview-code .token.tag, .ds-preview-code .token.boolean, .ds-preview-code .token.number, .ds-preview-code .token.constant, .ds-preview-code .token.symbol { color: var(--purple-2); }
 .ds-preview-code .token.selector, .ds-preview-code .token.attr-name, .ds-preview-code .token.string, .ds-preview-code .token.char, .ds-preview-code .token.builtin { color: var(--code-string, var(--green)); }
 .ds-preview-code .token.atrule, .ds-preview-code .token.attr-value, .ds-preview-code .token.keyword { color: var(--code-keyword, var(--sky)); }
 .ds-preview-code .token.function, .ds-preview-code .token.class-name { color: var(--code-fn, var(--flame)); }
