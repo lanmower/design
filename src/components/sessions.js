@@ -94,11 +94,11 @@ export function ConversationList({ sessions = [], selected, groups, search, capt
     h('div', { key: 'head', class: 'ds-session-head' },
       onNew ? h('button', { key: 'new', type: 'button', class: 'ds-session-new', onclick: onNew, 'aria-label': newLabel },
         Icon('pencil'), h('span', { key: 'l' }, newLabel)) : null,
-      search ? h('input', {
-        key: 'search', type: 'search', class: 'ds-session-search',
-        value: search.value || '', placeholder: search.placeholder || 'Search conversations',
-        'aria-label': search.placeholder || 'Search conversations',
-        oninput: (e) => search.onInput && search.onInput(e.target.value),
+      search ? SearchInput({
+        key: 'search', value: search.value || '',
+        label: search.placeholder || 'Search conversations',
+        placeholder: search.placeholder || 'Search conversations',
+        onInput: (v) => search.onInput && search.onInput(v),
       }) : null),
     // Per-tab caption telling the user what selecting a row does on this surface
     // (chat = resume the conversation, history = browse its events) so visually

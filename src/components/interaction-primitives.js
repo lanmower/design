@@ -296,10 +296,25 @@ export function useKeyboardShortcut(map = {}, { scope = 'global', enabled = true
 
 export function ShortcutHint({ combo, kind = 'kbd' } = {}) { return h('kbd', { class: 'ds-kbd ds-kbd-' + kind }, formatShortcut(combo || '')); }
 
+function shortcutCaps(keys) {
+    const caps = [];
+    let n = 0;
+    const alts = String(keys || '').split(' / ');
+    alts.forEach((alt, ai) => {
+        if (ai > 0) caps.push(h('span', { key: 'sep-alt-' + (n++), class: 'ds-kbd-sep' }, ' / '));
+        const steps = alt.split(' then ');
+        steps.forEach((step, si) => {
+            if (si > 0) caps.push(h('span', { key: 'sep-then-' + (n++), class: 'ds-kbd-sep' }, ' then '));
+            caps.push(h('kbd', { key: 'cap-' + (n++), class: 'ds-kbd' }, step));
+        });
+    });
+    return caps;
+}
+
 export function ShortcutList({ shortcuts = [] } = {}) {
     return h('div', { class: 'ds-shortcuts-hint' },
         ...shortcuts.map(s => h('div', { class: 'ds-shortcut-row' },
-            h('kbd', { class: 'ds-kbd' }, s.keys || s.combo || ''),
+            h('span', { class: 'ds-kbd-caps' }, ...shortcutCaps(s.keys || s.combo || '')),
             h('span', { class: 'ds-kbd-label' }, s.desc || s.description || s.label || ''))));
 }
 

@@ -211,6 +211,7 @@ function ToolCallNode(p) {
     const status = p.status || (p.error ? 'error' : (p.result != null ? 'done' : 'running'));
     const argsText = typeof p.args === 'string' ? p.args : JSON.stringify(p.args || {}, null, 2);
     const resultText = p.result == null ? '' : (typeof p.result === 'string' ? p.result : JSON.stringify(p.result, null, 2));
+    const hasArgs = p.args != null && argsText !== '{}' && argsText.trim() !== '';
     // Default-open while running or on error so the user sees live progress / failure detail;
     // collapse on success unless the caller explicitly overrides with open:true.
     const defaultOpen = p.open != null ? !!p.open : (status === 'running' || status === 'error');
@@ -236,18 +237,20 @@ function ToolCallNode(p) {
             h('span', { class: 'chat-tool-status' }, status)
         ),
         h('div', { class: 'chat-tool-body' },
-            h('div', { class: 'chat-tool-section' },
-                sectionLabel('args', argsText),
-                h('pre', { class: 'chat-tool-pre' }, h('code', {}, argsText))),
-            resultText ? h('div', { class: 'chat-tool-section' },
-                sectionLabel(p.error ? 'error' : 'result', resultText),
-                h('pre', { class: 'chat-tool-pre' + (p.error ? ' is-error' : '') }, h('code', {}, resultText)))
-                // A finished tool with no output would otherwise render no result
-                // section, reading identically to a still-running tool. Show an
-                // explicit placeholder so "done, empty" is distinguishable.
-                : (status === 'done' ? h('div', { class: 'chat-tool-section' },
-                    h('div', { class: 'chat-tool-section-label' }, 'result'),
-                    h('pre', { class: 'chat-tool-pre chat-tool-empty' }, h('code', {}, '(no output)'))) : null)
+            ...[
+                hasArgs ? h('div', { class: 'chat-tool-section' },
+                    sectionLabel('args', argsText),
+                    h('pre', { class: 'chat-tool-pre' }, h('code', {}, argsText))) : null,
+                resultText ? h('div', { class: 'chat-tool-section' },
+                    sectionLabel(p.error ? 'error' : 'result', resultText),
+                    h('pre', { class: 'chat-tool-pre' + (p.error ? ' is-error' : '') }, h('code', {}, resultText)))
+                    // A finished tool with no output would otherwise render no result
+                    // section, reading identically to a still-running tool. Show an
+                    // explicit placeholder so "done, empty" is distinguishable.
+                    : (status === 'done' ? h('div', { class: 'chat-tool-section' },
+                        h('div', { class: 'chat-tool-section-label' }, 'result'),
+                        h('pre', { class: 'chat-tool-pre chat-tool-empty' }, h('code', {}, '(no output)'))) : null)
+            ].filter(Boolean)
         )
     );
 }
@@ -521,6 +524,7 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
     },
         contextLine,
         h('textarea', { ref: taRef, placeholder, rows: 1, 'aria-label': 'message input',
+            disabled: !!disabled, 'aria-disabled': disabled ? 'true' : null,
             oninput: autoGrow,
             onpaste: (e) => {
                 const cd = e.clipboardData;

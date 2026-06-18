@@ -135,7 +135,7 @@ export function VoiceSettingsModal({ open = false, mode = 'ptt', inputId, output
         h('div', { class: 'vx-modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Voice settings' },
             h('div', { class: 'vx-modal-head' },
                 h('h2', { class: 'vx-modal-title' }, 'Voice settings'),
-                h('button', { type: 'button', class: 'vx-modal-x', 'aria-label': 'close', onclick: () => onClose && onClose() }, '×')
+                h('button', { type: 'button', class: 'vx-modal-x', 'aria-label': 'close', onclick: () => onClose && onClose() }, Icon('x'))
             ),
             h('div', { class: 'vx-modal-body' },
                 seg({ label: 'Mode', children:

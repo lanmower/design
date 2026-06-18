@@ -342,7 +342,7 @@ function wsResize(col, dx, persist = true) {
     const next = Math.max(lo, Math.min(hi, Math.round(cur + dx)));
     shell.style.setProperty('--ws-' + col + '-w', next + 'px');
     const handle = shell.querySelector('.ws-resizer-' + col);
-    if (handle) handle.setAttribute('aria-valuenow', String(next));
+    if (handle) { handle.setAttribute('aria-valuenow', String(next)); handle.setAttribute('aria-valuetext', next + ' pixels'); }
     // Commit to storage only on a settled move (pointerup / keyboard), not on
     // every pointermove frame (that fired dozens of synchronous writes per drag).
     if (persist) { try { localStorage.setItem('ds.ws.w.' + col, String(next)); } catch (_) {} }
@@ -380,12 +380,12 @@ function WsResizer(col) {
     const seedNow = (el) => {
         if (!el) return;
         const track = el.closest('.ws-shell') && el.closest('.ws-shell').querySelector('.ws-' + col);
-        if (track) el.setAttribute('aria-valuenow', String(Math.round(track.getBoundingClientRect().width)));
+        if (track) { const w = Math.round(track.getBoundingClientRect().width); el.setAttribute('aria-valuenow', String(w)); el.setAttribute('aria-valuetext', w + ' pixels'); }
     };
     return h('div', {
         class: 'ws-resizer ws-resizer-' + col, role: 'separator', tabindex: '0',
         'aria-orientation': 'vertical', 'aria-label': 'resize ' + col + ' column (arrow keys)',
-        'aria-valuemin': String(lo), 'aria-valuemax': String(hi),
+        'aria-valuemin': String(lo), 'aria-valuemax': String(hi), 'aria-valuetext': String(hi) + ' pixels',
         onpointerdown: onDown, onkeydown: onKey, ref: seedNow,
     });
 }

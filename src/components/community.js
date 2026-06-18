@@ -83,7 +83,7 @@ export function ChannelItem({ id, name, type = 'text', active, voiceActive, voic
                     title: a.title || '',
                     'data-action': a.id || '',
                     onclick: (e) => handleActionClick(a, e)
-                }, a.icon || a.label || '⋯'))
+                }, a.icon || a.label || 'more'))
             ) : null
         ),
         voiceActive && participants.length ? h('div', { class: 'cm-ch-voice-users' },

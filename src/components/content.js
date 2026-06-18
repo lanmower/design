@@ -352,12 +352,17 @@ export function SearchInput({ value = '', placeholder = 'search…', onInput, on
     });
 }
 
-export function TextField({ label, value = '', type = 'text', placeholder = '', onInput, onChange, name, key, hint, multiline, rows = 4, maxLength, min, max, 'aria-label': ariaLabel }) {
+export function TextField({ label, value = '', type = 'text', placeholder = '', onInput, onChange, name, key, hint, multiline, rows = 4, maxLength, min, max, error, title, 'aria-label': ariaLabel, 'aria-invalid': ariaInvalid, 'aria-describedby': ariaDescribedBy }) {
+    const errorId = error != null ? ((key ? key : 'tf') + '-err') : null;
+    const describedBy = ariaDescribedBy || errorId || null;
     const input = multiline
         ? h('textarea', {
             key: 'i', name, rows, placeholder, value,
             maxlength: maxLength != null ? maxLength : null,
             'aria-label': ariaLabel || null,
+            'aria-invalid': error != null ? 'true' : (ariaInvalid || null),
+            'aria-describedby': describedBy,
+            title: title || null,
             oninput: onInput ? (e) => onInput(e.target.value, e) : null,
             onchange: onChange ? (e) => onChange(e.target.value, e) : null
         })
@@ -367,14 +372,20 @@ export function TextField({ label, value = '', type = 'text', placeholder = '', 
             min: min != null ? String(min) : null,
             max: max != null ? String(max) : null,
             'aria-label': ariaLabel || null,
+            'aria-invalid': error != null ? 'true' : (ariaInvalid || null),
+            'aria-describedby': describedBy,
+            title: title || null,
             oninput: onInput ? (e) => onInput(e.target.value, e) : null,
             onchange: onChange ? (e) => onChange(e.target.value, e) : null
         });
     return h('label', { key, class: 'ds-field' },
-        label != null ? h('span', { key: 'l', class: 'ds-field-label' }, label) : null,
-        input,
-        maxLength != null ? h('span', { key: 'c', class: 'ds-field-count' }, String(value.length) + '/' + maxLength) : null,
-        hint != null ? h('span', { key: 'h', class: 'ds-field-hint' }, hint) : null
+        ...[
+            label != null ? h('span', { key: 'l', class: 'ds-field-label' }, label) : null,
+            input,
+            error != null ? h('span', { key: 'e', id: errorId, class: 'ds-field-error', role: 'alert', 'aria-live': 'polite', 'aria-atomic': 'true' }, error) : null,
+            maxLength != null ? h('span', { key: 'c', class: 'ds-field-count' }, String(value.length) + '/' + maxLength) : null,
+            hint != null ? h('span', { key: 'h', class: 'ds-field-hint' }, hint) : null
+        ].filter(Boolean)
     );
 }
 
@@ -428,7 +439,11 @@ export function EventList({ items, events, emptyText = 'no events', rankPad = 3,
             rail: it.rail,
             // Forward a disclosure state when the host marks the row as a toggle,
             // so a clickable event row announces aria-expanded.
-            expanded: it.expanded
+            expanded: it.expanded,
+            detail: it.detail,
+            actions: it.actions,
+            highlight: it.highlight,
+            meta: it.meta
         }))
     );
 }

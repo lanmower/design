@@ -1355,7 +1355,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
 .ds-density-btn:hover { color: var(--fg); }
-.ds-density-btn.active { background: var(--accent-tint); color: var(--accent); }
+.ds-density-btn.active { background: var(--accent-tint); color: var(--fg); }
 .ds-density-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /* Compact density — tighter rows for long listings. */
@@ -1380,6 +1380,10 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-file-cell.active { border-color: var(--accent); background: var(--accent-tint); }
 .ds-file-cell.is-marked { border-color: var(--accent); background: var(--accent-tint); }
 .ds-file-cell.is-locked { opacity: 0.6; }
+.ds-file-row.is-locked { opacity: 0.6; }
+.ds-file-row.is-restricted .title { color: var(--fg-2); }
+.ds-file-perm-tag { font-family: var(--ff-mono); font-size: var(--fs-micro); color: var(--fg-3); padding: 1px 6px; border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1); white-space: nowrap; }
+.ds-file-perm-tag.is-noaccess { color: var(--flame); border-color: color-mix(in srgb, var(--flame) 40%, transparent); }
 .ds-file-cell-open {
   display: flex; flex-direction: column; align-items: stretch; gap: var(--space-1);
   width: 100%; padding: var(--space-1); margin: 0;
@@ -1776,6 +1780,10 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   border-radius: var(--r-2); font-size: var(--fs-xs);
 }
 .ds-shortcut-row { display: flex; align-items: center; gap: var(--space-2); }
+.ds-shortcuts-hint .ds-kbd-label { flex: 1 1 auto; opacity: .85; }
+.ds-shortcuts-hint .ds-kbd { white-space: normal; max-width: 100%; }
+.ds-kbd-caps { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.ds-kbd-sep { color: var(--fg-3); font-size: var(--fs-micro); padding: 0 2px; }
 .ds-kbd {
   display: inline-block; min-width: 0;
   padding: 2px 7px; border-radius: 6px;
@@ -2247,6 +2255,12 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 }
 .chat-composer .send:disabled {
   background: var(--bg-3); color: var(--fg-3); cursor: not-allowed; transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-composer,
+  .chat-composer textarea,
+  .chat-composer .send,
+  .composer-btn { transition: none; }
 }
 
 .aicat-portrait { display: inline-flex; align-items: center; gap: 10px; padding: 4px 0; }
@@ -3249,6 +3263,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ws-pane-collapsed .ws-pane > * { display: none; }
 @media (pointer: coarse) {
   .ws-rail-toggle { width: 44px; height: 44px; }
+  .ws-drawer-toggle { width: 44px; height: 44px; }
 }
 
 /* Drawer toggles and the scrim are hidden by default and revealed by the staged
@@ -3374,6 +3389,11 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ws-drawer-toggle:hover { background: var(--bg-2); color: var(--fg); }
 .ws-drawer-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+@media (prefers-reduced-motion: reduce) {
+  .ws-shell, .ws-rail, .ws-pane, .ws-sessions, .ws-scrim { transition: none; }
+  .ws-resizer::after { transition: none; }
+}
+
 /* ============================================================
    Row title highlight, expanded-row actions, filter pills.
    ============================================================ */
@@ -3404,7 +3424,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
 .ds-filter-pill:hover { background: var(--bg-3); color: var(--fg); }
-.ds-filter-pill.active { background: var(--accent-tint); color: var(--accent); border-color: var(--accent); }
+.ds-filter-pill.active { background: var(--accent-tint); color: var(--fg); border-color: var(--accent); }
 .ds-filter-pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /* Touch floor for the new small controls. */
