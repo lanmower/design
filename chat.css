@@ -300,6 +300,15 @@
   .agentchat-cwd-text { max-width: 42vw; }
   .agentchat-controls { gap: .4em; }
 }
+/* 360px: buttons fill full width so they remain tappable at the narrowest phones */
+@media (max-width: 400px) {
+  .agentchat-controls .btn, .agentchat-controls .btn-primary,
+  .agentchat-controls button { flex: 1 1 100%; }
+}
+/* Coarse-pointer (touch): raise cwd button to 44px minimum tap target */
+@media (pointer: coarse) {
+  .agentchat-cwd-btn { min-height: 44px; }
+}
 
 /* ----------------------------------------------------------------------------
    Global status disc — a CSS-drawn status indicator (no text glyph) usable

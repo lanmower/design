@@ -184,7 +184,7 @@ export function AgentChat(props = {}) {
   const msgHasBody = (m) => !!(m.content || (Array.isArray(m.parts) && m.parts.length));
   const lastMsgLastPart = lastMsg && Array.isArray(lastMsg.parts) && lastMsg.parts.length ? lastMsg.parts[lastMsg.parts.length - 1] : null;
   const showWorkingTail = busy && lastMsg && lastMsg.role === 'assistant' && msgHasBody(lastMsg)
-    && lastMsgLastPart && lastMsgLastPart.kind === 'tool' && (lastMsgLastPart.status === 'done' || lastMsgLastPart.status === 'error');
+    && lastMsgLastPart && lastMsgLastPart.kind === 'tool' && lastMsgLastPart.status === 'running';
   const rows = messages.slice(msgStart).map((m, wi) => {
     const i = wi + msgStart; // absolute index — streaming/caret/actions logic keys off the real lastIdx
     const isAssistant = m.role === 'assistant';

@@ -2681,6 +2681,12 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
    Accessibility Enhancements
    -------------------------------------------------------------- */
 
+/* Base focus-visible: 2px ring + 2px offset clears dark bg-3 surfaces (WCAG 1.4.11) */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* Enhanced focus-visible for all interactive elements */
 [role="button"]:focus-visible,
 [role="link"]:focus-visible,

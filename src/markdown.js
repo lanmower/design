@@ -10,8 +10,12 @@ let _purify = null;
 let _failedAt = 0;
 const RETRY_BACKOFF_MS = 30000;
 
-const MARKED_URL = 'https://cdn.jsdelivr.net/npm/marked@15/+esm';
-const PURIFY_URL = 'https://cdn.jsdelivr.net/npm/dompurify@3/+esm';
+// Pin to exact semver so the CDN cannot silently swap code under us.
+// SRI cannot be applied to dynamic ESM imports in browsers (no importmap
+// integrity support at design time); pinning the version is the best available
+// mitigation for CDN-supply-chain risk on these two dependencies.
+const MARKED_URL = 'https://cdn.jsdelivr.net/npm/marked@15.0.12/+esm';
+const PURIFY_URL = 'https://cdn.jsdelivr.net/npm/dompurify@3.2.6/+esm';
 
 // True while the markdown stack is unavailable (escaped-fallback rendering).
 // Consumers (markdown-cache) use this to avoid caching degraded output.
@@ -50,7 +54,7 @@ export async function renderMarkdown(src) {
     const ok = await ensureReady();
     if (!ok) return escapeHtml(src).replace(/\n/g, '<br>');
     const raw = _marked.parse(String(src));
-    return _purify.sanitize(raw);
+    return _purify.sanitize(raw, { FORCE_BODY: true });
 }
 
 // Sanitize already-rendered HTML before it touches innerHTML. For any surface
@@ -60,5 +64,5 @@ export async function renderMarkdown(src) {
 export async function sanitizeHtml(html) {
     const ok = await ensureReady();
     if (!ok) return escapeHtml(html);
-    return _purify.sanitize(String(html));
+    return _purify.sanitize(String(html), { FORCE_BODY: true });
 }

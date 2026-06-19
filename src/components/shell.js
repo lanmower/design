@@ -467,6 +467,7 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
     const keepPaneTrack = stableFrame && !hasPane;
     const railIsCollapsed = wsCollapsed('rail', railCollapsed);
     const paneIsCollapsed = hasPane ? wsCollapsed('pane', paneCollapsed) : true;
+    const sessionsIsCollapsed = wsCollapsed('sessions', false);
     const shellCls = 'ws-shell'
         + (railIsCollapsed ? ' ws-rail-collapsed' : '')
         + ((hasPane || keepPaneTrack) ? '' : ' ws-no-pane')
@@ -513,8 +514,9 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
                     // full-width thread/grid). Hidden on mobile via CSS.
                     hasSessions ? h('button', {
                         class: 'ws-desktop-toggle ws-sessions-toggle', type: 'button',
-                        'aria-label': 'collapse conversations', title: 'collapse conversations',
-                        'aria-expanded': 'true', onclick: () => toggleWs('sessions'),
+                        'aria-label': sessionsIsCollapsed ? 'expand conversations' : 'collapse conversations',
+                        title: sessionsIsCollapsed ? 'expand conversations' : 'collapse conversations',
+                        'aria-expanded': sessionsIsCollapsed ? 'false' : 'true', onclick: () => toggleWs('sessions'),
                     }, Icon('chevron-left')) : null,
                     h('div', { class: 'ws-crumb-main' }, crumb),
                     // Desktop-only context-pane collapse, on the same crumb-level
