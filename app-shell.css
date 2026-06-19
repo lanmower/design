@@ -44,12 +44,12 @@ body {
 ::selection { background: color-mix(in oklab, var(--accent) 24%, var(--bg-2)); color: var(--fg); }
 
 /* Every root has a CQ container so fluid type can resolve to a meaningful inline-size. */
-.app, [class*="kit-"], .ds-stage {
+.app, .ds-stage {
   container-type: inline-size;
   overflow-x: clip;
   min-width: 0;
 }
-.app *, [class*="kit-"] * { min-width: 0; }
+.app * { min-width: 0; }
 
 /* ============================================================
    Typography

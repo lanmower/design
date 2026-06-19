@@ -411,6 +411,7 @@ function toggleWsDrawer(which, open) {
         const focusable = drawer && drawer.querySelector('button, a, input, [tabindex]');
         if (focusable) try { focusable.focus(); } catch (_) {}
         const onKey = (e) => { if (e.key === 'Escape') { toggleWsDrawer(which, false); document.removeEventListener('keydown', onKey); if (btn) try { btn.focus(); } catch (_) {} } };
+        shell._wsEscHandler = onKey;
         document.addEventListener('keydown', onKey);
     }
 }
@@ -419,6 +420,8 @@ function closeWsDrawers() {
     if (!shell) return;
     shell.classList.remove('ws-sessions-open', 'ws-pane-open');
     document.querySelectorAll('.ws-sessions-drawer-toggle, .ws-pane-drawer-toggle').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+    // Remove Esc handler armed by toggleWsDrawer to prevent ghost close on next Esc.
+    if (shell._wsEscHandler) { document.removeEventListener('keydown', shell._wsEscHandler); shell._wsEscHandler = null; }
 }
 
 // Read persisted collapse state for a WorkspaceShell column so the layout is
@@ -492,7 +495,7 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
         // (any button click inside) auto-closes it, mirroring AppShell.
         hasSessions
             ? h('div', { class: 'ws-sessions', role: 'complementary', 'aria-label': 'conversations',
-                onclick: (e) => { if (narrow && e.target.closest('button, a, [role="button"]')) closeWsDrawers(); } }, sessions)
+                onclick: (e) => { if (window.innerWidth <= 1100 && e.target.closest('button, a, [role="button"]')) closeWsDrawers(); } }, sessions)
             : null,
         // Primary content column, with an optional thin crumb bar on top. On
         // mobile the crumb hosts the drawer toggles (sessions on the left, pane

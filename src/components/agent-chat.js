@@ -182,7 +182,9 @@ export function AgentChat(props = {}) {
   // string OR at least one part. Used for the empty-shell skip + working tail
   // so an interleaved turn (parts-only, no m.content) is not treated as empty.
   const msgHasBody = (m) => !!(m.content || (Array.isArray(m.parts) && m.parts.length));
-  const showWorkingTail = busy && lastMsg && lastMsg.role === 'assistant' && msgHasBody(lastMsg);
+  const lastMsgLastPart = lastMsg && Array.isArray(lastMsg.parts) && lastMsg.parts.length ? lastMsg.parts[lastMsg.parts.length - 1] : null;
+  const showWorkingTail = busy && lastMsg && lastMsg.role === 'assistant' && msgHasBody(lastMsg)
+    && lastMsgLastPart && lastMsgLastPart.kind === 'tool' && (lastMsgLastPart.status === 'done' || lastMsgLastPart.status === 'error');
   const rows = messages.slice(msgStart).map((m, wi) => {
     const i = wi + msgStart; // absolute index — streaming/caret/actions logic keys off the real lastIdx
     const isAssistant = m.role === 'assistant';

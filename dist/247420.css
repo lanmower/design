@@ -498,12 +498,12 @@
 .ds-247420 ::selection { background: color-mix(in oklab, var(--accent) 24%, var(--bg-2)); color: var(--fg); }
 
 /* Every root has a CQ container so fluid type can resolve to a meaningful inline-size. */
-.ds-247420 .app, .ds-247420[class*="kit-"], .ds-247420 .ds-stage {
+.ds-247420 .app, .ds-247420 .ds-stage {
   container-type: inline-size;
   overflow-x: clip;
   min-width: 0;
 }
-.ds-247420 .app *, .ds-247420[class*="kit-"] * { min-width: 0; }
+.ds-247420 .app * { min-width: 0; }
 
 /* ============================================================
    Typography
