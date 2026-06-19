@@ -185,6 +185,7 @@ export function WorksList({ works = [], openedIndex = -1, onToggle }) {
                         w.meta != null ? h('span', {}, w.meta) : null,
                         Icon(isOpen ? 'chevron-down' : 'chevron-right')),
                     active: isOpen,
+                    expanded: isOpen,
                     onClick: () => onToggle && onToggle(isOpen ? -1 : i)
                 }),
                 isOpen ? h('div', { class: 'work-detail', 'data-work-index': String(i) },

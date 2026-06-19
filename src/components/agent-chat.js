@@ -91,7 +91,7 @@ function AgentControls({ agents, selectedAgent, models, selectedModel, busy, sta
     busy
       ? Btn({ key: 'stop', onClick: () => onStop && onStop(), children: 'stop', title: 'Stop streaming' })
       : Btn({ key: 'new', onClick: () => onNewChat && onNewChat(), children: 'new', title: 'New chat' }),
-    h('span', { key: 'st', class: 'agentchat-status', role: 'status', 'aria-live': 'polite' },
+    h('span', { key: 'st', class: 'agentchat-status', role: 'status', 'aria-live': 'polite', 'aria-atomic': 'true' },
       h('span', { class: 'status-dot-disc ' + (busy ? 'status-dot-live' : ''), 'aria-hidden': 'true' }),
       h('span', {}, status || (busy ? 'streaming…' : 'ready'))),
     // Host-supplied transcript actions (copy-all / export-md / export-json):
@@ -373,7 +373,7 @@ export function AgentChat(props = {}) {
     CwdBar({ cwd, editing: cwdEditing, draft: cwdDraft, error: cwdError, checking: cwdChecking,
              onEdit: onCwdEdit, onSave: onCwdSave, onCancel: onCwdCancel, onClear: onCwdClear, onDraft: onCwdDraft }),
     ...(banners || []).filter(Boolean),
-    h('div', { class: 'agentchat-head', role: 'banner' },
+    h('div', { class: 'agentchat-head' },
       h('h2', { class: 'agentchat-title' }, name + (selectedModel ? ' · ' + selectedModel : '')),
       h('span', { class: 'agentchat-sub', 'aria-live': 'polite' },
         // Derive the busy label from the same status prop the controls use, so a

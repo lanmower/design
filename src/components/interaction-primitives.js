@@ -271,9 +271,9 @@ function matchEvent(e, spec) {
 
 export function formatShortcut(combo) {
     const s = parseCombo(combo);
-    const mod = s.mod ? (IS_MAC ? '⌘' : 'Ctrl+') : '';
-    const shift = s.shift ? (IS_MAC ? '⇧' : 'Shift+') : '';
-    const alt = s.alt ? (IS_MAC ? '⌥' : 'Alt+') : '';
+    const mod = s.mod ? (IS_MAC ? 'Cmd+' : 'Ctrl+') : '';
+    const shift = s.shift ? 'Shift+' : '';
+    const alt = s.alt ? 'Alt+' : '';
     const key = s.key.length === 1 ? s.key.toUpperCase() : s.key;
     return mod + alt + shift + key;
 }

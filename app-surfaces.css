@@ -172,9 +172,6 @@
 .ds-247420 .ds-event-list .row[role="button"]:hover { background: color-mix(in srgb, var(--fg) 5%, transparent); }
 .ds-247420 .ds-event-list .row.event-flash { animation: agentgui-event-flash 2s ease-out; }
 
-/* Chat composer: hide the idle scrollbar on the (empty/short) textarea. */
-.ds-247420 .chat-composer textarea { overflow-y: auto; scrollbar-width: thin; }
-.ds-247420 .chat-composer textarea:not(:focus) { overflow-y: hidden; }
 
 /* Generic interactive focus ring for app-emitted controls. */
 .ds-247420 button:focus-visible,

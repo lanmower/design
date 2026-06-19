@@ -2675,9 +2675,10 @@
      re-declare it; the sizing block now states the truth). */
   line-height: 1.5; resize: none;
   min-height: 28px; max-height: 200px;
-  box-sizing: border-box; overflow-y: auto;
+  box-sizing: border-box; overflow-y: hidden;
   scrollbar-width: thin;
 }
+.ds-247420 .chat-composer textarea:focus { overflow-y: auto; }
 .ds-247420 .chat-composer textarea::placeholder { color: var(--fg-3); }
 .ds-247420 .chat-composer textarea:focus { background: none; border: none; box-shadow: none; outline: none; }
 .ds-247420 .chat-composer .send {
@@ -3709,6 +3710,7 @@
 @media (pointer: coarse) {
   .ds-247420 .ws-rail-toggle { width: 44px; height: 44px; }
   .ds-247420 .ws-drawer-toggle { width: 44px; height: 44px; }
+  .ds-247420 .ws-desktop-toggle { width: 44px; height: 44px; }
 }
 
 /* Drawer toggles and the scrim are hidden by default and revealed by the staged
@@ -3726,6 +3728,7 @@
    pane becomes a mobile overlay drawer at <=1480px, reached via its own
    drawer-toggle), so hide this crumb control past that breakpoint. */
 @media (max-width: 1480px) { .ds-247420 .ws-pane-toggle { display: none; } }
+@media (max-width: 480px) { .ds-247420 .ws-crumb { padding-left: var(--space-2); padding-right: var(--space-2); } }
 .ds-247420 .ws-scrim { display: none; }
 
 /* Responsive: the columns yield to the CONTENT in stages - the main column is
@@ -7902,9 +7905,6 @@
 .ds-247420 .ds-event-list .row[role="button"]:hover { background: color-mix(in srgb, var(--fg) 5%, transparent); }
 .ds-247420 .ds-event-list .row.event-flash { animation: agentgui-event-flash 2s ease-out; }
 
-/* Chat composer: hide the idle scrollbar on the (empty/short) textarea. */
-.ds-247420 .chat-composer textarea { overflow-y: auto; scrollbar-width: thin; }
-.ds-247420 .chat-composer textarea:not(:focus) { overflow-y: hidden; }
 
 /* Generic interactive focus ring for app-emitted controls. */
 .ds-247420 button:focus-visible,

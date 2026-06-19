@@ -2221,9 +2221,10 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
      re-declare it; the sizing block now states the truth). */
   line-height: 1.5; resize: none;
   min-height: 28px; max-height: 200px;
-  box-sizing: border-box; overflow-y: auto;
+  box-sizing: border-box; overflow-y: hidden;
   scrollbar-width: thin;
 }
+.chat-composer textarea:focus { overflow-y: auto; }
 .chat-composer textarea::placeholder { color: var(--fg-3); }
 .chat-composer textarea:focus { background: none; border: none; box-shadow: none; outline: none; }
 .chat-composer .send {
@@ -3264,6 +3265,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 @media (pointer: coarse) {
   .ws-rail-toggle { width: 44px; height: 44px; }
   .ws-drawer-toggle { width: 44px; height: 44px; }
+  .ws-desktop-toggle { width: 44px; height: 44px; }
 }
 
 /* Drawer toggles and the scrim are hidden by default and revealed by the staged
@@ -3281,6 +3283,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
    pane becomes a mobile overlay drawer at <=1480px, reached via its own
    drawer-toggle), so hide this crumb control past that breakpoint. */
 @media (max-width: 1480px) { .ws-pane-toggle { display: none; } }
+@media (max-width: 480px) { .ds-247420 .ws-crumb { padding-left: var(--space-2); padding-right: var(--space-2); } }
 .ws-scrim { display: none; }
 
 /* Responsive: the columns yield to the CONTENT in stages - the main column is

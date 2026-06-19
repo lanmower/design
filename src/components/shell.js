@@ -492,7 +492,7 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
         // (any button click inside) auto-closes it, mirroring AppShell.
         hasSessions
             ? h('div', { class: 'ws-sessions', role: 'complementary', 'aria-label': 'conversations',
-                onclick: (e) => { if (narrow && e.target.closest('button, a')) closeWsDrawers(); } }, sessions)
+                onclick: (e) => { if (narrow && e.target.closest('button, a, [role="button"]')) closeWsDrawers(); } }, sessions)
             : null,
         // Primary content column, with an optional thin crumb bar on top. On
         // mobile the crumb hosts the drawer toggles (sessions on the left, pane
