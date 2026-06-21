@@ -1125,6 +1125,10 @@
   letter-spacing: -0.01em;
 }
 
+@media (max-width: 900px) {
+  .ds-247420 .ds-section { margin: var(--space-4) 0; }
+}
+
 /* ============================================================
    Install — single CLI command card
    ============================================================ */

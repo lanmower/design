@@ -1,0 +1,16 @@
+title: "design"
+tagline: "247420 design system"
+description: "the visual paradigm. layered surfaces, monospace labels, loud content inside quiet chrome. consumed by every 247420 surface."
+repo: "https://github.com/AnEntrypoint/design"
+url: "https://anentrypoint.github.io/design"
+year: 2026
+keywords:
+  - "design-system"
+  - "tokens"
+  - "247420"
+  - "anentrypoint"
+accent_from: "#56d364"
+accent_to: "#79c0ff"
+glyph: "◰"
+code: "072"
+category: "web"
