@@ -353,7 +353,7 @@ body.canvas-host { background: transparent !important; }
    failure mode any long-scroll page (a marketing/landing route) hits. Grow
    children (.chat/.grow/etc.) re-assert flex:1 1 auto below via higher
    specificity, so a single full-height pane still fills the region. */
-.app-main > * { min-height: 0; flex-shrink: 0; }
+.app-main > * { min-height: 0; flex: none; }
 /* The main region scrolls its own overflow at every breakpoint (previously
    only ≥901px), so a fixed-height .app never clips route content and inner
    panels don't fight the page scroll. */
