@@ -671,6 +671,10 @@ a.row { text-decoration: none; }
   letter-spacing: -0.01em;
 }
 
+@media (max-width: 900px) {
+  .ds-section { margin: var(--space-4) 0; }
+}
+
 /* ============================================================
    Install — single CLI command card
    ============================================================ */
