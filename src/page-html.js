@@ -16,9 +16,10 @@
 //     cssHref, headExtra,
 //   })
 
-export function escape(s) {
-    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
+// Single source of HTML escaping lives in markdown.js (full entity set). Kept
+// the `escape` export name for backward compatibility with any consumer.
+import { escapeHtml } from './markdown.js';
+export const escape = escapeHtml;
 
 export function inlineMd(s) {
     return s

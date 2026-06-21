@@ -72,3 +72,5 @@ The vendored webjsx `applyDiff` (vendor/webjsx/applyDiff.js:43) throws `Cannot r
 
 - 2026-04-26..04-30: design-policy items (zero-border, row zebra, input focus, hermes tokens, surface tokens, pill radius, box-shadow strip, no-serifs, dark-mode grey, list-row category colors, density) migrated to rs-learn; project facts ingested (showcase aggregator/runtime, site-script contract, sdk-iframe-wrap, iframe-vs-article); caveats added (Portfolio Aggregation Contract, Legacy Interactive Page Wrap, webjsx mixed-keyed crash). [drained to rs-learn — query there for detail]
 - 2026-05-29: glyph jank sweep — banned all decorative unicode glyphs across src/ui_kits/slides/site, routed to `Icon()`/`ds-dot`/ASCII, added build-guard `scripts/lint-glyphs.mjs`, fixed Tooltip/EmojiPicker listener leaks + Status mixed-keyed span + community empty-states/clamp + community-app/markdown-cache `__debug` registration, deduped chat threadRef. Added "Icons — Line-Icon Component" caveat above. Substance memorize-fired to rs-learn.
+
+@.gm/next-step.md

@@ -164,27 +164,38 @@ const ICON_PATHS = {
 // rather than an h() vnode. Same path table, same viewBox/stroke contract as
 // Icon(); use innerHTML = iconMarkup(name). Keeps the icon paths upstream so
 // raw-DOM call sites never reintroduce decorative glyph literals.
-export function iconMarkup(name, { size = 16 } = {}) {
-    // Accept the props-object shape too - every sibling component takes a
-    // single object, so Icon({name}) is what the barrel trains consumers to try.
-    if (name && typeof name === 'object') ({ name, size = 16 } = name);
-    const inner = ICON_PATHS[name];
-    if (!inner) return '';
-    return '<svg class="ds-icon ds-icon-' + name + '" width="' + size + '" height="' + size +
-        '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--ds-icon-stroke, 1.6)"' +
-        ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
-}
-export function Icon(name, { size = 16 } = {}) {
-    if (name && typeof name === 'object') ({ name, size = 16 } = name);
-    const inner = ICON_PATHS[name];
-    if (!inner) return h('span', { class: 'glyph', 'aria-hidden': 'true' }, '');
-    return h('svg', {
+// The single SVG attribute contract (viewBox/stroke/linecap…) shared by both
+// the markup-string and the vnode renderers below, so the icon shape is defined
+// once. Insertion order is the serialized attribute order iconMarkup emits.
+function iconAttrs(name, size) {
+    return {
         class: 'ds-icon ds-icon-' + name,
         width: String(size), height: String(size), viewBox: '0 0 24 24',
         fill: 'none', stroke: 'currentColor', 'stroke-width': 'var(--ds-icon-stroke, 1.6)',
         'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true',
-        dangerouslySetInnerHTML: { __html: inner }
-    });
+    };
+}
+// Normalize the (name) | ({name,size}) call shapes both renderers accept.
+function iconArgs(name, size) {
+    if (name && typeof name === 'object') ({ name, size = 16 } = name);
+    return { name, size };
+}
+// Raw-DOM consumers (no webjsx render in scope) need the SVG as a markup string
+// rather than an h() vnode. Same path table + attr contract as Icon(); use
+// innerHTML = iconMarkup(name). Keeps the icon paths upstream so raw-DOM call
+// sites never reintroduce decorative glyph literals.
+export function iconMarkup(name, { size = 16 } = {}) {
+    ({ name, size } = iconArgs(name, size));
+    const inner = ICON_PATHS[name];
+    if (!inner) return '';
+    const attrs = Object.entries(iconAttrs(name, size)).map(([k, v]) => `${k}="${v}"`).join(' ');
+    return `<svg ${attrs}>${inner}</svg>`;
+}
+export function Icon(name, { size = 16 } = {}) {
+    ({ name, size } = iconArgs(name, size));
+    const inner = ICON_PATHS[name];
+    if (!inner) return h('span', { class: 'glyph', 'aria-hidden': 'true' }, '');
+    return h('svg', { ...iconAttrs(name, size), dangerouslySetInnerHTML: { __html: inner } });
 }
 
 export function Topbar({ brand = '247420', leaf = '', items = [], active = '', onNav, search } = {}) {

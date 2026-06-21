@@ -44,7 +44,9 @@ export async function ensureReady() {
     return _ready;
 }
 
-function escapeHtml(s) {
+// The single HTML-entity escape for the whole SDK (full set incl. quotes, so it
+// is safe in attribute contexts too). page-html.js re-exports this as `escape`.
+export function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
     })[c]);
