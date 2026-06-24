@@ -13,7 +13,12 @@
        and --ff-mono are already canonical (colors_and_type.css), referenced
        directly below — do not self-redefine them here (cycle). */
     --ff-ui: var(--ff-body);
-    --os-accent: var(--accent);
+    /* --os-accent is used predominantly as TEXT/icon/border in the OS chrome,
+       so it tracks the readable --accent-ink tone (the electric lead is too
+       light for text on paper). --os-accent-fill is the saturated lead for the
+       rare solid fill; --os-accent-soft is the tint. */
+    --os-accent: var(--accent-ink);
+    --os-accent-fill: var(--accent);
     --os-accent-2: var(--accent-bright, var(--accent));
     --os-accent-soft: var(--accent-tint);
     --os-bg-0: var(--bg);

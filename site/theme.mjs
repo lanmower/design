@@ -33,20 +33,18 @@ const { site, nav, home } = data;
 function Hero() {
   if (!home || !home.hero) return null;
   const hero = home.hero;
-  return C.Panel({
-    style: 'margin:8px',
-    children: h('div', { style: 'padding:24px 22px' },
-      C.Heading({ level: 1, style: 'margin:0 0 8px 0', children: hero.heading || site.title }),
-      hero.subheading ? C.Lede({ children: hero.subheading }) : null,
-      hero.body ? h('p', { style: 'margin:8px 0 16px 0;color:var(--panel-text-2);max-width:64ch' }, hero.body) : null,
-      (hero.badges && hero.badges.length) ? h('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px 0' },
-        ...hero.badges.map((b, i) => C.Chip({ key: 'b' + i, children: b.label }))
-      ) : null,
-      (hero.ctas && hero.ctas.length) ? h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap' },
-        ...hero.ctas.map((c, i) => C.Btn({ key: 'c' + i, href: c.href, primary: c.primary, children: c.label }))
-      ) : null
-    )
-  });
+  const actions = (hero.ctas && hero.ctas.length)
+    ? hero.ctas.map((c, i) => C.Btn({ key: 'c' + i, href: c.href, primary: c.primary, children: c.label }))
+    : null;
+  // Editorial Hero — oversized display, asymmetric grid, print grain.
+  return h('div', { class: 'ds-grain', style: 'padding:0 8px' },
+    C.Hero({
+      eyebrow: hero.subheading || site.tagline || null,
+      title: hero.heading || site.title,
+      body: hero.body || '',
+      actions
+    })
+  );
 }
 
 function rowsFromItems(items, prefix) {
@@ -226,7 +224,7 @@ function Tabs() {
 const navItems = (nav && nav.links ? nav.links : []).map(l => [String(l.label || ''), l.href]);
 
 const statusLeft = home.status_left || ['main', '- utf-8', '- lf'];
-const statusRight = home.status_right || ['247420 / mmxxvi', '- probably emerging'];
+const statusRight = home.status_right || ['247420 · mmxxvi', '- probably emerging'];
 
 const App = C.AppShell({
   topbar: C.Topbar({
@@ -238,6 +236,7 @@ const App = C.AppShell({
   side: buildSide(),
   main: h('div', {},
     Hero(),
+    C.Marquee({ items: ['always open', '24 7 420', 'the creative department', 'shipping in public'], sep: '/' }),
     Tabs(),
     Kits(),
     FileBrowser(),

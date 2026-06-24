@@ -129,15 +129,32 @@ export function Section({ title, eyebrow, children, id }) {
 }
 
 export function Hero({ eyebrow, title, body, accent, badge, badgeCount, actions }) {
+    // Eyebrow + title share the title grid-area so the named-area layout stays
+    // intact; body and actions occupy the offset lower columns.
     return h('div', { class: 'ds-hero' },
-        eyebrow ? h('span', { class: 'eyebrow' }, eyebrow) : null,
-        h('h1', { class: 'ds-hero-title' }, title),
+        h('div', { class: 'ds-hero-head' },
+            eyebrow ? h('span', { class: 'eyebrow' }, eyebrow) : null,
+            h('h1', { class: 'ds-hero-title' }, title)
+        ),
         body ? h('p', { class: 'ds-hero-body' },
             body,
             accent ? h('span', { class: 'ds-hero-accent' }, ' ' + accent) : null
         ) : null,
         actions ? h('div', { class: 'ds-hero-actions' }, ...(Array.isArray(actions) ? actions : [actions])) : null,
-        badge ? Panel({ title: badge, count: badgeCount, kind: 'inline', children: [] }) : null
+        badge ? h('div', { class: 'ds-hero-badge' }, Panel({ title: badge, count: badgeCount, kind: 'inline', children: [] })) : null
+    );
+}
+
+export function Marquee({ items = [], sep = '/' }) {
+    // Two identical runs make the -50% translate loop seamless. Each text and
+    // separator is a keyed span so webjsx applyDiff never sees a primitive
+    // sibling beside a keyed VElement.
+    const run = (runKey) => items.flatMap((it, i) => [
+        h('span', { class: 'ds-marquee-item', key: `${runKey}-i${i}` }, it),
+        h('span', { class: 'ds-marquee-sep', key: `${runKey}-s${i}`, 'aria-hidden': 'true' }, sep),
+    ]);
+    return h('div', { class: 'ds-marquee', role: 'marquee' },
+        h('div', { class: 'ds-marquee-track' }, ...run('a'), ...run('b'))
     );
 }
 

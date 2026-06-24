@@ -11,8 +11,10 @@ export function installMotion() {
     style.textContent = `
 @media (prefers-reduced-motion: no-preference) {
   .ds-247420 [data-anim="in"] {
-    opacity: 0; transform: translateY(8px);
-    transition: opacity 320ms cubic-bezier(.2,0,0,1), transform 320ms cubic-bezier(.2,0,0,1);
+    opacity: 0; transform: translateY(14px);
+    /* Physical signature reveal — a slight spring landing, not a flat fade. */
+    transition: opacity var(--dur-reveal, 560ms) var(--ease, cubic-bezier(.2,0,0,1)),
+                transform var(--dur-reveal, 560ms) var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1));
   }
   .ds-247420 [data-anim="ready"] {
     opacity: 1; transform: translateY(0);

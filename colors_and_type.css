@@ -1,38 +1,57 @@
 /* ============================================================
    247420 design system — colors + type
-   Calm, readable, scope-prefixed at build time.
+   "Acid Editorial": confident display type, ink-on-paper with one
+   electric lead, print texture over glow. Scope-prefixed at build time.
    Source-of-truth tokens. Component sheet lives in app-shell.css.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap');
+
+/* Metric-matched fallback for the display face. While Space Grotesk loads,
+   text falls back to Arial with size-adjust tuned to its cap-height so the
+   oversized hero does not reflow on swap. Referenced first in --ff-display via
+   the 'Space Grotesk' family; this only kicks in for the fallback glyphs. */
+@font-face {
+  font-family: 'Space Grotesk Fallback';
+  src: local('Arial');
+  size-adjust: 96%;
+  ascent-override: 95%;
+  descent-override: 24%;
+}
 
 :root {
   /* Tree view indentation tokens */
   --tree-indent: 12px;
   --tree-base-indent: 6px;
 
-  /* Paper / Ink — cool stone scale; lets lore palette pop. */
-  --paper:       #F6F5F1;
-  --paper-2:     #ECEBE6;
-  --paper-3:     #DFDED9;
-  --ink:         #131318;
-  --ink-2:       #25252C;
-  --ink-3:       #54545A; /* WCAG AAA on --paper (~7.1:1); was #6A6A70 (AA only) */
+  /* Paper / Ink — warm newsprint paper against near-black ink. The warmer
+     paper + deeper ink widen the tonal range so the electric lead reads as
+     printed, not glowing. */
+  --paper:       #F4F1E9;
+  --paper-2:     #EAE6DA;
+  --paper-3:     #DCD7C7;
+  --ink:         #0E0E12;
+  --ink-2:       #1F1F26;
+  --ink-3:       #52525A; /* WCAG AAA on --paper (~7.1:1) */
   --ink-3-dark:  #464650; /* dark theme bg-3 (tier-3 surface) */
   --paper-3-dark: #B4B4BC; /* dark theme fg-3 (tier-3 text)   */
 
-  /* Lore palette */
+  /* Lore palette. --acid is the electric lead — a printed-ink lime that sits
+     forward of the heritage green; green/purple/mascot demote to print-ink
+     category roles. */
+  --acid:        #B6FF1B;
+  --acid-deep:   #4E7A00; /* AA text tone of the lead on paper */
   --green:       #247420;
   --green-2:     #3A9A34;
   --green-deep:  #133F10;
-  --green-tint:  #D9E5C8;
-  --purple:      #420247;
+  --green-tint:  #D7E4C2;
+  --purple:      #3A0140;
   --purple-2:    #7F18A4;
-  --purple-deep: #28002B;
-  --purple-tint: #E4D3E5;
-  --mascot:      #E84B8A;
+  --purple-deep: #220026;
+  --purple-tint: #E2CFE4;
+  --mascot:      #FF2E84;
   --mascot-2:    #FF3CA7;
-  --mascot-tint: #F5D2DF;
+  --mascot-tint: #F7CEDD;
   --mascot-deep: #B81F63;
 
   /* Signals */
@@ -64,10 +83,14 @@
   --fg-2:        var(--ink-2);
   --fg-3:        var(--ink-3);
 
-  --accent:      var(--green);
-  --accent-fg:   var(--paper);
-  --accent-bright: var(--green-2); /* base value so var(--accent-bright) never falls back empty; ink + [data-accent] retune it */
-  --accent-tint: color-mix(in oklab, var(--accent) 26%, var(--bg));
+  /* The electric lead. --accent is the FILL (sits behind ink text); --accent-ink
+     is the readable TEXT tone for links/eyebrows/accents on paper (the lime
+     itself is too light for text). --accent-fg is what sits ON an --accent fill. */
+  --accent:      var(--acid);
+  --accent-fg:   var(--ink);
+  --accent-ink:  var(--acid-deep);
+  --accent-bright: var(--acid); /* base value so var(--accent-bright) never falls back empty; ink + [data-accent] retune it */
+  --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
 
   /* On-color foregrounds — text/icons that sit ON a saturated fill (accent,
      danger, category chips). Theme-driven so white-on-color never hard-codes
@@ -105,10 +128,12 @@
   --panel-accent-2: var(--accent-bright, var(--accent));
   --panel-shadow: 0 1px 0 color-mix(in oklab, var(--fg) 6%, transparent), 0 4px 14px color-mix(in oklab, var(--fg) 8%, transparent);
 
-  /* Type — Inter for everything non-mono. The display/narrow aliases stay so
-     consumers that reference them keep working; they resolve to the body font. */
-  --ff-display:  'Inter', system-ui, sans-serif;
-  --ff-narrow:   'Inter', system-ui, sans-serif;
+  /* Type — Space Grotesk carries display/headings (editorial grotesk with real
+     character), Inter carries body and UI, JetBrains carries code. The narrow
+     alias tracks the display face. size-adjust on the fallback keeps the
+     oversized hero from shifting while Space Grotesk loads. */
+  --ff-display:  'Space Grotesk', 'Space Grotesk Fallback', 'Inter', system-ui, sans-serif;
+  --ff-narrow:   'Space Grotesk', 'Space Grotesk Fallback', 'Inter', system-ui, sans-serif;
   --ff-body:     'Inter', system-ui, sans-serif;
   --ff-mono:     'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 
@@ -181,7 +206,23 @@
   --dur-snap:    80ms;
   --dur-base:    160ms;
   --dur-slow:    280ms;
+  --dur-reveal:  560ms;
   --ease:        cubic-bezier(0.2, 0, 0, 1);
+  /* Physical tier — a slight overshoot that reads as a printed stamp landing,
+     used by presses and signature reveals (not by routine UI fades). */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-exit:   cubic-bezier(0.4, 0, 1, 1);
+
+  /* Print texture — the signature surface treatment. --grain is a tiled
+     fractal-noise data-URI; --halftone is a dot screen. Both are opt-in via
+     .ds-grain / .ds-halftone utilities and tuned faint so type stays crisp. */
+  --grain-opacity:    0.05;
+  --grain-blend:      multiply;
+  --grain:       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --halftone-size:    6px;
+  /* Offset-ink registration — the small print-mark offset used on editorial
+     edges (panel spine, expo numbering). A literal length, not a color. */
+  --ink-offset:  3px;
 
   --z-header:    100;
   --z-overlay:   1000;
@@ -265,9 +306,10 @@ select:focus-visible {
   --panel-text:   var(--fg);
   --panel-text-2: var(--fg-2);
   --panel-text-3: var(--fg-3);
-  --accent:    var(--accent-bright, var(--green-2));
+  --accent:    var(--acid);
   --accent-fg: var(--ink);
-  --accent-bright: var(--green-2);
+  --accent-ink: var(--acid); /* on ink, the lime itself reads as bright text */
+  --accent-bright: var(--acid);
   --danger:    oklch(0.68 0.19 25);
   --flame:     #FF5A1F;
   --amber:     #D9A93A;
@@ -305,9 +347,10 @@ select:focus-visible {
     --panel-text:   var(--fg);
     --panel-text-2: var(--fg-2);
     --panel-text-3: var(--fg-3);
-    --accent:    var(--accent-bright, var(--green-2));
+    --accent:    var(--acid);
     --accent-fg: var(--ink);
-    --accent-bright: var(--green-2);
+    --accent-ink: var(--acid);
+    --accent-bright: var(--acid);
     --danger:    oklch(0.68 0.19 25);
     --flame:     #FF5A1F;
     --amber:     #D9A93A;
@@ -337,6 +380,7 @@ select:focus-visible {
   --panel-bg-2: inherit;
   --accent:    inherit;
   --accent-fg: inherit;
+  --accent-ink: inherit;
   --panel-1:   inherit;
   --panel-2:   inherit;
   --panel-3:   inherit;
@@ -376,7 +420,7 @@ select:focus-visible {
   color-scheme: light;
   --bg: var(--paper); --bg-2: var(--paper-2); --bg-3: var(--paper-3);
   --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
-  --accent: var(--green); --accent-fg: var(--paper);
+  --accent: var(--acid); --accent-fg: var(--ink); --accent-ink: var(--acid-deep);
   /* A paper island under a dark ancestor must not inherit the dark signal pair. */
   --flame: #C53E00; --amber: #8A6512; --warn: #E0241A; --sky: #3A6EFF;
 }
@@ -392,16 +436,17 @@ select:focus-visible {
   --paper-3: #E3DAC7;
   --bg: var(--paper); --bg-2: var(--paper-2); --bg-3: var(--paper-3);
   --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
-  --accent: var(--green); --accent-fg: var(--paper);
+  --accent: var(--green); --accent-fg: var(--paper); --accent-ink: var(--green);
 }
 
 [data-density="compact"]     { --density: 0.75; }
 [data-density="comfortable"] { --density: 1; }
 [data-density="spacious"]    { --density: 1.35; }
 
-[data-accent="green"]  { --accent: var(--green);  --accent-bright: var(--green-2);  --accent-fg: var(--paper); --panel-accent: var(--green);  }
-[data-accent="purple"] { --accent: var(--purple); --accent-bright: #C277FF;         --accent-fg: var(--paper); --panel-accent: var(--purple); }
-[data-accent="mascot"] { --accent: var(--mascot); --accent-bright: var(--mascot-2); --accent-fg: var(--ink);   --panel-accent: var(--mascot); }
+[data-accent="acid"]   { --accent: var(--acid);   --accent-bright: var(--acid);     --accent-fg: var(--ink);   --accent-ink: var(--acid-deep); --panel-accent: var(--acid);   }
+[data-accent="green"]  { --accent: var(--green);  --accent-bright: var(--green-2);  --accent-fg: var(--paper); --accent-ink: var(--green);     --panel-accent: var(--green);  }
+[data-accent="purple"] { --accent: var(--purple); --accent-bright: #C277FF;         --accent-fg: var(--paper); --accent-ink: var(--purple-2);  --panel-accent: var(--purple); }
+[data-accent="mascot"] { --accent: var(--mascot); --accent-bright: var(--mascot-2); --accent-fg: var(--ink);   --accent-ink: var(--mascot-deep);--panel-accent: var(--mascot); }
 
 /* Type-scale modifier — opt-in body/lg/xl bump for surfaces that want denser
    or larger reading sizes without a custom override. */

@@ -2,39 +2,58 @@
 /* colors_and_type.css */
 /* ============================================================
    247420 design system — colors + type
-   Calm, readable, scope-prefixed at build time.
+   "Acid Editorial": confident display type, ink-on-paper with one
+   electric lead, print texture over glow. Scope-prefixed at build time.
    Source-of-truth tokens. Component sheet lives in app-shell.css.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap');
+
+/* Metric-matched fallback for the display face. While Space Grotesk loads,
+   text falls back to Arial with size-adjust tuned to its cap-height so the
+   oversized hero does not reflow on swap. Referenced first in --ff-display via
+   the 'Space Grotesk' family; this only kicks in for the fallback glyphs. */
+@font-face {
+  font-family: 'Space Grotesk Fallback';
+  src: local('Arial');
+  size-adjust: 96%;
+  ascent-override: 95%;
+  descent-override: 24%;
+}
 
 .ds-247420 {
   /* Tree view indentation tokens */
   --tree-indent: 12px;
   --tree-base-indent: 6px;
 
-  /* Paper / Ink — cool stone scale; lets lore palette pop. */
-  --paper:       #F6F5F1;
-  --paper-2:     #ECEBE6;
-  --paper-3:     #DFDED9;
-  --ink:         #131318;
-  --ink-2:       #25252C;
-  --ink-3:       #54545A; /* WCAG AAA on --paper (~7.1:1); was #6A6A70 (AA only) */
+  /* Paper / Ink — warm newsprint paper against near-black ink. The warmer
+     paper + deeper ink widen the tonal range so the electric lead reads as
+     printed, not glowing. */
+  --paper:       #F4F1E9;
+  --paper-2:     #EAE6DA;
+  --paper-3:     #DCD7C7;
+  --ink:         #0E0E12;
+  --ink-2:       #1F1F26;
+  --ink-3:       #52525A; /* WCAG AAA on --paper (~7.1:1) */
   --ink-3-dark:  #464650; /* dark theme bg-3 (tier-3 surface) */
   --paper-3-dark: #B4B4BC; /* dark theme fg-3 (tier-3 text)   */
 
-  /* Lore palette */
+  /* Lore palette. --acid is the electric lead — a printed-ink lime that sits
+     forward of the heritage green; green/purple/mascot demote to print-ink
+     category roles. */
+  --acid:        #B6FF1B;
+  --acid-deep:   #4E7A00; /* AA text tone of the lead on paper */
   --green:       #247420;
   --green-2:     #3A9A34;
   --green-deep:  #133F10;
-  --green-tint:  #D9E5C8;
-  --purple:      #420247;
+  --green-tint:  #D7E4C2;
+  --purple:      #3A0140;
   --purple-2:    #7F18A4;
-  --purple-deep: #28002B;
-  --purple-tint: #E4D3E5;
-  --mascot:      #E84B8A;
+  --purple-deep: #220026;
+  --purple-tint: #E2CFE4;
+  --mascot:      #FF2E84;
   --mascot-2:    #FF3CA7;
-  --mascot-tint: #F5D2DF;
+  --mascot-tint: #F7CEDD;
   --mascot-deep: #B81F63;
 
   /* Signals */
@@ -66,10 +85,14 @@
   --fg-2:        var(--ink-2);
   --fg-3:        var(--ink-3);
 
-  --accent:      var(--green);
-  --accent-fg:   var(--paper);
-  --accent-bright: var(--green-2); /* base value so var(--accent-bright) never falls back empty; ink + [data-accent] retune it */
-  --accent-tint: color-mix(in oklab, var(--accent) 26%, var(--bg));
+  /* The electric lead. --accent is the FILL (sits behind ink text); --accent-ink
+     is the readable TEXT tone for links/eyebrows/accents on paper (the lime
+     itself is too light for text). --accent-fg is what sits ON an --accent fill. */
+  --accent:      var(--acid);
+  --accent-fg:   var(--ink);
+  --accent-ink:  var(--acid-deep);
+  --accent-bright: var(--acid); /* base value so var(--accent-bright) never falls back empty; ink + [data-accent] retune it */
+  --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
 
   /* On-color foregrounds — text/icons that sit ON a saturated fill (accent,
      danger, category chips). Theme-driven so white-on-color never hard-codes
@@ -107,10 +130,12 @@
   --panel-accent-2: var(--accent-bright, var(--accent));
   --panel-shadow: 0 1px 0 color-mix(in oklab, var(--fg) 6%, transparent), 0 4px 14px color-mix(in oklab, var(--fg) 8%, transparent);
 
-  /* Type — Inter for everything non-mono. The display/narrow aliases stay so
-     consumers that reference them keep working; they resolve to the body font. */
-  --ff-display:  'Inter', system-ui, sans-serif;
-  --ff-narrow:   'Inter', system-ui, sans-serif;
+  /* Type — Space Grotesk carries display/headings (editorial grotesk with real
+     character), Inter carries body and UI, JetBrains carries code. The narrow
+     alias tracks the display face. size-adjust on the fallback keeps the
+     oversized hero from shifting while Space Grotesk loads. */
+  --ff-display:  'Space Grotesk', 'Space Grotesk Fallback', 'Inter', system-ui, sans-serif;
+  --ff-narrow:   'Space Grotesk', 'Space Grotesk Fallback', 'Inter', system-ui, sans-serif;
   --ff-body:     'Inter', system-ui, sans-serif;
   --ff-mono:     'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 
@@ -183,7 +208,23 @@
   --dur-snap:    80ms;
   --dur-base:    160ms;
   --dur-slow:    280ms;
+  --dur-reveal:  560ms;
   --ease:        cubic-bezier(0.2, 0, 0, 1);
+  /* Physical tier — a slight overshoot that reads as a printed stamp landing,
+     used by presses and signature reveals (not by routine UI fades). */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-exit:   cubic-bezier(0.4, 0, 1, 1);
+
+  /* Print texture — the signature surface treatment. --grain is a tiled
+     fractal-noise data-URI; --halftone is a dot screen. Both are opt-in via
+     .ds-grain / .ds-halftone utilities and tuned faint so type stays crisp. */
+  --grain-opacity:    0.05;
+  --grain-blend:      multiply;
+  --grain:       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --halftone-size:    6px;
+  /* Offset-ink registration — the small print-mark offset used on editorial
+     edges (panel spine, expo numbering). A literal length, not a color. */
+  --ink-offset:  3px;
 
   --z-header:    100;
   --z-overlay:   1000;
@@ -267,9 +308,10 @@
   --panel-text:   var(--fg);
   --panel-text-2: var(--fg-2);
   --panel-text-3: var(--fg-3);
-  --accent:    var(--accent-bright, var(--green-2));
+  --accent:    var(--acid);
   --accent-fg: var(--ink);
-  --accent-bright: var(--green-2);
+  --accent-ink: var(--acid); /* on ink, the lime itself reads as bright text */
+  --accent-bright: var(--acid);
   --danger:    oklch(0.68 0.19 25);
   --flame:     #FF5A1F;
   --amber:     #D9A93A;
@@ -307,9 +349,10 @@
     --panel-text:   var(--fg);
     --panel-text-2: var(--fg-2);
     --panel-text-3: var(--fg-3);
-    --accent:    var(--accent-bright, var(--green-2));
+    --accent:    var(--acid);
     --accent-fg: var(--ink);
-    --accent-bright: var(--green-2);
+    --accent-ink: var(--acid);
+    --accent-bright: var(--acid);
     --danger:    oklch(0.68 0.19 25);
     --flame:     #FF5A1F;
     --amber:     #D9A93A;
@@ -339,6 +382,7 @@
   --panel-bg-2: inherit;
   --accent:    inherit;
   --accent-fg: inherit;
+  --accent-ink: inherit;
   --panel-1:   inherit;
   --panel-2:   inherit;
   --panel-3:   inherit;
@@ -378,7 +422,7 @@
   color-scheme: light;
   --bg: var(--paper); --bg-2: var(--paper-2); --bg-3: var(--paper-3);
   --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
-  --accent: var(--green); --accent-fg: var(--paper);
+  --accent: var(--acid); --accent-fg: var(--ink); --accent-ink: var(--acid-deep);
   /* A paper island under a dark ancestor must not inherit the dark signal pair. */
   --flame: #C53E00; --amber: #8A6512; --warn: #E0241A; --sky: #3A6EFF;
 }
@@ -394,16 +438,17 @@
   --paper-3: #E3DAC7;
   --bg: var(--paper); --bg-2: var(--paper-2); --bg-3: var(--paper-3);
   --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
-  --accent: var(--green); --accent-fg: var(--paper);
+  --accent: var(--green); --accent-fg: var(--paper); --accent-ink: var(--green);
 }
 
 .ds-247420[data-density="compact"]     { --density: 0.75; }
 .ds-247420[data-density="comfortable"] { --density: 1; }
 .ds-247420[data-density="spacious"]    { --density: 1.35; }
 
-.ds-247420[data-accent="green"]  { --accent: var(--green);  --accent-bright: var(--green-2);  --accent-fg: var(--paper); --panel-accent: var(--green);  }
-.ds-247420[data-accent="purple"] { --accent: var(--purple); --accent-bright: #C277FF;         --accent-fg: var(--paper); --panel-accent: var(--purple); }
-.ds-247420[data-accent="mascot"] { --accent: var(--mascot); --accent-bright: var(--mascot-2); --accent-fg: var(--ink);   --panel-accent: var(--mascot); }
+.ds-247420[data-accent="acid"]   { --accent: var(--acid);   --accent-bright: var(--acid);     --accent-fg: var(--ink);   --accent-ink: var(--acid-deep); --panel-accent: var(--acid);   }
+.ds-247420[data-accent="green"]  { --accent: var(--green);  --accent-bright: var(--green-2);  --accent-fg: var(--paper); --accent-ink: var(--green);     --panel-accent: var(--green);  }
+.ds-247420[data-accent="purple"] { --accent: var(--purple); --accent-bright: #C277FF;         --accent-fg: var(--paper); --accent-ink: var(--purple-2);  --panel-accent: var(--purple); }
+.ds-247420[data-accent="mascot"] { --accent: var(--mascot); --accent-bright: var(--mascot-2); --accent-fg: var(--ink);   --accent-ink: var(--mascot-deep);--panel-accent: var(--mascot); }
 
 /* Type-scale modifier — opt-in body/lg/xl bump for surfaces that want denser
    or larger reading sizes without a custom override. */
@@ -454,8 +499,9 @@
 /* app-shell.css */
 /* ============================================================
    247420 design system — component sheet
-   Tonal surfaces over borders. Indicator rails over hairlines.
-   Friendly rounded sans body; mono only on real code.
+   "Acid Editorial": Space Grotesk display + Inter body + JetBrains code.
+   Confident hierarchy, asymmetric grid tension, print texture over glow,
+   one electric lead accent. Indicator rails over hairlines.
    ============================================================ */
 
 /* ============================================================
@@ -508,10 +554,10 @@
 /* ============================================================
    Typography
    ============================================================ */
-.ds-247420 h1, .ds-247420 .t-h1 { font-family: var(--ff-body); font-size: var(--fs-h1); line-height: var(--lh-snug); letter-spacing: var(--tr-tight); font-weight: 600; margin: 0; }
-.ds-247420 h2, .ds-247420 .t-h2 { font-family: var(--ff-body); font-size: var(--fs-h2); line-height: var(--lh-snug); letter-spacing: var(--tr-tight); font-weight: 600; margin: 0; }
-.ds-247420 h3, .ds-247420 .t-h3 { font-family: var(--ff-body); font-size: var(--fs-h3); line-height: var(--lh-snug); letter-spacing: -0.01em;          font-weight: 600; margin: 0; }
-.ds-247420 h4, .ds-247420 .t-h4 { font-family: var(--ff-body); font-size: var(--fs-h4); line-height: var(--lh-snug);                                  font-weight: 600; margin: 0; }
+.ds-247420 h1, .ds-247420 .t-h1 { font-family: var(--ff-display); font-size: var(--fs-h1); line-height: var(--lh-snug); letter-spacing: var(--tr-tight); font-weight: 600; margin: 0; }
+.ds-247420 h2, .ds-247420 .t-h2 { font-family: var(--ff-display); font-size: var(--fs-h2); line-height: var(--lh-snug); letter-spacing: var(--tr-tight); font-weight: 600; margin: 0; }
+.ds-247420 h3, .ds-247420 .t-h3 { font-family: var(--ff-display); font-size: var(--fs-h3); line-height: var(--lh-snug); letter-spacing: -0.01em;          font-weight: 600; margin: 0; }
+.ds-247420 h4, .ds-247420 .t-h4 { font-family: var(--ff-display); font-size: var(--fs-h4); line-height: var(--lh-snug);                                  font-weight: 600; margin: 0; }
 
 /* App/chrome typescale opt-in: compact heading ceiling for application UIs. */
 .ds-247420[data-typescale="app"] h1, .ds-247420[data-typescale="app"] .t-h1 { font-size: var(--fs-h1-app); line-height: 1.15; }
@@ -519,10 +565,10 @@
 .ds-247420[data-typescale="app"] h3, .ds-247420[data-typescale="app"] .t-h3 { font-size: var(--fs-h3-app); }
 .ds-247420[data-typescale="app"] h4, .ds-247420[data-typescale="app"] .t-h4 { font-size: var(--fs-h4-app); }
 
-.ds-247420 .t-hero    { font-family: var(--ff-body); font-size: var(--fs-hero); line-height: var(--lh-tight); letter-spacing: var(--tr-tighter); font-weight: 600; margin: 0; }
-.ds-247420 .t-mega    { font-family: var(--ff-body); font-size: var(--fs-mega); line-height: 0.95;            letter-spacing: var(--tr-tighter); font-weight: 600; margin: 0; }
+.ds-247420 .t-hero    { font-family: var(--ff-display); font-size: var(--fs-hero); line-height: var(--lh-tight); letter-spacing: var(--tr-tighter); font-weight: 700; margin: 0; }
+.ds-247420 .t-mega    { font-family: var(--ff-display); font-size: var(--fs-mega); line-height: 0.92;            letter-spacing: var(--tr-tighter); font-weight: 700; margin: 0; }
 
-.ds-247420 .t-display { font-family: var(--ff-body); font-weight: 600; letter-spacing: var(--tr-tight); }
+.ds-247420 .t-display { font-family: var(--ff-display); font-weight: 600; letter-spacing: var(--tr-tight); }
 .ds-247420 .t-mono    { font-family: var(--ff-mono); }
 .ds-247420 .t-body    { font-family: var(--ff-body); }
 
@@ -537,17 +583,18 @@
 }
 
 .ds-247420 .eyebrow {
-  font-family: var(--ff-body);
+  font-family: var(--ff-mono);
   font-size: var(--fs-tiny);
   font-weight: 600;
-  letter-spacing: var(--tr-caps);
+  letter-spacing: var(--tr-label);
   text-transform: uppercase;
-  color: var(--accent);
-  display: inline-flex; align-items: center; gap: 10px;
+  color: var(--accent-ink);
+  display: inline-flex; align-items: center; gap: 12px;
 }
+/* Editorial kicker mark — a short solid ink rule, the print-byline tell. */
 .ds-247420 .eyebrow::before {
   content: '';
-  width: 18px; height: 2px; background: currentColor;
+  width: 28px; height: 3px; background: currentColor;
 }
 
 .ds-247420 .ds-prose {
@@ -567,7 +614,7 @@
 /* Links */
 .ds-247420 a { color: inherit; text-decoration: none; }
 .ds-247420 a.ds-link-accent, .ds-247420 .ds-prose a {
-  color: var(--accent);
+  color: var(--accent-ink);
   text-decoration: underline;
   text-underline-offset: 4px;
   text-decoration-thickness: 2px;
@@ -707,18 +754,19 @@
    as misaligned. Same height as the inactive links — only the tint + underline
    change. */
 .ds-247420 .app-topbar nav a.active {
-  color: var(--accent);
+  color: var(--accent-ink);
   background: color-mix(in oklab, var(--accent) 16%, transparent);
   box-shadow: inset 0 -2px 0 0 var(--accent);
   font-weight: 600;
 }
 
 .ds-247420 .brand {
-  font-family: var(--ff-body);
-  font-weight: 700; font-size: var(--fs-sm);
-  letter-spacing: -0.01em;
+  font-family: var(--ff-display);
+  font-weight: 700; font-size: var(--fs-lg);
+  letter-spacing: var(--tr-tight);
 }
-.ds-247420 .brand .slash { color: var(--fg-3); font-weight: 400; margin: 0 2px; }
+/* The wordmark separator printed in the electric lead — the brand tell. */
+.ds-247420 .brand .slash { color: var(--accent-ink); font-weight: 700; margin: 0 3px; }
 
 .ds-247420 .app-search {
   display: inline-flex; align-items: center; gap: 10px;
@@ -847,7 +895,7 @@
   border-top: 1px solid var(--rule);
 }
 .ds-247420 .app-status .item { color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.ds-247420 .app-status .item:first-of-type { color: var(--accent); }
+.ds-247420 .app-status .item:first-of-type { color: var(--accent-ink); }
 .ds-247420 .app-status .spread { flex: 1; }
 /* The status bar NEVER wraps: at narrow widths the trailing items (hints,
    agent target) drop in priority order instead of breaking mid-word onto a
@@ -870,15 +918,20 @@
   /* Rounded-rect app chrome, not a marketing-page stadium CTA. */
   border-radius: var(--r-1);
   border: 0;
-  transition: transform var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+  transition: transform var(--dur-base) var(--ease-spring), background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
 .ds-247420 .btn { background: var(--bg-2); color: var(--fg); }
 .ds-247420 .btn:hover { background: var(--bg-3); color: var(--fg); }
-.ds-247420 .btn-primary { background: var(--accent); color: var(--accent-fg); }
-.ds-247420 .btn-primary:hover { background: var(--fg); color: var(--bg); }
-.ds-247420 .btn-ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 1.5px var(--rule-strong); }
-.ds-247420 .btn-ghost:hover { background: var(--bg-2); }
-.ds-247420 .btn:active, .ds-247420 .btn-primary:active, .ds-247420 .btn-ghost:active { transform: translateY(1px); }
+/* Primary CTA — the electric lead as a solid editorial block; hover inverts to
+   an ink block with the lead as text, a confident two-tone flip. */
+.ds-247420 .btn-primary {
+  background: var(--accent); color: var(--accent-fg);
+  font-weight: 700; letter-spacing: var(--tr-caps);
+}
+.ds-247420 .btn-primary:hover { background: var(--fg); color: var(--accent-ink); }
+.ds-247420 .btn-ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 2px var(--fg); }
+.ds-247420 .btn-ghost:hover { background: var(--fg); color: var(--bg); }
+.ds-247420 .btn:active, .ds-247420 .btn-primary:active, .ds-247420 .btn-ghost:active { transform: translateY(2px); }
 .ds-247420 .btn:focus-visible, .ds-247420 .btn-primary:focus-visible, .ds-247420 .btn-ghost:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -974,6 +1027,17 @@
   padding: var(--space-3);
   position: relative;
 }
+/* Editorial accent spine — an opt-in printed-ink rule down the left edge that
+   reads as a magazine pull-quote bar, not a glow card. */
+.ds-247420 .panel.panel-spine {
+  border-radius: 0 var(--r-2) var(--r-2) 0;
+  padding-left: calc(var(--space-3) + var(--bw-chunk));
+}
+.ds-247420 .panel.panel-spine::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: var(--bw-chunk); background: var(--accent);
+  border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
+}
 .ds-247420 .panel.panel-inline { background: var(--bg-2); padding: var(--space-3) var(--space-3); }
 .ds-247420 .panel.panel-wide   { background: transparent; }
 .ds-247420 .panel-head {
@@ -1048,9 +1112,13 @@
    row should not signal an affordance it does not have. */
 .ds-247420 .row[role="button"]:hover, .ds-247420 a.row:hover { background: var(--bg-2); }
 .ds-247420 .row[role="button"]:hover::before, .ds-247420 a.row:hover::before { height: 56%; opacity: 1; }
+/* Editorial hover-reveal — the row's meta (cta) slides toward the lead accent
+   and nudges right, the printed-index "open ->" affordance. */
+.ds-247420 .row .meta { transition: color var(--dur-base) var(--ease), transform var(--dur-base) var(--ease-spring); }
+.ds-247420 a.row:hover .meta, .ds-247420 .row[role="button"]:hover .meta { color: var(--accent-ink); transform: translateX(3px); }
 .ds-247420 .row.active { background: color-mix(in oklab, var(--accent) 10%, var(--bg-2)); }
 .ds-247420 .row.active::before { height: 64%; opacity: 1; background: var(--accent); }
-.ds-247420 .row.active .title { color: var(--accent); }
+.ds-247420 .row.active .title { color: var(--accent-ink); }
 .ds-247420 .row.row-state-disabled { opacity: 0.5; pointer-events: none; }
 .ds-247420 .row.row-state-error { background: color-mix(in oklab, var(--flame) 10%, var(--bg-2)); }
 .ds-247420 .row.row-state-error::before { height: 64%; opacity: 1; background: var(--flame); }
@@ -1092,24 +1160,43 @@
 /* ============================================================
    Hero
    ============================================================ */
+/* Signature hero — asymmetric editorial header. Title spans wide; the body +
+   actions sit offset in a narrower right column on desktop, stacked on mobile.
+   No centered stack. */
 .ds-247420 .ds-hero {
   padding: var(--space-9) 0 var(--space-8);
-  display: grid; gap: var(--space-5);
+  display: grid; gap: var(--space-5) var(--space-6);
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  grid-template-areas: 'title title' 'body actions';
+  align-items: end;
   max-width: var(--measure-wide);
 }
+.ds-247420 .ds-hero-head { grid-area: title; display: grid; gap: var(--space-3); }
+.ds-247420 .ds-hero-body  { grid-area: body; }
+.ds-247420 .ds-hero-actions { grid-area: actions; }
+.ds-247420 .ds-hero-badge { grid-area: actions; }
 .ds-247420 .ds-hero-title {
-  font-family: var(--ff-body); font-weight: 600;
-  font-size: clamp(34px, 6.4cqi, 80px);
-  line-height: 1.05; letter-spacing: var(--tr-tight);
-  margin: 0; max-width: 18ch;
+  font-family: var(--ff-display); font-weight: 700;
+  font-size: clamp(40px, 9cqi, 116px);
+  line-height: 0.96; letter-spacing: var(--tr-tighter);
+  margin: 0; max-width: 16ch; text-wrap: balance;
 }
 .ds-247420 .ds-hero-body {
   font-family: var(--ff-body); font-size: var(--fs-xl);
-  line-height: 1.45; margin: 0; max-width: 52ch;
+  line-height: 1.45; margin: 0; max-width: 46ch;
   color: var(--fg-2);
 }
-.ds-247420 .ds-hero-accent { color: var(--accent); font-weight: 500; }
-.ds-247420 .ds-hero-actions { display: flex; gap: var(--space-2, 10px); flex-wrap: wrap; margin-top: var(--space-2, 8px); }
+/* The lead phrase in the title — printed in the electric lead, not glowing. */
+.ds-247420 .ds-hero-accent { color: var(--accent-ink); font-weight: 700; }
+.ds-247420 .ds-hero-actions { display: flex; gap: var(--space-2, 10px); flex-wrap: wrap; align-self: end; }
+@media (max-width: 900px) {
+  .ds-247420 .ds-hero {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'title' 'body' 'actions';
+    align-items: start;
+    padding: var(--space-7) 0 var(--space-6);
+  }
+}
 .ds-247420 .ds-chat-title { margin: 0; font-size: inherit; }
 
 /* ============================================================
@@ -1127,6 +1214,59 @@
 
 @media (max-width: 900px) {
   .ds-247420 .ds-section { margin: var(--space-4) 0; }
+}
+
+/* ============================================================
+   Print texture — the signature surface treatment. Opt-in overlay that
+   reads as risograph/newsprint grain, layered above the surface fill but
+   below content. Faint by default so type stays crisp; reduced-data and
+   reduced-motion are unaffected (texture is static).
+   ============================================================ */
+.ds-247420 .ds-grain { position: relative; isolation: isolate; }
+.ds-247420 .ds-grain::after {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  pointer-events: none;
+  background-image: var(--grain);
+  background-size: 160px 160px;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: var(--grain-blend);
+}
+/* Halftone dot screen — a heavier print tell for accent panels/hero. */
+.ds-247420 .ds-halftone { position: relative; isolation: isolate; }
+.ds-247420 .ds-halftone::after {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(currentColor 1px, transparent 1.2px);
+  background-size: var(--halftone-size) var(--halftone-size);
+  opacity: 0.12;
+}
+
+/* ============================================================
+   Marquee / ticker — brand kinetic device ("always open 24/7"). The track
+   holds two identical runs so the loop is seamless; reduced-motion freezes it
+   to a single static run. Editorial, not a decorative flourish.
+   ============================================================ */
+.ds-247420 .ds-marquee {
+  overflow: hidden; width: 100%;
+  border-block: var(--bw-rule) solid var(--fg);
+  padding: var(--space-2) 0;
+  font-family: var(--ff-display); font-weight: 600;
+  text-transform: uppercase; letter-spacing: var(--tr-caps);
+}
+.ds-247420 .ds-marquee-track {
+  display: inline-flex; gap: var(--space-5);
+  white-space: nowrap; will-change: transform;
+  animation: ds-marquee-run 28s linear infinite;
+}
+.ds-247420 .ds-marquee-item { display: inline-flex; align-items: center; gap: var(--space-5); }
+.ds-247420 .ds-marquee-sep { color: var(--accent-ink); }
+.ds-247420 .ds-marquee:hover .ds-marquee-track { animation-play-state: paused; }
+@keyframes ds-marquee-run {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-247420 .ds-marquee-track { animation: none; }
 }
 
 /* ============================================================
@@ -1580,7 +1720,7 @@
    ============================================================ */
 .ds-247420 .ds-chat { display: flex; flex-direction: column; gap: 12px; padding: var(--space-4); }
 .ds-247420 .ds-chat-msg { padding: 12px 18px; background: var(--bg-2); border-radius: var(--r-3); max-width: min(90vw, 36em); }
-.ds-247420 .ds-chat-msg.user { background: var(--accent); color: var(--accent-fg); align-self: flex-end; }
+.ds-247420 .ds-chat-msg.user { background: var(--accent-tint); color: var(--fg); align-self: flex-end; }
 .ds-247420 .ds-chat-md { font-size: var(--fs-sm); line-height: 1.6; }
 .ds-247420 .ds-chat-composer { display: flex; gap: 8px; padding: var(--space-4); }
 .ds-247420 .ds-chat-composer input { flex: 1; padding: 13px 18px; background: var(--bg-2); border: 0; border-radius: var(--r-pill); font-family: inherit; font-size: var(--fs-sm); color: var(--fg); }
@@ -1619,7 +1759,7 @@
   background: none; border: none; cursor: pointer; padding: 2px 4px; border-radius: var(--r-1);
 }
 .ds-247420 .ds-file-sort-btn:hover { color: var(--fg-2); background: var(--bg-2); }
-.ds-247420 .ds-file-sort-btn.active { color: var(--accent); }
+.ds-247420 .ds-file-sort-btn.active { color: var(--accent-ink); }
 .ds-247420 .ds-file-sort-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /* Skeleton shimmer rows shown while a directory loads. */
@@ -1707,7 +1847,7 @@
   width: 26px; height: 26px; font-size: 15px; line-height: 1;
   color: var(--fg-2);
 }
-.ds-247420 .ds-file-row[data-file-type="dir"]      .ds-file-icon { color: var(--accent); }
+.ds-247420 .ds-file-row[data-file-type="dir"]      .ds-file-icon { color: var(--accent-ink); }
 .ds-247420 .ds-file-row[data-file-type="image"]    .ds-file-icon { color: var(--mascot); }
 .ds-247420 .ds-file-row[data-file-type="video"]    .ds-file-icon { color: var(--purple-2); }
 .ds-247420 .ds-file-row[data-file-type="audio"]    .ds-file-icon { color: var(--sky); }
@@ -1765,7 +1905,7 @@
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
 .ds-247420 .ds-file-check:hover { background: var(--bg-3); color: var(--fg); }
-.ds-247420 .ds-file-check.is-marked { color: var(--accent); }
+.ds-247420 .ds-file-check.is-marked { color: var(--accent-ink); }
 .ds-247420 .ds-file-check:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .ds-247420 .ds-file-check[disabled] { opacity: 0.4; cursor: default; }
 .ds-247420 .ds-file-row.is-marked { background: var(--accent-tint); border-color: var(--accent); }
@@ -1858,7 +1998,7 @@
 .ds-247420 .ds-file-cell-thumb { width: 100%; height: 100%; object-fit: cover; }
 /* Per-type icon tints on thumb tiles so the grid keeps the colour-coding the
    list rows already carry (mirrors .ds-file-row[data-file-type] .ds-file-icon). */
-.ds-247420 .ds-file-cell[data-file-type="dir"]      .ds-file-icon { color: var(--accent); }
+.ds-247420 .ds-file-cell[data-file-type="dir"]      .ds-file-icon { color: var(--accent-ink); }
 .ds-247420 .ds-file-cell[data-file-type="image"]    .ds-file-icon { color: var(--mascot); }
 .ds-247420 .ds-file-cell[data-file-type="video"]    .ds-file-icon { color: var(--purple-2); }
 .ds-247420 .ds-file-cell[data-file-type="audio"]    .ds-file-icon { color: var(--sky); }
@@ -1985,7 +2125,7 @@
   .ds-247420 .ds-dropzone.dragover { animation: ds-dropzone-pulse 1.1s var(--ease) infinite; }
 }
 .ds-247420 .ds-dropzone.dragover .ds-dropzone-glyph,
-.ds-247420 .ds-dropzone.dragover .ds-dropzone-label { color: var(--accent); }
+.ds-247420 .ds-dropzone.dragover .ds-dropzone-label { color: var(--accent-ink); }
 @keyframes ds-dropzone-pulse {
   0%, 100% { border-color: var(--accent); }
   50% { border-color: color-mix(in oklab, var(--accent) 45%, transparent); }
@@ -2348,7 +2488,7 @@
 .ds-247420 .chat-msg:hover .chat-avatar { transform: scale(1.03); box-shadow: 0 1px 4px color-mix(in oklab, var(--fg) 6%, transparent); }
 .ds-247420 .chat-msg.you .chat-avatar {
   background: color-mix(in oklab, var(--accent) 26%, var(--bg-3));
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 .ds-247420 .chat-msg.aicat .chat-avatar {
   background: color-mix(in oklab, var(--mascot) 26%, var(--bg-2));
@@ -2371,7 +2511,8 @@
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 .ds-247420 .chat-msg:hover .chat-bubble { transform: translateY(-1px); box-shadow: 0 2px 8px color-mix(in oklab, var(--fg) 6%, transparent); transition: transform var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease); }
-.ds-247420 .chat-msg.you .chat-bubble { background: var(--accent); color: var(--accent-fg); }
+/* Own bubble — calm tinted lead, not a full electric fill (chat stays readable). */
+.ds-247420 .chat-msg.you .chat-bubble { background: var(--accent-tint); color: var(--fg); }
 .ds-247420 .chat-msg.aicat .chat-bubble {
   background: color-mix(in oklab, var(--mascot) 14%, var(--bg-2));
   border: 1px solid color-mix(in oklab, var(--mascot) 28%, transparent);
@@ -2381,7 +2522,7 @@
   background: color-mix(in oklab, var(--fg) 10%, transparent);
   padding: 1px 6px; border-radius: 4px;
 }
-.ds-247420 .chat-msg.you .chat-bubble code { background: color-mix(in oklab, var(--accent-fg) 18%, transparent); }
+.ds-247420 .chat-msg.you .chat-bubble code { background: color-mix(in oklab, var(--fg) 10%, transparent); }
 .ds-247420 .chat-bubble a {
   color: inherit; text-decoration: underline;
   text-underline-offset: 2px; text-decoration-thickness: 1px;
@@ -2465,7 +2606,7 @@
   border-bottom: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
   font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3);
 }
-.ds-247420 .chat-code-head .lang { text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.06em; }
+.ds-247420 .chat-code-head .lang { text-transform: uppercase; font-weight: 700; color: var(--accent-ink); letter-spacing: 0.06em; }
 .ds-247420 .chat-code-head .filename,
 .ds-247420 .chat-code-head .name { color: var(--fg-2); font-weight: 500; }
 .ds-247420 .chat-code-head .spread { flex: 1; }
@@ -2477,7 +2618,7 @@
 .ds-247420 .chat-bubble.chat-code code { background: transparent; padding: 0; font-size: inherit; }
 .ds-247420 .chat-bubble.chat-code .token.keyword,
 .ds-247420 .chat-bubble.chat-code .token.atrule,
-.ds-247420 .chat-bubble.chat-code .token.selector { color: var(--accent); }
+.ds-247420 .chat-bubble.chat-code .token.selector { color: var(--accent-ink); }
 .ds-247420 .chat-bubble.chat-code .token.string,
 .ds-247420 .chat-bubble.chat-code .token.attr-value { color: var(--code-str-alt, var(--mascot)); }
 .ds-247420 .chat-bubble.chat-code .token.comment { color: var(--fg-3); font-style: italic; }
@@ -2518,7 +2659,7 @@
   font-size: 22px; width: 36px; height: 36px;
   display: inline-flex; align-items: center; justify-content: center;
   background: color-mix(in oklab, var(--accent) 18%, transparent);
-  color: var(--accent); border-radius: 8px; flex-shrink: 0; font-family: var(--ff-mono);
+  color: var(--accent-ink); border-radius: 8px; flex-shrink: 0; font-family: var(--ff-mono);
 }
 .ds-247420 .chat-file > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .ds-247420 .chat-file .name {
@@ -2528,7 +2669,7 @@
 .ds-247420 .chat-file .meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
 .ds-247420 .chat-file .size { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); }
 .ds-247420 .chat-file .go { font-family: var(--ff-mono); font-size: 16px; color: var(--fg-3); flex-shrink: 0; }
-.ds-247420 .chat-file:hover .go { color: var(--accent); }
+.ds-247420 .chat-file:hover .go { color: var(--accent-ink); }
 
 .ds-247420 .chat-msg.you .chat-pdf,
 .ds-247420 .chat-msg .chat-pdf,
@@ -2548,7 +2689,7 @@
 .ds-247420 .chat-pdf-head .glyph { font-size: 18px; color: var(--mascot); flex-shrink: 0; }
 .ds-247420 .chat-pdf-head .name { flex: 1; font-weight: 600; font-size: var(--fs-sm); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-247420 .chat-pdf-head .size { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); }
-.ds-247420 .chat-pdf-head a { color: var(--accent); font-family: var(--ff-mono); font-size: var(--fs-xs); text-decoration: none; }
+.ds-247420 .chat-pdf-head a { color: var(--accent-ink); font-family: var(--ff-mono); font-size: var(--fs-xs); text-decoration: none; }
 .ds-247420 .chat-pdf embed,
 .ds-247420 .chat-pdf iframe,
 .ds-247420 .chat-pdf object { width: 100%; height: 360px; border: 0; display: block; }
@@ -2585,7 +2726,7 @@
 .ds-247420 .chat-meta .who::after { content: ' ·'; color: var(--fg-3); font-weight: 400; }
 .ds-247420 .chat-meta .t { color: var(--fg-3); }
 .ds-247420 .chat-meta .tick { color: var(--fg-3); margin-left: 2px; letter-spacing: -2px; font-family: var(--ff-mono); }
-.ds-247420 .chat-meta .tick.read { color: var(--accent); }
+.ds-247420 .chat-meta .tick.read { color: var(--accent-ink); }
 
 .ds-247420 .chat-reactions {
   display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px;
@@ -2603,11 +2744,11 @@
 .ds-247420 .chat-reactions .rxn.you {
   background: color-mix(in oklab, var(--accent) 18%, var(--bg-2));
   border-color: color-mix(in oklab, var(--accent) 55%, transparent);
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 .ds-247420 .chat-reactions .rxn .e { font-size: 14px; line-height: 1; }
 .ds-247420 .chat-reactions .rxn .n { font-family: var(--ff-mono); font-weight: 600; font-size: 11px; color: var(--fg-2); }
-.ds-247420 .chat-reactions .rxn.you .n { color: var(--accent); }
+.ds-247420 .chat-reactions .rxn.you .n { color: var(--accent-ink); }
 
 .ds-247420 .chat-typing { display: inline-flex; gap: 4px; align-items: center; }
 .ds-247420 .chat-typing span {
@@ -2746,7 +2887,7 @@
 .ds-247420 .app-side a:has(> .count:empty) > .count,
 .ds-247420 .app-side .count:empty { display: none; }
 .ds-247420 .app-side a .glyph { font-family: var(--ff-mono); font-size: 13px; font-weight: 600; color: var(--fg-3); text-align: center; }
-.ds-247420 .app-side a.active .glyph { color: var(--accent); }
+.ds-247420 .app-side a.active .glyph { color: var(--accent-ink); }
 
 /* -- select primitive --------------------------------------------------- */
 .ds-247420 .ds-select {
@@ -2923,7 +3064,7 @@
 .ds-247420 .drop-zone.active {
   border-color: var(--accent);
   background: color-mix(in oklab, var(--accent) 10%, var(--bg));
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 
 /* List item reorder indicator */
@@ -2986,7 +3127,7 @@
 }
 .ds-247420 .ds-context-menu-item:hover {
   background: var(--bg-3);
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 .ds-247420 .ds-context-menu-item:active {
   background: color-mix(in oklab, var(--accent) 20%, var(--bg-3));
@@ -3078,9 +3219,13 @@
   color: var(--fg);
   background: var(--bg-2);
   border: 0;
-  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule);
+  /* Editorial field — tonal fill with a printed baseline rule that thickens to
+     the electric lead on focus, instead of a uniform hairline box. */
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
+              inset 0 calc(-1 * var(--bw-rule)) 0 var(--rule-strong);
   border-radius: var(--r-2, 10px);
   padding: 10px 14px;
+  transition: box-shadow var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease);
 }
 .ds-247420 .ds-field textarea { min-height: calc(4 * 1.5em); resize: vertical; }
 .ds-247420 .ds-search-input::placeholder { color: var(--fg-3); }
@@ -3090,7 +3235,10 @@
 .ds-247420 .ds-field .ds-select:focus-visible,
 .ds-247420 .ds-search-input:focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring-inset);
+  background: var(--bg);
+  /* Focus thickens the baseline to the lead accent — the printed-rule tell. */
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
+              inset 0 calc(-1 * var(--bw-chunk)) 0 var(--accent);
 }
 .ds-247420 .ds-field input:disabled,
 .ds-247420 .ds-field textarea:disabled,

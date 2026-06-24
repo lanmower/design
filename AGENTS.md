@@ -12,7 +12,9 @@ Every repo in the 247420.xyz portfolio (33 projects, source-of-truth: C:/dev/247
 
 ## Design System — Non-Obvious Caveats
 
-For Design System policy (zero-border aesthetic, panel-shadow source-strip, pill radius scale, sidebar floating-pill margin, surface tokens, hermes-theme reference, list-row primitives, row/input rules) — query rs-learn (e.g. "list bg borders", "pill radius scale", "box-shadow stripped", "list primitives", "fab cta sidebar").
+**Visual north-star: "Acid Editorial" (2026-06-24 reinvention).** The look is art-directed editorial, NOT the earlier "calm tonal/readable" framing: Space Grotesk display (`--ff-display`) + Inter body + JetBrains code; one electric lead accent `--acid` (#B6FF1B) on near-black ink / warm newsprint paper; asymmetric grid tension (the Hero is a two-column `grid-template-areas` layout, never a centered stack); print texture (`.ds-grain`/`.ds-halftone`, `--grain`) over glow-gradients; physical spring motion (`--ease-spring`); signature components (`C.Marquee` ticker, `.panel-spine` accent rule). **Critical token split:** `--accent` is the FILL (lime, behind ink text); `--accent-ink` is the readable TEXT tone (the lime is ~1.07:1 on paper and invisible as text). Any new `color:` accent usage MUST use `--accent-ink`, not `--accent`; only `background`/`border-color` use the bare lead. The dark theme makes `--accent-ink` the bright lime itself (15.88:1 on ink).
+
+For older Design System policy (zero-border aesthetic, panel-shadow source-strip, pill radius scale, sidebar floating-pill margin, surface tokens, hermes-theme reference, list-row primitives, row/input rules) — query rs-learn (e.g. "list bg borders", "pill radius scale", "box-shadow stripped", "list primitives", "fab cta sidebar").
 
 ## Icons — Line-Icon Component, Never Glyphs (build-guarded)
 
@@ -26,7 +28,7 @@ The gm-* plugin family (gm-cc, gm-oc, gm-vscode, gm-zed, gm-cursor, gm-codex, gm
 
 ## GitHub Actions Pages Deployment — Environment Branch Policy
 
-GitHub Actions Pages deploy requires both `build_type=workflow` AND branch protection policy. Set Pages config via `gh api repos/OWNER/REPO/pages -X POST/PUT -f build_type=workflow`. If the repo's github-pages environment has `protection_rules` with `custom_branch_policies`, you MUST add the deploying branch (e.g., main) via `gh api repos/OWNER/REPO/environments/github-pages/deployment-branch-policies -X POST -f name=main -f type=branch`. Without this step, the deploy job fails: "Branch X is not allowed to deploy to github-pages due to environment protection rules." This is non-obvious because the error only surfaces at deploy time, and the API endpoint is not discoverable from the UI.
+GitHub Pages deploy needs `build_type=workflow` AND a deployment-branch-policy for the deploying branch — query rs-learn ("pages deploy branch policy") for the exact `gh api` calls.
 
 ## flatspace v1.0.17 — Dual-Mode Build Pattern
 
@@ -57,12 +59,7 @@ When a portfolio repo has legacy `docs/*.html` pages with their own `<style>`/`<
 
 ## file-browser primitives — non-obvious caveats
 
-- File-type values are the canonical seven plus three: `dir`, `image`, `video`, `audio`, `code`, `text`, `archive`, `document`, `symlink`, `other`. Anything outside that set falls through to the neutral rail and the `◌` glyph.
-- Rail color comes from `data-file-type` on the row. Never hand-apply `.rail-green`, `.rail-sun`, etc. to file rows — the CSS owns the mapping and applying both makes one rule silently lose to the other.
-- `FileViewer` portal-renders to `<body>` via `Backdrop` (z-index above the topbar). The viewer's head AND body both carry `data-file-type` so the rail color propagates inside the modal — set both, not just one, or the inside of the viewer falls back to neutral.
-- `DropZone` only previews local-file UI; the real upload still needs `preventDefault` registered on `document`, not just on the zone, or the browser will navigate to the dropped file the moment it hits any non-zone region.
-- `UploadProgress` reads `data-pct` on `.ds-upload-fill` to drive the bar width — write a string number 0–100, not a percent string.
-- `BreadcrumbPath` calls `onNav(0)` for the root and `onNav(i+1)` for each segment after; the index is "how many segments to keep", not "which segment was clicked".
+File-row rails are owned by `data-file-type` (never hand-apply `.rail-*`); FileViewer needs `data-file-type` on head AND body; DropZone needs `preventDefault` on `document`; UploadProgress reads `data-pct`; BreadcrumbPath `onNav(i)` is segments-to-keep — query rs-learn ("file-browser primitives caveats") for the full set.
 
 ## webjsx applyDiff — Mixed Keyed/Primitive Children Crash
 

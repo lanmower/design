@@ -12,7 +12,7 @@ export {
 
 export {
     Panel, Card, Row, RowLink,
-    Hero, Install, Receipt, Changelog,
+    Hero, Marquee, Install, Receipt, Changelog,
     WorksList, WritingList, Manifesto, Section, PageHeader,
     Kpi, Table, SearchInput, TextField, Select, EventList,
     HomeView, ProjectView, Form,
