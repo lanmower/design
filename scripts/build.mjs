@@ -55,6 +55,7 @@ const cssParts = [
     ['editor-primitives.css', path.join(root, 'editor-primitives.css')],
     ['community-app.css', path.join(root, 'community-app.css')],
     ['app-surfaces.css', path.join(root, 'app-surfaces.css')],
+    ['gm-prose.css', path.join(root, 'gm-prose.css')],
     ['marketing.css', path.join(root, 'marketing.css')],
     ['spoint/loading-screen.css', path.join(root, 'src/kits/spoint/loading-screen.css')],
     ['spoint/game-hud.css', path.join(root, 'src/kits/spoint/game-hud.css')],

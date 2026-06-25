@@ -21,6 +21,7 @@ const COMPONENT_SHEETS = [
     'chat.css',
     'editor-primitives.css',
     'community-app.css',
+    'gm-prose.css',
     'src/kits/os/theme.css',
     'src/kits/os/freddie-dashboard.css',
     'src/kits/spoint/loading-screen.css',
