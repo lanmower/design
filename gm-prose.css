@@ -10,6 +10,13 @@
 
 .ds-prose { line-height: 1.65; }
 .ds-prose pre, .ds-prose table { overflow-x: auto; max-width: 100%; }
+.ds-prose canvas {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 300px;
+  max-height: 300px;
+}
 
 #ds-article-host, .ds-prose {
   width: 100%;
