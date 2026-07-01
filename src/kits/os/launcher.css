@@ -36,7 +36,7 @@
     transition: background 80ms ease, color 80ms ease, box-shadow 80ms ease;
 }
 .launcher-btn:hover { background: var(--panel-hover, var(--os-bg-1)); color: var(--os-fg); }
-.launcher-btn:active { background: var(--panel-select); }
+.launcher-btn:active { background: var(--panel-select, var(--os-accent-soft)); }
 .launcher-btn.active {
     background: var(--panel-select, var(--os-accent-soft));
     color: var(--os-fg);

@@ -14,6 +14,7 @@ export function renderDock(opts = {}) {
     addBtn.className = 'launcher-btn launcher-add';
     addBtn.textContent = '+';
     addBtn.title = 'new instance';
+    addBtn.setAttribute('aria-label', 'new instance');
     addBtn.addEventListener('click', () => callbacks.onNewInstance && callbacks.onNewInstance());
     el.appendChild(addBtn);
 
@@ -42,6 +43,7 @@ export function renderDock(opts = {}) {
             selBtn.className = 'launcher-btn';
             selBtn.textContent = inst.label || inst.id;
             selBtn.title = 'instance ' + inst.id;
+            selBtn.setAttribute('aria-label', 'instance ' + inst.id);
             selBtn.dataset.role = 'select';
             selBtn.dataset.instanceId = inst.id;
             if (inst.active || inst.id === activeId) selBtn.classList.add('active');
@@ -51,6 +53,7 @@ export function renderDock(opts = {}) {
             closeBtn.className = 'launcher-btn launcher-close';
             closeBtn.textContent = 'x';
             closeBtn.title = 'close ' + inst.id;
+            closeBtn.setAttribute('aria-label', 'close ' + inst.id);
             closeBtn.dataset.role = 'close';
             closeBtn.dataset.instanceId = inst.id;
             closeBtn.addEventListener('click', e => {

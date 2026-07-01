@@ -1,4 +1,8 @@
 
+## 0.0.227
+- Jank sweep across `src/kits/os/` (theme.css, wm.js, launcher.css/js) and `src/kits/os/freddie/`: removed a dead unused `renderChatMessages(container, messages)` export in `src/kits/os/freddie/helpers.js` (superseded by the `<ds-chat>` custom element path; a same-named but distinct function in `src/components/freddie/helpers.js` is still live and untouched). Pruned a stale historical comment in `theme.css` referencing an already-removed legacy `.wm-snap-preview`/`.wm-switcher-row` block. Fixed an inconsistent CSS custom-property fallback on `.launcher-btn:active` (now matches the sibling `.active` rule's `var(--panel-select, var(--os-accent-soft))` fallback instead of failing silently when the token is unset).
+- Accessibility: window control buttons (minimize/maximize/close) in `wm.js` and dock buttons (new-instance/select-instance/close-instance) in `launcher.js` now carry `aria-label` alongside their existing `title`, so screen readers get real labels instead of bare glyphs (×, −, +, x).
+
 ## 0.0.115
 - theme.css: Space Grotesk + JetBrains Mono defaults (replaces Nunito/Archivo Black) so consumers no longer carry a local font override.
 - theme.css: translucent menubar/taskbar (color-mix + backdrop-filter blur(10px)).

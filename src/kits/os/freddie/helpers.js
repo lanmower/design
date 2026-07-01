@@ -31,29 +31,3 @@ export function skillLabel(s) {
     const n = s.name || '';
     return n.replace(/^gm:/, '').replace(/^software-development$/, 'software dev').replace(/-/g, ' ');
 }
-
-export function renderChatMessages(container, messages) {
-    if (!container) return;
-    container.innerHTML = '';
-    for (const m of messages) {
-        if (m.role === 'tool') {
-            const det = document.createElement('details');
-            det.className = 'fd-chatlog-tool';
-            const sum = document.createElement('summary');
-            sum.className = 'fd-chatlog-tool-sum';
-            sum.textContent = '[tool] ' + m.name + (m.argsSummary ? ' ' + m.argsSummary : '');
-            det.appendChild(sum);
-            const body = document.createElement('pre');
-            body.className = 'fd-chatlog-tool-body';
-            body.textContent = m.content || '';
-            det.appendChild(body);
-            container.appendChild(det);
-        } else {
-            const el = document.createElement('div');
-            el.className = 'fd-chatlog-msg fd-chatlog-' + (m.role === 'assistant' ? 'assistant' : 'user');
-            el.textContent = (m.role === 'assistant' ? 'assistant: ' : 'user: ') + (m.content || '');
-            container.appendChild(el);
-        }
-    }
-    container.scrollTop = container.scrollHeight;
-}

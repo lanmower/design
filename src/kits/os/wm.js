@@ -110,6 +110,7 @@ function mkBtn(label, ttl) {
     b.className = 'wm-btn';
     b.textContent = label;
     b.title = ttl;
+    b.setAttribute('aria-label', ttl);
     return b;
 }
 

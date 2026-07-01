@@ -8136,6 +8136,13 @@
 
 .ds-247420 .ds-prose { line-height: 1.65; }
 .ds-247420 .ds-prose pre, .ds-247420 .ds-prose table { overflow-x: auto; max-width: 100%; }
+.ds-247420 .ds-prose canvas {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 300px;
+  max-height: 300px;
+}
 
 .ds-247420 #ds-article-host, .ds-247420 .ds-prose {
   width: 100%;
@@ -8145,14 +8152,22 @@
 }
 
 .ds-247420 #ds-article-host.has-toc {
-  display: grid;
-  grid-template-columns: 256px minmax(0, var(--measure-narrow));
+  display: flex;
+  align-items: flex-start;
   column-gap: 44px;
-  align-items: start;
+  gap: 44px;
+  max-width: calc(256px + 44px + var(--measure-narrow));
+  margin-left: auto;
+  margin-right: auto;
+}
+.ds-247420 #ds-article-host.has-toc > .article-col {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: var(--measure-narrow);
 }
 .ds-247420 #ds-article-host.has-toc > .toc {
-  grid-column: 1;
-  grid-row: 1 / -1;
+  flex: 0 0 256px;
+  align-self: flex-start;
   position: sticky;
   top: 24px;
   align-self: start;
@@ -8193,9 +8208,10 @@
 .ds-247420 #ds-article-host .toc li::marker { color: var(--panel-text-3); font-variant-numeric: tabular-nums; }
 .ds-247420 #ds-article-host .toc a { color: var(--panel-text-2); text-decoration: none; transition: color .12s ease; }
 .ds-247420 #ds-article-host .toc a:hover { color: var(--panel-accent); }
-.ds-247420 #ds-article-host.has-toc > :not(.toc) { grid-column: 2; min-width: 0; }
+.ds-247420 #ds-article-host.has-toc > .article-col > * { min-width: 0; }
 @media (max-width: 900px) {
   .ds-247420 #ds-article-host.has-toc { display: block; }
+  .ds-247420 #ds-article-host.has-toc > .article-col { max-width: 100%; }
   .ds-247420 #ds-article-host.has-toc > .toc {
     position: static;
     max-height: none;
