@@ -2,6 +2,8 @@
 .gm/
 node_modules/
 .plugkit-browser-profile/
+.env
+.env.*
 # >>> gm managed (do not edit between markers)
 .gm-stop-verified
 .gm/prd-state.json
