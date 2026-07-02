@@ -37,15 +37,45 @@ function* walk(dir) {
   }
 }
 
+// Blanks out `//` line-comment content (replacing with spaces, keeping
+// newlines and length so reported line numbers stay accurate) before the
+// bracket-matching pass below. Without this, an apostrophe inside ANY
+// comment anywhere in the file (e.g. "the kit's own") is read as opening a
+// string literal by the naive scanner, silently corrupting bracket-depth
+// tracking for the rest of the file - a false positive here, or worse, a
+// false NEGATIVE that hides a real missing .filter(Boolean) elsewhere.
+// Comments living inside actual string/template literals (rare, but a `//`
+// can appear in a URL string) are left alone via the same inStr tracking.
+function stripLineComments(src) {
+  const out = src.split('');
+  let inStr = null;
+  for (let i = 0; i < out.length; i++) {
+    const c = out[i];
+    if (inStr) {
+      if (c === '\\') { i++; continue; }
+      if (c === inStr) inStr = null;
+      continue;
+    }
+    if (c === "'" || c === '"' || c === '`') { inStr = c; continue; }
+    if (c === '/' && out[i + 1] === '/') {
+      let j = i;
+      while (j < out.length && out[j] !== '\n') out[j++] = ' ';
+      i = j - 1;
+    }
+  }
+  return out.join('');
+}
+
 function findViolations(src) {
+  const scan = stripLineComments(src);
   const out = [];
-  for (let i = 0; i < src.length; i++) {
-    if (src[i] !== '[') continue;
+  for (let i = 0; i < scan.length; i++) {
+    if (scan[i] !== '[') continue;
     // bracket-match this array literal, tracking element-level segments
     let depth = 0, j = i, inStr = null, elemStart = i + 1;
     const elems = [];
-    for (; j < src.length; j++) {
-      const c = src[j];
+    for (; j < scan.length; j++) {
+      const c = scan[j];
       if (inStr) {
         if (c === '\\') j++;
         else if (c === inStr) inStr = null;
@@ -55,11 +85,11 @@ function findViolations(src) {
       if (c === '[' || c === '(' || c === '{') depth++;
       else if (c === ']' || c === ')' || c === '}') {
         depth--;
-        if (depth === 0 && c === ']') { elems.push(src.slice(elemStart, j)); break; }
-      } else if (c === ',' && depth === 1) { elems.push(src.slice(elemStart, j)); elemStart = j + 1; }
+        if (depth === 0 && c === ']') { elems.push(scan.slice(elemStart, j)); break; }
+      } else if (c === ',' && depth === 1) { elems.push(scan.slice(elemStart, j)); elemStart = j + 1; }
     }
-    if (j >= src.length) continue;
-    const after = src.slice(j + 1, j + 24);
+    if (j >= scan.length) continue;
+    const after = scan.slice(j + 1, j + 24);
     if (/^\s*\.filter\(/.test(after)) continue;
     const hasVnode = elems.some((e) => /(^|\s|\(|,)(h\(|[A-Z][A-Za-z0-9]*\()/.test(e.trim()));
     // conditional-child tail: the ELEMENT itself ends in `: null` or `? ... : null`

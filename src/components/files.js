@@ -44,7 +44,7 @@ export function FileIcon({ type = 'other' } = {}) {
 
 // Default action set for FileRow. A host without mutation endpoints passes a
 // narrower `actions` list (e.g. ['download']) so the row renders no dead controls.
-const FILE_ROW_ACTIONS = ['download', 'rename', 'delete'];
+const FILE_ROW_ACTIONS = ['download', 'rename', 'move', 'delete'];
 
 export function FileRow({ name, type = 'other', size, modified, code, onOpen, onAction, active, key, permissions, locked,
                           actions = FILE_ROW_ACTIONS, busy = false, selectable = false, marked = false, onMark } = {}) {
@@ -81,6 +81,11 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
             ? actBtn('download', 'download', `download ${name}`, 'arrow-down', false) : null,
         actions.indexOf('rename') !== -1
             ? actBtn('rename', 'rename', `rename ${name}`, 'pencil', false) : null,
+        // Single-file move used to require checkbox-select + BulkBar - a
+        // per-row affordance matches fsbrowse and the kit rename/delete rows
+        // already on this row (no reason move alone needed a select detour).
+        actions.indexOf('move') !== -1
+            ? actBtn('move', 'move', `move ${name}`, 'arrow-right', false) : null,
         actions.indexOf('delete') !== -1
             ? actBtn('delete', 'delete', `delete ${name}`, 'x', true) : null,
     ].filter(Boolean) : [];
