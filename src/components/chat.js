@@ -8,6 +8,12 @@ import { isDegraded as isMarkdownDegraded } from '../markdown.js';
 import { register } from '../debug.js';
 import { Icon } from './shell.js';
 import { fmtFileSize } from './files.js';
+import { EmojiPicker } from './overlay-primitives.js';
+
+// Matches a trailing `:keyword` at the end of the composer draft (optionally
+// preceded by whitespace/start-of-string) so typing `:smile` opens an inline
+// filtered EmojiPicker without requiring the toolbar button or Ctrl+;.
+const EMOJI_TRIGGER_RE = /(?:^|\s)(:([a-zA-Z0-9_+-]{0,24}))$/;
 
 const h = webjsx.createElement;
 let _stats = { messages: 0, lastKindCounts: {} };
@@ -447,6 +453,24 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
         if (!v || disabled) return;
         if (onSend) onSend(v);
     };
+    const triggerMatch = EMOJI_TRIGGER_RE.exec(value || '');
+    // taEl is only assigned by taRef during DOM diffing, which happens AFTER
+    // this render function returns — so on first paint of a trigger it is
+    // still null here. Fall back to the live DOM textarea from the previous
+    // paint (same composer, content patched in place) so the picker anchors
+    // near the input instead of the viewport origin.
+    const anchorEl = taEl || (typeof document !== 'undefined' ? document.querySelector('.chat-composer textarea') : null);
+    const insertEmoji = (ch) => {
+        const v = (taEl && taEl.value) || value || '';
+        const m = EMOJI_TRIGGER_RE.exec(v);
+        const next = m ? (v.slice(0, m.index) + (m[0].startsWith(':') ? '' : v[m.index]) + ch + ' ') : (v + ch);
+        if (onInput) onInput(next);
+        if (taEl) {
+            taEl.value = next;
+            taEl.focus();
+            taEl.selectionStart = taEl.selectionEnd = next.length;
+        }
+    };
     let autoGrowScheduled = false;
     const autoGrow = (e) => {
         const ta = e.target;
@@ -517,6 +541,14 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
         }, joined);
     }
     const hasDraft = !!(value && value.trim());
+    const triggerPicker = triggerMatch ? EmojiPicker({
+        open: true,
+        anchorX: (anchorEl && anchorEl.getBoundingClientRect) ? anchorEl.getBoundingClientRect().left : 0,
+        anchorY: (anchorEl && anchorEl.getBoundingClientRect) ? anchorEl.getBoundingClientRect().top : 0,
+        query: triggerMatch[2] || '',
+        onSelect: (ch) => insertEmoji(ch),
+        onClose: () => { if (taEl) { const v = taEl.value.replace(EMOJI_TRIGGER_RE, (full, tail) => full.slice(0, full.length - tail.length)); if (onInput) onInput(v); taEl.value = v; taEl.focus(); } },
+    }) : null;
     return h('div', {
         class: 'chat-composer' + (hasDraft ? ' has-draft' : '') + (disabled ? ' is-disabled' : ''),
         // A drop on the composer must NEVER navigate the browser away from the
@@ -535,6 +567,7 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
         },
     },
         contextLine,
+        triggerPicker,
         h('textarea', { ref: taRef, placeholder, rows: 1,
             'aria-label': label || (disabled && disabledReason ? 'message input — ' + disabledReason : 'message input'),
             disabled: !!disabled, 'aria-disabled': disabled ? 'true' : null,

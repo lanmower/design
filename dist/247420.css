@@ -1129,7 +1129,7 @@
 .ds-247420 .row.rail-green::before,
 .ds-247420 .row.rail-purple::before,
 .ds-247420 .row.rail-flame::before { height: 56%; opacity: 1; }
-.ds-247420 .row.rail-green::before  { background: var(--accent); }
+.ds-247420 .row.rail-green::before  { background: var(--accent-ink); }
 .ds-247420 .row.rail-purple::before { background: var(--purple-2); }
 .ds-247420 .row.rail-flame::before  { background: var(--flame); }
 /* Differentiate the rail by SHAPE, not hue alone (color-blind safety): error
@@ -3849,7 +3849,7 @@
 /* Crumb band is the top chrome of the content column: a stable height so the
    top edge aligns with the rail head, and a left gutter matching .ws-main so
    the trail text is not flush against the rail border. */
-.ds-247420 .ws-crumb { flex: 0 0 auto; min-height: 48px; padding: 0 var(--space-5); display: flex; align-items: center; gap: var(--space-1); border-bottom: var(--bw-hair) solid var(--bg-3); }
+.ds-247420 .ws-crumb { flex: 0 0 auto; min-height: calc(var(--app-crumb-h) + var(--space-3)); padding: 0 var(--space-5); display: flex; align-items: center; gap: var(--space-1); border-bottom: var(--bw-hair) solid var(--bg-3); }
 .ds-247420 .ws-crumb-main { flex: 1 1 auto; min-width: 0; }
 /* Content column gutter. Claude-Code-class calm: file grid / dashboard / event
    list / history get a generous, consistent inner gutter instead of butting
@@ -4044,6 +4044,7 @@
 /* Disabled file actions (read-only row / in-flight mutation) stay visible but inert. */
 .ds-247420 .ds-file-act:disabled { opacity: .45; cursor: default; }
 .ds-247420 .ds-file-act:disabled:hover { background: transparent; color: var(--fg-3); }
+.ds-247420 .ds-file-act:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /* ============================================================
    Print — linearize WorkspaceShell so main content prints in full.
@@ -5939,7 +5940,7 @@
 /* Live: a persistent faint concentric ring (resting shape channel, independent
    of motion) with the pulse layered on top — so even at the pulse trough the
    disc reads as solid-fill + ring, never a bare solid that aliases stale. */
-.ds-247420 .status-dot-disc.status-dot-live { background: var(--accent); box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 30%, transparent); animation: status-disc-pulse 1.8s ease-in-out infinite; }
+.ds-247420 .status-dot-disc.status-dot-live { background: var(--accent-ink); box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-ink) 30%, transparent); animation: status-disc-pulse 1.8s ease-in-out infinite; }
 .ds-247420 .status-dot-disc.status-dot-error { background: var(--flame); box-shadow: 0 0 0 1.5px color-mix(in oklab, var(--flame) 38%, transparent); }
 .ds-247420 .status-dot-disc.status-dot-connecting { background: transparent; box-shadow: inset 0 0 0 2px var(--amber); }
 /* Stale: a muted ring with a hollow centre — silhouette distinct from live's
@@ -5977,7 +5978,7 @@
 .ds-247420 .ds-session-new:hover { background: var(--bg-2); color: var(--fg); }
 /* Rail filter uses the shared .ds-search-input primitive (provides bg/border/
    radius/focus-ring); only the rail layout + touch floor live here. */
-.ds-247420 .ds-session-head .ds-search-input { order: 1; flex: 1 1 auto; min-width: 0; }
+.ds-247420 .ds-session-head .ds-search-input { order: 1; flex: 1 1 auto; min-width: 0; min-height: 36px; padding: 0 10px; }
 .ds-247420 .ds-session-new:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* Touch floor (must FOLLOW the base rules - same specificity, order decides). */
 @media (pointer: coarse) {
@@ -5989,7 +5990,7 @@
    label sticks to the top of the scroll area for Claude-Desktop-style headers. */
 .ds-247420 .ds-session-group { display: flex; flex-direction: column; }
 .ds-247420 .ds-session-group-rows { display: flex; flex-direction: column; gap: 2px; }
-.ds-247420 .ds-session-group-label { position: sticky; top: 0; z-index: 1; background: var(--bg-1, var(--bg)); font-size: var(--fs-tiny); font-weight: 600; color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-caps); padding: var(--space-2) var(--space-2) var(--space-1); }
+.ds-247420 .ds-session-group-label { position: sticky; top: 0; z-index: 1; background: var(--bg-1, var(--bg)); font-size: var(--fs-xs); font-weight: 600; color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-caps); padding: var(--space-2) var(--space-2) var(--space-1); }
 .ds-247420 .ds-session-row {
   position: relative; display: flex; align-items: center; gap: var(--space-2);
   width: 100%; padding: var(--space-2); min-height: 52px; margin-bottom: 2px;
@@ -6004,7 +6005,7 @@
 }
 /* Rail tones MUST match .row.rail-* in app-shell.css so the same semantic state
    reads as one colour across the conversation list and content rows. */
-.ds-247420 .ds-session-row.rail-green::before { background: var(--accent); }
+.ds-247420 .ds-session-row.rail-green::before { background: var(--accent-ink); }
 .ds-247420 .ds-session-row.rail-purple::before { background: var(--purple-2); }
 .ds-247420 .ds-session-row.rail-flame::before { background: var(--flame); }
 .ds-247420 .ds-session-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
@@ -6067,8 +6068,8 @@
 ---------------------------------------------------------------------------- */
 .ds-247420 .ds-context { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-3); }
 .ds-247420 .ds-context .panel { background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-2); }
-.ds-247420 .ds-context .row .meta { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-2); }
-.ds-247420 .ds-context .row .sub { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ds-247420 .ds-context .row .meta { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-2); }
+.ds-247420 .ds-context .row .sub { font-size: var(--fs-xs); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-247420 .ds-context-actions { display: flex; gap: var(--space-2); }
 
 /* ============================================================================
@@ -6090,7 +6091,7 @@
   opacity: 0; transition: opacity var(--dur-snap, .12s) var(--ease, ease);
 }
 .ds-247420 .chat-code-block:hover .chat-code-copy, .ds-247420 .chat-code-block:focus-within .chat-code-copy { opacity: 1; }
-.ds-247420 .chat-code-copy.is-copied { color: var(--accent); border-color: var(--accent); }
+.ds-247420 .chat-code-copy.is-copied { color: var(--accent-ink); border-color: var(--accent); }
 .ds-247420 .chat-code-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; opacity: 1; }
 /* Head-placed copy (structured CodeNode + FilePreviewCode) is always visible. */
 .ds-247420 .chat-code-head .spread { flex: 1; }
@@ -6137,7 +6138,7 @@
 
 /* --- C1: stale/idle dashboard status (static, NOT pulsing). --- */
 .ds-247420 .ds-dash-status.is-stale { color: var(--stale); }
-.ds-247420 .ds-dash-status.is-running { color: var(--accent); }
+.ds-247420 .ds-dash-status.is-running { color: var(--accent-ink); }
 
 /* --- C2: dashboard sort/filter toolbar + stream-state line. --- */
 /* The toolbar is part of the ONE header row (count | heartbeat ... filter,
@@ -6153,7 +6154,7 @@
   width: auto; border-radius: var(--r-1);
 }
 .ds-247420 .ds-dash-stream { font-size: var(--fs-tiny); color: var(--fg-3); }
-.ds-247420 .ds-dash-stream.is-connected { color: var(--accent); }
+.ds-247420 .ds-dash-stream.is-connected { color: var(--accent-ink); }
 .ds-247420 .ds-dash-stream.is-lost { color: var(--flame); }
 .ds-247420 .ds-dash-stream.is-connecting { color: var(--amber); }
 .ds-247420 .ds-dash-header .spread { flex: 1; }
@@ -6172,7 +6173,7 @@
   border: none; background: none; color: var(--fg-3);
   font-family: var(--ff-mono); font-size: var(--fs-sm);
 }
-.ds-247420 .ds-dash-select[aria-checked="true"] { color: var(--accent); }
+.ds-247420 .ds-dash-select[aria-checked="true"] { color: var(--accent-ink); }
 .ds-247420 .ds-dash-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /* --- C5: active dashboard card (current conversation). --- */
@@ -6336,7 +6337,7 @@
 
 /* Dashboard: shared session title heading (same string as the rails). */
 .ds-247420 .ds-dash-title {
-  font-size: var(--fs-body); font-weight: 600; color: var(--fg);
+  font-size: var(--fs-sm); font-weight: 600; color: var(--fg);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
@@ -6370,7 +6371,7 @@
 .ds-247420 .chat-msg-flat .chat-stack { max-width: var(--measure); width: 100%; margin: 0; align-items: stretch; }
 .ds-247420 .chat-msg-flat.you .chat-stack { align-items: stretch; }
 .ds-247420 .chat-role { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); margin-bottom: var(--space-1); }
-.ds-247420 .chat-msg-flat.you .chat-role { color: var(--accent); }
+.ds-247420 .chat-msg-flat.you .chat-role { color: var(--accent-ink); }
 .ds-247420 .chat-msg-flat .chat-bubble { background: none; border: none; border-radius: 0; padding: 0; max-width: 100%; box-shadow: none; transform: none; }
 .ds-247420 .chat-msg-flat.you .chat-bubble { background: none; color: inherit; }
 /* Flat user turns reset their bubble to transparent, but the messenger rule
@@ -6443,7 +6444,7 @@
   padding: 2px var(--space-2); border-radius: var(--r-pill);
   background: color-mix(in oklab, var(--fg) 6%, transparent);
 }
-.ds-247420 .chat-msg .chat-tool.tool-running .chat-tool-status { color: var(--accent); background: color-mix(in oklab, var(--accent) 12%, transparent); }
+.ds-247420 .chat-msg .chat-tool.tool-running .chat-tool-status { color: var(--accent-ink); background: color-mix(in oklab, var(--accent) 12%, transparent); }
 .ds-247420 .chat-msg .chat-tool.tool-error .chat-tool-status { color: var(--flame); background: color-mix(in oklab, var(--flame) 12%, transparent); }
 /* Completed tool: a positive (success) tone so done reads distinctly from the
    neutral pill and from the accent-toned running pill (--success = green-2). */
@@ -6508,7 +6509,7 @@
    shape, not hue alone. CSS-drawn discs, not glyphs (glyph policy clean). */
 .ds-247420 .ds-dash-breakdown .seg { display: inline-flex; align-items: center; gap: var(--space-1); font-weight: 600; }
 .ds-247420 .ds-dash-breakdown .seg::before { content: ''; width: 7px; height: 7px; border-radius: 50%; flex: none; }
-.ds-247420 .ds-dash-breakdown .seg.is-running { color: var(--accent); }
+.ds-247420 .ds-dash-breakdown .seg.is-running { color: var(--accent-ink); }
 .ds-247420 .ds-dash-breakdown .seg.is-running::before { background: var(--accent); box-shadow: 0 0 0 1.5px color-mix(in oklab, var(--accent) 30%, transparent); }
 .ds-247420 .ds-dash-breakdown .seg.is-error { color: var(--flame); }
 .ds-247420 .ds-dash-breakdown .seg.is-error::before { background: var(--flame); box-shadow: 0 0 0 1.5px color-mix(in oklab, var(--flame) 38%, transparent); }

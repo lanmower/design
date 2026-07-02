@@ -375,14 +375,38 @@ export function CommandPalette({ open, items = [], onSelect, onClose } = {}) {
 // per-emoji <button> labels below. This is intentional product content, not
 // decorative chrome.
 const EMOJI_CATEGORIES = [
-    { id: 'smileys', label: '😀', emoji: ['😀','😁','😂','🤣','😊','😍','😘','😎','🤔','😅','😉','🙂','😇','🥳','😴','🤩','😜','😢','😭','😡','😱','🥺','😤','😬'] },
-    { id: 'gestures', label: '👍', emoji: ['👍','👎','👌','✌️','🤞','🙏','👏','🙌','💪','👀','🤝','✋','🤙','👋','🤟','☝️'] },
-    { id: 'hearts', label: '❤️', emoji: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','💔','💕','💖','💗'] },
-    { id: 'symbols', label: '✅', emoji: ['🔥','💯','✅','❌','⭐','🎉','🎊','✨','💡','⚡','💢','💀','🚀','🏆'] },
+    { id: 'smileys', label: '😀', emoji: [
+        ['😀', 'grinning smile'], ['😁', 'grinning smile happy'], ['😂', 'joy tears laugh'], ['🤣', 'rofl laugh'],
+        ['😊', 'smile blush happy'], ['😍', 'heart eyes love'], ['😘', 'kiss'], ['😎', 'cool sunglasses'],
+        ['🤔', 'thinking'], ['😅', 'sweat smile'], ['😉', 'wink'], ['🙂', 'smile slight'],
+        ['😇', 'angel innocent'], ['🥳', 'party'], ['😴', 'sleep'], ['🤩', 'starstruck'],
+        ['😜', 'wink tongue'], ['😢', 'cry sad'], ['😭', 'sob cry'], ['😡', 'angry mad'],
+        ['😱', 'scream shock'], ['🥺', 'pleading'], ['😤', 'huff'], ['😬', 'grimace'],
+    ] },
+    { id: 'gestures', label: '👍', emoji: [
+        ['👍', 'thumbsup yes good'], ['👎', 'thumbsdown no bad'], ['👌', 'ok'], ['✌️', 'peace'],
+        ['🤞', 'fingers crossed'], ['🙏', 'pray thanks'], ['👏', 'clap'], ['🙌', 'raised hands'],
+        ['💪', 'muscle strong'], ['👀', 'eyes look'], ['🤝', 'handshake'], ['✋', 'hand stop'],
+        ['🤙', 'call'], ['👋', 'wave hi bye'], ['🤟', 'love you'], ['☝️', 'point up'],
+    ] },
+    { id: 'hearts', label: '❤️', emoji: [
+        ['❤️', 'heart love red'], ['🧡', 'heart orange'], ['💛', 'heart yellow'], ['💚', 'heart green'],
+        ['💙', 'heart blue'], ['💜', 'heart purple'], ['🖤', 'heart black'], ['🤍', 'heart white'],
+        ['💔', 'broken heart'], ['💕', 'hearts'], ['💖', 'sparkling heart'], ['💗', 'growing heart'],
+    ] },
+    { id: 'symbols', label: '✅', emoji: [
+        ['🔥', 'fire lit'], ['💯', 'hundred'], ['✅', 'check yes done'], ['❌', 'cross no'],
+        ['⭐', 'star'], ['🎉', 'party tada'], ['🎊', 'confetti'], ['✨', 'sparkles'],
+        ['💡', 'idea lightbulb'], ['⚡', 'zap lightning'], ['💢', 'anger'], ['💀', 'skull dead'],
+        ['🚀', 'rocket launch'], ['🏆', 'trophy win'],
+    ] },
 ];
+const ALL_EMOJI = EMOJI_CATEGORIES.flatMap((c) => c.emoji);
 
 // EmojiPicker — fixed popover near (anchorX, anchorY) with category tabs + grid.
-export function EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose } = {}) {
+// `query`, when non-empty, filters across all categories by name/keyword
+// substring match (case-insensitive) instead of showing the active tab.
+export function EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose, query = '' } = {}) {
     if (!open) return null;
     let cat = EMOJI_CATEGORIES[0].id;
     let rootEl = null, gridEl = null;
@@ -390,12 +414,15 @@ export function EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose 
 
     const renderGrid = () => {
         if (!gridEl) return;
-        const c = EMOJI_CATEGORIES.find(x => x.id === cat) || EMOJI_CATEGORIES[0];
+        const q = (query || '').trim().toLowerCase();
+        const cells = q
+            ? ALL_EMOJI.filter(([, name]) => name.toLowerCase().includes(q))
+            : (EMOJI_CATEGORIES.find(x => x.id === cat) || EMOJI_CATEGORIES[0]).emoji;
         webjsx.applyDiff(gridEl, h('div', { class: 'ov-emoji-grid-inner' },
-            ...c.emoji.map((ch) => h('button', {
-                type: 'button', class: 'ov-emoji-cell', 'aria-label': ch,
+            cells.length ? cells.map(([ch, name]) => h('button', {
+                type: 'button', class: 'ov-emoji-cell', 'aria-label': name || ch, title: name || ch,
                 onclick: () => { if (onSelect) onSelect(ch); },
-            }, ch))));
+            }, ch)) : h('div', { class: 'ov-emoji-empty' }, 'no emoji found')));
     };
 
     const tabNavKey = (e) => {
@@ -420,7 +447,7 @@ export function EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose 
             el._ovEmojiCleanup = _anchoredOverlayLifecycle(el, { anchorX, anchorY, fallbackW: 260, fallbackH: 240, close });
         },
     },
-        h('div', { class: 'ov-emoji-tabs', role: 'tablist' },
+        (query || '').trim() ? null : h('div', { class: 'ov-emoji-tabs', role: 'tablist' },
             ...EMOJI_CATEGORIES.map((c) => h('button', {
                 type: 'button', class: 'ov-emoji-tab', role: 'tab',
                 'aria-selected': c.id === cat ? 'true' : 'false',

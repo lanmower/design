@@ -629,7 +629,7 @@ a.row:hover .meta, .row[role="button"]:hover .meta { color: var(--accent-ink); t
 .row.rail-green::before,
 .row.rail-purple::before,
 .row.rail-flame::before { height: 56%; opacity: 1; }
-.row.rail-green::before  { background: var(--accent); }
+.row.rail-green::before  { background: var(--accent-ink); }
 .row.rail-purple::before { background: var(--purple-2); }
 .row.rail-flame::before  { background: var(--flame); }
 /* Differentiate the rail by SHAPE, not hue alone (color-blind safety): error
@@ -3358,7 +3358,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 /* Crumb band is the top chrome of the content column: a stable height so the
    top edge aligns with the rail head, and a left gutter matching .ws-main so
    the trail text is not flush against the rail border. */
-.ws-crumb { flex: 0 0 auto; min-height: 48px; padding: 0 var(--space-5); display: flex; align-items: center; gap: var(--space-1); border-bottom: var(--bw-hair) solid var(--bg-3); }
+.ws-crumb { flex: 0 0 auto; min-height: calc(var(--app-crumb-h) + var(--space-3)); padding: 0 var(--space-5); display: flex; align-items: center; gap: var(--space-1); border-bottom: var(--bw-hair) solid var(--bg-3); }
 .ws-crumb-main { flex: 1 1 auto; min-width: 0; }
 /* Content column gutter. Claude-Code-class calm: file grid / dashboard / event
    list / history get a generous, consistent inner gutter instead of butting
@@ -3553,6 +3553,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 /* Disabled file actions (read-only row / in-flight mutation) stay visible but inert. */
 .ds-file-act:disabled { opacity: .45; cursor: default; }
 .ds-file-act:disabled:hover { background: transparent; color: var(--fg-3); }
+.ds-file-act:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /* ============================================================
    Print — linearize WorkspaceShell so main content prints in full.
