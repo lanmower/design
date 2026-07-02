@@ -261,7 +261,15 @@ export function AgentChat(props = {}) {
     if (!isStreaming && msgHasBody(m)) {
       const built = [];
       if (onCopyMessage) built.push({ label: 'copy', icon: 'copy', title: 'copy message', onClick: () => onCopyMessage(m) });
-      if (isAssistant && onRetryMessage && i === lastIdx) built.push({ label: 'retry', icon: 'refresh', title: 'retry this turn', onClick: () => onRetryMessage(m) });
+      // Mid-thread retry: EVERY settled assistant turn gets a retry action,
+      // not only the trailing one - the host truncates from that turn's
+      // position and resends (the same mechanism edit-and-resend uses for
+      // user messages), so any assistant reply the user was unhappy with can
+      // be redone without discarding turns that came after a LATER one.
+      if (isAssistant && onRetryMessage) built.push({ label: 'retry', icon: 'refresh', title: 'retry this turn', onClick: () => onRetryMessage(m) });
+      // A dangling user message (send failed / no reply arrived) can only be
+      // the LAST message when it has no assistant reply - retry here means
+      // "resend as-is", not "redo a specific turn", so stays lastIdx-gated.
       if (!isAssistant && onRetryMessage && i === lastIdx) built.push({ label: 'retry', icon: 'refresh', title: 'retry', onClick: () => onRetryMessage(m) });
       // With confirmEdit the host arms its own confirm affordance (onArmEdit)
       // instead of resending immediately; the kit stays stateless either way.
