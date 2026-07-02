@@ -234,6 +234,7 @@ export function AgentChat(props = {}) {
           if (part.text && part.text.indexOf('```') !== -1) parts.push({ kind: 'text', text: part.text, mdShell: true, preShell: true });
           else parts.push({ kind: 'text', text: part.text, mdShell: true });
         }
+        else if (!isStreaming && part.kind === 'thinking') parts.push({ kind: 'thinking', settled: true, text: part.text });
         else parts.push(part);
       }
     }
@@ -245,6 +246,15 @@ export function AgentChat(props = {}) {
     // The streaming caret rides the live assistant turn once it has body (the
     // empty-shell turn already shows the inline typing dots).
     const streaming = isStreaming && msgHasBody(m);
+    // Place the caret inline inside the last text/md part rather than as a
+    // sibling span (which renders as a block below the last bubble). Tag the
+    // last text part so PART_RENDERERS.text can append it as an inline child.
+    if (streaming && parts.length) {
+      const lastPart = parts[parts.length - 1];
+      if (lastPart && (lastPart.kind === 'text' || lastPart.kind === 'md')) {
+        parts[parts.length - 1] = { ...lastPart, streamingCaret: true };
+      }
+    }
     // Per-message actions: the host supplies onCopyMessage / onRetryMessage; we
     // build the action row only for SETTLED messages (no actions mid-stream).
     let actions;
@@ -252,6 +262,7 @@ export function AgentChat(props = {}) {
       const built = [];
       if (onCopyMessage) built.push({ label: 'copy', icon: 'copy', title: 'copy message', onClick: () => onCopyMessage(m) });
       if (isAssistant && onRetryMessage && i === lastIdx) built.push({ label: 'retry', icon: 'refresh', title: 'retry this turn', onClick: () => onRetryMessage(m) });
+      if (!isAssistant && onRetryMessage && i === lastIdx) built.push({ label: 'retry', icon: 'refresh', title: 'retry', onClick: () => onRetryMessage(m) });
       // With confirmEdit the host arms its own confirm affordance (onArmEdit)
       // instead of resending immediately; the kit stays stateless either way.
       if (!isAssistant && onEditMessage) built.push({ label: 'edit', icon: 'pencil', title: 'edit and resend',
@@ -317,7 +328,7 @@ export function AgentChat(props = {}) {
   // code / cowork surface these after a turn, not only on an empty thread). Shown
   // only when not busy and the last message is an assistant turn with body.
   const followupRow = (!busy && followups && followups.length && lastMsg && lastMsg.role === 'assistant' && msgHasBody(lastMsg))
-    ? h('div', { class: 'agentchat-followups', role: 'group', 'aria-label': 'suggested follow-ups' },
+    ? h('div', { class: 'agentchat-followups', role: 'group', 'aria-label': 'suggested follow-ups', 'aria-hidden': 'true' },
         ...followups.map((s, i) => h('button', {
           key: 'fu' + i, type: 'button', class: 'agentchat-empty-suggestion agentchat-followup',
           onclick: () => { const t = typeof s === 'string' ? s : (s.prompt || s.text || ''); if (onFollowupClick) onFollowupClick(t); else if (onSuggestionClick) onSuggestionClick(t); },
@@ -376,8 +387,8 @@ export function AgentChat(props = {}) {
              onEdit: onCwdEdit, onSave: onCwdSave, onCancel: onCwdCancel, onClear: onCwdClear, onDraft: onCwdDraft }),
     ...(banners || []).filter(Boolean),
     h('div', { class: 'agentchat-head' },
-      h('h2', { class: 'agentchat-title' }, name + (selectedModel ? ' · ' + selectedModel : '')),
-      h('span', { class: 'agentchat-sub', 'aria-live': 'polite' },
+      h('h1', { class: 'agentchat-title' }, name + (selectedModel ? ' · ' + selectedModel : '')),
+      h('span', { class: 'agentchat-sub', 'aria-hidden': busy ? 'true' : null },
         // Derive the busy label from the same status prop the controls use, so a
         // reconnecting-while-streaming state reads one word everywhere instead of
         // the head saying "streaming…" while the controls say "reconnecting…".

@@ -3331,6 +3331,8 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ws-rail-item.active { background: var(--accent-tint); color: var(--fg); box-shadow: inset 2px 0 0 var(--accent); }
 .ws-rail-item-label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
 .ws-rail-item-count { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); }
+.ws-rail-item-flag { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+.ws-rail-item-flag.tone-flame { background: var(--flame); box-shadow: 0 0 0 2px color-mix(in oklab, var(--flame) 38%, transparent); }
 .ws-rail-foot { margin-top: auto; padding-top: var(--space-2); border-top: var(--bw-hair) solid var(--bg-3); }
 
 /* Collapsed rail: icon-only — hide text labels, center icons, drop toggle's far-right pin */
@@ -3551,3 +3553,19 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 /* Disabled file actions (read-only row / in-flight mutation) stay visible but inert. */
 .ds-file-act:disabled { opacity: .45; cursor: default; }
 .ds-file-act:disabled:hover { background: transparent; color: var(--fg-3); }
+
+/* ============================================================
+   Print — linearize WorkspaceShell so main content prints in full.
+   The multi-column CSS grid with overflow:auto regions clips at
+   the on-screen height in print/PDF; drop all chrome and let
+   .ws-main expand to its natural document height.
+   ============================================================ */
+@media print {
+  .ws-shell { display: block; }
+  .ws-rail,
+  .ws-sessions,
+  .ws-pane,
+  .ws-crumb,
+  .app-status { display: none; }
+  .ws-main { overflow: visible; height: auto; }
+}

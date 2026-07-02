@@ -548,6 +548,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   width: auto; border-radius: var(--r-1);
 }
 .ds-dash-stream { font-size: var(--fs-tiny); color: var(--fg-3); }
+.ds-dash-stream.is-connected { color: var(--accent); }
 .ds-dash-stream.is-lost { color: var(--flame); }
 .ds-dash-stream.is-connecting { color: var(--amber); }
 .ds-dash-header .spread { flex: 1; }
@@ -576,6 +577,8 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
    agent is flagged in a dense grid, not merely faded near-invisibly. The word
    'idle' co-carries state, so this stays colour-blind safe. */
 .ds-dash-card.is-stale { box-shadow: inset 2px 0 0 var(--stale); }
+/* Active identity always wins over stale amber when both classes are present. */
+.ds-dash-card.is-active.is-stale { box-shadow: inset 2px 0 0 var(--accent); }
 
 /* --- H3: dashboard live disc pulses; stale/error do not (handled by H1). --- */
 

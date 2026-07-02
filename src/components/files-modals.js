@@ -6,7 +6,14 @@ import { fileGlyph, fmtFileSize } from './files.js';
 import { highlightAllUnder } from '../highlight.js';
 const h = webjsx.createElement;
 
-// Monotonic id source for aria-labelledby wiring between a modal and its head.
+// Stable per-call-site id source for aria-labelledby: we want one fixed id per
+// logical dialog instance (rename, confirm, prompt, preview), NOT a monotonic
+// counter that advances on every render and leaves the old aria-labelledby
+// reference dangling. A WeakMap keyed on the options object would not survive
+// re-renders, so we use a short random suffix minted ONCE per Modal() call
+// inside the function body — the closure keeps it stable for that render tree.
+// _modalSeq is retained only for external callers that may import it; it is no
+// longer used internally.
 let _modalSeq = 0;
 
 function Backdrop({ onClose, children, kind = '', labelledBy, busy = false } = {}) {
@@ -19,13 +26,6 @@ function Backdrop({ onClose, children, kind = '', labelledBy, busy = false } = {
         const modal = el.querySelector('.ds-modal');
         if (!modal) return;
 
-        // Focus trap: handle Tab key to cycle focus within modal
-        const focusables = modal.querySelectorAll(
-            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        );
-        const firstFocusable = focusables[0];
-        const lastFocusable = focusables[focusables.length - 1];
-
         const handleKeydown = (e) => {
             // Escape closes the modal — unless a mutation is in flight (the live
             // busy state is read off the data-busy attribute, which re-renders;
@@ -36,12 +36,19 @@ function Backdrop({ onClose, children, kind = '', labelledBy, busy = false } = {
                 if (onClose) onClose();
                 return;
             }
-            // Tab trapping
+            // Focus trap: re-query focusables on each Tab press so that buttons
+            // disabled mid-flight (busy state) are excluded from the cycle and
+            // do not break tab navigation.
             if (e.key === 'Tab') {
+                const focusables = modal.querySelectorAll(
+                    'button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                );
                 if (focusables.length === 0) {
                     e.preventDefault();
                     return;
                 }
+                const firstFocusable = focusables[0];
+                const lastFocusable = focusables[focusables.length - 1];
                 if (e.shiftKey) {
                     if (document.activeElement === firstFocusable) {
                         e.preventDefault();
@@ -127,7 +134,11 @@ function Backdrop({ onClose, children, kind = '', labelledBy, busy = false } = {
 function Modal({ onClose, kind = '', head, headClass = '', headAttrs = {}, body, bodyClass = 'ds-modal-body', bodyAttrs = {}, actions, busy = false } = {}) {
     // Give the head a stable id so the dialog can point aria-labelledby at it,
     // exposing the title as the dialog's accessible name to screen readers.
-    const headId = head != null ? ('ds-modal-head-' + (++_modalSeq)) : null;
+    // The id is minted once per Modal() call with a short random suffix so it
+    // stays constant across re-renders of the same dialog instance — an
+    // incrementing counter advances on every render, leaving the previous
+    // aria-labelledby reference pointing at a now-absent element.
+    const headId = head != null ? ('ds-modal-head-' + Math.random().toString(36).slice(2, 8)) : null;
     return Backdrop({
         onClose,
         kind,

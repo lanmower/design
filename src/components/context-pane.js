@@ -8,13 +8,17 @@
 //   ContextPane({ agent, model, cwd, toolCount, onSetCwd })
 //
 // Props:
-//   agent     : display name of the active agent (string) or falsy for "none"
-//   model     : model id/name (string) or falsy
-//   cwd       : the chat working directory (string) or falsy for server default
-//   toolCount : number of tool calls running in the current live turn (>=0)
-//   usage     : OPTIONAL last-turn usage { inputTokens, outputTokens, costUsd, turns, durationMs }
-//   session   : OPTIONAL whole-conversation totals { turns, cost } shown as a block
-//   onSetCwd  : optional callback for the "set working directory" affordance
+//   agent      : display name of the active agent (string) or falsy for "none"
+//   model      : model id/name (string) or falsy
+//   cwd        : the chat working directory (string) or falsy for server default
+//   toolCount  : number of tool calls running in the current live turn (>=0)
+//   usage      : OPTIONAL last-turn usage { inputTokens, outputTokens, costUsd, turns, durationMs }
+//   session    : OPTIONAL whole-conversation totals { turns, cost } shown as a block
+//   recentFiles: OPTIONAL [{ path, time }] files touched by tool calls this
+//                session (most-recent first), rendered as a compact panel -
+//                Claude Desktop's context surfaces recently-touched files.
+//   onSetCwd   : optional callback for the "set working directory" affordance
+//   onOpenFile : optional callback(path) for clicking a recent-files row
 //
 // No decorative glyphs — words + the kit's Icon SVGs only.
 
@@ -32,7 +36,7 @@ function fmtTok(n) {
     return (n / 1000000).toFixed(1) + 'M';
 }
 
-export function ContextPane({ agent, model, cwd, toolCount = 0, usage, session, onSetCwd } = {}) {
+export function ContextPane({ agent, model, cwd, toolCount = 0, usage, session, recentFiles, onSetCwd, onOpenFile } = {}) {
     const running = Number(toolCount) > 0;
     const hasUsage = usage && (usage.inputTokens != null || usage.outputTokens != null || usage.costUsd != null);
     const hasSession = session && (session.turns != null || session.cost != null);
@@ -92,6 +96,17 @@ export function ContextPane({ agent, model, cwd, toolCount = 0, usage, session, 
         // One duration vocabulary kit-wide: shared fmtDuration (s -> m -> h).
         if (usage.durationMs != null) tokRows.push(Row({ title: 'duration', meta: fmtDuration(usage.durationMs) }));
         panels.push(Panel({ title: 'last turn', children: tokRows }));
+    }
+    // Recent files: files touched by tool calls this session, most-recent
+    // first, capped to 5 rows so the panel stays a glance not a log.
+    if (Array.isArray(recentFiles) && recentFiles.length) {
+        const fileRows = recentFiles.slice(0, 5).map((f) => Row({
+            title: f.path.split(/[/\\]/).filter(Boolean).pop() || f.path,
+            sub: f.path,
+            meta: f.time || undefined,
+            onClick: onOpenFile ? () => onOpenFile(f.path) : undefined,
+        }));
+        panels.push(Panel({ title: 'recent files', children: fileRows }));
     }
     // The cwd action lives on the working-dir row above; no floating footer button.
     return h('div', { class: 'ds-context' }, ...panels);

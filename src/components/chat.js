@@ -256,6 +256,12 @@ function ToolCallNode(p) {
 }
 
 function ThinkingNode(p) {
+    if (p.settled) {
+        return h('details', { class: 'chat-bubble chat-thinking-settled' },
+            h('summary', {}, 'View thinking'),
+            h('div', { class: 'chat-thinking-body' }, p.text)
+        );
+    }
     return h('div', { class: 'chat-bubble chat-thinking', role: 'status', 'aria-live': 'polite' },
         h('span', { class: 'chat-thinking-dots', 'aria-hidden': 'true' }, h('span'), h('span'), h('span')),
         h('span', { class: 'chat-thinking-text' }, p.text || 'thinking…')
@@ -271,8 +277,11 @@ const PART_RENDERERS = {
         // the tail-window path ('streaming · N KB so far').
         ? h('div', { class: 'chat-bubble chat-md chat-stream-pre' },
             ...[p.streamHead ? h('div', { key: 'sh', class: 'chat-stream-head', role: 'status', 'aria-live': 'polite' }, p.streamHead) : null,
-               h('pre', { key: 'pre' }, h('code', {}, p.text || ''))].filter(Boolean))
-        : h('div', { class: 'chat-bubble' + (p.mdShell ? ' chat-md' : '') }, ...renderInline(p.text || '')),
+               h('pre', { key: 'pre' }, h('code', {}, p.text || '')),
+               p.streamingCaret ? h('span', { key: '_caret', class: 'chat-stream-caret', 'aria-hidden': 'true' }) : null].filter(Boolean))
+        : h('div', { class: 'chat-bubble' + (p.mdShell ? ' chat-md' : '') },
+            ...renderInline(p.text || ''),
+            p.streamingCaret ? h('span', { key: '_caret', class: 'chat-stream-caret', 'aria-hidden': 'true' }) : null),
     md:    (p) => MdNode(p),
     code:  (p) => CodeNode(p),
     tool:        (p) => ToolCallNode(p),
@@ -354,7 +363,10 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     // AND already shows content (so the inline typing dots have stopped), append
     // a thin caret so the live edge reads as "still writing", not "done". Drawn as
     // a CSS element, not a glyph character.
-    if (streaming && !typing) bodyNodes = [...bodyNodes, h('span', { key: '_caret', class: 'chat-stream-caret', 'aria-hidden': 'true' })];
+    // Only append the caret as a sibling if the last part did not already embed
+    // it inline (streamingCaret flag on the last text/md part in parts array).
+    const lastPartHasCaret = parts && parts.length && parts[parts.length - 1] && parts[parts.length - 1].streamingCaret;
+    if (streaming && !typing && !lastPartHasCaret) bodyNodes = [...bodyNodes, h('span', { key: '_caret', class: 'chat-stream-caret', 'aria-hidden': 'true' })];
     // Out-of-band turn notices, plain copy in a NEUTRAL tone (not error red):
     //   stopped    — the turn was cancelled (locally or remotely); truncated
     //                output must not read as a finished answer.
@@ -424,7 +436,7 @@ function flashComposerNote(composerEl, text) {
     note._dsNoteTimer = setTimeout(() => { note.remove(); }, 2600);
 }
 
-export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu, onCancel, busy, placeholder = 'message…', disabled, context, onPasteFiles, onDropFiles }) {
+export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu, onCancel, busy, placeholder = 'message…', disabled, disabledReason, label, context, onPasteFiles, onDropFiles }) {
     // Keep a handle to the live textarea so send() reads the actual DOM value
     // (not the possibly-lagging `value` prop) and so we can sync the DOM value
     // only when it genuinely differs — re-applying `value` on every parent
@@ -495,7 +507,7 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
             }, b.text));
             else kids.push(h('span', { key: 'cbit' + i, class: 'chat-composer-context-text' }, b.text));
         });
-        contextLine = h('div', { class: 'chat-composer-context' }, ...kids);
+        contextLine = h('div', { class: 'chat-composer-context', role: 'group', 'aria-label': 'active session: ' + ctxBits.map((b) => b.text).join(', ') }, ...kids);
     } else if (ctxBits.length) {
         const joined = ctxBits.map((b) => b.text).join(' · ');
         contextLine = h(context.onClick ? 'button' : 'div', {
@@ -506,7 +518,7 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
     }
     const hasDraft = !!(value && value.trim());
     return h('div', {
-        class: 'chat-composer' + (hasDraft ? ' has-draft' : ''),
+        class: 'chat-composer' + (hasDraft ? ' has-draft' : '') + (disabled ? ' is-disabled' : ''),
         // A drop on the composer must NEVER navigate the browser away from the
         // live session: preventDefault on both dragover and drop, route files to
         // the optional onDropFiles handler, ring via .dragover.
@@ -523,23 +535,26 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
         },
     },
         contextLine,
-        h('textarea', { ref: taRef, placeholder, rows: 1, 'aria-label': 'message input',
+        h('textarea', { ref: taRef, placeholder, rows: 1,
+            'aria-label': label || (disabled && disabledReason ? 'message input — ' + disabledReason : 'message input'),
             disabled: !!disabled, 'aria-disabled': disabled ? 'true' : null,
             oninput: autoGrow,
             onpaste: (e) => {
                 const cd = e.clipboardData;
-                // Image/file clipboard data with no accompanying text: never
-                // silently dropped — route to onPasteFiles or tell the user.
-                if (cd && cd.files && cd.files.length && !cd.getData('text')) {
+                // If the clipboard contains files, always route them — even when
+                // text is also present (some apps attach a filename as text).
+                if (cd && cd.files && cd.files.length) {
                     e.preventDefault();
                     if (onPasteFiles) onPasteFiles(cd.files);
                     else flashComposerNote(e.currentTarget.closest('.chat-composer'), 'images are not supported yet');
                 }
             },
             onkeydown: (e) => {
-                // Escape stops generation (the stop button's "(Esc)" title is
-                // now truthful) before falling through to any host blur handling.
-                if (e.key === 'Escape' && busy && onCancel) { e.preventDefault(); onCancel(e); return; }
+                // Escape blurs the textarea when idle; stops generation when busy.
+                if (e.key === 'Escape') {
+                    if (!busy) { e.currentTarget.blur(); return; }
+                    if (onCancel) { e.preventDefault(); onCancel(e); return; }
+                }
                 // IME guard: the Enter that commits a CJK composition must never
                 // send (isComposing; keyCode 229 covers older engines).
                 if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); send(); }
@@ -555,7 +570,9 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
             onMenu ? h('button', { type: 'button', class: 'composer-btn', onclick: (e) => { e.preventDefault(); onMenu(e); }, 'aria-label': 'composer menu', title: 'more options' }, Icon('more-horizontal')) : null,
             busy && onCancel
                 ? h('button', { type: 'button', class: 'send cancel', onclick: (e) => { e.preventDefault(); onCancel(e); }, 'aria-label': 'stop generating', title: 'stop generating (Esc)' }, Icon('square'))
-                : h('button', { type: 'button', class: 'send', disabled: disabled || !(value && value.trim()), onclick: send, 'aria-label': 'send message', title: 'send message (Enter)' }, Icon('arrow-up'))
+                : h('button', { type: 'button', class: 'send', disabled: disabled || !(value && value.trim()), onclick: send,
+                    'aria-label': disabled && disabledReason ? 'send message (' + disabledReason + ')' : 'send message',
+                    title: disabled && disabledReason ? 'send message (' + disabledReason + ')' : 'send message (Enter)' }, Icon('arrow-up'))
         )
     );
 }

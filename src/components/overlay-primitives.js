@@ -132,6 +132,7 @@ export function Popover({ open, anchorEl, onClose, placement = 'bottom-start', c
     const el = document.createElement('div');
     el.className = 'ds-popover';
     el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
     if (ariaLabel) el.setAttribute('aria-label', ariaLabel);
     el.tabIndex = -1;
     document.body.appendChild(el);
@@ -246,7 +247,7 @@ function _clampToViewport(x, y, w, h, margin = CLAMP_MARGIN) {
 
 // Tab focus trap for a dialog root — keeps Tab/Shift+Tab cycling inside `el`.
 // Call from an onkeydown handler; returns true if it handled the event.
-function _trapTab(el, e) {
+export function trapTab(el, e) {
     if (e.key !== 'Tab') return false;
     const nodes = el.querySelectorAll(FOCUSABLE_SEL);
     if (!nodes.length) { e.preventDefault(); return true; }
@@ -299,6 +300,7 @@ export function CommandPalette({ open, items = [], onSelect, onClose } = {}) {
             const hint = it.hint != null ? it.hint : (it.shortcut != null ? it.shortcut : null);
             out.push(h('button', {
                 type: 'button', role: 'option',
+                id: 'ov-cmd-item-' + idx,
                 'data-idx': String(idx),
                 'aria-selected': idx === active ? 'true' : 'false',
                 class: 'ov-cmd-item' + (idx === active ? ' is-active' : ''),
@@ -330,6 +332,7 @@ export function CommandPalette({ open, items = [], onSelect, onClose } = {}) {
             filtered.length ? rowsFor(filtered) : h('div', { class: 'ov-cmd-empty' }, 'No results')));
         const sel = listEl.querySelector('.ov-cmd-item.is-active');
         if (sel && sel.scrollIntoView) sel.scrollIntoView({ block: 'nearest' });
+        if (inputEl) inputEl.setAttribute('aria-activedescendant', filtered.length ? 'ov-cmd-item-' + active : '');
     };
 
     const onKey = (e) => {
@@ -349,11 +352,15 @@ export function CommandPalette({ open, items = [], onSelect, onClose } = {}) {
             });
         },
     },
-        h('div', { class: 'ov-cmd-panel', role: 'dialog', 'aria-label': 'Command palette', onkeydown: onKey },
+        h('div', { class: 'ov-cmd-panel', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Command palette', onkeydown: onKey },
             h('input', {
                 type: 'text', class: 'ov-cmd-input', placeholder: 'Type a command…',
                 'aria-label': 'command search',
+                role: 'combobox',
+                'aria-autocomplete': 'list',
+                'aria-expanded': 'true',
                 'aria-controls': 'ov-cmd-list',
+                'aria-activedescendant': '',
                 oninput: (e) => { filterText = e.target.value; active = 0; renderInner(); },
                 ref: (el) => { if (!el || el._ovCmdIn) return; el._ovCmdIn = true; inputEl = el; queueMicrotask(() => el.focus()); },
             }),
@@ -391,10 +398,22 @@ export function EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose 
             }, ch))));
     };
 
+    const tabNavKey = (e) => {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        const tabs = rootEl ? [...rootEl.querySelectorAll('.ov-emoji-tab')] : [];
+        if (!tabs.length) return;
+        const idx = tabs.indexOf(document.activeElement);
+        if (idx < 0) return;
+        e.preventDefault();
+        const next = e.key === 'ArrowRight' ? (idx + 1) % tabs.length : (idx - 1 + tabs.length) % tabs.length;
+        tabs[next].focus();
+        tabs[next].click();
+    };
+
     return h('div', {
-        class: 'ov-emoji-root', role: 'dialog', 'aria-label': 'Emoji picker',
+        class: 'ov-emoji-root', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Emoji picker',
         tabindex: '-1',
-        onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); return; } if (rootEl) _trapTab(rootEl, e); },
+        onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); return; } tabNavKey(e); if (rootEl) trapTab(rootEl, e); },
         ref: (el) => {
             if (!el) { if (rootEl && rootEl._ovEmojiCleanup) rootEl._ovEmojiCleanup(); return; }
             if (el._ovEmoji) return; el._ovEmoji = true; rootEl = el;
@@ -405,6 +424,7 @@ export function EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose 
             ...EMOJI_CATEGORIES.map((c) => h('button', {
                 type: 'button', class: 'ov-emoji-tab', role: 'tab',
                 'aria-selected': c.id === cat ? 'true' : 'false',
+                'aria-controls': 'ov-emoji-panel',
                 onclick: (e) => {
                     cat = c.id;
                     const tabs = rootEl.querySelectorAll('.ov-emoji-tab');
@@ -413,7 +433,9 @@ export function EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose 
                     renderGrid();
                 },
             }, c.label))),
-        h('div', { class: 'ov-emoji-grid',
+        h('div', {
+            class: 'ov-emoji-grid', id: 'ov-emoji-panel', role: 'tabpanel',
+            'aria-label': EMOJI_CATEGORIES.find(c => c.id === cat)?.label || EMOJI_CATEGORIES[0].label,
             ref: (el) => { if (!el) return; gridEl = el; queueMicrotask(renderGrid); } })
     );
 }
@@ -495,8 +517,8 @@ export function SettingsPopover({ title = 'Settings', open, anchorX = 0, anchorY
     };
 
     return h('div', {
-        class: 'ov-set-root', role: 'dialog', 'aria-label': String(title), tabindex: '-1',
-        onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); return; } if (rootEl) _trapTab(rootEl, e); },
+        class: 'ov-set-root', role: 'dialog', 'aria-modal': 'true', 'aria-label': String(title), tabindex: '-1',
+        onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); return; } if (rootEl) trapTab(rootEl, e); },
         ref: (el) => {
             if (!el) { if (rootEl && rootEl._ovSetCleanup) rootEl._ovSetCleanup(); return; }
             if (el._ovSet) return; el._ovSet = true; rootEl = el;
@@ -570,15 +592,31 @@ export function AuthModal({ mode = 'extension', error = '', busy = false, open =
                 h('h2', { class: 'ov-auth-title' }, 'Sign in'),
                 h('button', { type: 'button', class: 'ov-auth-x', 'aria-label': 'close', onclick: close }, Icon('x'))
             ),
-            h('div', { class: 'ov-auth-tabs', role: 'tablist' },
+            h('div', { class: 'ov-auth-tabs', role: 'tablist',
+                onkeydown: (e) => {
+                    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+                    const panel = e.currentTarget.closest('.ov-auth-panel');
+                    const tabs = panel ? [...panel.querySelectorAll('.ov-auth-tab')] : [];
+                    if (!tabs.length) return;
+                    const idx = tabs.indexOf(document.activeElement);
+                    if (idx < 0) return;
+                    e.preventDefault();
+                    const next = e.key === 'ArrowRight' ? (idx + 1) % tabs.length : (idx - 1 + tabs.length) % tabs.length;
+                    tabs[next].focus();
+                    onModeChange && onModeChange(modes[next].id);
+                },
+            },
                 ...modes.map(m => h('button', {
                     type: 'button', role: 'tab', key: 'am-' + m.id,
+                    id: 'ov-auth-tab-' + m.id,
                     class: 'ov-auth-tab' + (m.id === mode ? ' is-active' : ''),
                     'aria-selected': m.id === mode ? 'true' : 'false',
+                    'aria-controls': 'ov-auth-panel',
                     onclick: () => onModeChange && onModeChange(m.id),
                 }, m.label))
             ),
-            h('div', { class: 'ov-auth-body' }, ...body()),
+            h('div', { class: 'ov-auth-body', id: 'ov-auth-panel', role: 'tabpanel',
+                'aria-labelledby': 'ov-auth-tab-' + mode }, ...body()),
             error ? h('div', { class: 'ov-auth-error', role: 'alert' }, String(error)) : null
         )
     );

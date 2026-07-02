@@ -1299,6 +1299,10 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   cursor: not-allowed;
   background: color-mix(in oklab, var(--fg) 25%, transparent);
 }
+.ds-247420 .chat-composer.is-disabled {
+  opacity: .55;
+  pointer-events: none;
+}
 
 .ds-247420 .ds-icon { --ds-icon-stroke: 1.7; }
 

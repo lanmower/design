@@ -36,14 +36,16 @@ export function ConversationList({ sessions = [], selected, groups, search, capt
                                    onSelect, onNew, newLabel = 'New chat',
                                    emptyText = 'No conversations yet', loading = false, error = null,
                                    loadingText = 'Loading conversations…' } = {}) {
-  const rowFor = (s, i) => h('button', {
+  const rowFor = (s, i) => h('div', {
     // Stable key: prefer sid, else position - a missing/duplicate sid would make
     // key undefined and crash webjsx applyDiff ("reading 'key'" of undefined).
     key: 'cs-' + (s.sid != null ? s.sid : 'i' + i),
-    type: 'button',
+    role: 'option',
+    tabindex: s.sid === selected ? '0' : '-1',
     class: 'ds-session-row' + (s.sid === selected ? ' active' : '') + (s.rail ? ' rail-' + s.rail : ''),
-    'aria-current': s.sid === selected ? 'true' : null,
+    'aria-selected': s.sid === selected ? 'true' : 'false',
     onclick: () => onSelect && onSelect(s),
+    onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect && onSelect(s); } },
   },
     // Positional children must NOT mix keyed VElements with null/strings (webjsx
     // applyDiff crashes "reading 'key'"). Keep these unkeyed and filter nulls so
@@ -57,7 +59,14 @@ export function ConversationList({ sessions = [], selected, groups, search, capt
     ].filter(Boolean)),
     h('span', { class: 'ds-session-meta' }, [
       s.agent ? h('span', { class: 'ds-session-agent' }, s.agent) : null,
-      s.running
+      // Optional richer status ('error'|'stale'|'running'|'stopping') mirrors the
+      // SessionCard STATUS_DISC mapping used on the Live dashboard, so a session
+      // pinned to a "Running" rail group reads the same stuck-vs-busy signal it
+      // does there rather than only a boolean live dot. Falls back to the plain
+      // running dot when no status is supplied (existing callers unaffected).
+      s.status
+        ? h('span', { class: 'status-dot-disc ' + (STATUS_DISC[s.status] || 'status-dot-live'), 'aria-label': STATUS_WORD[s.status] || s.status, role: 'img' })
+        : s.running
         ? h('span', { class: 'status-dot-disc status-dot-live', 'aria-label': 'running', role: 'img' })
         : (s.unread ? h('span', { class: 'ds-session-unread', 'aria-label': 'new activity', role: 'img' }) : null),
     ].filter(Boolean)));
@@ -84,11 +93,11 @@ export function ConversationList({ sessions = [], selected, groups, search, capt
     const bySid = new Map(sessions.map((s) => [s.sid, s]));
     inner = groups.map((g) => h('div', { key: 'g-' + g.label, class: 'ds-session-group', role: 'group', 'aria-label': g.label },
       h('div', { key: 'gl', class: 'ds-session-group-label' }, g.label),
-      h('div', { key: 'gr', class: 'ds-session-group-rows', role: 'list' }, ...g.sids.map((sid) => bySid.get(sid)).filter(Boolean).map(rowFor))));
+      h('div', { key: 'gr', class: 'ds-session-group-rows', role: 'listbox', 'aria-label': g.label }, ...g.sids.map((sid) => bySid.get(sid)).filter(Boolean).map(rowFor))));
   } else {
     inner = sessions.map(rowFor);
   }
-  const body = h('div', { key: 'body', class: 'ds-session-list', role: 'list' }, ...inner);
+  const body = h('div', { key: 'body', class: 'ds-session-list', role: 'listbox', 'aria-label': caption || 'Conversations' }, ...inner);
 
   return h('div', { class: 'ds-sessions' },
     h('div', { key: 'head', class: 'ds-session-head' },

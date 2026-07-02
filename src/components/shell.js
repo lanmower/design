@@ -3,6 +3,7 @@
 // webjsx vnode out. CSS in app-shell.css uses these class names.
 
 import * as webjsx from '../../vendor/webjsx/index.js';
+import { trapTab } from './overlay-primitives.js';
 const h = webjsx.createElement;
 
 export function Brand({ name = '247420', leaf } = {}) {
@@ -324,8 +325,12 @@ function toggleWs(which) {
         : which === 'sessions' ? 'ws-sessions-collapsed'
         : 'ws-rail-collapsed';
     const nowCollapsed = shell.classList.toggle(cls);
-    document.querySelectorAll('.ws-' + which + '-toggle').forEach((btn) =>
-        btn.setAttribute('aria-expanded', nowCollapsed ? 'false' : 'true'));
+    document.querySelectorAll('.ws-' + which + '-toggle').forEach((btn) => {
+        btn.setAttribute('aria-expanded', nowCollapsed ? 'false' : 'true');
+        const nextLabel = nowCollapsed ? 'expand ' + which : 'collapse ' + which;
+        btn.setAttribute('aria-label', nextLabel);
+        btn.setAttribute('title', nextLabel);
+    });
     try {
         localStorage.setItem('ds.ws.' + which, nowCollapsed ? 'collapsed' : 'open');
     } catch (_) {}
@@ -416,12 +421,18 @@ function toggleWsDrawer(which, open) {
     if (next) shell.classList.remove(other);
     const btn = document.querySelector('.ws-' + which + '-drawer-toggle');
     if (btn) btn.setAttribute('aria-expanded', next ? 'true' : 'false');
-    // When opening, move focus into the drawer and arm an Esc-to-close once.
+    // When opening, move focus into the drawer, arm an Esc-to-close, and trap
+    // Tab/Shift+Tab inside the drawer (a real focus trap, matching the kit's
+    // own dialogs - Tab from inside an open drawer previously walked focus out
+    // into the scrim/background content behind it).
     if (next) {
         const drawer = shell.querySelector(which === 'pane' ? '.ws-pane' : '.ws-sessions');
         const focusable = drawer && drawer.querySelector('button, a, input, [tabindex]');
         if (focusable) try { focusable.focus(); } catch (_) {}
-        const onKey = (e) => { if (e.key === 'Escape') { toggleWsDrawer(which, false); document.removeEventListener('keydown', onKey); if (btn) try { btn.focus(); } catch (_) {} } };
+        const onKey = (e) => {
+            if (e.key === 'Escape') { toggleWsDrawer(which, false); document.removeEventListener('keydown', onKey); if (btn) try { btn.focus(); } catch (_) {} return; }
+            if (drawer) trapTab(drawer, e);
+        };
         shell._wsEscHandler = onKey;
         document.addEventListener('keydown', onKey);
     }
@@ -474,16 +485,20 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
     // pane, so the shell does not re-flow its column count (4/3/2) on every tab
     // switch - the loudest "separate pages" tell. The track collapses to width 0
     // (ws-pane-collapsed) instead of being removed (ws-no-pane), so chat/history/
-    // files/live/settings all keep the same column geometry.
+    // files/live/settings all keep the same column geometry. The sessions column
+    // gets the identical treatment (ws-sessions-collapsed instead of ws-no-sessions)
+    // so files/live/settings do not shift the main column when sessions is null.
     const keepPaneTrack = stableFrame && !hasPane;
+    const keepSessionsTrack = stableFrame && !hasSessions;
     const railIsCollapsed = wsCollapsed('rail', railCollapsed);
     const paneIsCollapsed = hasPane ? wsCollapsed('pane', paneCollapsed) : true;
-    const sessionsIsCollapsed = wsCollapsed('sessions', false);
+    const sessionsIsCollapsed = hasSessions ? wsCollapsed('sessions', false) : true;
     const shellCls = 'ws-shell'
         + (railIsCollapsed ? ' ws-rail-collapsed' : '')
         + ((hasPane || keepPaneTrack) ? '' : ' ws-no-pane')
         + (((hasPane && paneIsCollapsed) || keepPaneTrack) ? ' ws-pane-collapsed' : '')
-        + (hasSessions ? '' : ' ws-no-sessions')
+        + ((hasSessions || keepSessionsTrack) ? '' : ' ws-no-sessions')
+        + (((hasSessions && sessionsIsCollapsed) || keepSessionsTrack) ? ' ws-sessions-collapsed' : '')
         + (narrow ? ' narrow' : '');
     return h('div', { class: shellCls, ref: seedWsWidths },
         h('a', { href: '#ws-main', class: 'skip-link' }, 'skip to main content'),
@@ -506,7 +521,7 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
         // Optional sessions column. On mobile it is a drawer; selecting a row
         // (any button click inside) auto-closes it, mirroring AppShell.
         hasSessions
-            ? h('div', { class: 'ws-sessions', role: 'complementary', 'aria-label': 'conversations',
+            ? h('div', { id: 'ws-sessions-col', class: 'ws-sessions', role: 'complementary', 'aria-label': 'conversations',
                 onclick: (e) => { if (window.innerWidth <= 1100 && e.target.closest('button, a, [role="button"]')) closeWsDrawers(); } }, sessions)
             : null,
         // Primary content column, with an optional thin crumb bar on top. On
@@ -519,6 +534,7 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
                     hasSessions ? h('button', {
                         class: 'ws-drawer-toggle ws-sessions-drawer-toggle', type: 'button',
                         'aria-label': 'toggle conversations', 'aria-expanded': 'false',
+                        'aria-controls': 'ws-sessions-col',
                         onclick: () => toggleWsDrawer('sessions'),
                     }, Icon('thread')) : null,
                     // Desktop-only sessions collapse (reclaims its width for a
@@ -528,7 +544,7 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
                         'aria-label': sessionsIsCollapsed ? 'expand conversations' : 'collapse conversations',
                         title: sessionsIsCollapsed ? 'expand conversations' : 'collapse conversations',
                         'aria-expanded': sessionsIsCollapsed ? 'false' : 'true', onclick: () => toggleWs('sessions'),
-                    }, Icon('chevron-left')) : null,
+                    }, Icon(sessionsIsCollapsed ? 'chevron-right' : 'chevron-left')) : null,
                     h('div', { class: 'ws-crumb-main' }, crumb),
                     // Desktop-only context-pane collapse, on the same crumb-level
                     // chrome idiom as the sessions toggle. Hidden on mobile via CSS.
@@ -542,6 +558,7 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
                     hasPane ? h('button', {
                         class: 'ws-drawer-toggle ws-pane-drawer-toggle', type: 'button',
                         'aria-label': 'toggle context pane', 'aria-expanded': 'false',
+                        'aria-controls': 'ws-pane-col',
                         onclick: () => toggleWsDrawer('pane'),
                     }, Icon('page')) : null)
                 : null,
@@ -551,13 +568,13 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
         // Optional right context pane. Its desktop collapse toggle now lives in
         // the crumb cluster, alongside the sessions toggle.
         hasPane
-            ? h('aside', { class: 'ws-pane', role: 'complementary', 'aria-label': paneLabel },
+            ? h('aside', { id: 'ws-pane-col', class: 'ws-pane', role: 'complementary', 'aria-label': paneLabel },
                 pane)
             : null,
         // Keyboard/pointer column resize handles (desktop only).
         (!narrow && !railIsCollapsed) ? WsResizer('rail') : null,
-        (!narrow && hasSessions) ? WsResizer('sessions') : null,
-        (!narrow && hasPane && !paneIsCollapsed) ? WsResizer('pane') : null,
+        (!narrow && (hasSessions || keepSessionsTrack) && !sessionsIsCollapsed) ? WsResizer('sessions') : null,
+        (!narrow && (hasPane || keepPaneTrack) && !paneIsCollapsed) ? WsResizer('pane') : null,
     );
 }
 
@@ -568,7 +585,11 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
 //
 //   brand   : short product name shown in the rail header.
 //   action  : { label, icon, onClick } a prominent primary button (New chat).
-//   items   : [{ key, label, icon, active, count, onClick }] nav entries.
+//   items   : [{ key, label, icon, active, count, rail, onClick }] nav entries.
+//             `rail` (optional tone e.g. 'flame') paints an attention dot on the
+//             item — used when something in that surface needs the user's eyes
+//             even though they are looking at a different tab (e.g. a live
+//             session in error while the user is in Chat).
 //   footer  : optional vnode pinned to the rail bottom (e.g. settings/theme).
 export function WorkspaceRail({ brand = '247420', action, items = [], footer } = {}) {
     return h('div', { class: 'ws-rail-inner' },
@@ -585,9 +606,9 @@ export function WorkspaceRail({ brand = '247420', action, items = [], footer } =
             ...items.map((it) => h('li', { key: it.key || it.label, role: 'listitem' },
                 h('button', {
                     type: 'button',
-                    class: 'ws-rail-item' + (it.active ? ' active' : ''),
+                    class: 'ws-rail-item' + (it.active ? ' active' : '') + (it.rail ? ' has-rail-flag' : ''),
                     'aria-current': it.active ? 'page' : null,
-                    'aria-label': it.label + (it.count ? ' (' + it.count + ')' : ''),
+                    'aria-label': it.label + (it.count ? ' (' + it.count + ')' : '') + (it.rail === 'flame' ? ', needs attention' : ''),
                     title: it.label,
                     onclick: it.onClick || null,
                 },
@@ -595,7 +616,8 @@ export function WorkspaceRail({ brand = '247420', action, items = [], footer } =
                     h('span', { class: 'ws-rail-item-label' }, it.label),
                     (it.count != null && it.count !== 0 && it.count !== '0')
                         ? h('span', { class: 'ws-rail-item-count', 'aria-hidden': 'true' }, String(it.count))
-                        : null)))),
+                        : null,
+                    it.rail ? h('span', { class: 'ws-rail-item-flag tone-' + it.rail, 'aria-hidden': 'true' }) : null)))),
         footer ? h('div', { class: 'ws-rail-foot' }, footer) : null,
     );
 }

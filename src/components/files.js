@@ -462,7 +462,7 @@ export function DropZone({ children, dragover, onDrop, onDragOver, onDragLeave, 
     return h('div', {
         class: 'ds-dropzone' + (kids.length ? ' ds-dropzone--wrap' : '') + (dragover ? ' dragover' : ''),
         ondragover: (e) => { e.preventDefault(); onDragOver && onDragOver(e); },
-        ondragleave: (e) => { onDragLeave && onDragLeave(e); },
+        ondragleave: (e) => { if (!e.currentTarget.contains(e.relatedTarget)) { onDragLeave && onDragLeave(e); } },
         ondrop: (e) => { e.preventDefault(); onDrop && onDrop(e.dataTransfer.files); }
     },
         h('div', { class: 'ds-dropzone-inner' },
@@ -498,12 +498,9 @@ export function UploadProgress({ items = [], onDismiss } = {}) {
             return h('div', {
                 key: it.name + i,
                 class: 'ds-upload-item' + (it.done ? ' done' : '') + (it.error ? ' error' : ''),
-                role: 'progressbar',
-                'aria-valuenow': String(Math.max(0, Math.min(100, it.pct || 0))),
-                'aria-valuemin': '0',
-                'aria-valuemax': '100',
+                role: 'status',
                 'aria-label': `${it.name}: ${status}`,
-                'aria-busy': it.done || it.error ? 'false' : 'true'
+                'aria-live': 'polite'
             },
                 h('span', { class: 'ds-upload-name' }, it.name),
                 h('span', { class: 'ds-upload-bar' },
