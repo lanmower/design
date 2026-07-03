@@ -2297,6 +2297,12 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
      leaving the primary input near-invisible at rest - use the strong rule. */
   border: var(--bw-hair) solid var(--rule-strong);
   border-radius: var(--r-2);
+  /* A flat hairline box on a flat background is the single most-repeated
+     "looks unfinished" tell in the chat surface - the one control the user
+     types into every turn had no more visual weight than a settings card.
+     --shadow-1 (already defined kit-wide, just unused here) lifts it a hair
+     off the page at rest; the existing focus-within box-shadow overrides it. */
+  box-shadow: var(--shadow-1);
   flex-shrink: 0;
   transition: border-color var(--dur-snap) var(--ease), box-shadow var(--dur-snap) var(--ease);
 }
@@ -3348,7 +3354,14 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ws-sessions {
   grid-area: sessions;
   min-height: 0; display: flex; flex-direction: column;
-  background: var(--bg); border-right: var(--bw-hair) solid var(--bg-3);
+  /* Rail and pane both sit on --bg-2 (a recessed plane framing the elevated
+     --bg content column); sessions used flat --bg instead, so the
+     conversation list and the chat thread read as the SAME surface with only
+     a 1px hairline between them - the flattest, most "one big beige box"
+     tell in the shell. --bg-2 restores the three-plane depth (rail/sessions
+     recessed either side, content elevated in the middle) the design
+     already establishes everywhere else. */
+  background: var(--bg-2); border-right: var(--bw-hair) solid var(--bg-3);
   overflow: hidden;
 }
 .ws-no-sessions .ws-sessions { display: none; }

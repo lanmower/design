@@ -21,7 +21,7 @@
 //     channelContext(id, x, y), serverContext(id, x, y), switchServer(id),
 //     goHome(), openServers(), memberMenu(id, name, x, y),
 //     replaySegment(id), skipSegment(), pauseQueue(), resumeQueue(),
-//     setInput(v), cancelReply()
+//     setInput(v), startReply(msg), cancelReply(), deleteMessage(id)
 //   }
 //   adapter.helpers = { avatarColor(id), initial(name), formatTime(ts) }
 //
@@ -112,8 +112,8 @@ export function mountCommunityApp(root, adapter = {}) {
     const partsFromMessage = (m) => {
         const parts = [];
         if (m.replyTo) {
-            const who = m.replyTo.username || 'User';
-            const quoted = (m.replyTo.content || '').replace(/\n/g, ' ').slice(0, 120);
+            const who = m.replyTo.username || (m.replyTo.userId && A.resolveProfile && A.resolveProfile(m.replyTo.userId)) || 'User';
+            const quoted = m.replyTo.content ? (m.replyTo.content || '').replace(/\n/g, ' ').slice(0, 120) : '(message unavailable)';
             parts.push({ kind: 'md', text: '> **@' + who + ':** ' + quoted });
         }
         const content = m.content || '';
@@ -138,21 +138,30 @@ export function mountCommunityApp(root, adapter = {}) {
             const username = (A.resolveProfile && A.resolveProfile(m.userId)) || m.username || 'User';
             const isYou = selfId && String(m.userId) === String(selfId);
             const reactions = Array.isArray(m.reactions) ? m.reactions.map(r => ({ emoji: r.emoji, count: r.count != null ? r.count : (r.users ? r.users.length : 1), you: !!(r.you || (r.users && selfId && r.users.includes(selfId))) })) : null;
-            return { key: m.id || ('m' + i), who: isYou ? 'you' : 'them', name: isYou ? null : username, avatar: initial(username), time: formatTime(m.timestamp), parts: partsFromMessage(m), reactions, receipt: isYou && m.read ? 'read' : (isYou && m.delivered ? 'delivered' : null) };
+            const msgActions = [
+                { label: 'reply', title: 'reply to ' + username, icon: 'corner-up-left', onClick: () => A.startReply && A.startReply({ id: m.id, userId: m.userId, username, content: m.content }) },
+                isYou ? { label: 'delete', title: 'delete message', icon: 'trash', onClick: () => A.deleteMessage && A.deleteMessage(m.id) } : null,
+            ].filter(Boolean);
+            return { key: m.id || ('m' + i), who: isYou ? 'you' : 'them', name: isYou ? null : username, avatar: initial(username), time: formatTime(m.timestamp), parts: partsFromMessage(m), reactions, actions: msgActions, receipt: isYou && m.read ? 'read' : (isYou && m.delivered ? 'delivered' : null) };
         });
     };
 
     const chatView = (s) => {
         const ch = s.currentChannel || {};
         const sub = ch.type === 'voice' ? 'voice' : ch.type === 'forum' ? 'forum' : ch.type === 'page' ? 'page' : ch.type === 'announcement' ? 'announcement' : 'public';
+        const rt = s.replyTarget;
+        const replyPreview = rt ? h('div', { class: 'cm-reply-preview', role: 'status' },
+            h('span', { class: 'cm-reply-preview-label' }, 'Replying to ' + (rt.username || 'User')),
+            h('button', { type: 'button', class: 'cm-reply-preview-close', 'aria-label': 'cancel reply', title: 'cancel reply', onclick: (e) => { e.preventDefault(); A.cancelReply && A.cancelReply(); } }, Icon('x', { size: 14 }))
+        ) : null;
         return Chat({
             title: ch.name || 'general', sub, messages: mapMessages(s), header: null,
-            composer: ChatComposer({
+            composer: h('div', { class: 'cm-composer-wrap' }, replyPreview, ChatComposer({
                 value: s.chatInputValue || '',
-                placeholder: 'message #' + (ch.name || 'general') + '…',
+                placeholder: rt ? 'reply to ' + (rt.username || 'User') + '…' : 'message #' + (ch.name || 'general') + '…',
                 onInput: (v) => A.setInput && A.setInput(v),
-                onSend: (v) => { const t = (v || '').trim(); if (t) A.send && A.send(t); },
-            }),
+                onSend: (v) => { const t = (v || '').trim(); if (t) A.send && A.send(t, rt ? { replyTo: rt } : undefined); },
+            })),
         });
     };
 

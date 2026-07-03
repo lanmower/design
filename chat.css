@@ -8,6 +8,14 @@
   min-height: 0;
   flex: 1;
   gap: var(--space-2, 8px);
+  /* The chat tab opts out of .ws-main's padding (mainFlush) so the thread can
+     manage its own --measure centering, but that left every direct child -
+     controls row, heading, empty-state, composer - flush against the column
+     edge with zero gutter (the crumb bar above keeps its own padding, so the
+     content below visibly touched the edge the crumb text did not). A
+     uniform inline gutter here restores breathing room for every row without
+     disturbing --measure centering (it centers within this padded box). */
+  padding-inline: var(--space-5);
 }
 
 /* agent + model picker, new/stop, status — wraps on narrow widths */
@@ -501,6 +509,23 @@
   border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1);
   padding: var(--space-3); background: color-mix(in oklab, var(--fg) 4%, transparent);
 }
+
+/* --- reply-preview banner shown above the composer while replying to a message. --- */
+.cm-composer-wrap { display: flex; flex-direction: column; width: 100%; }
+.cm-reply-preview {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+  padding: var(--space-1) var(--space-3); border-bottom: var(--bw-hair) solid var(--rule);
+  background: color-mix(in oklab, var(--accent) 6%, transparent);
+  font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-2);
+}
+.cm-reply-preview-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cm-reply-preview-close {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none; border: none; color: var(--fg-3); cursor: pointer; padding: var(--space-1);
+  border-radius: var(--r-1); flex: 0 0 auto;
+}
+.cm-reply-preview-close:hover { color: var(--fg); background: color-mix(in oklab, var(--fg) 8%, transparent); }
+.cm-reply-preview-close:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 /* --- A5: composer context line (agent / model / cwd at point of typing). --- */
 .chat-composer-context {
