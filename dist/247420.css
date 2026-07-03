@@ -3996,7 +3996,11 @@
   /* Expand/collapse is meaningless on the icon strip. */
   .ds-247420 .ws-rail-toggle { display: none; }
   .ds-247420 .ws-rail-foot { display: flex; justify-content: center; }
-  .ds-247420 .ws-sessions { inset: 0 auto 0 var(--ws-rail-w-collapsed); }
+  /* The 1100px rule's closed-state translateX(-110%) was sized for left:0;
+     once left shifts to the collapsed rail width, -110% no longer clears the
+     viewport and leaves a sliver of the "closed" drawer visible on screen. */
+  .ds-247420 .ws-sessions { inset: 0 auto 0 var(--ws-rail-w-collapsed); transform: translateX(calc(-100% - var(--ws-rail-w-collapsed))); }
+  .ds-247420 .ws-shell.ws-sessions-open .ws-sessions { transform: translateX(0); }
   .ds-247420 .ws-content { grid-area: content; padding-left: var(--ws-rail-w-collapsed); }
   /* The Crumb's narrow collapse elsewhere keys on the .app @container, which
      does not exist inside WorkspaceShell - mirror it here so the crumb bar
