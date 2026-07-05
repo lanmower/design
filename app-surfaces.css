@@ -221,4 +221,10 @@
   .ds-247420 .app, .ds-247420 .app-main, .ds-247420 .panel, .ds-247420 .chat, .ds-247420 .chat-thread {
     background: var(--paper) !important; color: var(--ink) !important; box-shadow: none !important;
   }
+  /* Community surface: unclamp the fixed-height shell and hide the chrome so a
+     transcript prints as flowing pages instead of one clipped viewport. */
+  .ds-247420 .cm-shell { height: auto; overflow: visible; display: block; }
+  .ds-247420 .cm-server-rail, .ds-247420 .cm-channel-sidebar, .ds-247420 .cm-member-list,
+  .ds-247420 .cm-mobile-header, .ds-247420 .cm-voice-strip { display: none !important; }
+  .ds-247420 .cm-main, .ds-247420 .cm-channel-list { overflow: visible; height: auto; }
 }

@@ -20,14 +20,34 @@ export function renderWindow(opts = {}) {
         callbacks = {},
     } = opts;
 
+    // Keep at least MIN px of the window horizontally inside the container and
+    // the titlebar (BAR px) vertically reachable, so a window can always be
+    // grabbed by pointer (persisted bounds from a larger viewport included).
+    const MIN_VISIBLE = 60;
+    const BAR_H = 36;
+    function clampBounds(b, p) {
+        const pw = p ? p.clientWidth : window.innerWidth;
+        const ph = p ? p.clientHeight : window.innerHeight;
+        const out = { ...b };
+        if (typeof out.w === 'number') out.w = Math.min(out.w, pw);
+        if (typeof out.h === 'number') out.h = Math.min(out.h, ph);
+        if (typeof out.x === 'number') {
+            const w = typeof out.w === 'number' ? out.w : MIN_VISIBLE;
+            out.x = Math.max(MIN_VISIBLE - w, Math.min(out.x, pw - MIN_VISIBLE));
+        }
+        if (typeof out.y === 'number') out.y = Math.max(0, Math.min(out.y, ph - BAR_H));
+        return out;
+    }
+
     const el = document.createElement('div');
     el.className = 'wm-win';
     el.dataset.kind = kind;
     if (instanceId) el.dataset.instanceId = instanceId;
-    el.style.left = bounds.x + 'px';
-    el.style.top = bounds.y + 'px';
-    el.style.width = bounds.w + 'px';
-    el.style.height = bounds.h + 'px';
+    const b0 = clampBounds(bounds, null);
+    el.style.left = b0.x + 'px';
+    el.style.top = b0.y + 'px';
+    el.style.width = b0.w + 'px';
+    el.style.height = b0.h + 'px';
 
     const bar = document.createElement('div');
     bar.className = 'wm-bar';
@@ -90,10 +110,14 @@ export function renderWindow(opts = {}) {
         setTitle(t) { titleEl.textContent = t; },
         setBody(b) { setBodyContent(bodyEl, b); },
         setBounds(b) {
-            if (typeof b.x === 'number') el.style.left = b.x + 'px';
-            if (typeof b.y === 'number') el.style.top = b.y + 'px';
-            if (typeof b.w === 'number') el.style.width = b.w + 'px';
-            if (typeof b.h === 'number') el.style.height = b.h + 'px';
+            const c = clampBounds({
+                ...b,
+                w: typeof b.w === 'number' ? b.w : el.offsetWidth,
+            }, el.offsetParent);
+            if (typeof c.x === 'number') el.style.left = c.x + 'px';
+            if (typeof c.y === 'number') el.style.top = c.y + 'px';
+            if (typeof b.w === 'number') el.style.width = c.w + 'px';
+            if (typeof b.h === 'number') el.style.height = c.h + 'px';
         },
         setFocused(v) { applyFocused(el, v); },
         setMaximized(v) { applyMaximized(el, v); },

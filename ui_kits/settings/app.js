@@ -80,17 +80,17 @@ function DiscardConfirmModal({ onConfirm, onCancel }) {
     const draft = state.draft;
     const timestamp = draft?.timestamp ? new Date(draft.timestamp).toLocaleString() : 'unknown time';
     return h('div', { class: 'ds-modal-backdrop', onclick: (e) => { if (e.target === e.currentTarget) onCancel(); } },
-        h('div', { class: 'ds-modal ds-modal-small', style: 'min-width:320px;max-width:480px' },
+        h('div', { class: 'ds-modal ds-modal-small ds-settings-modal' },
             h('div', { class: 'ds-modal-head' }, 'Discard unsaved changes?'),
-            h('div', { class: 'ds-modal-body', style: 'padding:16px;gap:12px;display:flex;flex-direction:column' },
-                h('p', { style: 'margin:0 0 8px;color:var(--panel-text-2);font-size:14px' }, 'You have unsaved changes. A draft was saved at ' + timestamp + '.'),
-                h('div', { style: 'background:var(--panel-1);padding:12px;border-radius:6px;font-size:13px;color:var(--panel-text-2);max-height:120px;overflow-y:auto;font-family:var(--ff-mono)' },
+            h('div', { class: 'ds-modal-body ds-modal-body-form' },
+                h('p', { class: 'ds-modal-note' }, 'You have unsaved changes. A draft was saved at ' + timestamp + '.'),
+                h('div', { class: 'ds-draft-preview' },
                     'Name: ' + state.name, h('br'), 'Email: ' + state.email, h('br'),
                     draft && draft.theme && draft.theme !== 'auto' ? ['Theme: ' + draft.theme, h('br')] : null
                 ),
-                h('div', { style: 'display:flex;gap:8px;margin-top:12px;justify-content:space-between' },
+                h('div', { class: 'ds-modal-actions' },
                     h('button', { class: 'btn', onclick: () => { restoreDraft(draft); onCancel(); } }, 'Restore draft'),
-                    h('button', { class: 'btn btn-primary danger', style: 'color:var(--warn)', onclick: onConfirm }, 'Discard & continue')
+                    h('button', { class: 'btn btn-primary danger ds-btn-warn', onclick: onConfirm }, 'Discard & continue')
                 )
             )
         )
@@ -98,23 +98,22 @@ function DiscardConfirmModal({ onConfirm, onCancel }) {
 }
 
 function Field({ label, hint, children }) {
-    return h('label', { class: 'ds-field', style: 'display:flex;flex-direction:column;gap:6px;margin:10px 0' },
-        h('span', { style: 'font-family:var(--ff-mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--panel-text-3)' }, label),
+    return h('label', { class: 'ds-field ds-field-block' },
+        h('span', { class: 'ds-field-eyebrow' }, label),
         children,
-        hint ? h('span', { style: 'font-size:12px;color:var(--panel-text-2)' }, hint) : null
+        hint ? h('span', { class: 'ds-hint-sm' }, hint) : null
     );
 }
 
 function Toggle({ on, onChange, label }) {
     return h('button', {
-        class: on ? 'btn btn-primary' : 'btn',
-        style: 'min-width:78px',
+        class: (on ? 'btn btn-primary' : 'btn') + ' ds-toggle-btn',
         onclick: () => { onChange(!on); state.dirty = true; kit.render(); }
-    }, on ? '[x] on' : '[ ] off', label ? h('span', { style: 'margin-left:8px;color:inherit;opacity:0.7' }, label) : null);
+    }, on ? '[x] on' : '[ ] off', label ? h('span', { class: 'ds-toggle-label' }, label) : null);
 }
 
 function Profile() {
-    return Panel({ title: 'profile', style: 'margin:8px 0', children: h('div', { style: 'padding:14px 18px' },
+    return Panel({ title: 'profile', class: 'ds-panel-gap', children: h('div', { class: 'ds-settings-body' },
         Field({ label: 'name', hint: 'shown on commits and PRs.', children:
             h('input', { class: 'input', value: state.name, oninput: (e) => { state.name = e.target.value; state.dirty = true; saveDraft(); kit.render(); } }) }),
         Field({ label: 'email', hint: 'used for git identity. never mailed.', children:
@@ -128,8 +127,8 @@ function Profile() {
 
 function Theme() {
     const opts = [['auto', 'auto'], ['light', 'light'], ['dark', 'dark']];
-    return Panel({ title: 'theme', style: 'margin:8px 0', children: h('div', { style: 'padding:14px 18px' },
-        Field({ label: 'mode', children: h('div', { style: 'display:flex;gap:6px' },
+    return Panel({ title: 'theme', class: 'ds-panel-gap', children: h('div', { class: 'ds-settings-body' },
+        Field({ label: 'mode', children: h('div', { class: 'ds-btn-row ds-btn-row-tight' },
             ...opts.map(([k, l]) => h('button', { key: k,
                 class: state.theme === k ? 'btn btn-primary' : 'btn',
                 onclick: () => { state.theme = k; state.dirty = true; kit.render(); } }, l))
@@ -140,7 +139,7 @@ function Theme() {
 }
 
 function Notify() {
-    return Panel({ title: 'notifications', style: 'margin:8px 0', children: [
+    return Panel({ title: 'notifications', class: 'ds-panel-gap', children: [
         Row({ key: 'n1', code: '@', title: 'mentions',  sub: 'when someone @s you',          meta: h('span', {}, Toggle({ on: state.notify.mentions, onChange: (v) => state.notify.mentions = v })) }),
         Row({ key: 'n2', code: '-', title: 'releases',  sub: 'on every tagged build',        meta: h('span', {}, Toggle({ on: state.notify.releases, onChange: (v) => state.notify.releases = v })) }),
         Row({ key: 'n3', code: '-', title: 'marketing', sub: 'occasional product updates',   meta: h('span', {}, Toggle({ on: state.notify.marketing, onChange: (v) => state.notify.marketing = v })) })
@@ -148,10 +147,10 @@ function Notify() {
 }
 
 function ApiKeys() {
-    return Panel({ title: 'api keys', count: 1, style: 'margin:8px 0', children: h('div', { style: 'padding:14px 18px' },
+    return Panel({ title: 'api keys', count: 1, class: 'ds-panel-gap', children: h('div', { class: 'ds-settings-body' },
         Field({ label: 'production key', hint: 'rotate quarterly.', children:
-            h('div', { style: 'display:flex;gap:8px' },
-                h('input', { class: 'input', value: state.api_key, readonly: true, style: 'flex:1;font-family:var(--ff-mono)' }),
+            h('div', { class: 'ds-btn-row' },
+                h('input', { class: 'input ds-key-input', value: state.api_key, readonly: true }),
                 h('button', { class: 'btn', onclick: () => { navigator.clipboard?.writeText(state.api_key); } }, 'copy'),
                 h('button', { class: 'btn', onclick: () => { state.api_key = 'sk-247420-' + Math.random().toString(36).slice(2, 10) + '-' + Math.random().toString(36).slice(2, 5); state.dirty = true; kit.render(); } }, 'rotate')
             ) })
@@ -159,11 +158,11 @@ function ApiKeys() {
 }
 
 function Danger() {
-    return Panel({ title: 'danger zone', kind: 'danger', style: 'margin:8px 0', children: h('div', { style: 'padding:14px 18px;display:flex;flex-direction:column;gap:10px' },
-        h('p', { style: 'margin:0;color:var(--panel-text-2)' }, 'these actions are permanent.'),
-        h('div', { style: 'display:flex;gap:8px' },
-            h('button', { class: 'btn', style: 'color:var(--mascot)' }, 'export account'),
-            h('button', { class: 'btn', style: 'color:var(--warn)' }, 'delete account')
+    return Panel({ title: 'danger zone', kind: 'danger', class: 'ds-panel-gap', children: h('div', { class: 'ds-settings-body ds-settings-body-stack' },
+        h('p', { class: 'ds-note-quiet' }, 'these actions are permanent.'),
+        h('div', { class: 'ds-btn-row' },
+            h('button', { class: 'btn ds-btn-mascot' }, 'export account'),
+            h('button', { class: 'btn ds-btn-warn' }, 'delete account')
         )
     ) });
 }
@@ -183,7 +182,7 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-section', style: 'padding:8px' },
+            h('div', { class: 'ds-section ds-settings-main' },
                 Heading({ level: 1, children: 'settings' }),
                 Lede({ children: 'every input primitive in one surface — fields, toggles, segmented buttons, danger panel, save bar.' }),
                 view,
@@ -191,8 +190,8 @@ function App() {
                     onCancel: () => { state.showConfirmDiscard = false; kit.render(); },
                     onConfirm: () => { state.dirty = false; clearDraft(); state.showConfirmDiscard = false; kit.render(); }
                 }) : null,
-                state.dirty ? h('div', { style: 'position:sticky;bottom:8px;display:flex;justify-content:flex-end;gap:8px;padding:10px;background:var(--panel-2);border-radius:10px;margin:8px 0' },
-                    h('span', { style: 'flex:1;color:var(--panel-text-2)' }, 'unsaved changes · draft auto-saved'),
+                state.dirty ? h('div', { class: 'ds-savebar' },
+                    h('span', { class: 'ds-savebar-note' }, 'unsaved changes · draft auto-saved'),
                     h('button', { class: 'btn', onclick: () => { state.showConfirmDiscard = true; kit.render(); } }, 'discard'),
                     h('button', { class: 'btn btn-primary', onclick: () => { saveDraft(); state.dirty = false; state.lastSaved = Date.now(); kit.render(); } }, 'save')
                 ) : null

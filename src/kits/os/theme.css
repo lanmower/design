@@ -132,6 +132,11 @@ html, body {
     flex-direction: column;
     gap: 2px;
     pointer-events: auto;
+    /* Long app registries must scroll, not extend past the viewport. */
+    max-height: calc(100vh - var(--os-bar-h) - 16px);
+    max-height: calc(100dvh - var(--os-bar-h) - env(safe-area-inset-top, 0px) - 16px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 .os-menu.open { display: flex; }
 .os-menu .os-btn {
@@ -181,7 +186,10 @@ html, body {
     text-overflow: ellipsis;
     text-transform: lowercase;
 }
+.os-task { min-height: 28px; }
 .os-task:hover { background: var(--panel-hover, var(--os-bg-2)); color: var(--os-fg); }
+/* Empty taskbar reads as an intentional strip, not a stray blurred bar. */
+.os-task-empty { font-size: 11px; color: var(--os-fg-3); padding: 0 10px; font-family: var(--os-font); }
 .os-task.focused {
     background: var(--panel-select, var(--os-accent-soft));
     color: var(--os-fg);
@@ -258,7 +266,8 @@ html, body {
 .os-side-rail {
     position: fixed;
     left: 0; top: var(--os-bar-h); bottom: var(--os-bar-h);
-    width: var(--os-rail-w);
+    padding-left: env(safe-area-inset-left, 0px);
+    width: calc(var(--os-rail-w) + env(safe-area-inset-left, 0px));
     background: var(--os-bg-2);
     border: none;
     display: none;
@@ -323,12 +332,16 @@ html, body {
 .os-drawer-close .ic svg { width: 22px; height: 22px; fill: none; stroke: currentColor; }
 .os-drawer-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(clamp(92px, 24vw, 140px), 1fr));
     gap: var(--space-3, 16px);
     padding: var(--space-3, 16px);
     overflow-y: auto;
     flex: 1;
     align-content: start;
+    max-width: 720px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 .os-drawer-tile {
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2, 8px);
@@ -352,7 +365,7 @@ html, body {
 
 .os-spacer { flex: 1 1 auto; }
 .os-tray { display: flex; align-items: center; gap: 6px; }
-.os-instances { display: flex; gap: 4px; margin-left: 8px; max-width: 280px; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; padding: 0 4px; }
+.os-instances { display: flex; gap: 4px; margin-left: 8px; flex: 0 1 40vw; max-width: 40vw; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; padding: 0 4px; -webkit-mask-image: linear-gradient(to right, transparent, black 12px, black calc(100% - 12px), transparent); mask-image: linear-gradient(to right, transparent, black 12px, black calc(100% - 12px), transparent); }
 .os-instances::-webkit-scrollbar { height: 4px; }
 .os-instances .os-btn { flex: 0 0 auto; min-width: 36px; padding: 2px 8px; font-family: var(--os-mono); font-size: 11px; }
 .os-instances .os-btn.active { background: var(--panel-select, var(--os-accent-soft)); color: var(--os-fg); border-color: var(--panel-accent, var(--os-accent)); box-shadow: inset 0 0 0 1px var(--panel-accent, var(--os-accent)); }
@@ -392,11 +405,11 @@ html, body {
 }
 @media (max-width: 1023px) and (min-width: 768px) {
     .os-side-rail { display: flex; }
-    .wm-root { left: var(--os-rail-w) !important; }
-    .os-menubar { padding-left: calc(var(--os-rail-w) + var(--space-2, 8px)); }
-    .os-taskbar { padding-left: calc(var(--os-rail-w) + var(--space-2, 8px)); }
+    .wm-root { left: calc(var(--os-rail-w) + env(safe-area-inset-left, 0px)) !important; }
+    .os-menubar { padding-left: calc(var(--os-rail-w) + env(safe-area-inset-left, 0px) + var(--space-2, 8px)); }
+    .os-taskbar { padding-left: calc(var(--os-rail-w) + env(safe-area-inset-left, 0px) + var(--space-2, 8px)); }
     .os-menubar .os-instances { display: flex; }
-    .os-menu { left: calc(var(--os-rail-w) + var(--space-2, 8px)); }
+    .os-menu { left: calc(var(--os-rail-w) + env(safe-area-inset-left, 0px) + var(--space-2, 8px)); }
 }
 
 @media (max-width: 767px) {
@@ -404,14 +417,14 @@ html, body {
     body { overscroll-behavior: none; }
     .os-menubar [data-role="home"] { display: inline-flex; min-width: var(--os-tap); min-height: var(--os-tap); padding: 0 12px; }
     .os-menubar [data-role="home"] .ic svg { width: 22px; height: 22px; }
-    .os-menubar { font-size: 14px; padding: 0 8px; padding-top: env(safe-area-inset-top, 0); height: calc(var(--os-bar-h) + env(safe-area-inset-top, 0)); }
+    .os-menubar { font-size: 14px; padding: env(safe-area-inset-top, 0) max(8px, env(safe-area-inset-right, 0px)) 0 max(8px, env(safe-area-inset-left, 0px)); height: calc(var(--os-bar-h) + env(safe-area-inset-top, 0)); }
     .os-menubar [data-role="apps"] { display: none; }
     .os-menubar .os-brand { font-size: 13px; margin-right: 6px; }
     .os-menubar [data-role="add"] { display: none; }
     .os-menubar .os-instances { display: none; }
     .os-clock { display: none; }
     .os-taskbar {
-        padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0));
+        padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0)) max(8px, env(safe-area-inset-left, 0px));
         gap: 6px;
         overflow-x: auto;
         overflow-y: hidden;
@@ -515,6 +528,19 @@ html, body {
 /* Bars overlay windows: .wm-root fills full viewport, menubar/taskbar paint on top.
  * Tilde key hides them via .bars-hidden on <html>. */
 .ds-247420 .wm-root { top: 0 !important; bottom: 0 !important; inset: 0 !important; }
+/* With bars overlaying the wm-root, a maximized window's 34px titlebar would
+ * sit exactly under the 34px menubar (untappable) and its body under the
+ * taskbar; keep maximized windows between the bars on desktop/tablet. The
+ * mobile band re-asserts its own contract in the responsive layer below. */
+@media (min-width: 768px) {
+  .ds-247420 .wm-win.wm-max {
+    top: var(--os-bar-h) !important;
+    height: calc(100% - (var(--os-bar-h) * 2)) !important;
+  }
+}
+/* Instance filtering hides off-instance windows via class, not inline style. */
+.ds-247420 .wm-win.wm-inst-hidden,
+.wm-win.wm-inst-hidden { display: none !important; }
 html.bars-hidden .os-menubar,
 html.bars-hidden .os-taskbar { display: none !important; }
 .ds-247420 .os-task { border-radius: var(--r-pill, 999px); }
@@ -813,7 +839,7 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
 .ds-247420 .cc-toggle { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .4em; padding: .35em .7em; color: var(--fg, inherit); opacity: .75; }
 .ds-247420 .cc-toggle:hover { opacity: 1; }
 .ds-247420 .cc-toggle.cc-open { opacity: 1; font-weight: 600; }
-.ds-247420 .cc-body { padding: .5em .7em .7em; display: flex; flex-direction: column; gap: .5em; max-height: 42vh; overflow: auto; }
+.ds-247420 .cc-body { padding: .5em .7em .7em; display: flex; flex-direction: column; gap: .5em; max-height: 42vh; max-height: 42dvh; overflow: auto; }
 .ds-247420 .cc-body[hidden] { display: none; }
 .ds-247420 .cc-row { display: flex; gap: .6em; flex-wrap: wrap; }
 .ds-247420 .cc-row > .cc-field { flex: 1 1 140px; min-width: 0; }
@@ -1482,7 +1508,7 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   padding: max(12px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px))
            max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
 }
-.ds-247420 .tb-sess-modal { max-height: calc(100svh - 24px); display: flex; flex-direction: column; }
+.ds-247420 .tb-sess-modal { max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); display: flex; flex-direction: column; }
 .ds-247420 .tb-sess-modal-body { overflow-y: auto; min-height: 0; }
 
 /* --- browser-pane: the generic .app-pane 16px prose padding stranded the

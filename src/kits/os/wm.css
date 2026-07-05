@@ -15,6 +15,10 @@
     position: absolute;
     min-width: 200px;
     min-height: 120px;
+    /* Never exceed the .wm-root desktop area — a window sized on a large
+       monitor must stay recoverable when the viewport shrinks. */
+    max-width: 100%;
+    max-height: 100%;
     background: var(--os-bg-1);
     color: var(--os-fg);
     border: none;
@@ -35,6 +39,8 @@
 .wm-bar {
     display: flex;
     align-items: center;
+    min-height: 36px;
+    box-sizing: border-box;
     padding: 8px 12px;
     background: var(--os-bg-2);
     cursor: move;
@@ -70,6 +76,7 @@
     justify-content: center;
     border-radius: var(--os-radius-sm, var(--r-1, 6px));
     transition: background 100ms ease, color 100ms ease;
+    touch-action: manipulation;
 }
 .wm-btn:hover { background: var(--panel-hover, var(--os-bg-1)); color: var(--os-fg); }
 
@@ -135,7 +142,19 @@
     border-radius: 0;
 }
 
-@media (max-width: 767px) {
+/* Touch: lift resize hit-zones and window buttons toward the 44px floor
+   (wm.css must be self-sufficient; theme.css only covers .ds-247420). */
+@media (pointer: coarse) {
+    .wm-edge[data-dir='n'], .wm-edge[data-dir='s'] { height: 20px; }
+    .wm-edge[data-dir='e'], .wm-edge[data-dir='w'] { width: 20px; }
+    .wm-edge[data-dir='ne'], .wm-edge[data-dir='nw'], .wm-edge[data-dir='sw'] { width: 32px; height: 32px; }
+    .wm-resize { width: 32px; height: 32px; }
+    .wm-btn { min-width: 44px; min-height: 44px; }
+}
+
+/* Full-screen windows on phones AND short landscape phones — a width-only
+   query misses 812x375 landscape, which cannot host floating chrome. */
+@media (max-width: 767px), ((max-height: 500px) and (orientation: landscape) and (pointer: coarse)) {
     .wm-win {
         left: 0 !important;
         top: 0 !important;
@@ -145,4 +164,5 @@
         border: none;
     }
     .wm-resize { display: none; }
+    .wm-edge { display: none; }
 }

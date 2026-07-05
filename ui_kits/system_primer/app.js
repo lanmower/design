@@ -48,39 +48,37 @@ const TYPE_SCALE = [
 ];
 
 function Swatch(name, v, big) {
-    return h('div', { class: 'ds-swatch', style: 'display:flex;flex-direction:column;gap:6px' },
-        h('div', {
-            style: 'height:' + (big ? '64px' : '48px') +
-                ';background:' + v +
-                ';border-radius:10px;border:1px solid var(--rule)'
-        }),
-        h('div', { style: 'font-family:var(--ff-mono);font-size:11px;color:var(--fg-3)' }, name)
+    return h('div', { class: 'ds-swatch ds-swatch-col' },
+        // custom-property-only inline: carries the swatch tone, no layout
+        h('div', { class: 'ds-swatch-chip' + (big ? ' ds-swatch-chip--big' : ''), style: '--swatch:' + v }),
+        h('div', { class: 'ds-swatch-name' }, name)
     );
 }
 
 function PaletteGrid() {
-    return Panel({ title: 'lore palette', style: 'margin:8px 0', children:
-        h('div', { style: 'display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;padding:14px 18px' },
+    return Panel({ title: 'lore palette', class: 'ds-panel-gap', children:
+        h('div', { class: 'ds-swatch-grid-sm' },
             ...PALETTE.map(p => Swatch(p.name, p.v, false))
         )
     });
 }
 
 function SemanticGrid() {
-    return Panel({ title: 'semantic tokens — invert with theme', count: '7', style: 'margin:8px 0', children:
-        h('div', { style: 'display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;padding:14px 18px' },
+    return Panel({ title: 'semantic tokens — invert with theme', count: '7', class: 'ds-panel-gap', children:
+        h('div', { class: 'ds-swatch-grid-sm ds-swatch-grid-lg' },
             ...SEMANTIC.map(p => Swatch(p.name, p.v, true))
         )
     });
 }
 
 function TypeScalePanel() {
-    return Panel({ title: 'type scale', style: 'margin:8px 0', children:
-        h('div', { style: 'padding:14px 18px;display:flex;flex-direction:column;gap:14px' },
+    return Panel({ title: 'type scale', class: 'ds-panel-gap', children:
+        h('div', { class: 'ds-type-panel' },
             ...TYPE_SCALE.map(t =>
-                h('div', { style: 'display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--rule);padding-bottom:8px' },
-                    h('span', { style: 'flex:0 0 64px;font-family:var(--ff-mono);font-size:11px;color:var(--fg-3)' }, t.name),
-                    h('div', { class: t.cls, style: 'font-size:' + t.size + ';line-height:var(--lh-tight);color:var(--fg)' }, 'two-four-seven four-twenty')
+                h('div', { class: 'ds-type-row' },
+                    h('span', { class: 'ds-type-row-label' }, t.name),
+                    // custom-property-only inline: picks the sampled size token
+                    h('div', { class: (t.cls ? t.cls + ' ' : '') + 'ds-type-sample', style: '--sample-size:' + t.size }, 'two-four-seven four-twenty')
                 )
             )
         )
@@ -88,22 +86,22 @@ function TypeScalePanel() {
 }
 
 function PrimitivesPanel() {
-    return Panel({ title: 'primitives', style: 'margin:8px 0', children:
-        h('div', { style: 'padding:14px 18px;display:flex;flex-direction:column;gap:18px' },
-            h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;align-items:center' },
-                h('span', { style: 'font-family:var(--ff-mono);font-size:11px;color:var(--fg-3);flex:0 0 64px' }, 'chips'),
+    return Panel({ title: 'primitives', class: 'ds-panel-gap', children:
+        h('div', { class: 'ds-prim-panel' },
+            h('div', { class: 'ds-prim-row' },
+                h('span', { class: 'ds-prim-label' }, 'chips'),
                 Chip({ tone: 'accent', children: 'accent' }),
                 Chip({ tone: 'dim',    children: 'dim' }),
                 Chip({ tone: '',       children: 'plain' })
             ),
-            h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;align-items:center' },
-                h('span', { style: 'font-family:var(--ff-mono);font-size:11px;color:var(--fg-3);flex:0 0 64px' }, 'buttons'),
+            h('div', { class: 'ds-prim-row' },
+                h('span', { class: 'ds-prim-label' }, 'buttons'),
                 Btn({ primary: true, children: 'primary' }),
                 Btn({ children: 'default' }),
                 Btn({ ghost: true, children: 'ghost' })
             ),
-            h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;align-items:center' },
-                h('span', { style: 'font-family:var(--ff-mono);font-size:11px;color:var(--fg-3);flex:0 0 64px' }, 'theme'),
+            h('div', { class: 'ds-prim-row' },
+                h('span', { class: 'ds-prim-label' }, 'theme'),
                 ThemeToggle(),
                 ThemeToggle({ compact: true })
             )
@@ -130,8 +128,8 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-section', style: 'padding:8px' },
-                h('div', { style: 'display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap' },
+            h('div', { class: 'ds-section ds-section-pad' },
+                h('div', { class: 'ds-kit-head' },
                     h('div', {}, Heading({ level: 1, children: 'system primer' })),
                     ThemeToggle()
                 ),

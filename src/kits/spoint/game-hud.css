@@ -12,8 +12,9 @@
 }
 .sp-hud-ammo {
   position: fixed;
-  bottom: 50px;
-  right: 20px;
+  /* Fixed chrome clears notch/home-indicator on cutout devices. */
+  bottom: calc(50px + env(safe-area-inset-bottom, 0px));
+  right: calc(20px + env(safe-area-inset-right, 0px));
   font-size: 24px;
   font-weight: bold;
   color: var(--fg);
@@ -22,7 +23,7 @@
 .sp-hud-ammo-reloading { color: var(--warn); }
 .sp-hud-health {
   position: fixed;
-  bottom: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
   width: 200px;
@@ -49,7 +50,7 @@
 .sp-hud-boost {
   position: fixed;
   top: 80px;
-  right: 20px;
+  right: calc(20px + env(safe-area-inset-right, 0px));
   padding: 8px 16px;
   background: var(--accent);
   color: var(--accent-fg);

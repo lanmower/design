@@ -37,7 +37,7 @@ function Hero() {
     ? hero.ctas.map((c, i) => C.Btn({ key: 'c' + i, href: c.href, primary: c.primary, children: c.label }))
     : null;
   // Editorial Hero — oversized display, asymmetric grid, print grain.
-  return h('div', { class: 'ds-grain', style: 'padding:0 8px' },
+  return h('div', { class: 'ds-grain ds-home-hero-wrap' },
     C.Hero({
       eyebrow: hero.subheading || site.tagline || null,
       title: hero.heading || site.title,
@@ -63,7 +63,7 @@ function Kits() {
   return C.Panel({
     title: home.kits.heading || 'ui kits',
     count: home.kits.count || home.kits.items.length,
-    style: 'margin:8px',
+    class: 'ds-home-panel',
     children: rowsFromItems(home.kits.items, 'k')
   });
 }
@@ -72,7 +72,7 @@ function Decks() {
   if (!home.decks || !home.decks.items || !home.decks.items.length) return null;
   return C.Panel({
     title: home.decks.heading || 'decks',
-    style: 'margin:8px',
+    class: 'ds-home-panel',
     children: rowsFromItems(home.decks.items, 'd')
   });
 }
@@ -82,7 +82,7 @@ function FileBrowser() {
   return C.Panel({
     title: home.file_browser.heading || 'file browser',
     count: home.file_browser.count || home.file_browser.items.length,
-    style: 'margin:8px',
+    class: 'ds-home-panel',
     children: rowsFromItems(home.file_browser.items, 'fb')
   });
 }
@@ -91,7 +91,7 @@ function Docs() {
   if (!home.docs || !home.docs.items || !home.docs.items.length) return null;
   return C.Panel({
     title: home.docs.heading || 'docs',
-    style: 'margin:8px',
+    class: 'ds-home-panel',
     children: rowsFromItems(home.docs.items, 'doc')
   });
 }
@@ -110,7 +110,7 @@ function Previews() {
   return C.Panel({
     title: home.previews.heading || 'previews',
     count: rows.length,
-    style: 'margin:8px',
+    class: 'ds-home-panel',
     children: rows
   });
 }
@@ -127,7 +127,7 @@ function Features() {
   }));
   return C.Panel({
     title: home.features.heading || 'why design',
-    style: 'margin:8px',
+    class: 'ds-home-panel',
     children: rows
   });
 }
@@ -140,8 +140,8 @@ function Quickstart() {
   ));
   return C.Panel({
     title: home.quickstart.heading || 'quick start',
-    style: 'margin:8px',
-    children: h('div', { style: 'padding:16px 22px;display:flex;flex-direction:column;gap:6px' }, ...lineNodes)
+    class: 'ds-home-panel',
+    children: h('div', { class: 'ds-quickstart' }, ...lineNodes)
   });
 }
 
@@ -150,7 +150,7 @@ function DesktopOS() {
   return C.Panel({
     title: home.desktop_os.heading || 'desktop os shell',
     count: home.desktop_os.count || home.desktop_os.items.length,
-    style: 'margin:8px',
+    class: 'ds-home-panel',
     children: rowsFromItems(home.desktop_os.items, 'os')
   });
 }
@@ -160,7 +160,7 @@ function WebComponents() {
   return C.Panel({
     title: home.web_components.heading || 'web components',
     count: home.web_components.count || home.web_components.items.length,
-    style: 'margin:8px',
+    class: 'ds-home-panel',
     children: rowsFromItems(home.web_components.items, 'wc')
   });
 }
@@ -170,7 +170,7 @@ function ApiExports() {
   return C.Panel({
     title: home.api_exports.heading || 'public api',
     count: home.api_exports.count || home.api_exports.items.length,
-    style: 'margin:8px',
+    class: 'ds-home-panel',
     children: rowsFromItems(home.api_exports.items, 'api')
   });
 }
@@ -180,7 +180,7 @@ function Examples() {
   return C.Panel({
     title: home.examples.heading || 'live examples',
     count: home.examples.items.length,
-    style: 'margin:8px',
+    class: 'ds-home-panel',
     children: rowsFromItems(home.examples.items, 'e')
   });
 }
@@ -208,7 +208,7 @@ function buildSide() {
 
 function Tabs() {
   if (!home.tabs || !home.tabs.length) return null;
-  return h('div', { class: 'tabs', role: 'tablist', style: 'margin:8px' },
+  return h('div', { class: 'tabs ds-home-panel', role: 'tablist' },
     ...home.tabs.map((t, i) => h('a', {
       key: 't' + i,
       href: t.href || '#',
@@ -289,11 +289,16 @@ const html = ({ site, nav, home }) => {
       url: 'https://247420.xyz'
     }
   }).replace(/</g, '\\u003c');
+  // No-JS fallback: the page is fully client-rendered into #app, so crawlers
+  // and no-JS users would otherwise get a blank body.
+  const noscriptLinks = (nav && nav.links ? nav.links : [])
+    .map(l => `<a href="${escapeHtml(l.href || '#')}">${escapeHtml(l.label || '')}</a>`)
+    .join('\n      ');
   return `<!DOCTYPE html>
 <html lang="${lang}" class="ds-247420" data-theme="auto">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>${title}</title>
   <meta name="description" content="${desc}" />
   <meta name="keywords" content="${keywords}" />
@@ -345,6 +350,13 @@ const html = ({ site, nav, home }) => {
 </head>
 <body>
   <div id="app"></div>
+  <noscript>
+    <main class="ds-prose">
+      <h1>${title}</h1>
+      <p>${desc}</p>
+      <nav>${noscriptLinks}</nav>
+    </main>
+  </noscript>
   <script type="application/json" id="__site__">${escapeJson({ site, nav, home })}</script>
   <script type="module">${clientScript}</script>
 </body>

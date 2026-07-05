@@ -57,8 +57,7 @@ function App() {
             brand: '247420', leaf: 'search',
             items: [['index', '../../'], ['source ->', 'https://github.com/AnEntrypoint/design']],
             search: h('input', {
-                class: 'input', value: state.q, placeholder: 'search kits, previews, docs, api…',
-                style: 'width:280px',
+                class: 'input ds-topbar-search', value: state.q, placeholder: 'search kits, previews, docs, api…',
                 oninput: (e) => { state.q = e.target.value; kit.render(); }
             })
         }),
@@ -80,17 +79,17 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-section', style: 'padding:8px' },
+            h('div', { class: 'ds-section ds-section-pad' },
                 Heading({ level: 1, children: 'search' }),
                 Lede({ children: 'query bar in the topbar, faceted filters in the sidebar, ranked results in panel rows. same row primitive every other surface uses.' }),
-                rows.length ? Panel({ title: 'results', count: rows.length, style: 'margin:8px 0', children:
+                rows.length ? Panel({ title: 'results', count: rows.length, class: 'ds-panel-gap', children:
                     rows.map((r, i) => RowLink({ key: 'r' + r.code + i, code: r.code, title: r.title, sub: r.sub, meta: r.kind + ' ->', href: r.href }))
-                }) : Panel({ title: 'no results', style: 'margin:8px 0', children: h('div', { style: 'padding:24px;text-align:center;color:var(--panel-text-3)' },
-                    h('div', { style: 'font-size:32px' }, '( )'),
-                    h('p', { style: 'margin:6px 0' }, 'no matches for ', h('code', {}, '"' + state.q + '"')),
-                    h('p', { style: 'margin:0;font-size:13px' }, 'try a shorter query, or pick a different kind.')
+                }) : Panel({ title: 'no results', class: 'ds-panel-gap', children: h('div', { class: 'ds-empty-state' },
+                    h('div', { class: 'ds-empty-state-glyph' }, '( )'),
+                    h('p', { class: 'ds-empty-state-msg' }, 'no matches for ', h('code', {}, '"' + state.q + '"')),
+                    h('p', { class: 'ds-empty-state-hint' }, 'try a shorter query, or pick a different kind.')
                 ) }),
-                Panel({ title: 'about this kit', style: 'margin:8px 0', children: h('div', { class: 'ds-pattern-notes' },
+                Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
                     h('p', {}, '· query input lives in the ', Chip({ tone: 'accent', children: 'Topbar' }), ' search slot — same component the index uses.'),
                     h('p', {}, '· filters are ', Chip({ tone: 'accent', children: 'Side' }), ' sections with active states; counts come from the corpus.'),
                     h('p', {}, '· results reuse ', Chip({ tone: 'accent', children: 'RowLink' }), ' — never a bespoke result row.')

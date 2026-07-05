@@ -46,6 +46,7 @@
   top: 24px;
   align-self: start;
   max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
   overflow-y: auto;
   overscroll-behavior: contain;
   margin: 0;

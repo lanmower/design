@@ -38,20 +38,15 @@ const reduced = typeof matchMedia !== 'undefined'
     && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const demo = { visible: reduced ? demoScript.slice() : [], looping: !reduced };
 
+const LINE_PROMPTS = { cmt: '#', cmd: '$', out: '·', ok: '+', warn: '!', log: '·' };
 function Line(l, i, opts = {}) {
-    const cursor = opts.cursor;
-    const baseChildren = (prompt, text, promptStyle, textStyle) => [
-        h('span', { class: 'prompt', style: promptStyle || '' }, prompt),
-        h('span', { class: 'cmd', style: textStyle || '' }, text),
-        cursor ? h('span', { class: 'cursor-blink' }, '') : null
-    ];
-    if (l.kind === 'cmt')  return h('div', { key: 'l' + i, class: 'cli' }, ...baseChildren('#', l.text, '', 'color:var(--fg-3)'));
-    if (l.kind === 'cmd')  return h('div', { key: 'l' + i, class: 'cli' }, ...baseChildren('$', l.text));
-    if (l.kind === 'out')  return h('div', { key: 'l' + i, class: 'cli' }, ...baseChildren('·', l.text, '', 'color:var(--fg-2)'));
-    if (l.kind === 'ok')   return h('div', { key: 'l' + i, class: 'cli' }, ...baseChildren('+', l.text, 'color:var(--accent)', 'color:var(--accent)'));
-    if (l.kind === 'warn') return h('div', { key: 'l' + i, class: 'cli' }, ...baseChildren('!', l.text, 'color:var(--mascot)', 'color:var(--mascot)'));
-    if (l.kind === 'log')  return h('div', { key: 'l' + i, class: 'cli' }, ...baseChildren('·', l.text, 'color:var(--fg-3)', 'color:var(--fg-2);font-family:var(--ff-mono)'));
-    return null;
+    const prompt = LINE_PROMPTS[l.kind];
+    if (!prompt) return null;
+    return h('div', { key: 'l' + i, class: 'cli ds-cli-' + l.kind },
+        h('span', { class: 'prompt' }, prompt),
+        h('span', { class: 'cmd' }, l.text),
+        opts.cursor ? h('span', { class: 'cursor-blink' }, '') : null
+    );
 }
 
 function App() {
@@ -75,8 +70,8 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-section', style: 'padding:8px' },
-                h('div', { style: 'display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap' },
+            h('div', { class: 'ds-section ds-section-pad-sm' },
+                h('div', { class: 'ds-kit-head-row' },
                     h('div', {}, Heading({ level: 1, children: 'terminal' })),
                     ThemeToggle()
                 ),
@@ -86,15 +81,15 @@ function App() {
                 Panel({
                     title: 'live · ' + live.cwd,
                     count: liveTranscript.length,
-                    style: 'margin:8px 0',
-                    children: h('div', { style: 'padding:14px 18px;display:flex;flex-direction:column;gap:4px;background:var(--bg-2);border-radius:10px' },
+                    class: 'ds-panel-gap',
+                    children: h('div', { class: 'ds-term-body' },
                         ...liveTranscript.map((l, i) => Line(l, i)),
-                        h('div', { class: 'cli', style: 'margin-top:6px' },
+                        h('div', { class: 'cli ds-term-input-row' },
                             h('span', { class: 'prompt' }, '$'),
                             h('input', {
                                 value: live.input,
                                 placeholder: 'type a command and press enter…',
-                                style: 'flex:1;background:transparent;border:0;outline:0;font-family:var(--ff-mono);font-size:13px;color:var(--fg)',
+                                class: 'ds-term-input',
                                 oninput: (e) => { live.input = e.target.value; },
                                 onkeydown: (e) => {
                                     if (e.key === 'Enter' && live.input.trim()) {
@@ -113,13 +108,13 @@ function App() {
                 Panel({
                     title: 'demo · build pipeline',
                     count: demo.visible.length + '/' + demoScript.length,
-                    style: 'margin:8px 0',
-                    children: h('div', { style: 'padding:14px 18px;display:flex;flex-direction:column;gap:4px;background:var(--bg-2);border-radius:10px;min-height:280px' },
+                    class: 'ds-panel-gap',
+                    children: h('div', { class: 'ds-term-body ds-term-body--tall' },
                         ...demo.visible.map((l, i) => Line(l, i, { cursor: i === demo.visible.length - 1 && demo.looping }))
                     )
                 }),
 
-                Panel({ title: 'about this kit', style: 'margin:8px 0', children: h('div', { class: 'ds-pattern-notes' },
+                Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
                     h('p', {}, '· ', Chip({ tone: 'accent', children: '.cli' }), ' rows pair ', h('code', {}, '.prompt'), ' + ', h('code', {}, '.cmd'), '.'),
                     h('p', {}, '· six line kinds: ', Chip({ tone: 'dim', children: 'cmt' }), ' ', Chip({ tone: 'dim', children: 'cmd' }), ' ', Chip({ tone: 'dim', children: 'out' }), ' ', Chip({ tone: 'accent', children: 'ok' }), ' ', Chip({ tone: '', children: 'warn' }), ' ', Chip({ tone: 'dim', children: 'log' }), '.'),
                     h('p', {}, '· live panel is instant; demo panel reveals lines on a loop for the showcase only — never fake-animate output a user is waiting on.')

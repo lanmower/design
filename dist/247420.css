@@ -882,6 +882,8 @@
   /* Status bar inherits the .app max-width cap above and stretches edge-to-edge
      within it; no separate width constraint (which previously narrowed it). */
   .ds-247420 .app-status { width: 100%; }
+  /* Cap row text measure inside the wide capped main (ultrawide readability). */
+  .ds-247420 .row .title, .ds-247420 .row .sub { max-width: var(--measure-wide); }
 }
 
 .ds-247420 .app-status {
@@ -986,6 +988,9 @@
 .ds-247420 .ds-badge.tone-error   { background: var(--flame);       color: var(--on-color); }
 .ds-247420 .ds-badge.tone-success { background: var(--green-tint);  color: var(--green-deep); }
 .ds-247420 .ds-badge.tone-neutral { background: var(--bg-3);        color: var(--fg-2); }
+.ds-247420 .ds-badge.tone-blue    { background: var(--accent-tint); color: var(--accent-ink); }
+.ds-247420 .ds-badge.tone-orange  { background: color-mix(in oklab, var(--flame) 30%, var(--sun) 70%); color: var(--ink); }
+.ds-247420 .ds-badge.tone-yellow  { background: var(--sun);         color: var(--ink); }
 
 .ds-247420 .chip {
   display: inline-flex; align-items: center; gap: 6px;
@@ -1009,6 +1014,20 @@
 .ds-247420 .chip.tone-ok       { background: var(--green-tint);  color: var(--green-deep); }
 .ds-247420 .chip.tone-miss     { background: var(--flame);       color: var(--on-color); }
 .ds-247420 .chip.tone-neutral  { background: var(--bg-3);        color: var(--fg-2); }
+.ds-247420 .chip.tone-blue     { background: var(--accent-tint); color: var(--accent-ink); }
+.ds-247420 .chip.tone-orange   { background: color-mix(in oklab, var(--flame) 30%, var(--sun) 70%); color: var(--ink); }
+.ds-247420 .chip.tone-yellow   { background: var(--sun);         color: var(--ink); }
+
+/* ds-pill — plain neutral chip, distinct from the toned .ds-badge/.chip family
+   (gmsniff's .pill: a bare rounded label with no semantic tone). */
+.ds-247420 .ds-pill {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-micro);
+  background: var(--bg-3); color: var(--fg-2);
+  margin: 1px;
+}
 
 .ds-247420 .glyph {
   display: inline-flex; align-items: center; justify-content: center;
@@ -1168,14 +1187,16 @@
   padding: var(--space-9) 0 var(--space-8);
   display: grid; gap: var(--space-5) var(--space-6);
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-  grid-template-areas: 'title title' 'body actions';
+  grid-template-areas: 'title title' 'body actions' 'badge badge';
   align-items: end;
   max-width: var(--measure-wide);
 }
 .ds-247420 .ds-hero-head { grid-area: title; display: grid; gap: var(--space-3); }
 .ds-247420 .ds-hero-body  { grid-area: body; }
 .ds-247420 .ds-hero-actions { grid-area: actions; }
-.ds-247420 .ds-hero-badge { grid-area: actions; }
+/* Badge gets its own row — sharing 'actions' overlapped it onto the CTAs
+   whenever a caller passes both actions and badge. */
+.ds-247420 .ds-hero-badge { grid-area: badge; }
 .ds-247420 .ds-hero-title {
   font-family: var(--ff-display); font-weight: 700;
   font-size: clamp(40px, 9cqi, 116px);
@@ -1190,10 +1211,13 @@
 /* The lead phrase in the title — printed in the electric lead, not glowing. */
 .ds-247420 .ds-hero-accent { color: var(--accent-ink); font-weight: 700; }
 .ds-247420 .ds-hero-actions { display: flex; gap: var(--space-2, 10px); flex-wrap: wrap; align-self: end; }
-@media (max-width: 900px) {
+/* Container-queried (the whole shell is; a 500px pane on a wide viewport
+   would keep the two-column grid under a width @media). Left-aligned stack —
+   no centering — preserving the asymmetric intent. */
+@container (max-width: 900px) {
   .ds-247420 .ds-hero {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: 'title' 'body' 'actions';
+    grid-template-areas: 'title' 'body' 'actions' 'badge';
     align-items: start;
     padding: var(--space-7) 0 var(--space-6);
   }
@@ -1261,13 +1285,21 @@
 }
 .ds-247420 .ds-marquee-item { display: inline-flex; align-items: center; gap: var(--space-5); }
 .ds-247420 .ds-marquee-sep { color: var(--accent-ink); }
-.ds-247420 .ds-marquee:hover .ds-marquee-track { animation-play-state: paused; }
+.ds-247420 .ds-marquee:hover .ds-marquee-track,
+.ds-247420 .ds-marquee:focus-within .ds-marquee-track,
+.ds-247420 .ds-marquee:active .ds-marquee-track { animation-play-state: paused; }
 @keyframes ds-marquee-run {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
+/* Touch has no hover-pause; slow the ticker so it burns less attention. */
+@media (hover: none), (pointer: coarse) {
+  .ds-247420 .ds-marquee-track { animation-duration: 40s; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .ds-247420 .ds-marquee-track { animation: none; }
+  /* Static: wrap to a readable strip instead of a frozen half-offscreen run. */
+  .ds-247420 .ds-marquee-track { animation: none; flex-wrap: wrap; white-space: normal; }
+  .ds-247420 .ds-marquee-run-b { display: none; }
 }
 
 /* ============================================================
@@ -1275,6 +1307,7 @@
    ============================================================ */
 .ds-247420 .cli {
   display: flex; align-items: center; gap: 14px;
+  overflow-x: auto;
   padding: 20px 24px;
   background: var(--ink); color: var(--paper);
   border-radius: var(--r-3);
@@ -1328,6 +1361,15 @@
 }
 .ds-247420 table.kv td:last-child {
   font-weight: 600;
+  overflow-wrap: anywhere; min-width: 0;
+}
+/* Tiny screens: stack the key over the value instead of squeezing a 14ch
+   label column beside long unbroken values (URLs, hashes). */
+@media (max-width: 400px) {
+  .ds-247420 table.kv td { display: block; width: auto; padding: 4px 0; }
+  .ds-247420 table.kv td:first-child { padding-top: 8px; }
+  .ds-247420 table.kv tr + tr td { border-top: 0; }
+  .ds-247420 table.kv tr + tr td:first-child { border-top: 1px solid var(--rule); }
 }
 
 /* ============================================================
@@ -1523,6 +1565,10 @@
   }
   .ds-247420 .row .sub { grid-column: 1 / -1; order: 3; }
   .ds-247420 .row .title { font-size: var(--fs-sm); }
+  /* Changelog carries 3 children: give date+ver line one, message wraps below
+     (the generic 2-col .row override staggers it into an implicit row). */
+  .ds-247420 .ds-changelog-row { grid-template-columns: minmax(70px, 10ch) minmax(0, 1fr) !important; }
+  .ds-247420 .ds-changelog-row .title { grid-column: 1 / -1; }
 
   /* Buttons */
   .ds-247420 .btn, .ds-247420 .btn-primary, .ds-247420 .btn-ghost {
@@ -1566,7 +1612,9 @@
     gap: var(--space-2);
   }
   .ds-247420 .kpi-card { padding: var(--space-3); }
-  .ds-247420 .kpi-card .num { font-size: clamp(22px, 5vw, 32px); }
+  /* Container-relative like the base rule (5vw sized against the viewport and
+     jumped across the breakpoint). */
+  .ds-247420 .kpi-card .num { font-size: clamp(22px, 8cqi, 32px); }
 
   /* Empty State */
   .ds-247420 .empty { padding: var(--space-5); font-size: var(--fs-xs); }
@@ -1600,10 +1648,11 @@
 @container (max-width: 760px) {
   .ds-247420 .app-body { grid-template-columns: 1fr !important; }
   .ds-247420 .app-side-shell { border-right: 0; border-bottom: 1px solid var(--rule); }
-  .ds-247420 .app-topbar { grid-template-columns: 1fr auto; }
   .ds-247420 .app-topbar nav { font-size: var(--fs-xs); gap: 14px; }
   .ds-247420 .row { grid-template-columns: minmax(0, 1fr) auto !important; row-gap: 4px !important; }
   .ds-247420 .row .sub { grid-column: 1 / -1; order: 3; }
+  .ds-247420 .ds-changelog-row { grid-template-columns: minmax(70px, 10ch) minmax(0, 1fr) !important; }
+  .ds-247420 .ds-changelog-row .title { grid-column: 1 / -1; }
 }
 
 /* --------------------------------------------------------------------
@@ -1618,9 +1667,8 @@
     min-height: 44px;
   }
 
-  /* Topbar Navigation */
+  /* Topbar Navigation (flex container — no grid-template here) */
   .ds-247420 .app-topbar {
-    grid-template-columns: auto 1fr auto;
     gap: var(--space-3); padding: 12px var(--space-4);
   }
   .ds-247420 .app-topbar nav {
@@ -1699,6 +1747,8 @@
     gap: var(--space-2);
   }
   .ds-247420 .row .code { display: none; }
+  /* Changelog's date lives in span.code — hiding it is data loss, not reflow. */
+  .ds-247420 .ds-changelog-row .code { display: inline; font-size: var(--fs-micro); }
   .ds-247420 .row .sub { grid-column: 1 / -1; }
 }
 
@@ -2049,6 +2099,10 @@
   padding: 4px 8px; border-radius: var(--r-1);
   color: var(--fg-3); font-family: inherit; font-size: var(--fs-sm);
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+  /* A single long unbroken segment (hash-named dir) must never force the
+     whole path past the viewport. */
+  max-width: min(40vw, 220px);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .ds-247420 .ds-crumb-seg:hover { background: var(--bg-2); color: var(--fg); }
 .ds-247420 .ds-crumb-seg.leaf { color: var(--fg); font-weight: 600; }
@@ -2145,6 +2199,14 @@
   border-radius: var(--r-3);
 }
 .ds-247420 .ds-dropzone--wrap.dragover { animation: none; }
+/* Touch devices can never fire dragover — keep the pick-files affordance
+   visible as a compact static row so upload stays reachable in wrap mode. */
+@media (hover: none) and (pointer: coarse) {
+  .ds-247420 .ds-dropzone--wrap > .ds-dropzone-inner {
+    display: flex; position: static; padding: var(--space-2);
+    outline: none; background: transparent;
+  }
+}
 
 /* Upload progress */
 .ds-247420 .ds-upload-progress { display: flex; flex-direction: column; gap: 6px; }
@@ -2173,7 +2235,12 @@
 .ds-247420 .ds-upload-item.error .ds-upload-fill { background: var(--warn); }
 .ds-247420 .ds-upload-item.error .ds-upload-pct { color: var(--warn); }
 /* Per-row upload recovery actions (replace / dismiss) — error rows are not dead ends. */
-.ds-247420 .ds-upload-item { grid-template-columns: minmax(0, 1fr) 120px 44px auto; }
+.ds-247420 .ds-upload-item { grid-template-columns: minmax(0, 1fr) minmax(60px, 120px) 44px auto; }
+@media (max-width: 480px) {
+  .ds-247420 .ds-upload-item { grid-template-columns: minmax(0, 1fr) 44px; }
+  .ds-247420 .ds-upload-bar { grid-column: 1 / -1; order: 3; }
+  .ds-247420 .ds-upload-actions { grid-column: 1 / -1; justify-content: flex-end; }
+}
 .ds-247420 .ds-upload-actions { display: inline-flex; gap: var(--space-1); justify-content: flex-end; }
 .ds-247420 .ds-upload-act {
   padding: 2px 10px; min-height: 24px; cursor: pointer;
@@ -2184,6 +2251,11 @@
 .ds-247420 .ds-upload-act:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 @media (hover: none), (pointer: coarse) {
   .ds-247420 .ds-upload-act { min-height: 44px; min-width: 44px; }
+  /* 44px floor for file controls on ANY touch device, not only narrow ones
+     (the width-based mobile block misses wide touch tablets). */
+  .ds-247420 .ds-file-act, .ds-247420 .ds-file-sort-btn, .ds-247420 .ds-crumb-seg, .ds-247420 .ds-file-filter-input { min-height: 44px; }
+  .ds-247420 .ds-file-act { min-width: 44px; }
+  .ds-247420 .ds-file-check, .ds-247420 .ds-file-selectall, .ds-247420 .ds-density-btn { min-height: 44px; min-width: 44px; }
 }
 
 /* Empty state */
@@ -2199,7 +2271,11 @@
 .ds-247420 .ds-modal-backdrop {
   position: fixed; inset: 0; z-index: var(--z-modal, 800);
   display: flex; align-items: center; justify-content: center;
-  padding: var(--space-3);
+  /* Notch/home-indicator safe: near-fullscreen modals must not slide under. */
+  padding: max(var(--space-3), env(safe-area-inset-top))
+           max(var(--space-3), env(safe-area-inset-right))
+           max(var(--space-3), env(safe-area-inset-bottom))
+           max(var(--space-3), env(safe-area-inset-left));
   background: color-mix(in oklab, var(--ink) 55%, transparent);
   backdrop-filter: blur(3px);
 }
@@ -2209,7 +2285,9 @@
 @keyframes ds-modal-fade { from { opacity: 0; } to { opacity: 1; } }
 .ds-247420 .ds-modal {
   display: flex; flex-direction: column;
-  width: 100%; max-width: 460px; max-height: calc(100vh - 2 * var(--space-4));
+  width: 100%; max-width: 460px;
+  max-height: calc(100vh - 2 * var(--space-4));
+  max-height: calc(100dvh - 2 * var(--space-4));
   background: var(--bg); color: var(--fg);
   border: var(--bw-hair) solid var(--rule);
   border-radius: var(--r-3); box-shadow: var(--shadow-3);
@@ -2242,6 +2320,10 @@
   font-family: inherit; font-size: var(--fs-sm);
 }
 .ds-247420 .ds-modal-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* iOS auto-zooms inputs under 16px on focus, breaking the modal layout. */
+@media (hover: none), (pointer: coarse) {
+  .ds-247420 .ds-modal-input { font-size: 16px; min-height: 44px; }
+}
 /* In-body modal error (role=alert): mutation failures (409/403) surface INSIDE
    the dialog, not behind the fixed overlay. */
 .ds-247420 .ds-modal-error {
@@ -2265,10 +2347,12 @@
 .ds-247420 .ds-preview-name {
   font-weight: 600; font-size: var(--fs-body);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+  flex: 1 1 auto;
 }
 .ds-247420 .ds-preview-meta {
   font-family: var(--ff-mono); font-size: var(--fs-xs);
   color: var(--fg-3); white-space: nowrap;
+  flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis;
 }
 .ds-247420 .ds-preview-actions { display: inline-flex; gap: 2px; margin-left: auto; }
 .ds-247420 .ds-preview-body {
@@ -2277,7 +2361,9 @@
   display: flex; flex-direction: column;
 }
 .ds-247420 .ds-preview-media {
-  max-width: 100%; max-height: 70vh; margin: 0 auto;
+  max-width: 100%;
+  max-height: 70vh; max-height: 70dvh;
+  margin: 0 auto;
   border-radius: var(--r-2); object-fit: contain;
 }
 .ds-247420 .ds-preview-audio { width: 100%; }
@@ -2323,10 +2409,22 @@
 
 /* Mobile — modals go near-fullscreen, preview media shrinks. */
 @media (max-width: 560px) {
-  .ds-247420 .ds-modal { max-width: 100%; max-height: calc(100vh - 2 * var(--space-3)); }
-  .ds-247420 .ds-modal-preview { width: 100%; height: calc(100vh - 2 * var(--space-3)); max-height: none; }
-  .ds-247420 .ds-preview-media { max-height: 50vh; }
+  .ds-247420 .ds-modal {
+    max-width: 100%;
+    max-height: calc(100vh - 2 * var(--space-3));
+    max-height: calc(100dvh - 2 * var(--space-3));
+  }
+  .ds-247420 .ds-modal-preview {
+    width: 100%; max-height: none;
+    height: calc(100vh - 2 * var(--space-3));
+    height: calc(100dvh - 2 * var(--space-3));
+  }
+  .ds-247420 .ds-preview-media { max-height: 50vh; max-height: 50dvh; }
   .ds-247420 .ds-file-stage { padding: var(--space-3) var(--space-2); }
+  /* Preview head: let it wrap and drop the nowrap meta (duplicated in body)
+     so the close button can never be pushed past the modal edge. */
+  .ds-247420 .ds-preview-head { flex-wrap: wrap; row-gap: 4px; }
+  .ds-247420 .ds-preview-meta { display: none; }
 }
 
 /* -- File browser UX affordances ---------------------------- */
@@ -2943,10 +3041,21 @@
     .ds-247420 .chat-composer textarea { padding: 10px 12px; }
 }
 
-/* --- landscape orientation: reduce vertical space for composer --- */
+/* --- landscape orientation: reduce vertical space for chrome + composer --- */
 @media (max-height: 500px) and (orientation: landscape) {
-    .ds-247420 .chat-composer { padding: 6px 0; }
-    .ds-247420 .chat-composer textarea { min-height: 44px; max-height: 120px; }
+    /* Keep horizontal padding: 0 put the textarea/focus ring flush on the edge. */
+    .ds-247420 .chat-composer { padding: 6px var(--space-2); }
+    .ds-247420 .chat-composer textarea { min-height: 36px; max-height: 96px; }
+    .ds-247420 .chat-composer .chat-composer-hint,
+    .ds-247420 .chat-composer .chat-composer-context { display: none; }
+    /* Compact the shell chrome: ~114px of topbar+crumb+status is a third of a
+       360px-tall landscape fold. */
+    .ds-247420 { --app-topbar-h: 40px; --app-crumb-h: 24px; }
+    .ds-247420 .app-chrome { padding: 4px var(--pad-x); }
+    .ds-247420 .app-status { display: none; }
+    .ds-247420 .ws-crumb { min-height: 32px; }
+    .ds-247420 .ds-hero { padding: var(--space-4) 0 var(--space-3); }
+    .ds-247420 .ds-hero-title { font-size: clamp(28px, 6cqi, 56px); }
 }
 
 /* ============================================================
@@ -3370,6 +3479,15 @@
   }
 }
 
+/* Touch floor also for coarse-pointer devices that report hover (hybrid
+   laptops/tablets with mice) — the block above requires hover:none too. */
+@media (pointer: coarse) {
+  .ds-247420 .ds-icon-btn, .ds-247420 .ds-icon-btn-xs, .ds-247420 .ds-icon-btn-sm, .ds-247420 .ds-icon-btn-base {
+    min-width: 44px; min-height: 44px;
+  }
+  .ds-247420 .btn, .ds-247420 .btn-primary, .ds-247420 .btn-ghost, .ds-247420 .app-topbar nav a, .ds-247420 .app-side a { min-height: 44px; }
+}
+
 /* ------------------------------------------------------------
    Theme Transition Smoothness
    -------------------------------------------------------------- */
@@ -3601,16 +3719,24 @@
   .ds-247420 .app-body.no-side { grid-template-columns: 1fr !important; }
   .ds-247420 .app-side-shell {
     position: absolute;
-    left: 0; top: var(--app-topbar-h);
-    height: calc(100% - var(--app-topbar-h) - var(--app-status-h));
+    /* Full-height overlay drawer: the merged .app-chrome wraps and its real
+       height drifts from --app-topbar-h, so anchoring below it misplaces the
+       drawer. Overlay the chrome instead (z above --z-header), like ws drawers. */
+    left: 0; top: 0;
+    height: 100%;
     width: 280px; max-width: 80%;
     transform: translateX(-100%);
     transition: transform var(--dur-base, 240ms) var(--ease, ease);
-    z-index: 50;
+    /* Above the sticky chrome (z-header): scrim > chrome > content budget. */
+    z-index: calc(var(--z-header, 100) + 2);
     background: var(--bg);
     border-right: 1px solid color-mix(in oklab, var(--fg) 8%, transparent);
     overflow-y: auto;
+    overscroll-behavior: contain;
   }
+  /* Lock the content scroller while the drawer is open so touch pans don't
+     scroll the page behind the scrim. */
+  .ds-247420 .app-body.side-open .app-main { overflow: hidden; }
   .ds-247420 .app-side-shell.open,
   .ds-247420 .app-side.open,
   .ds-247420 .app-body.side-open .app-side-shell { transform: translateX(0); }
@@ -3643,7 +3769,8 @@
   display: none;
   position: absolute; inset: 0;
   background: color-mix(in oklab, var(--bg) 60%, transparent);
-  z-index: 49;
+  /* Above the sticky chrome so nav behind an open drawer is not clickable. */
+  z-index: calc(var(--z-header, 100) + 1);
 }
 @container (max-width: 900px) {
   .ds-247420 .app-body.side-open .app-side-scrim { display: block; }
@@ -3655,7 +3782,9 @@
 .ds-247420 .app-side-toggle {
   display: none;
   position: absolute; top: calc((var(--app-topbar-h) - 44px) / 2); left: 10px;
-  z-index: 51;
+  /* Above the sticky topbar/chrome (z-header) and the drawer/scrim so the
+     translucent blurred chrome never paints over or intercepts the toggle. */
+  z-index: calc(var(--z-header, 100) + 3);
   /* 44x44 minimum hit area (WCAG 2.5.5 / Apple HIG) - 36px is below the
      reliable-tap threshold on touch. */
   width: 44px; height: 44px;
@@ -3707,6 +3836,8 @@
   .ds-247420 .app-topbar nav,
   .ds-247420 .app-topbar > :last-child { display: none; }
   .ds-247420 .brand { font-size: var(--fs-tiny); }
+  /* Slightly narrower drawer on tiny phones; max-width:80% remains the guard. */
+  .ds-247420 .app-side-shell { width: 260px; }
 }
 
 /* ----------------------------------------------------------------------------
@@ -3780,6 +3911,11 @@
 @media (prefers-reduced-motion: no-preference) {
   .ds-247420 .ws-shell { transition: grid-template-columns var(--dur-base) var(--ease); }
 }
+/* Ultrawide: cap the shell so the 1fr content track doesn't stretch to
+   unreadable measures while the fixed side columns pin to their clamps. */
+@media (min-width: 1920px) {
+  .ds-247420 .ws-shell { max-width: 1920px; margin-inline: auto; }
+}
 
 /* Rail (left nav) */
 .ds-247420 .ws-rail {
@@ -3815,7 +3951,7 @@
 }
 .ds-247420 .ws-rail-action:hover { filter: brightness(1.08); }
 .ds-247420 .ws-rail-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.ds-247420 .ws-rail-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; flex: 1; min-height: 0; overflow-y: auto; }
+.ds-247420 .ws-rail-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .ds-247420 .ws-rail-item {
   display: flex; align-items: center; gap: var(--space-2);
   width: 100%; padding: var(--space-2); min-height: 44px;
@@ -3878,6 +4014,7 @@
   min-height: 0; display: flex; flex-direction: column;
   background: var(--bg-2); border-left: var(--bw-hair) solid var(--bg-3);
   overflow: hidden; transition: width var(--dur-base) var(--ease);
+  overscroll-behavior: contain;
 }
 .ds-247420 .ws-pane-collapsed .ws-pane { width: 0; border-left: none; }
 .ds-247420 .ws-pane-collapsed .ws-pane > * { display: none; }
@@ -3962,12 +4099,19 @@
   }
   .ds-247420 .ws-sessions {
     position: fixed; inset: 0 auto 0 0;
-    width: min(var(--ws-sessions-w), 80vw);
+    /* Immune to the desktop collapse var (--ws-sessions-w:0px persisted from
+       a desktop session would open an invisible 0-width drawer). */
+    width: min(max(var(--ws-sessions-w), 280px), 80vw);
     z-index: 42; transform: translateX(-110%);
     transition: transform var(--dur-base) var(--ease);
     border-right: var(--bw-hair) solid var(--bg-3);
+    overscroll-behavior: contain;
   }
   .ds-247420 .ws-shell.ws-sessions-open .ws-sessions { transform: translateX(0); }
+  /* Drawer mode ignores the desktop collapsed state: children stay rendered
+     and the border returns, so a persisted collapse can't blank the drawer. */
+  .ds-247420 .ws-shell.ws-sessions-collapsed .ws-sessions > * { display: revert; }
+  .ds-247420 .ws-shell.ws-sessions-collapsed .ws-sessions { border-right: var(--bw-hair) solid var(--bg-3); }
   .ds-247420 .ws-sessions-drawer-toggle { display: inline-flex; }
 }
 
@@ -4077,7 +4221,483 @@
   .ds-247420 .ws-crumb,
   .ds-247420 .app-status { display: none; }
   .ds-247420 .ws-main { overflow: visible; height: auto; }
+  /* AppShell: unpin the viewport-height frame so content flows across pages,
+     and drop all chrome (it prints as page furniture otherwise). */
+  .ds-247420 .app { height: auto; min-height: 0; overflow: visible; display: block; }
+  .ds-247420 .app-body { display: block; }
+  .ds-247420 .app-main { overflow: visible; height: auto; display: block; max-width: 100%; }
+  .ds-247420 .app-topbar, .ds-247420 .app-chrome, .ds-247420 .app-crumb, .ds-247420 .app-side-shell, .ds-247420 .app-side-scrim, .ds-247420 .app-side-toggle, .ds-247420 .btn-fab, .ds-247420 .skip-link, .ds-247420 .ds-marquee { display: none; }
+  /* Modals/preview: print the content, not a blurred overlay clipped to one page. */
+  .ds-247420 .ds-modal-backdrop { position: static; background: none; backdrop-filter: none; padding: 0; }
+  .ds-247420 .ds-modal, .ds-247420 .ds-modal-preview { max-width: 100%; max-height: none; box-shadow: none; }
+  .ds-247420 .ds-modal-body, .ds-247420 .ds-preview-body, .ds-247420 .ds-preview-code, .ds-247420 .ds-preview-text { overflow: visible; }
+  .ds-247420 .ds-modal-actions, .ds-247420 .ds-preview-actions { display: none; }
+  /* Data-density: fixed-height log clips; bg-only tiles lose their boundary. */
+  .ds-247420 .ds-live-log { height: auto; max-height: none; overflow: visible; }
+  .ds-247420 .ds-stat, .ds-247420 .kpi-card { border: 1px solid var(--rule); }
+  .ds-247420 .ds-session-row { break-inside: avoid; }
 }
+
+/* ============================================================
+   Data density — dense observability/dashboard primitives (ported from the
+   gmsniff GUI). Components: PhaseWalk, TreeNode, BarRow, StatTile/StatsGrid,
+   SubGrid, SessionRow, DevRow, LiveLog/LiveLogEntry. src/components/data-density.js.
+   All colors derive from colors_and_type.css tokens — see lint-tokens.mjs.
+   ============================================================ */
+
+/* --danger-surface: semantic surface for a deviation/error callout background
+   (gmsniff's #3a1a1a dark-red-tinted panel). Derived from --warn so it always
+   reads as "danger" against the active theme instead of a baked literal. */
+.ds-247420 {
+  --danger-surface: color-mix(in oklab, var(--warn) 14%, var(--bg));
+}
+
+/* PhaseWalk */
+.ds-247420 .ds-phasewalk { display: inline-flex; gap: 2px; vertical-align: middle; }
+.ds-247420 .ds-phasewalk-seg {
+  width: 18px; height: 10px; border-radius: 2px;
+  background: var(--bg-3); position: relative;
+}
+.ds-247420 .ds-phasewalk-seg.is-reached { background: var(--success); }
+.ds-247420 .ds-phasewalk-seg.is-gap { background: var(--warn); }
+/* Standalone PhaseWalk reserves headroom for the labels instead of letting
+   them escape upward and overlap the element above. */
+.ds-247420 .ds-phasewalk { padding-top: 15px; }
+.ds-247420 .ds-phasewalk-lbl {
+  position: absolute; top: -15px; left: 0;
+  font-size: var(--fs-micro); color: var(--fg-3); white-space: nowrap;
+}
+/* Inline in a single-line SessionRow the labels would overlap the row above —
+   segments already carry title tooltips. */
+.ds-247420 .ds-session-row .ds-phasewalk { padding-top: 0; }
+.ds-247420 .ds-session-row .ds-phasewalk-lbl { display: none; }
+
+/* TreeNode */
+.ds-247420 .ds-tree-node {
+  padding: 5px 10px; border-left: var(--bw-rule) solid var(--bg-3);
+  margin: 2px 0 2px 16px; font-size: var(--fs-tiny);
+  min-width: 0; overflow-wrap: anywhere;
+}
+@media (max-width: 400px) {
+  .ds-247420 .ds-tree-node { margin-left: 8px; padding-left: 8px; }
+}
+.ds-247420 .ds-tree-node.is-phase { border-color: var(--accent); background: var(--bg-3); font-weight: 600; }
+.ds-247420 .ds-tree-node.is-deviation { border-color: var(--warn); background: var(--danger-surface); color: var(--warn); }
+.ds-247420 .ds-tree-node.is-mutable-resolve { border-color: var(--success); }
+.ds-247420 .ds-tree-node.is-prd-add { border-color: var(--sun); }
+.ds-247420 .ds-tree-node-ts { margin-right: 8px; color: var(--fg-3); }
+.ds-247420 .ds-tree-node-pills { margin-left: 6px; }
+.ds-247420 .ds-tree-node-reason { margin-top: 2px; color: var(--fg-2); }
+.ds-247420 .ds-tree-node-deviation { margin-top: 2px; }
+.ds-247420 .ds-tree-node-residuals { margin-top: 2px; color: var(--fg-3); }
+
+/* BarRow */
+.ds-247420 .ds-bar-row { display: flex; align-items: center; gap: 8px; margin: 3px 0; font-size: var(--fs-tiny); }
+.ds-247420 .ds-bar-row-label { width: 100px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-247420 .ds-bar-bg { flex: 1; min-width: 60px; background: var(--bg-3); border-radius: 2px; height: 6px; overflow: hidden; }
+.ds-247420 .ds-bar-fill { background: var(--accent); height: 100%; border-radius: 2px; }
+.ds-247420 .ds-bar-row-value { flex-shrink: 0; color: var(--fg-2); max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 400px) {
+  .ds-247420 .ds-bar-row-label { width: 72px; }
+}
+
+/* StatTile / StatsGrid */
+/* min(140px, 100%) keeps the grid from collapsing to 1 column early inside
+   padded panels; the wrapper div stretches its tile to equal row height. */
+.ds-247420 .ds-stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr)); gap: var(--space-2); }
+.ds-247420 .ds-stats-grid > div { display: grid; }
+@media (max-width: 360px) {
+  .ds-247420 .ds-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-1); }
+}
+.ds-247420 .ds-stats-grid-empty { padding: var(--space-3); color: var(--fg-3); font-size: var(--fs-tiny); }
+.ds-247420 .ds-stat { min-width: 0; background: var(--bg-3); border-radius: 4px; padding: 10px 12px; }
+.ds-247420 .ds-stat-val { font-size: clamp(18px, 5cqi, 22px); font-weight: 700; color: var(--accent-ink); overflow-wrap: anywhere; }
+.ds-247420 .ds-stat-val.rate-big { font-size: clamp(24px, 7cqi, 32px); color: var(--success); }
+.ds-247420 .ds-stat-val.err-rate { font-size: clamp(24px, 7cqi, 32px); color: var(--warn); }
+.ds-247420 .ds-stat-lbl { font-size: var(--fs-micro); color: var(--fg-3); margin-top: 2px; }
+
+/* SubGrid */
+.ds-247420 .ds-sub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; margin-top: 8px; }
+.ds-247420 .ds-sub-grid-empty { padding: var(--space-3); color: var(--fg-3); font-size: var(--fs-tiny); }
+.ds-247420 .ds-sub-btn {
+  padding: 6px 10px; background: var(--bg-3); border: var(--bw-hair) solid var(--bg-3);
+  border-radius: 4px; font-size: var(--fs-tiny); cursor: pointer; color: var(--fg);
+  text-align: left; font-family: var(--ff-body);
+}
+.ds-247420 .ds-sub-btn:hover { border-color: var(--accent); color: var(--accent-ink); }
+.ds-247420 .ds-sub-btn span { display: block; font-size: 18px; font-weight: 700; color: var(--accent-ink); }
+
+/* SessionRow */
+.ds-247420 .ds-session-row {
+  display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+  flex-wrap: wrap; min-width: 0;
+  border-bottom: var(--bw-hair) solid var(--bg-3); cursor: pointer;
+}
+.ds-247420 .ds-session-row:hover { background: var(--bg-3); }
+.ds-247420 .ds-session-row-id {
+  font-family: var(--ff-mono); font-size: var(--fs-micro); color: var(--accent-ink);
+  flex: 0 1 160px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ds-247420 .ds-session-row-counts {
+  font-size: var(--fs-micro); color: var(--fg-3);
+  flex: 1 1 200px; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .ds-247420 .ds-session-row-span { flex-basis: 100%; }
+}
+.ds-247420 .ds-session-row-devcnt { color: var(--warn); font-weight: 600; }
+.ds-247420 .ds-session-row-span { font-size: var(--fs-micro); color: var(--fg-3); }
+
+/* DevRow */
+.ds-247420 .ds-dev-row {
+  background: var(--danger-surface); border-left: var(--bw-chunk) solid var(--warn);
+  padding: 8px 12px; margin: 4px 0; border-radius: 3px; font-size: var(--fs-tiny);
+}
+.ds-247420 .ds-dev-row strong { color: var(--warn); }
+
+/* LiveLog — natural height with a viewport-tracking cap (dvh follows mobile
+   URL-bar chrome; min-height keeps short-landscape from going near-zero). */
+.ds-247420 .ds-live-log {
+  height: auto;
+  max-height: calc(100vh - 200px);
+  max-height: calc(100dvh - 200px);
+  min-height: 160px;
+  overflow-y: auto; overflow-x: hidden;
+  font-family: var(--ff-mono); font-size: var(--fs-micro); line-height: 1.5;
+}
+/* Embedded in a WM window the viewport calc is meaningless — fill the container. */
+.ds-247420 .fd-root .ds-live-log { height: 100%; max-height: none; min-height: 0; flex: 1 1 auto; }
+.ds-247420 .ds-live-log-empty { height: auto; min-height: 0; padding: var(--space-3); color: var(--fg-3); }
+.ds-247420 .ds-live-log-entry { padding: 2px 8px; border-bottom: var(--bw-hair) solid var(--bg-3); overflow-wrap: anywhere; }
+.ds-247420 .ds-live-log-entry:hover { background: var(--bg-3); }
+.ds-247420 .ds-live-log-ts { margin-right: 6px; color: var(--fg-3); }
+.ds-247420 .ds-live-log-subtag { margin-right: 6px; padding: 0 5px; border-radius: 2px; font-size: var(--fs-micro); }
+.ds-247420 .ds-live-log-preview { margin-left: 6px; color: var(--fg-3); word-break: break-word; }
+
+/* Touch floors for the dense controls (not covered by the mobile width blocks). */
+@media (pointer: coarse) {
+  .ds-247420 .ds-sub-btn { min-height: 44px; }
+  .ds-247420 .ds-session-row { min-height: 44px; }
+  .ds-247420 .ds-live-log-entry { padding-block: 6px; }
+}
+
+
+/* == appended: popovers-files == */
+/* FilePreviewMedia controls row — spacing + coarse-pointer tap floor */
+.ds-247420 .ds-preview-media-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+@media (hover: none), (pointer: coarse) {
+  .ds-247420 .ds-preview-media-controls .chat-code-copy,
+  .ds-247420 .chat-code-copy-head {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* == appended: ui-kits == */
+/* ============================================================
+   ui_kit responsive helpers (kits-grids sweep) */
+.ds-247420 .ds-section-pad { padding: clamp(6px, 1.2vw, 16px); }
+.ds-247420 .ds-panel-gap { margin: var(--space-2) 0; }
+.ds-247420 .ds-panel-duo { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); margin: var(--space-2) 0; }
+@media (max-width: 760px) {
+  .ds-247420 .ds-panel-duo { grid-template-columns: 1fr; }
+}
+/* wide dense rows/tables scroll inside their panel, never the page */
+.ds-247420 .ds-scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+
+/* --- slide deck ------------------------------------------- */
+.ds-247420 .ds-deck-stage {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  max-width: min(1100px, 100%);
+  margin: var(--space-3) auto;
+  background: var(--bg-2);
+  border-radius: 18px;
+  padding: clamp(16px, 5vw, 64px);
+  box-sizing: border-box;
+  display: flex;
+  overflow: hidden;
+  container-type: inline-size; /* cqw units track the stage, not the viewport */
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .ds-247420 .ds-deck-stage {
+    max-height: calc(100vh - 140px);
+    max-height: calc(100dvh - 140px);
+    aspect-ratio: auto;
+  }
+}
+.ds-247420 .ds-deck-slide { flex: 1; display: flex; min-width: 0; }
+.ds-247420 .ds-deck-controls {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  padding: 8px; font-family: var(--ff-mono); font-size: var(--fs-sm);
+}
+.ds-247420 .ds-deck-count { color: var(--fg-3); }
+@media (pointer: coarse) {
+  .ds-247420 .ds-deck-controls .btn { min-height: 44px; min-width: 44px; }
+}
+.ds-247420 .ds-slide-eyebrow {
+  font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--fg-3); margin-bottom: clamp(12px, 2.5cqw, 24px);
+}
+.ds-247420 .ds-slide-col { display: flex; flex-direction: column; justify-content: center; gap: clamp(12px, 2.5cqw, 24px); min-width: 0; }
+.ds-247420 .ds-slide-col--start { align-items: flex-start; }
+.ds-247420 .ds-slide-col--narrow { max-width: 38ch; }
+.ds-247420 .ds-slide-col--quote { max-width: 42ch; }
+.ds-247420 .ds-slide-hero {
+  font-size: clamp(var(--fs-h2), 6cqw, var(--fs-hero));
+  line-height: var(--lh-tight); letter-spacing: var(--tr-tight); font-weight: 600;
+  color: var(--slide-accent, var(--accent-ink));
+  overflow-wrap: anywhere;
+}
+.ds-247420 .ds-slide-h1 {
+  font-size: clamp(var(--fs-h3), 4.5cqw, var(--fs-h1));
+  line-height: var(--lh-snug); color: var(--fg); font-weight: 500; min-width: 0;
+}
+.ds-247420 .ds-slide-h1--lead { margin-bottom: 12px; }
+.ds-247420 .ds-slide-quote-body {
+  font-size: clamp(var(--fs-lg), 3.5cqw, var(--fs-h2));
+  line-height: var(--lh-snug); color: var(--fg); font-weight: 400; font-style: italic;
+}
+.ds-247420 .ds-slide-cite { font-family: var(--ff-mono); font-size: var(--fs-sm); color: var(--fg-3); }
+.ds-247420 .ds-slide-bullet {
+  display: flex; gap: clamp(8px, 2vw, 18px); align-items: baseline;
+  border-bottom: 1px solid var(--rule); padding: 12px 0; flex-wrap: wrap;
+}
+.ds-247420 .ds-slide-bullet-key {
+  flex: 0 1 clamp(56px, 18%, 100px); min-width: 0;
+  font-family: var(--ff-mono); font-size: var(--fs-sm);
+  color: var(--slide-accent, var(--accent-ink));
+}
+.ds-247420 .ds-slide-bullet-val { color: var(--fg-2); font-size: var(--fs-lg); min-width: 0; }
+.ds-247420 .ds-slide-split { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(12px, 3vw, 32px); margin-top: 12px; }
+@media (max-width: 760px) {
+  .ds-247420 .ds-slide-split { grid-template-columns: 1fr; }
+}
+.ds-247420 .ds-slide-split-cell {
+  padding: 18px; background: var(--bg-2); border-radius: 14px;
+  color: var(--fg-2); font-size: var(--fs-lg); line-height: var(--lh-base); min-width: 0;
+}
+.ds-247420 .ds-slide-split-cell--accent { border-left: 3px solid var(--slide-accent, var(--accent)); }
+
+/* --- error 404 --------------------------------------------- */
+.ds-247420 .ds-err-hero {
+  padding: clamp(16px, 5vw, 36px) clamp(12px, 4vw, 22px);
+  text-align: center; display: flex; flex-direction: column; gap: 14px; align-items: center;
+}
+.ds-247420 .ds-err-numeral {
+  font-family: var(--ff-mono); font-size: clamp(56px, 20vw, 120px);
+  line-height: 1; color: var(--panel-text-3); letter-spacing: -0.03em;
+}
+.ds-247420 .ds-err-path {
+  display: inline-flex; gap: 6px; align-items: baseline; flex-wrap: wrap; max-width: 100%;
+  font-family: var(--ff-mono); font-size: 13px; color: var(--panel-text-2);
+  background: var(--panel-1); padding: 6px 12px; border-radius: 8px;
+  overflow-wrap: anywhere; word-break: break-all;
+}
+
+/* --- gallery ------------------------------------------------ */
+.ds-247420 .ds-tile-grid {
+  padding: clamp(8px, 2.5vw, 16px);
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr)); gap: 8px;
+}
+.ds-247420 .ds-tile-grid--tight { grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr)); }
+.ds-247420 .ds-swatch-grid {
+  padding: clamp(8px, 2.5vw, 16px);
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(160px, 100%), 1fr)); gap: 12px;
+}
+.ds-247420 .ds-gallery-tile {
+  cursor: pointer; display: flex; flex-direction: column; gap: 6px;
+  padding: 12px; border-radius: 10px; min-height: clamp(120px, 18vw, 160px);
+  border: 0; text-align: left; font: inherit; color: inherit;
+  background: var(--tile-tone, var(--panel-1));
+}
+.ds-247420 .ds-gallery-tile:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.ds-247420 .ds-gallery-tile--tight { min-height: clamp(96px, 14vw, 120px); }
+.ds-247420 .ds-lightbox {
+  position: fixed; inset: 0; background: var(--scrim);
+  display: flex; align-items: center; justify-content: center;
+  padding: clamp(12px, 4vw, 32px);
+  padding-bottom: max(clamp(12px, 4vw, 32px), env(safe-area-inset-bottom));
+  z-index: 50;
+}
+.ds-247420 .ds-lightbox-card {
+  background: var(--panel-0); border-radius: 14px; padding: clamp(16px, 4vw, 28px);
+  width: min(520px, 100%); min-width: 0;
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.ds-247420 .ds-lightbox-preview {
+  padding: clamp(16px, 6vw, 36px); border-radius: 10px; text-align: center;
+  font-family: var(--ff-mono); white-space: pre-line; font-size: clamp(16px, 5vw, 24px);
+  background: var(--tile-tone, var(--panel-1));
+}
+
+/* --- search ------------------------------------------------- */
+.ds-247420 .ds-topbar-search { width: min(280px, 100%); min-width: 0; flex: 1 1 clamp(140px, 30vw, 280px); }
+@media (max-width: 480px) {
+  .ds-247420 .ds-topbar-search { flex-basis: 100%; }
+}
+.ds-247420 .ds-empty-state { padding: clamp(16px, 5vw, 24px); text-align: center; color: var(--panel-text-3); }
+.ds-247420 .ds-empty-state-glyph { font-size: clamp(24px, 6vw, 32px); }
+.ds-247420 .ds-empty-state-msg { margin: 6px 0; }
+.ds-247420 .ds-empty-state-hint { margin: 0; font-size: var(--fs-sm); }
+
+/* --- system primer ------------------------------------------ */
+.ds-247420 .ds-swatch-grid-sm {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(110px, 100%), 1fr));
+  gap: 12px; padding: clamp(10px, 2.5vw, 14px) clamp(10px, 3vw, 18px);
+}
+.ds-247420 .ds-swatch-grid-lg { grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr)); }
+.ds-247420 .ds-swatch-col { display: flex; flex-direction: column; gap: 6px; }
+.ds-247420 .ds-swatch-chip { height: 48px; border-radius: 10px; border: 1px solid var(--rule); background: var(--swatch, var(--panel-1)); }
+.ds-247420 .ds-swatch-chip--big { height: 64px; }
+.ds-247420 .ds-swatch-name { font-family: var(--ff-mono); font-size: 11px; color: var(--fg-3); }
+.ds-247420 .ds-type-panel { padding: clamp(10px, 2.5vw, 14px) clamp(10px, 3vw, 18px); display: flex; flex-direction: column; gap: 14px; }
+.ds-247420 .ds-type-row {
+  display: flex; align-items: baseline; gap: 14px;
+  border-bottom: 1px solid var(--rule); padding-bottom: 8px; flex-wrap: wrap;
+}
+.ds-247420 .ds-type-row-label { flex: 0 0 64px; font-family: var(--ff-mono); font-size: 11px; color: var(--fg-3); }
+.ds-247420 .ds-type-sample {
+  min-width: 0; overflow-wrap: anywhere; line-height: var(--lh-tight); color: var(--fg);
+  font-size: var(--sample-size, var(--fs-body));
+}
+.ds-247420 .ds-prim-panel { padding: clamp(10px, 2.5vw, 14px) clamp(10px, 3vw, 18px); display: flex; flex-direction: column; gap: 18px; }
+.ds-247420 .ds-prim-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.ds-247420 .ds-prim-label { flex: 0 0 64px; font-family: var(--ff-mono); font-size: 11px; color: var(--fg-3); }
+
+/* == appended: content-site == */
+/* Home landing wrappers (site/theme.mjs) — replace banned inline styles. */
+.ds-247420 .ds-home-hero-wrap { padding: 0 var(--space-2, 8px); }
+.ds-247420 .ds-home-panel { margin: var(--space-2, 8px); }
+@media (max-width: 480px) {
+  .ds-247420 .ds-home-panel { margin: var(--space-1, 4px) 0; }
+}
+.ds-247420 .ds-quickstart {
+  padding: var(--space-3, 16px) var(--space-4, 22px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+/* Table() scroll containment — wide tables scroll inside their own box,
+   never the page body. */
+.ds-247420 .ds-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+.ds-247420 .ds-table-wrap > table { min-width: 100%; }
+
+
+/* == appended: settings kit cleanup == */
+/* == appended: settings kit == */
+.ds-247420 .ds-settings-main { padding: 8px; }
+.ds-247420 .ds-settings-body { padding: 14px 18px; }
+.ds-247420 .ds-settings-body-stack { display: flex; flex-direction: column; gap: 10px; }
+.ds-247420 .ds-field-block { margin: 10px 0; }
+.ds-247420 .ds-field-eyebrow {
+  font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--panel-text-3);
+}
+.ds-247420 .ds-hint-sm { font-size: 12px; color: var(--panel-text-2); }
+.ds-247420 .ds-note-quiet { margin: 0; color: var(--panel-text-2); }
+.ds-247420 .ds-btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.ds-247420 .ds-btn-row-tight { gap: 6px; }
+.ds-247420 .ds-key-input { flex: 1 1 160px; min-width: 0; font-family: var(--ff-mono); }
+.ds-247420 .ds-toggle-btn { min-width: 78px; }
+.ds-247420 .ds-toggle-label { margin-left: 8px; color: inherit; opacity: 0.7; }
+.ds-247420 .ds-btn-warn { color: var(--warn); }
+.ds-247420 .ds-btn-mascot { color: var(--mascot); }
+.ds-247420 .ds-savebar {
+  position: sticky; bottom: 8px; display: flex; align-items: center;
+  justify-content: flex-end; gap: 8px; flex-wrap: wrap; padding: 10px;
+  background: var(--panel-2); border-radius: 10px; margin: 8px 0;
+}
+.ds-247420 .ds-savebar-note { flex: 1 1 160px; min-width: 0; color: var(--panel-text-2); }
+.ds-247420 .ds-settings-modal { min-width: min(320px, calc(100vw - 32px)); max-width: 480px; }
+.ds-247420 .ds-modal-body-form { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.ds-247420 .ds-modal-note { margin: 0 0 8px; color: var(--panel-text-2); font-size: 14px; }
+.ds-247420 .ds-draft-preview {
+  background: var(--panel-1); padding: 12px; border-radius: 6px;
+  font-size: 13px; color: var(--panel-text-2); max-height: 120px;
+  overflow-y: auto; font-family: var(--ff-mono); overflow-wrap: anywhere;
+}
+.ds-247420 .ds-modal-actions { display: flex; gap: 8px; margin-top: 12px; justify-content: space-between; flex-wrap: wrap; }
+
+/* == appended: signin kit cleanup == */
+/* -- signin kit (ui_kits/signin) -- */
+.ds-247420 .ds-auth-wrap { padding: var(--space-2, 8px); display: flex; flex-direction: column; align-items: center; }
+.ds-247420 .ds-auth-col { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 8px; margin: clamp(12px, 4vw, 24px) 0; min-width: 0; }
+.ds-247420 .ds-auth-form { padding: clamp(12px, 3vw, 18px); display: flex; flex-direction: column; gap: 10px; }
+.ds-247420 .ds-auth-sent { align-items: center; text-align: center; }
+.ds-247420 .ds-auth-sent-glyph { font-size: 32px; color: var(--panel-accent); }
+.ds-247420 .ds-auth-sent-title { margin: 0; font-weight: 600; }
+.ds-247420 .ds-auth-sent-sub { margin: 0; color: var(--panel-text-2); overflow-wrap: anywhere; }
+.ds-247420 .ds-auth-field { display: flex; flex-direction: column; gap: 4px; }
+.ds-247420 .ds-auth-field-label { font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--panel-text-3); }
+.ds-247420 .ds-auth-row-between { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.ds-247420 .ds-auth-remember { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.ds-247420 .ds-auth-remember-text { color: var(--panel-text-2); font-size: 13px; }
+.ds-247420 .ds-auth-forgot { font-size: 13px; }
+.ds-247420 .ds-auth-error { padding: 8px 10px; background: var(--panel-1); border-radius: 8px; color: var(--danger); font-size: 13px; overflow-wrap: anywhere; }
+.ds-247420 .ds-auth-divider { display: flex; align-items: center; gap: 10px; margin: 6px 0; color: var(--panel-text-3); font-size: 12px; }
+.ds-247420 .ds-auth-divider-line { flex: 1; height: 1px; background: var(--panel-2); }
+.ds-247420 .ds-auth-providers { display: flex; gap: 8px; flex-wrap: wrap; }
+.ds-247420 .ds-auth-provider-btn { flex: 1 1 100px; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; }
+.ds-247420 .ds-auth-provider-btn--loading { opacity: 0.7; pointer-events: none; }
+.ds-247420 .ds-auth-provider-glyph { font-family: var(--ff-mono); color: var(--panel-text-3); display: inline-flex; }
+.ds-247420 .ds-auth-modes { display: flex; justify-content: center; gap: 14px; margin-top: 8px; font-size: 13px; flex-wrap: wrap; }
+.ds-247420 .ds-auth-mode-link { color: var(--panel-text-3); text-decoration: none; }
+.ds-247420 .ds-auth-mode-link--active { color: var(--panel-text); text-decoration: underline; }
+.ds-247420 .ds-auth-fineprint { text-align: center; font-size: 12px; color: var(--panel-text-3); margin: 6px 0; }
+
+/* == appended: gallery-misc kit cleanup == */
+/* --- shared helpers (converted from inline styles) --- */
+.ds-247420 .ds-m0 { margin: 0; }
+.ds-247420 .ds-text-2 { color: var(--panel-text-2); }
+.ds-247420 .ds-text-3 { color: var(--panel-text-3); }
+.ds-247420 .ds-kit-head { display: flex; align-items: center; justify-content: space-between; gap: clamp(8px, 2vw, 16px); flex-wrap: wrap; }
+
+/* --- gallery kit --- */
+.ds-247420 .ds-tile-cap { flex: 1; display: flex; align-items: center; justify-content: center; font-family: var(--ff-mono); white-space: pre-line; color: var(--panel-text-2); font-size: 18px; min-width: 0; text-align: center; }
+.ds-247420 .ds-tile-meta { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 12px; flex-wrap: wrap; min-width: 0; }
+.ds-247420 .ds-tile-glyph { font-family: var(--ff-mono); color: var(--panel-text-3); }
+.ds-247420 .ds-tile-label { color: var(--panel-text); overflow-wrap: anywhere; }
+.ds-247420 .ds-gal-swatch { height: 64px; border-radius: 8px; background: var(--swatch, var(--panel-1)); }
+.ds-247420 .ds-gal-swatch-meta { display: flex; justify-content: space-between; gap: 6px; flex-wrap: wrap; font-family: var(--ff-mono); font-size: 11px; min-width: 0; }
+.ds-247420 .ds-gal-swatch-name { color: var(--panel-text); }
+.ds-247420 .ds-gal-swatch-hint { color: var(--panel-text-3); overflow-wrap: anywhere; }
+.ds-247420 .ds-lightbox-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ds-247420 .ds-lightbox-tag { font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--panel-text-3); }
+
+/* --- error_404 kit --- */
+.ds-247420 .ds-err-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
+.ds-247420 .ds-err-chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+
+/* == appended: terminal-capp kit cleanup == */
+/* --- terminal kit ------------------------------------------ */
+.ds-247420 .ds-section-pad-sm { padding: 8px; }
+.ds-247420 .ds-kit-head-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.ds-247420 .ds-cli-cmt .cmd { color: var(--fg-3); }
+.ds-247420 .ds-cli-out .cmd { color: var(--fg-2); }
+.ds-247420 .ds-cli-ok .prompt, .ds-247420 .ds-cli-ok .cmd { color: var(--accent-ink); }
+.ds-247420 .ds-cli-warn .prompt, .ds-247420 .ds-cli-warn .cmd { color: var(--mascot); }
+.ds-247420 .ds-cli-log .prompt { color: var(--fg-3); }
+.ds-247420 .ds-cli-log .cmd { color: var(--fg-2); font-family: var(--ff-mono); }
+.ds-247420 .ds-term-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; background: var(--bg-2); border-radius: 10px; }
+.ds-247420 .ds-term-body--tall { min-height: 280px; }
+.ds-247420 .ds-term-input-row { margin-top: 6px; }
+.ds-247420 .ds-term-input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; font-family: var(--ff-mono); font-size: 13px; color: var(--fg); }
+/* full-viewport render root (community-app) */
+.ds-247420 .ds-root-viewport { height: 100vh; height: 100dvh; }
 
 /* community.css */
 /* ============================================================
@@ -4092,8 +4712,13 @@
 .ds-247420 .cm-shell {
   display: flex;
   height: 100vh;
+  height: 100dvh;
   width: 100%;
   overflow: hidden;
+  /* Notched devices: keep the rail and bottom chrome out of the unsafe zones. */
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
   background: var(--bg);
   color: var(--fg);
   font-family: var(--ff-body);
@@ -4880,7 +5505,7 @@
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklab, var(--fg) 18%, transparent) transparent;
   transition: width var(--dur-base) var(--ease), flex-basis var(--dur-base) var(--ease);
-  will-change: width, flex-basis, opacity, transform; contain: layout style;
+  contain: layout style;
 }
 .ds-247420 .cm-member-list:not(.open) {
   width: 0;
@@ -5025,7 +5650,7 @@
 /* ============================================================
    Responsive — collapse sidebars on narrow viewports
    ============================================================ */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .ds-247420 .cm-channel-sidebar {
     position: absolute;
     z-index: 20;
@@ -5052,6 +5677,21 @@
   .ds-247420 .cm-chat-header-topic { display: none; }
 }
 
+/* Drawer scrim — dims the chat while a drawer overlays it on narrow screens.
+   Visual affordance only (pointer-events: none): tap-to-close needs a real
+   element + handler in CommunityShell, which lives outside this stylesheet. */
+@media (max-width: 900px) {
+  .ds-247420 .cm-shell:has(.cm-channel-sidebar.open) .cm-main::before,
+  .ds-247420 .cm-shell:has(.cm-member-list.open) .cm-main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 15;
+    background: color-mix(in oklab, var(--ink) 40%, transparent);
+    pointer-events: none;
+  }
+}
+
 @media (max-width: 480px) {
   .ds-247420 .cm-server-rail {
     flex: 0 0 56px;
@@ -5064,28 +5704,56 @@
     height: 44px;
     padding: 4px;
   }
-  .ds-247420 .cm-channel-sidebar {
+  .ds-247420 .cm-channel-sidebar,
+  .ds-247420 .cm-channel-sidebar.open {
     left: 56px;
     width: 80vw;
-    max-width: 200px;
-  }
-  .ds-247420 .cm-channel-sidebar.open {
-    width: 80vw;
-    max-width: 200px;
-  }
-
-  /* Mobile touch target fixes for icon buttons */
-  .ds-247420 .cm-cat-add,
-  .ds-247420 .cm-ch-action-btn {
-    width: 44px;
-    height: 44px;
-    padding: 8px;
+    /* Use the width beside the 56px rail, not a 200px sliver. */
+    max-width: min(320px, calc(100vw - 56px));
   }
   .ds-247420 .cm-ch-icon {
     flex: 0 0 24px;
     width: 24px;
     height: 24px;
   }
+}
+
+/* Touch target floors — applies on any coarse-pointer device (phones AND
+   touch tablets/laptops), not just narrow viewports. */
+@media (pointer: coarse) {
+  .ds-247420 .cm-channel-item,
+  .ds-247420 .cm-member-item { min-height: 44px; }
+  .ds-247420 .cm-cat-add,
+  .ds-247420 .cm-ch-action-btn,
+  .ds-247420 .cm-user-btn,
+  .ds-247420 .cm-vs-btn,
+  .ds-247420 .cm-tp-new,
+  .ds-247420 .cm-tp-close,
+  .ds-247420 .cm-rb-cancel,
+  .ds-247420 .cm-mh-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .ds-247420 .cm-forum-search,
+  .ds-247420 .cm-forum-sort,
+  .ds-247420 .cm-forum-new { min-height: 44px; }
+}
+
+/* Ultrawide: clamp the message/forum/page column to a readable measure. */
+@media (min-width: 1600px) {
+  .ds-247420 .cm-main > .chat,
+  .ds-247420 .cm-forum-list,
+  .ds-247420 .cm-page-body {
+    max-width: 110ch;
+    margin-inline: auto;
+    width: 100%;
+  }
+}
+
+/* No hover on touch: hover-revealed channel actions must stay reachable. */
+@media (hover: none) {
+  .ds-247420 .cm-channel-item .cm-ch-actions { opacity: 0.6; }
+  .ds-247420 .cm-category-header .cm-cat-add { opacity: 0.6; }
 }
 
 /* ---------- a11y polish: focus-visible coverage on community interactive elements ---------- */
@@ -5140,8 +5808,8 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  height: 48px;
-  padding: 0 var(--space-2);
+  height: calc(48px + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) max(var(--space-2), env(safe-area-inset-right)) 0 max(var(--space-2), env(safe-area-inset-left));
   background: var(--bg-2);
   border-bottom: 1px solid var(--panel-3);
 }
@@ -5416,6 +6084,7 @@
 .ds-247420 .vx-modal {
   width: 100%; max-width: 440px;
   max-height: 90vh;
+  max-height: 90dvh;
   display: flex; flex-direction: column;
   border-radius: var(--r-3);
   background: var(--bg);
@@ -5541,9 +6210,20 @@
 /* ThreadPanel — cm-thread-panel / cm-tp-* */
 .ds-247420 .cm-thread-panel {
   display: flex; flex-direction: column;
+  flex: 0 0 300px; width: 300px; min-width: 0;
   height: 100%; min-height: 0;
   background: var(--bg-2); color: var(--fg);
   border-left: var(--bw-hair) solid var(--rule);
+}
+@media (max-width: 900px) {
+  .ds-247420 .cm-thread-panel {
+    position: absolute;
+    z-index: 20;
+    top: 0; right: 0; bottom: 0;
+    height: auto;
+    width: min(320px, 90vw);
+    box-shadow: -2px 0 16px color-mix(in oklab, var(--ink) 30%, transparent);
+  }
 }
 .ds-247420 .cm-tp-head {
   display: flex; align-items: center; justify-content: space-between;
@@ -5558,6 +6238,7 @@
 .ds-247420 .cm-tp-new:hover, .ds-247420 .cm-tp-close:hover { background: var(--bg-3); color: var(--fg); }
 .ds-247420 .cm-tp-list { flex: 1; min-height: 0; overflow-y: auto; }
 .ds-247420 .cm-tp-item {
+  position: relative; /* anchors .cm-tp-dot to the row, not the panel */
   display: flex; flex-direction: column; gap: 2px;
   width: 100%; text-align: left; cursor: pointer;
   padding: var(--space-2); border: none; background: transparent;
@@ -5567,7 +6248,7 @@
 .ds-247420 .cm-tp-item:hover { background: var(--bg-3); }
 .ds-247420 .cm-tp-item.is-active { background: var(--bg-3); box-shadow: inset 3px 0 0 var(--accent); }
 .ds-247420 .cm-tp-item.is-unread .cm-tp-item-title { font-weight: 700; }
-.ds-247420 .cm-tp-dot { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.ds-247420 .cm-tp-dot { position: absolute; left: 4px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
 .ds-247420 .cm-tp-item-title { font-size: var(--fs-1, 14px); }
 .ds-247420 .cm-tp-item-snippet { font-size: var(--fs-0, 12px); color: var(--fg-2, var(--fg)); opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ds-247420 .cm-tp-item-meta { display: flex; gap: var(--space-2); font-size: var(--fs-micro, 11px); color: var(--fg-2, var(--fg)); opacity: .7; }
@@ -5575,7 +6256,7 @@
 
 /* ForumView — cm-forum / cm-forum-* */
 .ds-247420 .cm-forum { display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--bg-1, var(--bg-2)); color: var(--fg); }
-.ds-247420 .cm-forum-toolbar { display: flex; gap: var(--space-2); align-items: center; padding: var(--space-2); border-bottom: var(--bw-hair) solid var(--rule); }
+.ds-247420 .cm-forum-toolbar { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; padding: var(--space-2); border-bottom: var(--bw-hair) solid var(--rule); }
 .ds-247420 .cm-forum-search { flex: 1; padding: var(--space-1) var(--space-2); border: var(--bw-hair) solid var(--rule-strong); border-radius: var(--r-1); background: var(--bg-3); color: var(--fg); }
 .ds-247420 .cm-forum-sort { padding: var(--space-1); border: var(--bw-hair) solid var(--rule-strong); border-radius: var(--r-1); background: var(--bg-3); color: var(--fg); }
 .ds-247420 .cm-forum-new { padding: var(--space-1) var(--space-2); border: none; border-radius: var(--r-1); background: var(--accent); color: var(--accent-fg); cursor: pointer; }
@@ -6492,6 +7173,9 @@
    neutral pill and from the accent-toned running pill (--success = green-2). */
 .ds-247420 .chat-msg .chat-tool.tool-done .chat-tool-status { color: var(--success); background: color-mix(in oklab, var(--success) 12%, transparent); }
 .ds-247420 .chat-tool-body { border-top: var(--bw-hair) solid var(--rule); padding: var(--space-2) var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
+/* details' intrinsic min-content sizing: an unbroken token in the pre must not
+   widen the tool card past the bubble column. */
+.ds-247420 .chat-msg .chat-tool, .ds-247420 .chat-tool-body, .ds-247420 .chat-tool-section { min-width: 0; max-width: 100%; }
 .ds-247420 .chat-tool-section { display: flex; flex-direction: column; gap: var(--space-1); }
 .ds-247420 .chat-tool-section-label { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); }
 .ds-247420 .chat-tool-copy { position: static; opacity: 0; }
@@ -7042,6 +7726,11 @@
 .ds-247420 .ds-ep-ctxmenu {
     position: absolute;
     min-width: 180px;
+    max-width: calc(100vw - 8px);
+    max-height: calc(100vh - 8px);
+    max-height: calc(100dvh - 8px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     background: var(--panel-1, var(--panel-bg));
     color: var(--panel-text, var(--fg-text));
     border: 1px solid var(--rule);
@@ -7090,7 +7779,7 @@
 }
 .ds-247420 .ds-ep-drawer.side-left   { left: 0; top: 0; bottom: 0; width: 86vw; max-width: 320px; }
 .ds-247420 .ds-ep-drawer.side-right  { right: 0; top: 0; bottom: 0; width: 86vw; max-width: 320px; }
-.ds-247420 .ds-ep-drawer.side-bottom { left: 0; right: 0; bottom: 0; max-height: 80vh; border-top-left-radius: 12px; border-top-right-radius: 12px; }
+.ds-247420 .ds-ep-drawer.side-bottom { left: 0; right: 0; bottom: 0; max-height: 80vh; max-height: 80dvh; border-top-left-radius: 12px; border-top-right-radius: 12px; }
 @media (min-width: 768px) {
     .ds-247420 .ds-ep-drawer.side-left, .ds-247420 .ds-ep-drawer.side-right { width: 360px; max-width: 360px; }
 }
@@ -7102,7 +7791,7 @@
     position: fixed; inset: 0; z-index: 9500;
     background: var(--scrim-strong);
     display: flex; align-items: center; justify-content: center;
-    padding: 16px;
+    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
 }
 .ds-247420 .ds-ep-dialog {
     background: var(--panel-1, var(--panel-bg));
@@ -7111,7 +7800,9 @@
     border-radius: var(--r-2, 10px);
     box-shadow: var(--shadow-overlay);
     min-width: 280px; max-width: min(560px, 100%);
-    max-height: 90vh; overflow: auto;
+    max-height: 90vh;
+    max-height: min(90dvh, calc(100dvh - 32px));
+    overflow: auto;
     display: flex; flex-direction: column;
     outline: none;
 }
@@ -7387,6 +8078,11 @@
     padding: 0;
     outline: none;
     min-width: 160px;
+    max-width: calc(100vw - 8px);
+    max-height: calc(100vh - 8px);
+    max-height: calc(100dvh - 8px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 @media (prefers-reduced-motion: no-preference) {
     .ds-247420 .ds-popover { transition: opacity 140ms ease, transform 140ms ease; }
@@ -7860,6 +8556,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   min-height: 0;
   overflow: hidden;
 }
@@ -8185,6 +8882,11 @@
   .ds-247420 .app, .ds-247420 .app-main, .ds-247420 .panel, .ds-247420 .chat, .ds-247420 .chat-thread {
     background: var(--paper) !important; color: var(--ink) !important; box-shadow: none !important;
   }
+  /* Community surface: unclamp the fixed-height shell and hide the chrome so a
+     transcript prints as flowing pages instead of one clipped viewport. */
+  .ds-247420 .cm-shell { height: auto; overflow: visible; display: block; }
+  .ds-247420 .cm-server-rail, .ds-247420 .cm-channel-sidebar, .ds-247420 .cm-member-list, .ds-247420 .cm-mobile-header, .ds-247420 .cm-voice-strip { display: none !important; }
+  .ds-247420 .cm-main, .ds-247420 .cm-channel-list { overflow: visible; height: auto; }
 }
 
 /* gm-prose.css */
@@ -8236,6 +8938,7 @@
   top: 24px;
   align-self: start;
   max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
   overflow-y: auto;
   overscroll-behavior: contain;
   margin: 0;
@@ -8502,8 +9205,9 @@
 }
 .ds-247420 .sp-hud-ammo {
   position: fixed;
-  bottom: 50px;
-  right: 20px;
+  /* Fixed chrome clears notch/home-indicator on cutout devices. */
+  bottom: calc(50px + env(safe-area-inset-bottom, 0px));
+  right: calc(20px + env(safe-area-inset-right, 0px));
   font-size: 24px;
   font-weight: bold;
   color: var(--fg);
@@ -8512,7 +9216,7 @@
 .ds-247420 .sp-hud-ammo-reloading { color: var(--warn); }
 .ds-247420 .sp-hud-health {
   position: fixed;
-  bottom: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
   width: 200px;
@@ -8539,7 +9243,7 @@
 .ds-247420 .sp-hud-boost {
   position: fixed;
   top: 80px;
-  right: 20px;
+  right: calc(20px + env(safe-area-inset-right, 0px));
   padding: 8px 16px;
   background: var(--accent);
   color: var(--accent-fg);
@@ -8572,6 +9276,11 @@
   border: 1px solid var(--bw-rule, var(--rule));
   border-radius: var(--r-2, 10px);
   color: var(--fg);
+  /* Short landscape phones: keep lower controls reachable inside the card. */
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .ds-247420 .sp-lobby-title {
   margin: 0;

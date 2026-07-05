@@ -6,6 +6,10 @@ import { fileGlyph, fmtFileSize } from './files.js';
 import { highlightAllUnder } from '../highlight.js';
 const h = webjsx.createElement;
 
+// Full focusable set for the modal Tab trap — omitting textarea/select/a[href]
+// lets Tab escape behind the fixed backdrop (fully obscured at mobile sizes).
+const FOCUSABLE_SEL = 'a[href],button:not([disabled]),textarea:not([disabled]),input:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])';
+
 // Stable per-call-site id source for aria-labelledby: we want one fixed id per
 // logical dialog instance (rename, confirm, prompt, preview), NOT a monotonic
 // counter that advances on every render and leaves the old aria-labelledby
@@ -40,9 +44,7 @@ function Backdrop({ onClose, children, kind = '', labelledBy, busy = false } = {
             // disabled mid-flight (busy state) are excluded from the cycle and
             // do not break tab navigation.
             if (e.key === 'Tab') {
-                const focusables = modal.querySelectorAll(
-                    'button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
-                );
+                const focusables = modal.querySelectorAll(FOCUSABLE_SEL);
                 if (focusables.length === 0) {
                     e.preventDefault();
                     return;
@@ -86,7 +88,7 @@ function Backdrop({ onClose, children, kind = '', labelledBy, busy = false } = {
         // Auto-focus on open - only when focus is not already inside the modal
         // (re-renders must not yank the caret around).
         if (!el.contains(document.activeElement)) {
-            const preferred = modal.querySelector('[autofocus]') || firstFocusable;
+            const preferred = modal.querySelector('[autofocus]') || modal.querySelector(FOCUSABLE_SEL);
             if (preferred) preferred.focus();
         }
     };
@@ -323,16 +325,41 @@ function previewKeyNav(onPrev, onNext) {
     };
 }
 
+// Touch stepping: horizontal swipe on the preview body steps prev/next. Skips
+// when the gesture starts inside a horizontally-scrollable child (code <pre>)
+// so panning wide code never flips files.
+function previewSwipe(onPrev, onNext) {
+    if (!onPrev && !onNext) return {};
+    let sx = null, sy = null;
+    return {
+        onpointerdown: (e) => {
+            const scroller = e.target.closest && e.target.closest('pre');
+            if (scroller && scroller.scrollWidth > scroller.clientWidth) { sx = null; return; }
+            sx = e.clientX; sy = e.clientY;
+        },
+        onpointerup: (e) => {
+            if (sx == null) return;
+            const dx = e.clientX - sx, dy = e.clientY - sy;
+            sx = null;
+            if (Math.abs(dx) < 48 || Math.abs(dy) > Math.abs(dx)) return;
+            if (dx < 0 && onNext) onNext();
+            else if (dx > 0 && onPrev) onPrev();
+        },
+        onpointercancel: () => { sx = null; },
+    };
+}
+
 export function FileViewer({ file, body, onClose, onAction, onPrev, onNext } = {}) {
     if (!file) return null;
+    const keyNav = previewKeyNav(onPrev, onNext);
     return Modal({
         onClose,
         kind: 'preview',
         headClass: 'ds-preview-head',
-        headAttrs: { 'data-file-type': file.type || 'other', onkeydown: previewKeyNav(onPrev, onNext) },
+        headAttrs: { 'data-file-type': file.type || 'other', onkeydown: keyNav },
         head: previewHead({ file, onClose, onAction, onPrev, onNext }),
         bodyClass: 'ds-preview-body',
-        bodyAttrs: { 'data-file-type': file.type || 'other' },
+        bodyAttrs: { 'data-file-type': file.type || 'other', onkeydown: keyNav, ...previewSwipe(onPrev, onNext) },
         body: Array.isArray(body) ? body : [body],
     });
 }

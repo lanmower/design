@@ -54,72 +54,80 @@ const slides = [
 const state = { i: 0 };
 
 function Slide(s) {
-    const accentVar = s.accent ? `var(--${s.accent})` : 'var(--accent)';
-    const eyebrow = h('div', {
-        style: 'font-family:var(--ff-mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--fg-3);margin-bottom:24px'
-    }, s.eyebrow || '');
+    // custom-property-only inline: carries the per-slide accent tone, no layout
+    const accentStyle = s.accent ? `--slide-accent:var(--${s.accent})` : '';
+    const eyebrow = h('div', { class: 'ds-slide-eyebrow' }, s.eyebrow || '');
 
     if (s.kind === 'title') {
-        return h('div', { style: 'display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:24px' },
+        return h('div', { class: 'ds-slide-col ds-slide-col--start', style: accentStyle },
             eyebrow,
-            h('div', { style: `font-size:var(--fs-hero);line-height:var(--lh-tight);color:${accentVar};letter-spacing:var(--tr-tight);font-weight:600` }, s.title),
+            h('div', { class: 'ds-slide-hero' }, s.title),
             s.sub ? h('div', { class: 't-lede' }, s.sub) : null
         );
     }
     if (s.kind === 'lede') {
-        return h('div', { style: 'display:flex;flex-direction:column;justify-content:center;gap:18px;max-width:38ch' },
+        return h('div', { class: 'ds-slide-col ds-slide-col--narrow', style: accentStyle },
             eyebrow,
-            h('div', { style: 'font-size:var(--fs-h1);line-height:var(--lh-snug);color:var(--fg);font-weight:500' }, s.title),
+            h('div', { class: 'ds-slide-h1' }, s.title),
             h('div', { class: 't-lede' }, s.body)
         );
     }
     if (s.kind === 'bullets') {
-        return h('div', { style: 'display:flex;flex-direction:column;justify-content:center;gap:18px' },
+        return h('div', { class: 'ds-slide-col', style: accentStyle },
             eyebrow,
-            h('div', { style: 'font-size:var(--fs-h1);line-height:var(--lh-snug);color:var(--fg);font-weight:500;margin-bottom:12px' }, s.title),
+            h('div', { class: 'ds-slide-h1 ds-slide-h1--lead' }, s.title),
             ...s.items.map(([k, v]) =>
-                h('div', { style: 'display:flex;gap:18px;align-items:baseline;border-bottom:1px solid var(--rule);padding:12px 0' },
-                    h('span', { style: `flex:0 0 100px;font-family:var(--ff-mono);font-size:var(--fs-sm);color:${accentVar}` }, k),
-                    h('span', { style: 'color:var(--fg-2);font-size:var(--fs-lg)' }, v)
+                h('div', { class: 'ds-slide-bullet' },
+                    h('span', { class: 'ds-slide-bullet-key' }, k),
+                    h('span', { class: 'ds-slide-bullet-val' }, v)
                 )
             )
         );
     }
     if (s.kind === 'quote') {
-        return h('div', { style: 'display:flex;flex-direction:column;justify-content:center;gap:18px;max-width:42ch' },
+        return h('div', { class: 'ds-slide-col ds-slide-col--quote', style: accentStyle },
             eyebrow,
-            h('div', { style: 'font-size:var(--fs-h2);line-height:var(--lh-snug);color:var(--fg);font-weight:400;font-style:italic' }, s.body),
-            h('div', { style: 'font-family:var(--ff-mono);font-size:var(--fs-sm);color:var(--fg-3)' }, s.cite)
+            h('div', { class: 'ds-slide-quote-body' }, s.body),
+            h('div', { class: 'ds-slide-cite' }, s.cite)
         );
     }
     if (s.kind === 'split') {
-        return h('div', { style: 'display:flex;flex-direction:column;justify-content:center;gap:24px' },
+        return h('div', { class: 'ds-slide-col', style: accentStyle },
             eyebrow,
-            h('div', { style: 'font-size:var(--fs-h1);line-height:var(--lh-snug);color:var(--fg);font-weight:500' }, s.title),
-            h('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:12px' },
-                h('div', { style: 'padding:18px;background:var(--bg-2);border-radius:14px;color:var(--fg-2);font-size:var(--fs-lg);line-height:var(--lh-base)' }, s.left),
-                h('div', { style: `padding:18px;background:var(--bg-2);border-radius:14px;color:var(--fg-2);font-size:var(--fs-lg);line-height:var(--lh-base);border-left:3px solid ${accentVar}` }, s.right)
+            h('div', { class: 'ds-slide-h1' }, s.title),
+            h('div', { class: 'ds-slide-split' },
+                h('div', { class: 'ds-slide-split-cell' }, s.left),
+                h('div', { class: 'ds-slide-split-cell ds-slide-split-cell--accent' }, s.right)
             )
         );
     }
     return null;
 }
 
+let touchX = null;
+
 function Stage() {
     const s = slides[state.i];
     return h('div', {
         class: 'ds-deck-stage',
-        style: 'aspect-ratio:16/9;width:100%;max-width:1100px;margin:24px auto;background:var(--bg-2);border-radius:18px;padding:64px;box-sizing:border-box;display:flex;'
-    }, h('div', { style: 'flex:1;display:flex' }, Slide(s)));
+        ontouchstart: (e) => { touchX = e.touches[0].clientX; },
+        ontouchend: (e) => {
+            if (touchX == null) return;
+            const dx = e.changedTouches[0].clientX - touchX;
+            touchX = null;
+            if (dx < -40 && state.i < slides.length - 1) { state.i++; kit.render(); }
+            else if (dx > 40 && state.i > 0) { state.i--; kit.render(); }
+        }
+    }, h('div', { class: 'ds-deck-slide' }, Slide(s)));
 }
 
 function Controls() {
-    return h('div', { style: 'display:flex;align-items:center;justify-content:center;gap:14px;padding:8px;font-family:var(--ff-mono);font-size:var(--fs-sm)' },
+    return h('div', { class: 'ds-deck-controls' },
         h('button', {
             class: 'btn',
             onclick: () => { if (state.i > 0) { state.i--; kit.render(); } }
         }, '<- prev'),
-        h('span', { style: 'color:var(--fg-3)' }, (state.i + 1) + ' / ' + slides.length),
+        h('span', { class: 'ds-deck-count' }, (state.i + 1) + ' / ' + slides.length),
         h('button', {
             class: 'btn',
             onclick: () => { if (state.i < slides.length - 1) { state.i++; kit.render(); } }
@@ -145,8 +153,8 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-section', style: 'padding:8px' },
-                h('div', { style: 'display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap' },
+            h('div', { class: 'ds-section ds-section-pad' },
+                h('div', { class: 'ds-kit-head' },
                     h('div', {}, Heading({ level: 1, children: 'slide deck' })),
                     ThemeToggle()
                 ),

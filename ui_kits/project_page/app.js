@@ -82,12 +82,14 @@ function App() {
             }))
         }),
         main: [
-            Heading({ level: 1, children: 'gm' }),
-            Lede({ children: 'state machine for coding agents. it thinks, so you don\'t have to (as much).' }),
-            Section({ title: 'install',
-                children: Install({ cmd: 'npx -y @anentrypoint/mcp-gm', copied: state.copied, onCopy: copyInstall }) }),
-            Section({ title: 'receipt', children: Receipt({ rows: receiptRows }) }),
-            Section({ title: 'changelog', children: Changelog({ entries: changelog }) })
+            h('div', { class: 'ds-section ds-section-pad' },
+                Heading({ level: 1, children: 'gm' }),
+                Lede({ children: 'state machine for coding agents. it thinks, so you don\'t have to (as much).' }),
+                Section({ title: 'install',
+                    children: Install({ cmd: 'npx -y @anentrypoint/mcp-gm', copied: state.copied, onCopy: copyInstall }) }),
+                Section({ title: 'receipt', children: Receipt({ rows: receiptRows }) }),
+                Section({ title: 'changelog', children: Changelog({ entries: changelog }) })
+            )
         ],
         status: Status({
             left: ['main', 'typescript', '0 errors', '0 warnings'],

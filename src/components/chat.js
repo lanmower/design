@@ -480,7 +480,10 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
             autoGrowScheduled = true;
             requestAnimationFrame(() => {
                 ta.style.height = 'auto';
-                ta.style.height = Math.min(ta.scrollHeight, 200) + 'px';
+                // Respect the CSS max-height cap (120px in short-landscape via
+                // app-shell.css) instead of a hardcoded 200px.
+                const cap = parseFloat(getComputedStyle(ta).maxHeight) || 200;
+                ta.style.height = Math.min(ta.scrollHeight, cap) + 'px';
                 autoGrowScheduled = false;
             });
         }
@@ -493,7 +496,8 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
         const next = value || '';
         if (el.value !== next) el.value = next;
         el.style.height = 'auto';
-        el.style.height = Math.min(el.scrollHeight, 200) + 'px';
+        const cap = parseFloat(getComputedStyle(el).maxHeight) || 200;
+        el.style.height = Math.min(el.scrollHeight, cap) + 'px';
     };
     // Optional context line shown above the textarea: agent / model / cwd at the
     // point of typing (the way Claude-Desktop surfaces the active target inline).
@@ -541,10 +545,17 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
         }, joined);
     }
     const hasDraft = !!(value && value.trim());
+    // Clamp the picker anchor to the visual viewport: with the on-screen
+    // keyboard open the composer sits near the visual-viewport bottom, and on
+    // narrow screens the picker width can overflow the right edge.
+    const anchorRect = (anchorEl && anchorEl.getBoundingClientRect) ? anchorEl.getBoundingClientRect() : null;
+    const vvWidth = (typeof window !== 'undefined')
+        ? ((window.visualViewport && window.visualViewport.width) || window.innerWidth)
+        : 0;
     const triggerPicker = triggerMatch ? EmojiPicker({
         open: true,
-        anchorX: (anchorEl && anchorEl.getBoundingClientRect) ? anchorEl.getBoundingClientRect().left : 0,
-        anchorY: (anchorEl && anchorEl.getBoundingClientRect) ? anchorEl.getBoundingClientRect().top : 0,
+        anchorX: anchorRect ? Math.max(0, Math.min(anchorRect.left, vvWidth - 280)) : 0,
+        anchorY: anchorRect ? Math.max(8, anchorRect.top - 8) : 0,
         query: triggerMatch[2] || '',
         onSelect: (ch) => insertEmoji(ch),
         onClose: () => { if (taEl) { const v = taEl.value.replace(EMOJI_TRIGGER_RE, (full, tail) => full.slice(0, full.length - tail.length)); if (onInput) onInput(v); taEl.value = v; taEl.focus(); } },

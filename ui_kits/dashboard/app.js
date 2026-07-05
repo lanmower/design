@@ -63,19 +63,19 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-section', style: 'padding:8px' },
+            h('div', { class: 'ds-section ds-section-pad' },
                 Heading({ level: 1, children: 'dashboard' }),
                 Lede({ children: 'kpis, tables, receipts, changelog — every content primitive in one operations surface.' }),
-                Panel({ title: 'live metrics', count: kpis.length, style: 'margin:8px 0', children: Kpi({ items: kpis }) }),
-                Panel({ title: 'top endpoints', count: tableRows.length, style: 'margin:8px 0', children: Table({ headers: tableHeaders, rows: tableRows }) }),
-                h('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0' },
+                Panel({ title: 'live metrics', count: kpis.length, class: 'ds-panel-gap', children: Kpi({ items: kpis }) }),
+                Panel({ title: 'top endpoints', count: tableRows.length, class: 'ds-panel-gap', children: h('div', { class: 'ds-scroll-x' }, Table({ headers: tableHeaders, rows: tableRows })) }),
+                h('div', { class: 'ds-panel-duo' },
                     Panel({ title: 'environment', children: Receipt({ rows: receipt }) }),
                     Panel({ title: 'recent events', count: events.length, children: events.map((e, i) =>
                         Row({ key: 'ev' + i, code: e.code, title: e.title, sub: e.sub, meta: e.meta })
                     ) })
                 ),
-                Panel({ title: 'changelog', count: changelog.length, style: 'margin:8px 0', children: Changelog({ entries: changelog }) }),
-                Panel({ title: 'about this kit', style: 'margin:8px 0', children: h('div', { class: 'ds-pattern-notes' },
+                Panel({ title: 'changelog', count: changelog.length, class: 'ds-panel-gap', children: Changelog({ entries: changelog }) }),
+                Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
                     h('p', {}, '· ', Chip({ tone: 'accent', children: 'Kpi' }), ' for headline counters with delta + meta.'),
                     h('p', {}, '· ', Chip({ tone: 'accent', children: 'Table' }), ' for tabular metrics, ', Chip({ tone: 'accent', children: 'Row' }), ' for event lists.'),
                     h('p', {}, '· ', Chip({ tone: 'accent', children: 'Receipt' }), ' for kv environment manifest, ', Chip({ tone: 'accent', children: 'Changelog' }), ' for release log.')

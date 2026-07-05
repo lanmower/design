@@ -13,6 +13,7 @@ import { lintTokensOrThrow } from './lint-tokens.mjs';
 import { lintGlyphsOrThrow } from './lint-glyphs.mjs';
 import { lintNullChildrenOrThrow } from './lint-null-children.mjs';
 import { lintClassesOrThrow } from './lint-classes.mjs';
+import { lintInlineStylesOrThrow } from './lint-inline-styles.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -39,6 +40,10 @@ lintNullChildrenOrThrow();
 // class tokens, so kit internals never collide with consumer CSS inside the
 // .ds-247420 mount scope.
 lintClassesOrThrow();
+
+// Inline-style gate: no layout properties in style= attributes (ui_kits/site
+// scope for now) — layout lives in classes so responsive rules stay in-sheet.
+lintInlineStylesOrThrow();
 
 const SCOPE = '.ds-247420';
 

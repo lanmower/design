@@ -146,6 +146,9 @@ export function Hero({ eyebrow, title, body, accent, badge, badgeCount, actions 
 }
 
 export function Marquee({ items = [], sep = '/' }) {
+    // No items -> no ticker: an empty marquee still paints its border-block
+    // rules as an unexplained full-width stripe.
+    if (!items.length) return null;
     // Two identical runs make the -50% translate loop seamless. Each text and
     // separator is a keyed span so webjsx applyDiff never sees a primitive
     // sibling beside a keyed VElement.
@@ -258,7 +261,9 @@ export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothin
     // Native <table>/<tr>/<th>/<td> already carry the correct implicit ARIA
     // roles — explicit role="table"/row/columnheader/cell is redundant and only
     // risks overriding native semantics, so it is omitted.
-    return h('table', {},
+    // Scroll containment lives on the component itself: a wide table used
+    // outside a Panel must never force page-level horizontal scroll.
+    return h('div', { class: 'ds-table-wrap' }, h('table', {},
         h('thead', {}, h('tr', {}, ...headers.map((hd, i) => h('th', { key: i, scope: 'col' }, hd)))),
         h('tbody', {}, ...rows.map((row, i) => h('tr', {
             key: i,
@@ -267,7 +272,7 @@ export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothin
             // Space scrolls by default — preventDefault on Space (and Enter) so
             // keyboard activation matches click without page jump.
             ...(onRowClick ? { tabindex: '0', role: 'button', 'aria-label': 'open ' + labelFor(row, i), onkeydown: (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); onRowClick(i); } } } : {})
-        }, ...row.map((c, j) => h('td', { key: j }, c == null ? '' : (typeof c === 'object' ? c : String(c))))))));
+        }, ...row.map((c, j) => h('td', { key: j }, c == null ? '' : (typeof c === 'object' ? c : String(c)))))))));
 }
 
 export function HomeView({ state = {}, onNav, onToggleWork, works = [], posts = [], manifesto = [], currentlyShipping } = {}) {

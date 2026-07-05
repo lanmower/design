@@ -32,26 +32,28 @@ const items = [
 const state = { open: null, density: 'comfy' };
 
 function Tile(it) {
-    const size = state.density === 'tight' ? '120px' : '160px';
     return h('button', {
         key: it.id,
         onclick: () => { state.open = it.id; kit.render(); },
-        style: 'all:unset;cursor:pointer;display:flex;flex-direction:column;gap:6px;background:var(--' + it.tone + ');padding:12px;border-radius:10px;min-height:' + size
+        class: 'ds-gallery-tile' + (state.density === 'tight' ? ' ds-gallery-tile--tight' : ''),
+        // custom-property-only inline: carries the per-tile tone, no layout
+        style: '--tile-tone:var(--' + it.tone + ')'
     },
-        h('div', { style: 'flex:1;display:flex;align-items:center;justify-content:center;font-family:var(--ff-mono);white-space:pre-line;color:var(--panel-text-2);font-size:18px' }, it.caption),
-        h('div', { style: 'display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:12px' },
-            h('span', { style: 'font-family:var(--ff-mono);color:var(--panel-text-3)' }, it.glyph),
-            h('span', { style: 'color:var(--panel-text)' }, it.label)
+        h('div', { class: 'ds-tile-cap' }, it.caption),
+        h('div', { class: 'ds-tile-meta' },
+            h('span', { class: 'ds-tile-glyph' }, it.glyph),
+            h('span', { class: 'ds-tile-label' }, it.label)
         )
     );
 }
 
 function Swatch(t) {
-    return h('div', { key: t.name, style: 'display:flex;flex-direction:column;gap:6px' },
-        h('div', { style: 'height:64px;border-radius:8px;background:var(--' + t.name + ')' }),
-        h('div', { style: 'display:flex;justify-content:space-between;font-family:var(--ff-mono);font-size:11px' },
-            h('span', { style: 'color:var(--panel-text)' }, t.name),
-            h('span', { style: 'color:var(--panel-text-3)' }, t.hint)
+    return h('div', { key: t.name, class: 'ds-swatch-col' },
+        // custom-property-only inline: carries the per-swatch tone, no layout
+        h('div', { class: 'ds-gal-swatch', style: '--swatch:var(--' + t.name + ')' }),
+        h('div', { class: 'ds-gal-swatch-meta' },
+            h('span', { class: 'ds-gal-swatch-name' }, t.name),
+            h('span', { class: 'ds-gal-swatch-hint' }, t.hint)
         )
     );
 }
@@ -61,23 +63,21 @@ function Lightbox() {
     const it = items.find((i) => i.id === state.open);
     return h('div', {
         onclick: () => { state.open = null; kit.render(); },
-        style: 'position:fixed;inset:0;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:32px;z-index:50'
+        class: 'ds-lightbox'
     },
-        h('div', { onclick: (e) => e.stopPropagation(),
-            style: 'background:var(--panel-0);border-radius:14px;padding:28px;min-width:320px;max-width:520px;display:flex;flex-direction:column;gap:14px' },
-            h('div', { style: 'display:flex;justify-content:space-between;align-items:center' },
-                h('span', { style: 'font-family:var(--ff-mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--panel-text-3)' }, 'tile · ' + it.id),
+        h('div', { onclick: (e) => e.stopPropagation(), class: 'ds-lightbox-card' },
+            h('div', { class: 'ds-lightbox-head' },
+                h('span', { class: 'ds-lightbox-tag' }, 'tile · ' + it.id),
                 h('button', { class: 'btn', onclick: () => { state.open = null; kit.render(); } }, 'close')
             ),
-            h('div', { style: 'background:var(--' + it.tone + ');padding:36px;border-radius:10px;text-align:center;font-family:var(--ff-mono);white-space:pre-line;font-size:24px' }, it.caption),
-            h('p', { style: 'margin:0' }, h('strong', {}, it.label)),
-            h('p', { style: 'margin:0;color:var(--panel-text-2)' }, 'this lightbox uses the same tonal panel — no extra components, no shadow. backdrop is fixed inset, click outside dismisses.')
+            h('div', { class: 'ds-lightbox-preview', style: '--tile-tone:var(--' + it.tone + ')' }, it.caption),
+            h('p', { class: 'ds-m0' }, h('strong', {}, it.label)),
+            h('p', { class: 'ds-m0 ds-text-2' }, 'this lightbox uses the same tonal panel — no extra components, no shadow. backdrop is fixed inset, click outside dismisses.')
         )
     );
 }
 
 function App() {
-    const cols = state.density === 'tight' ? 'repeat(auto-fill, minmax(140px, 1fr))' : 'repeat(auto-fill, minmax(180px, 1fr))';
     return AppShell({
         topbar: Topbar({ brand: '247420', leaf: 'gallery', items: [['index', '../../'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'gallery', right: items.length + ' tiles' }),
@@ -94,16 +94,16 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-section', style: 'padding:8px' },
+            h('div', { class: 'ds-section ds-section-pad' },
                 Heading({ level: 1, children: 'gallery' }),
                 Lede({ children: 'visual grid of tonal cards. tiles use the same panel tokens the rest of the system does — no bespoke tile component, no shadows, no borders.' }),
-                Panel({ title: 'tiles', count: items.length, style: 'margin:8px 0', children:
-                    h('div', { style: 'padding:16px;display:grid;grid-template-columns:' + cols + ';gap:8px' }, ...items.map(Tile))
+                Panel({ title: 'tiles', count: items.length, class: 'ds-panel-gap', children:
+                    h('div', { class: 'ds-tile-grid' + (state.density === 'tight' ? ' ds-tile-grid--tight' : '') }, ...items.map(Tile))
                 }),
-                Panel({ title: 'swatches', count: swatchTokens.length, style: 'margin:8px 0', children:
-                    h('div', { style: 'padding:16px;display:grid;grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));gap:12px' }, ...swatchTokens.map(Swatch))
+                Panel({ title: 'swatches', count: swatchTokens.length, class: 'ds-panel-gap', children:
+                    h('div', { class: 'ds-swatch-grid' }, ...swatchTokens.map(Swatch))
                 }),
-                Panel({ title: 'about this kit', style: 'margin:8px 0', children: h('div', { class: 'ds-pattern-notes' },
+                Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
                     h('p', {}, '· tiles are tonal panels stacked into a css grid — ', Chip({ tone: 'accent', children: 'auto-fill minmax' }), ' for the responsive default.'),
                     h('p', {}, '· lightbox reuses the panel surface; no extra component, no transitions, no z-stack circus.'),
                     h('p', {}, '· density toggle drops min tile size — same tokens, different rhythm.')
@@ -119,3 +119,7 @@ function App() {
 }
 
 const kit = mountKit({ root, view: App, screen: '14 Gallery' });
+
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && state.open) { state.open = null; kit.render(); }
+});

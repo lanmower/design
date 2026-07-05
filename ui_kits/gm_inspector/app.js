@@ -75,27 +75,27 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-section', style: 'padding:8px' },
+            h('div', { class: 'ds-section ds-section-pad' },
                 Heading({ level: 1, children: 'gm inspector' }),
                 Lede({ children: 'session list, process tree, deviations, live stream -- the data-density component family (PhaseWalk, TreeNode, BarRow, StatsGrid, SessionRow, DevRow, LiveLog) composed into one observability surface.' }),
-                Panel({ title: 'overview', count: kpis.length, style: 'margin:8px 0', children: StatsGrid({ items: kpis }) }),
-                Panel({ title: 'sessions', count: sessions.length, style: 'margin:8px 0', children: h('div', {},
+                Panel({ title: 'overview', count: kpis.length, class: 'ds-panel-gap', children: StatsGrid({ items: kpis }) }),
+                Panel({ title: 'sessions', count: sessions.length, class: 'ds-panel-gap', children: h('div', { class: 'ds-scroll-x' },
                     ...sessions.map((s, i) => h('div', { key: 'sr' + i }, SessionRow(s)))) }),
-                h('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0' },
-                    Panel({ title: 'process tree', count: treeNodes.length, children: h('div', {},
+                h('div', { class: 'ds-panel-duo' },
+                    Panel({ title: 'process tree', count: treeNodes.length, children: h('div', { class: 'ds-scroll-x' },
                         ...treeNodes.map((n, i) => h('div', { key: 'tn' + i }, TreeNode(n)))) }),
                     Panel({ title: 'deviations', count: deviations.length, children: deviations.length
                         ? h('div', {}, ...deviations.map((d, i) => h('div', { key: 'dv' + i }, DevRow(d))))
                         : h('div', { class: 'ds-stat-lbl' }, 'no deviations') })
                 ),
-                Panel({ title: 'recall score histogram', style: 'margin:8px 0', children: h('div', {},
+                Panel({ title: 'recall score histogram', class: 'ds-panel-gap', children: h('div', {},
                     BarRow({ label: '0.5-0.6', value: '12', pct: 40, tone: 'var(--accent)' }),
                     BarRow({ label: '0.6-0.7', value: '31', pct: 100, tone: 'var(--accent)' }),
                     BarRow({ label: '0.7-0.8', value: '18', pct: 58, tone: 'var(--accent)' }),
                     BarRow({ label: '0.8-0.9', value: '6',  pct: 19, tone: 'var(--accent)' })
                 ) }),
-                Panel({ title: 'live stream', style: 'margin:8px 0', children: LiveLog({ entries: liveEntries }) }),
-                Panel({ title: 'about this kit', style: 'margin:8px 0', children: h('div', { class: 'ds-pattern-notes' },
+                Panel({ title: 'live stream', class: 'ds-panel-gap', children: h('div', { class: 'ds-scroll-x' }, LiveLog({ entries: liveEntries })) }),
+                Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
                     h('p', {}, '- ', Chip({ tone: 'accent', children: 'StatsGrid' }), ' for dense KPI tiles.'),
                     h('p', {}, '- ', Chip({ tone: 'accent', children: 'SessionRow' }), ' + ', Chip({ tone: 'accent', children: 'PhaseWalk' }), ' for per-session phase progress at a glance.'),
                     h('p', {}, '- ', Chip({ tone: 'accent', children: 'TreeNode' }), ' for a chronological dispatch/verb timeline, variant-colored by kind.'),
