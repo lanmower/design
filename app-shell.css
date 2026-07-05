@@ -486,6 +486,9 @@ body.canvas-host { background: transparent !important; }
 .ds-badge.tone-error   { background: var(--flame);       color: var(--on-color); }
 .ds-badge.tone-success { background: var(--green-tint);  color: var(--green-deep); }
 .ds-badge.tone-neutral { background: var(--bg-3);        color: var(--fg-2); }
+.ds-badge.tone-blue    { background: var(--accent-tint); color: var(--accent-ink); }
+.ds-badge.tone-orange  { background: color-mix(in oklab, var(--flame) 30%, var(--sun) 70%); color: var(--ink); }
+.ds-badge.tone-yellow  { background: var(--sun);         color: var(--ink); }
 
 .chip {
   display: inline-flex; align-items: center; gap: 6px;
@@ -509,6 +512,20 @@ body.canvas-host { background: transparent !important; }
 .chip.tone-ok       { background: var(--green-tint);  color: var(--green-deep); }
 .chip.tone-miss     { background: var(--flame);       color: var(--on-color); }
 .chip.tone-neutral  { background: var(--bg-3);        color: var(--fg-2); }
+.chip.tone-blue     { background: var(--accent-tint); color: var(--accent-ink); }
+.chip.tone-orange   { background: color-mix(in oklab, var(--flame) 30%, var(--sun) 70%); color: var(--ink); }
+.chip.tone-yellow   { background: var(--sun);         color: var(--ink); }
+
+/* ds-pill — plain neutral chip, distinct from the toned .ds-badge/.chip family
+   (gmsniff's .pill: a bare rounded label with no semantic tone). */
+.ds-pill {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-micro);
+  background: var(--bg-3); color: var(--fg-2);
+  margin: 1px;
+}
 
 .glyph {
   display: inline-flex; align-items: center; justify-content: center;
@@ -3587,3 +3604,105 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   .app-status { display: none; }
   .ws-main { overflow: visible; height: auto; }
 }
+
+/* ============================================================
+   Data density — dense observability/dashboard primitives (ported from the
+   gmsniff GUI). Components: PhaseWalk, TreeNode, BarRow, StatTile/StatsGrid,
+   SubGrid, SessionRow, DevRow, LiveLog/LiveLogEntry. src/components/data-density.js.
+   All colors derive from colors_and_type.css tokens — see lint-tokens.mjs.
+   ============================================================ */
+
+/* --danger-surface: semantic surface for a deviation/error callout background
+   (gmsniff's #3a1a1a dark-red-tinted panel). Derived from --warn so it always
+   reads as "danger" against the active theme instead of a baked literal. */
+:root {
+  --danger-surface: color-mix(in oklab, var(--warn) 14%, var(--bg));
+}
+
+/* PhaseWalk */
+.ds-phasewalk { display: inline-flex; gap: 2px; vertical-align: middle; }
+.ds-phasewalk-seg {
+  width: 18px; height: 10px; border-radius: 2px;
+  background: var(--bg-3); position: relative;
+}
+.ds-phasewalk-seg.is-reached { background: var(--success); }
+.ds-phasewalk-seg.is-gap { background: var(--warn); }
+.ds-phasewalk-lbl {
+  position: absolute; top: -15px; left: 0;
+  font-size: var(--fs-micro); color: var(--fg-3); white-space: nowrap;
+}
+
+/* TreeNode */
+.ds-tree-node {
+  padding: 5px 10px; border-left: var(--bw-rule) solid var(--bg-3);
+  margin: 2px 0 2px 16px; font-size: var(--fs-tiny);
+}
+.ds-tree-node.is-phase { border-color: var(--accent); background: var(--bg-3); font-weight: 600; }
+.ds-tree-node.is-deviation { border-color: var(--warn); background: var(--danger-surface); color: var(--warn); }
+.ds-tree-node.is-mutable-resolve { border-color: var(--success); }
+.ds-tree-node.is-prd-add { border-color: var(--sun); }
+.ds-tree-node-ts { margin-right: 8px; color: var(--fg-3); }
+.ds-tree-node-pills { margin-left: 6px; }
+.ds-tree-node-reason { margin-top: 2px; color: var(--fg-2); }
+.ds-tree-node-deviation { margin-top: 2px; }
+.ds-tree-node-residuals { margin-top: 2px; color: var(--fg-3); }
+
+/* BarRow */
+.ds-bar-row { display: flex; align-items: center; gap: 8px; margin: 3px 0; font-size: var(--fs-tiny); }
+.ds-bar-row-label { width: 100px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-bar-bg { flex: 1; background: var(--bg-3); border-radius: 2px; height: 6px; overflow: hidden; }
+.ds-bar-fill { background: var(--accent); height: 100%; border-radius: 2px; }
+.ds-bar-row-value { flex-shrink: 0; color: var(--fg-2); }
+
+/* StatTile / StatsGrid */
+.ds-stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--space-2); }
+.ds-stats-grid-empty { padding: var(--space-3); color: var(--fg-3); font-size: var(--fs-tiny); }
+.ds-stat { background: var(--bg-3); border-radius: 4px; padding: 10px 12px; }
+.ds-stat-val { font-size: 22px; font-weight: 700; color: var(--accent-ink); }
+.ds-stat-val.rate-big { font-size: 32px; color: var(--success); }
+.ds-stat-val.err-rate { font-size: 32px; color: var(--warn); }
+.ds-stat-lbl { font-size: var(--fs-micro); color: var(--fg-3); margin-top: 2px; }
+
+/* SubGrid */
+.ds-sub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; margin-top: 8px; }
+.ds-sub-grid-empty { padding: var(--space-3); color: var(--fg-3); font-size: var(--fs-tiny); }
+.ds-sub-btn {
+  padding: 6px 10px; background: var(--bg-3); border: var(--bw-hair) solid var(--bg-3);
+  border-radius: 4px; font-size: var(--fs-tiny); cursor: pointer; color: var(--fg);
+  text-align: left; font-family: var(--ff-body);
+}
+.ds-sub-btn:hover { border-color: var(--accent); color: var(--accent-ink); }
+.ds-sub-btn span { display: block; font-size: 18px; font-weight: 700; color: var(--accent-ink); }
+
+/* SessionRow */
+.ds-session-row {
+  display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+  border-bottom: var(--bw-hair) solid var(--bg-3); cursor: pointer;
+}
+.ds-session-row:hover { background: var(--bg-3); }
+.ds-session-row-id {
+  font-family: var(--ff-mono); font-size: var(--fs-micro); color: var(--accent-ink);
+  width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ds-session-row-counts { font-size: var(--fs-micro); color: var(--fg-3); width: 280px; }
+.ds-session-row-devcnt { color: var(--warn); font-weight: 600; }
+.ds-session-row-span { font-size: var(--fs-micro); color: var(--fg-3); }
+
+/* DevRow */
+.ds-dev-row {
+  background: var(--danger-surface); border-left: var(--bw-chunk) solid var(--warn);
+  padding: 8px 12px; margin: 4px 0; border-radius: 3px; font-size: var(--fs-tiny);
+}
+.ds-dev-row strong { color: var(--warn); }
+
+/* LiveLog */
+.ds-live-log {
+  height: calc(100vh - 200px); overflow-y: auto;
+  font-family: var(--ff-mono); font-size: var(--fs-micro); line-height: 1.5;
+}
+.ds-live-log-empty { height: auto; padding: var(--space-3); color: var(--fg-3); }
+.ds-live-log-entry { padding: 2px 8px; border-bottom: var(--bw-hair) solid var(--bg-3); }
+.ds-live-log-entry:hover { background: var(--bg-3); }
+.ds-live-log-ts { margin-right: 6px; color: var(--fg-3); }
+.ds-live-log-subtag { margin-right: 6px; padding: 0 5px; border-radius: 2px; font-size: var(--fs-micro); }
+.ds-live-log-preview { margin-left: 6px; color: var(--fg-3); }
