@@ -83,21 +83,39 @@ function App() {
         }),
         main: [
             h('div', { class: 'ds-section chat-kit-page' },
-                Chat({
-                    title: state.room, sub: 'public', messages: state.messages,
-                    composer: ChatComposer({
-                        value: state.draft,
-                        placeholder: 'message #' + state.room + '…',
-                        onInput: (v) => { state.draft = v; kit.render(); },
-                        onSend: send
-                    })
-                }),
+                h('div', { class: 'ds-chat-layout' },
+                    Chat({
+                        title: state.room, sub: 'public', messages: state.messages,
+                        composer: ChatComposer({
+                            value: state.draft,
+                            placeholder: 'message #' + state.room + '…',
+                            onInput: (v) => { state.draft = v; kit.render(); },
+                            onSend: send
+                        })
+                    }),
+                    // Persistent detail rail — only revealed once .ds-chat-layout has
+                    // room to spare (>=1100px, see app-shell.css). On mobile/tablet
+                    // this is display:none rather than reflowed below the thread, so
+                    // the composer stays the last on-screen element there.
+                    h('div', { class: 'ds-chat-detail' },
+                        Panel({ title: 'this room', children: h('div', { class: 'ds-pattern-notes' },
+                            h('p', {}, h('strong', {}, '#' + state.room)),
+                            h('p', {}, rooms.find(r => r.key === state.room)?.count ?? dms.find(r => r.key === state.room)?.count ?? 0, ' members')
+                        ) }),
+                        Panel({ title: 'participants', children:
+                            [{ glyph: '·', label: 'jordan' }, { glyph: '·', label: 'mai' }].map((p, i) =>
+                                h('div', { key: 'p' + i, class: 'ds-pattern-notes' }, h('p', {}, p.glyph + ' ' + p.label))
+                            )
+                        })
+                    )
+                ),
                 Panel({
                     title: 'pattern notes',
                     children: h('div', { class: 'ds-pattern-notes' },
                         h('p', {}, '· bubble corner-cut on the originating side (4–6px) gives directional read without arrows.'),
                         h('p', {}, '· own messages take the accent fill so the eye lands on what you said last; [x] delivered, [x][x] read.'),
-                        h('p', {}, '· markdown is parsed by ', h('code', {}, 'marked'), ' and sanitized by ', h('code', {}, 'DOMPurify'), '; code blocks lit by ', h('code', {}, 'prism.js'), '.')
+                        h('p', {}, '· markdown is parsed by ', h('code', {}, 'marked'), ' and sanitized by ', h('code', {}, 'DOMPurify'), '; code blocks lit by ', h('code', {}, 'prism.js'), '.'),
+                        h('p', {}, '· >=1100px viewport reveals a persistent "this room" + participants rail beside the thread instead of just widening the message column.')
                     )
                 })
             )

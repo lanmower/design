@@ -12,7 +12,7 @@ Every repo in the 247420.xyz portfolio (33 projects, source-of-truth: C:/dev/247
 
 ## Design System — Non-Obvious Caveats
 
-**Visual north-star: "Acid Editorial" (2026-06-24 reinvention).** The look is art-directed editorial, NOT the earlier "calm tonal/readable" framing: Space Grotesk display (`--ff-display`) + Inter body + JetBrains code; one electric lead accent `--acid` (#B6FF1B) on near-black ink / warm newsprint paper; asymmetric grid tension (the Hero is a two-column `grid-template-areas` layout, never a centered stack); print texture (`.ds-grain`/`.ds-halftone`, `--grain`) over glow-gradients; physical spring motion (`--ease-spring`); signature components (`C.Marquee` ticker, `.panel-spine` accent rule). **Critical token split:** `--accent` is the FILL (lime, behind ink text); `--accent-ink` is the readable TEXT tone (the lime is ~1.07:1 on paper and invisible as text). Any new `color:` accent usage MUST use `--accent-ink`, not `--accent`; only `background`/`border-color` use the bare lead. The dark theme makes `--accent-ink` the bright lime itself (15.88:1 on ink).
+**Visual north-star: "Acid Editorial" (2026-06-24 reinvention, fonts swapped 2026-07-05).** The look is art-directed editorial, NOT the earlier "calm tonal/readable" framing: Bricolage Grotesque display (`--ff-display`) + Hanken Grotesk body + JetBrains code — Space Grotesk and Inter were dropped because 2026 design discourse flags both as AI-tool tell fonts (Space Grotesk paired with Instrument Serif, Inter/system-ui as the default AI-slop body face); one electric lead accent `--acid` (#B6FF1B) on near-black ink / warm newsprint paper; asymmetric grid tension (the Hero is a two-column `grid-template-areas` layout, never a centered stack); print texture (`.ds-grain`/`.ds-halftone`, `--grain`) over glow-gradients; physical spring motion (`--ease-spring`); signature components (`C.Marquee` ticker, `.panel-spine` accent rule). **Critical token split:** `--accent` is the FILL (lime, behind ink text); `--accent-ink` is the readable TEXT tone (the lime is ~1.07:1 on paper and invisible as text). Any new `color:` accent usage MUST use `--accent-ink`, not `--accent`; only `background`/`border-color` use the bare lead. The dark theme makes `--accent-ink` the bright lime itself (15.88:1 on ink).
 
 For older Design System policy (zero-border aesthetic, panel-shadow source-strip, pill radius scale, sidebar floating-pill margin, surface tokens, hermes-theme reference, list-row primitives, row/input rules) — query rs-learn (e.g. "list bg borders", "pill radius scale", "box-shadow stripped", "list primitives", "fab cta sidebar").
 
@@ -32,7 +32,7 @@ GitHub Pages deploy needs `build_type=workflow` AND a deployment-branch-policy f
 
 ## flatspace v1.0.17 — Dual-Mode Build Pattern
 
-flatspace v1.0.17 switches behavior based on file presence: when `flatspace.config.mjs` exists in cwd, it runs **theme mode** (calls `theme.render(ctx)` returning `Array<{path,html}>`, writes to `outDir` default `docs`, reads YAML from `contentDir` default `content`). When the config file is absent, it runs **legacy bun build mode**. The theme contract includes: `ctx.read('pages').docs`, `ctx.readGlobal(slug)`, `ctx.writeFile(rel, data)`. CI builds via `npx --yes flatspace@latest build` without requiring local node_modules.
+flatspace v1.0.17 dual-mode build (theme mode vs legacy bun mode, theme contract shape) — query rs-learn ("flatspace dual-mode build") for detail.
 
 ## Portfolio Aggregation Contract
 

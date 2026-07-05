@@ -1,8 +1,9 @@
 /* ============================================================
    247420 design system — component sheet
-   "Acid Editorial": Space Grotesk display + Inter body + JetBrains code.
-   Confident hierarchy, asymmetric grid tension, print texture over glow,
-   one electric lead accent. Indicator rails over hairlines.
+   "Acid Editorial": Bricolage Grotesque display + Hanken Grotesk body +
+   JetBrains code. Confident hierarchy, asymmetric grid tension, print
+   texture over glow, one electric lead accent. Indicator rails over
+   hairlines.
    ============================================================ */
 
 /* ============================================================
@@ -371,11 +372,17 @@ body.canvas-host { background: transparent !important; }
 .app-main > .chat,
 .app-main > .chat-area,
 .app-main > .ds-file-stage,
+.app-main > .ds-files-stack,
 .app-main > .grow { flex: 1 1 auto; min-height: 0; }
 .app-main.narrow { max-width: var(--measure-narrow); margin: 0 auto; }
 
 @media (min-width: 1400px) {
-  .app { max-width: 1400px; margin-left: auto; margin-right: auto; }
+  /* Fluid ceiling, not a hard stop: scales from 1400px up to 1920px across the
+     1400-2200px viewport band (matches .ws-shell's 1920px ultrawide cap below)
+     instead of freezing at 1400px and leaving >1000px dead margin on a 2560px+
+     display. Row/prose measure caps (--measure-wide etc.) still own line-length
+     readability, so widening the shell itself does not create unreadable rows. */
+  .app { max-width: clamp(1400px, 92vw, 1920px); margin-left: auto; margin-right: auto; }
   .app-main .chat,
   .app-main > .chat-area,
   .app-main > .main-content { max-width: none; margin: 0; width: 100%; }
@@ -384,6 +391,12 @@ body.canvas-host { background: transparent !important; }
   .app-status { width: 100%; }
   /* Cap row text measure inside the wide capped main (ultrawide readability). */
   .row .title, .row .sub { max-width: var(--measure-wide); }
+}
+/* Beyond 1920px the shell itself stops growing (matches .ws-shell's own cap) —
+   extra space becomes page margin rather than stretching sidebar/content grid
+   tracks to distances a pointer/eye shouldn't have to travel. */
+@media (min-width: 2200px) {
+  .app { max-width: 1920px; }
 }
 
 .app-status {
@@ -1586,8 +1599,17 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 
 /* Full-width files stack: the stage's space-3 vertical beat without its
    920px cap/auto-margins, so the roots / toolbar / bulkbar / uploads / grid
-   bands keep one consistent rhythm instead of touching edge-to-edge. */
-.ds-files-stack { display: flex; flex-direction: column; gap: var(--space-3); min-height: 0; }
+   bands keep one consistent rhythm instead of touching edge-to-edge. Carries
+   the same side/bottom padding as .ds-file-stage (top collapses the same way
+   when mounted directly under .app-main, which already supplies top padding)
+   so switching a consumer from the capped stage to this full-width stack is a
+   pure width change, not a spacing regression. */
+.ds-files-stack {
+  display: flex; flex-direction: column; gap: var(--space-3); min-height: 0;
+  padding: 0 var(--space-3) var(--space-4);
+}
+.app-main > div > .ds-files-stack,
+.app-main .ds-files-stack { padding-top: 0; }
 
 /* Breadcrumb path */
 .ds-crumb-path {
@@ -4209,3 +4231,18 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ds-term-input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; font-family: var(--ff-mono); font-size: 13px; color: var(--fg); }
 /* full-viewport render root (community-app) */
 .ds-root-viewport { height: 100vh; height: 100dvh; }
+
+/* --- chat kit: widescreen detail pane -----------------------
+   .chat itself stays single-column (shared component, untouched) and
+   stretches full-width on ultrawide via the existing .app-main > .chat
+   max-width:none rule above (~L380) — that's fine for a bare thread, but
+   it leaves a lone thread column growing to 1400px+ with no other use of
+   the extra width. This wrapper adds a persistent "thread info" rail once
+   there is room to spare, instead of just widening the message column. */
+.ds-chat-layout { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: var(--space-3); }
+.ds-chat-layout > .chat { min-width: 0; }
+.ds-chat-detail { display: none; }
+@media (min-width: 1100px) {
+  .ds-chat-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; align-items: start; gap: var(--space-4); }
+  .ds-chat-detail { display: block; position: sticky; top: 0; }
+}

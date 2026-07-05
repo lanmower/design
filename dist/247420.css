@@ -7,17 +7,18 @@
    Source-of-truth tokens. Component sheet lives in app-shell.css.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Hanken+Grotesk:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap');
 
-/* Metric-matched fallback for the display face. While Space Grotesk loads,
-   text falls back to Arial with size-adjust tuned to its cap-height so the
-   oversized hero does not reflow on swap. Referenced first in --ff-display via
-   the 'Space Grotesk' family; this only kicks in for the fallback glyphs. */
+/* Metric-matched fallback for the display face. While Bricolage Grotesque
+   loads, text falls back to Arial with size-adjust tuned to its cap-height so
+   the oversized hero does not reflow on swap. Referenced first in --ff-display
+   via the 'Bricolage Grotesque' family; this only kicks in for the fallback
+   glyphs. */
 @font-face {
-  font-family: 'Space Grotesk Fallback';
+  font-family: 'Bricolage Grotesque Fallback';
   src: local('Arial');
-  size-adjust: 96%;
-  ascent-override: 95%;
+  size-adjust: 99%;
+  ascent-override: 94%;
   descent-override: 24%;
 }
 
@@ -131,13 +132,14 @@
   --panel-accent-2: var(--accent-bright, var(--accent));
   --panel-shadow: 0 1px 0 color-mix(in oklab, var(--fg) 6%, transparent), 0 4px 14px color-mix(in oklab, var(--fg) 8%, transparent);
 
-  /* Type — Space Grotesk carries display/headings (editorial grotesk with real
-     character), Inter carries body and UI, JetBrains carries code. The narrow
-     alias tracks the display face. size-adjust on the fallback keeps the
-     oversized hero from shifting while Space Grotesk loads. */
-  --ff-display:  'Space Grotesk', 'Space Grotesk Fallback', 'Inter', system-ui, sans-serif;
-  --ff-narrow:   'Space Grotesk', 'Space Grotesk Fallback', 'Inter', system-ui, sans-serif;
-  --ff-body:     'Inter', system-ui, sans-serif;
+  /* Type — Bricolage Grotesque carries display/headings (variable editorial
+     grotesque with real character), Hanken Grotesk carries body and UI,
+     JetBrains carries code. The narrow alias tracks the display face.
+     size-adjust on the fallback keeps the oversized hero from shifting while
+     Bricolage Grotesque loads. */
+  --ff-display:  'Bricolage Grotesque', 'Bricolage Grotesque Fallback', 'Hanken Grotesk', system-ui, sans-serif;
+  --ff-narrow:   'Bricolage Grotesque', 'Bricolage Grotesque Fallback', 'Hanken Grotesk', system-ui, sans-serif;
+  --ff-body:     'Hanken Grotesk', system-ui, sans-serif;
   --ff-mono:     'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
 
   --fs-micro:    12px;
@@ -500,9 +502,10 @@
 /* app-shell.css */
 /* ============================================================
    247420 design system — component sheet
-   "Acid Editorial": Space Grotesk display + Inter body + JetBrains code.
-   Confident hierarchy, asymmetric grid tension, print texture over glow,
-   one electric lead accent. Indicator rails over hairlines.
+   "Acid Editorial": Bricolage Grotesque display + Hanken Grotesk body +
+   JetBrains code. Confident hierarchy, asymmetric grid tension, print
+   texture over glow, one electric lead accent. Indicator rails over
+   hairlines.
    ============================================================ */
 
 /* ============================================================
@@ -871,11 +874,17 @@
 .ds-247420 .app-main > .chat,
 .ds-247420 .app-main > .chat-area,
 .ds-247420 .app-main > .ds-file-stage,
+.ds-247420 .app-main > .ds-files-stack,
 .ds-247420 .app-main > .grow { flex: 1 1 auto; min-height: 0; }
 .ds-247420 .app-main.narrow { max-width: var(--measure-narrow); margin: 0 auto; }
 
 @media (min-width: 1400px) {
-  .ds-247420 .app { max-width: 1400px; margin-left: auto; margin-right: auto; }
+  /* Fluid ceiling, not a hard stop: scales from 1400px up to 1920px across the
+     1400-2200px viewport band (matches .ws-shell's 1920px ultrawide cap below)
+     instead of freezing at 1400px and leaving >1000px dead margin on a 2560px+
+     display. Row/prose measure caps (--measure-wide etc.) still own line-length
+     readability, so widening the shell itself does not create unreadable rows. */
+  .ds-247420 .app { max-width: clamp(1400px, 92vw, 1920px); margin-left: auto; margin-right: auto; }
   .ds-247420 .app-main .chat,
   .ds-247420 .app-main > .chat-area,
   .ds-247420 .app-main > .main-content { max-width: none; margin: 0; width: 100%; }
@@ -884,6 +893,12 @@
   .ds-247420 .app-status { width: 100%; }
   /* Cap row text measure inside the wide capped main (ultrawide readability). */
   .ds-247420 .row .title, .ds-247420 .row .sub { max-width: var(--measure-wide); }
+}
+/* Beyond 1920px the shell itself stops growing (matches .ws-shell's own cap) —
+   extra space becomes page margin rather than stretching sidebar/content grid
+   tracks to distances a pointer/eye shouldn't have to travel. */
+@media (min-width: 2200px) {
+  .ds-247420 .app { max-width: 1920px; }
 }
 
 .ds-247420 .app-status {
@@ -2086,8 +2101,17 @@
 
 /* Full-width files stack: the stage's space-3 vertical beat without its
    920px cap/auto-margins, so the roots / toolbar / bulkbar / uploads / grid
-   bands keep one consistent rhythm instead of touching edge-to-edge. */
-.ds-247420 .ds-files-stack { display: flex; flex-direction: column; gap: var(--space-3); min-height: 0; }
+   bands keep one consistent rhythm instead of touching edge-to-edge. Carries
+   the same side/bottom padding as .ds-file-stage (top collapses the same way
+   when mounted directly under .app-main, which already supplies top padding)
+   so switching a consumer from the capped stage to this full-width stack is a
+   pure width change, not a spacing regression. */
+.ds-247420 .ds-files-stack {
+  display: flex; flex-direction: column; gap: var(--space-3); min-height: 0;
+  padding: 0 var(--space-3) var(--space-4);
+}
+.ds-247420 .app-main > div > .ds-files-stack,
+.ds-247420 .app-main .ds-files-stack { padding-top: 0; }
 
 /* Breadcrumb path */
 .ds-247420 .ds-crumb-path {
@@ -4698,6 +4722,21 @@
 .ds-247420 .ds-term-input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; font-family: var(--ff-mono); font-size: 13px; color: var(--fg); }
 /* full-viewport render root (community-app) */
 .ds-247420 .ds-root-viewport { height: 100vh; height: 100dvh; }
+
+/* --- chat kit: widescreen detail pane -----------------------
+   .chat itself stays single-column (shared component, untouched) and
+   stretches full-width on ultrawide via the existing .app-main > .chat
+   max-width:none rule above (~L380) — that's fine for a bare thread, but
+   it leaves a lone thread column growing to 1400px+ with no other use of
+   the extra width. This wrapper adds a persistent "thread info" rail once
+   there is room to spare, instead of just widening the message column. */
+.ds-247420 .ds-chat-layout { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: var(--space-3); }
+.ds-247420 .ds-chat-layout > .chat { min-width: 0; }
+.ds-247420 .ds-chat-detail { display: none; }
+@media (min-width: 1100px) {
+  .ds-247420 .ds-chat-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; align-items: start; gap: var(--space-4); }
+  .ds-247420 .ds-chat-detail { display: block; position: sticky; top: 0; }
+}
 
 /* community.css */
 /* ============================================================
@@ -8656,6 +8695,40 @@
   padding: 16px;
   overflow-y: auto;
   align-content: start;
+}
+
+/* ============================================================
+   Responsive — collapse the server+channel rail on narrow viewports.
+   community-app builds its own hand-rolled .ca-app/.app-body/.ca-rail tree
+   (not AppShell()), so it does not inherit AppShell's @container drawer CSS
+   (keyed off .app/.app-side-shell, which .ca-app/.ca-rail never establish).
+   Mirrors the .cm-channel-sidebar off-canvas idiom in community.css 1:1: same
+   breakpoint, same translateX(-110%) + .open reveal, same :has() scrim — so
+   the .ca-rail drawer driven by MobileHeader's hamburger (mobileMenuOpen in
+   the adapter snapshot) behaves identically to the community kit's sidebar.
+   ============================================================ */
+@media (max-width: 900px) {
+  .ds-247420.ds-247420 .ca-rail {
+    position: absolute;
+    z-index: 20;
+    top: 0; left: 0; bottom: 0;
+    width: 240px; min-width: 240px;
+    transform: translateX(-110%);
+    transition: transform var(--dur-base, 240ms) var(--ease, ease);
+    box-shadow: 2px 0 16px color-mix(in oklab, var(--ink, #000) 30%, transparent);
+  }
+  .ds-247420.ds-247420 .ca-rail.open { transform: translateX(0); }
+  .ds-247420.ds-247420 .ca-app:has(.ca-rail.open) .app-main {
+    position: relative;
+  }
+  .ds-247420.ds-247420 .ca-app:has(.ca-rail.open) .app-main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 15;
+    background: color-mix(in oklab, var(--ink, #000) 40%, transparent);
+    pointer-events: none;
+  }
 }
 
 /* app-surfaces.css */

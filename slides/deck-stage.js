@@ -7,7 +7,7 @@ const DESIGN_H_DEFAULT = 1080;
 const OVERLAY_HIDE_MS = 1800;
 
 class DeckStage extends HTMLElement {
-    static get observedAttributes() { return ['width', 'height', 'noscale']; }
+    static get observedAttributes() { return ['width', 'height', 'noscale', 'fill']; }
 
     constructor() {
         super();
@@ -124,7 +124,15 @@ class DeckStage extends HTMLElement {
     _fit() {
         if (!this._canvas) return;
         if (this.hasAttribute('noscale')) { this._canvas.style.transform = 'none'; return; }
-        const s = Math.min(window.innerWidth / this.designWidth, window.innerHeight / this.designHeight);
+        const wRatio = window.innerWidth / this.designWidth;
+        const hRatio = window.innerHeight / this.designHeight;
+        // Default "contain" (Math.min) always shows the full design canvas,
+        // letterboxing on a mismatched aspect ratio. Opt-in fill="cover"
+        // (Math.max) instead fills the viewport edge-to-edge for wide
+        // presentation displays, cropping the canvas to the stage's
+        // existing `overflow:hidden` — never changes designWidth/designHeight,
+        // so the @page print-size sync in _syncPrintPageRule is unaffected.
+        const s = this.getAttribute('fill') === 'cover' ? Math.max(wRatio, hRatio) : Math.min(wRatio, hRatio);
         this._canvas.style.transform = `scale(${s})`;
     }
 

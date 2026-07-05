@@ -135,7 +135,7 @@ function pickFiles() {
 }
 
 function App() {
-    const main = h('div', { class: 'ds-file-stage' },
+    const main = h('div', { class: 'ds-files-stack' },
         h('h1', {}, 'file browser'),
         h('p', { class: 'lede' },
             'static demo of the 247420 file-browser primitives. drop files to fake-upload, click rows to preview, ',

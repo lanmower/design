@@ -26,6 +26,7 @@ const state = {
     voiceParticipants: [], micMuted: false, voiceDeafened: false,
     memberCategories: [{ label: 'online — 1', members: [{ identity: 'you', name: 'you', status: 'online', color: color('you') }] }],
     memberListOpen: false,
+    mobileMenuOpen: false,
 };
 
 const subs = new Set();
@@ -36,7 +37,7 @@ const adapter = {
     subscribe: (cb) => { subs.add(cb); return () => subs.delete(cb); },
     helpers: { avatarColor: color, initial: (n) => String(n || '?').slice(0, 1).toUpperCase(), formatTime: (t) => new Date(t || Date.now()).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) },
     actions: {
-        switchChannel: (ch) => { state.currentChannel = ch; notify(); },
+        switchChannel: (ch) => { state.currentChannel = ch; state.mobileMenuOpen = false; notify(); },
         setInput: (v) => { state.chatInputValue = v; },
         send: (text) => {
             state.messages = [...state.messages, { id: 'm' + Date.now(), userId: 'you', username: 'you', content: text, timestamp: Date.now(), delivered: true }];
@@ -47,7 +48,9 @@ const adapter = {
         toggleDeafen: () => { state.voiceDeafened = !state.voiceDeafened; notify(); },
         leaveVoice: () => { state.voiceConnected = false; state.voiceParticipants = []; notify(); },
         toggleMembers: () => { state.memberListOpen = !state.memberListOpen; notify(); },
-        openMobileMenu: () => {}, openSettings: () => {}, openVoiceSettings: () => {},
+        openMobileMenu: () => { state.mobileMenuOpen = true; notify(); },
+        closeMobileMenu: () => { state.mobileMenuOpen = false; notify(); },
+        openSettings: () => {}, openVoiceSettings: () => {},
         goHome: () => {}, openServers: () => {},
         switchServer: (id) => { state.currentServerId = id; notify(); },
         channelContext: () => {}, serverContext: () => {}, memberMenu: () => {},

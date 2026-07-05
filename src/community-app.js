@@ -12,12 +12,13 @@
 //     isConnected, voiceConnected, voiceChannelName, voiceConnectionState,
 //     voiceParticipants, micMuted, voiceDeafened,
 //     audioQueueItems, audioQueueCurrentId, audioQueuePaused,
-//     showAuthModal, settingsOpen, voiceSettingsOpen, replyTarget
+//     showAuthModal, settingsOpen, voiceSettingsOpen, replyTarget,
+//     mobileMenuOpen   // drives the .ca-rail off-canvas drawer on narrow shells
 //   }
 //   adapter.subscribe(cb) -> unsubscribe   // cb fires when any snapshot field changes
 //   adapter.actions = {
 //     switchChannel(ch), send(text, opts), toggleMic(), toggleDeafen(),
-//     leaveVoice(), toggleMembers(), openMobileMenu(), openSettings(),
+//     leaveVoice(), toggleMembers(), openMobileMenu(), closeMobileMenu(), openSettings(),
 //     channelContext(id, x, y), serverContext(id, x, y), switchServer(id),
 //     goHome(), openServers(), memberMenu(id, name, x, y),
 //     replaySegment(id), skipSegment(), pauseQueue(), resumeQueue(),
@@ -202,9 +203,9 @@ export function mountCommunityApp(root, adapter = {}) {
             MobileHeader({ channelType: ch.type || 'text', channelName: ch.name || '', onMenu: () => A.openMobileMenu && A.openMobileMenu(), onMembers: () => A.toggleMembers && A.toggleMembers() }),
             Banner({ tone: 'warning', message: 'No relay connected. Reconnecting…', visible: s.isConnected === false }),
             Banner({ tone: 'success', visible: !!showVoiceBanner, message: showVoiceBanner ? ('In voice: ' + (s.voiceChannelName || '') + ' — click to return') : '', actionLabel: 'Leave', onAction: (e) => { if (e && e.stopPropagation) e.stopPropagation(); A.leaveVoice && A.leaveVoice(); }, onClick: () => A.returnToVoice && A.returnToVoice() }),
-            h('div', { class: 'app-body' },
-                h('aside', { class: 'app-side ca-rail' }, railView(s)),
-                h('main', { class: 'app-main' },
+            h('div', { class: 'app-body' + (s.mobileMenuOpen ? ' ca-rail-open' : '') },
+                h('aside', { class: 'app-side ca-rail' + (s.mobileMenuOpen ? ' open' : '') }, railView(s)),
+                h('main', { class: 'app-main', onclick: () => { if (s.mobileMenuOpen && A.closeMobileMenu) A.closeMobileMenu(); } },
                     !inVoiceChannel && s.voiceConnected ? VoiceStrip({ channelName: s.voiceChannelName, status: s.voiceConnectionState || 'connected', muted: !!s.micMuted, deafened: !!s.voiceDeafened, onMute: () => A.toggleMic && A.toggleMic(), onDeafen: () => A.toggleDeafen && A.toggleDeafen(), onLeave: () => A.leaveVoice && A.leaveVoice(), open: true }) : null,
                     UserPanel({ name: (s.currentUser && (s.currentUser.displayName || s.currentUser.username || s.currentUser.name)) || 'You', tag: s.currentUser && s.currentUser.tag, color: avatarColor(s.userId), muted: !!s.micMuted, deafened: !!s.voiceDeafened, onMute: () => A.toggleMic && A.toggleMic(), onDeafen: () => A.toggleDeafen && A.toggleDeafen(), onSettings: () => A.openSettings && A.openSettings() }),
                     bodyMain,
