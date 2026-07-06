@@ -1330,22 +1330,23 @@
 }
 .ds-247420 .cli .copy:hover { background: var(--fg-3); }
 
-/* Multi-line CLI block: when .cli holds .cli-line / .cli-cmt children
-   (quickstart scripts, multi-command snippets) it stacks as a column
-   instead of the single-line install row. */
-.ds-247420 .cli:has(.cli-line),
-.ds-247420 .cli:has(.cli-cmt) {
+/* Multi-line CLI block: when .cli holds .ds-cli-row / .ds-cli-comment children
+   (quickstart scripts, multi-command snippets — see CliBlock in
+   src/components/content.js) it stacks as a column instead of the
+   single-line install row. */
+.ds-247420 .cli:has(.ds-cli-row),
+.ds-247420 .cli:has(.ds-cli-comment) {
   flex-direction: column; align-items: stretch; gap: 0;
   font-size: var(--fs-sm); line-height: 1.6;
 }
-.ds-247420 .cli-line {
+.ds-247420 .ds-cli-row {
   display: flex; gap: 10px;
   font-family: var(--ff-mono); font-size: 13px; line-height: 1.6;
   padding: 3px 0;
 }
-.ds-247420 .cli-line .prompt { color: var(--green-2); flex: 0 0 auto; user-select: none; }
-.ds-247420 .cli-line .cmd { flex: 1 1 auto; white-space: pre-wrap; word-break: break-word; color: var(--paper); }
-.ds-247420 .cli-cmt {
+.ds-247420 .ds-cli-row .prompt { color: var(--green-2); flex: 0 0 auto; user-select: none; }
+.ds-247420 .ds-cli-row .cmd { flex: 1 1 auto; white-space: pre-wrap; word-break: break-word; color: var(--paper); }
+.ds-247420 .ds-cli-comment {
   color: var(--fg-3);
   font-family: var(--ff-mono); font-size: var(--fs-tiny); line-height: 1.6;
   padding: 3px 0; white-space: pre-wrap; word-break: break-word;
@@ -9136,7 +9137,7 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
-.ds-247420 .cli .cli-cmt {
+.ds-247420 .cli .ds-cli-comment {
   color: var(--panel-text-3);
   white-space: pre-wrap;
   word-break: break-word;
@@ -9144,20 +9145,20 @@
   padding: 3px 0;
   line-height: 1.6;
 }
-.ds-247420 .cli .cli-cmt:empty::before { content: '\00a0'; }
-.ds-247420 .cli .cli-line {
+.ds-247420 .cli .ds-cli-comment:empty::before { content: '\00a0'; }
+.ds-247420 .cli .ds-cli-row {
   display: flex;
   gap: 10px;
   padding: 3px 0;
   white-space: pre-wrap;
   word-break: break-word;
 }
-.ds-247420 .cli .cli-line .prompt {
+.ds-247420 .cli .ds-cli-row .prompt {
   color: var(--panel-accent);
   flex: 0 0 auto;
   user-select: none;
 }
-.ds-247420 .cli .cli-line .cmd {
+.ds-247420 .cli .ds-cli-row .cmd {
   color: var(--panel-text);
   flex: 1 1 auto;
   white-space: pre-wrap;

@@ -110,7 +110,7 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
-.cli .cli-cmt {
+.cli .ds-cli-comment {
   color: var(--panel-text-3);
   white-space: pre-wrap;
   word-break: break-word;
@@ -118,20 +118,20 @@
   padding: 3px 0;
   line-height: 1.6;
 }
-.cli .cli-cmt:empty::before { content: '\00a0'; }
-.cli .cli-line {
+.cli .ds-cli-comment:empty::before { content: '\00a0'; }
+.cli .ds-cli-row {
   display: flex;
   gap: 10px;
   padding: 3px 0;
   white-space: pre-wrap;
   word-break: break-word;
 }
-.cli .cli-line .prompt {
+.cli .ds-cli-row .prompt {
   color: var(--panel-accent);
   flex: 0 0 auto;
   user-select: none;
 }
-.cli .cli-line .cmd {
+.cli .ds-cli-row .cmd {
   color: var(--panel-text);
   flex: 1 1 auto;
   white-space: pre-wrap;

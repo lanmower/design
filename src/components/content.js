@@ -259,9 +259,8 @@ export function Install({ cmd, copied, onCopy }) {
 // identically: lines.map((l,i) => a div per line holding a prompt span ('$' or
 // '#' for a comment line) and a cmd span, all wrapped in a Panel. This factory
 // targets the multi-line `.cli` contract already defined in app-shell.css and
-// gm-prose.css (`.cli` holding `.cli-line` rows — each a prompt+cmd pair — and
-// `.cli-cmt` comment rows) rather than reinventing a wrapper class, so no new
-// CSS is needed. `lines` is [{kind, text}] where kind: 'cmt' renders a
+// gm-prose.css (`.cli` holding `.ds-cli-row` rows — each a prompt+cmd pair —
+// and `.ds-cli-comment` comment rows). `lines` is [{kind, text}] where kind: 'cmt' renders a
 // comment-only row (no prompt glyph); any other kind (or omitted) renders a
 // command row prefixed '$'. `heading` titles the wrapping Panel ('quick start'
 // default, matching every hand-rolled instance); pass `heading: null` to
@@ -272,8 +271,8 @@ export function CliBlock({ lines = [], heading = 'quick start', className = '' }
         const isComment = l && l.kind === 'cmt';
         const text = l && l.text != null ? l.text : '';
         return isComment
-            ? h('div', { key: 'q' + i, class: 'cli-cmt' }, text)
-            : h('div', { key: 'q' + i, class: 'cli-line' },
+            ? h('div', { key: 'q' + i, class: 'ds-cli-comment' }, text)
+            : h('div', { key: 'q' + i, class: 'ds-cli-row' },
                 h('span', { class: 'prompt' }, '$'),
                 h('span', { class: 'cmd' }, text));
     });

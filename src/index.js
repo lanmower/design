@@ -14,6 +14,7 @@ import { escapeHtml, escapeJson } from './html-escape.js';
 import { ensurePrism, highlightAllUnder } from './highlight.js';
 import { renderPageHtml } from './page-html.js';
 import { HeroFromPageData } from './components/content.js';
+import { ThemeToggle } from './components/theme-toggle.js';
 import { mountKit } from './bootstrap.js';
 import * as theme from './theme.js';
 import { registerChatElement, DsChat } from './web-components/ds-chat.js';
@@ -72,7 +73,7 @@ export {
     registerFreddieChatElement, FreddieChat,
     renderPageHtml, HeroFromPageData,
     escapeHtml, escapeJson,
-    theme
+    theme, ThemeToggle
 };
 export { applyTheme, getTheme, resolvedTheme, onThemeChange, initTheme,
          applyAccent, getAccent, applyDensity, getDensity } from './theme.js';
