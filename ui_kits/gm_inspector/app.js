@@ -79,11 +79,13 @@ function App() {
                 Heading({ level: 1, children: 'gm inspector' }),
                 Lede({ children: 'session list, process tree, deviations, live stream -- the data-density component family (PhaseWalk, TreeNode, BarRow, StatsGrid, SessionRow, DevRow, LiveLog) composed into one observability surface.' }),
                 Panel({ title: 'overview', count: kpis.length, class: 'ds-panel-gap', children: StatsGrid({ items: kpis }) }),
-                Panel({ title: 'sessions', count: sessions.length, class: 'ds-panel-gap', children: h('div', { class: 'ds-scroll-x' },
-                    ...sessions.map((s, i) => h('div', { key: 'sr' + i }, SessionRow(s)))) }),
+                Panel({ title: 'sessions', count: sessions.length, class: 'ds-panel-gap', children: sessions.length
+                    ? h('div', { class: 'ds-scroll-x' }, ...sessions.map((s, i) => h('div', { key: 'sr' + i }, SessionRow(s))))
+                    : h('div', { class: 'empty' }, 'no sessions recorded yet') }),
                 h('div', { class: 'ds-panel-duo' },
-                    Panel({ title: 'process tree', count: treeNodes.length, children: h('div', { class: 'ds-scroll-x' },
-                        ...treeNodes.map((n, i) => h('div', { key: 'tn' + i }, TreeNode(n)))) }),
+                    Panel({ title: 'process tree', count: treeNodes.length, children: treeNodes.length
+                        ? h('div', { class: 'ds-scroll-x' }, ...treeNodes.map((n, i) => h('div', { key: 'tn' + i }, TreeNode(n))))
+                        : h('div', { class: 'ds-stat-lbl' }, 'no tree nodes yet') }),
                     Panel({ title: 'deviations', count: deviations.length, children: deviations.length
                         ? h('div', {}, ...deviations.map((d, i) => h('div', { key: 'dv' + i }, DevRow(d))))
                         : h('div', { class: 'ds-stat-lbl' }, 'no deviations') })

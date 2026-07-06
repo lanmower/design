@@ -150,7 +150,7 @@
 }
 .agentchat-jump.show { display: inline-flex; }
 .agentchat-jump:hover { background: var(--bg-3); }
-.agentchat-jump:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.agentchat-jump:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 
 /* Streaming caret: a thin blinking bar at the live edge of an assistant turn. */
 .chat-stream-caret {
@@ -172,7 +172,7 @@
 }
 .chat-msg-action-label { font-size: var(--fs-tiny); }
 .chat-msg-action:hover { background: var(--bg-2); color: var(--fg); }
-.chat-msg-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; opacity: 1; }
+.chat-msg-action:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; opacity: 1; }
 
 /* Empty state: a fresh thread is an invitation, not a void. */
 .agentchat-empty {
@@ -239,7 +239,7 @@
   font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
 .agentchat-install-copy:hover { background: var(--bg-3); color: var(--fg); }
-.agentchat-install-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.agentchat-install-copy:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 .agentchat-install-actions { display: flex; justify-content: flex-start; }
 
 /* Host-supplied transcript export actions riding the controls row. */
@@ -250,7 +250,7 @@
   font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
 .agentchat-export-act:hover { background: var(--bg-2); color: var(--fg); }
-.agentchat-export-act:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.agentchat-export-act:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 
 /* "working" tail: a long silent tool call shouldn't read as frozen. */
 .agentchat-working {
@@ -381,7 +381,7 @@
 /* Rail filter uses the shared .ds-search-input primitive (provides bg/border/
    radius/focus-ring); only the rail layout + touch floor live here. */
 .ds-session-head .ds-search-input { order: 1; flex: 1 1 auto; min-width: 0; min-height: 36px; padding: 0 10px; }
-.ds-session-new:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ds-session-new:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 /* Touch floor (must FOLLOW the base rules - same specificity, order decides). */
 @media (pointer: coarse) {
   .ds-session-new { width: 44px; min-height: 44px; }
@@ -400,7 +400,7 @@
   cursor: pointer; text-align: left; color: var(--fg);
 }
 .ds-session-row:hover { background: var(--bg-2); }
-.ds-session-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ds-session-row:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: -2px; }
 .ds-session-row.active { background: var(--accent-tint); box-shadow: inset 2px 0 0 var(--accent); }
 .ds-session-row.rail-green::before, .ds-session-row.rail-purple::before, .ds-session-row.rail-flame::before {
   content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: var(--r-hair);
@@ -494,7 +494,7 @@
 }
 .chat-code-block:hover .chat-code-copy, .chat-code-block:focus-within .chat-code-copy { opacity: 1; }
 .chat-code-copy.is-copied { color: var(--accent-ink); border-color: var(--accent); }
-.chat-code-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; opacity: 1; }
+.chat-code-copy:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; opacity: 1; }
 /* Head-placed copy (structured CodeNode + FilePreviewCode) is always visible. */
 .chat-code-head .spread { flex: 1; }
 .chat-code-copy-head { position: static; opacity: 1; }
@@ -583,7 +583,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   cursor: pointer; font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
 .ds-dash-errors-toggle.active { background: var(--accent-tint); color: var(--fg); border-color: var(--accent); }
-.ds-dash-errors-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-dash-errors-toggle:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 
 /* --- C3: per-card select checkbox. --- */
 .ds-dash-select {
@@ -593,7 +593,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   font-family: var(--ff-mono); font-size: var(--fs-sm);
 }
 .ds-dash-select[aria-checked="true"] { color: var(--accent-ink); }
-.ds-dash-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-dash-select:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 
 /* --- C5: active dashboard card (current conversation). --- */
 .ds-dash-card.is-active { box-shadow: inset 2px 0 0 var(--accent); }
@@ -615,7 +615,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 
 /* --- E1: inline file preview pane (split view, non-modal). --- */
 .ds-preview-pane { display: flex; flex-direction: column; min-height: 0; height: 100%; overflow: hidden; }
-.ds-preview-pane:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ds-preview-pane:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: -2px; }
 .ds-preview-pane .ds-preview-body { flex: 1; min-height: 0; overflow: auto; }
 .ds-preview-pane-empty { align-items: center; justify-content: center; color: var(--fg-3); font-size: var(--fs-sm); }
 .ds-preview-code-wrap { display: flex; flex-direction: column; min-height: 0; }
@@ -632,7 +632,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   border-radius: var(--r-1); background: var(--bg-2); color: var(--fg-2); cursor: pointer;
   font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
-.ds-file-more-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-file-more-btn:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 /* --- D3: locked/no-access file row. --- */
 .ds-file-row.is-locked { opacity: .6; }
 
@@ -643,8 +643,9 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   background: none; color: var(--fg-3); cursor: pointer;
   font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
+.ds-roots-tab:hover { background: var(--bg-2); color: var(--fg); }
 .ds-roots-tab.active { background: var(--bg); color: var(--fg); }
-.ds-roots-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-roots-tab:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 
 /* --- H4: touch targets. On a coarse pointer / narrow screen the hover-revealed
    action rows are made permanently visible and small controls floor to 44px so
@@ -676,7 +677,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   color: var(--fg-3); font-family: var(--ff-body); font-size: var(--fs-micro);
 }
 .ds-session-meta-copy:hover { background: var(--bg-3); color: var(--fg); }
-.ds-session-meta-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-session-meta-copy:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 @media (pointer: coarse), (max-width: 640px) {
   .ds-session-meta-copy { min-height: 44px; min-width: 44px; }
 }
@@ -704,7 +705,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 }
 
 /* Drag-over ring: token accent, never a hex. */
-.chat-composer.dragover { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--r-2); }
+.chat-composer.dragover { outline: 2px solid var(--accent-ink); outline-offset: -2px; border-radius: var(--r-2); }
 
 /* Per-bit composer context: only the bit that owns a control is a button. */
 .chat-composer-context-bit {
@@ -744,7 +745,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   border-radius: var(--r-1); background: var(--bg-2); color: var(--fg-2); cursor: pointer;
   font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
-.agentchat-earlier-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.agentchat-earlier-btn:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 @media (pointer: coarse) {
   .agentchat-earlier-btn { min-height: 44px; }
 }
@@ -852,7 +853,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 }
 .chat-msg .chat-tool .chat-tool-head::-webkit-details-marker { display: none; }
 .chat-msg .chat-tool .chat-tool-head:hover { background: var(--bg-2); }
-.chat-msg .chat-tool .chat-tool-head:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.chat-msg .chat-tool .chat-tool-head:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: -2px; }
 .chat-tool-icon { display: inline-flex; color: var(--fg-3); }
 .chat-tool-name { font-family: var(--ff-mono); font-weight: 600; color: var(--fg); }
 .chat-tool-label { color: var(--fg-3); font-size: var(--fs-tiny); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
@@ -876,7 +877,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 .chat-tool-section-label { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); }
 .chat-tool-copy { position: static; opacity: 0; }
 .chat-tool-section:hover .chat-tool-copy, .chat-tool-section:focus-within .chat-tool-copy { opacity: 1; }
-.chat-tool-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; opacity: 1; }
+.chat-tool-copy:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; opacity: 1; }
 .chat-tool-pre { margin: 0; padding: var(--space-2); background: var(--bg-2); border-radius: var(--r-1); font-family: var(--ff-mono); font-size: var(--fs-tiny); line-height: 1.45; overflow-x: auto; max-height: 320px; overflow-y: auto; }
 .chat-tool-pre.is-error { color: var(--flame); }
 .chat-tool-pre.chat-tool-empty { color: var(--fg-3); }
@@ -939,10 +940,10 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 .ds-dash-breakdown .seg.is-idle::before { background: transparent; box-shadow: inset 0 0 0 1px var(--stale), inset 0 0 0 3px var(--bg); }
 .ds-dash-stream-disc { display: inline-flex; align-items: center; gap: var(--space-1); }
 .ds-dash-selectall { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--fs-tiny); color: var(--fg-2); cursor: pointer; background: none; border: none; padding: var(--space-1); }
-.ds-dash-selectall:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-dash-selectall:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 .ds-dash-clear { background: none; border: none; color: var(--fg-3); cursor: pointer; font-size: var(--fs-tiny); text-decoration: underline dotted; padding: var(--space-1); }
 .ds-dash-clear:hover { color: var(--fg); }
-.ds-dash-clear:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: var(--r-1); }
+.ds-dash-clear:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; border-radius: var(--r-1); }
 
 /* Conversation-rail loading skeleton (cold ccsniff walk). */
 .ds-session-row-skeleton { display: flex; flex-direction: column; gap: 6px; padding: var(--space-2) var(--space-3); }

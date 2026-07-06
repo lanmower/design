@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
-import { lintTokensOrThrow, lintRadiusOrThrow } from './lint-tokens.mjs';
+import { lintTokensOrThrow, lintRadiusOrThrow, lintSpacingOrThrow } from './lint-tokens.mjs';
 import { lintGlyphsOrThrow } from './lint-glyphs.mjs';
 import { lintNullChildrenOrThrow } from './lint-null-children.mjs';
 import { lintClassesOrThrow } from './lint-classes.mjs';
@@ -29,6 +29,14 @@ lintTokensOrThrow();
 // border-radius literal bypassing the --r-hair/--r-0/--r-1/--r-2/--r-3/
 // --r-4/--r-pill scale. Same unconditional placement as the other lints.
 lintRadiusOrThrow();
+
+// Spacing gate (report-only): logs raw margin/padding/gap literals bypassing
+// the --space-0..--space-10 8pt scale. Non-fatal — 639 hits found across the
+// component sheets on first run, too large a corpus to force into an audited
+// ALLOW list or a value-preserving mass-migration in one sitting. Promote to
+// a throwing hard gate (matching lintRadiusOrThrow's own trajectory) once the
+// corpus is triaged.
+lintSpacingOrThrow();
 
 // Glyph gate: refuse to build if any source hard-codes a decorative unicode
 // glyph (the machine-shaped tell the design system bans). Same unconditional

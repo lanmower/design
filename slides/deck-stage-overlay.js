@@ -1,5 +1,10 @@
-const ICON_PREV = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3L5 8l5 5"/></svg>';
-const ICON_NEXT = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
+import { iconMarkup } from '../src/components/shell.js';
+
+// Same path table + attr contract as every other Icon() consumer (viewBox
+// 0 0 24 24, shared --ds-icon-stroke) — a raw-DOM innerHTML template can't
+// call the webjsx Icon() vnode factory, so it uses the markup-string twin.
+const ICON_PREV = iconMarkup('chevron-left', { size: 16 });
+const ICON_NEXT = iconMarkup('chevron-right', { size: 16 });
 
 export function buildOverlay({ onPrev, onNext, onReset }) {
     const overlay = document.createElement('div');

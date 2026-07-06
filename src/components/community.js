@@ -102,7 +102,7 @@ export function ChannelCategory({ id, name, channels = [], collapsed, activeId, 
             onclick: () => onToggle && onToggle(id),
             oncontextmenu: onContextMenu ? (e) => { e.preventDefault(); onContextMenu(id, e.clientX, e.clientY); } : null
         },
-            h('svg', { class: 'cm-cat-arrow', viewBox: '0 0 24 24' }, h('path', { d: 'M7 10l5 5 5-5z' })),
+            h('span', { class: 'cm-cat-arrow' }, Icon('chevron-down')),
             h('span', { class: 'cm-cat-name' }, name),
             extraButton ? h('button', { class: 'cm-cat-extra', onclick: (e) => { e.stopPropagation(); extraButton.onClick && extraButton.onClick(id, e); }, 'aria-label': extraButton.title || 'Category action' }, extraButton.icon || extraButton.label || '+') : null,
             onAddChannel ? h('button', { class: 'cm-cat-add', onclick: (e) => { e.stopPropagation(); onAddChannel(id); }, 'aria-label': 'Add channel to ' + name }, '+') : null
@@ -157,7 +157,15 @@ export function UserPanel({ name, tag, color, muted, deafened, onMute, onDeafen,
     );
 }
 
-export function ChannelSidebar({ serverName, channels = [], categories = [], activeId, collapsedCats, onChannelClick, onCategoryToggle, onAddChannel, onChannelContext, userPanelProps } = {}) {
+// Skeleton rows for a cold channel-list load — reuses the kit-wide .ds-skel
+// shimmer primitive (sessions.js / files.js) rather than a bare spinner.
+function ChannelListSkeleton({ rows = 6 } = {}) {
+    return h('div', { class: 'cm-channel-list cm-channel-skeleton', 'aria-hidden': 'true' },
+        ...Array.from({ length: rows }, (_, i) => h('div', { key: 'csk' + i, class: 'cm-channel-item-skeleton' },
+            h('span', { class: 'ds-skel ds-skel-icon' }), h('span', { class: 'ds-skel ds-skel-title' }))));
+}
+
+export function ChannelSidebar({ serverName, channels = [], categories = [], activeId, collapsedCats, onChannelClick, onCategoryToggle, onAddChannel, onChannelContext, userPanelProps, loading = false } = {}) {
     const collapsed = collapsedCats || new Set();
     const uncategorized = channels.filter(c => !c.categoryId || !categories.find(cat => cat.id === c.categoryId));
     const sorted = [...categories].sort((a, b) => (a.position || 0) - (b.position || 0));
@@ -165,9 +173,11 @@ export function ChannelSidebar({ serverName, channels = [], categories = [], act
         h('div', { class: 'cm-server-header' },
             h('span', { class: 'cm-server-header-name' }, serverName || 'Server'),
         ),
-        h('div', { class: 'cm-channel-list' },
+        loading ? ChannelListSkeleton() : h('div', { class: 'cm-channel-list' },
             (sorted.length === 0 && uncategorized.length === 0)
-                ? h('div', { class: 'cm-channel-empty' }, 'no channels yet')
+                ? h('div', { class: 'cm-channel-empty', role: 'status' },
+                    Icon('hash', { size: 20 }),
+                    h('span', { class: 'cm-channel-empty-text' }, 'no channels yet — add one to get this server started'))
                 : null,
             ...sorted.map(cat => ChannelCategory({
                 id: cat.id,
@@ -204,11 +214,22 @@ export function MemberItem({ identity, name, color, status = 'online' } = {}) {
     );
 }
 
-export function MemberList({ categories = [], open } = {}) {
+// Skeleton rows for a cold member-list load, matching FileSkeleton/session
+// skeleton shape (icon + title placeholder), never a bare spinner.
+function MemberListSkeleton({ rows = 6 } = {}) {
+    return h('div', { class: 'cm-member-list cm-member-skeleton open', 'aria-hidden': 'true' },
+        ...Array.from({ length: rows }, (_, i) => h('div', { key: 'msk' + i, class: 'cm-member-item-skeleton' },
+            h('span', { class: 'ds-skel ds-skel-icon' }), h('span', { class: 'ds-skel ds-skel-title' }))));
+}
+
+export function MemberList({ categories = [], open, loading = false } = {}) {
+    if (loading) return MemberListSkeleton();
     const total = categories.reduce((n, cat) => n + (cat.members ? cat.members.length : 0), 0);
     return h('div', { class: 'cm-member-list' + (open ? ' open' : '') },
         total === 0
-            ? h('div', { key: '_empty', class: 'cm-member-empty' }, 'no members')
+            ? h('div', { key: '_empty', class: 'cm-member-empty', role: 'status' },
+                Icon('members', { size: 20 }),
+                h('span', { class: 'cm-member-empty-text' }, 'no members in this channel yet'))
             : null,
         ...categories.flatMap(cat => [
             h('div', { class: 'cm-member-category', key: cat.label }, `${cat.label} — ${cat.members.length}`),
@@ -310,7 +331,16 @@ function fmtRelTime(ts) {
     return Math.floor(hr / 24) + 'd';
 }
 
-export function ThreadPanel({ threads = [], activeId = null, title = 'Threads', onSelect, onCreate, onClose } = {}) {
+// Skeleton rows for a cold thread/post-list load. Two lines per row (title +
+// meta) mirrors cm-tp-item/cm-forum-item's actual shape so the shimmer
+// doesn't jump on load. Reuses the kit-wide .ds-skel shimmer primitive.
+function ListSkeleton({ cls, rows = 5 } = {}) {
+    return h('div', { class: cls + ' cm-list-skeleton', 'aria-hidden': 'true' },
+        ...Array.from({ length: rows }, (_, i) => h('div', { key: 'lsk' + i, class: 'cm-list-item-skeleton' },
+            h('span', { class: 'ds-skel ds-skel-title' }), h('span', { class: 'ds-skel ds-skel-meta' }))));
+}
+
+export function ThreadPanel({ threads = [], activeId = null, title = 'Threads', onSelect, onCreate, onClose, loading = false } = {}) {
     const list = Array.isArray(threads) ? threads : [];
     return h('div', { class: 'cm-thread-panel', role: 'complementary', 'aria-label': title },
         h('div', { class: 'cm-tp-head' },
@@ -320,7 +350,7 @@ export function ThreadPanel({ threads = [], activeId = null, title = 'Threads', 
                 onClose ? h('button', { type: 'button', class: 'cm-tp-close', 'aria-label': 'close', title: 'Close', onclick: onClose }, Icon('x')) : null
             )
         ),
-        h('div', { class: 'cm-tp-list' },
+        loading ? ListSkeleton({ cls: 'cm-tp-list' }) : h('div', { class: 'cm-tp-list' },
             list.length
                 ? list.map(t => h('button', {
                     type: 'button', key: 'tp-' + t.id,
@@ -335,12 +365,14 @@ export function ThreadPanel({ threads = [], activeId = null, title = 'Threads', 
                         t.time ? h('span', { class: 'cm-tp-item-time' }, fmtRelTime(t.time)) : null
                     )
                 ))
-                : h('div', { class: 'cm-tp-empty' }, 'No threads yet')
+                : h('div', { class: 'cm-tp-empty', role: 'status' },
+                    Icon('thread', { size: 20 }),
+                    h('span', { class: 'cm-tp-empty-text' }, onCreate ? 'no threads yet — start one' : 'no threads yet'))
         )
     );
 }
 
-export function ForumView({ posts = [], onSearch, onSort, onSelect, onNewPost } = {}) {
+export function ForumView({ posts = [], onSearch, onSort, onSelect, onNewPost, loading = false } = {}) {
     const list = Array.isArray(posts) ? posts : [];
     return h('div', { class: 'cm-forum', role: 'region', 'aria-label': 'forum' },
         h('div', { class: 'cm-forum-toolbar' },
@@ -359,7 +391,7 @@ export function ForumView({ posts = [], onSearch, onSort, onSelect, onNewPost } 
             ),
             onNewPost ? h('button', { type: 'button', class: 'cm-forum-new', onclick: onNewPost }, 'New post') : null
         ),
-        h('div', { class: 'cm-forum-list' },
+        loading ? ListSkeleton({ cls: 'cm-forum-list' }) : h('div', { class: 'cm-forum-list' },
             list.length
                 ? list.map(p => h('button', {
                     type: 'button', key: 'fp-' + p.id, class: 'cm-forum-item',
@@ -379,7 +411,9 @@ export function ForumView({ posts = [], onSearch, onSort, onSelect, onNewPost } 
                             : null
                     )
                 ))
-                : h('div', { class: 'cm-forum-empty' }, 'No posts yet')
+                : h('div', { class: 'cm-forum-empty', role: 'status' },
+                    Icon('forum', { size: 20 }),
+                    h('span', { class: 'cm-forum-empty-text' }, onNewPost ? 'no posts yet — start the discussion' : 'no posts yet'))
         )
     );
 }

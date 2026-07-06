@@ -34,6 +34,19 @@ const TOKEN_SOURCE = 'colors_and_type.css';
 // Color-literal matcher: #hex (3/4/6/8), rgb()/rgba(), hsl()/hsla(), oklch()/oklab().
 const COLOR_RE = /#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(|\bokl(?:ch|ab)\(/;
 
+// Spacing-literal matcher: a bare numeric length (px/em/rem) on a
+// margin/padding/gap (or row-gap/column-gap, or any -top/-right/-bottom/-left/
+// -inline/-block/-inline-start/-inline-end/-block-start/-block-end logical
+// variant) declaration — the raw-literal bypass of the --space-0..--space-10
+// 8pt scale defined in colors_and_type.css. The digit must be followed by a
+// unit so it never matches a digit inside a --space-3 token NAME referenced
+// via var(...) on the same declaration. `%` is deliberately excluded (unlike
+// RADIUS_RE): a percentage margin/padding is relative to the containing
+// block's size, not a fixed rhythm value, so there is no --space-N it could
+// ever equal — flagging it would demand a token that structurally cannot
+// exist for that value, the same reasoning RADIUS_RE uses to exempt bare `0`.
+const SPACING_RE = /\b(?:margin|padding|gap|row-gap|column-gap)(?:-(?:top|right|bottom|left|inline|block|inline-start|inline-end|block-start|block-end))?\s*:\s*[^;}]*?\d[\d.]*(?:px|em|rem)\b/;
+
 // Radius-literal matcher: a bare numeric length/percentage (px/%/em/rem/vw/
 // vh/ch/vmin/vmax) on a border-radius (or -webkit-/-moz-prefixed)
 // declaration — the raw-literal bypass of the --r-hair/--r-0/--r-1/--r-2/
@@ -153,6 +166,62 @@ export function findRadiusViolations() {
     return violations;
 }
 
+// Same collection pattern again, scanning COMPONENT_SHEETS for a raw
+// margin/padding/gap px/em/rem literal bypassing the --space-0..--space-10
+// scale in colors_and_type.css. REPORT-ONLY for now (not wired into
+// build.mjs's hard gate, unlike lintTokensOrThrow/lintRadiusOrThrow): a first
+// real run against HEAD found 639 hits across 9 sheets — a large one-off
+// corpus (many are `em`-relative micro-adjustments, e.g. `.4em`/`.3em` line-
+// height nudges, or shorthand pairs like `padding: 8px 16px` that don't
+// individually collapse onto a single --space-N without visual judgment
+// call). Forcing that into an ALLOW-list or a mass rounding-substitution in
+// one pass would either bloat the audited exemption list past the point of
+// being audited, or silently change visual rhythm across the whole SDK.
+// Mirrors how lintRadiusOrThrow itself started (report-only) before its
+// migration landed and it became a hard gate — same trajectory expected here
+// once the corpus is triaged file-by-file.
+export function findSpacingViolations() {
+    const violations = [];
+    for (const rel of COMPONENT_SHEETS) {
+        const file = path.join(root, rel);
+        if (!fs.existsSync(file)) continue;
+        const src = fs.readFileSync(file, 'utf8');
+        // var(--space-N, <fallback>px) fallback literals are exempt — same
+        // reasoning as stripThemableLiterals for colors and lintRadiusOrThrow
+        // for --r-N: the token drives the live value, the literal is only a
+        // safety default when the token is undefined.
+        // calc(var(--space-N) <op> <literal>) is exempt too — the expression
+        // still scales off the token (a derived value, not a bypass), the
+        // same way RADIUS_RE exempts calc(var(--r-N) ...).
+        const codeLines = stripThemableLiterals(stripComments(src))
+            .replace(/calc\([^()]*var\(\s*--space-[\w-]+\s*\)[^()]*\)/g, (m) => m.replace(/[^\n]/g, ' '))
+            .split(/\r?\n/);
+        const rawLines = src.split(/\r?\n/);
+        codeLines.forEach((code, i) => {
+            if (SPACING_RE.test(code) && !isAllowed(rel, rawLines[i])) {
+                violations.push(`${rel}:${i + 1}: ${rawLines[i].trim()}`);
+            }
+        });
+    }
+    return violations;
+}
+
+// Report-only counterpart to lintTokensOrThrow/lintRadiusOrThrow — logs the
+// violation count instead of throwing. Not called from build.mjs. Promote to
+// lintSpacingOrThrow (and wire into build.mjs) once the 639-violation corpus
+// is triaged down to a small, genuinely-audited ALLOW list or migrated to
+// --space-N tokens, matching the radius lint's own trajectory.
+export function lintSpacingOrThrow() {
+    const violations = findSpacingViolations();
+    if (violations.length) {
+        console.warn('[lint-spacing] REPORT — ' + violations.length + ' raw margin/padding/gap literal(s) bypassing the --space-* scale from '
+            + TOKEN_SOURCE + ' (report-only, not a build gate yet):\n  ' + violations.slice(0, 20).join('\n  ')
+            + (violations.length > 20 ? `\n  ...and ${violations.length - 20} more` : ''));
+        return;
+    }
+    console.log('[lint-spacing] OK — ' + COMPONENT_SHEETS.length + ' component sheets use only the --space-* spacing scale.');
+}
+
 // Throws on violation, mirroring lintTokensOrThrow's shape exactly. Called
 // from build.mjs (hard gate) and the CLI entry below.
 export function lintRadiusOrThrow() {
@@ -185,4 +254,5 @@ if (process.argv[1] && process.argv[1].endsWith('lint-tokens.mjs')) {
     catch (e) { console.error(e.message); process.exit(1); }
     try { lintRadiusOrThrow(); }
     catch (e) { console.error(e.message); process.exit(1); }
+    lintSpacingOrThrow();
 }

@@ -132,7 +132,7 @@
     overflow: auto;
 }
 .ds-ep-tree-item { display: flex; flex-direction: column; }
-.ds-ep-tree-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ds-ep-tree-item:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 .ds-ep-tree-row {
     display: flex; align-items: center; gap: 6px;
     padding: 4px 8px 4px 0;
@@ -537,7 +537,7 @@
 .ds-ep-ctxmenu-item:focus-visible,
 .ds-ep-resize:focus-visible,
 .ds-ep-dialog-btn:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--accent-ink);
     outline-offset: 2px;
 }
 
@@ -588,7 +588,7 @@
 .ds-ep-iconbtn:focus-visible,
 .ds-ep-iconbtn-group button:focus-visible,
 .ds-ep-resize:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--accent-ink);
     outline-offset: 2px;
     border-radius: var(--r-1);
 }
@@ -617,7 +617,7 @@
     cursor: inherit;
 }
 .ds-check:focus-visible, .ds-radio:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--accent-ink);
     outline-offset: 2px;
 }
 
@@ -661,7 +661,7 @@
     transform: translateX(20px);
 }
 .ds-toggle:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--accent-ink);
     outline-offset: 2px;
 }
 .ds-toggle:disabled { cursor: not-allowed; }
@@ -776,7 +776,7 @@
     outline: none;
 }
 .ds-dropdown-item:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--accent-ink);
     outline-offset: -2px;
 }
 .ds-dropdown-item[aria-disabled="true"] {
@@ -820,7 +820,7 @@
     cursor: grab; font: 14px/1 var(--ff-mono, monospace); letter-spacing: -2px;
     touch-action: none; user-select: none;
 }
-.ds-reorder-handle:focus-visible { outline: 2px solid var(--focus-ring, var(--accent)); outline-offset: 2px; }
+.ds-reorder-handle:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 .ds-reorder-handle:active { cursor: grabbing; }
 [data-dragging="true"] { opacity: 0.6; cursor: grabbing; transform: scale(0.98); }
 [data-drop-target-active="true"] {
@@ -1028,7 +1028,7 @@
     border: 1px solid var(--rule); border-radius: var(--r-1, 10px);
     padding: var(--space-1, 4px) var(--space-2, 8px); font: inherit;
 }
-.ov-set-control:focus-visible { outline: none; border-color: var(--accent); }
+.ov-set-control:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; border-color: var(--accent-ink); }
 input.ov-set-control[type="range"] { padding: 0; accent-color: var(--accent); }
 .ov-set-toggle { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; cursor: pointer; }
 .ov-set-btn {
@@ -1124,7 +1124,7 @@ input.ov-set-control[type="range"] { padding: 0; accent-color: var(--accent); }
 }
 .ds-input-color::-webkit-color-swatch-wrapper { padding: 2px; }
 .ds-input-color::-webkit-color-swatch { border: none; border-radius: var(--r-hair); }
-.ds-input-color:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ds-input-color:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 .ds-input-check {
     appearance: none; -webkit-appearance: none;
     width: 16px; height: 16px; flex-shrink: 0;
@@ -1137,7 +1137,7 @@ input.ov-set-control[type="range"] { padding: 0; accent-color: var(--accent); }
     width: 4px; height: 8px; border: solid var(--accent-fg);
     border-width: 0 2px 2px 0; transform: rotate(45deg);
 }
-.ds-input-check:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ds-input-check:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 
 /* ---------------------------------------------------------------
    Tree drag-reparent affordance — clear drop target + dragging row.

@@ -1,17 +1,39 @@
-export const icons = {
-    terminal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/></svg>',
-    browser: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>',
-    canvas: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M3 17l6-5 4 3 5-4 3 2"/></svg>',
-    files: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>',
-    monitor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l4-8 4 14 4-10 4 8 2-3"/></svg>',
-    validator: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/></svg>',
-    about: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v5h1"/></svg>',
-    apps: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
-    plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
-    home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>',
-    xdisplay: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M8 21h8M12 17v4M9 9l6 4M15 9l-6 4"/></svg>',
-    close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6l-12 12"/></svg>',
-    chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h6"/></svg>',
-    tools: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7l3-3 3 3-3 3-3-3zM7 14l3 3-7 7-3-3 7-7zM5 7l3-3M14 14l6 6"/></svg>',
-    freddie: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M8 12a4 4 0 008 0"/></svg>',
+import { ICON_PATHS } from '../../components/shell.js';
+
+// os-window-manager app icons. Concepts here (terminal/browser/canvas/monitor/
+// apps/xdisplay/tools/freddie) are OS-app glyphs with no equivalent in the
+// shared ICON_PATHS UI-icon set, so they keep their own path data — but every
+// entry renders through iconMarkup()'s attribute contract (viewBox 0 0 24 24,
+// stroke=currentColor, shared --ds-icon-stroke var) instead of a second
+// hardcoded stroke-width, so this module can't drift from the system's
+// visual weight. Where a concept already exists in ICON_PATHS (close/files/
+// validator/about/apps/home/chat), reuse that entry's path data directly.
+const OS_PATHS = {
+    terminal: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/>',
+    browser: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/>',
+    canvas: '<rect x="3" y="3" width="18" height="14" rx="2"/><path d="M3 17l6-5 4 3 5-4 3 2"/>',
+    files: ICON_PATHS.folder,
+    monitor: '<path d="M3 12l4-8 4 14 4-10 4 8 2-3"/>',
+    validator: ICON_PATHS.check,
+    about: ICON_PATHS.info,
+    apps: ICON_PATHS.grid,
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    home: ICON_PATHS.menu,
+    xdisplay: '<rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M8 21h8M12 17v4M9 9l6 4M15 9l-6 4"/>',
+    close: ICON_PATHS.x,
+    chat: ICON_PATHS.forum,
+    tools: '<path d="M14 7l3-3 3 3-3 3-3-3zM7 14l3 3-7 7-3-3 7-7zM5 7l3-3M14 14l6 6"/>',
+    freddie: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M8 12a4 4 0 008 0"/>',
 };
+
+// iconMarkup() only resolves names already registered in the shared
+// ICON_PATHS table; this module's names are private to the os kit, so each
+// entry is rendered against the identical attr contract iconMarkup() uses
+// (viewBox/stroke/linecap/--ds-icon-stroke) rather than forking a second
+// stroke-width constant.
+export const icons = Object.fromEntries(
+    Object.entries(OS_PATHS).map(([name, inner]) => [
+        name,
+        `<svg class="ds-icon ds-icon-${name}" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--ds-icon-stroke, 1.6)" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`
+    ])
+);

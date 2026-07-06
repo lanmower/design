@@ -168,7 +168,8 @@ export function Install({ cmd, copied, onCopy }) {
     );
 }
 
-export function Receipt({ rows = [] }) {
+export function Receipt({ rows = [], emptyText = 'nothing here yet' }) {
+    if (!rows.length) return h('div', { class: 'empty' }, emptyText);
     return h('table', { class: 'kv' },
         h('tbody', {}, ...rows.map(([k, v], i) =>
             h('tr', { key: i }, h('td', {}, k), h('td', {}, v))
@@ -176,7 +177,8 @@ export function Receipt({ rows = [] }) {
     );
 }
 
-export function Changelog({ entries = [] }) {
+export function Changelog({ entries = [], emptyText = 'no changelog entries yet' }) {
+    if (!entries.length) return h('div', { class: 'empty' }, emptyText);
     return Panel({
         kind: 'wide',
         children: entries.map((e, i) =>
@@ -241,7 +243,8 @@ export function Manifesto({ paragraphs = [], maxWidth }) {
     );
 }
 
-export function Kpi({ items = [] }) {
+export function Kpi({ items = [], emptyText = 'no metrics yet' }) {
+    if (!items.length) return h('div', { class: 'empty' }, emptyText);
     return h('div', { class: 'kpi' }, ...items.map(([n, l], i) =>
         h('div', { key: i, class: 'kpi-card' },
             h('div', { class: 'num' }, String(n)),

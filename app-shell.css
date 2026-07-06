@@ -31,7 +31,7 @@ button, input, select, textarea { font: inherit; }
 }
 .skip-link:focus {
   top: 10px;
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-ink);
   outline-offset: 2px;
 }
 body {
@@ -248,7 +248,7 @@ body.canvas-host { background: transparent !important; }
 }
 .app-topbar nav a:hover { background: var(--bg-2); color: var(--fg); }
 .app-topbar nav a:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-ink);
   outline-offset: 2px;
 }
 /* Active tab reads as a subtle tinted pill with an accent underline rather than
@@ -284,7 +284,7 @@ body.canvas-host { background: transparent !important; }
   width: 100%;
 }
 .app-search:focus-within {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-ink);
   outline-offset: 2px;
 }
 
@@ -326,7 +326,7 @@ body.canvas-host { background: transparent !important; }
 }
 .app-side a:hover { background: var(--bg-2); color: var(--fg); }
 .app-side a:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-ink);
   outline-offset: 2px;
 }
 .app-side a.active {
@@ -449,7 +449,7 @@ body.canvas-host { background: transparent !important; }
 .btn-ghost:hover { background: var(--fg); color: var(--bg); }
 .btn:active, .btn-primary:active, .btn-ghost:active { transform: translateY(2px); }
 .btn:focus-visible, .btn-primary:focus-visible, .btn-ghost:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-ink);
   outline-offset: 2px;
 }
 
@@ -476,7 +476,7 @@ body.canvas-host { background: transparent !important; }
 .ds-icon-btn-danger { background: var(--warn); color: var(--on-color); }
 .ds-icon-btn-danger:hover { filter: brightness(1.1); }
 .ds-icon-btn:active { transform: translateY(1px); }
-.ds-icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ds-icon-btn:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 .ds-icon-btn:disabled, .ds-icon-btn.is-disabled {
   opacity: 0.5; cursor: not-allowed; pointer-events: none;
 }
@@ -901,7 +901,7 @@ table td { padding: 14px 16px; border-top: 1px solid var(--rule); }
 table tr.clickable { cursor: pointer; }
 table tr.clickable:hover td { background: var(--bg-2); }
 table tr.clickable:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-ink);
   outline-offset: -2px;
 }
 table tr.clickable:focus-visible td { background: var(--bg-2); }
@@ -1299,7 +1299,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   flex-direction: column;
   gap: 4px;
 }
-.ds-file-grid:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-2); }
+.ds-file-grid:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; border-radius: var(--r-2); }
 
 /* Listing wrapper holds the optional filter + sort header above the grid. */
 .ds-file-listing { display: flex; flex-direction: column; gap: var(--space-2); min-height: 0; }
@@ -1321,7 +1321,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 }
 .ds-file-sort-btn:hover { color: var(--fg-2); background: var(--bg-2); }
 .ds-file-sort-btn.active { color: var(--accent-ink); }
-.ds-file-sort-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-file-sort-btn:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 
 /* Skeleton shimmer rows shown while a directory loads. */
 .ds-file-row-skeleton { cursor: default; pointer-events: none; }
@@ -1369,7 +1369,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   color: inherit; font: inherit; text-align: left; cursor: pointer;
 }
 .ds-file-open[disabled] { cursor: default; }
-.ds-file-open:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-1); }
+.ds-file-open:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; border-radius: var(--r-1); }
 .ds-file-row:hover {
   background: var(--bg-2);
   border-color: var(--rule);
@@ -1467,7 +1467,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 }
 .ds-file-check:hover { background: var(--bg-3); color: var(--fg); }
 .ds-file-check.is-marked { color: var(--accent-ink); }
-.ds-file-check:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-file-check:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 .ds-file-check[disabled] { opacity: 0.4; cursor: default; }
 .ds-file-row.is-marked { background: var(--accent-tint); border-color: var(--accent); }
 .ds-file-selectall {
@@ -1477,7 +1477,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   padding: var(--space-1); border-radius: var(--r-1);
 }
 .ds-file-selectall:hover { background: var(--bg-2); color: var(--fg); }
-.ds-file-selectall:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-file-selectall:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 .ds-file-controls { display: flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-2) var(--space-1); flex-wrap: wrap; }
 .ds-file-controls .spread { flex: 1 1 auto; }
 .ds-file-controls .ds-file-sort { padding: 0; }
@@ -1515,7 +1515,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 }
 .ds-density-btn:hover { color: var(--fg); }
 .ds-density-btn.active { background: var(--accent-tint); color: var(--fg); }
-.ds-density-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-density-btn:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 
 /* Compact density — tighter rows for long listings. */
 .ds-file-grid[data-density="compact"] { gap: 2px; }
@@ -1549,7 +1549,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   background: none; border: none; cursor: pointer; color: var(--fg);
 }
 .ds-file-cell-open[disabled] { cursor: default; }
-.ds-file-cell-open:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--r-2); }
+.ds-file-cell-open:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: -2px; border-radius: var(--r-2); }
 .ds-file-cell-media {
   display: flex; align-items: center; justify-content: center;
   width: 100%; aspect-ratio: 4 / 3;
@@ -1767,7 +1767,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   color: var(--fg-2); font-family: var(--ff-body); font-size: var(--fs-micro);
 }
 .ds-upload-act:hover { background: var(--bg-3); color: var(--fg); }
-.ds-upload-act:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-upload-act:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 @media (hover: none), (pointer: coarse) {
   .ds-upload-act { min-height: 44px; min-width: 44px; }
   /* 44px floor for file controls on ANY touch device, not only narrow ones
@@ -1838,7 +1838,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   border-radius: var(--r-2); color: var(--fg);
   font-family: inherit; font-size: var(--fs-sm);
 }
-.ds-modal-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ds-modal-input:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 /* iOS auto-zooms inputs under 16px on focus, breaking the modal layout. */
 @media (hover: none), (pointer: coarse) {
   .ds-modal-input { font-size: 16px; min-height: 44px; }
@@ -2024,7 +2024,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   transition: color var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
 }
 .ds-segmented .ds-seg-btn:hover { color: var(--fg); }
-.ds-segmented .ds-seg-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-segmented .ds-seg-btn:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 .ds-segmented .ds-seg-btn.is-on {
   background: var(--bg); color: var(--fg);
   box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule);
@@ -2474,7 +2474,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .chat-composer .send:active { filter: brightness(0.94); }
 .chat-composer .send:focus-visible,
 .composer-btn:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-ink);
   outline-offset: 2px;
 }
 .chat-composer .send:disabled {
@@ -2586,8 +2586,13 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
    Component States — Disabled, Loading, Error, Success
    -------------------------------------------------------------- */
 
-/* Disabled state for all interactive elements */
+/* Disabled state for all interactive elements. The `.is-disabled` class
+   variants cover Btn()'s anchor-rendered case (shell.js) — an <a> has no
+   :disabled pseudo-class, so a disabled link-styled button relies entirely
+   on this class selector for its visual treatment (aria-disabled + tabindex
+   are set in JS; this is the paired CSS half). */
 .btn:disabled, .btn-primary:disabled, .btn-ghost:disabled,
+.btn.is-disabled, .btn-primary.is-disabled, .btn-ghost.is-disabled,
 button:disabled, [disabled] {
   opacity: 0.6;
   cursor: not-allowed;
@@ -2924,7 +2929,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 
 /* Base focus-visible: 2px ring + 2px offset clears dark bg-3 surfaces (WCAG 1.4.11) */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-ink);
   outline-offset: 2px;
 }
 
@@ -2934,7 +2939,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 [role="tab"]:focus-visible,
 .row:focus-visible,
 .row[tabindex]:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-ink);
   outline-offset: 2px;
 }
 
@@ -3324,7 +3329,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   border-radius: var(--r-1, 6px);
   cursor: pointer;
 }
-.app-side-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.app-side-toggle:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 @container (max-width: 900px) {
   .app-side-toggle { display: inline-flex; }
   .app-topbar .brand { margin-left: 44px; }
@@ -3414,7 +3419,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ws-resizer { grid-row: 1 / -1; align-self: stretch; justify-self: end; width: 8px; margin-right: -4px; z-index: 5; cursor: col-resize; background: transparent; border: none; padding: 0; touch-action: none; }
 .ws-resizer::after { content: ""; display: block; width: 2px; height: 100%; margin: 0 auto; background: transparent; transition: background var(--dur-snap) var(--ease); }
 .ws-resizer:hover::after, .ws-resizer:focus-visible::after { background: var(--accent); }
-.ws-resizer:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ws-resizer:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: -2px; }
 .ws-resizer.ws-resizer-rail { grid-column: 1; }
 .ws-resizer.ws-resizer-sessions { grid-column: 2; }
 .ws-resizer.ws-resizer-pane { grid-column: 3; justify-self: end; }
@@ -3466,7 +3471,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   border-radius: var(--r-1); cursor: pointer;
 }
 .ws-rail-toggle:hover { background: var(--bg-3); color: var(--fg); }
-.ws-rail-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ws-rail-toggle:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 .ws-rail-inner { display: flex; flex-direction: column; min-height: 0; flex: 1; padding: var(--space-3) var(--space-2); gap: var(--space-2); }
 .ws-rail-head { display: flex; align-items: center; min-height: 36px; padding: 0 var(--space-2); }
 .ws-rail-brand { font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-body); color: var(--fg); white-space: nowrap; overflow: hidden; }
@@ -3479,7 +3484,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   min-height: 40px; white-space: nowrap; overflow: hidden;
 }
 .ws-rail-action:hover { filter: brightness(1.08); }
-.ws-rail-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ws-rail-action:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 .ws-rail-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .ws-rail-item {
   display: flex; align-items: center; gap: var(--space-2);
@@ -3489,7 +3494,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   font-family: var(--ff-body); font-size: var(--fs-sm); white-space: nowrap; overflow: hidden;
 }
 .ws-rail-item:hover { background: var(--bg-3); color: var(--fg); }
-.ws-rail-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ws-rail-item:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: -2px; }
 .ws-rail-item.active { background: var(--accent-tint); color: var(--fg); box-shadow: inset 2px 0 0 var(--accent); }
 .ws-rail-item-label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
 .ws-rail-item-count { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); }
@@ -3562,7 +3567,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 /* Desktop-only chrome toggle (sessions collapse): inverse of the mobile drawer-toggle. */
 .ws-desktop-toggle { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: none; background: none; color: var(--fg-2); cursor: pointer; border-radius: var(--r-1); }
 .ws-desktop-toggle:hover { background: var(--bg-2); color: var(--fg); }
-.ws-desktop-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ws-desktop-toggle:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 @media (max-width: 900px) { .ws-desktop-toggle { display: none; } }
 /* The pane collapse toggle is meaningless once the pane TRACK is dropped (the
    pane becomes a mobile overlay drawer at <=1480px, reached via its own
@@ -3686,7 +3691,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   .ws-crumb .app-crumb .crumb-right { margin-left: 0; flex-wrap: wrap; min-width: 0; display: inline-flex; }
 }
 .ws-drawer-toggle:hover { background: var(--bg-2); color: var(--fg); }
-.ws-drawer-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ws-drawer-toggle:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) {
   .ws-shell, .ws-rail, .ws-pane, .ws-sessions, .ws-scrim { transition: none; }
@@ -3711,7 +3716,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
 .row-act:hover { background: var(--bg-3); color: var(--fg); }
-.row-act:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.row-act:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 
 /* FilterPills - a group of pill toggle buttons (aria-pressed). */
 .ds-filter-pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
@@ -3724,7 +3729,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 }
 .ds-filter-pill:hover { background: var(--bg-3); color: var(--fg); }
 .ds-filter-pill.active { background: var(--accent-tint); color: var(--fg); border-color: var(--accent); }
-.ds-filter-pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-filter-pill:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 
 /* Touch floor for the new small controls. */
 @media (pointer: coarse) {
@@ -3734,7 +3739,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 /* Disabled file actions (read-only row / in-flight mutation) stay visible but inert. */
 .ds-file-act:disabled { opacity: .45; cursor: default; }
 .ds-file-act:disabled:hover { background: transparent; color: var(--fg-3); }
-.ds-file-act:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-file-act:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
 
 /* ============================================================
    Print — linearize WorkspaceShell so main content prints in full.
@@ -4053,7 +4058,12 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   padding: 12px; border-radius: var(--r-1); min-height: clamp(120px, 18vw, 160px);
   border: 0; text-align: left; font: inherit; color: inherit;
   background: var(--tile-tone, var(--panel-1));
+  transition: transform var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease);
 }
+/* Flat tonal fill only (house style: no bespoke tile chrome, no borders — see
+   .ds-feature above), so the hover affordance is a lift, matching the same
+   translateY + shadow idiom .chat-msg:hover .chat-bubble already uses. */
+.ds-gallery-tile:hover { transform: translateY(-2px); box-shadow: 0 2px 8px color-mix(in oklab, var(--fg) 10%, transparent); }
 .ds-gallery-tile:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 .ds-gallery-tile--tight { min-height: clamp(96px, 14vw, 120px); }
 .ds-lightbox {

@@ -208,7 +208,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ds-247420 .ds-event-list .row.event-flash { animation: none; outline: 2px solid var(--accent); }
+  .ds-247420 .ds-event-list .row.event-flash { animation: none; outline: 2px solid var(--accent-ink); }
 }
 
 @media print {

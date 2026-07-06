@@ -70,9 +70,9 @@ function App() {
                 Panel({ title: 'top endpoints', count: tableRows.length, class: 'ds-panel-gap', children: h('div', { class: 'ds-scroll-x' }, Table({ headers: tableHeaders, rows: tableRows })) }),
                 h('div', { class: 'ds-panel-duo' },
                     Panel({ title: 'environment', children: Receipt({ rows: receipt }) }),
-                    Panel({ title: 'recent events', count: events.length, children: events.map((e, i) =>
-                        Row({ key: 'ev' + i, code: e.code, title: e.title, sub: e.sub, meta: e.meta })
-                    ) })
+                    Panel({ title: 'recent events', count: events.length, children: events.length
+                        ? events.map((e, i) => Row({ key: 'ev' + i, code: e.code, title: e.title, sub: e.sub, meta: e.meta }))
+                        : h('div', { class: 'empty' }, 'no events yet') })
                 ),
                 Panel({ title: 'changelog', count: changelog.length, class: 'ds-panel-gap', children: Changelog({ entries: changelog }) }),
                 Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
