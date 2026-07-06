@@ -1,5 +1,8 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Side, Status, AppShell, Panel, Heading, Lede, Chip } from 'ds/components.js';
+import {
+    Topbar, Crumb, Side, Status, AppShell, Panel, Heading, Lede, Chip, Pill,
+    Pager, JsonViewer, ToolbarRow, PropertyGrid, PropertyGridRow, PropertyField, InlineEditableField
+} from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 import {
     PhaseWalk, TreeNode, BarRow, StatsGrid, SessionRow, DevRow, LiveLog
@@ -7,6 +10,12 @@ import {
 const h = webjsx.createElement;
 
 const root = document.getElementById('root');
+
+// Live demo state for the "editor primitives" showcase panel below --
+// exercises Pager/InlineEditableField as genuinely interactive widgets (not
+// static markup), same pattern the rest of this kit already uses for
+// sessions/treeNodes/deviations sample data.
+const demoState = { page: 1, pageCount: 6, prdText: 'audit gmsniff GUI consumer surface', prdTextError: false };
 
 const kpis = [
     { val: '26,357', lbl: 'total events' },
@@ -97,12 +106,41 @@ function App() {
                     BarRow({ label: '0.8-0.9', value: '6',  pct: 19, tone: 'var(--accent)' })
                 ) }),
                 Panel({ title: 'live stream', class: 'ds-panel-gap', children: h('div', { class: 'ds-scroll-x' }, LiveLog({ entries: liveEntries })) }),
+                Panel({ title: 'editor primitives', count: '6', class: 'ds-panel-gap', children: h('div', {},
+                    h('p', { class: 'ds-stat-lbl' }, 'Pill (tag-like annotations):'),
+                    ToolbarRow(
+                        Pill({ children: 'PLAN' }),
+                        Pill({ tone: 'accent', children: 'add-pager-component' }),
+                        Pill({ tone: 'muted', children: 'sess-a1f9c2e0' })
+                    ),
+                    h('p', { class: 'ds-stat-lbl' }, 'Pager (live, click to page through a demo PRD list):'),
+                    Pager({
+                        page: demoState.page, pageCount: demoState.pageCount, total: 16,
+                        itemLabel: 'prd rows',
+                        onPage: (p) => { demoState.page = p; render(); },
+                    }),
+                    h('p', { class: 'ds-stat-lbl' }, 'InlineEditableField (live, edit the text below):'),
+                    PropertyGrid({ children: [
+                        PropertyGridRow({ children: [
+                            PropertyField({ label: 'id', inline: true, children: h('span', { class: 'ds-stat-lbl' }, 'add-pager-component') }),
+                            PropertyField({ label: 'text', children: InlineEditableField({
+                                value: demoState.prdText,
+                                placeholder: 'prd row text...',
+                                error: demoState.prdTextError,
+                                onInput: (v) => { demoState.prdText = v; demoState.prdTextError = v.trim() === ''; render(); },
+                            }) }),
+                        ] }),
+                    ] }),
+                    h('p', { class: 'ds-stat-lbl' }, 'JsonViewer (raw dispatch payload preview):'),
+                    JsonViewer({ value: { verb: 'prd-resolve', id: 'add-pager-component', witness_evidence: 'test.js: 3 Pager checks pass' } })
+                ) }),
                 Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
                     h('p', {}, '- ', Chip({ tone: 'accent', children: 'StatsGrid' }), ' for dense KPI tiles.'),
                     h('p', {}, '- ', Chip({ tone: 'accent', children: 'SessionRow' }), ' + ', Chip({ tone: 'accent', children: 'PhaseWalk' }), ' for per-session phase progress at a glance.'),
                     h('p', {}, '- ', Chip({ tone: 'accent', children: 'TreeNode' }), ' for a chronological dispatch/verb timeline, variant-colored by kind.'),
                     h('p', {}, '- ', Chip({ tone: 'accent', children: 'DevRow' }), ' for deviation callouts, ', Chip({ tone: 'accent', children: 'BarRow' }), ' for inline histograms.'),
-                    h('p', {}, '- ', Chip({ tone: 'accent', children: 'LiveLog' }), ' for a dense scrollable event stream.')
+                    h('p', {}, '- ', Chip({ tone: 'accent', children: 'LiveLog' }), ' for a dense scrollable event stream.'),
+                    h('p', {}, '- ', Chip({ tone: 'accent', children: 'Pill' }), '/', Chip({ tone: 'accent', children: 'Pager' }), '/', Chip({ tone: 'accent', children: 'JsonViewer' }), '/', Chip({ tone: 'accent', children: 'ToolbarRow' }), '/', Chip({ tone: 'accent', children: 'InlineEditableField' }), ' - the gap set found auditing gmsniff\'s GUI, which already builds on this SDK directly.')
                 ) })
             )
         ],
@@ -113,4 +151,4 @@ function App() {
     });
 }
 
-mountKit({ root, view: App, screen: 'gm inspector' });
+const { render } = mountKit({ root, view: App, screen: 'gm inspector' });

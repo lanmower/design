@@ -4,7 +4,7 @@ import * as webjsx from '../vendor/webjsx/index.js';
 export const h = webjsx.createElement;
 
 export {
-    Brand, Chip, Btn, Glyph, Icon, IconButton, Badge,
+    Brand, Chip, Btn, Glyph, Icon, IconButton, Badge, Pill,
     Topbar, Crumb, Side, Status, AppShell,
     WorkspaceShell, WorkspaceRail,
     Heading, Lede, Dot, Rail
@@ -71,14 +71,15 @@ export {
 } from './components/interaction-primitives.js';
 
 export {
-    Toolbar, Tabs,
+    Toolbar, ToolbarRow, Tabs,
     TreeView, TreeItem,
-    PropertyGrid, PropertyField,
+    PropertyGrid, PropertyField, PropertyGridRow, InlineEditableField,
     Dock, IconButtonGroup,
     ResizeHandle, SplitPanel,
     ContextMenu, useContextMenu,
     Drawer, Dialog, FocusTrap,
     Toast, toast,
+    Pager, JsonViewer,
     useMediaQuery,
     BP_SM, BP_MD, BP_LG, BP_XL
 } from './components/editor-primitives.js';

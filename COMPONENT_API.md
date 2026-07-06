@@ -162,6 +162,23 @@ Chip({ tone = '', children })
 Chip({ tone: 'live', children: 'online' })
 ```
 
+### Pill
+Plain non-interactive label chip — tag-like annotation (a phase name, an id, a subsystem tag). Distinct from Chip (status-tone indicator), Badge (count/variant marker), and FilterPills (interactive toggle-group): Pill renders no button and carries no pressed/active state.
+
+```js
+Pill({ tone = '', children })
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `tone` | string | `''` | `''` \| `'accent'` \| `'muted'` |
+| `children` | ReactNode | - | Pill label/content |
+
+**Example:**
+```js
+Pill({ tone: 'accent', children: 'PLAN' })
+```
+
 ### Btn (Button)
 Flexible button component with support for multiple variants.
 
@@ -626,6 +643,20 @@ Flexible toolbar with leading, trailing, and center sections.
 Toolbar({ leading = [], trailing = [], dense = false, children })
 ```
 
+### ToolbarRow
+Flat, wrapping row of arbitrary action nodes (buttons/inputs/chips) with no leading/center/trailing slot structure — the shape to reach for when a caller just wants "this row of controls, left to right, wrapping on narrow viewports" and Toolbar's three-slot split is unwanted overhead. Accepts children as varargs or a single array.
+
+```js
+ToolbarRow(...actions)
+```
+
+**Example:**
+```js
+ToolbarRow(searchInput, filterSelect, refreshButton)
+// or
+ToolbarRow([searchInput, filterSelect, refreshButton])
+```
+
 ### Tabs
 Tabbed interface.
 
@@ -677,6 +708,51 @@ Property grid field item.
 
 ```js
 PropertyField({ label, hint, inline = false, children })
+```
+
+### PropertyGridRow
+A PropertyGrid row wrapper with a bottom-border divider (last-child border suppressed) — for editors that need stronger per-row visual separation than the default PropertyGrid gap gives (e.g. a list of independently-editable records like PRD/mutable rows).
+
+```js
+PropertyGridRow({ children })
+```
+
+### InlineEditableField
+Borderless-until-focus text input inheriting surrounding font, with an explicit error state (`aria-invalid` + danger-token border) for live per-field validation. Renders a `<textarea>` when `multiline` is set, else a single-line `<input>`.
+
+```js
+InlineEditableField({ value = '', placeholder, onInput, onChange, error, multiline = false, rows = 3, ariaLabel, disabled = false })
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | string | `''` | Current field value |
+| `placeholder` | string | - | Placeholder text |
+| `onInput` | function | - | `(value, event) => void`, fires on every keystroke |
+| `onChange` | function | - | `(value, event) => void`, fires on commit (blur/change) |
+| `error` | boolean | - | Sets `aria-invalid="true"` + `.has-error` class |
+| `multiline` | boolean | `false` | Renders a `<textarea>` instead of `<input>` |
+| `rows` | number | `3` | Textarea row count (multiline only) |
+| `ariaLabel` | string | - | Accessible name |
+| `disabled` | boolean | `false` | Disables the field |
+
+### Pager
+Prev/next paginator with a page label. `page` is 1-indexed; `pageCount<=1` disables both buttons (no divide-by-zero, no dead-end enabled control). `total` (optional) renders an item-count suffix.
+
+```js
+Pager({ page = 1, pageCount = 1, onPage, total, itemLabel = 'items' })
+```
+
+**Example:**
+```js
+Pager({ page: 2, pageCount: 5, total: 42, onPage: (p) => setPage(p) })
+```
+
+### JsonViewer
+Pre-formatted monospace data preview (max-height + scroll). Accepts a pre-stringified string OR any value — objects/arrays get `JSON.stringify(v, null, 2)`; `null`/`undefined` render `emptyText` rather than the literal `"undefined"`/`"null"`.
+
+```js
+JsonViewer({ value, emptyText = 'no data', maxHeight })
 ```
 
 ### Dock
