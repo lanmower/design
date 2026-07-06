@@ -345,7 +345,7 @@ const html = ({ site, nav, home }) => {
   <link rel="stylesheet" href="https://unpkg.com/anentrypoint-design@latest/dist/247420.css">
   <link rel="preconnect" href="https://unpkg.com" crossorigin>
   <link rel="dns-prefetch" href="https://unpkg.com">
-  <style>html,body{margin:0;padding:0}body{background:var(--bg,#F6F5F1);color:var(--fg,#131318);font-family:var(--ff-body,'Hanken Grotesk',system-ui,sans-serif)}html:not(.ds-ready) body{visibility:hidden}html.ds-ready body{visibility:visible;animation:ds-fade-in .18s ease-out both}@keyframes ds-fade-in{from{opacity:0}to{opacity:1}}</style>
+  <style>html,body{margin:0;padding:0}body{background:var(--bg,#F6F5F1);color:var(--fg,#131318);font-family:var(--ff-body,system-ui,sans-serif)}html:not(.ds-ready) body{visibility:hidden}html.ds-ready body{visibility:visible;animation:ds-fade-in .18s ease-out both}@keyframes ds-fade-in{from{opacity:0}to{opacity:1}}</style>
   <noscript><style>html body{visibility:visible !important}</style></noscript>
 </head>
 <body>

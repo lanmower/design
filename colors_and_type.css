@@ -5,20 +5,9 @@
    Source-of-truth tokens. Component sheet lives in app-shell.css.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Hanken+Grotesk:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap');
-
-/* Metric-matched fallback for the display face. While Bricolage Grotesque
-   loads, text falls back to Arial with size-adjust tuned to its cap-height so
-   the oversized hero does not reflow on swap. Referenced first in --ff-display
-   via the 'Bricolage Grotesque' family; this only kicks in for the fallback
-   glyphs. */
-@font-face {
-  font-family: 'Bricolage Grotesque Fallback';
-  src: local('Arial');
-  size-adjust: 99%;
-  ascent-override: 94%;
-  descent-override: 24%;
-}
+/* System-font stack only — no web-font @import/@font-face. Every --ff-*
+   token below is the same fallback chain that used to sit after the custom
+   family names; removing the custom names just exposes it directly. */
 
 :root {
   /* Tree view indentation tokens */
@@ -130,15 +119,11 @@
   --panel-accent-2: var(--accent-bright, var(--accent));
   --panel-shadow: 0 1px 0 color-mix(in oklab, var(--fg) 6%, transparent), 0 4px 14px color-mix(in oklab, var(--fg) 8%, transparent);
 
-  /* Type — Bricolage Grotesque carries display/headings (variable editorial
-     grotesque with real character), Hanken Grotesk carries body and UI,
-     JetBrains carries code. The narrow alias tracks the display face.
-     size-adjust on the fallback keeps the oversized hero from shifting while
-     Bricolage Grotesque loads. */
-  --ff-display:  'Bricolage Grotesque', 'Bricolage Grotesque Fallback', 'Hanken Grotesk', system-ui, sans-serif;
-  --ff-narrow:   'Bricolage Grotesque', 'Bricolage Grotesque Fallback', 'Hanken Grotesk', system-ui, sans-serif;
-  --ff-body:     'Hanken Grotesk', system-ui, sans-serif;
-  --ff-mono:     'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  /* Type — system-font stack, no custom web fonts loaded. */
+  --ff-display:  system-ui, sans-serif;
+  --ff-narrow:   system-ui, sans-serif;
+  --ff-body:     system-ui, sans-serif;
+  --ff-mono:     ui-monospace, Menlo, Consolas, monospace;
 
   --fs-micro:    12px;
   --fs-tiny:     13px;

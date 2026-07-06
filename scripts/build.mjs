@@ -60,12 +60,11 @@ lintInlineStylesOrThrow();
 
 const SCOPE = '.ds-247420';
 
-// Fonts: a single googleapis @import lives at the top of colors_and_type.css
-// (Bricolage Grotesque + Hanken Grotesk + JetBrains Mono). There is no local
-// vendor/fonts.css — the earlier
-// cssParts entry referenced a file that never existed and logged "missing css"
-// every build. The font-URL rewrite below (url(./fonts/) -> unpkg) is retained
-// as a guard for any future self-hosted @font-face but is a no-op today.
+// Fonts: system-font stack only, no @import/@font-face in colors_and_type.css.
+// There is no local vendor/fonts.css — the earlier cssParts entry referenced a
+// file that never existed and logged "missing css" every build. The font-URL
+// rewrite below (url(./fonts/) -> unpkg) is retained as a guard for any future
+// self-hosted @font-face but is a no-op today.
 const cssParts = [
     ['colors_and_type.css', path.join(root, 'colors_and_type.css')],
     ['app-shell.css', path.join(root, 'app-shell.css')],

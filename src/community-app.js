@@ -70,7 +70,7 @@ export function mountCommunityApp(root, adapter = {}) {
             for (const c of text) out.push(railPill(c, cur, false, s));
         } else if (!servers.length) {
             out.push(h('div', { class: 'group' }, 'rooms'));
-            out.push(h('div', { class: 'rail-empty' }, 'no channels yet'));
+            out.push(h('div', { class: 'rail-empty', role: 'status' }, 'no rooms yet'));
         }
         if (voice.length) {
             out.push(h('div', { class: 'group' }, 'voice'));

@@ -8,7 +8,7 @@
    standalone theme.css resolves cleanly. */
 
 .app-fd .fd-pre {
-    font-family: var(--os-mono, JetBrains Mono, monospace);
+    font-family: var(--os-mono, monospace);
     font-size: var(--fs-tiny, 12px);
     white-space: pre-wrap;
     word-break: break-all;
@@ -29,7 +29,7 @@
 .fd-chat-row  { display: flex; gap: var(--space-3, 16px); flex-wrap: wrap; }
 .fd-chat-field { display: flex; flex-direction: column; gap: var(--space-1, 4px); min-width: 120px; }
 .fd-chat-field-grow { flex: 2; min-width: 140px; }
-.fd-chat-field > label { font-family: var(--os-mono, JetBrains Mono, monospace); font-size: var(--fs-micro, 11px); color: var(--os-fg-3); letter-spacing: var(--tr-label, 0.10em); text-transform: uppercase; }
+.fd-chat-field > label { font-family: var(--os-mono, monospace); font-size: var(--fs-micro, 11px); color: var(--os-fg-3); letter-spacing: var(--tr-label, 0.10em); text-transform: uppercase; }
 .fd-chat-field > input { width: 100%; box-sizing: border-box; }
 .fd-chat-submit { display: flex; gap: var(--space-3, 16px); align-items: flex-end; }
 .fd-chat-submit textarea { flex: 1; resize: none; min-height: 80px; }
@@ -44,7 +44,7 @@
 }
 .fd-chatlog-msg { padding: var(--space-1, 4px) var(--space-3, 16px); background: var(--os-bg-2); white-space: pre-wrap; word-break: break-word; }
 .fd-chatlog-assistant { color: var(--os-accent); }
-.fd-chatlog-tool { margin: var(--space-1, 4px) 0; padding: var(--space-1, 4px) var(--space-2, 8px); background: var(--os-bg-3); border-radius: var(--os-radius-sm, 6px); font-family: var(--os-mono, JetBrains Mono, monospace); font-size: var(--fs-tiny, 12px); }
+.fd-chatlog-tool { margin: var(--space-1, 4px) 0; padding: var(--space-1, 4px) var(--space-2, 8px); background: var(--os-bg-3); border-radius: var(--os-radius-sm, 6px); font-family: var(--os-mono, monospace); font-size: var(--fs-tiny, 12px); }
 .fd-chatlog-tool-sum { cursor: pointer; color: var(--os-red); padding: var(--space-1, 4px) 0; }
 .fd-chatlog-tool-body { margin: var(--space-1, 4px) 0 0; white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto; }
 

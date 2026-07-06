@@ -621,10 +621,10 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
 }
 .ds-247420 freddie-chat .chat-bubble pre,
 .ds-247420 freddie-chat .chat-bubble code {
-  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-family: var(--ff-mono, ui-monospace, Menlo, Consolas, monospace);
 }
 .ds-247420 freddie-chat .chat-head {
-  font-family: var(--ff-display, 'Inter', system-ui, sans-serif);
+  font-family: var(--ff-display, system-ui, sans-serif);
   font-weight: 700;
 }
 

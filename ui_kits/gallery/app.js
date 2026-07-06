@@ -61,14 +61,18 @@ function Swatch(t) {
 function Lightbox() {
     if (!state.open) return null;
     const it = items.find((i) => i.id === state.open);
+    const close = () => { state.open = null; kit.render(); };
     return h('div', {
-        onclick: () => { state.open = null; kit.render(); },
+        onclick: close,
+        onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } },
+        tabindex: '-1',
+        ref: (el) => { if (el && !el._dsLbFocused) { el._dsLbFocused = true; el.focus(); } },
         class: 'ds-lightbox'
     },
         h('div', { onclick: (e) => e.stopPropagation(), class: 'ds-lightbox-card' },
             h('div', { class: 'ds-lightbox-head' },
                 h('span', { class: 'ds-lightbox-tag' }, 'tile · ' + it.id),
-                h('button', { class: 'btn', onclick: () => { state.open = null; kit.render(); } }, 'close')
+                h('button', { class: 'btn', onclick: close }, 'close')
             ),
             h('div', { class: 'ds-lightbox-preview', style: '--tile-tone:var(--' + it.tone + ')' }, it.caption),
             h('p', { class: 'ds-m0' }, h('strong', {}, it.label)),
