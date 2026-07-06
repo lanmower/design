@@ -829,7 +829,7 @@
 }
 .ds-reorder-insertion-line {
     height: 2px; background: var(--focus-ring, var(--accent));
-    border-radius: 1px; animation: ds-insertion-in var(--dur-snap, 120ms) var(--ease, ease);
+    border-radius: var(--r-hair); animation: ds-insertion-in var(--dur-snap, 120ms) var(--ease, ease);
 }
 @keyframes ds-insertion-in { from { transform: scaleX(0); opacity: 0; } to { transform: scaleX(1); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
@@ -1123,7 +1123,7 @@ input.ov-set-control[type="range"] { padding: 0; accent-color: var(--accent); }
     background: var(--panel-2); cursor: pointer; flex-shrink: 0;
 }
 .ds-input-color::-webkit-color-swatch-wrapper { padding: 2px; }
-.ds-input-color::-webkit-color-swatch { border: none; border-radius: 2px; }
+.ds-input-color::-webkit-color-swatch { border: none; border-radius: var(--r-hair); }
 .ds-input-color:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .ds-input-check {
     appearance: none; -webkit-appearance: none;

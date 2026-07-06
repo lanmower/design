@@ -103,7 +103,7 @@ ${cssLink}
 { "imports": { "anentrypoint-design": "https://unpkg.com/anentrypoint-design@latest/dist/247420.js" } }
 </script>
 <style>
-.app-stage { width: 100%; max-width: var(--measure-wide, 940px); margin-inline: auto; padding: var(--space-6, 48px) var(--space-4, 24px) var(--space-8, 96px); display: grid; gap: var(--space-6, 48px); box-sizing: border-box }
+.app-stage { width: 100%; max-width: var(--stage-wide, min(96vw, 1440px)); margin-inline: auto; padding: var(--space-6, 48px) var(--space-4, 24px) var(--space-8, 96px); display: grid; gap: var(--space-6, 48px); box-sizing: border-box }
 @media (max-width: 768px) { .app-stage { padding: var(--space-4, 24px) var(--space-3, 16px) var(--space-6, 48px); gap: var(--space-5, 32px) } }
 .page-body > :first-child { margin-top: 0 }
 .page-body h1 { margin-top: 0 } .page-body h2 { margin-top: var(--space-5, 32px) } .page-body h3 { margin-top: var(--space-4, 24px) }
@@ -128,14 +128,13 @@ a.row:hover .ds-row-arrow { opacity: 1 }
 /* accent sits on its own line, muted, so it reads as a distinct aside instead
    of running on from the hero body sentence. */
 .ds-hero-accent { display: block; margin-top: var(--space-2, 8px); color: var(--fg-3) }
-/* feature rows — single-column stack with a rail accent (the dashboard .row grid
-   forces a 3-col code/title/meta layout that mangles title+desc+benefit) */
+/* feature rows — single-column stack (the dashboard .row grid forces a 3-col
+   code/title/meta layout that mangles title+desc+benefit) */
 /* background uses a theme-neutral panel token (resolves per data-theme) so dark
-   mode doesn't flash a literal white card before/independent of the bundle. */
-.ds-feature { position: relative; padding: var(--space-3, 16px) var(--space-4, 24px); background: var(--panel-1, var(--bg)); border-radius: var(--r-2, 14px); display: grid; gap: var(--space-1, 4px) }
-.ds-feature::before { content: ''; position: absolute; left: 0; top: var(--space-2, 8px); bottom: var(--space-2, 8px); width: 3px; border-radius: 3px; background: var(--rail-color, var(--rule-strong)) }
-.ds-feature.rail-green { --rail-color: var(--green) } .ds-feature.rail-purple { --rail-color: var(--purple) } .ds-feature.rail-mascot { --rail-color: var(--mascot) }
-.ds-feature.rail-sun { --rail-color: var(--sun) } .ds-feature.rail-flame { --rail-color: var(--flame) } .ds-feature.rail-sky { --rail-color: var(--sky) }
+   mode doesn't flash a literal white card before/independent of the bundle.
+   Flat tonal fill only — no border-left rail accent (house style: no bespoke
+   tile chrome, no shadows, no borders; see ui_kits/gallery/app.js). */
+.ds-feature { padding: var(--space-3, 16px) var(--space-4, 24px); background: var(--panel-1, var(--bg)); border-radius: var(--r-2, 14px); display: grid; gap: var(--space-1, 4px) }
 .ds-feature + .ds-feature { margin-top: var(--space-2, 8px) }
 .ds-feature-title { font-weight: 600; font-size: var(--fs-lg, 18px); color: var(--fg) }
 .ds-feature-desc { font-size: var(--fs-sm, 15px); color: var(--fg-2); line-height: 1.5; overflow-wrap: anywhere }
@@ -149,7 +148,6 @@ ${headExtra}
 <script type="module">
 import { mount, components as C, h } from 'anentrypoint-design';
 const data = JSON.parse(document.getElementById('__site__').textContent);
-const RAILS = ['rail-green', 'rail-purple', 'rail-mascot', 'rail-sun', 'rail-flame', 'rail-sky'];
 
 function heroNode(hero) {
   if (!hero) return null;
@@ -177,13 +175,12 @@ function heroNode(hero) {
 }
 
 function sectionNode(sec, idx) {
-  const rail = RAILS[idx % RAILS.length];
   const features = sec.features || sec.items || [];
   const rows = features.map((f, i) => {
     const kids = [h('div', { key: 't', class: 'ds-feature-title' }, String(f.name || ''))];
     if (f.desc) kids.push(h('div', { key: 'd', class: 'ds-feature-desc', innerHTML: String(f.desc).replace(/\`([^\`]+)\`/g, '<code>$1</code>') }));
     if (f.benefit) kids.push(h('div', { key: 'b', class: 'ds-feature-benefit' }, String(f.benefit)));
-    return h('div', { key: i, class: 'ds-feature ' + rail }, ...kids);
+    return h('div', { key: i, class: 'ds-feature' }, ...kids);
   });
   return C.Section({
     title: sec.name || sec.title || sec.id,
@@ -200,14 +197,13 @@ function examplesNode(examples) {
   return C.Section({
     title: 'explore',
     children: examples.map((e, i) => {
-      const rail = RAILS[(i + 1) % RAILS.length];
       const kids = [
         h('span', { key: 'c', class: 'code' }, String(i + 1).padStart(2, '0')),
         h('span', { key: 't', class: 'title' }, String(e.label || e.name || e.href || '')),
       ];
       if (e.desc) kids.push(h('span', { key: 'm', class: 'meta dim' }, ' — ' + e.desc));
       kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, '->'));
-      return h('a', { key: i, class: 'row ' + rail, href: e.href || '#' }, ...kids);
+      return h('a', { key: i, class: 'row', href: e.href || '#' }, ...kids);
     }),
   });
 }

@@ -54,7 +54,7 @@ kits:
     - { code: "06", title: "aicat",        sub: "ai assistant with cat persona",         desc: "ascii portrait, thinking dots, mood-swapping face",  href: "./ui_kits/aicat/" }
     - { code: "07", title: "file browser", sub: "rails by file type drop preview",   desc: "static demo wired to fsbrowse — every file-row primitive in one surface", href: "./ui_kits/file_browser/" }
     - { code: "08", title: "dashboard",    sub: "kpis tables receipts changelog",  desc: "every content primitive in one operations surface", href: "./ui_kits/dashboard/" }
-    - { code: "09", title: "terminal",     sub: "cli prompt command lines log view", desc: "five line kinds — cmt cmd out ok warn — over a tonal panel", href: "./ui_kits/terminal/" }
+    - { code: "09", title: "terminal",     sub: "cli prompt command lines log view", desc: "five line kinds (cmt cmd out ok warn) over a tonal panel", href: "./ui_kits/terminal/" }
     - { code: "10", title: "settings",     sub: "sectioned forms toggles save bar",  desc: "every input primitive — fields, segmented buttons, danger panel", href: "./ui_kits/settings/" }
     - { code: "11", title: "signin",       sub: "auth providers magic link",         desc: "narrow shell + tone-on-tone form, no shadows, no spinners", href: "./ui_kits/signin/" }
     - { code: "12", title: "search",       sub: "topbar query faceted filters rows", desc: "ranked results reuse the same RowLink primitive every list does", href: "./ui_kits/search/" }

@@ -100,7 +100,7 @@
   width: 4px;
   height: 8px;
   background: var(--fg);
-  border-radius: 0 4px 4px 0;
+  border-radius: 0 var(--r-0) var(--r-0) 0;
   transition: height var(--dur-base) var(--ease);
 }
 .cm-server-icon:hover .cm-server-pill { height: 20px; }
@@ -156,7 +156,7 @@
   width: 32px;
   height: 2px;
   background: color-mix(in oklab, var(--fg) 12%, transparent);
-  border-radius: 2px;
+  border-radius: var(--r-hair);
   margin: 4px 0;
   flex-shrink: 0;
 }
@@ -217,7 +217,7 @@
 .cm-channel-list::-webkit-scrollbar-track { background: transparent; }
 .cm-channel-list::-webkit-scrollbar-thumb {
   background: color-mix(in oklab, var(--fg) 18%, transparent);
-  border-radius: 4px;
+  border-radius: var(--r-0);
 }
 
 /* ============================================================
@@ -349,7 +349,7 @@
   bottom: 4px;
   width: 3px;
   background: var(--accent);
-  border-radius: 0 3px 3px 0;
+  border-radius: 0 var(--r-hair) var(--r-hair) 0;
 }
 
 .cm-channel-item.voice-active {
@@ -817,7 +817,7 @@
 .cm-member-list::-webkit-scrollbar { width: 8px; }
 .cm-member-list::-webkit-scrollbar-thumb {
   background: color-mix(in oklab, var(--fg) 18%, transparent);
-  border-radius: 4px;
+  border-radius: var(--r-0);
 }
 
 .cm-member-category {

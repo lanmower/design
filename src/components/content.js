@@ -128,7 +128,7 @@ export function Section({ title, eyebrow, children, id }) {
     );
 }
 
-export function Hero({ eyebrow, title, body, accent, badge, badgeCount, actions }) {
+export function Hero({ eyebrow, title, body, accent, actions }) {
     // Eyebrow + title share the title grid-area so the named-area layout stays
     // intact; body and actions occupy the offset lower columns.
     return h('div', { class: 'ds-hero' },
@@ -140,8 +140,7 @@ export function Hero({ eyebrow, title, body, accent, badge, badgeCount, actions 
             body,
             accent ? h('span', { class: 'ds-hero-accent' }, ' ' + accent) : null
         ) : null,
-        actions ? h('div', { class: 'ds-hero-actions' }, ...(Array.isArray(actions) ? actions : [actions])) : null,
-        badge ? h('div', { class: 'ds-hero-badge' }, Panel({ title: badge, count: badgeCount, kind: 'inline', children: [] })) : null
+        actions ? h('div', { class: 'ds-hero-actions' }, ...(Array.isArray(actions) ? actions : [actions])) : null
     );
 }
 

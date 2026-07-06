@@ -53,7 +53,7 @@
   max-width: 100%;
   padding: 18px 18px 18px 20px;
   background: var(--panel-1);
-  border-radius: 10px;
+  border-radius: var(--r-1);
   box-shadow: var(--panel-shadow);
   scrollbar-width: thin;
   scrollbar-color: var(--panel-3) transparent;
@@ -62,7 +62,7 @@
 #ds-article-host.has-toc > .toc::-webkit-scrollbar-track { background: transparent; }
 #ds-article-host.has-toc > .toc::-webkit-scrollbar-thumb {
   background: var(--panel-3);
-  border-radius: 8px;
+  border-radius: var(--r-0);
   border: 2px solid transparent;
   background-clip: padding-box;
 }
@@ -98,7 +98,7 @@
 .cli {
   display: block;
   background: var(--panel-1);
-  border-radius: 8px;
+  border-radius: var(--r-0);
   padding: 16px 20px;
   margin: 16px 0 28px 0;
   font-family: var(--ff-mono);
@@ -159,7 +159,7 @@
   padding: 14px 18px;
   margin: 8px 0;
   background: var(--panel-1);
-  border-radius: 6px;
+  border-radius: var(--r-0);
   font-size: 13px;
   box-shadow: var(--panel-shadow);
   text-decoration: none;
@@ -176,7 +176,7 @@
   border: 1px solid var(--panel-3);
   font-size: 0.7rem;
   padding: 0.15rem 0.5rem;
-  border-radius: 3px;
+  border-radius: var(--r-hair);
   font-family: var(--ff-mono);
 }
 .ds-prose .gm-callout {

@@ -57,7 +57,7 @@ html.ds-247420 .ca-rail a {
   align-items: center;
   gap: 8px;
   padding: 6px 8px;
-  border-radius: 6px;
+  border-radius: var(--r-0);
   color: var(--fg-2, color-mix(in oklab, var(--fg) 78%, transparent));
   text-decoration: none;
   font-size: var(--fs-sm, 14px);
@@ -79,7 +79,7 @@ html.ds-247420 .ca-rail a .count {
   flex-shrink: 0;
   min-width: 18px;
   padding: 0 5px;
-  border-radius: 9px;
+  border-radius: var(--r-1);
   background: var(--accent);
   color: var(--on-accent);
   font-size: 11px;

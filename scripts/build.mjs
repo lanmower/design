@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
-import { lintTokensOrThrow } from './lint-tokens.mjs';
+import { lintTokensOrThrow, lintRadiusOrThrow } from './lint-tokens.mjs';
 import { lintGlyphsOrThrow } from './lint-glyphs.mjs';
 import { lintNullChildrenOrThrow } from './lint-null-children.mjs';
 import { lintClassesOrThrow } from './lint-classes.mjs';
@@ -24,6 +24,11 @@ fs.mkdirSync(dist, { recursive: true });
 // color literal. Runs unconditionally (not via npm prebuild hook) so it holds
 // under flatspace/CI runners that skip lifecycle scripts.
 lintTokensOrThrow();
+
+// Radius gate: refuse to build if any component sheet hard-codes a raw
+// border-radius literal bypassing the --r-hair/--r-0/--r-1/--r-2/--r-3/
+// --r-4/--r-pill scale. Same unconditional placement as the other lints.
+lintRadiusOrThrow();
 
 // Glyph gate: refuse to build if any source hard-codes a decorative unicode
 // glyph (the machine-shaped tell the design system bans). Same unconditional
