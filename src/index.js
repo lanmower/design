@@ -10,8 +10,10 @@ import * as components from './components.js';
 import * as motion from './motion.js';
 import * as debug from './debug.js';
 import { renderMarkdown, ensureReady as ensureMarkdownReady } from './markdown.js';
+import { escapeHtml, escapeJson } from './html-escape.js';
 import { ensurePrism, highlightAllUnder } from './highlight.js';
 import { renderPageHtml } from './page-html.js';
+import { HeroFromPageData } from './components/content.js';
 import { mountKit } from './bootstrap.js';
 import * as theme from './theme.js';
 import { registerChatElement, DsChat } from './web-components/ds-chat.js';
@@ -68,7 +70,8 @@ export {
     ensurePrism, highlightAllUnder,
     registerChatElement, DsChat,
     registerFreddieChatElement, FreddieChat,
-    renderPageHtml,
+    renderPageHtml, HeroFromPageData,
+    escapeHtml, escapeJson,
     theme
 };
 export { applyTheme, getTheme, resolvedTheme, onThemeChange, initTheme,
@@ -94,5 +97,6 @@ export default {
     webjsx, loadCss, scope, installStyles, mount, h, applyDiff,
     registerDeckStage, getDeckStage, Router, createRouter,
     components, motion, debug, mountKit,
-    renderMarkdown, ensurePrism, registerChatElement, renderPageHtml
+    renderMarkdown, ensurePrism, registerChatElement, renderPageHtml, HeroFromPageData,
+    escapeHtml, escapeJson
 };

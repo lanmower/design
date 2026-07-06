@@ -2,6 +2,8 @@
 // if loading fails, we fall back to a simple escape-and-linebreak pass so
 // the chat doesn't go blank.
 
+import { escapeHtml } from './html-escape.js';
+
 let _ready = null;
 let _marked = null;
 let _purify = null;
@@ -44,13 +46,11 @@ export async function ensureReady() {
     return _ready;
 }
 
-// The single HTML-entity escape for the whole SDK (full set incl. quotes, so it
-// is safe in attribute contexts too). page-html.js re-exports this as `escape`.
-export function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, (c) => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-    })[c]);
-}
+// The single HTML-entity escape for the whole SDK now lives in html-escape.js
+// (full set incl. quotes, so it is safe in attribute contexts too).
+// Re-exported here for backward compatibility with existing importers of
+// escapeHtml from this module. page-html.js re-exports this as `escape`.
+export { escapeHtml };
 
 export async function renderMarkdown(src) {
     const ok = await ensureReady();

@@ -5,13 +5,9 @@
 // examples) + Status. No hand-rolled
 // HTML inside #app; every node comes from window.ds (C.* components).
 
-const escapeHtml = (s) => String(s ?? '')
-  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-
-const escapeJson = (obj) => JSON.stringify(obj)
-  .replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
-  .replace(new RegExp('\\u2028', 'g'), '\\u2028').replace(new RegExp('\\u2029', 'g'), '\\u2029');
+// Shared with the rest of the SDK (and, going forward, every sibling consumer
+// theme.mjs) via src/html-escape.js — no per-consumer copy of this logic.
+import { escapeHtml, escapeJson } from '../src/html-escape.js';
 
 const SDK_URL = 'https://unpkg.com/anentrypoint-design@latest/dist/247420.js';
 
@@ -61,6 +57,7 @@ function rowsFromItems(items, prefix) {
 function Kits() {
   if (!home.kits || !home.kits.items || !home.kits.items.length) return null;
   return C.Panel({
+    id: 'kits',
     title: home.kits.heading || 'ui kits',
     count: home.kits.count || home.kits.items.length,
     class: 'ds-home-panel',
@@ -71,6 +68,7 @@ function Kits() {
 function Decks() {
   if (!home.decks || !home.decks.items || !home.decks.items.length) return null;
   return C.Panel({
+    id: 'decks',
     title: home.decks.heading || 'decks',
     class: 'ds-home-panel',
     children: rowsFromItems(home.decks.items, 'd')
@@ -90,6 +88,7 @@ function FileBrowser() {
 function Docs() {
   if (!home.docs || !home.docs.items || !home.docs.items.length) return null;
   return C.Panel({
+    id: 'docs',
     title: home.docs.heading || 'docs',
     class: 'ds-home-panel',
     children: rowsFromItems(home.docs.items, 'doc')
@@ -108,6 +107,7 @@ function Previews() {
     href: base + name + '.html'
   }));
   return C.Panel({
+    id: 'previews',
     title: home.previews.heading || 'previews',
     count: rows.length,
     class: 'ds-home-panel',
@@ -234,7 +234,7 @@ const App = C.AppShell({
   }),
   crumb: C.Crumb({ trail: ['247420'], leaf: site.title || 'design' }),
   side: buildSide(),
-  main: h('div', {},
+  main: h('div', { id: 'all' },
     Hero(),
     C.Marquee({ items: ['always open', '24 7 420', 'the creative department', 'shipping in public'], sep: '/' }),
     Tabs(),

@@ -28,6 +28,15 @@ export function inlineMd(s) {
         .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
 }
 
+// GitHub-flavored heading slug: lowercase, strip non-word/non-space/non-hyphen,
+// collapse whitespace to hyphens. Matches the fallback anchor target a hero/nav
+// CTA's `#slug` href expects to resolve against a `## slug text` body heading.
+export function slugify(s) {
+    return String(s || '').trim().toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-');
+}
+
 export function renderMarkdown(md) {
     const lines = String(md || '').split('\n');
     const out = [];
@@ -35,9 +44,9 @@ export function renderMarkdown(md) {
     for (const line of lines) {
         if (line.startsWith('```')) { if (inCode) { out.push('</pre>'); inCode = false; } else { out.push('<pre>'); inCode = true; } continue; }
         if (inCode) { out.push(escape(line)); continue; }
-        if (line.startsWith('# ')) out.push(`<h1>${escape(line.slice(2))}</h1>`);
-        else if (line.startsWith('## ')) out.push(`<h2>${escape(line.slice(3))}</h2>`);
-        else if (line.startsWith('### ')) out.push(`<h3>${escape(line.slice(4))}</h3>`);
+        if (line.startsWith('# ')) { const t = line.slice(2); out.push(`<h1 id="${slugify(t)}">${escape(t)}</h1>`); }
+        else if (line.startsWith('## ')) { const t = line.slice(3); out.push(`<h2 id="${slugify(t)}">${escape(t)}</h2>`); }
+        else if (line.startsWith('### ')) { const t = line.slice(4); out.push(`<h3 id="${slugify(t)}">${escape(t)}</h3>`); }
         else if (line.startsWith('- ')) { if (!inList) { out.push('<ul>'); inList = true; } out.push(`<li>${inlineMd(escape(line.slice(2)))}</li>`); }
         else { if (inList) { out.push('</ul>'); inList = false; } if (line.trim()) out.push(`<p>${inlineMd(escape(line))}</p>`); }
     }
@@ -183,6 +192,7 @@ function sectionNode(sec, idx) {
     return h('div', { key: i, class: 'ds-feature' }, ...kids);
   });
   return C.Section({
+    id: sec.id || null,
     title: sec.name || sec.title || sec.id,
     children: [
       sec.lede ? h('p', { class: 'ds-lede' }, sec.lede) : null,
@@ -209,6 +219,7 @@ function examplesNode(examples) {
 }
 
 // minimal client-side markdown renderer matching server-side renderer (idempotent for already-html bodies)
+function __slug(s) { return String(s || '').trim().toLowerCase().replace(/[^\\w\\s-]/g, '').replace(/\\s+/g, '-'); }
 function __md(md) {
   const lines = String(md || '').split('\\n');
   const out = []; let inCode = false, inList = false;
@@ -217,9 +228,9 @@ function __md(md) {
   for (const line of lines) {
     if (line.startsWith('\`\`\`')) { if (inCode) { out.push('</pre>'); inCode = false; } else { out.push('<pre>'); inCode = true; } continue; }
     if (inCode) { out.push(esc(line)); continue; }
-    if (line.startsWith('# ')) out.push('<h1>' + esc(line.slice(2)) + '</h1>');
-    else if (line.startsWith('## ')) out.push('<h2>' + esc(line.slice(3)) + '</h2>');
-    else if (line.startsWith('### ')) out.push('<h3>' + esc(line.slice(4)) + '</h3>');
+    if (line.startsWith('# ')) { const t = line.slice(2); out.push('<h1 id="' + __slug(t) + '">' + esc(t) + '</h1>'); }
+    else if (line.startsWith('## ')) { const t = line.slice(3); out.push('<h2 id="' + __slug(t) + '">' + esc(t) + '</h2>'); }
+    else if (line.startsWith('### ')) { const t = line.slice(4); out.push('<h3 id="' + __slug(t) + '">' + esc(t) + '</h3>'); }
     else if (line.startsWith('- ')) { if (!inList) { out.push('<ul>'); inList = true; } out.push('<li>' + inl(esc(line.slice(2))) + '</li>'); }
     else { if (inList) { out.push('</ul>'); inList = false; } if (line.trim()) out.push('<p>' + inl(esc(line)) + '</p>'); }
   }

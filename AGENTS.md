@@ -44,9 +44,9 @@ Static-site consumers (no bundler, no Node build) load the SDK from unpkg: `<lin
 
 **SDK-owned hash router (`src/router.js`).** `new ds.Router({ fallback })` gives a consumer hash-based SPA routing over `applyDiff` instead of hand-rolling one: `.register(name, componentFn)`, `.navigate(name, ...params)`, `.start()` (binds `popstate`/`hashchange`, renders the current hash). `componentFn(state)` receives `{page, params, sdkWaitFrames, lastError}`; `params` are the `/`-separated hash segments after the route name. An unregistered route renders `fallback` (if set) instead of throwing — the fix for the class of bug where a portfolio consumer's own hand-rolled router silently desyncs from the actual page content on an unmatched hash. Portfolio repos that maintain a private `router.js` (247420.xyz did) should migrate to this export rather than keep a drift-prone copy — same rationale as every other SDK-owned primitive. Live-inspectable via `window.__debug.router` (`currentRoute`, `registeredRoutes`, `params`, `lastError`).
 
-## Legacy Interactive Page Wrap — Iframe vs Article Extraction
+## Legacy Interactive Page Wrap
 
-When a portfolio repo has legacy `docs/*.html` pages with their own `<style>`/`<script>`/importmap, wrapping them as gm-style article extraction (body unwrap) breaks interactivity. Use **iframe embed inside SDK shell** instead: flatspace `theme.mjs` `assets:` map copies `../docs/<page>` to `_legacy/<page>` (plus sibling deps like `vendor/`, `css/`, `js/`); theme `render` emits a wrapper page at the original URL with SDK Topbar+Crumb+Footer and `main: C.Panel({ children: h('iframe', { src: '<rel-path-to-_legacy>', style: 'width:100%;height:calc(100vh - 180px);min-height:520px;border:0' }) })`. embedSrc resolves relative to wrapper path: `./_legacy/foo.html` for top-level, `../_legacy/foo/index.html` for nested. Trade-off: loses content height auto-sizing. Use article extraction only for static prose papers. Applied 2026-04-30 to thebird/todo, thebird/preview, agentgui/demo, zellous/nostr-chat.
+Legacy `docs/*.html` pages with their own script/style wrap as an iframe inside the SDK shell, never gm-style article extraction (breaks interactivity) — query rs-learn ("legacy interactive page wrap iframe") for the asset-map/embedSrc detail.
 
 ## Re-architecture caveats — added 2026-05-01
 

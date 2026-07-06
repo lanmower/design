@@ -120,6 +120,32 @@ export function RowLink({ code, title, sub, meta, href = '#', key, target }) {
     return Row({ code, title, sub, meta, href, kind: 'link', key, target });
 }
 
+// PanelFromItems — the shared 'items[] -> RowLink wrapped in Panel' mapper
+// every portfolio consumer theme.mjs (zellous/wireweave/thebird/247420) had
+// hand-rolled identically: items.map((it,i) => RowLink({code, title, sub,
+// meta, href})) inside a titled Panel. `keyPrefix` seeds each row's stable
+// key (`${keyPrefix}${i}`), matching the consumer convention of a
+// one-letter-per-section prefix (e.g. 'f' for features, 'm' for modules).
+// Field aliasing mirrors the union of shapes actually hand-rolled downstream:
+// title reads `title` then `name`; sub reads `sub` then `desc`; code falls
+// back to a zero-padded 1-based index when the item carries none. `heading`/
+// `count`/`style`/`kind` pass through to Panel unchanged.
+export function PanelFromItems({ heading, items = [], keyPrefix = 'i', count, style, kind, emptyText } = {}) {
+    if (!items || !items.length) return emptyText != null ? h('div', { class: 'empty' }, emptyText) : null;
+    const rows = items.map((it, i) => {
+        const codeVal = it.code != null ? it.code : (it.rank != null ? it.rank : String(i + 1).padStart(2, '0'));
+        return RowLink({
+            key: keyPrefix + i,
+            code: codeVal,
+            title: it.title != null ? it.title : it.name,
+            sub: it.sub != null ? it.sub : (it.desc != null ? it.desc : ''),
+            meta: it.meta != null ? it.meta : '',
+            href: it.href || '#'
+        });
+    });
+    return Panel({ title: heading, count, style, kind, children: rows });
+}
+
 export function Section({ title, eyebrow, children, id }) {
     return h('section', { class: 'ds-section', id: id || null },
         eyebrow ? h('span', { class: 'eyebrow' }, eyebrow) : null,
@@ -141,6 +167,66 @@ export function Hero({ eyebrow, title, body, accent, actions }) {
             accent ? h('span', { class: 'ds-hero-accent' }, ' ' + accent) : null
         ) : null,
         actions ? h('div', { class: 'ds-hero-actions' }, ...(Array.isArray(actions) ? actions : [actions])) : null
+    );
+}
+
+// HeroFromPageData — a single factory for the "hero block driven by a page-data
+// object" shape that recurs, independently hand-rolled, across every flatspace
+// consumer theme.mjs (heading/subheading/body/badges/ctas/install all read off
+// a `hero` object parsed from the `__site__` JSON script tag). Consumers differ
+// only in which fields their content YAML populates; this factory renders every
+// field it is given and omits what is absent, so it is a drop-in for the
+// narrowest (heading+body only) or richest (badges+ctas+install) hero shape
+// alike. Returns null on a falsy `hero` so callers can write
+// `HeroFromPageData(page.hero)` unconditionally, matching the existing
+// `!home.hero ? null : ...` guard every hand-rolled version repeats.
+//
+// Shape: { heading, title, subheading, body, accent, badges, ctas, install }
+//   heading/title  — hero <h1> text (heading wins if both given)
+//   subheading     — a Lede-style standalone line above `body`
+//   body           — the hero paragraph
+//   accent         — a muted trailing aside appended to `body`
+//   badges         — [{label, desc}] or [string], rendered as a stat strip
+//   ctas           — [{label, href, primary}], rendered as Btn-equivalent links
+//   install        — a single install command string, rendered as a `.cli` block
+export function HeroFromPageData(hero) {
+    if (!hero) return null;
+    const heading = hero.heading || hero.title || '';
+    const badges = Array.isArray(hero.badges) ? hero.badges.filter(Boolean) : [];
+    const ctas = Array.isArray(hero.ctas) ? hero.ctas.filter(Boolean) : [];
+    const badgeRow = badges.length
+        ? h('div', { class: 'ds-hero-stats' }, ...badges.map((b, i) =>
+            h('span', { key: 'hb' + i, class: 'ds-hero-stat' },
+                h('strong', { class: 'ds-hero-stat-n' }, String(b && b.label != null ? b.label : b)),
+                (b && b.desc) ? h('span', { class: 'ds-hero-stat-l' }, String(b.desc)) : null,
+            )))
+        : null;
+    const ctaRow = ctas.length
+        ? h('div', { class: 'ds-hero-actions' }, ...ctas.map((c, i) =>
+            h('a', {
+                key: 'hc' + i,
+                class: (c.primary || i === 0) ? 'btn btn-accent' : 'btn btn-ghost',
+                href: c.href || '#',
+            }, c.label || c.cta || 'go')))
+        : null;
+    const installRow = hero.install
+        ? h('div', { class: 'cli' },
+            h('span', { class: 'prompt' }, '$'),
+            h('span', { class: 'cmd' }, hero.install))
+        : null;
+    return h('div', { class: 'ds-hero' },
+        h('div', { class: 'ds-hero-head' },
+            hero.eyebrow ? h('span', { class: 'eyebrow' }, hero.eyebrow) : null,
+            h('h1', { class: 'ds-hero-title' }, heading)
+        ),
+        hero.subheading ? h('p', { class: 'ds-hero-body lede' }, hero.subheading) : null,
+        hero.body ? h('p', { class: 'ds-hero-body' },
+            hero.body,
+            hero.accent ? h('span', { class: 'ds-hero-accent' }, ' ' + hero.accent) : null,
+        ) : null,
+        installRow,
+        ctaRow,
+        badgeRow,
     );
 }
 
@@ -166,6 +252,33 @@ export function Install({ cmd, copied, onCopy }) {
         h('span', { class: 'cmd' }, cmd),
         h('span', { class: 'copy', onclick: () => onCopy && onCopy(cmd) }, copied ? 'copied' : 'copy')
     );
+}
+
+// CliBlock — the shared 'quickstart.lines[] -> stacked CLI block' renderer
+// every portfolio consumer theme.mjs (zellous/wireweave/247420) had hand-rolled
+// identically: lines.map((l,i) => a div per line holding a prompt span ('$' or
+// '#' for a comment line) and a cmd span, all wrapped in a Panel. This factory
+// targets the multi-line `.cli` contract already defined in app-shell.css and
+// gm-prose.css (`.cli` holding `.cli-line` rows — each a prompt+cmd pair — and
+// `.cli-cmt` comment rows) rather than reinventing a wrapper class, so no new
+// CSS is needed. `lines` is [{kind, text}] where kind: 'cmt' renders a
+// comment-only row (no prompt glyph); any other kind (or omitted) renders a
+// command row prefixed '$'. `heading` titles the wrapping Panel ('quick start'
+// default, matching every hand-rolled instance); pass `heading: null` to
+// render the bare `.cli` block with no Panel chrome.
+export function CliBlock({ lines = [], heading = 'quick start', className = '' } = {}) {
+    if (!lines || !lines.length) return null;
+    const rows = lines.map((l, i) => {
+        const isComment = l && l.kind === 'cmt';
+        const text = l && l.text != null ? l.text : '';
+        return isComment
+            ? h('div', { key: 'q' + i, class: 'cli-cmt' }, text)
+            : h('div', { key: 'q' + i, class: 'cli-line' },
+                h('span', { class: 'prompt' }, '$'),
+                h('span', { class: 'cmd' }, text));
+    });
+    const body = h('div', { class: 'cli' + (className ? ' ' + className : '') }, ...rows);
+    return heading == null ? body : Panel({ title: heading, children: body });
 }
 
 export function Receipt({ rows = [], emptyText = 'nothing here yet' }) {

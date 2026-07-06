@@ -20,9 +20,9 @@ sidebar:
     href: "./ui_kits/homepage/"
   bins:
     - { label: "everything", href: "#all", count: 23, active: true }
-    - { label: "pinned",     href: "#pinned",  count: 5 }
-    - { label: "shipped",    href: "#shipped", count: 12 }
-    - { label: "drafts",     href: "#drafts",  count: 6 }
+    - { label: "pinned",     href: "#kits",  count: 5 }
+    - { label: "shipped",    href: "#previews", count: 12 }
+    - { label: "drafts",     href: "#decks",  count: 6 }
   labels_group: "labels"
   labels:
     - { label: "ui kits",  href: "#kits",     count: 4,  color: "var(--panel-accent)" }
