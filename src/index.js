@@ -5,6 +5,7 @@
 import * as webjsx from '../vendor/webjsx/index.js';
 import { loadCss, scope } from './styles.js';
 import { registerDeckStage, getDeckStage } from './deck-stage.js';
+import { Router, createRouter } from './router.js';
 import * as components from './components.js';
 import * as motion from './motion.js';
 import * as debug from './debug.js';
@@ -61,6 +62,7 @@ if (typeof window !== 'undefined' && typeof customElements !== 'undefined') {
 export {
     webjsx, loadCss, scope,
     registerDeckStage, getDeckStage,
+    Router, createRouter,
     components, motion, debug, mountKit,
     renderMarkdown, ensureMarkdownReady,
     ensurePrism, highlightAllUnder,
@@ -90,6 +92,7 @@ export {
 
 export default {
     webjsx, loadCss, scope, installStyles, mount, h, applyDiff,
-    registerDeckStage, getDeckStage, components, motion, debug, mountKit,
+    registerDeckStage, getDeckStage, Router, createRouter,
+    components, motion, debug, mountKit,
     renderMarkdown, ensurePrism, registerChatElement, renderPageHtml
 };
