@@ -1468,25 +1468,25 @@
   witness: src/components/shell.js:248-273 onSideLinkKeyDown + line 292 onkeydown wiring already present in working tree (git diff --stat showed 10 insertions before commit), read directly via Read tool, matches editor-primitives.js Tabs roving-nav pattern per its own code comment. No further code change needed -- only commit+push remained.
 - id: gitignore-unblanket-gm
   title: Remove blanket .gm/ ignore (gitignore:2), add managed transient block so .gm/memories + prd/mutables track
-  witness: .gitignore:2 '.gm/'
-  status: pending
+  witness: '.gitignore rewritten: blanket .gm/ removed, plugkit managed block installed; git ls-files .gm/memories == 41 (40 md + sentinel)'
+  status: completed
 - id: corpus-converged-verify
   title: 'Verify md corpus converged: 40 content-hash-keyed md, zero legacy timestamp-keyed'
-  witness: 'ls .gm/memories: 40, non-matching 0'
-  status: pending
+  witness: 40 md all mem-[0-9a-f]{16}-N.md, legacy timestamp-keyed count 0
+  status: completed
 - id: flat-dirs-byte-unchanged
   title: 'Witness flat JSON dirs (.gm/disciplines/default, default-vec) byte-unchanged: hash baseline now, compare after push'
-  witness: 'default: 40 json, default-vec: 40 json'
-  status: pending
+  witness: 'sha256-of-sha256s identical pre/post: default=245d0dd084..., default-vec=c6a43c25e7...'
+  status: completed
 - id: dist-dirty-triage
   title: 'Triage pre-existing dirty dist/247420.css + dist/247420.js: commit if real build output, revert if stale junk'
-  witness: 'git status: M dist/247420.css, M dist/247420.js at session entry'
-  status: pending
+  witness: git diff --numstat empty (EOL-normalization-only churn), reverted via git_reset-9009 hard to HEAD
+  status: completed
 - id: commit-push-corpus-main
   title: Commit corpus + push to origin main, remote reflects HEAD
-  witness: branch main, remote HEAD main at 9ce49fb
-  status: pending
+  witness: 'git_finalize-9010: sha 507cea0 committed+pushed to main'
+  status: completed
 - id: final-clean-tree
   title: 'Final witness: porcelain empty after push'
-  witness: pending
-  status: pending
+  witness: porcelain empty post-507cea0 except engine-appended .gm/pw-sock-*/ gitignore line, committed in session-state finalize
+  status: completed

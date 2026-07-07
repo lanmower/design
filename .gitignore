@@ -79,3 +79,4 @@ CLAUDE.md
 .plugkit-browser-profile-*/
 .claude/worktrees/
 # <<< plugkit managed
+.gm/pw-sock-*/
