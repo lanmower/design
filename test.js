@@ -121,6 +121,43 @@ check('JsonViewer null/undefined renders empty-state text, not the literal "unde
     if (String(vNull.props.children[0]).includes('undefined')) throw new Error('leaked literal "undefined"');
 });
 
+check('JsonViewer highlight mode tokenizes keys/strings/numbers/booleans/null into ds-ep-json-* spans', () => {
+    const v = JsonViewer({ value: { a: 1, ok: true, s: 'x', z: null }, mode: 'highlight' });
+    if (v.type !== 'pre') throw new Error('expected pre, got ' + v.type);
+    if (!v.props.class.includes('ds-ep-json-hl')) throw new Error('missing ds-ep-json-hl class: ' + v.props.class);
+    const kinds = new Set(v.props.children.filter(c => c && c.props).map(c => c.props.class));
+    for (const cls of ['ds-ep-json-k', 'ds-ep-json-s', 'ds-ep-json-n', 'ds-ep-json-b', 'ds-ep-json-z']) {
+        if (!kinds.has(cls)) throw new Error('missing token span ' + cls + '; got ' + [...kinds].join(','));
+    }
+});
+
+check('JsonViewer highlight mode never falsely tokenizes non-JSON prose', () => {
+    const v = JsonViewer({ value: 'plain prose, not json', mode: 'highlight' });
+    if (v.props.class.includes('ds-ep-json-hl')) throw new Error('non-JSON string was tokenized');
+    if (v.props.children[0] !== 'plain prose, not json') throw new Error('string not passed through verbatim');
+});
+
+check('JsonViewer tree mode renders collapsible details, open above treeDepth', () => {
+    const v = JsonViewer({ value: { a: { b: 2 }, c: [1, 2, 3] }, mode: 'tree' });
+    if (v.type !== 'div') throw new Error('expected div, got ' + v.type);
+    if (!v.props.class.includes('ds-ep-json-tree')) throw new Error('missing tree class: ' + v.props.class);
+    const rootNode = v.props.children[0];
+    if (rootNode.type !== 'details') throw new Error('root not details: ' + rootNode.type);
+    if (rootNode.props.open !== true) throw new Error('depth 0 should default open');
+});
+
+check('JsonViewer copyable wraps viewer with a copy button', () => {
+    const v = JsonViewer({ value: { a: 1 }, copyable: true });
+    if (v.props.class !== 'ds-ep-json-wrap') throw new Error('missing wrap: ' + v.props.class);
+    if (v.props.children[0].type !== 'button') throw new Error('copy button missing');
+    if (v.props.children[1].type !== 'pre') throw new Error('viewer body missing');
+});
+
+check('JsonViewer plain default stays byte-compatible (children[0] is the raw string)', () => {
+    const v = JsonViewer({ value: { a: 1 } });
+    if (typeof v.props.children[0] !== 'string') throw new Error('plain default no longer raw text');
+});
+
 check('ToolbarRow accepts varargs and renders a flat wrapping row', () => {
     const a = { type: 'button' }, b = { type: 'button' };
     const v = ToolbarRow(a, b);

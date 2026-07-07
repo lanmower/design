@@ -749,10 +749,12 @@ Pager({ page: 2, pageCount: 5, total: 42, onPage: (p) => setPage(p) })
 ```
 
 ### JsonViewer
-Pre-formatted monospace data preview (max-height + scroll). Accepts a pre-stringified string OR any value — objects/arrays get `JSON.stringify(v, null, 2)`; `null`/`undefined` render `emptyText` rather than the literal `"undefined"`/`"null"`.
+Monospace data preview (max-height + scroll). Accepts a pre-stringified string OR any value — objects/arrays get `JSON.stringify(v, null, 2)`; `null`/`undefined` render `emptyText` rather than the literal `"undefined"`/`"null"`.
+
+`mode` selects rendering. `'plain'` (default) is the historical contract — flat `<pre>`, raw text, string input verbatim. `'highlight'` tokenizes the JSON into `ds-ep-json-k/s/n/b/z` spans (key/string/number/boolean/null; linear single-pass scan, no regex); a string that does not parse as JSON falls back to plain text, so arbitrary prose is never falsely tokenized. `'tree'` renders nested objects/arrays as native collapsible `<details>` nodes with child-count tags, open above `treeDepth` (default 2); scalars fall back to highlight. `copyable: true` wraps the viewer with a copy-to-clipboard button (transient copied/failed feedback).
 
 ```js
-JsonViewer({ value, emptyText = 'no data', maxHeight })
+JsonViewer({ value, emptyText = 'no data', maxHeight, mode = 'plain', copyable = false, treeDepth = 2 })
 ```
 
 ### Dock
