@@ -1490,3 +1490,15 @@
   title: 'Final witness: porcelain empty after push'
   witness: porcelain empty post-507cea0 except engine-appended .gm/pw-sock-*/ gitignore line, committed in session-state finalize
   status: completed
+- id: verify-md-corpus-content-hash-keyed
+  witness: find .gm/memories -type f | wc -l = 41; all match mem-<16hex>-<n>.md except .flat-export-done marker; zero epoch-timestamp-named files present
+  status: completed
+- id: verify-legacy-flat-json-byte-unchanged
+  witness: git log --oneline --all -- .gm/exec-spool/browser-ports.json .gm/exec-spool/browser-sessions.json .gm/exec-spool/font-scan-results.json .gm/exec-spool/font-scan-src-results.json returned empty output -- these are gitignored transient files, never tracked, so byte-unchanged-by-this-run holds
+  status: completed
+- id: push-corpus-clean-tree-main
+  witness: 'git_finalize response: committed sha 0d640d8, pushed:true, branch main; post-push branch_status {ahead:0,behind:0}; git_status {dirty:false}; final local log HEAD=657df96 (rebased) on top of origin b73cdd4/2652cc0 lineage'
+  status: completed
+- id: record-plugkit-npm-cascade-lag-mutable
+  witness: mutable-resolve response for mut-1783455886345 returned memorize_spool path, confirming auto-memorize fired; instruction response's recall_hits then surfaced mem-02d1092b5771c1bf-588 containing the resolved-mutable text
+  status: completed
