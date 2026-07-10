@@ -2423,6 +2423,19 @@
   background: var(--accent); border-radius: var(--r-pill);
   transition: width var(--dur-base) var(--ease);
 }
+/* Indeterminate: percent is unknown mid-transfer (fetch gives no chunk-level
+   progress) — a sliding marquee bar reads as "working", not stuck at 0%. */
+.ds-247420 .ds-upload-bar.indeterminate .ds-upload-fill {
+  width: 40%; transition: none;
+  animation: ds-upload-marquee 1.1s ease-in-out infinite;
+}
+@keyframes ds-upload-marquee {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-247420 .ds-upload-bar.indeterminate .ds-upload-fill { animation: none; width: 100%; opacity: 0.5; }
+}
 .ds-247420 .ds-upload-pct {
   font-family: var(--ff-mono); font-size: var(--fs-micro);
   color: var(--fg-3); text-align: right;
@@ -7146,7 +7159,7 @@
 .ds-247420 .ds-dash-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-2); }
 .ds-247420 .ds-dash-card.is-error { border-color: var(--flame); }
 .ds-247420 .ds-dash-card-head { display: flex; align-items: center; gap: var(--space-2); }
-.ds-247420 .ds-dash-status { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+.ds-247420 .ds-dash-status { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); }
 /* running tone unified on --accent (the later is-running rule + the live disc all
    use --accent); the dead var(--green) duplicate that lived here was removed. */
 .ds-247420 .ds-dash-status.is-error { color: var(--flame); }
@@ -7474,7 +7487,7 @@
 /* External (observed, not owned) session card: no stop control exists. */
 .ds-247420 .ds-dash-external {
   padding: 1px 6px; border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-pill);
-  font-size: var(--fs-micro); color: var(--fg-3); text-transform: uppercase; letter-spacing: .03em;
+  font-size: var(--fs-micro); color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-caps);
 }
 .ds-247420 .ds-dash-card.is-external { border-style: dashed; }
 
@@ -7566,7 +7579,7 @@
 .ds-247420 .chat-tool-label { color: var(--fg-3); font-size: var(--fs-tiny); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .ds-247420 .chat-tool-status {
   margin-left: auto; flex: 0 0 auto;
-  font-size: var(--fs-micro); font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  font-size: var(--fs-micro); font-weight: 700; text-transform: uppercase; letter-spacing: var(--tr-caps);
   color: var(--fg-3);
   padding: 2px var(--space-2); border-radius: var(--r-pill);
   background: color-mix(in oklab, var(--fg) 6%, transparent);

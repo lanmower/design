@@ -414,7 +414,7 @@
 .ds-session-title { font-size: var(--fs-sm); color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-session-sub { font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-session-meta { display: flex; align-items: center; gap: var(--space-2); flex: 0 0 auto; }
-.ds-session-agent { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); }
+.ds-session-agent { font-size: var(--fs-tiny); color: var(--fg-3); }
 /* New-activity cue is a hollow accent RING so it stays shape-distinct from the
    running live disc (a solid pulsing accent dot) for colour-blind / reduced-motion users. */
 .ds-session-unread { width: 8px; height: 8px; border-radius: 50%; background: transparent; box-shadow: inset 0 0 0 2px var(--accent); display: inline-block; }
@@ -446,7 +446,7 @@
 .ds-dash-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-2); }
 .ds-dash-card.is-error { border-color: var(--flame); }
 .ds-dash-card-head { display: flex; align-items: center; gap: var(--space-2); }
-.ds-dash-status { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+.ds-dash-status { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); }
 /* running tone unified on --accent (the later is-running rule + the live disc all
    use --accent); the dead var(--green) duplicate that lived here was removed. */
 .ds-dash-status.is-error { color: var(--flame); }
@@ -774,7 +774,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 /* External (observed, not owned) session card: no stop control exists. */
 .ds-dash-external {
   padding: 1px 6px; border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-pill);
-  font-size: var(--fs-micro); color: var(--fg-3); text-transform: uppercase; letter-spacing: .03em;
+  font-size: var(--fs-micro); color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-caps);
 }
 .ds-dash-card.is-external { border-style: dashed; }
 
@@ -810,8 +810,8 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
    paragraph and the .them tint hugged text flush. Restore reading rhythm + give
    the tinted assistant row inner breathing room so it reads as a card. */
 .chat-msg-flat .chat-role { margin-bottom: var(--space-2); }
-.chat-msg-flat .chat-md { line-height: 1.65; }
-.chat-msg-flat .chat-md p { margin: 8px 0; }
+.chat-msg-flat .chat-md { line-height: var(--lh-long); }
+.chat-msg-flat .chat-md p { margin: var(--space-2) 0; }
 .chat-msg-flat.them { padding-block: calc(var(--space-3) * var(--density, 1) + 2px); }
 /* Inline backtick code (renderInline tags <code class=chat-tick>) - was a dead
    class relying on the generic .chat-bubble code rule, so notices / non-bubble
@@ -866,7 +866,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 .chat-tool-label { color: var(--fg-3); font-size: var(--fs-tiny); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .chat-tool-status {
   margin-left: auto; flex: 0 0 auto;
-  font-size: var(--fs-micro); font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  font-size: var(--fs-micro); font-weight: 700; text-transform: uppercase; letter-spacing: var(--tr-caps);
   color: var(--fg-3);
   padding: 2px var(--space-2); border-radius: var(--r-pill);
   background: color-mix(in oklab, var(--fg) 6%, transparent);
@@ -898,7 +898,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 .chat-code-lang {
   position: absolute; top: 0; left: 0; z-index: 2;
   padding: 2px var(--space-2); border-bottom-right-radius: var(--r-1);
-  font-family: var(--ff-mono); font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: .04em;
+  font-family: var(--ff-mono); font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: var(--tr-caps);
   color: var(--fg-3); background: color-mix(in oklab, var(--fg) 6%, transparent);
   pointer-events: none;
 }
