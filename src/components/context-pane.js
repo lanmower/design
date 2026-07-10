@@ -57,7 +57,11 @@ export function ContextPane({ agent, model, cwd, toolCount = 0, usage, session, 
             children: [
                 Row({ title: 'agent', meta: agent || 'none' }),
                 Row({ title: 'model', meta: model || '—' }),
-                Row({
+                // Wrapped in a scoping div (`ds-context-cwd-row`) so the cwd
+                // fact's `.sub` text can be styled monospace to match
+                // .ds-dash-cwd/.ds-session-agent/.ds-dash-model without
+                // affecting every other Row's `.sub` in the app.
+                h('div', { class: 'ds-context-cwd-row' }, Row({
                     title: 'working dir',
                     sub: cwd || 'server default',
                     // Use the rail tone consistently with the GUI-wide semantics:
@@ -67,7 +71,7 @@ export function ContextPane({ agent, model, cwd, toolCount = 0, usage, session, 
                     // not as a button floating under the panels.
                     onClick: onSetCwd || undefined,
                     meta: onSetCwd ? 'change' : undefined,
-                }),
+                })),
                 Row({
                     title: 'running tools',
                     meta: running ? String(toolCount) : 'idle',

@@ -88,6 +88,7 @@
   flex-wrap: wrap;
 }
 .agentchat-cwd-text {
+  font-family: var(--ff-mono);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
