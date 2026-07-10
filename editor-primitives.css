@@ -651,11 +651,11 @@
 .ds-ep-dialog-btn.kind-primary {
     background: var(--accent); color: var(--accent-fg); border-color: var(--accent);
 }
-.ds-ep-dialog-btn.kind-primary:hover { filter: brightness(1.08); }
+.ds-ep-dialog-btn.kind-primary:hover { filter: brightness(0.92); }
 .ds-ep-dialog-btn.kind-danger {
     background: var(--danger); color: var(--on-accent); border-color: var(--danger);
 }
-.ds-ep-dialog-btn.kind-danger:hover { filter: brightness(1.1); }
+.ds-ep-dialog-btn.kind-danger:hover { filter: brightness(0.92); }
 
 /* ---------------------------------------------------------------
    Toast

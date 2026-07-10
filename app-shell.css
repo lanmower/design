@@ -585,7 +585,7 @@ body.canvas-host { background: transparent !important; }
   background: var(--panel-1, var(--bg-2));
   border: var(--bw-hair) solid var(--rule);
   border-radius: var(--r-2);
-  margin: 0 0 var(--space-5);
+  margin: 0 0 var(--space-4);
   padding: var(--space-3);
   position: relative;
   /* Crisp, restrained elevation — a hairline border does the edge definition;
@@ -733,6 +733,9 @@ a.row:hover .meta, .row[role="button"]:hover .meta { color: var(--accent-ink); t
 [data-typescale="app"] .row { padding: 12px 16px; }
 [data-typescale="app"] .row .title { font-size: var(--fs-sm); font-weight: 500; }
 .row .sub   { font-family: var(--ff-body); font-weight: 400; font-size: var(--fs-sm); color: var(--fg-3); }
+/* Context-pane cwd fact reads as a path (like .ds-dash-cwd/.ds-session-agent/
+   .ds-dash-model) -- scoped to that one row so no other Row .sub is affected. */
+.ds-context-cwd-row .row .sub { font-family: var(--ff-mono); }
 .row .meta  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; align-self: center; }
 /* WorksList meta pairs a label with a disclosure chevron, inline-aligned. */
 .ds-works-meta { display: inline-flex; align-items: center; gap: .4em; }
@@ -2646,7 +2649,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   transition: background var(--dur-snap, .15s) var(--ease, ease), color var(--dur-snap, .15s) var(--ease, ease);
 }
 .composer-btn:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
-.chat-composer .send:hover { filter: brightness(1.08); }
+.chat-composer .send:hover { filter: brightness(0.92); }
 .chat-composer .send:active { filter: brightness(0.94); }
 .chat-composer .send:focus-visible,
 .composer-btn:focus-visible {
@@ -3753,7 +3756,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   font-family: var(--ff-body); font-size: var(--fs-sm); font-weight: 600;
   min-height: 40px; white-space: nowrap; overflow: hidden;
 }
-.ws-rail-action:hover { filter: brightness(1.08); }
+.ws-rail-action:hover { filter: brightness(0.92); }
 .ws-rail-action:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 .ws-rail-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .ws-rail-item {
