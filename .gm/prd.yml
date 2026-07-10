@@ -1644,7 +1644,8 @@
   witness: 'Root cause found and fixed at commit 3c28e8c: .app-side .count was hardcoded to var(--mascot) pink for every badge; now neutral color-mix background with active-row lime override. Additionally removed dead per-row color hex-fallback fields from home.yaml (labels array) that never rendered (Side() only threads color when a row has a glyph).'
 - id: site-hero-not-two-column
   subject: AGENTS.md mandates Hero as asymmetric two-column grid-template-areas layout, never centered stack -- live screenshot shows a single left-aligned text column with a large unused dark void filling the right ~40% of the viewport and continuing for a full screen-height below the fold. Rework homepage Hero to actually use the two-column grid with real content (marquee/pattern/stat panel) in the second column so the space is not dead.
-  status: pending
+  status: completed
+  witness: 'Root cause: hero.badges was defined in home.yaml but never passed by site/theme.mjs to C.Hero, and C.Hero didn''t accept a badges prop -- right grid column only ever held 2 small buttons. Fixed at commit c3925f3: Hero()/HeroFromPageData() group badges+actions into .ds-hero-aside (lime-spined halftone card). Verified via local static-serve + gm browser screenshot (.gm/witness/shot-3516959-0.png): dark theme renders correctly, card fills the right column with real content.'
 - id: site-below-fold-dead-space
   subject: Scrolling the live homepage past the hero reveals a solid black empty viewport with zero content -- a structural gap between hero and whatever content follows (bins/panels/showcase grid). Diagnose site/theme.mjs + site/content/pages/home.yaml render order and either bring the next section up (remove excess margin/min-height) or add the missing showcase content block so there is no dead full-viewport gap.
   status: completed
