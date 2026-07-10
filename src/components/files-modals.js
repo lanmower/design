@@ -173,7 +173,7 @@ export function ConfirmDialog({ title = 'Are you sure?', message, confirmLabel =
         body: [message || '', modalError(error)].filter(Boolean),
         actions: [
             Btn({ onClick: onCancel, disabled: busy, children: cancelLabel }),
-            Btn({ variant: 'primary', disabled: busy, onClick: onConfirm, children: busy ? busyLabel : confirmLabel })
+            Btn({ variant: destructive ? 'danger' : 'primary', disabled: busy, onClick: onConfirm, children: busy ? busyLabel : confirmLabel })
         ]
     });
 }

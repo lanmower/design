@@ -1086,7 +1086,7 @@
      rows sit on ONE left axis (the old 24/32 padding was authored for the
      pre-padding .panel-wide era and indented the label 16px past its content). */
   padding: var(--space-2) var(--space-3);
-  font-size: var(--fs-xs); font-weight: 600;
+  font-size: var(--fs-tiny); font-weight: 600;
   color: var(--fg-3);
   letter-spacing: var(--tr-caps); text-transform: uppercase;
 }
@@ -1401,7 +1401,7 @@
 .ds-247420 table th {
   text-align: left;
   padding: 12px 16px;
-  font-size: var(--fs-xs); font-weight: 600;
+  font-size: var(--fs-tiny); font-weight: 600;
   color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-caps);
   background: var(--bg-2);
 }
@@ -2190,6 +2190,15 @@
   font-size: var(--fs-sm); color: var(--fg-3);
 }
 .ds-247420 .ds-page-header-dense .ds-page-header-right { flex: 0 0 auto; margin-left: auto; }
+/* Below ~480px the single-line ellipsis truncates the majority of the lede
+   text with no way to recover it (no title attr, no expand) - let the row
+   wrap and the lede break onto its own line instead of clipping. */
+@media (max-width: 480px) {
+  .ds-247420 .ds-page-header-dense-row { flex-wrap: wrap; }
+  .ds-247420 .ds-page-header-dense-lede {
+    flex-basis: 100%; overflow: visible; text-overflow: clip; white-space: normal;
+  }
+}
 .ds-247420 .ds-file-toolbar-left,
 .ds-247420 .ds-file-toolbar-right {
   display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;
@@ -6974,6 +6983,12 @@
   font-family: var(--ff-mono); font-size: var(--fs-tiny);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+/* Below ~480px a single nowrap line silently truncates most of the agent /
+   model / cwd context (no way to recover it - no title attr on the container,
+   only on individual bits). Let it wrap instead of clipping. */
+@media (max-width: 480px) {
+  .ds-247420 .chat-composer-context { white-space: normal; overflow: visible; text-overflow: clip; }
+}
 .ds-247420 button.chat-composer-context { cursor: pointer; }
 .ds-247420 button.chat-composer-context:hover { color: var(--fg-2); }
 .ds-247420 button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
@@ -9155,15 +9170,19 @@
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: .4em; text-align: center; min-height: 50vh; color: var(--fg-3);
 }
-.ds-247420 .history-empty-title { margin: 0; font-size: 1.05rem; color: var(--fg-2); }
+.ds-247420 .history-empty-title { margin: 0; font-size: var(--fs-lg); color: var(--fg-2); }
 .ds-247420 .history-empty-sub { margin: 0; max-width: 42ch; }
 
-/* Settings: two-column on wide screens (backend + agents). */
+/* Settings: two-column on wide screens (backend + agents). Grid gap is the
+   single source of rhythm between stacked Panels here - .panel's own
+   margin-bottom would stack on top of the gap (32px + 24px = 56px, a break
+   used nowhere else), so it's zeroed for direct grid children. */
 .ds-247420 .settings-grid {
   display: grid; gap: var(--space-4, 16px);
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
 }
+.ds-247420 .settings-grid > .panel { margin-bottom: 0; }
 .ds-247420 .agentgui-main-settings .settings-grid { margin-top: 0; }
 
 /* The kit Chat head computes its own zero-padded count and ignores our sub
