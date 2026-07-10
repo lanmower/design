@@ -351,12 +351,12 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
       : (selectable && selCount && onStopSelected
       ? (onArmStopSelected && !confirmingStopSelected
           ? Btn({ key: 'stopsel', variant: 'danger', onClick: () => onArmStopSelected([...selSet]), children: 'stop selected' })
-          : Btn({ key: 'stopsel', variant: 'danger', className: confirmingStopSelected ? 'is-armed' : null, onClick: () => onStopSelected([...selSet]),
+          : Btn({ key: 'stopsel', variant: 'danger', class: confirmingStopSelected ? 'is-armed' : null, onClick: () => onStopSelected([...selSet]),
                   children: confirmingStopSelected ? 'stop ' + selCount + ' sessions - press again' : 'stop selected' }))
       : (onStopAll
           ? (onArmStopAll && !confirmingStopAll
               ? Btn({ key: 'stopall', variant: 'danger', onClick: () => onArmStopAll(sessions), children: 'stop all' })
-              : Btn({ key: 'stopall', variant: 'danger', className: confirmingStopAll ? 'is-armed' : null, onClick: () => onStopAll(sessions),
+              : Btn({ key: 'stopall', variant: 'danger', class: confirmingStopAll ? 'is-armed' : null, onClick: () => onStopAll(sessions),
                       children: confirmingStopAll ? 'stop ' + sessions.length + ' sessions - press again' : 'stop all' }))
           : null));
   // Build header children as a filtered array: webjsx applyDiff crashes

@@ -195,18 +195,18 @@ Pill({ tone: 'accent', children: 'PLAN' })
 Flexible button component with support for multiple variants.
 
 ```js
-Btn({ href, variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled, className, key })
+Btn({ href, variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled, class: className, key })
 ```
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `variant` | `'primary' \| 'ghost' \| 'danger' \| 'default'` | `'default'` | Button style variant. `'danger'` renders `btn-primary danger` |
+| `variant` | `'primary' \| 'ghost' \| 'danger' \| 'default'` | `'default'` | Button style variant. `'danger'` renders `btn-primary danger`. If both `variant` and a legacy boolean (`primary`/`ghost`/`danger`) are passed, `variant` wins. |
 | `href` | string | `undefined` | Navigation link. A real navigational value renders `<a>`; omitted, `''`, or literal `'#'` renders a native `<button>` (not a link) |
 | `children` | ReactNode | - | Button label/content |
 | `onClick` | function | - | Click handler callback |
 | `aria-label` | string | - | Accessible label (auto-filled from children if string) |
 | `disabled` | boolean | - | Disables click/keyboard activation; adds `is-disabled`, `aria-disabled`, and (for links) `tabindex="-1"` |
-| `className` | string | - | Extra class(es) appended to the resolved variant class |
+| `class` | string | - | Extra class(es) appended to the resolved variant class (matches `Panel`/`Heading`'s `class` prop naming) |
 | `key` | string | - | webjsx diff key |
 | `primary` | boolean | - | **Deprecated**: use `variant="primary"` |
 | `ghost` | boolean | - | **Deprecated**: use `variant="ghost"` |
@@ -576,8 +576,14 @@ EventList({ items, events, emptyText = 'no events', rankPad = 3 })
 Page section header with title, lede, and right content.
 
 ```js
-PageHeader({ title, lede, eyebrow, right })
+PageHeader({ title, lede, eyebrow, right, compact, dense, id })
 ```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `compact` | boolean | Strips the section's leading/trailing margin (for a header used as a page's first element). Keeps the display H1-over-paragraph layout. |
+| `dense` | boolean | Content-first single-row form (small heading + inline lede) instead of the display H1-over-paragraph layout. When `dense` is true, `compact` is ignored — the dense row always renders margin-stripped. |
+| `id` | string | Placed on the outer section as a deep-link anchor. |
 
 ### Form
 Simple form with fields and submit button.

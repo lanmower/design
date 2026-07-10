@@ -590,7 +590,7 @@ body.canvas-host { background: transparent !important; }
 .glyph {
   display: inline-flex; align-items: center; justify-content: center;
   width: 18px; height: 18px;
-  font-family: var(--ff-mono); font-size: 13px;
+  font-family: var(--ff-mono); font-size: var(--fs-tiny);
   opacity: 0.8;
 }
 
@@ -685,7 +685,7 @@ a.row:hover, button.row:hover, .row[role="button"]:hover {
   font-family: var(--ff-mono);
   font-size: var(--fs-sm);
   line-height: var(--lh-snug);
-  margin-top: 8px;
+  margin-top: var(--space-2);
   padding: 10px 12px;
   background: var(--bg);
   border-radius: var(--r-1);
@@ -1159,7 +1159,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 
 /* Field char counter (TextField maxLength) */
 .ds-field-count {
-  font-size: var(--fs-tiny, 12px);
+  font-size: var(--fs-tiny, 13px);
   color: var(--fg-3, var(--fg-2));
   text-align: right;
 }
@@ -1607,7 +1607,11 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
    Shared by FileRow/FileCell (.is-marked) and the file/session select-all +
    SessionCard select (aria-checked true/mixed) since the bundle concatenates
    all CSS. Replaces the old [x]/[ ] bracket text - no glyphs, AT keeps the
-   role=checkbox/aria-checked name+state. */
+   role=checkbox/aria-checked name+state.
+   See also .ds-check in editor-primitives.css — a separate native-input
+   checkbox family for form/settings contexts; intentionally distinct
+   rendering (native vs CSS-drawn), do not let one drift toward the other
+   by accident. */
 .ds-check-box {
   width: 15px; height: 15px; box-sizing: border-box; flex: 0 0 auto; position: relative;
   border: 1.5px solid var(--fg-3); border-radius: var(--r-0);
@@ -2711,6 +2715,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-select {
     width: 100%;
     min-width: 0;
+    min-height: 32px; /* shared control floor with .btn/.btn-primary/.btn-ghost */
     padding: 10px 30px 10px 14px; /* right gap clears the chevron */
     background: var(--bg-2);
     border: 0;
