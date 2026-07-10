@@ -1696,13 +1696,17 @@
   witness: Audited search(fixed Topbar stringifying VElement search prop to [object Object]), error_404(clean), gallery(clean). Commit 0919c52. All 11 remaining kits now audited with real screenshots at 1440px/390px.
 - id: audit-previews-batch-1
   subject: 'Audit + fix visual polish issues on preview pages: dateline, dropzone, file-grid, file-row, file-toolbar, file-viewer, header, icons-unicode'
-  status: pending
+  status: completed
+  witness: dateline/dropzone/file-grid/file-row/file-toolbar/file-viewer/header/icons-unicode audited at 1440px. Fixed .dateline/.spread (undefined, slot text ran together). Rest clean. Commit 507b75c, build+test pass.
 - id: audit-previews-batch-2
   subject: 'Audit + fix visual polish issues on preview pages: index-row, inputs, manifesto, rules, spacing, stamps, stamps-lore, theme-ink'
-  status: pending
+  status: completed
+  witness: index-row/inputs/manifesto/rules/spacing/stamps/stamps-lore/theme-ink audited. Fixed .input (undefined, browser-default fallback), hr.rule/.rule-double/.rule-dotted (all rendered identically), .stamp+color variants+.btn-stamp (unstyled). Fixed spacing.html step-count/label mismatch. Commit 507b75c.
 - id: audit-previews-batch-3
   subject: 'Audit + fix visual polish issues on preview pages: type-display, type-mono, type-prose, wordmarks, colors-lore, colors-semantic'
-  status: pending
+  status: completed
+  witness: type-display/type-mono/type-prose/wordmarks/colors-lore/colors-semantic audited. Fixed .prose (no measure cap). Fixed stale font-name captions (type-display/type-mono) post system-font migration, colors-lore mascot hex mismatch, colors-semantic nonexistent --link token label. wordmarks clean. Commit 507b75c.
 - id: audit-slides-reverify
   subject: Re-verify ./slides/ deck against the new Hero/badge/CTA/tabs CSS changes (shared component sheet) for any regression, and general Vercel-style polish opportunities
-  status: pending
+  status: completed
+  witness: ./slides/index.html re-checked against homepage's Hero/badge/CTA/tabs CSS changes via isolated browser session -- no regression found, deck renders correctly.
