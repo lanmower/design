@@ -77,7 +77,7 @@ export function ConversationList({ sessions = [], selected, groups, search, capt
   // applyDiff "reading 'key'" crash on the first populated mount. Row children
   // are uniformly keyed; non-row states render a single unkeyed status line.
   let inner;
-  if (loading) {
+  if (loading && !sessions.length) {
     // Shape-matched skeleton rows during the cold ccsniff index walk (the rail
     // showed a bare line before) - Claude-Desktop skeletons its sidebar on load.
     inner = [
