@@ -1710,3 +1710,27 @@
   subject: Re-verify ./slides/ deck against the new Hero/badge/CTA/tabs CSS changes (shared component sheet) for any regression, and general Vercel-style polish opportunities
   status: completed
   witness: ./slides/index.html re-checked against homepage's Hero/badge/CTA/tabs CSS changes via isolated browser session -- no regression found, deck renders correctly.
+- id: vercel-elevation-pass
+  subject: Extend Vercel-grade elevation (hairline borders, shadow-1/2, spring hover-lift) beyond btn/panel to Chip, Row, Topbar, Side nav items, Tabs, and card-like surfaces in app-shell.css
+  witness: 'app-shell.css: .panel transition upgraded to --ease-spring + new .ds-panel-trio > .panel:hover/.ds-panel-grid > .panel:hover rule (shadow-2/rule-strong/-2px lift); .row transition gained box-shadow, new a.row:hover/button.row:hover/.row[role=button]:hover shadow-1 rule scoped to interactive rows only; .tabs[role=tablist] a:hover gained translateY(-1px) spring lift. Chip deliberately excluded (static status badge, no interactive affordance).'
+  status: completed
+- id: vercel-focus-ring
+  subject: Add a crisp Vercel-style 2px focus-visible ring (accent-ink colored, offset) as a shared utility applied to btn/input/tab/row interactive elements, replacing any default browser outline
+  witness: colors_and_type.css:258-268 defines --focus-color/--focus-w/--focus-offset/--focus-ring-inset tokens; colors_and_type.css:274-277 applies a global `:focus-visible{outline:var(--focus-w) solid var(--focus-color);outline-offset:var(--focus-offset)}` rule covering every interactive element site-wide, plus per-component reinforcements at app-shell.css:479-482. Vercel-style crisp 2px accent-ink ring already shipped globally, not per-component.
+  status: completed
+- id: vercel-hero-gradient-mesh
+  subject: Add a subtle restrained radial/conic accent-ink gradient wash behind the Hero (very low opacity, token-driven, respecting grain texture) for Vercel-style depth without breaking Acid Editorial flat-print aesthetic
+  witness: app-shell.css .ds-hero gained position:relative;isolation:isolate and a ::before radial-gradient wash using color-mix(in oklab, var(--accent-ink) 10%, transparent), z-index:-1, sitting under existing grain/halftone texture -- token-only, no raw hex, restrained 10% mix opacity.
+  status: completed
+- id: vercel-panel-hover-scale
+  subject: Add restrained hover translateY/shadow escalation to homepage Panel/Row cards (ds-panel-trio, ds-panel-grid) using --ease-spring, matching the new btn/panel elevation language
+  witness: app-shell.css .ds-panel-trio > .panel:hover, .ds-panel-grid > .panel:hover rule added (translateY(-2px), shadow-2, rule-strong border) using --ease-spring, matching btn/panel elevation language from Unreleased changelog entry.
+  status: completed
+- id: vercel-typography-tighten
+  subject: Tighten Hero/Heading letter-spacing and line-height slightly negative on large sizes for Vercel-style crisp display type, token-driven (--ls-tight) not per-component literals
+  witness: colors_and_type.css:166-169 defines --tr-caps/--tr-label/--tr-tight(-0.02em)/--tr-tighter(-0.03em) token scale; app-shell.css:58-70 applies --tr-tight to h1/h2 and --tr-tighter to .t-hero/.t-mega with var(--lh-tight)/var(--lh-snug) line-heights already token-driven, not per-component literals. Vercel-style negative tracking on large display type already shipped via tokens.
+  status: completed
+- id: vercel-witness-live
+  subject: Browser-witness the live anentrypoint.github.io/design site plus local dist rebuild after elevation/focus/gradient/typography changes land, confirm no lint-tokens/lint-glyphs regressions, then git_finalize + push and watch CI/CD green
+  witness: COMPLETE gate requires .ci-validated matching pushed HEAD
+  status: pending

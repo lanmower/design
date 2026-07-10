@@ -591,7 +591,16 @@ body.canvas-host { background: transparent !important; }
   /* Crisp, restrained elevation — a hairline border does the edge definition;
      the shadow only adds a whisper of lift, not a soft glow-card float. */
   box-shadow: var(--shadow-1);
-  transition: box-shadow var(--dur-base) var(--ease), border-color var(--dur-snap) var(--ease);
+  transition: box-shadow var(--dur-base) var(--ease-spring), border-color var(--dur-snap) var(--ease),
+    transform var(--dur-base) var(--ease-spring);
+}
+/* Vercel-style card lift: any panel sitting inside a density grid (trio/grid)
+   gets a restrained hover escalation — the standalone/full-width panel stays
+   flat so page chrome doesn't jitter on scroll-adjacent hover. */
+.ds-panel-trio > .panel:hover, .ds-panel-grid > .panel:hover {
+  box-shadow: var(--shadow-2);
+  border-color: var(--rule-strong);
+  transform: translateY(-2px);
 }
 /* Editorial accent spine — an opt-in printed-ink rule down the left edge that
    reads as a magazine pull-quote bar, not a glow card. */
@@ -643,9 +652,16 @@ body.canvas-host { background: transparent !important; }
   /* Only background + the leading rail animate; padding/size never change on
      interaction, so they are deliberately absent (a padding transition here was
      dead and misleading). */
-  transition: background var(--dur-snap) var(--ease);
+  transition: background var(--dur-snap) var(--ease), box-shadow var(--dur-base) var(--ease-spring);
 }
 .row + .row { margin-top: 2px; }
+/* Interactive rows (anchor/button wrappers) get a hairline lift on hover,
+   matching the btn/panel elevation language — non-interactive rows (plain
+   divs used as static list items) are unaffected since the selector needs a
+   real interactive role. */
+a.row:hover, button.row:hover, .row[role="button"]:hover {
+  box-shadow: var(--shadow-1);
+}
 /* `detail` drops to its own full-width line. The row is a grid, so span every
    track (grid-column 1/-1); flex-basis:100% covers the flex-row fallback. */
 .ds-row-detail {
@@ -736,6 +752,17 @@ a.row { text-decoration: none; }
   grid-template-areas: 'title title' 'body aside';
   align-items: start;
   max-width: var(--measure-wide);
+  position: relative; isolation: isolate;
+}
+/* Restrained depth wash, not a marketing glow-gradient: a single very-low-
+   opacity accent-ink radial anchored top-right, sitting under the grain/
+   halftone texture (z-index -1, same isolation trick as .ds-hero-aside::after)
+   so it reads as ambient light rather than a colored blob. Token-only. */
+.ds-hero::before {
+  content: ''; position: absolute; z-index: -1;
+  top: -10%; right: -10%; width: 60%; height: 140%;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--accent-ink) 10%, transparent), transparent 70%);
+  pointer-events: none;
 }
 .ds-hero-head { grid-area: title; display: grid; gap: var(--space-3); }
 .ds-hero-body  { grid-area: body; }
@@ -4374,9 +4401,10 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   padding: var(--space-2, 8px) var(--space-3, 12px);
   border-radius: var(--r-pill);
   color: var(--fg-2);
-  transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+  transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease),
+    transform var(--dur-base) var(--ease-spring);
 }
-.tabs[role="tablist"] a:hover { background: var(--bg-2); color: var(--fg); }
+.tabs[role="tablist"] a:hover { background: var(--bg-2); color: var(--fg); transform: translateY(-1px); }
 .tabs[role="tablist"] a.active {
   color: var(--accent-ink);
   background: color-mix(in oklab, var(--accent) 16%, transparent);
