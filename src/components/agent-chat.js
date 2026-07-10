@@ -121,8 +121,8 @@ function CwdBar({ cwd, editing, draft, onEdit, onSave, onCancel, onClear, onDraf
         'aria-invalid': error ? 'true' : null,
         'aria-busy': checking ? 'true' : null,
         oninput: (e) => onDraft && onDraft(e.target.value) }),
-      Btn({ key: 'save', variant: 'primary', disabled: !!(error || checking), onClick: () => onSave && onSave(), children: 'save' }),
       Btn({ key: 'cancel', onClick: () => onCancel && onCancel(), children: 'cancel' }),
+      Btn({ key: 'save', variant: 'primary', disabled: !!(error || checking), onClick: () => onSave && onSave(), children: 'save' }),
       hint ? h('span', { key: 'hint', id: 'agentchat-cwd-hint', role: 'status', 'aria-live': 'polite',
         class: 'agentchat-cwd-hint' + (error ? ' is-error' : ' is-checking') }, hint) : null);
   }

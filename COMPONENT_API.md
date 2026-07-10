@@ -79,6 +79,13 @@ The live multi-session command center.
 Session shape: `{ sid, realSid, title, agent, model, cwd, elapsedMs, counter, lastActivity, currentTool, status: 'running'|'stale'|'error', stopping, external, isNew, cost, tokens }`.
 Status-sorted renders bucketed groups (Errored/Running/Idle/External); other sorts render flat.
 
+### SessionMeta
+A middot-separated metadata strip for a session detail surface (compact fact display, e.g. version/uptime/roots).
+
+`SessionMeta({ items: [{ label, value, title, onCopy }] })`
+
+Each item renders as a span with a dimmed label + mono value; passing `onCopy` adds a per-item copy button. Returns `null` when `items` is empty. Class `.ds-session-meta-strip` (the bare `.ds-session-meta` class is already used by `ConversationList` row meta).
+
 ### SessionCard
 One running session. Same `session` shape as above; `external` suppresses stop and renders a read-only card.
 
@@ -1135,6 +1142,161 @@ decorative glyph in shipped CSS fails the build.
   (amber inset) > `is-active`/`is-new` (accent inset). Tool-card status pills: `tool-running`
   (accent) / `tool-error` (flame) / `tool-done` (success). `Row()` rail tones differentiate by
   SHAPE (taller bar = error, gapped fill = subagent) plus an sr-only status word, not hue alone.
+
+---
+
+## Voice Surfaces (`src/components/voice.js`)
+
+PTT/VAD/webcam/voice-settings/queue primitives for a voice-enabled chat surface. Class prefix `vx-*`. Pure factories, no transport — the host wires media streams and device enumeration.
+
+### PttButton
+Push-to-talk button; hold-to-talk (pointer/touch) or click, depending on `mode`.
+
+| Prop | Type | Description |
+|---|---|---|
+| `state` | `'idle'\|'live'\|'recording'\|'vad'` | Visual/announced state; anything but `idle` is treated as active. |
+| `mode` | `'ptt'\|'vad'\|'live'` | Drives the `vx-ptt-mode-*` class only (interaction wiring is the same). |
+| `onHoldStart` | `(e) => void` | Fired on pointerdown/touchstart. |
+| `onHoldEnd` | `(e) => void` | Fired on pointerup/pointerleave/touchend. |
+| `onClick` | `(e) => void` | Fired on click (for non-hold flows). |
+| `label` | `string` | Button label + `aria-label` (default `'Hold to talk'`). |
+
+### VadMeter
+Voice-activity level meter with a draggable threshold marker.
+
+| Prop | Type | Description |
+|---|---|---|
+| `level` | `number 0-1` | Current input level (clamped). |
+| `threshold` | `number 0-1` | VAD trigger threshold (clamped); levels `>=` threshold render the "over" fill state. |
+| `onThresholdChange` | `(value: number) => void` | Fired from the underlying `<input type=range>`. |
+
+### WebcamPreview
+Live video preview with resolution/fps selects and an enable/disable toggle.
+
+| Prop | Type | Description |
+|---|---|---|
+| `videoStream` | `MediaStream\|null` | Bound to the `<video>` `srcObject` via ref. |
+| `resolution` | `string` | Current resolution value (e.g. `'640x480'`), shown in the select. |
+| `fps` | `number` | Current frame rate, shown in the select. |
+| `enabled` | `bool` | When false, shows a "Camera off" placeholder instead of `<video>`. |
+| `resolutions` | `string[]` | Options for the resolution select; falls back to `[resolution]`. |
+| `fpsOptions` | `number[]` | Options for the fps select; falls back to `[fps]`. |
+| `onResolutionChange` | `(value: string) => void` | |
+| `onFpsChange` | `(value: number) => void` | |
+| `onToggle` | `() => void` | Enable/Disable button. |
+
+### VoiceSettingsModal
+Modal dialog for voice mode, devices, VAD threshold, processing toggles, bitrate, and volume. Returns `null` when `open` is false.
+
+| Prop | Type | Description |
+|---|---|---|
+| `open` | `bool` | Gate; component renders nothing when false. |
+| `mode` | `'ptt'\|'vad'\|'live'` | Current mode segmented control selection. |
+| `inputId` / `outputId` | `string` | Selected input/output device id. |
+| `inputDevices` / `outputDevices` | `[{value, label}]` | Device select options. |
+| `vadThreshold` | `number 0-1` | Only shown when `mode === 'vad'`. |
+| `rnnoise` / `autoGain` / `forceTurn` | `bool` | Processing toggle rows. |
+| `bitrate` | `number` | kbps range (8-256). |
+| `volume` | `number 0-1` | Master volume range; defaults to `1` when null. |
+| `onChange` | `(patch: object) => void` | Fired with a partial-state patch from every control. |
+| `onSave` / `onCancel` / `onClose` | `() => void` | Footer/close actions; `onClose` also fires on backdrop click and Escape. |
+
+### VoiceControls
+Toolbar of call controls: mic, deafen, camera, screen share, settings, leave.
+
+| Prop | Type | Description |
+|---|---|---|
+| `muted` / `deafened` / `cameraOn` / `screenShareOn` | `bool` | Toggle states driving each button's pressed/on class. |
+| `onMic` / `onDeafen` / `onCamera` / `onScreenShare` / `onSettings` | `(e) => void` | A button is disabled when its handler is not supplied. |
+| `onLeave` | `(e) => void` | Leave-voice button. |
+
+### AudioQueue
+Horizontal strip of queued/replayable audio segments with pause/resume/skip transport controls. Renders an empty state ("No audio queued") when `segments` is empty.
+
+| Prop | Type | Description |
+|---|---|---|
+| `segments` | `[{id, speaker, duration, color, isLive}]` | Queue items rendered as chips; `isLive` shows a `LIVE` tag instead of a duration. |
+| `currentSegmentId` | `string` | Highlights the matching chip as current. |
+| `paused` | `bool` | Drives the transport button's play/pause icon and label. |
+| `onReplay` | `(id) => void` | Fired on chip click. |
+| `onSkip` | `() => void` | Skip-forward button. |
+| `onResume` / `onPause` | `() => void` | Transport button, dispatched based on `paused`. |
+
+---
+
+## ThemeToggle (`src/components/theme-toggle.js`)
+
+Segmented auto/paper/ink theme switch bound to `src/theme.js`; reads current mode via `getTheme()` and applies changes via `applyTheme()` (which persists, sets `<html data-theme>`, and notifies listeners).
+
+`ThemeToggle({ compact = false, onChange } = {})`
+
+| Prop | Type | Description |
+|---|---|---|
+| `compact` | `bool` | `false` (default) renders a 3-way `role=radiogroup` segmented control (auto/paper/ink). `true` renders a single icon-only cycling button (auto -> paper -> ink -> auto) with a CSS-drawn half-disc glyph and a live label, for icon-only rail contexts. |
+| `onChange` | `(mode: 'auto'\|'paper'\|'ink') => void` | Called after `applyTheme()`, in addition to the theme-change side effect. |
+
+The compact variant auto-refreshes its glyph when the OS theme changes while in `auto` mode (subscribes to `onThemeChange` once per module).
+
+---
+
+## Data-Density Components (`src/components/data-density.js`)
+
+Dense observability/dashboard primitives (ported from the gmsniff GUI): phase-progress, tree/timeline entries, bar charts, KPI tiles, sub-nav grids, session rows, deviation callouts, and a live log stream. All theme-aware (colors ride `var(--token)`, never raw hex). CSS lives in `app-shell.css` under "data density" (`ds-` prefix).
+
+### PhaseWalk
+Compact horizontal phase-progress indicator.
+
+`PhaseWalk({ phases = DEFAULT_PHASES, reached = [], gapKinds = [] })` — `DEFAULT_PHASES` is `['PLAN','EXECUTE','EMIT','VERIFY','CONSOLIDATE','COMPLETE']`. `reached[i]` (bool) marks a phase already hit; `gapKinds` names phases that are a known gap (rendered red, overrides `reached`).
+
+### TreeNode
+Indented timeline/tree entry with left-border variant coloring.
+
+`TreeNode({ ts, kind, variant = '', phase, id, keyLabel, reason, deviationLabel, residuals })` — `variant` is one of `''|'phase'|'deviation'|'mutable-resolve'|'prd-add'`; `phase`/`id`/`keyLabel` render as pills; `residuals` (string array) is joined with `, ` when present.
+
+### BarRow
+Inline horizontal bar-chart row (label + track + value).
+
+`BarRow({ label, value, pct = 0, tone })` — `pct` is clamped to 0-100; `tone` is a CSS color value (`var(--token)` or `color-mix(...)`), never a bare hex string.
+
+### StatTile / StatsGrid
+Compact KPI tile and its grid wrapper (denser than `.kpi`).
+
+`StatTile({ val, lbl, cls = '' })` — `cls` selects an accent variant: `''|'rate-big'|'err-rate'`.
+`StatsGrid({ items = [] })` — renders `items.map(StatTile)`; shows an empty state ("no stats") when `items` is empty.
+
+### SubGrid
+Small button grid: big number + label, for category navigation.
+
+`SubGrid({ items: [{ key, count, label, onClick }] })` — renders an empty state ("no items") when `items` is empty.
+
+### SessionRow
+Compact single-line session summary row with an inline phase strip.
+
+`SessionRow({ sessId, phaseWalkProps, events, verbs, prd, muts, resid, deviations, firstTs, lastTs, onClick })` — `events`/`verbs`/`prd`/`muts`/`resid` are counts joined middot-separated; `phaseWalkProps` is forwarded to `PhaseWalk`; `onClick` makes the row a keyboard-activatable button (`role=button`, Enter/Space).
+
+### DevRow
+Deviation/error callout row. Uses the danger-surface token, never a bare hex background.
+
+`DevRow({ ts, event, sess, operation, residuals })` — `sess`/`operation` render as pills; `residuals` (string array) joined with `, `.
+
+### LiveLogEntry / LiveLog
+Scrollable dense log stream: colored subsystem tag + bold event name + muted payload preview.
+
+`LiveLogEntry({ ts, sub, tone, event, preview })` — `tone` is a CSS color value; the tag background derives from it via `color-mix` at render time (no hex-alpha-suffix hack).
+`LiveLog({ entries = [], autoScroll = true })` — renders an empty state ("no log entries") when `entries` is empty; `autoScroll` pins `scrollTop` to `scrollHeight` on mount/update via ref.
+
+---
+
+## Utilities
+
+Non-component function exports useful to hosts wiring the kit's chat/session/file surfaces.
+
+- **`fmtDuration(ms)`** (`sessions.js`) — one duration format for every surface (live cards, running panel, session meta, context pane): `<60s -> 'Ns'`, `<1h -> 'Nm Ss'`, else `'Nh Nm'`. Returns `''` for null/non-finite/negative input.
+- **`fmtFileSize(bytes)`** (`files.js`) — canonical byte formatter (`chat.js` re-exports it as `fmtBytes`). Returns `'—'` for `null` bytes, `'0 B'` for zero, else `'N.N UNIT'` scaled through B/KB/MB/GB/TB.
+- **`safeUrl(url)`** (`chat.js`) — sanitizes a URL for use in an inline (non-DOMPurify-passed) markdown link or image src. Allows relative/anchor/protocol-relative links and `http(s)`/`mailto`/`tel` schemes; rejects everything else (e.g. `javascript:`, `data:`, `vbscript:`, `file:`) by returning `null`.
+- **`makeThreadAutoScroll(getCount)`** (`chat.js`) — returns a ref callback that pins a scroll container to the bottom when new messages arrive and the user is already at the bottom (via an `IntersectionObserver` on a bottom sentinel). `getCount` is a function returning the current message count. Auto-scroll pauses while `hasSelectionInside` reports an active text selection inside the container, and resumes once it collapses. Shared by `Chat`, `AICat`, and `AgentChat`.
+- **`injectCodeCopy(container)`** (`chat.js`) — walks every `<pre>` inside a rendered-markdown container and wraps it with a hover-revealed per-block "copy" button (plus a language tab when the highlighter set a `language-xx`/`lang-xx` class). Idempotent via a `data-copy-wired` marker so re-renders don't stack buttons; the button label flips to "copied" for ~1.6s after a successful clipboard write (falls back to a hidden-textarea `execCommand('copy')` when the Clipboard API is unavailable).
+- **`hasSelectionInside(el)`** (`chat.js`) — returns `true` when the document has a non-collapsed text selection anchored inside `el`. Used to pause auto-scroll and streaming re-renders so a user's select-and-copy from a still-streaming message isn't wiped every frame.
 
 ---
 
