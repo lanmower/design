@@ -487,7 +487,8 @@ export function UploadProgress({ items = [], onDismiss } = {}) {
     if (!items.length) return null;
     return h('div', { class: 'ds-upload-progress' },
         ...items.map((it, i) => {
-            const status = it.error ? 'error' : (it.done ? 'complete' : `uploading ${it.pct || 0}%`);
+            const indeterminate = !it.error && !it.done && !it.pct && it.indeterminate;
+            const status = it.error ? 'error' : (it.done ? 'complete' : (indeterminate ? 'uploading' : `uploading ${it.pct || 0}%`));
             const rowActions = [
                 ...((it.actions || []).map((a, ai) => h('button', {
                     key: 'ua' + ai, type: 'button', class: 'ds-upload-act',
@@ -508,10 +509,10 @@ export function UploadProgress({ items = [], onDismiss } = {}) {
                 'aria-live': 'polite'
             },
                 h('span', { class: 'ds-upload-name' }, it.name),
-                h('span', { class: 'ds-upload-bar' },
+                h('span', { class: 'ds-upload-bar' + (indeterminate ? ' indeterminate' : '') },
                     h('span', { class: 'ds-upload-fill', 'data-pct': String(Math.max(0, Math.min(100, it.pct || 0))), 'aria-hidden': 'true' })
                 ),
-                h('span', { class: 'ds-upload-pct', 'aria-hidden': 'true' }, (it.error ? 'err' : (it.done ? 'ok' : (it.pct || 0) + '%'))),
+                h('span', { class: 'ds-upload-pct', 'aria-hidden': 'true' }, (it.error ? 'err' : (it.done ? 'ok' : (indeterminate ? '...' : (it.pct || 0) + '%')))),
                 rowActions.length ? h('span', { class: 'ds-upload-actions', role: 'group', 'aria-label': `actions for ${it.name}` }, ...rowActions) : null
             );
         })
