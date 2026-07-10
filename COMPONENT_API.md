@@ -6,6 +6,8 @@ anentrypoint-design v0.0.127 — Standardized component prop naming and API surf
 
 This document describes all exported components, their prop signatures, and standardized naming conventions. All components are pure factories that return webjsx vnodes.
 
+The `freddie.js` re-exports (`FREDDIE_PAGES`, `home`/`chat`/`voice`/`sessions`/`projects`/`agents`/`analytics`/`models`/`cron`/`skills`/`config`/`env`/`tools`/`batch`/`gateway`/`chains`, `skillLabel`, `getRecentPaths`, `saveRecentPath`, `renderChatMessages`) are the kit's own docs/marketing demo-site page builders, not general-purpose components — not intended for external composition.
+
 ### Prop Naming Standards
 
 **Boolean props** follow one of two patterns:
@@ -111,6 +113,7 @@ Beyond the base listing props:
 `FileGrid({ ..., selectable, selected: Set (keyed by path), onToggleSelect(f, {range}), onSelectAll(keys), onClearSelection, density: 'list'|'compact'|'thumb', onDensity, thumbUrl(f) })`
 `marked`/`onMark` are accepted aliases for `selected`/`onToggleSelect`.
 `loading` with rows present dims the grid in place (`is-refreshing`); skeleton renders only on a cold load.
+FileRow row actions: `onAction(action, file)` fires with `action` in `['download','rename','move','delete']`; `'move'` opens the host's bulk-move flow (agentgui seeds a single-path selection into its existing multi-select move dialog).
 
 ### BulkBar
 `BulkBar({ count, noun, nounPlural, actions: [{label, danger, onClick}], onClear, busy })` - pluralizes `-y` nouns.
