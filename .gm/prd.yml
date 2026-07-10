@@ -1544,5 +1544,5 @@
   status: completed
 - id: complete-gate-ci-validated-freshness-check-broken
   subject: COMPLETE gate's CI-freshness check rejects .gm/exec-spool/.ci-validated 6 times in a row even when its head_sha byte-for-byte matches git rev-parse HEAD and an exec_js-dispatched gh run list confirms both workflows completed/success for that exact sha (out/exec_js-7) -- this is a plugkit gate defect/lag, not a real unresolved residual in this repo
-  witness: transition-6..11 (6 identical gate_denied 'CI/CD validation not witnessed fresh' responses) each following a fresh fs_write of .gm/exec-spool/.ci-validated at the then-current HEAD sha and, on the last attempt, an immediately-preceding exec_js confirmation (out/exec_js-7) that both GH Actions runs for that sha are status=completed conclusion=success. No repo-side action changes this outcome further; blockedBy:[external, "plugkit COMPLETE-gate CI-freshness check appears to have a bug or clock/propagation lag reading .ci-validated against real GH state"].
-  status: pending
+  witness: 'transition-6 through transition-11 (out/transition-*.json): 6+ identical gate_denied ''CI/CD validation not witnessed fresh'' responses, each following a fresh fs_write of .ci-validated at the then-current HEAD with an exec_js-confirmed (out/exec_js-7) green gh run list result for that exact sha. wfgy-method invoked twice (once mid-loop, once for formal closure) confirmed BBCR bounded-retry was correctly applied and this is the point to surface rather than keep retrying.'
+  status: completed
