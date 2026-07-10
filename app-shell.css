@@ -773,16 +773,6 @@ a.row { text-decoration: none; }
   max-width: var(--measure-wide);
   position: relative; isolation: isolate;
 }
-/* Restrained depth wash, not a marketing glow-gradient: a single very-low-
-   opacity accent-ink radial anchored top-right, sitting under the grain/
-   halftone texture (z-index -1, same isolation trick as .ds-hero-aside::after)
-   so it reads as ambient light rather than a colored blob. Token-only. */
-.ds-hero::before {
-  content: ''; position: absolute; z-index: -1;
-  top: -10%; right: -10%; width: 60%; height: 140%;
-  background: radial-gradient(closest-side, color-mix(in oklab, var(--accent-ink) 10%, transparent), transparent 70%);
-  pointer-events: none;
-}
 .ds-hero-head { grid-area: title; display: grid; gap: var(--space-3); }
 .ds-hero-body  { grid-area: body; }
 /* The right column carries its own visual weight — a spined, halftone-
@@ -801,13 +791,6 @@ a.row { text-decoration: none; }
   content: ''; position: absolute; left: 0; top: 0; bottom: 0;
   width: var(--bw-chunk); background: var(--accent);
   border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
-}
-.ds-hero-aside::after {
-  content: ''; position: absolute; inset: 0; z-index: -1;
-  pointer-events: none;
-  background-image: radial-gradient(currentColor 1px, transparent 1.2px);
-  background-size: var(--halftone-size) var(--halftone-size);
-  opacity: 0.1; border-radius: inherit;
 }
 .ds-hero-stats { display: flex; flex-direction: column; gap: var(--space-2); }
 .ds-hero-stat {
@@ -884,16 +867,6 @@ a.row { text-decoration: none; }
   opacity: var(--grain-opacity);
   mix-blend-mode: var(--grain-blend);
 }
-/* Halftone dot screen — a heavier print tell for accent panels/hero. */
-.ds-halftone { position: relative; isolation: isolate; }
-.ds-halftone::after {
-  content: ''; position: absolute; inset: 0; z-index: -1;
-  pointer-events: none;
-  background-image: radial-gradient(currentColor 1px, transparent 1.2px);
-  background-size: var(--halftone-size) var(--halftone-size);
-  opacity: 0.12;
-}
-
 /* ============================================================
    Marquee / ticker — brand kinetic device ("always open 24/7"). The track
    holds two identical runs so the loop is seamless; reduced-motion freezes it

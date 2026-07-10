@@ -228,12 +228,11 @@
   --ease-exit:   cubic-bezier(0.4, 0, 1, 1);
 
   /* Print texture — the signature surface treatment. --grain is a tiled
-     fractal-noise data-URI; --halftone is a dot screen. Both are opt-in via
-     .ds-grain / .ds-halftone utilities and tuned faint so type stays crisp. */
+     fractal-noise data-URI, opt-in via the .ds-grain utility and tuned faint
+     so type stays crisp. */
   --grain-opacity:    0.05;
   --grain-blend:      multiply;
   --grain:       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --halftone-size:    6px;
   /* Offset-ink registration — the small print-mark offset used on editorial
      edges (panel spine, expo numbering). A literal length, not a color. */
   --ink-offset:  3px;
