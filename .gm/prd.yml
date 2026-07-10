@@ -1651,19 +1651,22 @@
   witness: 'Live re-verification via agent-browser: #app-main scrollHeight 9485px, all 13 main panels present with real non-zero heights (Kits 1296px, Previews 2242px, etc); scrollTop:900 screenshot lands inside Kits panel showing real rows. No gap reproducible -- likely a stale unpkg CDN cache artifact during initial investigation, resolved by the badge-CSS release (v0.0.273) since deployed.'
 - id: site-cta-button-alignment
   subject: Hero's GitHub/247420 CTA buttons float disconnected from the paragraph copy with awkward vertical alignment in the screenshot -- tighten spacing/alignment so the CTA row reads as a deliberate button group under the copy, Vercel-style tight CTA row.
-  status: pending
+  status: completed
+  witness: 'Root cause: .ds-hero align-items:end bottom-aligned the shorter CTA row against the taller paragraph track, pinning it mid-copy. Fixed at commit ebda549: align-items/align-self start + margin-top var(--space-hair), tightened column gap. Verified via before/after screenshots at 1440px.'
 - id: site-content-density-below-hero
   subject: Audit what should render below the Hero (showcase grid of pinned/shipped drafts, ui kit gallery, docs links) actually renders with real density -- a Vercel-quality landing page has multiple content sections (feature grid, code sample, stats), not hero+void.
   status: pending
 - id: site-status-bar-chrome-purpose
   subject: Bottom status bar 'main · utf-8 · lf' + 'mmxxvi' reads as generic code-editor chrome bleeding onto a marketing/showcase site -- verify this is an intentional signature element (not scoped-out gmsniff leftover) and that it stays subtle/functional rather than distracting filler.
-  status: pending
+  status: completed
+  witness: 'Confirmed intentional signature element: app-shell.css:408-425 26px strip, --fs-xs low-contrast --fg-3 ink, hairline border, subtle accent tint on first item only -- already subordinate to real content, no change needed.'
 - id: site-full-page-audit-other-routes
   subject: 'Screenshot and audit every other route on anentrypoint.github.io/design (ui kits, decks, previews, docs, readme, skills, tokens, source pages reachable from sidebar) for the same class of issues: dead space, accent-color clashes, misaligned CTAs, weak content density.'
   status: pending
 - id: site-typography-hierarchy-live
   subject: Verify live rendered type scale (hero display size vs body vs nav) reads as a confident editorial hierarchy at actual browser width, not just token values on paper -- adjust --fs-* if the live render looks thin/unbalanced.
-  status: pending
+  status: completed
+  witness: 'Verified via screenshot at 1280px and 1440px: hero title clamp(40px,9cqi,116px) weight 700 reads confident and balanced against body copy at both widths -- no change needed.'
 - id: site-responsive-check
   subject: Witness the homepage and at least one sub-route at a narrower viewport (tablet/mobile width) via browser resize -- asymmetric two-column Hero and sidebar must degrade sensibly, not break/overlap.
   status: pending
@@ -1671,3 +1674,7 @@
   subject: Grep colors_and_type.css for the pink/magenta token used by sidebar count badges -- confirm it's a deliberate --cat-* category token (fine) vs a leftover hardcoded literal that should route through the token system (lint-tokens gate).
   status: completed
   witness: Confirmed the pink came from a CSS rule (.app-side .count background:var(--mascot)), not a YAML literal -- the YAML color fields were dead code, now removed. No raw hex literal reaches component CSS; lint-tokens passes.
+- id: site-tabs-unstyled-glued-labels
+  subject: 'Discovered mid-EXECUTE: bare .tabs[role=tablist] in site/theme.mjs had zero CSS rule, rendering the four homepage tab links as glued-together unstyled inline text (everythingkitsdecksprevious)'
+  status: completed
+  witness: 'Fixed at commit ebda549: added .tabs[role=tablist]/a/a.active rules (pill-tab treatment, active state lime underline+tint) mirroring topbar nav styling. Confirmed via lint-tokens/lint-glyphs pass and rendered screenshot.'

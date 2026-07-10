@@ -3912,6 +3912,10 @@
 @container (max-width: 900px) {
   .ds-247420 .app-side-toggle { display: inline-flex; }
   .ds-247420 .app-topbar .brand { margin-left: 44px; }
+  /* Merged-chrome layout (.app-chrome > .app-crumb) puts the breadcrumb, not
+     the topbar brand, at the left edge where the absolute-positioned toggle
+     sits — without this the crumb text renders directly under the button. */
+  .ds-247420 .app-chrome > .app-crumb { margin-left: 44px; }
 }
 
 /* Desktop: the app shell is exactly viewport-height and contains its own
