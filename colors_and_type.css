@@ -51,7 +51,10 @@
      the originals (#FF5A1F / #D9A93A) which were tuned on ink and fail on
      paper (2.9:1 / 2.0:1). */
   --flame:       #C53E00;
-  --amber:       #8A6512;
+  /* #8A6512 measured 4.5+:1 on --paper but only 4.26:1 on --bg-2, which the
+     dashboard card status text actually renders on - darkened for margin on
+     both backgrounds (5.21:1 on --bg-2). */
+  --amber:       #7C570F;
   --sky:         #3A6EFF;
   --warn:        #E0241A;
   /* Syntax-token aliases: light values pass 4.5:1 on paper; the dark blocks
@@ -61,7 +64,9 @@
   --code-fn:      #B84300;
   --code-str-alt: var(--mascot-deep);
   --code-num:     #946300;
-  --danger:      oklch(0.55 0.18 25);
+  /* 0.55 lightness measured 4.70:1 on --paper but only 4.25:1 on --bg-2 (the
+     auth-error banner's actual background) - darkened for AA margin on both. */
+  --danger:      oklch(0.50 0.18 25);
   --success:     var(--green-2);
   --live:        var(--green);
 

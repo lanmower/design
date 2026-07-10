@@ -874,8 +874,11 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 .chat-msg .chat-tool.tool-running .chat-tool-status { color: var(--accent-ink); background: color-mix(in oklab, var(--accent) 12%, transparent); }
 .chat-msg .chat-tool.tool-error .chat-tool-status { color: var(--flame); background: color-mix(in oklab, var(--flame) 12%, transparent); }
 /* Completed tool: a positive (success) tone so done reads distinctly from the
-   neutral pill and from the accent-toned running pill (--success = green-2). */
-.chat-msg .chat-tool.tool-done .chat-tool-status { color: var(--success); background: color-mix(in oklab, var(--success) 12%, transparent); }
+   neutral pill and from the accent-toned running pill. --success/--green-2
+   measures under 4.5:1 as TEXT on paper/bg-2 (fine at 12%-tint fill/non-text
+   use) - --green is the text-safe deep tone, same split the accent/accent-ink
+   pair already uses. */
+.chat-msg .chat-tool.tool-done .chat-tool-status { color: var(--green); background: color-mix(in oklab, var(--success) 12%, transparent); }
 .chat-tool-body { border-top: var(--bw-hair) solid var(--rule); padding: var(--space-2) var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
 /* details' intrinsic min-content sizing: an unbroken token in the pre must not
    widen the tool card past the bubble column. */

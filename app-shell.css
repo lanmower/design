@@ -2155,12 +2155,12 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 }
 .chat-msg:hover .chat-avatar { transform: scale(1.03); box-shadow: 0 1px 4px color-mix(in oklab, var(--fg) 6%, transparent); }
 .chat-msg.you .chat-avatar {
-  background: color-mix(in oklab, var(--accent) 26%, var(--bg-3));
+  background: color-mix(in oklab, var(--accent) 18%, var(--bg-3));
   color: var(--accent-ink);
 }
 .chat-msg.aicat .chat-avatar {
   background: color-mix(in oklab, var(--mascot) 26%, var(--bg-2));
-  color: var(--mascot);
+  color: var(--mascot-deep);
 }
 
 .chat-stack {
@@ -3159,7 +3159,10 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 
 .toast.error { border-color: var(--warn); }
 .toast.success { border-color: var(--green-2); }
-.toast.warning { border-color: var(--sun); }
+/* --sun measures well under 3:1 against every app background (1.1-1.5:1) -
+   a border effectively invisible in light theme; --amber is the tuned sibling
+   warning tone already used for this exact severity elsewhere. */
+.toast.warning { border-color: var(--amber); }
 
 @media (max-width: 480px) {
   .toast {
@@ -3869,7 +3872,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ds-tree-node.is-phase { border-color: var(--accent); background: var(--bg-3); font-weight: 600; }
 .ds-tree-node.is-deviation { border-color: var(--warn); background: var(--danger-surface); color: var(--warn); }
 .ds-tree-node.is-mutable-resolve { border-color: var(--success); }
-.ds-tree-node.is-prd-add { border-color: var(--sun); }
+.ds-tree-node.is-prd-add { border-color: var(--amber); }
 .ds-tree-node-ts { margin-right: 8px; color: var(--fg-3); }
 .ds-tree-node-pills { margin-left: 6px; }
 .ds-tree-node-reason { margin-top: 2px; color: var(--fg-2); }
@@ -4212,7 +4215,9 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ds-toggle-btn { min-width: 78px; }
 .ds-toggle-label { margin-left: 8px; color: inherit; opacity: 0.7; }
 .ds-btn-warn { color: var(--warn); }
-.ds-btn-mascot { color: var(--mascot); }
+/* Raw --mascot text measures 3.11:1 on paper (fails 4.5:1); --mascot-deep is
+   the text-safe tone, same accent/accent-ink split used everywhere else. */
+.ds-btn-mascot { color: var(--mascot-deep); }
 .ds-savebar {
   position: sticky; bottom: 8px; display: flex; align-items: center;
   justify-content: flex-end; gap: 8px; flex-wrap: wrap; padding: 10px;
@@ -4286,7 +4291,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ds-cli-cmt .cmd { color: var(--fg-3); }
 .ds-cli-out .cmd { color: var(--fg-2); }
 .ds-cli-ok .prompt, .ds-cli-ok .cmd { color: var(--accent-ink); }
-.ds-cli-warn .prompt, .ds-cli-warn .cmd { color: var(--mascot); }
+.ds-cli-warn .prompt, .ds-cli-warn .cmd { color: var(--mascot-deep); }
 .ds-cli-log .prompt { color: var(--fg-3); }
 .ds-cli-log .cmd { color: var(--fg-2); font-family: var(--ff-mono); }
 .ds-term-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; background: var(--bg-2); border-radius: var(--r-1); }

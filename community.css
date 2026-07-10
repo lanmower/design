@@ -361,7 +361,9 @@
 }
 
 .cm-channel-item.voice-connecting {
-  color: var(--sun);
+  /* --sun measures 1.1-1.5:1 against every app background - amber is the
+     tuned text-safe warning tone used for this severity elsewhere. */
+  color: var(--amber);
 }
 
 .cm-ch-icon {
@@ -382,8 +384,8 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  border: 2px solid color-mix(in oklab, var(--sun) 30%, transparent);
-  border-top-color: var(--sun);
+  border: 2px solid color-mix(in oklab, var(--amber) 30%, transparent);
+  border-top-color: var(--amber);
   flex-shrink: 0;
 }
 

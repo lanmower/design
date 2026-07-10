@@ -53,7 +53,10 @@
      the originals (#FF5A1F / #D9A93A) which were tuned on ink and fail on
      paper (2.9:1 / 2.0:1). */
   --flame:       #C53E00;
-  --amber:       #8A6512;
+  /* #8A6512 measured 4.5+:1 on --paper but only 4.26:1 on --bg-2, which the
+     dashboard card status text actually renders on - darkened for margin on
+     both backgrounds (5.21:1 on --bg-2). */
+  --amber:       #7C570F;
   --sky:         #3A6EFF;
   --warn:        #E0241A;
   /* Syntax-token aliases: light values pass 4.5:1 on paper; the dark blocks
@@ -63,7 +66,9 @@
   --code-fn:      #B84300;
   --code-str-alt: var(--mascot-deep);
   --code-num:     #946300;
-  --danger:      oklch(0.55 0.18 25);
+  /* 0.55 lightness measured 4.70:1 on --paper but only 4.25:1 on --bg-2 (the
+     auth-error banner's actual background) - darkened for AA margin on both. */
+  --danger:      oklch(0.50 0.18 25);
   --success:     var(--green-2);
   --live:        var(--green);
 
@@ -2661,12 +2666,12 @@
 }
 .ds-247420 .chat-msg:hover .chat-avatar { transform: scale(1.03); box-shadow: 0 1px 4px color-mix(in oklab, var(--fg) 6%, transparent); }
 .ds-247420 .chat-msg.you .chat-avatar {
-  background: color-mix(in oklab, var(--accent) 26%, var(--bg-3));
+  background: color-mix(in oklab, var(--accent) 18%, var(--bg-3));
   color: var(--accent-ink);
 }
 .ds-247420 .chat-msg.aicat .chat-avatar {
   background: color-mix(in oklab, var(--mascot) 26%, var(--bg-2));
-  color: var(--mascot);
+  color: var(--mascot-deep);
 }
 
 .ds-247420 .chat-stack {
@@ -3654,7 +3659,10 @@
 
 .ds-247420 .toast.error { border-color: var(--warn); }
 .ds-247420 .toast.success { border-color: var(--green-2); }
-.ds-247420 .toast.warning { border-color: var(--sun); }
+/* --sun measures well under 3:1 against every app background (1.1-1.5:1) -
+   a border effectively invisible in light theme; --amber is the tuned sibling
+   warning tone already used for this exact severity elsewhere. */
+.ds-247420 .toast.warning { border-color: var(--amber); }
 
 @media (max-width: 480px) {
   .ds-247420 .toast {
@@ -4363,7 +4371,7 @@
 .ds-247420 .ds-tree-node.is-phase { border-color: var(--accent); background: var(--bg-3); font-weight: 600; }
 .ds-247420 .ds-tree-node.is-deviation { border-color: var(--warn); background: var(--danger-surface); color: var(--warn); }
 .ds-247420 .ds-tree-node.is-mutable-resolve { border-color: var(--success); }
-.ds-247420 .ds-tree-node.is-prd-add { border-color: var(--sun); }
+.ds-247420 .ds-tree-node.is-prd-add { border-color: var(--amber); }
 .ds-247420 .ds-tree-node-ts { margin-right: 8px; color: var(--fg-3); }
 .ds-247420 .ds-tree-node-pills { margin-left: 6px; }
 .ds-247420 .ds-tree-node-reason { margin-top: 2px; color: var(--fg-2); }
@@ -4706,7 +4714,9 @@
 .ds-247420 .ds-toggle-btn { min-width: 78px; }
 .ds-247420 .ds-toggle-label { margin-left: 8px; color: inherit; opacity: 0.7; }
 .ds-247420 .ds-btn-warn { color: var(--warn); }
-.ds-247420 .ds-btn-mascot { color: var(--mascot); }
+/* Raw --mascot text measures 3.11:1 on paper (fails 4.5:1); --mascot-deep is
+   the text-safe tone, same accent/accent-ink split used everywhere else. */
+.ds-247420 .ds-btn-mascot { color: var(--mascot-deep); }
 .ds-247420 .ds-savebar {
   position: sticky; bottom: 8px; display: flex; align-items: center;
   justify-content: flex-end; gap: 8px; flex-wrap: wrap; padding: 10px;
@@ -4780,7 +4790,7 @@
 .ds-247420 .ds-cli-cmt .cmd { color: var(--fg-3); }
 .ds-247420 .ds-cli-out .cmd { color: var(--fg-2); }
 .ds-247420 .ds-cli-ok .prompt, .ds-247420 .ds-cli-ok .cmd { color: var(--accent-ink); }
-.ds-247420 .ds-cli-warn .prompt, .ds-247420 .ds-cli-warn .cmd { color: var(--mascot); }
+.ds-247420 .ds-cli-warn .prompt, .ds-247420 .ds-cli-warn .cmd { color: var(--mascot-deep); }
 .ds-247420 .ds-cli-log .prompt { color: var(--fg-3); }
 .ds-247420 .ds-cli-log .cmd { color: var(--fg-2); font-family: var(--ff-mono); }
 .ds-247420 .ds-term-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; background: var(--bg-2); border-radius: var(--r-1); }
@@ -5169,7 +5179,9 @@
 }
 
 .ds-247420 .cm-channel-item.voice-connecting {
-  color: var(--sun);
+  /* --sun measures 1.1-1.5:1 against every app background - amber is the
+     tuned text-safe warning tone used for this severity elsewhere. */
+  color: var(--amber);
 }
 
 .ds-247420 .cm-ch-icon {
@@ -5190,8 +5202,8 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  border: 2px solid color-mix(in oklab, var(--sun) 30%, transparent);
-  border-top-color: var(--sun);
+  border: 2px solid color-mix(in oklab, var(--amber) 30%, transparent);
+  border-top-color: var(--amber);
   flex-shrink: 0;
 }
 
@@ -7327,8 +7339,11 @@
 .ds-247420 .chat-msg .chat-tool.tool-running .chat-tool-status { color: var(--accent-ink); background: color-mix(in oklab, var(--accent) 12%, transparent); }
 .ds-247420 .chat-msg .chat-tool.tool-error .chat-tool-status { color: var(--flame); background: color-mix(in oklab, var(--flame) 12%, transparent); }
 /* Completed tool: a positive (success) tone so done reads distinctly from the
-   neutral pill and from the accent-toned running pill (--success = green-2). */
-.ds-247420 .chat-msg .chat-tool.tool-done .chat-tool-status { color: var(--success); background: color-mix(in oklab, var(--success) 12%, transparent); }
+   neutral pill and from the accent-toned running pill. --success/--green-2
+   measures under 4.5:1 as TEXT on paper/bg-2 (fine at 12%-tint fill/non-text
+   use) - --green is the text-safe deep tone, same split the accent/accent-ink
+   pair already uses. */
+.ds-247420 .chat-msg .chat-tool.tool-done .chat-tool-status { color: var(--green); background: color-mix(in oklab, var(--success) 12%, transparent); }
 .ds-247420 .chat-tool-body { border-top: var(--bw-hair) solid var(--rule); padding: var(--space-2) var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
 /* details' intrinsic min-content sizing: an unbroken token in the pre must not
    widen the tool card past the bubble column. */
@@ -9240,7 +9255,7 @@
   /* Re-assert the paper-tuned signal tokens so token-derived foregrounds
      (status discs, error text, tool cards) print with light-theme colours
      rather than the dark-theme-derived values inherited under auto-dark. */
-  .ds-247420 { --flame:#C53E00; --amber:#8A6512; --warn:#E0241A; --sky:#3A6EFF; --bg:var(--paper); --fg:var(--ink); }
+  .ds-247420 { --flame:#C53E00; --amber:#7C570F; --warn:#E0241A; --sky:#3A6EFF; --bg:var(--paper); --fg:var(--ink); }
   .ds-247420 #app { min-height: auto; display: block; height: auto; }
   .ds-247420 .skip-link, .ds-247420 .status-dot, .ds-247420 .history-actions, .ds-247420 .chat-composer { display: none !important; }
   .ds-247420 .app, .ds-247420 .app-main, .ds-247420 .panel, .ds-247420 .chat, .ds-247420 .chat-thread {
