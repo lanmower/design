@@ -353,9 +353,9 @@
 }
 
 .cm-channel-item.voice-active {
-  color: var(--green-2);
+  color: var(--green);
 }
-.cm-channel-item.voice-active .cm-ch-icon { color: var(--green-2); }
+.cm-channel-item.voice-active .cm-ch-icon { color: var(--green); }
 .cm-channel-item.voice-active:hover {
   background: color-mix(in oklab, var(--green) 12%, transparent);
 }
@@ -401,7 +401,7 @@
 }
 
 .cm-ch-icon.voice-active-badge {
-  color: var(--green-2);
+  color: var(--green);
   text-shadow: 0 0 8px var(--green-2);
 }
 
@@ -508,7 +508,7 @@
   color: var(--fg);
 }
 .cm-ch-voice-user.speaking {
-  color: var(--green-2);
+  color: var(--green);
 }
 .cm-ch-voice-user.speaking .cm-ch-voice-user-avatar {
   box-shadow: 0 0 0 2px var(--green-2);
@@ -564,7 +564,7 @@
   font-size: var(--fs-micro);
   text-transform: uppercase;
   letter-spacing: var(--tr-caps);
-  color: var(--green-2);
+  color: var(--green);
   font-weight: 700;
   display: inline-flex;
   align-items: center;

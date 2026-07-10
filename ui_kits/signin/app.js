@@ -154,7 +154,7 @@ function App() {
     return AppShell({
         narrow: true,
         topbar: Topbar({ brand: '247420', leaf: 'auth', items: [['index', '../../']] }),
-        crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'signin · ' + state.mode }),
+        crumb: Crumb({ trail: ['247420', 'kits'], leaf: state.mode === 'signin' ? 'signin' : 'signin · ' + state.mode }),
         main: [
             h('div', { class: 'ds-section ds-auth-wrap' },
                 h('div', { class: 'ds-auth-col' },

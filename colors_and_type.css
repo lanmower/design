@@ -439,7 +439,7 @@ select:focus-visible {
   --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
   --accent: var(--acid); --accent-fg: var(--ink); --accent-ink: var(--acid-deep);
   /* A paper island under a dark ancestor must not inherit the dark signal pair. */
-  --flame: #C53E00; --amber: #8A6512; --warn: #E0241A; --sky: #3A6EFF;
+  --flame: #C53E00; --amber: #7C570F; --warn: #E0241A; --sky: #3A6EFF;
 }
 
 /* thebird — warm-paper brand preset. A first-class swappable theme: it lives

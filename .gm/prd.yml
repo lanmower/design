@@ -1682,3 +1682,24 @@
   subject: 'Discovered mid-EXECUTE: bare .tabs[role=tablist] in site/theme.mjs had zero CSS rule, rendering the four homepage tab links as glued-together unstyled inline text (everythingkitsdecksprevious)'
   status: completed
   witness: 'Fixed at commit ebda549: added .tabs[role=tablist]/a/a.active rules (pill-tab treatment, active state lime underline+tint) mirroring topbar nav styling. Confirmed via lint-tokens/lint-glyphs pass and rendered screenshot.'
+- id: audit-kits-batch-1
+  subject: 'Audit + fix visual polish issues (dead space, accent clash, misaligned CTAs, unstyled elements, weak density) on ui_kits: homepage, project_page, docs, blog'
+  status: pending
+- id: audit-kits-batch-2
+  subject: 'Audit + fix visual polish issues on ui_kits: aicat, file_browser, terminal, signin'
+  status: pending
+- id: audit-kits-batch-3
+  subject: 'Audit + fix visual polish issues on ui_kits: search, error_404, gallery'
+  status: pending
+- id: audit-previews-batch-1
+  subject: 'Audit + fix visual polish issues on preview pages: dateline, dropzone, file-grid, file-row, file-toolbar, file-viewer, header, icons-unicode'
+  status: pending
+- id: audit-previews-batch-2
+  subject: 'Audit + fix visual polish issues on preview pages: index-row, inputs, manifesto, rules, spacing, stamps, stamps-lore, theme-ink'
+  status: pending
+- id: audit-previews-batch-3
+  subject: 'Audit + fix visual polish issues on preview pages: type-display, type-mono, type-prose, wordmarks, colors-lore, colors-semantic'
+  status: pending
+- id: audit-slides-reverify
+  subject: Re-verify ./slides/ deck against the new Hero/badge/CTA/tabs CSS changes (shared component sheet) for any regression, and general Vercel-style polish opportunities
+  status: pending

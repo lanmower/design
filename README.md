@@ -52,7 +52,7 @@ mount(document.getElementById('app'), () => C.AppShell({
 - **chrome** — `Topbar`, `Crumb`, `Side`, `Status`, `AppShell`, `Brand`, `Chip`, `Btn`, `Glyph`, `Heading`, `Lede`
 - **content** — `Panel`, `Row`, `RowLink`, `Hero`, `Install`, `Receipt`, `Changelog`, `WorksList`, `WritingList`, `Manifesto`, `Section`, `Kpi`, `Table`, `HomeView`, `ProjectView`
 - **chat** — `Chat`, `ChatMessage`, `ChatComposer`, `AICat`, `AICatPortrait`
-- **multi-agent chat shell** — `WorkspaceShell`, `WorkspaceRail`, `ConversationList`, `AgentChat`, `SessionDashboard` — the flagship desktop-class chat-agent product surface (persistent rail + resizable columns + full turn/tool-call thread + live multi-session dashboard). See `COMPONENT_API.md` for the full prop contract; the canonical real-world wiring ships at [`agentgui`](https://github.com/AnEntrypoint/agentgui).
+- **multi-agent chat shell** — `WorkspaceShell`, `WorkspaceRail`, `ConversationList`, `AgentChat`, `SessionDashboard` — the flagship desktop-class chat-agent product surface (persistent rail + resizable columns + full turn/tool-call thread + live multi-session dashboard). See `COMPONENT_API.md` for the full prop contract; a runnable mock-data demo lives at `ui_kits/workspace/`; the canonical real-world wiring ships at [`agentgui`](https://github.com/AnEntrypoint/agentgui).
 - **file browser** — `FileRow`, `FileGrid`, `FileToolbar`, `FileIcon`, `DropZone`, `UploadProgress`, `EmptyState`, `BreadcrumbPath`, plus modal pieces `FileViewer`, `FilePreviewMedia`, `FilePreviewCode`, `FilePreviewText`, `ConfirmDialog`, `PromptDialog`
 - **ui_kits** — `homepage`, `project_page`, `docs`, `blog`, `chat`, `aicat`, `file_browser`. Each is a fully-working buildless example loading the SDK from this repo.
 

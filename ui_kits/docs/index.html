@@ -50,7 +50,12 @@
     <span class="leaf">introduction</span>
     <span class="crumb-right"><span class="chip dim">v0.4.1</span></span>
   </div>
+  <button class="app-side-toggle" type="button" aria-label="toggle navigation" aria-expanded="false" aria-controls="app-side-shell" onclick="document.querySelector('.app-body').classList.toggle('side-open')">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
   <div class="app-body">
+    <div class="app-side-scrim" aria-hidden="true" onclick="document.querySelector('.app-body').classList.remove('side-open')"></div>
+    <div class="app-side-shell" id="app-side-shell">
     <aside class="app-side">
       <div class="group">start</div>
       <a href="#" class="active"><span class="glyph">//</span><span>introduction</span></a>
@@ -70,6 +75,7 @@
       <a href="#"><span class="glyph">-&gt;</span><span>changelog</span></a>
       <a href="#"><span class="glyph">-&gt;</span><span>source</span></a>
     </aside>
+    </div>
     <main class="app-main narrow">
       <div class="ds-prose">
         <h1>introduction</h1>
@@ -87,7 +93,7 @@
       </div>
 
       <div class="panel panel-inline-wide">
-        <div class="panel-head"><span>※ note</span></div>
+        <div class="panel-head"><span>[!] note</span></div>
         <div class="ds-pattern-notes">
           if you're running <code>gm</code> without claude code, see <a href="#">reference / executenodejs</a>. you'll want bun 1.1+.
         </div>

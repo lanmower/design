@@ -19,6 +19,8 @@ The `freddie.js` re-exports (`FREDDIE_PAGES`, `home`/`chat`/`voice`/`sessions`/`
 **Callback props** always use `on*` camelCase:
 - `onClick`, `onInput`, `onSubmit`, `onChange`, etc.
 
+**`onAction` is prop-name-only, not a shared contract** — its call signature varies by component and each is correct for its own use, not a bug to unify: `Banner`'s `onAction(rawEvent)` is a generic action-button click handler; `FileRow`'s `onAction(action)` is package-internal (`FileGrid` wraps it into its own public `onAction(action, file)`, the two-arg shape external consumers should wire against); `FileViewer`/`FilePreviewPane`'s `onAction('download')` is a fixed single-purpose download trigger since the file is already available via the `file` prop. Check the specific component's signature below rather than assuming a shared shape.
+
 **Variant/mode props** use enum values, never multiple boolean flags:
 - Old: `primary={true}`, `ghost={true}` [ ]
 - New: `variant: 'primary' | 'ghost' | 'default'` [x]

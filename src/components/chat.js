@@ -161,6 +161,9 @@ export function injectCodeCopy(container) {
     });
 }
 
+const MD_STREAM_THROTTLE_MS = 120;
+const MD_STREAM_MIN_DELTA_CHARS = 40;
+
 function MdNode(p) {
     const refSink = (el) => {
         if (!el) return;
@@ -169,7 +172,27 @@ function MdNode(p) {
         // once the loader recovers, instead of staying plain-escaped forever.
         const srcKey = (isMarkdownDegraded() ? '~degraded~' : '') + (p.text || '');
         if (el.dataset.mdSrc === srcKey) return;
+        // While streaming (text still growing, not the final settle), a full
+        // re-parse of the WHOLE accumulated text on every rAF tick is the
+        // dominant cost of a long stream. Throttle: skip the parse unless
+        // enough time or enough new characters landed since the last one.
+        // p.streamingCaret (already threaded by the host for the stream-head
+        // caret) marks "still streaming"; its absence forces the final parse
+        // so nothing is left un-parsed once the turn settles.
+        const parsedLen = el.dataset.mdParsedLen ? Number(el.dataset.mdParsedLen) : 0;
+        const lastParseAt = el.dataset.mdLastParseAt ? Number(el.dataset.mdLastParseAt) : 0;
+        const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+        if (p.streamingCaret && parsedLen > 0 &&
+            (now - lastParseAt) < MD_STREAM_THROTTLE_MS &&
+            (srcKey.length - parsedLen) < MD_STREAM_MIN_DELTA_CHARS) {
+            // Not enough new content/time yet — paint raw text so the latest
+            // characters are visible, but defer the expensive re-parse.
+            el.textContent = p.text || '';
+            return;
+        }
         el.dataset.mdSrc = srcKey;
+        el.dataset.mdParsedLen = String(srcKey.length);
+        el.dataset.mdLastParseAt = String(now);
         // Markdown stack still loading (or down): paint the raw text
         // synchronously so streamed tokens are visible the same frame they
         // arrive (an empty bubble until the CDN import resolves reads as a
@@ -215,8 +238,20 @@ function CodeNode(p) {
 // surrounding ChatMessage chrome (avatar/meta/reactions) stays consistent.
 function ToolCallNode(p) {
     const status = p.status || (p.error ? 'error' : (p.result != null ? 'done' : 'running'));
-    const argsText = typeof p.args === 'string' ? p.args : JSON.stringify(p.args || {}, null, 2);
-    const resultText = p.result == null ? '' : (typeof p.result === 'string' ? p.result : JSON.stringify(p.result, null, 2));
+    // Args/result are re-stringified on every rAF re-render while any part of
+    // the turn is streaming, even for collapsed cards whose own args/result
+    // haven't changed since the last frame. Cache by identity on the part
+    // object itself so an unchanged args/result skips the stringify.
+    if (p._argsCache !== p.args) {
+        p._argsTextCache = typeof p.args === 'string' ? p.args : JSON.stringify(p.args || {}, null, 2);
+        p._argsCache = p.args;
+    }
+    const argsText = p._argsTextCache;
+    if (p._resultCache !== p.result) {
+        p._resultTextCache = p.result == null ? '' : (typeof p.result === 'string' ? p.result : JSON.stringify(p.result, null, 2));
+        p._resultCache = p.result;
+    }
+    const resultText = p._resultTextCache;
     const hasArgs = p.args != null && argsText !== '{}' && argsText.trim() !== '';
     // Default-open while running or on error so the user sees live progress / failure detail;
     // collapse on success unless the caller explicitly overrides with open:true.

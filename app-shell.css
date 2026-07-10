@@ -148,7 +148,7 @@ pre {
 pre .k { color: var(--code-str-alt, var(--mascot)); }
 pre .s { color: var(--code-string, var(--green)); }
 pre .c { color: var(--fg-3); }
-pre .n { color: var(--green-2); }
+pre .n { color: var(--code-num); }
 
 /* ============================================================
    AppShell — page frame. The topbar floats above a soft background;
@@ -427,6 +427,19 @@ body.canvas-host { background: transparent !important; }
   .app-status .item:last-of-type:not(:only-of-type) { display: none; }
 }
 
+/* The "dateline" — ASCII bar used at the top of every preview/brand page.
+   3-4 flex slots; a .spread filler pushes the trailing slot to the far
+   edge instead of every span running together with no gap. */
+.dateline {
+  display: flex; align-items: center; gap: var(--space-3);
+  flex-wrap: nowrap; overflow: hidden;
+  font-family: var(--ff-mono); font-size: var(--fs-xs); line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--fg-3);
+}
+.dateline span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.dateline .spread { flex: 1 1 auto; min-width: var(--space-3); }
+
 /* ============================================================
    Primitives
    ============================================================ */
@@ -457,15 +470,15 @@ body.canvas-host { background: transparent !important; }
    an ink block with the lead as text, a confident two-tone flip. */
 .btn-primary {
   background: var(--accent); color: var(--accent-fg);
-  font-weight: 700; letter-spacing: var(--tr-caps);
+  font-weight: 700;
 }
 .btn-primary:hover { background: var(--fg); color: var(--accent-ink); transform: translateY(-1px); box-shadow: var(--shadow-2); }
 .btn-ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 2px var(--fg); }
 .btn-ghost:hover { background: var(--fg); color: var(--bg); transform: translateY(-1px); }
 .btn:active, .btn-primary:active, .btn-ghost:active { transform: translateY(1px); box-shadow: none; }
 .btn:focus-visible, .btn-primary:focus-visible, .btn-ghost:focus-visible, .ds-icon-btn:focus-visible {
-  outline: 2px solid var(--accent-ink);
-  outline-offset: 2px;
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 /* ============================================================
@@ -484,12 +497,12 @@ body.canvas-host { background: transparent !important; }
 .ds-icon-btn-lg { width: 40px; height: 40px; }
 .ds-icon-btn-xl { width: 48px; height: 48px; }
 .ds-icon-btn-ghost { background: transparent; }
-.ds-icon-btn-ghost:hover { background: var(--bg-2); }
+.ds-icon-btn-ghost:hover { background: var(--fg); color: var(--bg); }
 .ds-icon-btn-primary { background: var(--accent); color: var(--accent-fg); }
 .ds-icon-btn-primary:hover { background: var(--fg); color: var(--bg); }
 /* warn = destructive ACTION tone; flame stays exclusively error STATUS. */
 .ds-icon-btn-danger { background: var(--warn); color: var(--on-color); }
-.ds-icon-btn-danger:hover { filter: brightness(1.1); }
+.ds-icon-btn-danger:hover { filter: brightness(0.92); }
 .ds-icon-btn:active { transform: translateY(1px); }
 .ds-icon-btn:disabled, .ds-icon-btn.is-disabled {
   opacity: 0.5; cursor: not-allowed; pointer-events: none;
@@ -639,7 +652,7 @@ body.canvas-host { background: transparent !important; }
   white-space: pre-wrap;
   font-family: var(--ff-mono);
   font-size: var(--fs-sm);
-  line-height: var(--lh-snug, 1.3);
+  line-height: var(--lh-snug);
   margin-top: 8px;
   padding: 10px 12px;
   background: var(--bg);
@@ -695,7 +708,7 @@ a.row:hover .meta, .row[role="button"]:hover .meta { color: var(--accent-ink); t
 .row.row-nocode { grid-template-columns: minmax(0, 1fr) auto; }
 
 .row .code  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
-.row .title { font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-lg); line-height: var(--lh-snug, 1.3); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; min-width: 0; }
+.row .title { font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-lg); line-height: var(--lh-snug); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; min-width: 0; }
 .row .title .sub { font-family: var(--ff-body); font-weight: 400; font-size: var(--fs-sm); color: var(--fg-3); }
 /* App typescale: list rows are quiet working chrome (the 18px/600 default is a
    marketing-surface voice). One size for ALL app list rows - matches
@@ -1139,6 +1152,10 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
     flex: 1 1 100%; margin-left: 0; order: 3; min-width: 0; max-width: 100%;
     display: flex; gap: 2px; flex-wrap: nowrap;
     overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    /* Fade the trailing edge so a clipped last item (e.g. "source ->" cut to
+       "sour") reads as scrollable content, not a broken/truncated label. */
+    mask-image: linear-gradient(90deg, var(--fg) 0 calc(100% - 28px), transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, var(--fg) 0 calc(100% - 28px), transparent 100%);
   }
   .app-topbar nav::-webkit-scrollbar { display: none; }
   .app-topbar nav a {
@@ -1495,6 +1512,12 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-file-row .ds-file-meta {
   font-family: var(--ff-mono); font-size: var(--fs-xs);
   color: var(--fg-3); white-space: nowrap;
+  /* Never shrink below content: a flex sibling with white-space:nowrap and
+     the default flex-shrink:1 silently overflows its own box (no ellipsis)
+     when the row runs out of width, painting the date/size over the title
+     and action icons at mobile widths. Fixed-size the meta column instead
+     and let .title (flex:1, min-width:0, ellipsis) absorb the squeeze. */
+  flex-shrink: 0;
 }
 
 /* File icon — glyph chip, tinted per type. */
@@ -1964,6 +1987,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   border-color: var(--warn);
   color: var(--on-color);
 }
+.btn-primary.danger:hover { filter: brightness(0.92); border-color: var(--warn); }
 
 /* -- Preview ------------------------------------------------ */
 .ds-preview-head {
@@ -2773,6 +2797,14 @@ input[type="checkbox"], input[type="radio"] {
               transform var(--dur-snap) var(--ease);
 }
 
+/* Native checkbox/radio tint — browser default is UA blue, which fights the
+   single lime lead accent wherever a raw control lands outside a bespoke
+   toggle (e.g. signin's "remember me"). accent-color re-tints the native
+   control box without hand-drawing a replacement. */
+input[type="checkbox"], input[type="radio"] {
+  accent-color: var(--accent-ink);
+}
+
 /* Prevent double-tap zoom on buttons (iOS) */
 .btn, .btn-primary, .btn-ghost, button {
   -webkit-user-select: none;
@@ -2934,6 +2966,35 @@ input[type="search"]::placeholder,
 input[type="url"]::placeholder,
 textarea::placeholder {
   color: var(--fg-3);
+}
+
+/* Structural hairlines — "no boxes, no cards, structure comes from rules."
+   Three weights: .rule (default separator), .rule-double (major section
+   break), .rule-dotted (optional/skippable). Applied to a bare <hr>, which
+   otherwise falls back to the browser's default inset groove line. */
+hr.rule, hr.rule-double, hr.rule-dotted {
+  width: 100%; height: 0; border: 0;
+}
+hr.rule { border-top: 1px solid var(--rule); }
+hr.rule-double { border-top: 3px double var(--rule-strong); }
+hr.rule-dotted { border-top: 1px dotted var(--rule-strong); }
+
+/* Hairline-only text input — no box, no fill. A single bottom rule that
+   thickens to 2px on focus, matching the row/rule zero-border aesthetic
+   instead of a browser-default boxed field. */
+.input {
+  display: block; width: 100%; box-sizing: border-box;
+  border: 0; border-bottom: 1px solid var(--rule-strong);
+  border-radius: var(--r-0);
+  background: transparent;
+  padding: var(--space-2) var(--space-1);
+  font: inherit; color: var(--fg);
+}
+.input::placeholder { color: var(--fg-3); }
+.input:focus-visible {
+  outline: none;
+  border-bottom-width: 2px;
+  border-bottom-color: var(--accent-ink);
 }
 
 /* -- Field controls: themed base for TextField / Select / SearchInput --
