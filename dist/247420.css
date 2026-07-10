@@ -92,7 +92,11 @@
   --accent-fg:   var(--ink);
   --accent-ink:  var(--acid-deep);
   --accent-bright: var(--acid); /* base value so var(--accent-bright) never falls back empty; ink + [data-accent] retune it */
-  --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
+  /* Blends --accent-ink (the readable/darker ink variant), not the raw
+     --accent fill, so light-theme active states clear contrast against --bg;
+     dark/ink and auto-dark restate the prior --accent-based value explicitly
+     below so this change does not leak into them via inheritance. */
+  --accent-tint: color-mix(in oklab, var(--accent-ink) 22%, var(--bg));
 
   /* On-color foregrounds — text/icons that sit ON a saturated fill (accent,
      danger, category chips). Theme-driven so white-on-color never hard-codes
@@ -329,6 +333,9 @@
   --accent-fg: var(--ink);
   --accent-ink: var(--acid); /* on ink, the lime itself reads as bright text */
   --accent-bright: var(--acid);
+  /* Preserves the prior --accent-based blend for dark; the :root light-theme
+     value above was retuned to blend --accent-ink instead. */
+  --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
   --danger:    oklch(0.68 0.19 25);
   --flame:     #FF5A1F;
   --amber:     #D9A93A;
@@ -341,6 +348,14 @@
   --code-fn:      var(--flame);
   --code-str-alt: var(--mascot);
   --code-num:     var(--sun);
+}
+
+/* Restores the pre-existing (weaker) dark-theme selection tint after the
+   light-theme-only bump in app-shell.css's base ::selection rule. */
+.ds-247420[data-theme="ink"] ::selection,
+.ds-247420[data-theme="dark"] ::selection {
+  background: color-mix(in oklab, var(--accent) 24%, var(--bg-2));
+  color: var(--fg);
 }
 
 /* NOTE: the [data-theme="auto"] block below mirrors the
@@ -370,6 +385,7 @@
     --accent-fg: var(--ink);
     --accent-ink: var(--acid);
     --accent-bright: var(--acid);
+    --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
     --danger:    oklch(0.68 0.19 25);
     --flame:     #FF5A1F;
     --amber:     #D9A93A;
@@ -380,6 +396,10 @@
     --code-fn:      var(--flame);
     --code-str-alt: var(--mascot);
     --code-num:     var(--sun);
+  }
+  .ds-247420[data-theme="auto"] ::selection {
+    background: color-mix(in oklab, var(--accent) 24%, var(--bg-2));
+    color: var(--fg);
   }
 }
 
@@ -440,6 +460,7 @@
   --bg: var(--paper); --bg-2: var(--paper-2); --bg-3: var(--paper-3);
   --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
   --accent: var(--acid); --accent-fg: var(--ink); --accent-ink: var(--acid-deep);
+  --accent-tint: color-mix(in oklab, var(--accent-ink) 22%, var(--bg));
   /* A paper island under a dark ancestor must not inherit the dark signal pair. */
   --flame: #C53E00; --amber: #7C570F; --warn: #E0241A; --sky: #3A6EFF;
 }
@@ -546,8 +567,8 @@
 }
 .ds-247420 .skip-link:focus {
   top: 10px;
-  outline: 2px solid var(--accent-ink);
-  outline-offset: 2px;
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 .ds-247420 body {
   background: var(--bg);
@@ -558,7 +579,12 @@
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-.ds-247420 ::selection { background: color-mix(in oklab, var(--accent) 24%, var(--bg-2)); color: var(--fg); }
+/* Light (paper, the default theme) needs a stronger accent share than dark to
+   clear a visible selection tint against --bg-2 -- the dark-theme value (24%)
+   read too weak on paper. Dark/ink keeps its existing 24% mix, restored below
+   in the ink/dark + auto-dark blocks (mirrors the --danger/--flame pattern of
+   scoping a value per theme rather than sharing one across both). */
+.ds-247420 ::selection { background: color-mix(in oklab, var(--accent) 46%, var(--bg-2)); color: var(--fg); }
 
 /* Every root has a CQ container so fluid type can resolve to a meaningful inline-size. */
 .ds-247420 .app, .ds-247420 .ds-stage {
@@ -763,8 +789,8 @@
 }
 .ds-247420 .app-topbar nav a:hover { background: var(--bg-2); color: var(--fg); }
 .ds-247420 .app-topbar nav a:focus-visible {
-  outline: 2px solid var(--accent-ink);
-  outline-offset: 2px;
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 /* Active tab reads as a subtle tinted pill with an accent underline rather than
    an oversized filled oval that sits taller than its inactive siblings and reads
@@ -799,8 +825,8 @@
   width: 100%;
 }
 .ds-247420 .app-search:focus-within {
-  outline: 2px solid var(--accent-ink);
-  outline-offset: 2px;
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 .ds-247420 .app-crumb {
@@ -841,8 +867,8 @@
 }
 .ds-247420 .app-side a:hover { background: var(--bg-2); color: var(--fg); }
 .ds-247420 .app-side a:focus-visible {
-  outline: 2px solid var(--accent-ink);
-  outline-offset: 2px;
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 .ds-247420 .app-side a.active {
   color: var(--accent-fg);
@@ -1015,7 +1041,7 @@
 .ds-247420 .ds-icon-btn-ghost { background: transparent; }
 .ds-247420 .ds-icon-btn-ghost:hover { background: var(--fg); color: var(--bg); }
 .ds-247420 .ds-icon-btn-primary { background: var(--accent); color: var(--accent-fg); }
-.ds-247420 .ds-icon-btn-primary:hover { background: var(--fg); color: var(--bg); }
+.ds-247420 .ds-icon-btn-primary:hover { background: var(--fg); color: var(--accent-ink); }
 /* warn = destructive ACTION tone; flame stays exclusively error STATUS. */
 .ds-247420 .ds-icon-btn-danger { background: var(--warn); color: var(--on-color); }
 .ds-247420 .ds-icon-btn-danger:hover { filter: brightness(0.92); }
@@ -1034,19 +1060,27 @@
   border-radius: var(--r-pill);
   background: var(--bg-3); color: var(--fg-2);
 }
-.ds-247420 .ds-badge.tone-green   { background: var(--green-tint);  color: var(--green-deep); }
+/* Canonical tone names are tone-success / tone-error / tone-neutral. Every
+   other tone name grouped into the same rule below (tone-green/tone-live,
+   tone-flame, tone-wip, tone-sun/tone-yellow, tone-ok/tone-miss) is a
+   true-synonym legacy alias, kept working but sharing one declaration so the
+   tone-family colors can't drift apart across names. */
+.ds-247420 .ds-badge.tone-green, .ds-247420 .ds-badge.tone-live, .ds-247420 .ds-badge.tone-success {
+  background: var(--green-tint); color: var(--green-deep);
+}
+.ds-247420 .ds-badge.tone-flame, .ds-247420 .ds-badge.tone-error {
+  background: var(--flame); color: var(--on-color);
+}
+.ds-247420 .ds-badge.tone-wip, .ds-247420 .ds-badge.tone-neutral {
+  background: var(--bg-3); color: var(--fg-2);
+}
 .ds-247420 .ds-badge.tone-purple  { background: var(--purple-tint); color: var(--purple-deep); }
 .ds-247420 .ds-badge.tone-mascot  { background: var(--mascot-tint); color: var(--ink); }
-.ds-247420 .ds-badge.tone-sun     { background: var(--sun);         color: var(--ink); }
-.ds-247420 .ds-badge.tone-flame   { background: var(--flame);       color: var(--on-color); }
-.ds-247420 .ds-badge.tone-live    { background: var(--green-tint);  color: var(--green-deep); }
-.ds-247420 .ds-badge.tone-wip     { background: var(--bg-3);        color: var(--fg-2); }
-.ds-247420 .ds-badge.tone-error   { background: var(--flame);       color: var(--on-color); }
-.ds-247420 .ds-badge.tone-success { background: var(--green-tint);  color: var(--green-deep); }
-.ds-247420 .ds-badge.tone-neutral { background: var(--bg-3);        color: var(--fg-2); }
+.ds-247420 .ds-badge.tone-sun, .ds-247420 .ds-badge.tone-yellow {
+  background: var(--sun); color: var(--ink);
+}
 .ds-247420 .ds-badge.tone-blue    { background: var(--accent-tint); color: var(--accent-ink); }
 .ds-247420 .ds-badge.tone-orange  { background: color-mix(in oklab, var(--flame) 30%, var(--sun) 70%); color: var(--ink); }
-.ds-247420 .ds-badge.tone-yellow  { background: var(--sun);         color: var(--ink); }
 
 .ds-247420 .chip {
   display: inline-flex; align-items: center; gap: 6px;
@@ -1057,19 +1091,22 @@
   letter-spacing: var(--tr-caps); text-transform: uppercase;
   border-radius: var(--r-pill);
 }
-.ds-247420 .chip.tone-green   { background: var(--green-tint);  color: var(--green-deep); }
+/* Same canonical/legacy-alias grouping as .ds-badge above. */
+.ds-247420 .chip.tone-green, .ds-247420 .chip.tone-live, .ds-247420 .chip.tone-success, .ds-247420 .chip.tone-ok {
+  background: var(--green-tint); color: var(--green-deep);
+}
+.ds-247420 .chip.tone-flame, .ds-247420 .chip.tone-error, .ds-247420 .chip.tone-miss {
+  background: var(--flame); color: var(--on-color);
+}
+.ds-247420 .chip.tone-wip, .ds-247420 .chip.tone-neutral {
+  background: var(--bg-3); color: var(--fg-2);
+}
 .ds-247420 .chip.tone-purple  { background: var(--purple-tint); color: var(--purple-deep); }
 .ds-247420 .chip.tone-mascot  { background: var(--mascot-tint); color: var(--ink); }
-.ds-247420 .chip.tone-sun     { background: var(--sun);         color: var(--ink); }
-.ds-247420 .chip.tone-flame   { background: var(--flame);       color: var(--on-color); }
-.ds-247420 .chip.tone-live    { background: var(--green-tint);  color: var(--green-deep); }
-.ds-247420 .chip.tone-wip     { background: var(--bg-3);        color: var(--fg-2); }
-.ds-247420 .chip.tone-error    { background: var(--flame);       color: var(--on-color); }
-.ds-247420 .chip.tone-success  { background: var(--green-tint);  color: var(--green-deep); }
+.ds-247420 .chip.tone-sun, .ds-247420 .chip.tone-yellow {
+  background: var(--sun); color: var(--ink);
+}
 .ds-247420 .chip.tone-disabled { background: var(--bg-3);        color: var(--fg-3); }
-.ds-247420 .chip.tone-ok       { background: var(--green-tint);  color: var(--green-deep); }
-.ds-247420 .chip.tone-miss     { background: var(--flame);       color: var(--on-color); }
-.ds-247420 .chip.tone-neutral  { background: var(--bg-3);        color: var(--fg-2); }
 .ds-247420 .chip.tone-blue     { background: var(--accent-tint); color: var(--accent-ink); }
 .ds-247420 .chip.tone-orange   { background: color-mix(in oklab, var(--flame) 30%, var(--sun) 70%); color: var(--ink); }
 .ds-247420 .chip.tone-yellow   { background: var(--sun);         color: var(--ink); }
@@ -1101,7 +1138,7 @@
   background: var(--panel-1, var(--bg-2));
   border: var(--bw-hair) solid var(--rule);
   border-radius: var(--r-2);
-  margin: 0 0 var(--space-5);
+  margin: 0 0 var(--space-4);
   padding: var(--space-3);
   position: relative;
   /* Crisp, restrained elevation — a hairline border does the edge definition;
@@ -1249,6 +1286,9 @@
 .ds-247420[data-typescale="app"] .row { padding: 12px 16px; }
 .ds-247420[data-typescale="app"] .row .title { font-size: var(--fs-sm); font-weight: 500; }
 .ds-247420 .row .sub   { font-family: var(--ff-body); font-weight: 400; font-size: var(--fs-sm); color: var(--fg-3); }
+/* Context-pane cwd fact reads as a path (like .ds-dash-cwd/.ds-session-agent/
+   .ds-dash-model) -- scoped to that one row so no other Row .sub is affected. */
+.ds-247420 .ds-context-cwd-row .row .sub { font-family: var(--ff-mono); }
 .ds-247420 .row .meta  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; align-self: center; }
 /* WorksList meta pairs a label with a disclosure chevron, inline-aligned. */
 .ds-247420 .ds-works-meta { display: inline-flex; align-items: center; gap: .4em; }
@@ -1517,7 +1557,7 @@
 .ds-247420 table tr.clickable { cursor: pointer; }
 .ds-247420 table tr.clickable:hover td { background: var(--bg-2); }
 .ds-247420 table tr.clickable:focus-visible {
-  outline: 2px solid var(--accent-ink);
+  outline: var(--focus-w) solid var(--focus-color);
   outline-offset: -2px;
 }
 .ds-247420 table tr.clickable:focus-visible td { background: var(--bg-2); }
@@ -1958,7 +1998,7 @@
   flex-direction: column;
   gap: 4px;
 }
-.ds-247420 .ds-file-grid:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; border-radius: var(--r-2); }
+.ds-247420 .ds-file-grid:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); border-radius: var(--r-2); }
 
 /* Listing wrapper holds the optional filter + sort header above the grid. */
 .ds-247420 .ds-file-listing { display: flex; flex-direction: column; gap: var(--space-2); min-height: 0; }
@@ -1980,7 +2020,7 @@
 }
 .ds-247420 .ds-file-sort-btn:hover { color: var(--fg-2); background: var(--bg-2); }
 .ds-247420 .ds-file-sort-btn.active { color: var(--accent-ink); }
-.ds-247420 .ds-file-sort-btn:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
+.ds-247420 .ds-file-sort-btn:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 /* Skeleton shimmer rows shown while a directory loads. */
 .ds-247420 .ds-file-row-skeleton { cursor: default; pointer-events: none; }
@@ -2028,7 +2068,7 @@
   color: inherit; font: inherit; text-align: left; cursor: pointer;
 }
 .ds-247420 .ds-file-open[disabled] { cursor: default; }
-.ds-247420 .ds-file-open:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; border-radius: var(--r-1); }
+.ds-247420 .ds-file-open:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); border-radius: var(--r-1); }
 .ds-247420 .ds-file-row:hover {
   background: var(--bg-2);
   border-color: var(--rule);
@@ -2132,7 +2172,7 @@
 }
 .ds-247420 .ds-file-check:hover { background: var(--bg-3); color: var(--fg); }
 .ds-247420 .ds-file-check.is-marked { color: var(--accent-ink); }
-.ds-247420 .ds-file-check:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
+.ds-247420 .ds-file-check:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 .ds-247420 .ds-file-check[disabled] { opacity: 0.4; cursor: default; }
 .ds-247420 .ds-file-row.is-marked { background: var(--accent-tint); border-color: var(--accent); }
 .ds-247420 .ds-file-selectall {
@@ -2142,7 +2182,7 @@
   padding: var(--space-1); border-radius: var(--r-1);
 }
 .ds-247420 .ds-file-selectall:hover { background: var(--bg-2); color: var(--fg); }
-.ds-247420 .ds-file-selectall:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
+.ds-247420 .ds-file-selectall:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 .ds-247420 .ds-file-controls { display: flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-2) var(--space-1); flex-wrap: wrap; }
 .ds-247420 .ds-file-controls .spread { flex: 1 1 auto; }
 .ds-247420 .ds-file-controls .ds-file-sort { padding: 0; }
@@ -2180,7 +2220,7 @@
 }
 .ds-247420 .ds-density-btn:hover { color: var(--fg); }
 .ds-247420 .ds-density-btn.active { background: var(--accent-tint); color: var(--fg); }
-.ds-247420 .ds-density-btn:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
+.ds-247420 .ds-density-btn:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 /* Compact density — tighter rows for long listings. */
 .ds-247420 .ds-file-grid[data-density="compact"] { gap: 2px; }
@@ -2218,7 +2258,7 @@
   background: none; border: none; cursor: pointer; color: var(--fg);
 }
 .ds-247420 .ds-file-cell-open[disabled] { cursor: default; }
-.ds-247420 .ds-file-cell-open:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: -2px; border-radius: var(--r-2); }
+.ds-247420 .ds-file-cell-open:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; border-radius: var(--r-2); }
 .ds-247420 .ds-file-cell-media {
   display: flex; align-items: center; justify-content: center;
   width: 100%; aspect-ratio: 4 / 3;
@@ -2458,7 +2498,7 @@
   color: var(--fg-2); font-family: var(--ff-body); font-size: var(--fs-micro);
 }
 .ds-247420 .ds-upload-act:hover { background: var(--bg-3); color: var(--fg); }
-.ds-247420 .ds-upload-act:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
+.ds-247420 .ds-upload-act:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 @media (hover: none), (pointer: coarse) {
   .ds-247420 .ds-upload-act { min-height: 44px; min-width: 44px; }
   /* 44px floor for file controls on ANY touch device, not only narrow ones
@@ -2529,7 +2569,7 @@
   border-radius: var(--r-2); color: var(--fg);
   font-family: inherit; font-size: var(--fs-sm);
 }
-.ds-247420 .ds-modal-input:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.ds-247420 .ds-modal-input:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 /* iOS auto-zooms inputs under 16px on focus, breaking the modal layout. */
 @media (hover: none), (pointer: coarse) {
   .ds-247420 .ds-modal-input { font-size: 16px; min-height: 44px; }
@@ -2716,7 +2756,7 @@
   transition: color var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
 }
 .ds-247420 .ds-segmented .ds-seg-btn:hover { color: var(--fg); }
-.ds-247420 .ds-segmented .ds-seg-btn:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
+.ds-247420 .ds-segmented .ds-seg-btn:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 .ds-247420 .ds-segmented .ds-seg-btn.is-on {
   background: var(--bg); color: var(--fg);
   box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule);
@@ -3162,12 +3202,12 @@
   transition: background var(--dur-snap, .15s) var(--ease, ease), color var(--dur-snap, .15s) var(--ease, ease);
 }
 .ds-247420 .composer-btn:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
-.ds-247420 .chat-composer .send:hover { filter: brightness(1.08); }
+.ds-247420 .chat-composer .send:hover { filter: brightness(0.92); }
 .ds-247420 .chat-composer .send:active { filter: brightness(0.94); }
 .ds-247420 .chat-composer .send:focus-visible,
 .ds-247420 .composer-btn:focus-visible {
-  outline: 2px solid var(--accent-ink);
-  outline-offset: 2px;
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 .ds-247420 .chat-composer .send:disabled {
   background: var(--bg-3); color: var(--fg-3); cursor: not-allowed; transform: none;
@@ -3700,8 +3740,8 @@
 
 /* Base focus-visible: 2px ring + 2px offset clears dark bg-3 surfaces (WCAG 1.4.11) */
 .ds-247420 :focus-visible {
-  outline: 2px solid var(--accent-ink);
-  outline-offset: 2px;
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 /* Enhanced focus-visible for all interactive elements */
@@ -3710,8 +3750,8 @@
 .ds-247420[role="tab"]:focus-visible,
 .ds-247420 .row:focus-visible,
 .ds-247420 .row[tabindex]:focus-visible {
-  outline: 2px solid var(--accent-ink);
-  outline-offset: 2px;
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 /* Skip to main content link */
@@ -4100,7 +4140,7 @@
   border-radius: var(--r-1, 6px);
   cursor: pointer;
 }
-.ds-247420 .app-side-toggle:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.ds-247420 .app-side-toggle:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 @container (max-width: 900px) {
   .ds-247420 .app-side-toggle { display: inline-flex; }
   .ds-247420 .app-topbar .brand { margin-left: 44px; }
@@ -4194,7 +4234,7 @@
 .ds-247420 .ws-resizer { grid-row: 1 / -1; align-self: stretch; justify-self: end; width: 8px; margin-right: -4px; z-index: 5; cursor: col-resize; background: transparent; border: none; padding: 0; touch-action: none; }
 .ds-247420 .ws-resizer::after { content: ""; display: block; width: 2px; height: 100%; margin: 0 auto; background: transparent; transition: background var(--dur-snap) var(--ease); }
 .ds-247420 .ws-resizer:hover::after, .ds-247420 .ws-resizer:focus-visible::after { background: var(--accent); }
-.ds-247420 .ws-resizer:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: -2px; }
+.ds-247420 .ws-resizer:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
 .ds-247420 .ws-resizer.ws-resizer-rail { grid-column: 1; }
 .ds-247420 .ws-resizer.ws-resizer-sessions { grid-column: 2; }
 .ds-247420 .ws-resizer.ws-resizer-pane { grid-column: 3; justify-self: end; }
@@ -4246,7 +4286,7 @@
   border-radius: var(--r-1); cursor: pointer;
 }
 .ds-247420 .ws-rail-toggle:hover { background: var(--bg-3); color: var(--fg); }
-.ds-247420 .ws-rail-toggle:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.ds-247420 .ws-rail-toggle:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 .ds-247420 .ws-rail-inner { display: flex; flex-direction: column; min-height: 0; flex: 1; padding: var(--space-3) var(--space-2); gap: var(--space-2); }
 .ds-247420 .ws-rail-head { display: flex; align-items: center; min-height: 36px; padding: 0 var(--space-2); }
 .ds-247420 .ws-rail-brand { font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-body); color: var(--fg); white-space: nowrap; overflow: hidden; }
@@ -4258,8 +4298,8 @@
   font-family: var(--ff-body); font-size: var(--fs-sm); font-weight: 600;
   min-height: 40px; white-space: nowrap; overflow: hidden;
 }
-.ds-247420 .ws-rail-action:hover { filter: brightness(1.08); }
-.ds-247420 .ws-rail-action:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.ds-247420 .ws-rail-action:hover { filter: brightness(0.92); }
+.ds-247420 .ws-rail-action:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 .ds-247420 .ws-rail-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .ds-247420 .ws-rail-item {
   display: flex; align-items: center; gap: var(--space-2);
@@ -4269,7 +4309,7 @@
   font-family: var(--ff-body); font-size: var(--fs-sm); white-space: nowrap; overflow: hidden;
 }
 .ds-247420 .ws-rail-item:hover { background: var(--bg-3); color: var(--fg); }
-.ds-247420 .ws-rail-item:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: -2px; }
+.ds-247420 .ws-rail-item:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
 .ds-247420 .ws-rail-item.active { background: var(--accent-tint); color: var(--fg); box-shadow: inset 2px 0 0 var(--accent); }
 .ds-247420 .ws-rail-item-label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
 .ds-247420 .ws-rail-item-count { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); }
@@ -4342,7 +4382,7 @@
 /* Desktop-only chrome toggle (sessions collapse): inverse of the mobile drawer-toggle. */
 .ds-247420 .ws-desktop-toggle { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: none; background: none; color: var(--fg-2); cursor: pointer; border-radius: var(--r-1); }
 .ds-247420 .ws-desktop-toggle:hover { background: var(--bg-2); color: var(--fg); }
-.ds-247420 .ws-desktop-toggle:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.ds-247420 .ws-desktop-toggle:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 @media (max-width: 900px) { .ds-247420 .ws-desktop-toggle { display: none; } }
 /* The pane collapse toggle is meaningless once the pane TRACK is dropped (the
    pane becomes a mobile overlay drawer at <=1480px, reached via its own
@@ -4466,7 +4506,7 @@
   .ds-247420 .ws-crumb .app-crumb .crumb-right { margin-left: 0; flex-wrap: wrap; min-width: 0; display: inline-flex; }
 }
 .ds-247420 .ws-drawer-toggle:hover { background: var(--bg-2); color: var(--fg); }
-.ds-247420 .ws-drawer-toggle:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.ds-247420 .ws-drawer-toggle:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 @media (prefers-reduced-motion: reduce) {
   .ds-247420 .ws-shell, .ds-247420 .ws-rail, .ds-247420 .ws-pane, .ds-247420 .ws-sessions, .ds-247420 .ws-scrim { transition: none; }
@@ -4491,7 +4531,7 @@
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
 .ds-247420 .row-act:hover { background: var(--bg-3); color: var(--fg); }
-.ds-247420 .row-act:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
+.ds-247420 .row-act:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 /* FilterPills - a group of pill toggle buttons (aria-pressed). */
 .ds-247420 .ds-filter-pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
@@ -4504,7 +4544,7 @@
 }
 .ds-247420 .ds-filter-pill:hover { background: var(--bg-3); color: var(--fg); }
 .ds-247420 .ds-filter-pill.active { background: var(--accent-tint); color: var(--fg); border-color: var(--accent); }
-.ds-247420 .ds-filter-pill:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
+.ds-247420 .ds-filter-pill:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 /* Touch floor for the new small controls. */
 @media (pointer: coarse) {
@@ -4514,7 +4554,7 @@
 /* Disabled file actions (read-only row / in-flight mutation) stay visible but inert. */
 .ds-247420 .ds-file-act:disabled { opacity: .45; cursor: default; }
 .ds-247420 .ds-file-act:disabled:hover { background: transparent; color: var(--fg-3); }
-.ds-247420 .ds-file-act:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
+.ds-247420 .ds-file-act:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 /* ============================================================
    Print — linearize WorkspaceShell so main content prints in full.
@@ -4838,7 +4878,7 @@
    .ds-feature above), so the hover affordance is a lift, matching the same
    translateY + shadow idiom .chat-msg:hover .chat-bubble already uses. */
 .ds-247420 .ds-gallery-tile:hover { transform: translateY(-2px); box-shadow: 0 2px 8px color-mix(in oklab, var(--fg) 10%, transparent); }
-.ds-247420 .ds-gallery-tile:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.ds-247420 .ds-gallery-tile:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 .ds-247420 .ds-gallery-tile--tight { min-height: clamp(96px, 14vw, 120px); }
 .ds-247420 .ds-lightbox {
   position: fixed; inset: 0; background: var(--scrim);
@@ -5197,7 +5237,7 @@
   height: 48px;
   border-radius: var(--r-3);
   background: var(--bg-2);
-  color: var(--green-2);
+  color: var(--green);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6802,6 +6842,7 @@
   flex-wrap: wrap;
 }
 .ds-247420 .agentchat-cwd-text {
+  font-family: var(--ff-mono);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -7127,7 +7168,7 @@
 .ds-247420 .ds-session-title { font-size: var(--fs-sm); color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-247420 .ds-session-sub { font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-247420 .ds-session-meta { display: flex; align-items: center; gap: var(--space-2); flex: 0 0 auto; }
-.ds-247420 .ds-session-agent { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); }
+.ds-247420 .ds-session-agent { font-size: var(--fs-tiny); color: var(--fg-3); }
 /* New-activity cue is a hollow accent RING so it stays shape-distinct from the
    running live disc (a solid pulsing accent dot) for colour-blind / reduced-motion users. */
 .ds-247420 .ds-session-unread { width: 8px; height: 8px; border-radius: 50%; background: transparent; box-shadow: inset 0 0 0 2px var(--accent); display: inline-block; }
@@ -7523,8 +7564,8 @@
    paragraph and the .them tint hugged text flush. Restore reading rhythm + give
    the tinted assistant row inner breathing room so it reads as a card. */
 .ds-247420 .chat-msg-flat .chat-role { margin-bottom: var(--space-2); }
-.ds-247420 .chat-msg-flat .chat-md { line-height: 1.65; }
-.ds-247420 .chat-msg-flat .chat-md p { margin: 8px 0; }
+.ds-247420 .chat-msg-flat .chat-md { line-height: var(--lh-long); }
+.ds-247420 .chat-msg-flat .chat-md p { margin: var(--space-2) 0; }
 .ds-247420 .chat-msg-flat.them { padding-block: calc(var(--space-3) * var(--density, 1) + 2px); }
 /* Inline backtick code (renderInline tags <code class=chat-tick>) - was a dead
    class relying on the generic .chat-bubble code rule, so notices / non-bubble
@@ -7611,7 +7652,7 @@
 .ds-247420 .chat-code-lang {
   position: absolute; top: 0; left: 0; z-index: 2;
   padding: 2px var(--space-2); border-bottom-right-radius: var(--r-1);
-  font-family: var(--ff-mono); font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: .04em;
+  font-family: var(--ff-mono); font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: var(--tr-caps);
   color: var(--fg-3); background: color-mix(in oklab, var(--fg) 6%, transparent);
   pointer-events: none;
 }
@@ -8404,11 +8445,11 @@
 .ds-247420 .ds-ep-dialog-btn.kind-primary {
     background: var(--accent); color: var(--accent-fg); border-color: var(--accent);
 }
-.ds-247420 .ds-ep-dialog-btn.kind-primary:hover { filter: brightness(1.08); }
+.ds-247420 .ds-ep-dialog-btn.kind-primary:hover { filter: brightness(0.92); }
 .ds-247420 .ds-ep-dialog-btn.kind-danger {
     background: var(--danger); color: var(--on-accent); border-color: var(--danger);
 }
-.ds-247420 .ds-ep-dialog-btn.kind-danger:hover { filter: brightness(1.1); }
+.ds-247420 .ds-ep-dialog-btn.kind-danger:hover { filter: brightness(0.92); }
 
 /* ---------------------------------------------------------------
    Toast

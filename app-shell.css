@@ -504,7 +504,7 @@ body.canvas-host { background: transparent !important; }
 .ds-icon-btn-ghost { background: transparent; }
 .ds-icon-btn-ghost:hover { background: var(--fg); color: var(--bg); }
 .ds-icon-btn-primary { background: var(--accent); color: var(--accent-fg); }
-.ds-icon-btn-primary:hover { background: var(--fg); color: var(--bg); }
+.ds-icon-btn-primary:hover { background: var(--fg); color: var(--accent-ink); }
 /* warn = destructive ACTION tone; flame stays exclusively error STATUS. */
 .ds-icon-btn-danger { background: var(--warn); color: var(--on-color); }
 .ds-icon-btn-danger:hover { filter: brightness(0.92); }
@@ -523,19 +523,27 @@ body.canvas-host { background: transparent !important; }
   border-radius: var(--r-pill);
   background: var(--bg-3); color: var(--fg-2);
 }
-.ds-badge.tone-green   { background: var(--green-tint);  color: var(--green-deep); }
+/* Canonical tone names are tone-success / tone-error / tone-neutral. Every
+   other tone name grouped into the same rule below (tone-green/tone-live,
+   tone-flame, tone-wip, tone-sun/tone-yellow, tone-ok/tone-miss) is a
+   true-synonym legacy alias, kept working but sharing one declaration so the
+   tone-family colors can't drift apart across names. */
+.ds-badge.tone-green, .ds-badge.tone-live, .ds-badge.tone-success {
+  background: var(--green-tint); color: var(--green-deep);
+}
+.ds-badge.tone-flame, .ds-badge.tone-error {
+  background: var(--flame); color: var(--on-color);
+}
+.ds-badge.tone-wip, .ds-badge.tone-neutral {
+  background: var(--bg-3); color: var(--fg-2);
+}
 .ds-badge.tone-purple  { background: var(--purple-tint); color: var(--purple-deep); }
 .ds-badge.tone-mascot  { background: var(--mascot-tint); color: var(--ink); }
-.ds-badge.tone-sun     { background: var(--sun);         color: var(--ink); }
-.ds-badge.tone-flame   { background: var(--flame);       color: var(--on-color); }
-.ds-badge.tone-live    { background: var(--green-tint);  color: var(--green-deep); }
-.ds-badge.tone-wip     { background: var(--bg-3);        color: var(--fg-2); }
-.ds-badge.tone-error   { background: var(--flame);       color: var(--on-color); }
-.ds-badge.tone-success { background: var(--green-tint);  color: var(--green-deep); }
-.ds-badge.tone-neutral { background: var(--bg-3);        color: var(--fg-2); }
+.ds-badge.tone-sun, .ds-badge.tone-yellow {
+  background: var(--sun); color: var(--ink);
+}
 .ds-badge.tone-blue    { background: var(--accent-tint); color: var(--accent-ink); }
 .ds-badge.tone-orange  { background: color-mix(in oklab, var(--flame) 30%, var(--sun) 70%); color: var(--ink); }
-.ds-badge.tone-yellow  { background: var(--sun);         color: var(--ink); }
 
 .chip {
   display: inline-flex; align-items: center; gap: 6px;
@@ -546,19 +554,22 @@ body.canvas-host { background: transparent !important; }
   letter-spacing: var(--tr-caps); text-transform: uppercase;
   border-radius: var(--r-pill);
 }
-.chip.tone-green   { background: var(--green-tint);  color: var(--green-deep); }
+/* Same canonical/legacy-alias grouping as .ds-badge above. */
+.chip.tone-green, .chip.tone-live, .chip.tone-success, .chip.tone-ok {
+  background: var(--green-tint); color: var(--green-deep);
+}
+.chip.tone-flame, .chip.tone-error, .chip.tone-miss {
+  background: var(--flame); color: var(--on-color);
+}
+.chip.tone-wip, .chip.tone-neutral {
+  background: var(--bg-3); color: var(--fg-2);
+}
 .chip.tone-purple  { background: var(--purple-tint); color: var(--purple-deep); }
 .chip.tone-mascot  { background: var(--mascot-tint); color: var(--ink); }
-.chip.tone-sun     { background: var(--sun);         color: var(--ink); }
-.chip.tone-flame   { background: var(--flame);       color: var(--on-color); }
-.chip.tone-live    { background: var(--green-tint);  color: var(--green-deep); }
-.chip.tone-wip     { background: var(--bg-3);        color: var(--fg-2); }
-.chip.tone-error    { background: var(--flame);       color: var(--on-color); }
-.chip.tone-success  { background: var(--green-tint);  color: var(--green-deep); }
+.chip.tone-sun, .chip.tone-yellow {
+  background: var(--sun); color: var(--ink);
+}
 .chip.tone-disabled { background: var(--bg-3);        color: var(--fg-3); }
-.chip.tone-ok       { background: var(--green-tint);  color: var(--green-deep); }
-.chip.tone-miss     { background: var(--flame);       color: var(--on-color); }
-.chip.tone-neutral  { background: var(--bg-3);        color: var(--fg-2); }
 .chip.tone-blue     { background: var(--accent-tint); color: var(--accent-ink); }
 .chip.tone-orange   { background: color-mix(in oklab, var(--flame) 30%, var(--sun) 70%); color: var(--ink); }
 .chip.tone-yellow   { background: var(--sun);         color: var(--ink); }
