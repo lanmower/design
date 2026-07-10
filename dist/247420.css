@@ -4909,10 +4909,10 @@
   font-weight: 600;
 }
 .ds-247420 .ds-quickstart {
-  padding: var(--space-3, 16px) var(--space-4, 22px);
+  padding: var(--space-3, 16px) var(--space-4, 24px);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-1-75, 6px);
 }
 /* Table() scroll containment — wide tables scroll inside their own box,
    never the page body. */
@@ -4926,21 +4926,21 @@
 
 /* == appended: settings kit cleanup == */
 /* == appended: settings kit == */
-.ds-247420 .ds-settings-main { padding: 8px; }
+.ds-247420 .ds-settings-main { padding: var(--space-2, 8px); }
 .ds-247420 .ds-settings-body { padding: 14px 18px; }
-.ds-247420 .ds-settings-body-stack { display: flex; flex-direction: column; gap: 10px; }
-.ds-247420 .ds-field-block { margin: 10px 0; }
+.ds-247420 .ds-settings-body-stack { display: flex; flex-direction: column; gap: var(--space-2-5, 10px); }
+.ds-247420 .ds-field-block { margin: var(--space-2-5, 10px) 0; }
 .ds-247420 .ds-field-eyebrow {
   font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.06em;
   text-transform: uppercase; color: var(--panel-text-3);
 }
 .ds-247420 .ds-hint-sm { font-size: 12px; color: var(--panel-text-2); }
 .ds-247420 .ds-note-quiet { margin: 0; color: var(--panel-text-2); }
-.ds-247420 .ds-btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
-.ds-247420 .ds-btn-row-tight { gap: 6px; }
+.ds-247420 .ds-btn-row { display: flex; gap: var(--space-2, 8px); flex-wrap: wrap; }
+.ds-247420 .ds-btn-row-tight { gap: var(--space-1-75, 6px); }
 .ds-247420 .ds-key-input { flex: 1 1 160px; min-width: 0; font-family: var(--ff-mono); }
 .ds-247420 .ds-toggle-btn { min-width: 78px; }
-.ds-247420 .ds-toggle-label { margin-left: 8px; color: inherit; opacity: 0.7; }
+.ds-247420 .ds-toggle-label { margin-left: var(--space-2, 8px); color: inherit; opacity: 0.7; }
 .ds-247420 .ds-btn-warn { color: var(--warn); }
 /* Raw --mascot text measures 3.11:1 on paper (fails 4.5:1); --mascot-deep is
    the text-safe tone, same accent/accent-ink split used everywhere else. */
