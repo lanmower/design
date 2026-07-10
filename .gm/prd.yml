@@ -1684,13 +1684,16 @@
   witness: 'Fixed at commit ebda549: added .tabs[role=tablist]/a/a.active rules (pill-tab treatment, active state lime underline+tint) mirroring topbar nav styling. Confirmed via lint-tokens/lint-glyphs pass and rendered screenshot.'
 - id: audit-kits-batch-1
   subject: 'Audit + fix visual polish issues (dead space, accent clash, misaligned CTAs, unstyled elements, weak density) on ui_kits: homepage, project_page, docs, blog'
-  status: pending
+  status: completed
+  witness: Audited homepage(clean, prior session), project_page(fixed mobile nav clipping via mask-fade), docs(fixed mobile sidebar overlay -- missing app-side-shell/toggle/scrim markup), blog(clean, wide margins intentional narrow reading measure). Commit 0919c52. node scripts/build.mjs + node test.js pass.
 - id: audit-kits-batch-2
   subject: 'Audit + fix visual polish issues on ui_kits: aicat, file_browser, terminal, signin'
-  status: pending
+  status: completed
+  witness: Audited aicat(clean, pink is intentional persona color not literal), file_browser(fixed mobile filename/icon collision -- hid meta column at mobile width), terminal(clean), signin(fixed duplicate breadcrumb + unstyled checkbox accent-color). Commit 0919c52.
 - id: audit-kits-batch-3
   subject: 'Audit + fix visual polish issues on ui_kits: search, error_404, gallery'
-  status: pending
+  status: completed
+  witness: Audited search(fixed Topbar stringifying VElement search prop to [object Object]), error_404(clean), gallery(clean). Commit 0919c52. All 11 remaining kits now audited with real screenshots at 1440px/390px.
 - id: audit-previews-batch-1
   subject: 'Audit + fix visual polish issues on preview pages: dateline, dropzone, file-grid, file-row, file-toolbar, file-viewer, header, icons-unicode'
   status: pending

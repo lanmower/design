@@ -3480,6 +3480,57 @@
   color: var(--fg-3);
 }
 
+/* Long-form reading voice — quiet sans, generous line-height, capped to a
+   readable measure so a wide viewport never stretches body copy edge to
+   edge. Links use --accent-ink (never the bare fill, which is unreadable
+   as text). */
+.ds-247420 .prose {
+  max-width: var(--measure);
+  font-family: var(--ff-body); font-size: var(--fs-body); line-height: 1.6;
+  color: var(--fg);
+}
+.ds-247420 .prose p { margin: 0 0 var(--space-4) 0; }
+.ds-247420 .prose p:last-child { margin-bottom: 0; }
+.ds-247420 .prose a { color: var(--accent-ink); text-decoration-color: var(--rule-strong); text-underline-offset: 0.15em; }
+.ds-247420 .prose a:hover { text-decoration-color: currentColor; }
+
+/* Rubber-stamp motif — a bordered, uppercase, letter-spaced badge with a
+   slight built-in rotation (variants may override via inline transform for
+   a stronger tilt). Max 1 per page per the component's own caption. */
+.ds-247420 .stamp {
+  display: inline-block;
+  font-family: var(--ff-mono); font-size: var(--fs-xs); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: var(--space-1-5, var(--space-2)) var(--space-3);
+  border: 2px solid var(--fg);
+  border-radius: var(--r-hair);
+  color: var(--fg);
+  transform: rotate(-2deg);
+  white-space: nowrap;
+}
+.ds-247420 .stamp.ink { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.ds-247420 .stamp.acid { background: var(--accent); border-color: var(--accent-ink); color: var(--accent-ink); }
+.ds-247420 .stamp.purple { border-color: var(--purple-2); color: var(--purple-2); }
+.ds-247420 .stamp.mascot { border-color: var(--mascot); color: var(--mascot-deep); }
+
+/* Same rubber-stamp face, but a real interactive <button> — resets UA button
+   chrome so it isn't blue link text in a browser default box. */
+.ds-247420 .btn-stamp {
+  display: inline-block; cursor: pointer;
+  font-family: var(--ff-mono); font-size: var(--fs-xs); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: var(--space-1-5, var(--space-2)) var(--space-3);
+  border: 2px solid var(--fg);
+  border-radius: var(--r-hair);
+  background: transparent; color: var(--fg);
+  transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+}
+.ds-247420 .btn-stamp:hover { background: var(--panel-hover); }
+.ds-247420 .btn-stamp.acid { border-color: var(--accent-ink); color: var(--accent-ink); }
+.ds-247420 .btn-stamp.acid:hover { background: var(--accent-tint); }
+.ds-247420 .btn-stamp.purple { border-color: var(--purple-2); color: var(--purple-2); }
+.ds-247420 .btn-stamp.mascot { border-color: var(--mascot); color: var(--mascot-deep); }
+
 /* Structural hairlines — "no boxes, no cards, structure comes from rules."
    Three weights: .rule (default separator), .rule-double (major section
    break), .rule-dotted (optional/skippable). Applied to a bare <hr>, which
