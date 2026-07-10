@@ -474,6 +474,17 @@
 .ds-context .row .meta { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-2); }
 .ds-context .row .sub { font-size: var(--fs-xs); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-context-actions { display: flex; gap: var(--space-2); }
+/* Lighter fact groups for secondary context blocks (conversation/last turn/
+   recent files): a small caps label + Row list with no card chrome, so a
+   2-row fact doesn't compete visually with the primary bordered panel above
+   it. Separated from neighbors by a hairline rule, not a border box. */
+.ds-context-group { padding-top: var(--space-3); border-top: var(--bw-hair) solid var(--rule); }
+.ds-context-group-label {
+  font-size: var(--fs-tiny); font-weight: 600; color: var(--fg-3);
+  letter-spacing: var(--tr-caps); text-transform: uppercase;
+  padding: 0 0 var(--space-2);
+}
+.ds-context-group .row + .row { margin-top: 2px; }
 
 /* ============================================================================
    Cohesion sweep (gui-cohesion.js): one-product polish across surfaces.

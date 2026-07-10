@@ -208,8 +208,7 @@ body.canvas-host { background: transparent !important; }
   align-items: center; gap: var(--space-4);
   min-height: var(--app-topbar-h);
   padding: 10px var(--pad-x);
-  background: color-mix(in oklab, var(--bg) 88%, transparent);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  background: color-mix(in oklab, var(--bg) 97%, transparent);
 }
 
 /* Merged chrome: when AppShell gets both a topbar and a crumb it wraps them
@@ -222,8 +221,7 @@ body.canvas-host { background: transparent !important; }
   display: flex; flex-wrap: wrap; align-items: center;
   gap: var(--space-2) var(--space-4);
   padding: 8px var(--pad-x);
-  background: color-mix(in oklab, var(--bg) 88%, transparent);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  background: color-mix(in oklab, var(--bg) 97%, transparent);
 }
 .app-chrome > .app-topbar,
 .app-chrome > .app-crumb {
@@ -630,7 +628,7 @@ body.canvas-host { background: transparent !important; }
   border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
 }
 .panel.panel-inline { background: var(--bg-2); padding: var(--space-3) var(--space-3); }
-.panel.panel-wide   { background: transparent; box-shadow: none; }
+.panel.panel-wide   { background: transparent; box-shadow: none; border: none; }
 .panel-head {
   display: flex; align-items: baseline; justify-content: space-between;
   /* Shares the .panel-body 16px side padding so the caps label and the body
@@ -1512,15 +1510,15 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-file-row:active { transform: translateY(1px); }
 .ds-file-row.active { background: var(--accent-tint); border-color: var(--accent); }
 .ds-file-row[data-file-type="dir"]      { border-left-width: 3px; border-left-color: var(--accent); }
-.ds-file-row[data-file-type="image"]    { border-left-width: 3px; border-left-color: var(--mascot); }
-.ds-file-row[data-file-type="video"]    { border-left-width: 3px; border-left-color: var(--purple-2); }
-.ds-file-row[data-file-type="audio"]    { border-left-width: 3px; border-left-color: var(--sky); }
-.ds-file-row[data-file-type="code"]     { border-left-width: 3px; border-left-color: var(--green-2); }
-.ds-file-row[data-file-type="text"]     { border-left-width: 3px; border-left-color: var(--ink-3); }
-.ds-file-row[data-file-type="archive"]  { border-left-width: 3px; border-left-color: var(--flame); }
-.ds-file-row[data-file-type="document"] { border-left-width: 3px; border-left-color: var(--amber, var(--sun)); }
-.ds-file-row[data-file-type="symlink"]  { border-left-width: 3px; border-left-color: var(--purple); }
-.ds-file-row[data-file-type="other"]    { border-left-width: 3px; border-left-color: var(--fg-3); }
+.ds-file-row[data-file-type="image"],
+.ds-file-row[data-file-type="video"],
+.ds-file-row[data-file-type="audio"],
+.ds-file-row[data-file-type="code"],
+.ds-file-row[data-file-type="text"],
+.ds-file-row[data-file-type="archive"],
+.ds-file-row[data-file-type="document"],
+.ds-file-row[data-file-type="symlink"],
+.ds-file-row[data-file-type="other"]    { border-left-width: 3px; border-left-color: var(--rule); }
 
 /* Row internals — these are the classes FileRow actually renders. */
 .ds-file-row .title {
@@ -1967,7 +1965,6 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
            max(var(--space-3), env(safe-area-inset-bottom))
            max(var(--space-3), env(safe-area-inset-left));
   background: color-mix(in oklab, var(--ink) 55%, transparent);
-  backdrop-filter: blur(3px);
 }
 @media (prefers-reduced-motion: no-preference) {
   .ds-modal-backdrop { animation: ds-modal-fade var(--dur-base) var(--ease); }
@@ -2429,7 +2426,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 }
 .chat-msg:hover .chat-image,
 .chat-image:hover {
-  border-color: color-mix(in oklab, var(--accent) 35%, transparent);
+  border-color: var(--rule);
 }
 .chat-image img { display: block; width: 100%; height: auto; max-height: 360px; object-fit: cover; }
 .chat-image .cap,
@@ -2444,12 +2441,12 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   max-width: min(100%, 360px);
   transition: background var(--dur-snap, .15s) var(--ease, ease), border-color var(--dur-snap, .15s) var(--ease, ease);
 }
-.chat-file:hover { background: var(--bg-3); border-color: color-mix(in oklab, var(--accent) 40%, transparent); }
+.chat-file:hover { background: var(--bg-3); }
 .chat-file .glyph {
   font-size: 22px; width: 36px; height: 36px;
   display: inline-flex; align-items: center; justify-content: center;
-  background: color-mix(in oklab, var(--accent) 18%, transparent);
-  color: var(--accent-ink); border-radius: var(--r-0); flex-shrink: 0; font-family: var(--ff-mono);
+  background: var(--bg-3);
+  color: var(--fg-2); border-radius: var(--r-0); flex-shrink: 0; font-family: var(--ff-mono);
 }
 .chat-file > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .chat-file .name {
@@ -2470,7 +2467,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   border-radius: var(--r-1); overflow: hidden; max-width: min(100%, 480px);
   transition: box-shadow 0.12s ease, border-color 0.12s ease;
 }
-.chat-msg:hover .chat-pdf { border-color: color-mix(in oklab, var(--accent) 30%, transparent); }
+.chat-msg:hover .chat-pdf { border-color: var(--rule); }
 .chat-pdf-head {
   display: flex; align-items: center; gap: 10px; padding: 10px 14px;
   background: color-mix(in oklab, var(--fg) 5%, var(--bg-2));
@@ -2497,7 +2494,6 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .chat-msg:hover .chat-link,
 .chat-link:hover {
   background: var(--bg-3);
-  border-color: color-mix(in oklab, var(--accent) 40%, transparent);
 }
 .chat-link:not(:has(.thumb)):not(:has(img)) { grid-template-columns: 1fr; }
 .chat-link .thumb,
@@ -2530,7 +2526,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   transition: background var(--dur-snap, .12s) var(--ease, ease), border-color var(--dur-snap, .12s) var(--ease, ease), transform 0.12s ease;
   position: relative;
 }
-.chat-reactions .rxn:hover { background: var(--bg-3); border-color: color-mix(in oklab, var(--accent) 40%, transparent); transform: scale(1.06); }
+.chat-reactions .rxn:hover { background: var(--bg-3); transform: scale(1.06); }
 .chat-reactions .rxn.you {
   background: color-mix(in oklab, var(--accent) 18%, var(--bg-2));
   border-color: color-mix(in oklab, var(--accent) 55%, transparent);

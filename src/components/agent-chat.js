@@ -355,7 +355,7 @@ export function AgentChat(props = {}) {
     ? h('div', { class: 'agentchat-empty', role: 'status' },
         h('p', { class: 'agentchat-empty-title' }, selectedAgent ? 'Start a conversation with ' + name : 'Choose an agent to begin'),
         h('p', { class: 'agentchat-empty-sub' },
-          selectedAgent ? 'Type a message below. The agent can read files, run tools, and search.' : 'Pick an agent from the selector above, then send a message.'),
+          selectedAgent ? 'Type a message below to get started.' : 'Pick an agent from the selector above, then send a message.'),
         (suggestions && suggestions.length)
           ? h('div', { class: 'agentchat-empty-suggestions' },
               ...suggestions.map((s, i) => h('button', {

@@ -674,7 +674,7 @@ export function Chat({ title = 'chat', sub, messages = [], composer, header, sug
             messages.length === 0
                 ? h('div', { key: '_empty', class: 'chat-empty', role: 'status' },
                     h('p', { class: 'chat-empty-title' }, 'start a conversation'),
-                    h('p', { class: 'chat-empty-sub' }, sub || 'ask anything — i can search, read files, recall context, and call tools'),
+                    h('p', { class: 'chat-empty-sub' }, sub || 'Send a message to start the conversation'),
                     (suggestions && suggestions.length)
                         ? h('div', { class: 'chat-empty-suggestions' },
                             ...suggestions.map((s, i) => h('button', { key: 'sug' + i, type: 'button', class: 'chat-empty-suggestion',

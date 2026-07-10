@@ -83,14 +83,19 @@ export function ContextPane({ agent, model, cwd, toolCount = 0, usage, session, 
     // Conversation block: whole-session totals (turn count + accumulated cost)
     // between the context panel and the per-turn usage panel. All-zero totals
     // are noise, not context - hide the block until there is a conversation.
+    // Rendered as a lighter fact group (no card chrome) since it's 1-2 short
+    // facts, not enough weight to justify a full bordered Panel.
     if (hasSession && (Number(session.turns) > 0 || Number(session.cost) > 0)) {
         const sesRows = [];
         if (session.turns != null) sesRows.push(Row({ title: 'turns', meta: String(session.turns) }));
         if (session.cost != null) sesRows.push(Row({ title: 'total cost', meta: '$' + Number(session.cost).toFixed(4) }));
-        panels.push(Panel({ title: 'conversation', children: sesRows }));
+        panels.push(h('div', { class: 'ds-context-group' },
+            h('div', { class: 'ds-context-group-label' }, 'conversation'),
+            ...sesRows));
     }
     // Usage block: surface the last turn's token/cost/turn/duration so the
-    // result event is no longer silently dropped.
+    // result event is no longer silently dropped. Lighter fact group, not a
+    // full Panel - same reasoning as the conversation block above.
     if (hasUsage) {
         const tokRows = [];
         if (usage.inputTokens != null) tokRows.push(Row({ title: 'input', meta: fmtTok(usage.inputTokens) + ' tok' }));
@@ -99,10 +104,13 @@ export function ContextPane({ agent, model, cwd, toolCount = 0, usage, session, 
         if (usage.turns != null) tokRows.push(Row({ title: 'turns', meta: String(usage.turns) }));
         // One duration vocabulary kit-wide: shared fmtDuration (s -> m -> h).
         if (usage.durationMs != null) tokRows.push(Row({ title: 'duration', meta: fmtDuration(usage.durationMs) }));
-        panels.push(Panel({ title: 'last turn', children: tokRows }));
+        panels.push(h('div', { class: 'ds-context-group' },
+            h('div', { class: 'ds-context-group-label' }, 'last turn'),
+            ...tokRows));
     }
     // Recent files: files touched by tool calls this session, most-recent
-    // first, capped to 5 rows so the panel stays a glance not a log.
+    // first, capped to 5 rows so the panel stays a glance not a log. Lighter
+    // fact group, not a full Panel - same reasoning as above.
     if (Array.isArray(recentFiles) && recentFiles.length) {
         const fileRows = recentFiles.slice(0, 5).map((f) => Row({
             title: f.path.split(/[/\\]/).filter(Boolean).pop() || f.path,
@@ -110,7 +118,9 @@ export function ContextPane({ agent, model, cwd, toolCount = 0, usage, session, 
             meta: f.time || undefined,
             onClick: onOpenFile ? () => onOpenFile(f.path) : undefined,
         }));
-        panels.push(Panel({ title: 'recent files', children: fileRows }));
+        panels.push(h('div', { class: 'ds-context-group' },
+            h('div', { class: 'ds-context-group-label' }, 'recent files'),
+            ...fileRows));
     }
     // The cwd action lives on the working-dir row above; no floating footer button.
     return h('div', { class: 'ds-context' }, ...panels);

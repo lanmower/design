@@ -744,8 +744,7 @@
   align-items: center; gap: var(--space-4);
   min-height: var(--app-topbar-h);
   padding: 10px var(--pad-x);
-  background: color-mix(in oklab, var(--bg) 88%, transparent);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  background: color-mix(in oklab, var(--bg) 97%, transparent);
 }
 
 /* Merged chrome: when AppShell gets both a topbar and a crumb it wraps them
@@ -758,8 +757,7 @@
   display: flex; flex-wrap: wrap; align-items: center;
   gap: var(--space-2) var(--space-4);
   padding: 8px var(--pad-x);
-  background: color-mix(in oklab, var(--bg) 88%, transparent);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  background: color-mix(in oklab, var(--bg) 97%, transparent);
 }
 .ds-247420 .app-chrome > .app-topbar,
 .ds-247420 .app-chrome > .app-crumb {
@@ -1166,7 +1164,7 @@
   border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
 }
 .ds-247420 .panel.panel-inline { background: var(--bg-2); padding: var(--space-3) var(--space-3); }
-.ds-247420 .panel.panel-wide   { background: transparent; box-shadow: none; }
+.ds-247420 .panel.panel-wide   { background: transparent; box-shadow: none; border: none; }
 .ds-247420 .panel-head {
   display: flex; align-items: baseline; justify-content: space-between;
   /* Shares the .panel-body 16px side padding so the caps label and the body
@@ -2048,15 +2046,15 @@
 .ds-247420 .ds-file-row:active { transform: translateY(1px); }
 .ds-247420 .ds-file-row.active { background: var(--accent-tint); border-color: var(--accent); }
 .ds-247420 .ds-file-row[data-file-type="dir"]      { border-left-width: 3px; border-left-color: var(--accent); }
-.ds-247420 .ds-file-row[data-file-type="image"]    { border-left-width: 3px; border-left-color: var(--mascot); }
-.ds-247420 .ds-file-row[data-file-type="video"]    { border-left-width: 3px; border-left-color: var(--purple-2); }
-.ds-247420 .ds-file-row[data-file-type="audio"]    { border-left-width: 3px; border-left-color: var(--sky); }
-.ds-247420 .ds-file-row[data-file-type="code"]     { border-left-width: 3px; border-left-color: var(--green-2); }
-.ds-247420 .ds-file-row[data-file-type="text"]     { border-left-width: 3px; border-left-color: var(--ink-3); }
-.ds-247420 .ds-file-row[data-file-type="archive"]  { border-left-width: 3px; border-left-color: var(--flame); }
-.ds-247420 .ds-file-row[data-file-type="document"] { border-left-width: 3px; border-left-color: var(--amber, var(--sun)); }
-.ds-247420 .ds-file-row[data-file-type="symlink"]  { border-left-width: 3px; border-left-color: var(--purple); }
-.ds-247420 .ds-file-row[data-file-type="other"]    { border-left-width: 3px; border-left-color: var(--fg-3); }
+.ds-247420 .ds-file-row[data-file-type="image"],
+.ds-247420 .ds-file-row[data-file-type="video"],
+.ds-247420 .ds-file-row[data-file-type="audio"],
+.ds-247420 .ds-file-row[data-file-type="code"],
+.ds-247420 .ds-file-row[data-file-type="text"],
+.ds-247420 .ds-file-row[data-file-type="archive"],
+.ds-247420 .ds-file-row[data-file-type="document"],
+.ds-247420 .ds-file-row[data-file-type="symlink"],
+.ds-247420 .ds-file-row[data-file-type="other"]    { border-left-width: 3px; border-left-color: var(--rule); }
 
 /* Row internals — these are the classes FileRow actually renders. */
 .ds-247420 .ds-file-row .title {
@@ -2503,7 +2501,6 @@
            max(var(--space-3), env(safe-area-inset-bottom))
            max(var(--space-3), env(safe-area-inset-left));
   background: color-mix(in oklab, var(--ink) 55%, transparent);
-  backdrop-filter: blur(3px);
 }
 @media (prefers-reduced-motion: no-preference) {
   .ds-247420 .ds-modal-backdrop { animation: ds-modal-fade var(--dur-base) var(--ease); }
@@ -2965,7 +2962,7 @@
 }
 .ds-247420 .chat-msg:hover .chat-image,
 .ds-247420 .chat-image:hover {
-  border-color: color-mix(in oklab, var(--accent) 35%, transparent);
+  border-color: var(--rule);
 }
 .ds-247420 .chat-image img { display: block; width: 100%; height: auto; max-height: 360px; object-fit: cover; }
 .ds-247420 .chat-image .cap,
@@ -2980,12 +2977,12 @@
   max-width: min(100%, 360px);
   transition: background var(--dur-snap, .15s) var(--ease, ease), border-color var(--dur-snap, .15s) var(--ease, ease);
 }
-.ds-247420 .chat-file:hover { background: var(--bg-3); border-color: color-mix(in oklab, var(--accent) 40%, transparent); }
+.ds-247420 .chat-file:hover { background: var(--bg-3); }
 .ds-247420 .chat-file .glyph {
   font-size: 22px; width: 36px; height: 36px;
   display: inline-flex; align-items: center; justify-content: center;
-  background: color-mix(in oklab, var(--accent) 18%, transparent);
-  color: var(--accent-ink); border-radius: var(--r-0); flex-shrink: 0; font-family: var(--ff-mono);
+  background: var(--bg-3);
+  color: var(--fg-2); border-radius: var(--r-0); flex-shrink: 0; font-family: var(--ff-mono);
 }
 .ds-247420 .chat-file > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .ds-247420 .chat-file .name {
@@ -3006,7 +3003,7 @@
   border-radius: var(--r-1); overflow: hidden; max-width: min(100%, 480px);
   transition: box-shadow 0.12s ease, border-color 0.12s ease;
 }
-.ds-247420 .chat-msg:hover .chat-pdf { border-color: color-mix(in oklab, var(--accent) 30%, transparent); }
+.ds-247420 .chat-msg:hover .chat-pdf { border-color: var(--rule); }
 .ds-247420 .chat-pdf-head {
   display: flex; align-items: center; gap: 10px; padding: 10px 14px;
   background: color-mix(in oklab, var(--fg) 5%, var(--bg-2));
@@ -3033,7 +3030,6 @@
 .ds-247420 .chat-msg:hover .chat-link,
 .ds-247420 .chat-link:hover {
   background: var(--bg-3);
-  border-color: color-mix(in oklab, var(--accent) 40%, transparent);
 }
 .ds-247420 .chat-link:not(:has(.thumb)):not(:has(img)) { grid-template-columns: 1fr; }
 .ds-247420 .chat-link .thumb,
@@ -3066,7 +3062,7 @@
   transition: background var(--dur-snap, .12s) var(--ease, ease), border-color var(--dur-snap, .12s) var(--ease, ease), transform 0.12s ease;
   position: relative;
 }
-.ds-247420 .chat-reactions .rxn:hover { background: var(--bg-3); border-color: color-mix(in oklab, var(--accent) 40%, transparent); transform: scale(1.06); }
+.ds-247420 .chat-reactions .rxn:hover { background: var(--bg-3); transform: scale(1.06); }
 .ds-247420 .chat-reactions .rxn.you {
   background: color-mix(in oklab, var(--accent) 18%, var(--bg-2));
   border-color: color-mix(in oklab, var(--accent) 55%, transparent);
@@ -7204,6 +7200,17 @@
 .ds-247420 .ds-context .row .meta { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-2); }
 .ds-247420 .ds-context .row .sub { font-size: var(--fs-xs); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-247420 .ds-context-actions { display: flex; gap: var(--space-2); }
+/* Lighter fact groups for secondary context blocks (conversation/last turn/
+   recent files): a small caps label + Row list with no card chrome, so a
+   2-row fact doesn't compete visually with the primary bordered panel above
+   it. Separated from neighbors by a hairline rule, not a border box. */
+.ds-247420 .ds-context-group { padding-top: var(--space-3); border-top: var(--bw-hair) solid var(--rule); }
+.ds-247420 .ds-context-group-label {
+  font-size: var(--fs-tiny); font-weight: 600; color: var(--fg-3);
+  letter-spacing: var(--tr-caps); text-transform: uppercase;
+  padding: 0 0 var(--space-2);
+}
+.ds-247420 .ds-context-group .row + .row { margin-top: 2px; }
 
 /* ============================================================================
    Cohesion sweep (gui-cohesion.js): one-product polish across surfaces.
