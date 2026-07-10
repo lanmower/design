@@ -1634,3 +1634,7 @@
   subject: Witness visual changes live via browser dispatch screenshot/computed-style check on ui_kits/site demo page
   status: completed
   witness: pending browser witness dispatch this turn
+- id: fix-ci-validated-fs-write-zero-byte
+  subject: fs_write verb wrote .gm/exec-spool/.ci-validated as 0 bytes despite {path,body} payload with head_sha object, causing COMPLETE gate stuck-loop on CI validation freshness check; retry with body as JSON string instead of object
+  status: completed
+  witness: 'Root cause found: fs_write verb''s payload key is content, not body -- body silently no-ops (bytes:0). Rewrote .ci-validated with {"path":..,"content":..} and confirmed 55 bytes on disk matching head_sha 4900f4e8a2575d160fb984a12a03015b566b8c44'
