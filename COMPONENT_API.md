@@ -490,9 +490,30 @@ Kpi({ items = [] })
 ```js
 [
     [value, label],
+    [value, label, { delta: '+12.4%', tone: 'up' | 'down', spark: [8, 11, 9, 14, 16] }],
     ...
 ]
 ```
+
+The third element is optional and additive — a bare `[value, label]` tuple is unchanged. When present, `delta` renders a toned trend pill (`--success`/`--danger`) with an up/down arrow, and `spark` renders an inline `Sparkline`.
+
+### Sparkline
+Minimal inline SVG trend line — no chart library, token-stroke only.
+
+```js
+Sparkline({ values = [], width = 72, height = 24, tone })
+```
+
+`tone: 'up' | 'down'` colors the stroke via `--success`/`--danger` (default up). Returns `null` for an empty `values` array. Decorative (`aria-hidden`) — pair with adjacent text for the actual value.
+
+### BarChart
+Horizontal token-only progress-bar breakdown — category/channel comparisons.
+
+```js
+BarChart({ items = [{ label, value, display }], emptyText = 'no data yet' })
+```
+
+Bars scale relative to the largest `value` in the set; `display` overrides the trailing numeric label (defaults to `String(value)`). Fill width is set via a `--bar-pct` custom-property write (never a raw inline `width:`), keeping it clear of the inline-styles lint gate.
 
 ### Table
 Data table with optional row click handler.

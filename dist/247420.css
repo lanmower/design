@@ -1478,6 +1478,41 @@
   font-weight: 600; margin-top: 8px;
   letter-spacing: var(--tr-caps); text-transform: uppercase;
 }
+.ds-247420 .kpi-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: var(--space-2);
+}
+.ds-247420 .kpi-delta {
+  display: inline-flex; align-items: center; gap: var(--space-hair);
+  font-size: var(--fs-xs); font-weight: 600;
+}
+.ds-247420 .kpi-delta-up { color: var(--success); }
+.ds-247420 .kpi-delta-down { color: var(--danger); }
+.ds-247420 .ds-sparkline path { stroke: currentColor; }
+.ds-247420 .ds-sparkline-up { color: var(--success); }
+.ds-247420 .ds-sparkline-down { color: var(--danger); }
+
+/* ============================================================
+   BarChart
+   ============================================================ */
+.ds-247420 .ds-barchart { display: flex; flex-direction: column; gap: var(--space-2); }
+.ds-247420 .ds-barchart-row {
+  display: grid; grid-template-columns: minmax(90px, 25%) 1fr auto;
+  align-items: center; gap: var(--space-2);
+}
+.ds-247420 .ds-barchart-label { font-size: var(--fs-sm); color: var(--fg-2); }
+.ds-247420 .ds-barchart-track {
+  height: var(--space-2); border-radius: var(--r-pill);
+  background: var(--bg-3); overflow: hidden;
+}
+.ds-247420 .ds-barchart-fill {
+  height: 100%; width: var(--bar-pct, 0%);
+  background: var(--accent); border-radius: var(--r-pill);
+}
+.ds-247420 .ds-barchart-value {
+  font-size: var(--fs-xs); font-weight: 600; color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+}
 
 /* ============================================================
    Empty state
