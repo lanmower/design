@@ -25,10 +25,10 @@ sidebar:
     - { label: "drafts",     href: "#decks",  count: 6 }
   labels_group: "labels"
   labels:
-    - { label: "ui kits",  href: "#kits",     count: 4,  color: "var(--panel-accent)" }
-    - { label: "decks",    href: "#decks",    count: 1,  color: "var(--mascot,#E84B8A)" }
-    - { label: "previews", href: "#previews", count: 20, color: "var(--purple,#420247)" }
-    - { label: "docs",     href: "#docs",     count: 3,  color: "var(--panel-text-3)" }
+    - { label: "ui kits",  href: "#kits",     count: 4 }
+    - { label: "decks",    href: "#decks",    count: 1 }
+    - { label: "previews", href: "#previews", count: 20 }
+    - { label: "docs",     href: "#docs",     count: 3 }
   more_group: "more"
   more:
     - { label: "readme",  href: "https://github.com/AnEntrypoint/design/blob/main/README.md" }
