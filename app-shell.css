@@ -1209,8 +1209,12 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
     font-size: var(--fs-xs);
   }
   .ds-file-open { gap: 10px; }
-  /* On mobile, fold meta under the title and keep actions inline. */
-  .ds-file-row .ds-file-meta { font-size: var(--fs-micro); }
+  /* At mobile row widths, a fixed-size meta column (date/size) plus the
+     always-visible action buttons leave the flexible title only a few px —
+     not enough for even one legible character before the two collide. Drop
+     the metadata column here; the title + actions still fully identify and
+     operate on the row, and meta stays available in the file viewer. */
+  .ds-file-row .ds-file-meta { display: none; }
   .ds-file-row .ds-file-actions { opacity: 1; }
   /* H4: floor finger-sized controls so file actions/sort/filter/breadcrumb are
      reachable by touch (cohesion sweep). */
@@ -2967,6 +2971,23 @@ input[type="url"]::placeholder,
 textarea::placeholder {
   color: var(--fg-3);
 }
+
+/* Rubber-stamp motif — a bordered, uppercase, letter-spaced badge with a
+   slight built-in rotation (variants may override via inline transform for
+   a stronger tilt). Max 1 per page per the component's own caption. */
+.stamp {
+  display: inline-block;
+  font-family: var(--ff-mono); font-size: var(--fs-xs); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: var(--space-1-5, var(--space-2)) var(--space-3);
+  border: 2px solid var(--fg);
+  border-radius: var(--r-hair);
+  color: var(--fg);
+  transform: rotate(-2deg);
+  white-space: nowrap;
+}
+.stamp.ink { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.stamp.acid { background: var(--accent); border-color: var(--accent-ink); color: var(--accent-ink); }
 
 /* Structural hairlines — "no boxes, no cards, structure comes from rules."
    Three weights: .rule (default separator), .rule-double (major section

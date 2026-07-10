@@ -1725,8 +1725,12 @@
     font-size: var(--fs-xs);
   }
   .ds-247420 .ds-file-open { gap: 10px; }
-  /* On mobile, fold meta under the title and keep actions inline. */
-  .ds-247420 .ds-file-row .ds-file-meta { font-size: var(--fs-micro); }
+  /* At mobile row widths, a fixed-size meta column (date/size) plus the
+     always-visible action buttons leave the flexible title only a few px —
+     not enough for even one legible character before the two collide. Drop
+     the metadata column here; the title + actions still fully identify and
+     operate on the row, and meta stays available in the file viewer. */
+  .ds-247420 .ds-file-row .ds-file-meta { display: none; }
   .ds-247420 .ds-file-row .ds-file-actions { opacity: 1; }
   /* H4: floor finger-sized controls so file actions/sort/filter/breadcrumb are
      reachable by touch (cohesion sweep). */
@@ -3474,6 +3478,35 @@
 .ds-247420 input[type="url"]::placeholder,
 .ds-247420 textarea::placeholder {
   color: var(--fg-3);
+}
+
+/* Structural hairlines — "no boxes, no cards, structure comes from rules."
+   Three weights: .rule (default separator), .rule-double (major section
+   break), .rule-dotted (optional/skippable). Applied to a bare <hr>, which
+   otherwise falls back to the browser's default inset groove line. */
+.ds-247420 hr.rule, .ds-247420 hr.rule-double, .ds-247420 hr.rule-dotted {
+  width: 100%; height: 0; border: 0;
+}
+.ds-247420 hr.rule { border-top: 1px solid var(--rule); }
+.ds-247420 hr.rule-double { border-top: 3px double var(--rule-strong); }
+.ds-247420 hr.rule-dotted { border-top: 1px dotted var(--rule-strong); }
+
+/* Hairline-only text input — no box, no fill. A single bottom rule that
+   thickens to 2px on focus, matching the row/rule zero-border aesthetic
+   instead of a browser-default boxed field. */
+.ds-247420 .input {
+  display: block; width: 100%; box-sizing: border-box;
+  border: 0; border-bottom: 1px solid var(--rule-strong);
+  border-radius: var(--r-0);
+  background: transparent;
+  padding: var(--space-2) var(--space-1);
+  font: inherit; color: var(--fg);
+}
+.ds-247420 .input::placeholder { color: var(--fg-3); }
+.ds-247420 .input:focus-visible {
+  outline: none;
+  border-bottom-width: 2px;
+  border-bottom-color: var(--accent-ink);
 }
 
 /* -- Field controls: themed base for TextField / Select / SearchInput --
