@@ -1762,7 +1762,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 /* Stage — the scrollable content column. */
 .ds-file-stage {
   display: flex; flex-direction: column; gap: var(--space-3);
-  width: 100%; max-width: 920px; margin: 0 auto;
+  width: 100%; max-width: var(--measure-wide); margin: 0 auto;
   padding: var(--space-2) var(--space-3) var(--space-4);
 }
 /* When the stage is the app-main child, the shell already supplies top
@@ -1771,7 +1771,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .app-main .ds-file-stage { padding-top: 0; }
 
 /* Full-width files stack: the stage's space-3 vertical beat without its
-   920px cap/auto-margins, so the roots / toolbar / bulkbar / uploads / grid
+   --measure-wide cap/auto-margins, so the roots / toolbar / bulkbar / uploads / grid
    bands keep one consistent rhythm instead of touching edge-to-edge. Carries
    the same side/bottom padding as .ds-file-stage (top collapses the same way
    when mounted directly under .app-main, which already supplies top padding)
