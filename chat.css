@@ -534,6 +534,12 @@
   font-family: var(--ff-mono); font-size: var(--fs-tiny);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+/* Below ~480px a single nowrap line silently truncates most of the agent /
+   model / cwd context (no way to recover it - no title attr on the container,
+   only on individual bits). Let it wrap instead of clipping. */
+@media (max-width: 480px) {
+  .chat-composer-context { white-space: normal; overflow: visible; text-overflow: clip; }
+}
 button.chat-composer-context { cursor: pointer; }
 button.chat-composer-context:hover { color: var(--fg-2); }
 button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }

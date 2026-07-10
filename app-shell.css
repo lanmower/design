@@ -1684,6 +1684,15 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   font-size: var(--fs-sm); color: var(--fg-3);
 }
 .ds-page-header-dense .ds-page-header-right { flex: 0 0 auto; margin-left: auto; }
+/* Below ~480px the single-line ellipsis truncates the majority of the lede
+   text with no way to recover it (no title attr, no expand) - let the row
+   wrap and the lede break onto its own line instead of clipping. */
+@media (max-width: 480px) {
+  .ds-page-header-dense-row { flex-wrap: wrap; }
+  .ds-page-header-dense-lede {
+    flex-basis: 100%; overflow: visible; text-overflow: clip; white-space: normal;
+  }
+}
 .ds-file-toolbar-left,
 .ds-file-toolbar-right {
   display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;
