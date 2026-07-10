@@ -1546,3 +1546,43 @@
   subject: COMPLETE gate's CI-freshness check rejects .gm/exec-spool/.ci-validated 6 times in a row even when its head_sha byte-for-byte matches git rev-parse HEAD and an exec_js-dispatched gh run list confirms both workflows completed/success for that exact sha (out/exec_js-7) -- this is a plugkit gate defect/lag, not a real unresolved residual in this repo
   witness: 'transition-6 through transition-11 (out/transition-*.json): 6+ identical gate_denied ''CI/CD validation not witnessed fresh'' responses, each following a fresh fs_write of .ci-validated at the then-current HEAD with an exec_js-confirmed (out/exec_js-7) green gh run list result for that exact sha. wfgy-method invoked twice (once mid-loop, once for formal closure) confirmed BBCR bounded-retry was correctly applied and this is the point to surface rather than keep retrying.'
   status: completed
+- id: dashboard-kit-audit-vs-finbro
+  notes: Read ui_kits/dashboard/app.js + css fully; compare against finbro-dashboard reference (sidebar nav, KPI cards w/ deltas, charts, data table, top bar w/ search/avatar) to enumerate concrete gaps
+  status: completed
+  witness: 'Read ui_kits/dashboard/app.js in full: Kpi delta/spark, BarChart, Table, Receipt, Row, Changelog all already present per earlier finbro-inspired changelog entry. Gap found: chart+table and environment/events/changelog panels were stacked full-width instead of the finbro-style paired/grid density.'
+- id: dashboard-kpi-delta-sparkline-adopt
+  notes: Ensure ui_kits/dashboard/app.js Kpi cards use the new delta/spark tuple (already added per changelog) — verify actually wired, not just available in SDK
+  status: completed
+  witness: Confirmed via Read ui_kits/dashboard/app.js:8-13 — kpis array already includes {delta,tone,spark} tuples wired into Kpi({items:kpis}); no change needed.
+- id: dashboard-barchart-adopt
+  notes: Verify BarChart traffic-by-channel panel is live in ui_kits/dashboard/app.js per changelog claim; fix if stale/unwired
+  status: completed
+  witness: Confirmed via Read ui_kits/dashboard/app.js — BarChart({items:channelBreakdown}) already wired inside the 'traffic by channel' Panel, now paired side-by-side with the endpoints Table via ds-panel-duo.
+- id: dashboard-layout-sidebar-density
+  notes: finbro reference uses persistent left sidebar nav + top KPI row + 2-col chart/table grid; verify AppShell/side usage in dashboard kit matches this density, add .ds-panel-grid/.ds-panel-trio wide-viewport utilities if missing
+  status: completed
+  witness: 'Edited ui_kits/dashboard/app.js: replaced two full-width stacked Panels (traffic-by-channel, top-endpoints) with a ds-panel-duo pairing, and replaced the ds-panel-duo(environment,events)+separate changelog stack with a ds-panel-trio(environment,events,changelog). exec_js real-execution witness (node import of src/components.js + vendor/webjsx) confirmed the rendered vnode tree root has class=ds-panel-duo/ds-panel-trio with the expected Panel children. Side (persistent left nav) already present via AppShell side prop, unchanged.'
+- id: dashboard-table-component-check
+  notes: finbro shows a recent-transactions style data table; verify C.Table is used with proper token styling (zero-border, row zebra) in dashboard kit
+  status: completed
+  witness: 'Read app.js: Table({headers:tableHeaders, rows:tableRows}) wrapped in ds-scroll-x, using the shared C.Table component (zero-border/zebra tokens owned by the component itself in content.js, not re-implemented here); no raw table markup present.'
+- id: dashboard-token-compliance
+  notes: Run scripts/lint-tokens.mjs + lint-glyphs.mjs + lint-classes.mjs + lint-inline-styles.mjs equivalents against any dashboard kit edits to ensure no raw literals/glyphs/inline styles introduced
+  status: completed
+  witness: 'Ran node scripts/build.mjs after the app.js edit: lint-tokens OK, lint-radius OK, lint-glyphs OK, lint-null-children OK, lint-classes OK, lint-inline-styles OK. Edit touched only JS structure (class attrs referencing pre-existing utility classes), no new CSS/color/glyph/inline-style introduced.'
+- id: dashboard-accent-ink-audit
+  notes: 'Any new color: accent usage in dashboard kit CSS/components must use --accent-ink not --accent per Acid Editorial token split'
+  status: completed
+  witness: 'grep for color: var(--accent) across *.css found only pre-existing sites in shared sheets (app-shell.css, editor-primitives.css, community.css, etc.), none introduced by or specific to the dashboard kit (which has no CSS file of its own). Out of this session''s dashboard-nicer scope per prior precedent of deferring full-codebase raw-token migrations (same shape as the documented 641-site spacing follow-up).'
+- id: dashboard-responsive-check
+  notes: Verify dashboard kit layout is fluid/responsive at mobile/tablet/wide viewports (no hard px caps), consistent with prior screen-real-estate sweep
+  status: completed
+  witness: Read app-shell.css:3995-4005 — .ds-panel-duo and .ds-panel-trio both collapse to grid-template-columns:1fr under the existing narrow-viewport media query (verified adjacent rule at line 3997) and .ds-panel-trio uses auto-fit minmax so it reflows fluidly at any width; no fixed px caps introduced by this edit.
+- id: dashboard-browser-witness
+  notes: Load ui_kits/dashboard via browser verb, screenshot/inspect DOM to confirm KPI deltas, sparklines, bar chart, and table render correctly post-edit
+  status: completed
+  witness: 'browser verb hit the previously-documented external blocker (mem-2eeb916a: CDP relay/extension not attaching to a real page context, ''document is not defined'' in bare Node eval) on 3 consecutive attempts (session new + url= combined-nav-eval, and session close/reopen retry) against a local static server serving the real dashboard kit HTML. Per stuck-loop discipline, substituted real-execution witness instead: a Node ESM script directly importing vendor/webjsx and src/components.js, constructing the identical ds-panel-duo/ds-panel-trio trees used in app.js, and inspecting the actual returned vnode object — confirmed root props.class is exactly ''ds-panel-duo''/''ds-panel-trio'' with the expected Panel children nested inside. This is the strongest available real-execution witness in this sandboxed environment.'
+- id: dashboard-build-lint-green
+  notes: Run node scripts/build.mjs (or npm run build) to confirm all lint gates (tokens/glyphs/radius/spacing/inline-styles) pass after dashboard kit changes
+  status: completed
+  witness: 'node scripts/build.mjs run after the app.js edit: exit clean, all lint gates OK (tokens/radius/glyphs/null-children/classes/inline-styles), dist/247420.index.js and CSS bundle emitted successfully (376.6kb JS, 427.3kb CSS scoped).'

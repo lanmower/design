@@ -74,15 +74,17 @@ function App() {
                 Heading({ level: 1, children: 'dashboard' }),
                 Lede({ children: 'kpis, tables, receipts, changelog — every content primitive in one operations surface.' }),
                 Panel({ title: 'live metrics', count: kpis.length, class: 'ds-panel-gap', children: Kpi({ items: kpis }) }),
-                Panel({ title: 'traffic by channel', count: channelBreakdown.length, class: 'ds-panel-gap', children: BarChart({ items: channelBreakdown }) }),
-                Panel({ title: 'top endpoints', count: tableRows.length, class: 'ds-panel-gap', children: h('div', { class: 'ds-scroll-x' }, Table({ headers: tableHeaders, rows: tableRows })) }),
                 h('div', { class: 'ds-panel-duo' },
+                    Panel({ title: 'traffic by channel', count: channelBreakdown.length, children: BarChart({ items: channelBreakdown }) }),
+                    Panel({ title: 'top endpoints', count: tableRows.length, children: h('div', { class: 'ds-scroll-x' }, Table({ headers: tableHeaders, rows: tableRows })) })
+                ),
+                h('div', { class: 'ds-panel-trio' },
                     Panel({ title: 'environment', children: Receipt({ rows: receipt }) }),
                     Panel({ title: 'recent events', count: events.length, children: events.length
                         ? events.map((e, i) => Row({ key: 'ev' + i, code: e.code, title: e.title, sub: e.sub, meta: e.meta }))
-                        : h('div', { class: 'empty' }, 'no events yet') })
+                        : h('div', { class: 'empty' }, 'no events yet') }),
+                    Panel({ title: 'changelog', count: changelog.length, children: Changelog({ entries: changelog }) })
                 ),
-                Panel({ title: 'changelog', count: changelog.length, class: 'ds-panel-gap', children: Changelog({ entries: changelog }) }),
                 Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
                     h('p', {}, '· ', Chip({ tone: 'accent', children: 'Kpi' }), ' for headline counters with trend delta + sparkline.'),
                     h('p', {}, '· ', Chip({ tone: 'accent', children: 'BarChart' }), ' for a category breakdown, ', Chip({ tone: 'accent', children: 'Table' }), ' for tabular metrics, ', Chip({ tone: 'accent', children: 'Row' }), ' for event lists.'),
