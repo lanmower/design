@@ -2084,8 +2084,12 @@
 .ds-247420 .ds-file-cell.is-locked { opacity: 0.6; }
 .ds-247420 .ds-file-row.is-locked { opacity: 0.6; }
 .ds-247420 .ds-file-row.is-restricted .title { color: var(--fg-2); }
+/* A fourth, deliberately bordered/mono tag variant for file-permission tags
+   specifically (distinct from .ds-badge for numeric counts and .chip for
+   status/label words) - is-noaccess reuses the shared --flame tone token
+   so 'no access' reads the same red as chip.tone-error/miss elsewhere. */
 .ds-247420 .ds-file-perm-tag { font-family: var(--ff-mono); font-size: var(--fs-micro); color: var(--fg-3); padding: 1px 6px; border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1); white-space: nowrap; }
-.ds-247420 .ds-file-perm-tag.is-noaccess { color: var(--flame); border-color: color-mix(in srgb, var(--flame) 40%, transparent); }
+.ds-247420 .ds-file-perm-tag.is-noaccess { color: var(--flame); border-color: var(--flame); }
 .ds-247420 .ds-file-cell-open {
   display: flex; flex-direction: column; align-items: stretch; gap: var(--space-1);
   width: 100%; padding: var(--space-1); margin: 0;

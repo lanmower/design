@@ -47,7 +47,7 @@ export function FileIcon({ type = 'other' } = {}) {
 const FILE_ROW_ACTIONS = ['download', 'rename', 'move', 'delete'];
 
 export function FileRow({ name, type = 'other', size, modified, code, onOpen, onAction, active, key, permissions, locked,
-                          actions = FILE_ROW_ACTIONS, busy = false, selectable = false, marked = false, onMark } = {}) {
+                          actions = FILE_ROW_ACTIONS, busy = false, selectable = false, selected = false, onToggleSelect } = {}) {
     // permissions: ['read','write'] | ['read'] | 'EACCES'. A no-access entry can
     // be listed (the dir stat saw it) but not opened — show an ASCII tag and
     // disable the open button so the row reads honestly instead of silently
@@ -95,12 +95,12 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
     const checkCtl = selectable ? h('button', {
         key: 'mark',
         type: 'button',
-        class: 'ds-file-check' + (marked ? ' is-marked' : ''),
+        class: 'ds-file-check' + (selected ? ' is-marked' : ''),
         role: 'checkbox',
-        'aria-checked': marked ? 'true' : 'false',
-        'aria-label': (marked ? 'unselect ' : 'select ') + name,
+        'aria-checked': selected ? 'true' : 'false',
+        'aria-label': (selected ? 'unselect ' : 'select ') + name,
         disabled: (noAccess || busy) ? true : null,
-        onclick: onMark ? (e) => onMark({ range: !!e.shiftKey }) : null,
+        onclick: onToggleSelect ? (e) => onToggleSelect({ range: !!e.shiftKey }) : null,
     }, h('span', { class: 'ds-check-box', 'aria-hidden': 'true' })) : null;
     // A role=button row containing real <button> action controls is invalid
     // HTML (interactive nesting). Instead the row is a plain container and the
@@ -133,7 +133,7 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
         key,
         class: 'ds-file-row row' + (active ? ' active' : '') + (noAccess ? ' is-locked' : '')
             + (readOnly ? ' is-restricted' : '')
-            + (marked ? ' is-marked' : '') + (selectable ? ' is-selectable' : ''),
+            + (selected ? ' is-marked' : '') + (selectable ? ' is-selectable' : ''),
         'data-file-type': type,
         'aria-busy': busy ? 'true' : null,
     }, ...rowKids);
@@ -312,8 +312,8 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
         ...visible.map((f, i) => isThumb
             ? FileCell({
                 key: f.path || f.name + i, f,
-                selectable, marked: selSet.has(entryKeyOf(f)),
-                onMark: onMark ? (opts) => onMark(f, opts) : null,
+                selectable, selected: selSet.has(entryKeyOf(f)),
+                onToggleSelect: onMark ? (opts) => onMark(f, opts) : null,
                 onOpen,
                 thumb: (thumbUrl && f.type === 'image') ? thumbUrl(f) : null,
             })
@@ -323,8 +323,8 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
                 permissions: f.permissions, locked: f.locked,
                 actions: actions != null ? actions : undefined,
                 busy: busy != null ? !!busy : !!f.busy,
-                selectable, marked: selSet.has(entryKeyOf(f)),
-                onMark: onMark ? (opts) => onMark(f, opts) : null,
+                selectable, selected: selSet.has(entryKeyOf(f)),
+                onToggleSelect: onMark ? (opts) => onMark(f, opts) : null,
                 onOpen: onOpen ? () => onOpen(f) : null,
                 onAction: onAction ? (act) => onAction(act, f) : null
             }))
@@ -368,7 +368,7 @@ function rovingRadio(e, idx, items, onSelect) {
 // FileCell — the thumbnail-density tile. Image entries show a real (lazy)
 // thumbnail through the host's confined thumbUrl; everything else keeps its
 // type icon. Same open/mark semantics as FileRow, same no-nesting rule.
-function FileCell({ key, f = {}, selectable = false, marked = false, onMark, onOpen, thumb } = {}) {
+function FileCell({ key, f = {}, selectable = false, selected = false, onToggleSelect, onOpen, thumb } = {}) {
     const noAccess = f.locked || f.permissions === 'EACCES'
         || (Array.isArray(f.permissions) && f.permissions.length === 0);
     const canOpen = onOpen && !noAccess;
@@ -376,11 +376,11 @@ function FileCell({ key, f = {}, selectable = false, marked = false, onMark, onO
     const kids = [
         selectable ? h('button', {
             key: 'mark', type: 'button',
-            class: 'ds-file-check ds-file-cell-check' + (marked ? ' is-marked' : ''),
-            role: 'checkbox', 'aria-checked': marked ? 'true' : 'false',
-            'aria-label': (marked ? 'unselect ' : 'select ') + f.name,
+            class: 'ds-file-check ds-file-cell-check' + (selected ? ' is-marked' : ''),
+            role: 'checkbox', 'aria-checked': selected ? 'true' : 'false',
+            'aria-label': (selected ? 'unselect ' : 'select ') + f.name,
             disabled: noAccess ? true : null,
-            onclick: onMark ? (e) => onMark({ range: !!e.shiftKey }) : null,
+            onclick: onToggleSelect ? (e) => onToggleSelect({ range: !!e.shiftKey }) : null,
         }, h('span', { class: 'ds-check-box', 'aria-hidden': 'true' })) : null,
         h('button', {
             key: 'open', type: 'button', class: 'ds-file-cell-open',
@@ -397,7 +397,7 @@ function FileCell({ key, f = {}, selectable = false, marked = false, onMark, onO
     ].filter(Boolean);
     return h('div', {
         key,
-        class: 'ds-file-cell' + (marked ? ' is-marked' : '') + (f.active ? ' active' : '') + (noAccess ? ' is-locked' : ''),
+        class: 'ds-file-cell' + (selected ? ' is-marked' : '') + (f.active ? ' active' : '') + (noAccess ? ' is-locked' : ''),
         'data-file-type': f.type,
     }, ...kids);
 }
