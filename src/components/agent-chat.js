@@ -63,7 +63,7 @@ function scrollThreadToBottom(btn) {
 
 // The agent picker: agent-then-model, not a flat model list. Unavailable agents
 // are disabled (unless installable via npx). Ordering is the host's concern.
-function AgentControls({ agents, selectedAgent, models, selectedModel, busy, status, modelsLoading,
+function AgentControls({ agents, selectedAgent, models, selectedModel, busy, status, modelsLoading, agentsLoading,
                          onSelectAgent, onSelectModel, onNewChat, onStop, exportActions }) {
   const agentOptions = (agents || []).map((a) => ({
     value: a.id,
@@ -72,11 +72,16 @@ function AgentControls({ agents, selectedAgent, models, selectedModel, busy, sta
   }));
   const showModels = (models || []).length > 0;
   return h('div', { class: 'agentchat-controls' },
-    Select({
-      key: 'agentsel', value: selectedAgent, placeholder: '— agent —',
-      title: 'Select agent', options: agentOptions,
-      onChange: (v) => onSelectAgent && onSelectAgent(v),
-    }),
+    // While agents load on first boot, show a disabled "loading…" placeholder
+    // instead of an empty options list, which is indistinguishable from "this
+    // app has no agents configured" (mirrors the models-loading branch below).
+    (agentsLoading && !agentOptions.length)
+      ? Select({ key: 'agentsel', value: '', placeholder: 'loading agents…', title: 'Loading agents', disabled: true, options: [] })
+      : Select({
+          key: 'agentsel', value: selectedAgent, placeholder: '— agent —',
+          title: 'Select agent', options: agentOptions,
+          onChange: (v) => onSelectAgent && onSelectAgent(v),
+        }),
     // While models load for a freshly-picked agent, show a disabled "loading…"
     // placeholder so the picker doesn't vanish then reappear (a layout flash).
     showModels
@@ -143,7 +148,7 @@ function CwdBar({ cwd, editing, draft, onEdit, onSave, onCancel, onClear, onDraf
 //   onCwdEdit/onCwdSave/onCwdCancel/onCwdClear/onCwdDraft
 export function AgentChat(props = {}) {
   const {
-    agents = [], selectedAgent = '', models = [], selectedModel = '', modelsLoading = false,
+    agents = [], selectedAgent = '', models = [], selectedModel = '', modelsLoading = false, agentsLoading = false,
     messages = [], busy = false, draft = '', status, banners = [],
     cwd = '', cwdEditing = false, cwdDraft, cwdError, cwdChecking = false,
     agentName, placeholder,
@@ -389,7 +394,7 @@ export function AgentChat(props = {}) {
     : null;
 
   return h('div', { class: 'agentchat' },
-    AgentControls({ agents, selectedAgent, models, selectedModel, busy, status, modelsLoading,
+    AgentControls({ agents, selectedAgent, models, selectedModel, busy, status, modelsLoading, agentsLoading,
                     onSelectAgent, onSelectModel, onNewChat, onStop, exportActions }),
     CwdBar({ cwd, editing: cwdEditing, draft: cwdDraft, error: cwdError, checking: cwdChecking,
              onEdit: onCwdEdit, onSave: onCwdSave, onCancel: onCwdCancel, onClear: onCwdClear, onDraft: onCwdDraft }),
