@@ -1144,14 +1144,6 @@
   transition: box-shadow var(--dur-base) var(--ease-spring), border-color var(--dur-snap) var(--ease),
     transform var(--dur-base) var(--ease-spring);
 }
-/* Vercel-style card lift: any panel sitting inside a density grid (trio/grid)
-   gets a restrained hover escalation — the standalone/full-width panel stays
-   flat so page chrome doesn't jitter on scroll-adjacent hover. */
-.ds-247420 .ds-panel-trio > .panel:hover, .ds-247420 .ds-panel-grid > .panel:hover {
-  box-shadow: var(--shadow-2);
-  border-color: var(--rule-strong);
-  transform: translateY(-2px);
-}
 /* Editorial accent spine — an opt-in printed-ink rule down the left edge that
    reads as a magazine pull-quote bar, not a glow card. */
 .ds-247420 .panel.panel-spine {
@@ -1625,8 +1617,9 @@
 }
 .ds-247420 .ds-barchart-fill {
   height: 100%; width: var(--bar-pct, 0%);
-  background: var(--accent); border-radius: var(--r-pill);
+  background: var(--fg-3); border-radius: var(--r-pill);
 }
+.ds-247420 .ds-barchart-fill.is-active { background: var(--accent); }
 .ds-247420 .ds-barchart-value {
   font-size: var(--fs-xs); font-weight: 600; color: var(--fg-3);
   font-variant-numeric: tabular-nums;
@@ -2125,13 +2118,13 @@
   transition: background var(--dur-snap) var(--ease), border-color var(--dur-snap) var(--ease);
 }
 .ds-247420 .is-marked > .ds-check-box,
-.ds-247420[aria-checked="true"] > .ds-check-box { background: var(--accent); border-color: var(--accent); }
+.ds-247420[aria-checked="true"] > .ds-check-box { background: var(--fg); border-color: var(--fg); }
 .ds-247420 .is-marked > .ds-check-box::after,
 .ds-247420[aria-checked="true"] > .ds-check-box::after {
   content: ""; position: absolute; left: 4px; top: 1px; width: 4px; height: 8px;
   border: solid var(--bg); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg);
 }
-.ds-247420[aria-checked="mixed"] > .ds-check-box { background: var(--accent); border-color: var(--accent); }
+.ds-247420[aria-checked="mixed"] > .ds-check-box { background: var(--fg); border-color: var(--fg); }
 .ds-247420[aria-checked="mixed"] > .ds-check-box::after {
   content: ""; position: absolute; left: 3px; right: 3px; top: 6px; height: 2px; background: var(--bg); border-radius: var(--r-hair);
 }
@@ -2434,9 +2427,10 @@
 }
 .ds-247420 .ds-upload-fill {
   display: block; height: 100%; width: 0;
-  background: var(--accent); border-radius: var(--r-pill);
+  background: var(--fg-3); border-radius: var(--r-pill);
   transition: width var(--dur-base) var(--ease);
 }
+.ds-247420 .ds-upload-fill.is-active { background: var(--accent); }
 /* Indeterminate: percent is unknown mid-transfer (fetch gives no chunk-level
    progress) — a sliding marquee bar reads as "working", not stuck at 0%. */
 .ds-247420 .ds-upload-bar.indeterminate .ds-upload-fill {
@@ -3390,9 +3384,7 @@
 
 /* Drag-over state */
 .ds-247420 .drag-over {
-  background: color-mix(in oklab, var(--accent) 12%, var(--bg));
   border: 2px dashed var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent);
 }
 
 /* Drag-ghost (semi-transparent dragging element) */
@@ -3448,7 +3440,7 @@
   background: var(--bg-2);
   border: 1px solid var(--rule);
   border-radius: var(--r-2);
-  box-shadow: 0 10px 40px color-mix(in oklab, var(--fg) 20%, transparent);
+  box-shadow: var(--shadow-overlay);
   min-width: 160px;
   z-index: calc(var(--z-overlay, 1000) + 1);
   padding: 4px 0;
@@ -3730,7 +3722,7 @@
 /* Skip to main content link */
 .ds-247420 .skip-to-main {
   position: absolute; top: -40px; left: 0;
-  background: var(--accent); color: var(--accent-fg);
+  background: var(--fg); color: var(--bg);
   padding: 8px 16px; border-radius: var(--r-1);
   text-decoration: none; z-index: var(--z-overlay, 1000);
 }
@@ -3818,25 +3810,6 @@
    Empty State & Loading States
    -------------------------------------------------------------- */
 
-.ds-247420 .empty-state {
-  display: flex; flex-direction: column; align-items: center; gap: var(--space-4);
-  padding: var(--space-8) var(--space-4);
-  text-align: center; color: var(--fg-3);
-}
-.ds-247420 .empty-state--inline {
-  flex-direction: row; align-items: center; gap: var(--space-2);
-  padding: var(--space-2) 0; text-align: left;
-}
-.ds-247420 .empty-state-icon {
-  font-size: 48px; opacity: 0.4;
-}
-.ds-247420 .empty-state-title {
-  font-size: var(--fs-lg); font-weight: 600; color: var(--fg-2);
-}
-.ds-247420 .empty-state-body {
-  font-size: var(--fs-sm); max-width: 40ch;
-}
-
 /* Skeleton loading state */
 .ds-247420 .skeleton {
   background: linear-gradient(
@@ -3870,7 +3843,7 @@
   border-radius: var(--r-2);
   padding: var(--space-3) var(--space-4);
   max-width: 320px;
-  box-shadow: 0 10px 40px color-mix(in oklab, var(--fg) 20%, transparent);
+  box-shadow: var(--shadow-overlay);
   z-index: calc(var(--z-overlay, 1000) + 10);
 }
 
@@ -4617,7 +4590,8 @@
 .ds-247420 .ds-bar-row { display: flex; align-items: center; gap: 8px; margin: 3px 0; font-size: var(--fs-tiny); }
 .ds-247420 .ds-bar-row-label { width: 100px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ds-247420 .ds-bar-bg { flex: 1; min-width: 60px; background: var(--bg-3); border-radius: var(--r-hair); height: 6px; overflow: hidden; }
-.ds-247420 .ds-bar-fill { background: var(--accent); height: 100%; border-radius: var(--r-hair); }
+.ds-247420 .ds-bar-fill { background: var(--fg-3); height: 100%; border-radius: var(--r-hair); }
+.ds-247420 .ds-bar-fill.is-active { background: var(--accent); }
 .ds-247420 .ds-bar-row-value { flex-shrink: 0; color: var(--fg-2); max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 400px) {
   .ds-247420 .ds-bar-row-label { width: 72px; }
@@ -4730,13 +4704,6 @@
 @media (max-width: 760px) {
   .ds-247420 .ds-panel-duo { grid-template-columns: 1fr; }
 }
-/* Wide-viewport density: auto-fit grid so panel COUNT tracks actual children
-   instead of a hardcoded column number — 2 children sit 2-up, 5 wrap to a
-   third row, never an arbitrary 3-card reflex (same auto-fit/minmax pattern
-   as .ds-tile-grid). Panels floor at 280px before wrapping, so ultra-wide
-   screens still get more columns than a fixed repeat(3, ...) ever allowed. */
-.ds-247420 .ds-panel-trio { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: var(--space-2); margin: var(--space-2) 0; }
-.ds-247420 .ds-panel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-2); margin: var(--space-2) 0; }
 /* wide dense rows/tables scroll inside their panel, never the page */
 .ds-247420 .ds-scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
 
@@ -7144,7 +7111,7 @@
 .ds-247420 .ds-session-agent { font-size: var(--fs-tiny); color: var(--fg-3); }
 /* New-activity cue is a hollow accent RING so it stays shape-distinct from the
    running live disc (a solid pulsing accent dot) for colour-blind / reduced-motion users. */
-.ds-247420 .ds-session-unread { width: 8px; height: 8px; border-radius: 50%; background: transparent; box-shadow: inset 0 0 0 2px var(--accent); display: inline-block; }
+.ds-247420 .ds-session-unread { width: 8px; height: 8px; border-radius: 50%; background: var(--fg-2); display: inline-block; }
 .ds-247420 .ds-session-state { padding: var(--space-5) var(--space-3); text-align: center; color: var(--fg-3); font-size: var(--fs-sm); }
 .ds-247420 .ds-session-state-error { color: var(--flame); }
 

@@ -608,14 +608,6 @@ body.canvas-host { background: transparent !important; }
   transition: box-shadow var(--dur-base) var(--ease-spring), border-color var(--dur-snap) var(--ease),
     transform var(--dur-base) var(--ease-spring);
 }
-/* Vercel-style card lift: any panel sitting inside a density grid (trio/grid)
-   gets a restrained hover escalation — the standalone/full-width panel stays
-   flat so page chrome doesn't jitter on scroll-adjacent hover. */
-.ds-panel-trio > .panel:hover, .ds-panel-grid > .panel:hover {
-  box-shadow: var(--shadow-2);
-  border-color: var(--rule-strong);
-  transform: translateY(-2px);
-}
 /* Editorial accent spine — an opt-in printed-ink rule down the left edge that
    reads as a magazine pull-quote bar, not a glow card. */
 .panel.panel-spine {
@@ -1089,8 +1081,9 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 }
 .ds-barchart-fill {
   height: 100%; width: var(--bar-pct, 0%);
-  background: var(--accent); border-radius: var(--r-pill);
+  background: var(--fg-3); border-radius: var(--r-pill);
 }
+.ds-barchart-fill.is-active { background: var(--accent); }
 .ds-barchart-value {
   font-size: var(--fs-xs); font-weight: 600; color: var(--fg-3);
   font-variant-numeric: tabular-nums;
@@ -1589,13 +1582,13 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   transition: background var(--dur-snap) var(--ease), border-color var(--dur-snap) var(--ease);
 }
 .is-marked > .ds-check-box,
-[aria-checked="true"] > .ds-check-box { background: var(--accent); border-color: var(--accent); }
+[aria-checked="true"] > .ds-check-box { background: var(--fg); border-color: var(--fg); }
 .is-marked > .ds-check-box::after,
 [aria-checked="true"] > .ds-check-box::after {
   content: ""; position: absolute; left: 4px; top: 1px; width: 4px; height: 8px;
   border: solid var(--bg); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg);
 }
-[aria-checked="mixed"] > .ds-check-box { background: var(--accent); border-color: var(--accent); }
+[aria-checked="mixed"] > .ds-check-box { background: var(--fg); border-color: var(--fg); }
 [aria-checked="mixed"] > .ds-check-box::after {
   content: ""; position: absolute; left: 3px; right: 3px; top: 6px; height: 2px; background: var(--bg); border-radius: var(--r-hair);
 }
@@ -1898,9 +1891,10 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 }
 .ds-upload-fill {
   display: block; height: 100%; width: 0;
-  background: var(--accent); border-radius: var(--r-pill);
+  background: var(--fg-3); border-radius: var(--r-pill);
   transition: width var(--dur-base) var(--ease);
 }
+.ds-upload-fill.is-active { background: var(--accent); }
 /* Indeterminate: percent is unknown mid-transfer (fetch gives no chunk-level
    progress) — a sliding marquee bar reads as "working", not stuck at 0%. */
 .ds-upload-bar.indeterminate .ds-upload-fill {
@@ -2862,9 +2856,7 @@ input[type="checkbox"], input[type="radio"] {
 
 /* Drag-over state */
 .drag-over {
-  background: color-mix(in oklab, var(--accent) 12%, var(--bg));
   border: 2px dashed var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent);
 }
 
 /* Drag-ghost (semi-transparent dragging element) */
@@ -2920,7 +2912,7 @@ input[type="checkbox"], input[type="radio"] {
   background: var(--bg-2);
   border: 1px solid var(--rule);
   border-radius: var(--r-2);
-  box-shadow: 0 10px 40px color-mix(in oklab, var(--fg) 20%, transparent);
+  box-shadow: var(--shadow-overlay);
   min-width: 160px;
   z-index: calc(var(--z-overlay, 1000) + 1);
   padding: 4px 0;
@@ -3202,7 +3194,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 /* Skip to main content link */
 .skip-to-main {
   position: absolute; top: -40px; left: 0;
-  background: var(--accent); color: var(--accent-fg);
+  background: var(--fg); color: var(--bg);
   padding: 8px 16px; border-radius: var(--r-1);
   text-decoration: none; z-index: var(--z-overlay, 1000);
 }
@@ -3293,25 +3285,6 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
    Empty State & Loading States
    -------------------------------------------------------------- */
 
-.empty-state {
-  display: flex; flex-direction: column; align-items: center; gap: var(--space-4);
-  padding: var(--space-8) var(--space-4);
-  text-align: center; color: var(--fg-3);
-}
-.empty-state--inline {
-  flex-direction: row; align-items: center; gap: var(--space-2);
-  padding: var(--space-2) 0; text-align: left;
-}
-.empty-state-icon {
-  font-size: 48px; opacity: 0.4;
-}
-.empty-state-title {
-  font-size: var(--fs-lg); font-weight: 600; color: var(--fg-2);
-}
-.empty-state-body {
-  font-size: var(--fs-sm); max-width: 40ch;
-}
-
 /* Skeleton loading state */
 .skeleton {
   background: linear-gradient(
@@ -3345,7 +3318,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   border-radius: var(--r-2);
   padding: var(--space-3) var(--space-4);
   max-width: 320px;
-  box-shadow: 0 10px 40px color-mix(in oklab, var(--fg) 20%, transparent);
+  box-shadow: var(--shadow-overlay);
   z-index: calc(var(--z-overlay, 1000) + 10);
 }
 
@@ -4093,7 +4066,8 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ds-bar-row { display: flex; align-items: center; gap: 8px; margin: 3px 0; font-size: var(--fs-tiny); }
 .ds-bar-row-label { width: 100px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ds-bar-bg { flex: 1; min-width: 60px; background: var(--bg-3); border-radius: var(--r-hair); height: 6px; overflow: hidden; }
-.ds-bar-fill { background: var(--accent); height: 100%; border-radius: var(--r-hair); }
+.ds-bar-fill { background: var(--fg-3); height: 100%; border-radius: var(--r-hair); }
+.ds-bar-fill.is-active { background: var(--accent); }
 .ds-bar-row-value { flex-shrink: 0; color: var(--fg-2); max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 400px) {
   .ds-bar-row-label { width: 72px; }
@@ -4206,13 +4180,6 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 @media (max-width: 760px) {
   .ds-panel-duo { grid-template-columns: 1fr; }
 }
-/* Wide-viewport density: auto-fit grid so panel COUNT tracks actual children
-   instead of a hardcoded column number — 2 children sit 2-up, 5 wrap to a
-   third row, never an arbitrary 3-card reflex (same auto-fit/minmax pattern
-   as .ds-tile-grid). Panels floor at 280px before wrapping, so ultra-wide
-   screens still get more columns than a fixed repeat(3, ...) ever allowed. */
-.ds-panel-trio { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: var(--space-2); margin: var(--space-2) 0; }
-.ds-panel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-2); margin: var(--space-2) 0; }
 /* wide dense rows/tables scroll inside their panel, never the page */
 .ds-scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
 
