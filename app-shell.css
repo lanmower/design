@@ -718,10 +718,10 @@ a.row { text-decoration: none; }
    No centered stack. */
 .ds-hero {
   padding: var(--space-9) 0 var(--space-8);
-  display: grid; gap: var(--space-5) var(--space-6);
+  display: grid; gap: var(--space-5) var(--space-5);
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   grid-template-areas: 'title title' 'body actions';
-  align-items: end;
+  align-items: start;
   max-width: var(--measure-wide);
 }
 .ds-hero-head { grid-area: title; display: grid; gap: var(--space-3); }
@@ -740,7 +740,10 @@ a.row { text-decoration: none; }
 }
 /* The lead phrase in the title — printed in the electric lead, not glowing. */
 .ds-hero-accent { color: var(--accent-ink); font-weight: 700; }
-.ds-hero-actions { display: flex; gap: var(--space-2, 10px); flex-wrap: wrap; align-self: end; }
+.ds-hero-actions {
+  display: flex; gap: var(--space-2, 10px); flex-wrap: wrap;
+  align-self: start; margin-top: var(--space-hair, 4px);
+}
 /* Container-queried (the whole shell is; a 500px pane on a wide viewport
    would keep the two-column grid under a width @media). Left-aligned stack —
    no centering — preserving the asymmetric intent. */
@@ -4198,6 +4201,31 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ds-home-panel { margin: var(--space-2, 8px); }
 @media (max-width: 480px) {
   .ds-home-panel { margin: var(--space-1, 4px) 0; }
+}
+/* Home landing section tablist (site/theme.mjs Tabs()) — bare .tabs had no
+   rule anywhere, so the four links rendered as unstyled inline text jammed
+   together with no separation. Mirror the topbar nav pill-tab treatment. */
+.tabs[role="tablist"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1, 4px);
+  font-size: var(--fs-sm);
+}
+.tabs[role="tablist"] a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+  padding: var(--space-2, 8px) var(--space-3, 12px);
+  border-radius: var(--r-pill);
+  color: var(--fg-2);
+  transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+}
+.tabs[role="tablist"] a:hover { background: var(--bg-2); color: var(--fg); }
+.tabs[role="tablist"] a.active {
+  color: var(--accent-ink);
+  background: color-mix(in oklab, var(--accent) 16%, transparent);
+  box-shadow: inset 0 -2px 0 0 var(--accent);
+  font-weight: 600;
 }
 .ds-quickstart {
   padding: var(--space-3, 16px) var(--space-4, 22px);
