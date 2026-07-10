@@ -1751,3 +1751,7 @@
   subject: file-browser stage 920px raw literal onto --measure-wide token
   status: completed
   witness: committed a0d75cf/b71a0ad, build clean, pushed to main, CI Deploy GH Pages + Publish npm both green (run 29096407949/29096407928)
+- id: hero-strip-ai-tells
+  subject: Strip AI-tell hero glow/halftone + marquee slogan filler, push
+  status: completed
+  witness_evidence: Removed .ds-hero::before radial glow and .ds-hero-aside::after halftone overlay + orphaned .ds-halftone/--halftone-size in app-shell.css/colors_and_type.css; replaced homepage C.Marquee items in site/theme.mjs (mirrored in dist/index.html) with factual copy. node scripts/build.mjs ran clean (lint-tokens/radius/glyphs/null-children/classes/inline-styles all OK). Committed+pushed via git_finalize, sha d5aa0eb, branch main, worktree clean.
