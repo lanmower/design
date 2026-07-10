@@ -432,21 +432,26 @@ body.canvas-host { background: transparent !important; }
   cursor: pointer;
   /* Rounded-rect app chrome, not a marketing-page stadium CTA. */
   border-radius: var(--r-1);
-  border: 0;
-  transition: transform var(--dur-base) var(--ease-spring), background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+  border: var(--bw-hair) solid transparent;
+  box-shadow: none;
+  /* Restrained hover-lift: a 1px rise + hairline shadow reads as a crisp,
+     confident affordance rather than a soft glow-card float. */
+  transition: transform var(--dur-base) var(--ease-spring), background var(--dur-snap) var(--ease),
+    color var(--dur-snap) var(--ease), box-shadow var(--dur-base) var(--ease-spring),
+    border-color var(--dur-snap) var(--ease);
 }
-.btn { background: var(--bg-2); color: var(--fg); }
-.btn:hover { background: var(--bg-3); color: var(--fg); }
+.btn { background: var(--bg-2); color: var(--fg); border-color: var(--rule); }
+.btn:hover { background: var(--bg-3); color: var(--fg); transform: translateY(-1px); box-shadow: var(--shadow-1); }
 /* Primary CTA — the electric lead as a solid editorial block; hover inverts to
    an ink block with the lead as text, a confident two-tone flip. */
 .btn-primary {
   background: var(--accent); color: var(--accent-fg);
   font-weight: 700; letter-spacing: var(--tr-caps);
 }
-.btn-primary:hover { background: var(--fg); color: var(--accent-ink); }
+.btn-primary:hover { background: var(--fg); color: var(--accent-ink); transform: translateY(-1px); box-shadow: var(--shadow-2); }
 .btn-ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 2px var(--fg); }
-.btn-ghost:hover { background: var(--fg); color: var(--bg); }
-.btn:active, .btn-primary:active, .btn-ghost:active { transform: translateY(2px); }
+.btn-ghost:hover { background: var(--fg); color: var(--bg); transform: translateY(-1px); }
+.btn:active, .btn-primary:active, .btn-ghost:active { transform: translateY(1px); box-shadow: none; }
 .btn:focus-visible, .btn-primary:focus-visible, .btn-ghost:focus-visible {
   outline: 2px solid var(--accent-ink);
   outline-offset: 2px;
@@ -560,6 +565,10 @@ body.canvas-host { background: transparent !important; }
   margin: 0 0 var(--space-5);
   padding: var(--space-3);
   position: relative;
+  /* Crisp, restrained elevation — a hairline border does the edge definition;
+     the shadow only adds a whisper of lift, not a soft glow-card float. */
+  box-shadow: var(--shadow-1);
+  transition: box-shadow var(--dur-base) var(--ease), border-color var(--dur-snap) var(--ease);
 }
 /* Editorial accent spine — an opt-in printed-ink rule down the left edge that
    reads as a magazine pull-quote bar, not a glow card. */
@@ -573,7 +582,7 @@ body.canvas-host { background: transparent !important; }
   border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
 }
 .panel.panel-inline { background: var(--bg-2); padding: var(--space-3) var(--space-3); }
-.panel.panel-wide   { background: transparent; }
+.panel.panel-wide   { background: transparent; box-shadow: none; }
 .panel-head {
   display: flex; align-items: baseline; justify-content: space-between;
   /* Shares the .panel-body 16px side padding so the caps label and the body

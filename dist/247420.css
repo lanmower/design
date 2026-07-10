@@ -943,21 +943,26 @@
   cursor: pointer;
   /* Rounded-rect app chrome, not a marketing-page stadium CTA. */
   border-radius: var(--r-1);
-  border: 0;
-  transition: transform var(--dur-base) var(--ease-spring), background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+  border: var(--bw-hair) solid transparent;
+  box-shadow: none;
+  /* Restrained hover-lift: a 1px rise + hairline shadow reads as a crisp,
+     confident affordance rather than a soft glow-card float. */
+  transition: transform var(--dur-base) var(--ease-spring), background var(--dur-snap) var(--ease),
+    color var(--dur-snap) var(--ease), box-shadow var(--dur-base) var(--ease-spring),
+    border-color var(--dur-snap) var(--ease);
 }
-.ds-247420 .btn { background: var(--bg-2); color: var(--fg); }
-.ds-247420 .btn:hover { background: var(--bg-3); color: var(--fg); }
+.ds-247420 .btn { background: var(--bg-2); color: var(--fg); border-color: var(--rule); }
+.ds-247420 .btn:hover { background: var(--bg-3); color: var(--fg); transform: translateY(-1px); box-shadow: var(--shadow-1); }
 /* Primary CTA — the electric lead as a solid editorial block; hover inverts to
    an ink block with the lead as text, a confident two-tone flip. */
 .ds-247420 .btn-primary {
   background: var(--accent); color: var(--accent-fg);
   font-weight: 700; letter-spacing: var(--tr-caps);
 }
-.ds-247420 .btn-primary:hover { background: var(--fg); color: var(--accent-ink); }
+.ds-247420 .btn-primary:hover { background: var(--fg); color: var(--accent-ink); transform: translateY(-1px); box-shadow: var(--shadow-2); }
 .ds-247420 .btn-ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 2px var(--fg); }
-.ds-247420 .btn-ghost:hover { background: var(--fg); color: var(--bg); }
-.ds-247420 .btn:active, .ds-247420 .btn-primary:active, .ds-247420 .btn-ghost:active { transform: translateY(2px); }
+.ds-247420 .btn-ghost:hover { background: var(--fg); color: var(--bg); transform: translateY(-1px); }
+.ds-247420 .btn:active, .ds-247420 .btn-primary:active, .ds-247420 .btn-ghost:active { transform: translateY(1px); box-shadow: none; }
 .ds-247420 .btn:focus-visible, .ds-247420 .btn-primary:focus-visible, .ds-247420 .btn-ghost:focus-visible {
   outline: 2px solid var(--accent-ink);
   outline-offset: 2px;
@@ -1071,6 +1076,10 @@
   margin: 0 0 var(--space-5);
   padding: var(--space-3);
   position: relative;
+  /* Crisp, restrained elevation — a hairline border does the edge definition;
+     the shadow only adds a whisper of lift, not a soft glow-card float. */
+  box-shadow: var(--shadow-1);
+  transition: box-shadow var(--dur-base) var(--ease), border-color var(--dur-snap) var(--ease);
 }
 /* Editorial accent spine — an opt-in printed-ink rule down the left edge that
    reads as a magazine pull-quote bar, not a glow card. */
@@ -1084,7 +1093,7 @@
   border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
 }
 .ds-247420 .panel.panel-inline { background: var(--bg-2); padding: var(--space-3) var(--space-3); }
-.ds-247420 .panel.panel-wide   { background: transparent; }
+.ds-247420 .panel.panel-wide   { background: transparent; box-shadow: none; }
 .ds-247420 .panel-head {
   display: flex; align-items: baseline; justify-content: space-between;
   /* Shares the .panel-body 16px side padding so the caps label and the body
