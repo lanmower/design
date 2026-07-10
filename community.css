@@ -1208,7 +1208,7 @@
 }
 .cm-banner.tone-success {
   background: color-mix(in oklab, var(--success) 18%, var(--bg));
-  color: var(--success);
+  color: var(--green);
 }
 .cm-banner.tone-error {
   background: color-mix(in oklab, var(--danger) 18%, var(--bg));

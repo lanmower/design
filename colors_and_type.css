@@ -56,6 +56,9 @@
      both backgrounds (5.21:1 on --bg-2). */
   --amber:       #7C570F;
   --sky:         #3A6EFF;
+  /* --warn = interactive danger controls (buttons, banners, menus, error
+     inputs); --danger below = passive error/status text and metrics
+     (kpi/sparkline deltas, auth-error text). Two tokens, one convention. */
   --warn:        #E0241A;
   /* Syntax-token aliases: light values pass 4.5:1 on paper; the dark blocks
      restore the bright dark-tuned originals. Components reference ONLY these. */
@@ -65,7 +68,9 @@
   --code-str-alt: var(--mascot-deep);
   --code-num:     #946300;
   /* 0.55 lightness measured 4.70:1 on --paper but only 4.25:1 on --bg-2 (the
-     auth-error banner's actual background) - darkened for AA margin on both. */
+     auth-error banner's actual background) - darkened for AA margin on both.
+     --danger = passive error/status text and metrics; --warn above =
+     interactive danger controls. */
   --danger:      oklch(0.50 0.18 25);
   --success:     var(--green-2);
   --live:        var(--green);

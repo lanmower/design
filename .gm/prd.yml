@@ -1638,3 +1638,33 @@
   subject: fs_write verb wrote .gm/exec-spool/.ci-validated as 0 bytes despite {path,body} payload with head_sha object, causing COMPLETE gate stuck-loop on CI validation freshness check; retry with body as JSON string instead of object
   status: completed
   witness: 'Root cause found: fs_write verb''s payload key is content, not body -- body silently no-ops (bytes:0). Rewrote .ci-validated with {"path":..,"content":..} and confirmed 55 bytes on disk matching head_sha 4900f4e8a2575d160fb984a12a03015b566b8c44'
+- id: site-sidebar-badge-color-clash
+  subject: Live screenshot of anentrypoint.github.io/design shows sidebar 'everything' active pill in lime + unrelated pink/magenta count badges (pinned 5, shipped 12, drafts 6, ui kits 4) on every row -- two competing accent hues read as un-unified/busy, not a single confident accent like Vercel's dashboard nav. Retint badges onto the token system (neutral/--rule-based chip, not a clashing pink) unless pink is an intentional category token -- verify against colors_and_type.css category tokens.
+  status: pending
+- id: site-hero-not-two-column
+  subject: AGENTS.md mandates Hero as asymmetric two-column grid-template-areas layout, never centered stack -- live screenshot shows a single left-aligned text column with a large unused dark void filling the right ~40% of the viewport and continuing for a full screen-height below the fold. Rework homepage Hero to actually use the two-column grid with real content (marquee/pattern/stat panel) in the second column so the space is not dead.
+  status: pending
+- id: site-below-fold-dead-space
+  subject: Scrolling the live homepage past the hero reveals a solid black empty viewport with zero content -- a structural gap between hero and whatever content follows (bins/panels/showcase grid). Diagnose site/theme.mjs + site/content/pages/home.yaml render order and either bring the next section up (remove excess margin/min-height) or add the missing showcase content block so there is no dead full-viewport gap.
+  status: pending
+- id: site-cta-button-alignment
+  subject: Hero's GitHub/247420 CTA buttons float disconnected from the paragraph copy with awkward vertical alignment in the screenshot -- tighten spacing/alignment so the CTA row reads as a deliberate button group under the copy, Vercel-style tight CTA row.
+  status: pending
+- id: site-content-density-below-hero
+  subject: Audit what should render below the Hero (showcase grid of pinned/shipped drafts, ui kit gallery, docs links) actually renders with real density -- a Vercel-quality landing page has multiple content sections (feature grid, code sample, stats), not hero+void.
+  status: pending
+- id: site-status-bar-chrome-purpose
+  subject: Bottom status bar 'main · utf-8 · lf' + 'mmxxvi' reads as generic code-editor chrome bleeding onto a marketing/showcase site -- verify this is an intentional signature element (not scoped-out gmsniff leftover) and that it stays subtle/functional rather than distracting filler.
+  status: pending
+- id: site-full-page-audit-other-routes
+  subject: 'Screenshot and audit every other route on anentrypoint.github.io/design (ui kits, decks, previews, docs, readme, skills, tokens, source pages reachable from sidebar) for the same class of issues: dead space, accent-color clashes, misaligned CTAs, weak content density.'
+  status: pending
+- id: site-typography-hierarchy-live
+  subject: Verify live rendered type scale (hero display size vs body vs nav) reads as a confident editorial hierarchy at actual browser width, not just token values on paper -- adjust --fs-* if the live render looks thin/unbalanced.
+  status: pending
+- id: site-responsive-check
+  subject: Witness the homepage and at least one sub-route at a narrower viewport (tablet/mobile width) via browser resize -- asymmetric two-column Hero and sidebar must degrade sensibly, not break/overlap.
+  status: pending
+- id: site-accent-token-audit-badges
+  subject: Grep colors_and_type.css for the pink/magenta token used by sidebar count badges -- confirm it's a deliberate --cat-* category token (fine) vs a leftover hardcoded literal that should route through the token system (lint-tokens gate).
+  status: pending

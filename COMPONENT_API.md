@@ -1,6 +1,6 @@
 # Component API Reference
 
-anentrypoint-design v0.0.127 — Standardized component prop naming and API surface.
+anentrypoint-design v0.0.272 — Standardized component prop naming and API surface.
 
 ## Overview
 
@@ -186,18 +186,22 @@ Pill({ tone: 'accent', children: 'PLAN' })
 Flexible button component with support for multiple variants.
 
 ```js
-Btn({ href = '#', variant = 'default', children, onClick, 'aria-label' })
+Btn({ href, variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled, className, key })
 ```
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `variant` | `'primary' | 'ghost' | 'default'` | `'default'` | Button style variant |
-| `href` | string | `'#'` | Navigation link (renders as `<a>`) |
+| `variant` | `'primary' \| 'ghost' \| 'danger' \| 'default'` | `'default'` | Button style variant. `'danger'` renders `btn-primary danger` |
+| `href` | string | `undefined` | Navigation link. A real navigational value renders `<a>`; omitted, `''`, or literal `'#'` renders a native `<button>` (not a link) |
 | `children` | ReactNode | - | Button label/content |
 | `onClick` | function | - | Click handler callback |
 | `aria-label` | string | - | Accessible label (auto-filled from children if string) |
+| `disabled` | boolean | - | Disables click/keyboard activation; adds `is-disabled`, `aria-disabled`, and (for links) `tabindex="-1"` |
+| `className` | string | - | Extra class(es) appended to the resolved variant class |
+| `key` | string | - | webjsx diff key |
 | `primary` | boolean | - | **Deprecated**: use `variant="primary"` |
 | `ghost` | boolean | - | **Deprecated**: use `variant="ghost"` |
+| `danger` | boolean | - | **Deprecated**: use `variant="danger"` |
 
 **Example:**
 ```js
@@ -390,15 +394,16 @@ Panel({ title, count, right, style = '', children, kind })
 List item with optional link/click handler.
 
 ```js
-Row({ code, title, sub, meta, state = 'default', onClick, href, kind, cols, leading, trailing, target, selected, active, key, style })
+Row({ code, rank, title, sub, meta, state = 'default', onClick, href, kind, cols, leading, trailing, target, selected, active, rail, expanded, highlight, actions, detail, key, style })
 ```
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `state` | `'active' | 'default'` | `'default'` | Row state |
+| `state` | `'active' \| 'default' \| 'disabled' \| 'error'` | `'default'` | Row state; `'disabled'` strips `onClick`/`role=button`/tab-stop and sets `aria-disabled` |
 | `title` | string | - | Primary text |
 | `sub` | string | - | Secondary text |
 | `code` | ReactNode | - | Leading code/glyph |
+| `rank` | ReactNode | - | Alias for `code` (the leading monospace index) |
 | `meta` | string | - | Trailing meta text |
 | `href` | string | - | Link destination |
 | `onClick` | function | - | Click handler |
@@ -409,6 +414,11 @@ Row({ code, title, sub, meta, state = 'default', onClick, href, kind, cols, lead
 | `target` | string | - | Link target (`_blank`, etc.) |
 | `active` | boolean | - | **Deprecated**: use `state="active"` |
 | `selected` | boolean | - | **Deprecated**: use `state="active"` |
+| `rail` | string | - | Leading status-bar tone: `'green'` (ok/selected) \| `'purple'` (subagent) \| `'flame'` (error/unavailable) \| any CSS color token |
+| `expanded` | boolean | - | Disclosure-toggle state; sets `aria-expanded` and gates `actions` rendering. Omit entirely for plain action rows (not a toggle) |
+| `highlight` | string | - | Case-insensitive substring to wrap in `<mark class="ds-hl">` within `title` |
+| `actions` | array | - | Action-button specs rendered as a sibling strip; only shown when `expanded === true` |
+| `detail` | ReactNode | - | Sibling block rendered after title/meta on its own line (`.ds-row-detail`) |
 
 **Example:**
 ```js
@@ -802,6 +812,68 @@ IconButtonGroup({ items = [], value, onChange, dense = false })
 
 ---
 
+## Form Primitives
+
+`src/components/form-primitives.js` — standard form controls (previously undocumented).
+
+```js
+Checkbox({ checked, indeterminate, disabled, label, hint, onChange, ariaLabel, key, name, id })
+Radio({ name, value, checked, disabled, label, hint, onChange, ariaLabel, key, id })
+RadioGroup({ legend, name, value, options = [], onChange, orientation = 'vertical', key })
+Toggle({ checked, disabled, label, hint, onChange, ariaLabel, kind = 'switch', key, id })
+Field({ label, hint, error, required, requiredMarker = '*', htmlFor, children, key })
+useFormValidation(schema = {})
+```
+
+`RadioGroup`'s `options` items are `{ value, label, hint?, disabled? }`. `Field` wraps any input with a label/hint/required-marker/error row. `useFormValidation` returns a validator driven by a `{ field: (value) => errorString|null }` schema map.
+
+---
+
+## Interaction Primitives
+
+`src/components/interaction-primitives.js` — drag/drop, scrub, reorder, and keyboard-shortcut helpers (previously undocumented).
+
+```js
+useDraggable(el, { data, kind, onDragStart, onDragEnd })
+useDropTarget(el, { accepts = [], onDrop, onDragOver })
+useNumberScrub(el, { getValue, onChange, step = 0.01, threshold = 3 })
+usePointerDrag(el, { onStart, onMove, onEnd, button = 0 })
+Reorderable({ items = [], getKey, renderItem, onReorder, axis = 'vertical', kind = 'reorder' })
+useKeyboardShortcut(map = {}, { scope = 'global', enabled = true })
+formatShortcut(combo)
+ShortcutHint({ combo, kind = 'kbd' })
+ShortcutList({ shortcuts = [] })
+useKeyboardShortcutHelp()
+ShortcutHelpDialog({ open = false, onClose, registry })
+```
+
+`useDraggable`/`useDropTarget`/`usePointerDrag` are imperative hooks over a DOM element ref, not vnode factories — call them in an effect, not inside render. `useKeyboardShortcut` registers combos into a module-level registry that `useKeyboardShortcutHelp`/`ShortcutHelpDialog` read back to render a live shortcuts-overlay (the pattern agentgui's `?`-overlay uses).
+
+---
+
+## Overlay Primitives
+
+`src/components/overlay-primitives.js` — floating UI, focus-trap, and modal/popover surfaces (previously undocumented).
+
+```js
+useFloating(anchorEl, contentEl, { placement = 'bottom-start', offset = 8 })
+useLongPress(targetEl, callback, { ms = 500 })
+Tooltip({ children, label, placement = 'top', delay = 350, kind = 'default' })
+Popover({ open, anchorEl, onClose, placement = 'bottom-start', children, ariaLabel })
+Dropdown({ trigger, items = [], onSelect, placement = 'bottom-start', ariaLabel })
+trapTab(el, e)
+CommandPalette({ open, items = [], onSelect, onClose })
+EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose, query = '' })
+BootOverlay({ progress = 0, phase = '', errored = false, visible = false })
+SettingsPopover({ title = 'Settings', open, anchorX = 0, anchorY = 0, sections = [], onClose })
+AuthModal({ mode = 'extension', error = '', busy = false, open = false, onModeChange, onConnectExtension, onGenerate, onImport, onClose })
+VideoLightbox({ src, label = '', open = false, onClose })
+```
+
+`trapTab` is the Tab-focus-trap primitive exported for reuse by any modal/drawer (agentgui's mobile drawer and files-modals both wire it directly — see AGENTS.md's webjsx/focus-trap notes). `useFloating` computes anchored position for `Popover`/`Dropdown`/`Tooltip`; call it with live DOM refs, not vnodes.
+
+---
+
 ## Community Components
 
 ### ServerIcon
@@ -900,6 +972,24 @@ Complete community layout.
 ```js
 CommunityShell({ topbar, crumb, side, main, status, narrow })
 ```
+
+---
+
+## Additional Exports Quick Reference
+
+Exports from already-documented modules above that previously had zero mention here. Signatures only (see the module's own source comments for behavior detail); expand into a full section if a consumer needs deeper docs for one of these.
+
+**Shell** (`shell.js`): `IconButton({ icon, onClick, title, size = 'base', variant = 'ghost', disabled = false })`, `Badge({ children, variant = 'default', tone = 'neutral' })`, `Crumb({ trail = [], leaf = '', right })`.
+
+**Content** (`content.js`): `Card`, `PanelFromItems({ heading, items = [], keyPrefix = 'i', count, style, kind, emptyText })`, `HeroFromPageData(hero)`, `Marquee({ items = [], sep = '/' })`, `CliBlock({ lines = [], heading = 'quick start', className = '' })`, `Spinner({ size = 'base', tone = 'accent', label = 'loading', key })`, `Skeleton({ height = '1em', width = '100%', count = 1, label = 'loading content', key })`, `Alert({ kind = 'info', children, onDismiss, title, key })`, `FilterPills({ options = [], selected, onSelect, label = 'filters' })`.
+
+**Editor primitives** (`editor-primitives.js`): `Drawer({ side = 'left', open = false, onClose, children, ariaLabel })`, `Dialog({ title, open = false, onClose, children, actions = [], dismissible = false, ariaLabel })`, `FocusTrap({ children })`, `Toast({ message, kind = 'info', duration = 3000, onClose })` / `toast({ message, kind = 'info', duration = 3000 })` (imperative fire-and-forget variant), `ContextMenu({ items = [], anchor = { x: 0, y: 0 }, onClose })` / `useContextMenu(targetEl, items, openCb)`, `ResizeHandle({ axis = 'horizontal', onResize, ariaLabel })`, `SplitPanel({ orientation = 'horizontal', initial = '50%', min = 80, max = Infinity, children })`, `useMediaQuery(query)`, `BP_SM/BP_MD/BP_LG/BP_XL` (480/768/1024/1440 breakpoint constants).
+
+**Files** (`files.js`): `FileRow({ name, type = 'other', size, modified, code, onOpen, onAction, active, key, permissions, locked, selected, onToggleSelect, ... })` (see files-modals section above for the full multi-select contract), `FileIcon({ type = 'other' })`, `FileSkeleton({ rows = 12 })`, `EmptyState({ text = 'nothing here', glyph = Icon('circle'), action })`, `BreadcrumbPath({ segments = [], onNav, root = 'root' })`, `sortFiles(files = [], sort = 'name', dir = 'asc')`, `fileGlyph(type)`.
+
+**Files modals** (`files-modals.js`): `ConfirmDialog({ title = 'Are you sure?', message, confirmLabel = 'confirm', cancelLabel = 'cancel', destructive, onConfirm, onCancel, error, busy = false, busyLabel = 'working…' })`, `PromptDialog({ title = 'Enter a name', value = '', placeholder = '', confirmLabel = 'ok', cancelLabel = 'cancel', onConfirm, onCancel, onInput, error, busy = false, busyLabel = 'working…' })`, `FileViewer({ file, body, onClose, onAction, onPrev, onNext })`, `FilePreviewMedia({ src, type = 'other', name })`, `FilePreviewCode({ content = '', lang, filename })`, `FilePreviewText({ content = '', truncated })`.
+
+**Community** (`community.js`): `MobileHeader({ title, channelType, channelName, onMenu, onMembers })`, `ReplyBar({ quotedMessage, quotedAuthor, onCancel })`, `Banner({ tone = 'info', message, visible, actionLabel, onAction, onClick })`, `ThreadPanel({ threads = [], activeId = null, title = 'Threads', onSelect, onCreate, onClose, loading = false })`, `ForumView({ posts = [], onSearch, onSort, onSelect, onNewPost, loading = false })`, `PageView({ title = '', html = '', isAdmin = false, onEdit })`.
 
 ---
 
