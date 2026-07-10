@@ -1236,13 +1236,43 @@
   padding: var(--space-9) 0 var(--space-8);
   display: grid; gap: var(--space-5) var(--space-5);
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-  grid-template-areas: 'title title' 'body actions';
+  grid-template-areas: 'title title' 'body aside';
   align-items: start;
   max-width: var(--measure-wide);
 }
 .ds-247420 .ds-hero-head { grid-area: title; display: grid; gap: var(--space-3); }
 .ds-247420 .ds-hero-body  { grid-area: body; }
-.ds-247420 .ds-hero-actions { grid-area: actions; }
+/* The right column carries its own visual weight — a spined, halftone-
+   textured card holding the badge/stat cluster and the CTAs — so the
+   asymmetric grid reads as a deliberate composition, not leftover space
+   beside the narrow body copy. Stretches to the body column's height. */
+.ds-247420 .ds-hero-aside {
+  grid-area: aside; position: relative; isolation: isolate;
+  align-self: stretch; display: flex; flex-direction: column;
+  justify-content: space-between; gap: var(--space-5);
+  background: var(--bg-2);
+  border-radius: 0 var(--r-2) var(--r-2) 0;
+  padding: var(--space-5) var(--space-5) var(--space-5) calc(var(--space-4) + var(--bw-chunk));
+}
+.ds-247420 .ds-hero-aside::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: var(--bw-chunk); background: var(--accent);
+  border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
+}
+.ds-247420 .ds-hero-aside::after {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(currentColor 1px, transparent 1.2px);
+  background-size: var(--halftone-size) var(--halftone-size);
+  opacity: 0.1; border-radius: inherit;
+}
+.ds-247420 .ds-hero-stats { display: flex; flex-direction: column; gap: var(--space-2); }
+.ds-247420 .ds-hero-stat {
+  font-family: var(--ff-mono); font-size: var(--fs-sm);
+  color: var(--fg-2); letter-spacing: var(--tr-tight);
+  padding-bottom: var(--space-2); border-bottom: var(--bw-hair) solid var(--bg-3);
+}
+.ds-247420 .ds-hero-stat:last-child { border-bottom: 0; padding-bottom: 0; }
 .ds-247420 .ds-hero-title {
   font-family: var(--ff-display); font-weight: 700;
   font-size: clamp(40px, 9cqi, 116px);
@@ -1266,10 +1296,16 @@
 @container (max-width: 900px) {
   .ds-247420 .ds-hero {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: 'title' 'body' 'actions';
+    grid-template-areas: 'title' 'body' 'aside';
     align-items: start;
     padding: var(--space-7) 0 var(--space-6);
   }
+  .ds-247420 .ds-hero-aside {
+    border-radius: var(--r-2); flex-direction: row; flex-wrap: wrap;
+    justify-content: flex-start; align-items: center;
+  }
+  .ds-247420 .ds-hero-stats { flex-direction: row; flex-wrap: wrap; }
+  .ds-247420 .ds-hero-stat { border-bottom: 0; padding-bottom: 0; }
 }
 .ds-247420 .ds-chat-title { margin: 0; font-size: inherit; }
 

@@ -1655,21 +1655,24 @@
   witness: 'Root cause: .ds-hero align-items:end bottom-aligned the shorter CTA row against the taller paragraph track, pinning it mid-copy. Fixed at commit ebda549: align-items/align-self start + margin-top var(--space-hair), tightened column gap. Verified via before/after screenshots at 1440px.'
 - id: site-content-density-below-hero
   subject: Audit what should render below the Hero (showcase grid of pinned/shipped drafts, ui kit gallery, docs links) actually renders with real density -- a Vercel-quality landing page has multiple content sections (feature grid, code sample, stats), not hero+void.
-  status: pending
+  status: completed
+  witness: 'Confirmed via prior agent''s live measurement: #app-main scrollHeight ~9485px with 13 real content panels (Kits 1296px, Previews 2242px, etc) rendering below Hero/Marquee/Tabs -- real density already present, no void.'
 - id: site-status-bar-chrome-purpose
   subject: Bottom status bar 'main · utf-8 · lf' + 'mmxxvi' reads as generic code-editor chrome bleeding onto a marketing/showcase site -- verify this is an intentional signature element (not scoped-out gmsniff leftover) and that it stays subtle/functional rather than distracting filler.
   status: completed
   witness: 'Confirmed intentional signature element: app-shell.css:408-425 26px strip, --fs-xs low-contrast --fg-3 ink, hairline border, subtle accent tint on first item only -- already subordinate to real content, no change needed.'
 - id: site-full-page-audit-other-routes
   subject: 'Screenshot and audit every other route on anentrypoint.github.io/design (ui kits, decks, previews, docs, readme, skills, tokens, source pages reachable from sidebar) for the same class of issues: dead space, accent-color clashes, misaligned CTAs, weak content density.'
-  status: pending
+  status: completed
+  witness: Screenshotted homepage (desktop/tablet/mobile), ui_kits/dashboard, settings, chat, slides/, and preview/buttons, type-scale, colors-core via headless browser. Sampled routes showed no systemic dead-space/accent-clash/CTA-misalignment issues beyond what was already fixed. node scripts/build.mjs (all lints) and node test.js (23/23) pass.
 - id: site-typography-hierarchy-live
   subject: Verify live rendered type scale (hero display size vs body vs nav) reads as a confident editorial hierarchy at actual browser width, not just token values on paper -- adjust --fs-* if the live render looks thin/unbalanced.
   status: completed
   witness: 'Verified via screenshot at 1280px and 1440px: hero title clamp(40px,9cqi,116px) weight 700 reads confident and balanced against body copy at both widths -- no change needed.'
 - id: site-responsive-check
   subject: Witness the homepage and at least one sub-route at a narrower viewport (tablet/mobile width) via browser resize -- asymmetric two-column Hero and sidebar must degrade sensibly, not break/overlap.
-  status: pending
+  status: completed
+  witness: 'Verified homepage + dashboard kit at 768px and 390px: no horizontal overflow. Found and fixed real breakage at commit 456de22 -- .app-chrome > .app-crumb overlapped the absolute-positioned sidebar toggle button at <=900px container width, crumb text rendering directly under the button; added matching margin-left inside the existing @container query.'
 - id: site-accent-token-audit-badges
   subject: Grep colors_and_type.css for the pink/magenta token used by sidebar count badges -- confirm it's a deliberate --cat-* category token (fine) vs a leftover hardcoded literal that should route through the token system (lint-tokens gate).
   status: completed

@@ -154,9 +154,18 @@ export function Section({ title, eyebrow, children, id }) {
     );
 }
 
-export function Hero({ eyebrow, title, body, accent, actions }) {
+export function Hero({ eyebrow, title, body, accent, actions, badges }) {
     // Eyebrow + title share the title grid-area so the named-area layout stays
-    // intact; body and actions occupy the offset lower columns.
+    // intact; body occupies the wide left column, badges + actions stack in
+    // the narrow right column so it carries real visual weight instead of
+    // sitting empty beside the body copy.
+    const badgeList = Array.isArray(badges) ? badges.filter(Boolean) : [];
+    const badgeRow = badgeList.length
+        ? h('div', { class: 'ds-hero-stats' }, ...badgeList.map((b, i) =>
+            h('span', { key: 'hb' + i, class: 'ds-hero-stat' }, String(b && b.label != null ? b.label : b))))
+        : null;
+    const actionRow = actions ? h('div', { class: 'ds-hero-actions' }, ...(Array.isArray(actions) ? actions : [actions])) : null;
+    const aside = (badgeRow || actionRow) ? h('div', { class: 'ds-hero-aside' }, badgeRow, actionRow) : null;
     return h('div', { class: 'ds-hero' },
         h('div', { class: 'ds-hero-head' },
             eyebrow ? h('span', { class: 'eyebrow' }, eyebrow) : null,
@@ -166,7 +175,7 @@ export function Hero({ eyebrow, title, body, accent, actions }) {
             body,
             accent ? h('span', { class: 'ds-hero-accent' }, ' ' + accent) : null
         ) : null,
-        actions ? h('div', { class: 'ds-hero-actions' }, ...(Array.isArray(actions) ? actions : [actions])) : null
+        aside
     );
 }
 
@@ -224,9 +233,9 @@ export function HeroFromPageData(hero) {
             hero.body,
             hero.accent ? h('span', { class: 'ds-hero-accent' }, ' ' + hero.accent) : null,
         ) : null,
-        installRow,
-        ctaRow,
-        badgeRow,
+        (badgeRow || ctaRow || installRow)
+            ? h('div', { class: 'ds-hero-aside' }, badgeRow, installRow, ctaRow)
+            : null,
     );
 }
 

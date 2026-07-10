@@ -38,6 +38,7 @@ function Hero() {
       eyebrow: hero.subheading || site.tagline || null,
       title: hero.heading || site.title,
       body: hero.body || '',
+      badges: hero.badges || null,
       actions
     })
   );
