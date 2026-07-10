@@ -140,6 +140,19 @@ export function SessionMeta({ items = [] } = {}) {
       ].filter(Boolean))));
 }
 
+// AgentListSkeleton — placeholder shimmer rows shown while the agent picker's
+// list is loading, so it doesn't flash from a bare spinner to a full list
+// (same predictable-perceived-perf pattern as FileSkeleton). `rows` controls
+// how many ghost rows render; each mimics a Row's icon+title+meta footprint.
+export function AgentListSkeleton({ rows = 5 } = {}) {
+  return h('div', { class: 'ds-agent-list-skeleton', 'aria-hidden': 'true' },
+    ...Array.from({ length: Math.max(1, rows) }, (_, i) => h('div', { key: 'ags' + i, class: 'ds-agent-row-skeleton' },
+      h('span', { class: 'ds-skel ds-skel-icon' }),
+      h('span', { class: 'ds-skel ds-skel-title' }),
+      h('span', { class: 'ds-skel ds-skel-meta' }))),
+    h('span', { key: 'st', class: 'ds-agent-list-skeleton-status', role: 'status', 'aria-live': 'polite' }, 'loading agents…'));
+}
+
 // SessionCard — one running session in the live dashboard. Status dot, agent /
 // model / cwd, elapsed, live counter, last activity, and per-session controls
 // that each act on this session's id independently.

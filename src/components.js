@@ -28,7 +28,7 @@ export {
 export { AgentChat, MESSAGE_CAP } from './components/agent-chat.js';
 
 export {
-    ConversationList, SessionCard, SessionDashboard, SessionMeta, fmtDuration
+    ConversationList, SessionCard, SessionDashboard, SessionMeta, fmtDuration, AgentListSkeleton
 } from './components/sessions.js';
 
 export { ContextPane } from './components/context-pane.js';

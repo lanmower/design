@@ -967,6 +967,18 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 }
 @keyframes ds-skel-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
+/* Agent-picker list loading skeleton (shares the .ds-skel shimmer base above). */
+.ds-agent-list-skeleton { display: flex; flex-direction: column; gap: var(--space-2); }
+.ds-agent-row-skeleton { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); }
+.ds-agent-row-skeleton .ds-skel { background: var(--bg-3); border-radius: var(--r-1); }
+.ds-agent-row-skeleton .ds-skel-icon { height: 18px; width: 18px; flex: none; border-radius: var(--r-round, 50%); }
+.ds-agent-row-skeleton .ds-skel-title { height: 12px; width: 40%; }
+.ds-agent-row-skeleton .ds-skel-meta { height: 9px; width: 25%; margin-left: auto; }
+.ds-agent-list-skeleton-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+@media (prefers-reduced-motion: no-preference) {
+  .ds-agent-row-skeleton .ds-skel { animation: ds-skel-shimmer 1.3s ease-in-out infinite; background: linear-gradient(90deg, var(--bg-3) 0%, var(--bg-2) 50%, var(--bg-3) 100%); background-size: 200% 100%; }
+}
+
 /* File code preview: paint Prism tokens (the bundle scoped them to the chat
    block only) + an optional non-selectable line-number gutter. */
 .ds-preview-code code { color: var(--fg); }
