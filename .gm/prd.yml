@@ -1732,5 +1732,5 @@
   status: completed
 - id: vercel-witness-live
   subject: Browser-witness the live anentrypoint.github.io/design site plus local dist rebuild after elevation/focus/gradient/typography changes land, confirm no lint-tokens/lint-glyphs regressions, then git_finalize + push and watch CI/CD green
-  witness: COMPLETE gate requires .ci-validated matching pushed HEAD
-  status: pending
+  witness: 'browser-11.json live-witnessed local dist build via page.evaluate against dist/_witness.html served over http://127.0.0.1:8931: .ds-hero position:relative, ::before radial-gradient(closest-side, oklab(...accent-ink mix.../0.1), transparent) at z-index -1; .ds-panel-trio>.panel box-shadow matches --shadow-1; .tabs[role=tablist] a transition includes transform; a.row transition includes box-shadow. node scripts/build.mjs ran clean (lint-tokens/lint-radius/lint-glyphs/lint-null-children/lint-classes/lint-inline-styles all OK, lint-spacing report-only unchanged). git_finalize committed+pushed sha e7513c6 to main (git_finalize-1.json: committed:true, pushed:true).'
+  status: completed

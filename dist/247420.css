@@ -9420,13 +9420,14 @@
 .ds-247420 .cwd-bar-btn:hover { background: color-mix(in srgb, var(--fg) 14%, transparent); }
 .ds-247420 .cwd-bar-btn:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
-/* History no-session empty state: fill the void with a centered prompt. */
+/* History no-session empty state: natural height, no leftover void below. */
 .ds-247420 .history-empty {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: .4em; text-align: center; min-height: 50vh; color: var(--fg-3);
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  gap: .4em; text-align: center; padding: var(--space-6, 40px) 0 var(--space-4, 16px); color: var(--fg-3);
 }
 .ds-247420 .history-empty-title { margin: 0; font-size: var(--fs-lg); color: var(--fg-2); }
 .ds-247420 .history-empty-sub { margin: 0; max-width: 42ch; }
+.ds-247420 .history-empty-hints { margin: var(--space-5, 24px) auto 0; max-width: 46ch; text-align: left; }
 
 /* Settings: two-column on wide screens (backend + agents). Grid gap is the
    single source of rhythm between stacked Panels here - .panel's own
