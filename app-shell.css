@@ -4466,8 +4466,6 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ds-auth-remember-text { color: var(--panel-text-2); font-size: 13px; }
 .ds-auth-forgot { font-size: 13px; }
 .ds-auth-error { padding: 8px 10px; background: var(--panel-1); border-radius: var(--r-0); color: var(--danger); font-size: 13px; overflow-wrap: anywhere; }
-.ds-auth-divider { display: flex; align-items: center; gap: 10px; margin: 6px 0; color: var(--panel-text-3); font-size: 12px; }
-.ds-auth-divider-line { flex: 1; height: 1px; background: var(--panel-2); }
 .ds-auth-providers { display: flex; gap: 8px; flex-wrap: wrap; }
 .ds-auth-provider-btn { flex: 1 1 100px; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; }
 .ds-auth-provider-btn--loading { opacity: 0.7; pointer-events: none; }

@@ -8,6 +8,7 @@
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import fs from 'node:fs';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 let failures = 0;
@@ -278,6 +279,24 @@ check('Table striped/compact are opt-in and default false (existing contract byt
     if (!compact.props.class.includes('is-compact')) throw new Error('missing is-compact class: ' + compact.props.class);
     const both = Table({ headers: ['a'], rows: [['1']], striped: true, compact: true });
     if (!both.props.class.includes('is-striped') || !both.props.class.includes('is-compact')) throw new Error('missing combined classes: ' + both.props.class);
+});
+
+// -- Regression guards: dead/replaced markup must not creep back in --
+check('ui_kits/dashboard/app.js no longer applies the dead ds-panel-trio class (zero matching CSS existed)', () => {
+    const src = fs.readFileSync(path.join(root, 'ui_kits/dashboard/app.js'), 'utf8');
+    if (/class:\s*['"]ds-panel-trio['"]/.test(src)) throw new Error('ds-panel-trio regressed back into dashboard app.js as an applied class');
+    if (!src.includes('Grid(') || !src.includes('GridItem(')) throw new Error('Grid/GridItem no longer used in dashboard app.js');
+});
+
+check('ui_kits/signin/app.js uses Divider component, not the hand-rolled ds-auth-divider markup', () => {
+    const src = fs.readFileSync(path.join(root, 'ui_kits/signin/app.js'), 'utf8');
+    if (src.includes('ds-auth-divider')) throw new Error('hand-rolled ds-auth-divider markup regressed back into signin app.js');
+    if (!src.includes("Divider({ label: 'or' })")) throw new Error('Divider({label:\'or\'}) no longer used in signin app.js');
+});
+
+check('app-shell.css no longer defines the dead ds-auth-divider/-line rules', () => {
+    const src = fs.readFileSync(path.join(root, 'app-shell.css'), 'utf8');
+    if (/\.ds-auth-divider\b/.test(src)) throw new Error('dead .ds-auth-divider CSS rule regressed back into app-shell.css');
 });
 
 if (failures > 0) {

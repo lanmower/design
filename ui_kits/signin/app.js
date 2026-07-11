@@ -1,5 +1,5 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status, AppShell, Panel, Heading, Lede, Chip, Icon } from 'ds/components.js';
+import { Topbar, Crumb, Status, AppShell, Panel, Heading, Lede, Chip, Icon, Divider } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
 
@@ -130,11 +130,7 @@ function Form() {
             state.mode === 'magic'  ? 'send magic link ->' :
             state.mode === 'reset'  ? 'send reset link ->' : 'sign in ->'
         ),
-        state.mode !== 'reset' ? h('div', { class: 'ds-auth-divider' },
-            h('div', { class: 'ds-auth-divider-line' }),
-            h('span', {}, 'or'),
-            h('div', { class: 'ds-auth-divider-line' })
-        ) : null,
+        state.mode !== 'reset' ? Divider({ label: 'or' }) : null,
         state.mode !== 'reset' ? h('div', { class: 'ds-auth-providers' },
             Provider({ glyph: 'gh', label: 'github', provider: 'github' }),
             Provider({ glyph: 'g', label: 'google', provider: 'google' }),
