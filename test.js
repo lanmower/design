@@ -64,6 +64,7 @@ check('scripts/lint-tokens.mjs spacing report does not exceed session baseline',
 // -- New components: real ESM import, real invocation, real vnode shape --
 const { Pill } = await import('./src/components/shell.js');
 const { Pager, JsonViewer, ToolbarRow, PropertyGridRow, InlineEditableField, Grid, GridItem, Collapse, CollapseGroup, Divider } = await import('./src/components/editor-primitives.js');
+const { Table } = await import('./src/components/content.js');
 
 check('Pill renders a span.ds-pill with tone class', () => {
     const v = Pill({ tone: 'accent', children: 'PLAN' });
@@ -266,6 +267,17 @@ check('Divider default renders a real <hr>; label mode wraps a label span; verti
     if (labeled.props.children[0].props.class !== 'ds-ep-divider-label') throw new Error('missing label span');
     const vertical = Divider({ vertical: true });
     if (vertical.props['aria-orientation'] !== 'vertical') throw new Error('missing vertical aria-orientation');
+});
+
+check('Table striped/compact are opt-in and default false (existing contract byte-unchanged)', () => {
+    const plain = Table({ headers: ['a'], rows: [['1']] });
+    if (plain.props.class !== 'ds-table-wrap') throw new Error('default class changed: ' + plain.props.class);
+    const striped = Table({ headers: ['a'], rows: [['1']], striped: true });
+    if (!striped.props.class.includes('is-striped')) throw new Error('missing is-striped class: ' + striped.props.class);
+    const compact = Table({ headers: ['a'], rows: [['1']], compact: true });
+    if (!compact.props.class.includes('is-compact')) throw new Error('missing is-compact class: ' + compact.props.class);
+    const both = Table({ headers: ['a'], rows: [['1']], striped: true, compact: true });
+    if (!both.props.class.includes('is-striped') || !both.props.class.includes('is-compact')) throw new Error('missing combined classes: ' + both.props.class);
 });
 
 if (failures > 0) {

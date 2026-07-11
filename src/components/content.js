@@ -407,7 +407,7 @@ export function BarChart({ items = [], emptyText = 'no data yet' }) {
             h('div', { class: 'ds-barchart-value' }, it.display != null ? it.display : String(it.value)))));
 }
 
-export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothing here yet', rowLabels }) {
+export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothing here yet', rowLabels, striped = false, compact = false }) {
     if (!rows || rows.length === 0) return h('div', { class: 'empty' }, emptyText);
     // rowLabels lets callers supply a plain-text label per row when the first
     // cell is a vnode (so the aria-label is meaningful, not the literal 'row').
@@ -421,7 +421,10 @@ export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothin
     // risks overriding native semantics, so it is omitted.
     // Scroll containment lives on the component itself: a wide table used
     // outside a Panel must never force page-level horizontal scroll.
-    return h('div', { class: 'ds-table-wrap' }, h('table', {},
+    // striped/compact are opt-in density modifiers (webgeist g-table parity) —
+    // default false so the existing contract/visual is byte-unchanged.
+    const wrapClass = 'ds-table-wrap' + (striped ? ' is-striped' : '') + (compact ? ' is-compact' : '');
+    return h('div', { class: wrapClass }, h('table', {},
         h('thead', {}, h('tr', {}, ...headers.map((hd, i) => h('th', { key: i, scope: 'col' }, hd)))),
         h('tbody', {}, ...rows.map((row, i) => h('tr', {
             key: i,

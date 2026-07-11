@@ -988,6 +988,15 @@ table tr.clickable:focus-visible {
 }
 table tr.clickable:focus-visible td { background: var(--bg-2); }
 
+/* Table() striped/compact opt-in density modifiers (webgeist g-table parity).
+   Scoped under .ds-table-wrap so they never leak onto an unrelated bare
+   <table> a consumer hand-rolls outside this component. */
+.ds-table-wrap.is-striped table tr:nth-child(even) td { background: var(--bg-2); }
+.ds-table-wrap.is-striped table tr.clickable:nth-child(even):hover td,
+.ds-table-wrap.is-striped table tr.clickable:nth-child(even):focus-visible td { background: var(--bg-3, var(--bg-2)); }
+.ds-table-wrap.is-compact table th { padding: var(--space-1-5, 5px) var(--space-2, 8px); }
+.ds-table-wrap.is-compact table td { padding: var(--space-1-5, 5px) var(--space-2, 8px); }
+
 /* ============================================================
    Changelog
    ============================================================ */

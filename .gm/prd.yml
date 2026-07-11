@@ -1520,7 +1520,8 @@
   witness: 'src/components/editor-primitives.js Collapse/CollapseGroup added as controlled components (expanded/onToggle prop pattern matching existing Drawer/Dialog open/onClose convention). witness-grid.mjs real execution: collapse test confirmed collapsed state renders 1 child (header only) vs expanded state''s 2 children (header+body), and clicking the header button fires onToggle with the inverted boolean; collapseGroupAccordion test confirmed accordion mode correctly shows only openId''s item expanded and clicking a different item''s header calls onOpenChange with that item''s id. node scripts/build.mjs passed all lint gates'
 - id: component-table-density-options
   subject: Extend existing Table component (src/components/content.js) with optional striped/compact density props (webgeist g-table's striped pattern) and column-width hints, keeping the existing {headers,rows,onRowClick,emptyText} contract backward compatible
-  status: pending
+  status: completed
+  witness: 'src/components/content.js Table extended with striped=false/compact=false opt-in props (webgeist g-table striped parity). CSS added to app-shell.css scoped under .ds-table-wrap.is-striped/.is-compact so it never leaks onto an unrelated bare table. New test.js check ''Table striped/compact are opt-in and default false'' confirms default class stays exactly ''ds-table-wrap'' (byte-compatible), striped/compact/both variants add the correct class(es). node test.js: all 32 checks pass. COMPONENT_API.md and CHANGELOG.md updated'
 - id: component-divider-labeled
   subject: 'Port a labeled Divider primitive (webgeist g-divider pattern: plain rule + optional centered text label + vertical orientation) as a lightweight space-optimization primitive for visually segmenting dense panels without a full Section wrapper'
   status: completed

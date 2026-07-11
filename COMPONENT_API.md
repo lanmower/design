@@ -538,10 +538,15 @@ BarChart({ items = [{ label, value, display }], emptyText = 'no data yet' })
 Bars scale relative to the largest `value` in the set; `display` overrides the trailing numeric label (defaults to `String(value)`). Fill width is set via a `--bar-pct` custom-property write (never a raw inline `width:`), keeping it clear of the inline-styles lint gate.
 
 ### Table
-Data table with optional row click handler.
+Data table with optional row click handler. `striped`/`compact` are opt-in density modifiers (default `false`, existing calls byte-unchanged) — `striped` alternates row background on even rows, `compact` tightens header/cell padding onto the `--space-1-5` token.
 
 ```js
-Table({ headers = [], rows = [], onRowClick, emptyText = 'nothing here yet' })
+Table({ headers = [], rows = [], onRowClick, emptyText = 'nothing here yet', rowLabels, striped = false, compact = false })
+```
+
+**Example:**
+```js
+Table({ headers: ['id', 'status'], rows: [['a1', 'live'], ['a2', 'idle']], striped: true, compact: true })
 ```
 
 ### SearchInput
