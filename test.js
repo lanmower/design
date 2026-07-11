@@ -299,6 +299,25 @@ check('app-shell.css no longer defines the dead ds-auth-divider/-line rules', ()
     if (/\.ds-auth-divider\b/.test(src)) throw new Error('dead .ds-auth-divider CSS rule regressed back into app-shell.css');
 });
 
+check('every ui_kit using an editor-primitives.js component links editor-primitives.css (real bug found+fixed this session: dashboard/signin used Grid/Divider but never linked the stylesheet, so the components rendered completely unstyled)', () => {
+    // Word-boundary-anchored so 'Grid(' does not false-positive-match
+    // 'FileGrid(' (a distinct, unrelated content.js component).
+    const EP_PATTERNS = [/\bPager\b/, /\bJsonViewer\b/, /\bToolbarRow\b/, /\bPropertyGridRow\b/, /\bPropertyGrid\b/, /\bPropertyField\b/, /\bInlineEditableField\b/, /\bGrid\(/, /\bGridItem\(/, /\bCollapse\(/, /\bCollapseGroup\(/, /\bDivider\(/];
+    const kitsDir = path.join(root, 'ui_kits');
+    const missing = [];
+    for (const kit of fs.readdirSync(kitsDir)) {
+        const appPath = path.join(kitsDir, kit, 'app.js');
+        const htmlPath = path.join(kitsDir, kit, 'index.html');
+        if (!fs.existsSync(appPath) || !fs.existsSync(htmlPath)) continue;
+        const appSrc = fs.readFileSync(appPath, 'utf8');
+        const usesEp = EP_PATTERNS.some((re) => re.test(appSrc));
+        if (!usesEp) continue;
+        const htmlSrc = fs.readFileSync(htmlPath, 'utf8');
+        if (!htmlSrc.includes('editor-primitives.css')) missing.push(kit);
+    }
+    if (missing.length) throw new Error('ui_kits missing editor-primitives.css despite using its components: ' + missing.join(', '));
+});
+
 if (failures > 0) {
     console.error(`\n${failures} failure(s).`);
     process.exit(1);
