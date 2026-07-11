@@ -318,6 +318,20 @@ check('every ui_kit using an editor-primitives.js component links editor-primiti
     if (missing.length) throw new Error('ui_kits missing editor-primitives.css despite using its components: ' + missing.join(', '));
 });
 
+check('every CSS file referenced by a ui_kit index.html is included in the gh-pages.yml deploy copy list (real bug: editor-primitives.css/app-surfaces.css/chat.css/community.css/community-app.css were all linked in real HTML but never shipped to production, silently 404ing)', () => {
+    const kitsDir = path.join(root, 'ui_kits');
+    const referenced = new Set();
+    for (const kit of fs.readdirSync(kitsDir)) {
+        const htmlPath = path.join(kitsDir, kit, 'index.html');
+        if (!fs.existsSync(htmlPath)) continue;
+        const htmlSrc = fs.readFileSync(htmlPath, 'utf8');
+        for (const m of htmlSrc.matchAll(/href="\.\.\/\.\.\/([a-zA-Z0-9_-]+\.css)"/g)) referenced.add(m[1]);
+    }
+    const workflowSrc = fs.readFileSync(path.join(root, '.github/workflows/gh-pages.yml'), 'utf8');
+    const missing = [...referenced].filter((f) => !workflowSrc.includes(f));
+    if (missing.length) throw new Error('CSS files referenced by ui_kits but missing from gh-pages.yml copy list: ' + missing.join(', '));
+});
+
 if (failures > 0) {
     console.error(`\n${failures} failure(s).`);
     process.exit(1);

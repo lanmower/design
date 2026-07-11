@@ -30,7 +30,7 @@ jobs:
             fi
           done
           # Copy static root files
-          for f in app-shell.css colors_and_type.css favicon.svg robots.txt sitemap.xml .nojekyll; do
+          for f in app-shell.css app-surfaces.css chat.css colors_and_type.css community.css community-app.css editor-primitives.css gm-prose.css marketing.css favicon.svg robots.txt sitemap.xml .nojekyll; do
             if [ -e "$f" ]; then
               echo "Copying $f to dist/"
               cp -f "$f" dist/
