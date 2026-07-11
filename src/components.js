@@ -80,6 +80,9 @@ export {
     Drawer, Dialog, FocusTrap,
     Toast, toast,
     Pager, JsonViewer,
+    Grid, GridItem,
+    Collapse, CollapseGroup,
+    Divider,
     useMediaQuery,
     BP_SM, BP_MD, BP_LG, BP_XL
 } from './components/editor-primitives.js';

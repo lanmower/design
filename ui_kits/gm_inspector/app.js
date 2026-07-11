@@ -1,7 +1,8 @@
 import * as webjsx from 'webjsx';
 import {
     Topbar, Crumb, Side, Status, AppShell, Panel, Heading, Lede, Chip, Pill,
-    Pager, JsonViewer, ToolbarRow, PropertyGrid, PropertyGridRow, PropertyField, InlineEditableField
+    Pager, JsonViewer, ToolbarRow, PropertyGrid, PropertyGridRow, PropertyField, InlineEditableField,
+    Grid, GridItem, Collapse, CollapseGroup, Divider
 } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 import {
@@ -16,6 +17,11 @@ const root = document.getElementById('root');
 // static markup), same pattern the rest of this kit already uses for
 // sessions/treeNodes/deviations sample data.
 const demoState = { page: 1, pageCount: 6, prdText: 'audit gmsniff GUI consumer surface', prdTextError: false };
+
+// Live demo state for the "screen-real-estate primitives" panel (Grid,
+// Collapse/CollapseGroup, Divider, Pager numbered mode) -- the gap set found
+// porting webgeist's space-optimized components into this SDK.
+const densityState = { numberedPage: 4, numberedCount: 22, openSettingsId: 'general' };
 
 const kpis = [
     { val: '26,357', lbl: 'total events' },
@@ -134,13 +140,44 @@ function App() {
                     h('p', { class: 'ds-stat-lbl' }, 'JsonViewer (raw dispatch payload preview):'),
                     JsonViewer({ value: { verb: 'prd-resolve', id: 'add-pager-component', witness_evidence: 'test.js: 3 Pager checks pass' } })
                 ) }),
+                Panel({ title: 'screen-real-estate primitives', count: '5', class: 'ds-panel-gap', children: h('div', {},
+                    h('p', { class: 'ds-stat-lbl' }, 'Grid / GridItem (24-column responsive layout):'),
+                    Grid({ children: [
+                        GridItem({ xs: true, sm: 6, md: 4, children: Panel({ title: 'xs:auto sm:6 md:4', children: h('p', {}, 'resizes down to a third-width column at md+') }) }),
+                        GridItem({ xs: true, sm: 6, md: 4, children: Panel({ title: 'xs:auto sm:6 md:4', children: h('p', {}, 'stacks 2-up at sm, 3-up at md') }) }),
+                        GridItem({ xs: true, sm: 12, md: 4, children: Panel({ title: 'xs:auto sm:12 md:4', children: h('p', {}, 'full-width until md') }) }),
+                    ] }),
+                    h('p', { class: 'ds-stat-lbl' }, 'Pager numbered mode (live, click a page number):'),
+                    Pager({
+                        page: densityState.numberedPage, pageCount: densityState.numberedCount, numbered: true,
+                        total: 210, itemLabel: 'events',
+                        onPage: (p) => { densityState.numberedPage = p; render(); },
+                    }),
+                    h('p', { class: 'ds-stat-lbl' }, 'Divider (plain / labeled / vertical):'),
+                    Divider(),
+                    Divider({ label: 'OR' }),
+                    h('div', { class: 'ds-inline-row' },
+                        h('span', {}, 'left'), Divider({ vertical: true }), h('span', {}, 'right')),
+                    h('p', { class: 'ds-stat-lbl' }, 'CollapseGroup (live, accordion mode -- click a header):'),
+                    CollapseGroup({
+                        accordion: true,
+                        openId: densityState.openSettingsId,
+                        onOpenChange: (id) => { densityState.openSettingsId = id; render(); },
+                        items: [
+                            { id: 'general', title: 'General', children: h('p', {}, 'Theme, density, notification preferences.') },
+                            { id: 'advanced', title: 'Advanced', children: h('p', {}, 'API keys, webhook endpoints, rate limits.') },
+                            { id: 'danger', title: 'Danger zone', children: h('p', {}, 'Delete workspace, transfer ownership.') },
+                        ],
+                    })
+                ) }),
                 Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
                     h('p', {}, '- ', Chip({ tone: 'accent', children: 'StatsGrid' }), ' for dense KPI tiles.'),
                     h('p', {}, '- ', Chip({ tone: 'accent', children: 'SessionRow' }), ' + ', Chip({ tone: 'accent', children: 'PhaseWalk' }), ' for per-session phase progress at a glance.'),
                     h('p', {}, '- ', Chip({ tone: 'accent', children: 'TreeNode' }), ' for a chronological dispatch/verb timeline, variant-colored by kind.'),
                     h('p', {}, '- ', Chip({ tone: 'accent', children: 'DevRow' }), ' for deviation callouts, ', Chip({ tone: 'accent', children: 'BarRow' }), ' for inline histograms.'),
                     h('p', {}, '- ', Chip({ tone: 'accent', children: 'LiveLog' }), ' for a dense scrollable event stream.'),
-                    h('p', {}, '- ', Chip({ tone: 'accent', children: 'Pill' }), '/', Chip({ tone: 'accent', children: 'Pager' }), '/', Chip({ tone: 'accent', children: 'JsonViewer' }), '/', Chip({ tone: 'accent', children: 'ToolbarRow' }), '/', Chip({ tone: 'accent', children: 'InlineEditableField' }), ' - the gap set found auditing gmsniff\'s GUI, which already builds on this SDK directly.')
+                    h('p', {}, '- ', Chip({ tone: 'accent', children: 'Pill' }), '/', Chip({ tone: 'accent', children: 'Pager' }), '/', Chip({ tone: 'accent', children: 'JsonViewer' }), '/', Chip({ tone: 'accent', children: 'ToolbarRow' }), '/', Chip({ tone: 'accent', children: 'InlineEditableField' }), ' - the gap set found auditing gmsniff\'s GUI, which already builds on this SDK directly.'),
+                    h('p', {}, '- ', Chip({ tone: 'accent', children: 'Grid' }), '/', Chip({ tone: 'accent', children: 'Collapse' }), '/', Chip({ tone: 'accent', children: 'Divider' }), '/', Chip({ tone: 'accent', children: 'Pager numbered mode' }), ' - the space-optimization gap set found porting webgeist\'s screen-density patterns into this SDK.')
                 ) })
             )
         ],

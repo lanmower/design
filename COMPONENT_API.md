@@ -739,13 +739,69 @@ InlineEditableField({ value = '', placeholder, onInput, onChange, error, multili
 ### Pager
 Prev/next paginator with a page label. `page` is 1-indexed; `pageCount<=1` disables both buttons (no divide-by-zero, no dead-end enabled control). `total` (optional) renders an item-count suffix.
 
+`numbered: true` switches to a compact numbered-button row (screen-real-estate dense mode) instead of the prev/next label — always shows first, last, current page, and up to `siblingCount` (default 1) neighbors either side, collapsing gaps into an ellipsis. Falls back to prev/next automatically when `pageCount<=1`. The default prev/next contract is unchanged.
+
 ```js
-Pager({ page = 1, pageCount = 1, onPage, total, itemLabel = 'items' })
+Pager({ page = 1, pageCount = 1, onPage, total, itemLabel = 'items', numbered = false, siblingCount = 1 })
 ```
 
 **Example:**
 ```js
 Pager({ page: 2, pageCount: 5, total: 42, onPage: (p) => setPage(p) })
+Pager({ page: 5, pageCount: 40, numbered: true, onPage: (p) => setPage(p) })
+```
+
+### Grid / GridItem
+24-column responsive layout primitive (screen-real-estate density: dense multi-column panels without hand-rolled `grid-template-columns` per consumer). `Grid` is a flex-row wrapper; `GridItem`'s column-span props are integers 1-24 evaluated at four tiers mirroring `BP_SM`/`BP_MD`/`BP_LG`/`BP_XL` (480/768/1024/1440) via CSS custom properties + media queries — no JS-side `matchMedia`, degrades gracefully without hydration. A span of `true` means full-width/auto-grow at that tier; `0` hides the item at that tier.
+
+```js
+Grid({ gap, justify, align, children })
+GridItem({ xs, sm, md, lg, xl, children })
+```
+
+**Example:**
+```js
+Grid({ children: [
+  GridItem({ xs: true, sm: 6, md: 4, children: PanelA() }),
+  GridItem({ xs: true, sm: 6, md: 8, children: PanelB() }),
+]})
+```
+
+### Collapse / CollapseGroup
+Progressive-disclosure toggle panel (screen-real-estate density: property inspectors, nested settings, FAQ-style panels). Controlled component — caller owns `expanded` state and passes `onToggle`, same pattern as `Drawer`/`Dialog`'s `open`/`onClose`.
+
+`CollapseGroup` lays out a list of `{id, title, children}` items. `accordion: true` enforces single-open-at-a-time via `openId`/`onOpenChange(id)`; without it, each item manages its own `expanded` flag and `onOpenChange(id, next)` fires per-item.
+
+```js
+Collapse({ title, expanded = false, onToggle, children })
+CollapseGroup({ items = [], openId, onOpenChange, accordion = false })
+```
+
+**Example:**
+```js
+CollapseGroup({
+  accordion: true,
+  openId: state.openId,
+  onOpenChange: (id) => setState({ openId: id }),
+  items: [
+    { id: 'general', title: 'General', children: GeneralSettings() },
+    { id: 'advanced', title: 'Advanced', children: AdvancedSettings() },
+  ],
+})
+```
+
+### Divider
+Plain rule, optional centered text label, optional vertical orientation — for segmenting dense panels without a full `Section` wrapper.
+
+```js
+Divider({ label, vertical = false })
+```
+
+**Example:**
+```js
+Divider()
+Divider({ label: 'OR' })
+Divider({ vertical: true })
 ```
 
 ### JsonViewer

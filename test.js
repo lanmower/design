@@ -63,7 +63,7 @@ check('scripts/lint-tokens.mjs spacing report does not exceed session baseline',
 
 // -- New components: real ESM import, real invocation, real vnode shape --
 const { Pill } = await import('./src/components/shell.js');
-const { Pager, JsonViewer, ToolbarRow, PropertyGridRow, InlineEditableField } = await import('./src/components/editor-primitives.js');
+const { Pager, JsonViewer, ToolbarRow, PropertyGridRow, InlineEditableField, Grid, GridItem, Collapse, CollapseGroup, Divider } = await import('./src/components/editor-primitives.js');
 
 check('Pill renders a span.ds-pill with tone class', () => {
     const v = Pill({ tone: 'accent', children: 'PLAN' });
@@ -200,6 +200,72 @@ check('InlineEditableField empty string value renders empty input with placehold
     const v = InlineEditableField({ value: '', placeholder: 'witness evidence...' });
     if (v.props.value !== '') throw new Error('expected empty string value, got ' + JSON.stringify(v.props.value));
     if (v.props.placeholder !== 'witness evidence...') throw new Error('placeholder missing');
+});
+
+check('Pager numbered mode renders numbered buttons + ellipsis + current-page marker', () => {
+    const v = Pager({ page: 5, pageCount: 20, numbered: true });
+    const kids = v.props.children;
+    const buttons = kids.filter(c => c && c.props && c.props.class && c.props.class.includes('ds-ep-pager-num'));
+    const ellipses = kids.filter(c => c && c.props && c.props.class === 'ds-ep-pager-ellipsis');
+    const current = buttons.find(b => b.props.class.includes('is-current'));
+    if (buttons.length === 0) throw new Error('expected numbered page buttons');
+    if (ellipses.length === 0) throw new Error('expected at least one ellipsis for a 20-page range at page 5');
+    if (!current || current.props.children[0] !== '5') throw new Error('current page button not marked/labeled correctly');
+});
+
+check('Pager default (non-numbered) contract is unchanged by the numbered-mode addition', () => {
+    const v = Pager({ page: 2, pageCount: 5, total: 42 });
+    if (v.props.class !== 'ds-ep-pager') throw new Error('default class changed: ' + v.props.class);
+});
+
+check('Grid renders a flex wrapper; GridItem span sets --{tier}-basis custom properties', () => {
+    const item = GridItem({ xs: true, sm: 6, md: 4, children: 'x' });
+    if (!item.props.style.includes('--xs-basis:100%')) throw new Error('xs:true should be full-width: ' + item.props.style);
+    if (!item.props.style.includes('--sm-basis:25%')) throw new Error('sm:6 of 24 should be 25%: ' + item.props.style);
+    const grid = Grid({ children: [item] });
+    if (grid.props.class !== 'ds-ep-grid') throw new Error('expected ds-ep-grid class: ' + grid.props.class);
+});
+
+check('GridItem span=0 at a tier sets --{tier}-display:none (hide-at-breakpoint)', () => {
+    const item = GridItem({ xs: 12, sm: 0 });
+    if (!item.props.style.includes('--sm-display:none')) throw new Error('sm:0 should hide at sm: ' + item.props.style);
+});
+
+check('Collapse renders only the header when collapsed, header+body when expanded', () => {
+    const collapsed = Collapse({ title: 'T', expanded: false, children: 'body' });
+    const expanded = Collapse({ title: 'T', expanded: true, children: 'body' });
+    if (collapsed.props.children.length !== 1) throw new Error('collapsed should render 1 child (header only)');
+    if (expanded.props.children.length !== 2) throw new Error('expanded should render 2 children (header+body)');
+});
+
+check('Collapse onToggle fires with the inverted expanded state on header click', () => {
+    let toggledTo = null;
+    const v = Collapse({ title: 'T', expanded: false, onToggle: (next) => { toggledTo = next; } });
+    v.props.children[0].props.onclick();
+    if (toggledTo !== true) throw new Error('expected onToggle(true) from collapsed state, got ' + toggledTo);
+});
+
+check('CollapseGroup accordion mode expands only openId, onOpenChange fires with clicked item id', () => {
+    let openChangedTo;
+    const v = CollapseGroup({
+        accordion: true, openId: 'b',
+        items: [{ id: 'a', title: 'A', children: 'a' }, { id: 'b', title: 'B', children: 'b' }],
+        onOpenChange: (id) => { openChangedTo = id; },
+    });
+    const [itemA, itemB] = v.props.children;
+    if (itemA.props.children.length !== 1) throw new Error('item a should be collapsed (not openId)');
+    if (itemB.props.children.length !== 2) throw new Error('item b should be expanded (is openId)');
+    itemA.props.children[0].props.onclick();
+    if (openChangedTo !== 'a') throw new Error('expected onOpenChange("a"), got ' + openChangedTo);
+});
+
+check('Divider default renders a real <hr>; label mode wraps a label span; vertical mode sets orientation', () => {
+    const plain = Divider();
+    if (plain.type !== 'hr') throw new Error('expected hr, got ' + plain.type);
+    const labeled = Divider({ label: 'OR' });
+    if (labeled.props.children[0].props.class !== 'ds-ep-divider-label') throw new Error('missing label span');
+    const vertical = Divider({ vertical: true });
+    if (vertical.props['aria-orientation'] !== 'vertical') throw new Error('missing vertical aria-orientation');
 });
 
 if (failures > 0) {

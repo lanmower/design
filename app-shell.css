@@ -3853,6 +3853,10 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .ds-stat-val.err-rate { font-size: clamp(24px, 7cqi, 32px); color: var(--warn); }
 .ds-stat-lbl { font-size: var(--fs-micro); color: var(--fg-3); margin-top: 2px; }
 
+/* Inline row — flex row with centered items and a small gap, for demo/kit
+   markup that needs to lay siblings out horizontally without an inline style. */
+.ds-inline-row { display: flex; align-items: center; gap: var(--space-2, 8px); }
+
 /* SubGrid */
 .ds-sub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; margin-top: 8px; }
 .ds-sub-grid-empty { padding: var(--space-3); color: var(--fg-3); font-size: var(--fs-tiny); }

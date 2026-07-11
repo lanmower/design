@@ -372,6 +372,76 @@
 .ds-ep-pager-btn:disabled { opacity: 0.4; cursor: default; }
 .ds-ep-pager-label { white-space: nowrap; }
 
+.ds-ep-pager-numbered { flex-wrap: wrap; }
+.ds-ep-pager-num {
+    appearance: none; cursor: pointer;
+    background: var(--panel-2, var(--bg-2));
+    border: 1px solid var(--rule);
+    color: var(--panel-text, var(--fg));
+    min-width: 1.75em;
+    padding: var(--space-half, 3px) var(--space-1, 5px);
+    border-radius: var(--r-1, 4px);
+    font: inherit;
+    text-align: center;
+}
+.ds-ep-pager-num:hover { background: color-mix(in oklab, var(--accent) 10%, transparent); }
+.ds-ep-pager-num.is-current {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+}
+.ds-ep-pager-ellipsis { padding: 0 var(--space-hair, 2px); opacity: 0.6; }
+.ds-ep-pager-total { white-space: nowrap; margin-left: auto; }
+
+/* Grid / GridItem — 24-column responsive layout. GridItem's flex-basis is
+   set per-tier via --xs-basis/--sm-basis/--md-basis/--lg-basis/--xl-basis
+   custom properties (computed in JS from a 1-24 span); each @media tier
+   below picks up whichever property is set for that breakpoint, cascading
+   down from xs as the mobile-first default. Mirrors BP_SM/MD/LG/XL. */
+.ds-ep-grid {
+    display: flex; flex-wrap: wrap;
+    gap: var(--space-2, 8px);
+}
+.ds-ep-grid-item {
+    box-sizing: border-box;
+    flex-grow: var(--xs-grow, 1);
+    flex-basis: var(--xs-basis, 100%);
+    max-width: var(--xs-basis, 100%);
+    display: var(--xs-display, inherit);
+}
+@media (min-width: 480px) {
+    .ds-ep-grid-item[style*="--sm-basis"] {
+        flex-grow: var(--sm-grow, 1);
+        flex-basis: var(--sm-basis, 100%);
+        max-width: var(--sm-basis, 100%);
+        display: var(--sm-display, inherit);
+    }
+}
+@media (min-width: 768px) {
+    .ds-ep-grid-item[style*="--md-basis"] {
+        flex-grow: var(--md-grow, 1);
+        flex-basis: var(--md-basis, 100%);
+        max-width: var(--md-basis, 100%);
+        display: var(--md-display, inherit);
+    }
+}
+@media (min-width: 1024px) {
+    .ds-ep-grid-item[style*="--lg-basis"] {
+        flex-grow: var(--lg-grow, 1);
+        flex-basis: var(--lg-basis, 100%);
+        max-width: var(--lg-basis, 100%);
+        display: var(--lg-display, inherit);
+    }
+}
+@media (min-width: 1440px) {
+    .ds-ep-grid-item[style*="--xl-basis"] {
+        flex-grow: var(--xl-grow, 1);
+        flex-basis: var(--xl-basis, 100%);
+        max-width: var(--xl-basis, 100%);
+        display: var(--xl-display, inherit);
+    }
+}
+
 /* JsonViewer */
 .ds-ep-json {
     font-size: var(--fs-tiny, 12px);
@@ -1377,4 +1447,60 @@ input.ov-set-control[type="range"] { padding: 0; accent-color: var(--accent); }
     .ds-247420 .ds-ep-dock-left { bottom: calc(46vh + 12px); max-height: 40vh; }
     .ds-247420 .ds-ep-dock.collapsed { bottom: auto; }
     .ds-247420 .ds-ep-dock-left.collapsed { top: 6px; bottom: auto; }
+}
+
+/* Collapse / CollapseGroup — progressive-disclosure toggle panel. */
+.ds-ep-collapse {
+    border: 1px solid var(--rule);
+    border-radius: var(--r-1, 4px);
+    background: var(--panel-2, var(--bg-2));
+}
+.ds-ep-collapse + .ds-ep-collapse { margin-top: var(--space-1, 5px); }
+.ds-ep-collapse-head {
+    appearance: none; cursor: pointer; width: 100%;
+    display: flex; align-items: center; gap: var(--space-1-5, 5px);
+    background: transparent; border: none;
+    padding: var(--space-1-5, 5px) var(--space-2, 8px);
+    font: inherit; color: var(--panel-text, var(--fg));
+    text-align: left;
+}
+.ds-ep-collapse-head:hover { background: color-mix(in oklab, var(--accent) 6%, transparent); }
+.ds-ep-collapse-chevron {
+    font-family: var(--ff-mono, monospace);
+    width: 1em; flex-shrink: 0;
+    color: var(--panel-text-3, var(--fg-3));
+}
+.ds-ep-collapse-title { flex: 1; font-weight: 600; }
+.ds-ep-collapse-body {
+    padding: var(--space-2, 8px);
+    border-top: 1px solid var(--rule);
+}
+.ds-ep-collapse-group { display: flex; flex-direction: column; }
+
+/* Divider — plain rule / labeled rule / vertical separator. */
+.ds-ep-divider {
+    border: none; border-top: 1px solid var(--rule);
+    margin: var(--space-2, 8px) 0;
+}
+.ds-ep-divider-labeled {
+    display: flex; align-items: center; gap: var(--space-1-5, 5px);
+    margin: var(--space-2, 8px) 0;
+}
+.ds-ep-divider-labeled::before,
+.ds-ep-divider-labeled::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid var(--rule);
+}
+.ds-ep-divider-label {
+    font: var(--fs-tiny, 12px)/1 var(--ff-mono, monospace);
+    color: var(--panel-text-3, var(--fg-3));
+    white-space: nowrap;
+}
+.ds-ep-divider-vertical {
+    display: inline-block;
+    align-self: stretch;
+    width: 0;
+    border-left: 1px solid var(--rule);
+    margin: 0 var(--space-1-5, 5px);
 }
