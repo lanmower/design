@@ -1,15 +1,22 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip, Kpi, Table, Receipt, Changelog, Row, RowLink } from 'ds/components.js';
+import { Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip, Kpi, BarChart, Table, Receipt, Changelog, Row, RowLink } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
 
 const root = document.getElementById('root');
 
 const kpis = [
-    ['24,891', 'requests · 24h'],
-    ['184ms',  'avg latency · p50'],
-    ['0.42%',  'error rate · 5xx+4xx'],
-    ['94.7%',  'cache hit · edge']
+    ['24,891', 'requests · 24h', { delta: '+12.4%', tone: 'up',   spark: [8, 11, 9, 14, 16, 15, 19, 22, 20, 24] }],
+    ['184ms',  'avg latency · p50', { delta: '-6.1%', tone: 'up',  spark: [220, 210, 205, 198, 190, 188, 184, 186, 182, 184] }],
+    ['0.42%',  'error rate · 5xx+4xx', { delta: '+0.08%', tone: 'down', spark: [0.2, 0.25, 0.3, 0.28, 0.35, 0.3, 0.38, 0.4, 0.36, 0.42] }],
+    ['94.7%',  'cache hit · edge', { delta: '+1.2%', tone: 'up', spark: [90, 91, 92, 91, 93, 92, 94, 93, 95, 94.7] }]
+];
+
+const channelBreakdown = [
+    { label: 'edge cache', value: 412, display: '412 rps' },
+    { label: 'origin fetch', value: 187, display: '187 rps' },
+    { label: 'feed api', value: 1200, display: '1.2k rps' },
+    { label: 'upload api', value: 24, display: '24 rps' }
 ];
 
 const tableHeaders = ['endpoint', 'rps', 'p95', 'errors', 'status'];
@@ -67,17 +74,20 @@ function App() {
                 Heading({ level: 1, children: 'dashboard' }),
                 Lede({ children: 'kpis, tables, receipts, changelog — every content primitive in one operations surface.' }),
                 Panel({ title: 'live metrics', count: kpis.length, class: 'ds-panel-gap', children: Kpi({ items: kpis }) }),
-                Panel({ title: 'top endpoints', count: tableRows.length, class: 'ds-panel-gap', children: h('div', { class: 'ds-scroll-x' }, Table({ headers: tableHeaders, rows: tableRows })) }),
                 h('div', { class: 'ds-panel-duo' },
+                    Panel({ title: 'traffic by channel', count: channelBreakdown.length, children: BarChart({ items: channelBreakdown }) }),
+                    Panel({ title: 'top endpoints', count: tableRows.length, children: h('div', { class: 'ds-scroll-x' }, Table({ headers: tableHeaders, rows: tableRows })) })
+                ),
+                h('div', { class: 'ds-panel-trio' },
                     Panel({ title: 'environment', children: Receipt({ rows: receipt }) }),
                     Panel({ title: 'recent events', count: events.length, children: events.length
                         ? events.map((e, i) => Row({ key: 'ev' + i, code: e.code, title: e.title, sub: e.sub, meta: e.meta }))
-                        : h('div', { class: 'empty' }, 'no events yet') })
+                        : h('div', { class: 'empty' }, 'no events yet') }),
+                    Panel({ title: 'changelog', count: changelog.length, children: Changelog({ entries: changelog }) })
                 ),
-                Panel({ title: 'changelog', count: changelog.length, class: 'ds-panel-gap', children: Changelog({ entries: changelog }) }),
                 Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
-                    h('p', {}, '· ', Chip({ tone: 'accent', children: 'Kpi' }), ' for headline counters with delta + meta.'),
-                    h('p', {}, '· ', Chip({ tone: 'accent', children: 'Table' }), ' for tabular metrics, ', Chip({ tone: 'accent', children: 'Row' }), ' for event lists.'),
+                    h('p', {}, '· ', Chip({ tone: 'accent', children: 'Kpi' }), ' for headline counters with trend delta + sparkline.'),
+                    h('p', {}, '· ', Chip({ tone: 'accent', children: 'BarChart' }), ' for a category breakdown, ', Chip({ tone: 'accent', children: 'Table' }), ' for tabular metrics, ', Chip({ tone: 'accent', children: 'Row' }), ' for event lists.'),
                     h('p', {}, '· ', Chip({ tone: 'accent', children: 'Receipt' }), ' for kv environment manifest, ', Chip({ tone: 'accent', children: 'Changelog' }), ' for release log.')
                 ) })
             )

@@ -1,10 +1,12 @@
 # Component API Reference
 
-anentrypoint-design v0.0.127 — Standardized component prop naming and API surface.
+anentrypoint-design v0.0.272 — Standardized component prop naming and API surface.
 
 ## Overview
 
 This document describes all exported components, their prop signatures, and standardized naming conventions. All components are pure factories that return webjsx vnodes.
+
+The `freddie.js` re-exports (`FREDDIE_PAGES`, `home`/`chat`/`voice`/`sessions`/`projects`/`agents`/`analytics`/`models`/`cron`/`skills`/`config`/`env`/`tools`/`batch`/`gateway`/`chains`, `skillLabel`, `getRecentPaths`, `saveRecentPath`, `renderChatMessages`) are the kit's own docs/marketing demo-site page builders, not general-purpose components — not intended for external composition.
 
 ### Prop Naming Standards
 
@@ -16,6 +18,8 @@ This document describes all exported components, their prop signatures, and stan
 
 **Callback props** always use `on*` camelCase:
 - `onClick`, `onInput`, `onSubmit`, `onChange`, etc.
+
+**`onAction` is prop-name-only, not a shared contract** — its call signature varies by component and each is correct for its own use, not a bug to unify: `Banner`'s `onAction(rawEvent)` is a generic action-button click handler; `FileRow`'s `onAction(action)` is package-internal (`FileGrid` wraps it into its own public `onAction(action, file)`, the two-arg shape external consumers should wire against); `FileViewer`/`FilePreviewPane`'s `onAction('download')` is a fixed single-purpose download trigger since the file is already available via the `file` prop. Check the specific component's signature below rather than assuming a shared shape.
 
 **Variant/mode props** use enum values, never multiple boolean flags:
 - Old: `primary={true}`, `ghost={true}` [ ]
@@ -75,6 +79,13 @@ The live multi-session command center.
 Session shape: `{ sid, realSid, title, agent, model, cwd, elapsedMs, counter, lastActivity, currentTool, status: 'running'|'stale'|'error', stopping, external, isNew, cost, tokens }`.
 Status-sorted renders bucketed groups (Errored/Running/Idle/External); other sorts render flat.
 
+### SessionMeta
+A middot-separated metadata strip for a session detail surface (compact fact display, e.g. version/uptime/roots).
+
+`SessionMeta({ items: [{ label, value, title, onCopy }] })`
+
+Each item renders as a span with a dimmed label + mono value; passing `onCopy` adds a per-item copy button. Returns `null` when `items` is empty. Class `.ds-session-meta-strip` (the bare `.ds-session-meta` class is already used by `ConversationList` row meta).
+
 ### SessionCard
 One running session. Same `session` shape as above; `external` suppresses stop and renders a read-only card.
 
@@ -111,6 +122,7 @@ Beyond the base listing props:
 `FileGrid({ ..., selectable, selected: Set (keyed by path), onToggleSelect(f, {range}), onSelectAll(keys), onClearSelection, density: 'list'|'compact'|'thumb', onDensity, thumbUrl(f) })`
 `marked`/`onMark` are accepted aliases for `selected`/`onToggleSelect`.
 `loading` with rows present dims the grid in place (`is-refreshing`); skeleton renders only on a cold load.
+FileRow row actions: `onAction(action, file)` fires with `action` in `['download','rename','move','delete']`; `'move'` opens the host's bulk-move flow (agentgui seeds a single-path selection into its existing multi-select move dialog).
 
 ### BulkBar
 `BulkBar({ count, noun, nounPlural, actions: [{label, danger, onClick}], onClear, busy })` - pluralizes `-y` nouns.
@@ -183,18 +195,22 @@ Pill({ tone: 'accent', children: 'PLAN' })
 Flexible button component with support for multiple variants.
 
 ```js
-Btn({ href = '#', variant = 'default', children, onClick, 'aria-label' })
+Btn({ href, variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled, class: className, key })
 ```
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `variant` | `'primary' | 'ghost' | 'default'` | `'default'` | Button style variant |
-| `href` | string | `'#'` | Navigation link (renders as `<a>`) |
+| `variant` | `'primary' \| 'ghost' \| 'danger' \| 'default'` | `'default'` | Button style variant. `'danger'` renders `btn-primary danger`. If both `variant` and a legacy boolean (`primary`/`ghost`/`danger`) are passed, `variant` wins. |
+| `href` | string | `undefined` | Navigation link. A real navigational value renders `<a>`; omitted, `''`, or literal `'#'` renders a native `<button>` (not a link) |
 | `children` | ReactNode | - | Button label/content |
 | `onClick` | function | - | Click handler callback |
 | `aria-label` | string | - | Accessible label (auto-filled from children if string) |
+| `disabled` | boolean | - | Disables click/keyboard activation; adds `is-disabled`, `aria-disabled`, and (for links) `tabindex="-1"` |
+| `class` | string | - | Extra class(es) appended to the resolved variant class (matches `Panel`/`Heading`'s `class` prop naming) |
+| `key` | string | - | webjsx diff key |
 | `primary` | boolean | - | **Deprecated**: use `variant="primary"` |
 | `ghost` | boolean | - | **Deprecated**: use `variant="ghost"` |
+| `danger` | boolean | - | **Deprecated**: use `variant="danger"` |
 
 **Example:**
 ```js
@@ -387,15 +403,16 @@ Panel({ title, count, right, style = '', children, kind })
 List item with optional link/click handler.
 
 ```js
-Row({ code, title, sub, meta, state = 'default', onClick, href, kind, cols, leading, trailing, target, selected, active, key, style })
+Row({ code, rank, title, sub, meta, state = 'default', onClick, href, kind, cols, leading, trailing, target, selected, active, rail, expanded, highlight, actions, detail, key, style })
 ```
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `state` | `'active' | 'default'` | `'default'` | Row state |
+| `state` | `'active' \| 'default' \| 'disabled' \| 'error'` | `'default'` | Row state; `'disabled'` strips `onClick`/`role=button`/tab-stop and sets `aria-disabled` |
 | `title` | string | - | Primary text |
 | `sub` | string | - | Secondary text |
 | `code` | ReactNode | - | Leading code/glyph |
+| `rank` | ReactNode | - | Alias for `code` (the leading monospace index) |
 | `meta` | string | - | Trailing meta text |
 | `href` | string | - | Link destination |
 | `onClick` | function | - | Click handler |
@@ -406,6 +423,11 @@ Row({ code, title, sub, meta, state = 'default', onClick, href, kind, cols, lead
 | `target` | string | - | Link target (`_blank`, etc.) |
 | `active` | boolean | - | **Deprecated**: use `state="active"` |
 | `selected` | boolean | - | **Deprecated**: use `state="active"` |
+| `rail` | string | - | Leading status-bar tone: `'green'` (ok/selected) \| `'purple'` (subagent) \| `'flame'` (error/unavailable) \| any CSS color token |
+| `expanded` | boolean | - | Disclosure-toggle state; sets `aria-expanded` and gates `actions` rendering. Omit entirely for plain action rows (not a toggle) |
+| `highlight` | string | - | Case-insensitive substring to wrap in `<mark class="ds-hl">` within `title` |
+| `actions` | array | - | Action-button specs rendered as a sibling strip; only shown when `expanded === true` |
+| `detail` | ReactNode | - | Sibling block rendered after title/meta on its own line (`.ds-row-detail`) |
 
 **Example:**
 ```js
@@ -490,9 +512,30 @@ Kpi({ items = [] })
 ```js
 [
     [value, label],
+    [value, label, { delta: '+12.4%', tone: 'up' | 'down', spark: [8, 11, 9, 14, 16] }],
     ...
 ]
 ```
+
+The third element is optional and additive — a bare `[value, label]` tuple is unchanged. When present, `delta` renders a toned trend pill (`--success`/`--danger`) with an up/down arrow, and `spark` renders an inline `Sparkline`.
+
+### Sparkline
+Minimal inline SVG trend line — no chart library, token-stroke only.
+
+```js
+Sparkline({ values = [], width = 72, height = 24, tone })
+```
+
+`tone: 'up' | 'down'` colors the stroke via `--success`/`--danger` (default up). Returns `null` for an empty `values` array. Decorative (`aria-hidden`) — pair with adjacent text for the actual value.
+
+### BarChart
+Horizontal token-only progress-bar breakdown — category/channel comparisons.
+
+```js
+BarChart({ items = [{ label, value, display }], emptyText = 'no data yet' })
+```
+
+Bars scale relative to the largest `value` in the set; `display` overrides the trailing numeric label (defaults to `String(value)`). Fill width is set via a `--bar-pct` custom-property write (never a raw inline `width:`), keeping it clear of the inline-styles lint gate.
 
 ### Table
 Data table with optional row click handler.
@@ -533,8 +576,14 @@ EventList({ items, events, emptyText = 'no events', rankPad = 3 })
 Page section header with title, lede, and right content.
 
 ```js
-PageHeader({ title, lede, eyebrow, right })
+PageHeader({ title, lede, eyebrow, right, compact, dense, id })
 ```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `compact` | boolean | Strips the section's leading/trailing margin (for a header used as a page's first element). Keeps the display H1-over-paragraph layout. |
+| `dense` | boolean | Content-first single-row form (small heading + inline lede) instead of the display H1-over-paragraph layout. When `dense` is true, `compact` is ignored — the dense row always renders margin-stripped. |
+| `id` | string | Placed on the outer section as a deep-link anchor. |
 
 ### Form
 Simple form with fields and submit button.
@@ -834,6 +883,68 @@ IconButtonGroup({ items = [], value, onChange, dense = false })
 
 ---
 
+## Form Primitives
+
+`src/components/form-primitives.js` — standard form controls (previously undocumented).
+
+```js
+Checkbox({ checked, indeterminate, disabled, label, hint, onChange, ariaLabel, key, name, id })
+Radio({ name, value, checked, disabled, label, hint, onChange, ariaLabel, key, id })
+RadioGroup({ legend, name, value, options = [], onChange, orientation = 'vertical', key })
+Toggle({ checked, disabled, label, hint, onChange, ariaLabel, kind = 'switch', key, id })
+Field({ label, hint, error, required, requiredMarker = '*', htmlFor, children, key })
+useFormValidation(schema = {})
+```
+
+`RadioGroup`'s `options` items are `{ value, label, hint?, disabled? }`. `Field` wraps any input with a label/hint/required-marker/error row. `useFormValidation` returns a validator driven by a `{ field: (value) => errorString|null }` schema map.
+
+---
+
+## Interaction Primitives
+
+`src/components/interaction-primitives.js` — drag/drop, scrub, reorder, and keyboard-shortcut helpers (previously undocumented).
+
+```js
+useDraggable(el, { data, kind, onDragStart, onDragEnd })
+useDropTarget(el, { accepts = [], onDrop, onDragOver })
+useNumberScrub(el, { getValue, onChange, step = 0.01, threshold = 3 })
+usePointerDrag(el, { onStart, onMove, onEnd, button = 0 })
+Reorderable({ items = [], getKey, renderItem, onReorder, axis = 'vertical', kind = 'reorder' })
+useKeyboardShortcut(map = {}, { scope = 'global', enabled = true })
+formatShortcut(combo)
+ShortcutHint({ combo, kind = 'kbd' })
+ShortcutList({ shortcuts = [] })
+useKeyboardShortcutHelp()
+ShortcutHelpDialog({ open = false, onClose, registry })
+```
+
+`useDraggable`/`useDropTarget`/`usePointerDrag` are imperative hooks over a DOM element ref, not vnode factories — call them in an effect, not inside render. `useKeyboardShortcut` registers combos into a module-level registry that `useKeyboardShortcutHelp`/`ShortcutHelpDialog` read back to render a live shortcuts-overlay (the pattern agentgui's `?`-overlay uses).
+
+---
+
+## Overlay Primitives
+
+`src/components/overlay-primitives.js` — floating UI, focus-trap, and modal/popover surfaces (previously undocumented).
+
+```js
+useFloating(anchorEl, contentEl, { placement = 'bottom-start', offset = 8 })
+useLongPress(targetEl, callback, { ms = 500 })
+Tooltip({ children, label, placement = 'top', delay = 350, kind = 'default' })
+Popover({ open, anchorEl, onClose, placement = 'bottom-start', children, ariaLabel })
+Dropdown({ trigger, items = [], onSelect, placement = 'bottom-start', ariaLabel })
+trapTab(el, e)
+CommandPalette({ open, items = [], onSelect, onClose })
+EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose, query = '' })
+BootOverlay({ progress = 0, phase = '', errored = false, visible = false })
+SettingsPopover({ title = 'Settings', open, anchorX = 0, anchorY = 0, sections = [], onClose })
+AuthModal({ mode = 'extension', error = '', busy = false, open = false, onModeChange, onConnectExtension, onGenerate, onImport, onClose })
+VideoLightbox({ src, label = '', open = false, onClose })
+```
+
+`trapTab` is the Tab-focus-trap primitive exported for reuse by any modal/drawer (agentgui's mobile drawer and files-modals both wire it directly — see AGENTS.md's webjsx/focus-trap notes). `useFloating` computes anchored position for `Popover`/`Dropdown`/`Tooltip`; call it with live DOM refs, not vnodes.
+
+---
+
 ## Community Components
 
 ### ServerIcon
@@ -932,6 +1043,24 @@ Complete community layout.
 ```js
 CommunityShell({ topbar, crumb, side, main, status, narrow })
 ```
+
+---
+
+## Additional Exports Quick Reference
+
+Exports from already-documented modules above that previously had zero mention here. Signatures only (see the module's own source comments for behavior detail); expand into a full section if a consumer needs deeper docs for one of these.
+
+**Shell** (`shell.js`): `IconButton({ icon, onClick, title, size = 'base', variant = 'ghost', disabled = false })`, `Badge({ children, variant = 'default', tone = 'neutral' })`, `Crumb({ trail = [], leaf = '', right })`.
+
+**Content** (`content.js`): `Card`, `PanelFromItems({ heading, items = [], keyPrefix = 'i', count, style, kind, emptyText })`, `HeroFromPageData(hero)`, `Marquee({ items = [], sep = '/' })`, `CliBlock({ lines = [], heading = 'quick start', className = '' })`, `Spinner({ size = 'base', tone = 'accent', label = 'loading', key })`, `Skeleton({ height = '1em', width = '100%', count = 1, label = 'loading content', key })`, `Alert({ kind = 'info', children, onDismiss, title, key })`, `FilterPills({ options = [], selected, onSelect, label = 'filters' })`.
+
+**Editor primitives** (`editor-primitives.js`): `Drawer({ side = 'left', open = false, onClose, children, ariaLabel })`, `Dialog({ title, open = false, onClose, children, actions = [], dismissible = false, ariaLabel })`, `FocusTrap({ children })`, `Toast({ message, kind = 'info', duration = 3000, onClose })` / `toast({ message, kind = 'info', duration = 3000 })` (imperative fire-and-forget variant), `ContextMenu({ items = [], anchor = { x: 0, y: 0 }, onClose })` / `useContextMenu(targetEl, items, openCb)`, `ResizeHandle({ axis = 'horizontal', onResize, ariaLabel })`, `SplitPanel({ orientation = 'horizontal', initial = '50%', min = 80, max = Infinity, children })`, `useMediaQuery(query)`, `BP_SM/BP_MD/BP_LG/BP_XL` (480/768/1024/1440 breakpoint constants).
+
+**Files** (`files.js`): `FileRow({ name, type = 'other', size, modified, code, onOpen, onAction, active, key, permissions, locked, selected, onToggleSelect, ... })` (see files-modals section above for the full multi-select contract), `FileIcon({ type = 'other' })`, `FileSkeleton({ rows = 12 })`, `EmptyState({ text = 'nothing here', glyph = Icon('circle'), action })`, `BreadcrumbPath({ segments = [], onNav, root = 'root' })`, `sortFiles(files = [], sort = 'name', dir = 'asc')`, `fileGlyph(type)`.
+
+**Files modals** (`files-modals.js`): `ConfirmDialog({ title = 'Are you sure?', message, confirmLabel = 'confirm', cancelLabel = 'cancel', destructive, onConfirm, onCancel, error, busy = false, busyLabel = 'working…' })`, `PromptDialog({ title = 'Enter a name', value = '', placeholder = '', confirmLabel = 'ok', cancelLabel = 'cancel', onConfirm, onCancel, onInput, error, busy = false, busyLabel = 'working…' })`, `FileViewer({ file, body, onClose, onAction, onPrev, onNext })`, `FilePreviewMedia({ src, type = 'other', name })`, `FilePreviewCode({ content = '', lang, filename })`, `FilePreviewText({ content = '', truncated })`.
+
+**Community** (`community.js`): `MobileHeader({ title, channelType, channelName, onMenu, onMembers })`, `ReplyBar({ quotedMessage, quotedAuthor, onCancel })`, `Banner({ tone = 'info', message, visible, actionLabel, onAction, onClick })`, `ThreadPanel({ threads = [], activeId = null, title = 'Threads', onSelect, onCreate, onClose, loading = false })`, `ForumView({ posts = [], onSearch, onSort, onSelect, onNewPost, loading = false })`, `PageView({ title = '', html = '', isAdmin = false, onEdit })`.
 
 ---
 
@@ -1075,6 +1204,161 @@ decorative glyph in shipped CSS fails the build.
   (amber inset) > `is-active`/`is-new` (accent inset). Tool-card status pills: `tool-running`
   (accent) / `tool-error` (flame) / `tool-done` (success). `Row()` rail tones differentiate by
   SHAPE (taller bar = error, gapped fill = subagent) plus an sr-only status word, not hue alone.
+
+---
+
+## Voice Surfaces (`src/components/voice.js`)
+
+PTT/VAD/webcam/voice-settings/queue primitives for a voice-enabled chat surface. Class prefix `vx-*`. Pure factories, no transport — the host wires media streams and device enumeration.
+
+### PttButton
+Push-to-talk button; hold-to-talk (pointer/touch) or click, depending on `mode`.
+
+| Prop | Type | Description |
+|---|---|---|
+| `state` | `'idle'\|'live'\|'recording'\|'vad'` | Visual/announced state; anything but `idle` is treated as active. |
+| `mode` | `'ptt'\|'vad'\|'live'` | Drives the `vx-ptt-mode-*` class only (interaction wiring is the same). |
+| `onHoldStart` | `(e) => void` | Fired on pointerdown/touchstart. |
+| `onHoldEnd` | `(e) => void` | Fired on pointerup/pointerleave/touchend. |
+| `onClick` | `(e) => void` | Fired on click (for non-hold flows). |
+| `label` | `string` | Button label + `aria-label` (default `'Hold to talk'`). |
+
+### VadMeter
+Voice-activity level meter with a draggable threshold marker.
+
+| Prop | Type | Description |
+|---|---|---|
+| `level` | `number 0-1` | Current input level (clamped). |
+| `threshold` | `number 0-1` | VAD trigger threshold (clamped); levels `>=` threshold render the "over" fill state. |
+| `onThresholdChange` | `(value: number) => void` | Fired from the underlying `<input type=range>`. |
+
+### WebcamPreview
+Live video preview with resolution/fps selects and an enable/disable toggle.
+
+| Prop | Type | Description |
+|---|---|---|
+| `videoStream` | `MediaStream\|null` | Bound to the `<video>` `srcObject` via ref. |
+| `resolution` | `string` | Current resolution value (e.g. `'640x480'`), shown in the select. |
+| `fps` | `number` | Current frame rate, shown in the select. |
+| `enabled` | `bool` | When false, shows a "Camera off" placeholder instead of `<video>`. |
+| `resolutions` | `string[]` | Options for the resolution select; falls back to `[resolution]`. |
+| `fpsOptions` | `number[]` | Options for the fps select; falls back to `[fps]`. |
+| `onResolutionChange` | `(value: string) => void` | |
+| `onFpsChange` | `(value: number) => void` | |
+| `onToggle` | `() => void` | Enable/Disable button. |
+
+### VoiceSettingsModal
+Modal dialog for voice mode, devices, VAD threshold, processing toggles, bitrate, and volume. Returns `null` when `open` is false.
+
+| Prop | Type | Description |
+|---|---|---|
+| `open` | `bool` | Gate; component renders nothing when false. |
+| `mode` | `'ptt'\|'vad'\|'live'` | Current mode segmented control selection. |
+| `inputId` / `outputId` | `string` | Selected input/output device id. |
+| `inputDevices` / `outputDevices` | `[{value, label}]` | Device select options. |
+| `vadThreshold` | `number 0-1` | Only shown when `mode === 'vad'`. |
+| `rnnoise` / `autoGain` / `forceTurn` | `bool` | Processing toggle rows. |
+| `bitrate` | `number` | kbps range (8-256). |
+| `volume` | `number 0-1` | Master volume range; defaults to `1` when null. |
+| `onChange` | `(patch: object) => void` | Fired with a partial-state patch from every control. |
+| `onSave` / `onCancel` / `onClose` | `() => void` | Footer/close actions; `onClose` also fires on backdrop click and Escape. |
+
+### VoiceControls
+Toolbar of call controls: mic, deafen, camera, screen share, settings, leave.
+
+| Prop | Type | Description |
+|---|---|---|
+| `muted` / `deafened` / `cameraOn` / `screenShareOn` | `bool` | Toggle states driving each button's pressed/on class. |
+| `onMic` / `onDeafen` / `onCamera` / `onScreenShare` / `onSettings` | `(e) => void` | A button is disabled when its handler is not supplied. |
+| `onLeave` | `(e) => void` | Leave-voice button. |
+
+### AudioQueue
+Horizontal strip of queued/replayable audio segments with pause/resume/skip transport controls. Renders an empty state ("No audio queued") when `segments` is empty.
+
+| Prop | Type | Description |
+|---|---|---|
+| `segments` | `[{id, speaker, duration, color, isLive}]` | Queue items rendered as chips; `isLive` shows a `LIVE` tag instead of a duration. |
+| `currentSegmentId` | `string` | Highlights the matching chip as current. |
+| `paused` | `bool` | Drives the transport button's play/pause icon and label. |
+| `onReplay` | `(id) => void` | Fired on chip click. |
+| `onSkip` | `() => void` | Skip-forward button. |
+| `onResume` / `onPause` | `() => void` | Transport button, dispatched based on `paused`. |
+
+---
+
+## ThemeToggle (`src/components/theme-toggle.js`)
+
+Segmented auto/paper/ink theme switch bound to `src/theme.js`; reads current mode via `getTheme()` and applies changes via `applyTheme()` (which persists, sets `<html data-theme>`, and notifies listeners).
+
+`ThemeToggle({ compact = false, onChange } = {})`
+
+| Prop | Type | Description |
+|---|---|---|
+| `compact` | `bool` | `false` (default) renders a 3-way `role=radiogroup` segmented control (auto/paper/ink). `true` renders a single icon-only cycling button (auto -> paper -> ink -> auto) with a CSS-drawn half-disc glyph and a live label, for icon-only rail contexts. |
+| `onChange` | `(mode: 'auto'\|'paper'\|'ink') => void` | Called after `applyTheme()`, in addition to the theme-change side effect. |
+
+The compact variant auto-refreshes its glyph when the OS theme changes while in `auto` mode (subscribes to `onThemeChange` once per module).
+
+---
+
+## Data-Density Components (`src/components/data-density.js`)
+
+Dense observability/dashboard primitives (ported from the gmsniff GUI): phase-progress, tree/timeline entries, bar charts, KPI tiles, sub-nav grids, session rows, deviation callouts, and a live log stream. All theme-aware (colors ride `var(--token)`, never raw hex). CSS lives in `app-shell.css` under "data density" (`ds-` prefix).
+
+### PhaseWalk
+Compact horizontal phase-progress indicator.
+
+`PhaseWalk({ phases = DEFAULT_PHASES, reached = [], gapKinds = [] })` — `DEFAULT_PHASES` is `['PLAN','EXECUTE','EMIT','VERIFY','CONSOLIDATE','COMPLETE']`. `reached[i]` (bool) marks a phase already hit; `gapKinds` names phases that are a known gap (rendered red, overrides `reached`).
+
+### TreeNode
+Indented timeline/tree entry with left-border variant coloring.
+
+`TreeNode({ ts, kind, variant = '', phase, id, keyLabel, reason, deviationLabel, residuals })` — `variant` is one of `''|'phase'|'deviation'|'mutable-resolve'|'prd-add'`; `phase`/`id`/`keyLabel` render as pills; `residuals` (string array) is joined with `, ` when present.
+
+### BarRow
+Inline horizontal bar-chart row (label + track + value).
+
+`BarRow({ label, value, pct = 0, tone })` — `pct` is clamped to 0-100; `tone` is a CSS color value (`var(--token)` or `color-mix(...)`), never a bare hex string.
+
+### StatTile / StatsGrid
+Compact KPI tile and its grid wrapper (denser than `.kpi`).
+
+`StatTile({ val, lbl, cls = '' })` — `cls` selects an accent variant: `''|'rate-big'|'err-rate'`.
+`StatsGrid({ items = [] })` — renders `items.map(StatTile)`; shows an empty state ("no stats") when `items` is empty.
+
+### SubGrid
+Small button grid: big number + label, for category navigation.
+
+`SubGrid({ items: [{ key, count, label, onClick }] })` — renders an empty state ("no items") when `items` is empty.
+
+### SessionRow
+Compact single-line session summary row with an inline phase strip.
+
+`SessionRow({ sessId, phaseWalkProps, events, verbs, prd, muts, resid, deviations, firstTs, lastTs, onClick })` — `events`/`verbs`/`prd`/`muts`/`resid` are counts joined middot-separated; `phaseWalkProps` is forwarded to `PhaseWalk`; `onClick` makes the row a keyboard-activatable button (`role=button`, Enter/Space).
+
+### DevRow
+Deviation/error callout row. Uses the danger-surface token, never a bare hex background.
+
+`DevRow({ ts, event, sess, operation, residuals })` — `sess`/`operation` render as pills; `residuals` (string array) joined with `, `.
+
+### LiveLogEntry / LiveLog
+Scrollable dense log stream: colored subsystem tag + bold event name + muted payload preview.
+
+`LiveLogEntry({ ts, sub, tone, event, preview })` — `tone` is a CSS color value; the tag background derives from it via `color-mix` at render time (no hex-alpha-suffix hack).
+`LiveLog({ entries = [], autoScroll = true })` — renders an empty state ("no log entries") when `entries` is empty; `autoScroll` pins `scrollTop` to `scrollHeight` on mount/update via ref.
+
+---
+
+## Utilities
+
+Non-component function exports useful to hosts wiring the kit's chat/session/file surfaces.
+
+- **`fmtDuration(ms)`** (`sessions.js`) — one duration format for every surface (live cards, running panel, session meta, context pane): `<60s -> 'Ns'`, `<1h -> 'Nm Ss'`, else `'Nh Nm'`. Returns `''` for null/non-finite/negative input.
+- **`fmtFileSize(bytes)`** (`files.js`) — canonical byte formatter (`chat.js` re-exports it as `fmtBytes`). Returns `'—'` for `null` bytes, `'0 B'` for zero, else `'N.N UNIT'` scaled through B/KB/MB/GB/TB.
+- **`safeUrl(url)`** (`chat.js`) — sanitizes a URL for use in an inline (non-DOMPurify-passed) markdown link or image src. Allows relative/anchor/protocol-relative links and `http(s)`/`mailto`/`tel` schemes; rejects everything else (e.g. `javascript:`, `data:`, `vbscript:`, `file:`) by returning `null`.
+- **`makeThreadAutoScroll(getCount)`** (`chat.js`) — returns a ref callback that pins a scroll container to the bottom when new messages arrive and the user is already at the bottom (via an `IntersectionObserver` on a bottom sentinel). `getCount` is a function returning the current message count. Auto-scroll pauses while `hasSelectionInside` reports an active text selection inside the container, and resumes once it collapses. Shared by `Chat`, `AICat`, and `AgentChat`.
+- **`injectCodeCopy(container)`** (`chat.js`) — walks every `<pre>` inside a rendered-markdown container and wraps it with a hover-revealed per-block "copy" button (plus a language tab when the highlighter set a `language-xx`/`lang-xx` class). Idempotent via a `data-copy-wired` marker so re-renders don't stack buttons; the button label flips to "copied" for ~1.6s after a successful clipboard write (falls back to a hidden-textarea `execCommand('copy')` when the Clipboard API is unavailable).
+- **`hasSelectionInside(el)`** (`chat.js`) — returns `true` when the document has a non-collapsed text selection anchored inside `el`. Used to pause auto-scroll and streaming re-renders so a user's select-and-copy from a still-streaming message isn't wiped every frame.
 
 ---
 

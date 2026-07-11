@@ -77,7 +77,7 @@ export function ConversationList({ sessions = [], selected, groups, search, capt
   // applyDiff "reading 'key'" crash on the first populated mount. Row children
   // are uniformly keyed; non-row states render a single unkeyed status line.
   let inner;
-  if (loading) {
+  if (loading && !sessions.length) {
     // Shape-matched skeleton rows during the cold ccsniff index walk (the rail
     // showed a bare line before) - Claude-Desktop skeletons its sidebar on load.
     inner = [
@@ -138,6 +138,19 @@ export function SessionMeta({ items = [] } = {}) {
           onclick: () => it.onCopy(it.value),
         }, 'copy') : null,
       ].filter(Boolean))));
+}
+
+// AgentListSkeleton — placeholder shimmer rows shown while the agent picker's
+// list is loading, so it doesn't flash from a bare spinner to a full list
+// (same predictable-perceived-perf pattern as FileSkeleton). `rows` controls
+// how many ghost rows render; each mimics a Row's icon+title+meta footprint.
+export function AgentListSkeleton({ rows = 5 } = {}) {
+  return h('div', { class: 'ds-agent-list-skeleton', 'aria-hidden': 'true' },
+    ...Array.from({ length: Math.max(1, rows) }, (_, i) => h('div', { key: 'ags' + i, class: 'ds-agent-row-skeleton' },
+      h('span', { class: 'ds-skel ds-skel-icon' }),
+      h('span', { class: 'ds-skel ds-skel-title' }),
+      h('span', { class: 'ds-skel ds-skel-meta' }))),
+    h('span', { key: 'st', class: 'ds-agent-list-skeleton-status', role: 'status', 'aria-live': 'polite' }, 'loading agents…'));
 }
 
 // SessionCard — one running session in the live dashboard. Status dot, agent /
@@ -338,12 +351,12 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
       : (selectable && selCount && onStopSelected
       ? (onArmStopSelected && !confirmingStopSelected
           ? Btn({ key: 'stopsel', variant: 'danger', onClick: () => onArmStopSelected([...selSet]), children: 'stop selected' })
-          : Btn({ key: 'stopsel', variant: 'danger', className: confirmingStopSelected ? 'is-armed' : null, onClick: () => onStopSelected([...selSet]),
+          : Btn({ key: 'stopsel', variant: 'danger', class: confirmingStopSelected ? 'is-armed' : null, onClick: () => onStopSelected([...selSet]),
                   children: confirmingStopSelected ? 'stop ' + selCount + ' sessions - press again' : 'stop selected' }))
       : (onStopAll
           ? (onArmStopAll && !confirmingStopAll
               ? Btn({ key: 'stopall', variant: 'danger', onClick: () => onArmStopAll(sessions), children: 'stop all' })
-              : Btn({ key: 'stopall', variant: 'danger', className: confirmingStopAll ? 'is-armed' : null, onClick: () => onStopAll(sessions),
+              : Btn({ key: 'stopall', variant: 'danger', class: confirmingStopAll ? 'is-armed' : null, onClick: () => onStopAll(sessions),
                       children: confirmingStopAll ? 'stop ' + sessions.length + ' sessions - press again' : 'stop all' }))
           : null));
   // Build header children as a filtered array: webjsx applyDiff crashes

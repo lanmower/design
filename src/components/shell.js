@@ -16,7 +16,7 @@ export function Chip({ tone = '', children }) {
     return h('span', { class: 'chip' + (tone ? ' tone-' + tone : '') }, children);
 }
 
-export function Btn({ href, variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled, className, key }) {
+export function Btn({ href, variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled, class: className, key }) {
     // Support legacy primary/ghost props for backward compatibility, but prefer variant
     const resolvedVariant = variant !== 'default' ? variant : (primary ? 'primary' : (ghost ? 'ghost' : (danger ? 'danger' : 'default')));
     const cls = (resolvedVariant === 'primary' ? 'btn-primary' : (resolvedVariant === 'ghost' ? 'btn-ghost' : (resolvedVariant === 'danger' ? 'btn-primary danger' : 'btn')))
@@ -214,7 +214,14 @@ export function Topbar({ brand = '247420', leaf = '', items = [], active = '', o
         Brand({ name: brand, leaf }),
         search ? h('label', { class: 'app-search' },
             h('span', { class: 'icon', 'aria-hidden': 'true' }, 'search'),
-            h('input', { type: 'search', name: 'q', placeholder: search, 'aria-label': `search ${search}` })
+            // `search` is either a plain placeholder string (renders the
+            // default uncontrolled input) or a caller-built VElement (has
+            // .type/.props — e.g. a controlled <input> wired to app state)
+            // rendered as-is. Stringifying a VElement into placeholder/
+            // aria-label previously produced literal "[object Object]" text.
+            (search && typeof search === 'object' && 'type' in search)
+                ? search
+                : h('input', { type: 'search', name: 'q', placeholder: search, 'aria-label': `search ${search}` })
         ) : null,
         h('nav', { 'aria-label': 'main navigation' }, ...items.map(([label, href]) => {
             const cleanLabel = String(label).replace(' ->', '');

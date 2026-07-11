@@ -131,7 +131,7 @@
   height: 48px;
   border-radius: var(--r-3);
   background: var(--bg-2);
-  color: var(--green-2);
+  color: var(--green);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -353,15 +353,17 @@
 }
 
 .cm-channel-item.voice-active {
-  color: var(--green-2);
+  color: var(--green);
 }
-.cm-channel-item.voice-active .cm-ch-icon { color: var(--green-2); }
+.cm-channel-item.voice-active .cm-ch-icon { color: var(--green); }
 .cm-channel-item.voice-active:hover {
   background: color-mix(in oklab, var(--green) 12%, transparent);
 }
 
 .cm-channel-item.voice-connecting {
-  color: var(--sun);
+  /* --sun measures 1.1-1.5:1 against every app background - amber is the
+     tuned text-safe warning tone used for this severity elsewhere. */
+  color: var(--amber);
 }
 
 .cm-ch-icon {
@@ -382,8 +384,8 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  border: 2px solid color-mix(in oklab, var(--sun) 30%, transparent);
-  border-top-color: var(--sun);
+  border: 2px solid color-mix(in oklab, var(--amber) 30%, transparent);
+  border-top-color: var(--amber);
   flex-shrink: 0;
 }
 
@@ -399,7 +401,7 @@
 }
 
 .cm-ch-icon.voice-active-badge {
-  color: var(--green-2);
+  color: var(--green);
   text-shadow: 0 0 8px var(--green-2);
 }
 
@@ -506,7 +508,7 @@
   color: var(--fg);
 }
 .cm-ch-voice-user.speaking {
-  color: var(--green-2);
+  color: var(--green);
 }
 .cm-ch-voice-user.speaking .cm-ch-voice-user-avatar {
   box-shadow: 0 0 0 2px var(--green-2);
@@ -562,7 +564,7 @@
   font-size: var(--fs-micro);
   text-transform: uppercase;
   letter-spacing: var(--tr-caps);
-  color: var(--green-2);
+  color: var(--green);
   font-weight: 700;
   display: inline-flex;
   align-items: center;
@@ -1206,7 +1208,7 @@
 }
 .cm-banner.tone-success {
   background: color-mix(in oklab, var(--success) 18%, var(--bg));
-  color: var(--success);
+  color: var(--green);
 }
 .cm-banner.tone-error {
   background: color-mix(in oklab, var(--danger) 18%, var(--bg));

@@ -125,7 +125,8 @@
   border: var(--bw-hair, 1px) solid color-mix(in srgb, var(--fg) 12%, transparent);
 }
 .ds-247420 .health-summary.health-ok .health-chip:first-child {
-  color: var(--accent);
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
   border-color: color-mix(in srgb, var(--accent) 40%, transparent);
 }
 
@@ -148,20 +149,25 @@
 .ds-247420 .cwd-bar-btn:hover { background: color-mix(in srgb, var(--fg) 14%, transparent); }
 .ds-247420 .cwd-bar-btn:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
-/* History no-session empty state: fill the void with a centered prompt. */
+/* History no-session empty state: natural height, no leftover void below. */
 .ds-247420 .history-empty {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: .4em; text-align: center; min-height: 50vh; color: var(--fg-3);
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  gap: .4em; text-align: center; padding: var(--space-6, 40px) 0 var(--space-4, 16px); color: var(--fg-3);
 }
-.ds-247420 .history-empty-title { margin: 0; font-size: 1.05rem; color: var(--fg-2); }
+.ds-247420 .history-empty-title { margin: 0; font-size: var(--fs-lg); color: var(--fg-2); }
 .ds-247420 .history-empty-sub { margin: 0; max-width: 42ch; }
+.ds-247420 .history-empty-hints { margin: var(--space-5, 24px) auto 0; max-width: 46ch; text-align: left; }
 
-/* Settings: two-column on wide screens (backend + agents). */
+/* Settings: two-column on wide screens (backend + agents). Grid gap is the
+   single source of rhythm between stacked Panels here - .panel's own
+   margin-bottom would stack on top of the gap (32px + 24px = 56px, a break
+   used nowhere else), so it's zeroed for direct grid children. */
 .ds-247420 .settings-grid {
   display: grid; gap: var(--space-4, 16px);
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
 }
+.ds-247420 .settings-grid > .panel { margin-bottom: 0; }
 .ds-247420 .agentgui-main-settings .settings-grid { margin-top: 0; }
 
 /* The kit Chat head computes its own zero-padded count and ignores our sub
@@ -215,7 +221,7 @@
   /* Re-assert the paper-tuned signal tokens so token-derived foregrounds
      (status discs, error text, tool cards) print with light-theme colours
      rather than the dark-theme-derived values inherited under auto-dark. */
-  .ds-247420 { --flame:#C53E00; --amber:#8A6512; --warn:#E0241A; --sky:#3A6EFF; --bg:var(--paper); --fg:var(--ink); }
+  .ds-247420 { --flame:#C53E00; --amber:#7C570F; --warn:#E0241A; --sky:#3A6EFF; --bg:var(--paper); --fg:var(--ink); }
   .ds-247420 #app { min-height: auto; display: block; height: auto; }
   .ds-247420 .skip-link, .ds-247420 .status-dot, .ds-247420 .history-actions, .ds-247420 .chat-composer { display: none !important; }
   .ds-247420 .app, .ds-247420 .app-main, .ds-247420 .panel, .ds-247420 .chat, .ds-247420 .chat-thread {

@@ -51,8 +51,14 @@
      the originals (#FF5A1F / #D9A93A) which were tuned on ink and fail on
      paper (2.9:1 / 2.0:1). */
   --flame:       #C53E00;
-  --amber:       #8A6512;
+  /* #8A6512 measured 4.5+:1 on --paper but only 4.26:1 on --bg-2, which the
+     dashboard card status text actually renders on - darkened for margin on
+     both backgrounds (5.21:1 on --bg-2). */
+  --amber:       #7C570F;
   --sky:         #3A6EFF;
+  /* --warn = interactive danger controls (buttons, banners, menus, error
+     inputs); --danger below = passive error/status text and metrics
+     (kpi/sparkline deltas, auth-error text). Two tokens, one convention. */
   --warn:        #E0241A;
   /* Syntax-token aliases: light values pass 4.5:1 on paper; the dark blocks
      restore the bright dark-tuned originals. Components reference ONLY these. */
@@ -61,7 +67,11 @@
   --code-fn:      #B84300;
   --code-str-alt: var(--mascot-deep);
   --code-num:     #946300;
-  --danger:      oklch(0.55 0.18 25);
+  /* 0.55 lightness measured 4.70:1 on --paper but only 4.25:1 on --bg-2 (the
+     auth-error banner's actual background) - darkened for AA margin on both.
+     --danger = passive error/status text and metrics; --warn above =
+     interactive danger controls. */
+  --danger:      oklch(0.50 0.18 25);
   --success:     var(--green-2);
   --live:        var(--green);
 
@@ -80,7 +90,11 @@
   --accent-fg:   var(--ink);
   --accent-ink:  var(--acid-deep);
   --accent-bright: var(--acid); /* base value so var(--accent-bright) never falls back empty; ink + [data-accent] retune it */
-  --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
+  /* Blends --accent-ink (the readable/darker ink variant), not the raw
+     --accent fill, so light-theme active states clear contrast against --bg;
+     dark/ink and auto-dark restate the prior --accent-based value explicitly
+     below so this change does not leak into them via inheritance. */
+  --accent-tint: color-mix(in oklab, var(--accent-ink) 22%, var(--bg));
 
   /* On-color foregrounds — text/icons that sit ON a saturated fill (accent,
      danger, category chips). Theme-driven so white-on-color never hard-codes
@@ -214,12 +228,11 @@
   --ease-exit:   cubic-bezier(0.4, 0, 1, 1);
 
   /* Print texture — the signature surface treatment. --grain is a tiled
-     fractal-noise data-URI; --halftone is a dot screen. Both are opt-in via
-     .ds-grain / .ds-halftone utilities and tuned faint so type stays crisp. */
+     fractal-noise data-URI, opt-in via the .ds-grain utility and tuned faint
+     so type stays crisp. */
   --grain-opacity:    0.05;
   --grain-blend:      multiply;
   --grain:       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --halftone-size:    6px;
   /* Offset-ink registration — the small print-mark offset used on editorial
      edges (panel spine, expo numbering). A literal length, not a color. */
   --ink-offset:  3px;
@@ -317,6 +330,9 @@ select:focus-visible {
   --accent-fg: var(--ink);
   --accent-ink: var(--acid); /* on ink, the lime itself reads as bright text */
   --accent-bright: var(--acid);
+  /* Preserves the prior --accent-based blend for dark; the :root light-theme
+     value above was retuned to blend --accent-ink instead. */
+  --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
   --danger:    oklch(0.68 0.19 25);
   --flame:     #FF5A1F;
   --amber:     #D9A93A;
@@ -329,6 +345,14 @@ select:focus-visible {
   --code-fn:      var(--flame);
   --code-str-alt: var(--mascot);
   --code-num:     var(--sun);
+}
+
+/* Restores the pre-existing (weaker) dark-theme selection tint after the
+   light-theme-only bump in app-shell.css's base ::selection rule. */
+[data-theme="ink"] ::selection,
+[data-theme="dark"] ::selection {
+  background: color-mix(in oklab, var(--accent) 24%, var(--bg-2));
+  color: var(--fg);
 }
 
 /* NOTE: the [data-theme="auto"] block below mirrors the
@@ -358,6 +382,7 @@ select:focus-visible {
     --accent-fg: var(--ink);
     --accent-ink: var(--acid);
     --accent-bright: var(--acid);
+    --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
     --danger:    oklch(0.68 0.19 25);
     --flame:     #FF5A1F;
     --amber:     #D9A93A;
@@ -368,6 +393,10 @@ select:focus-visible {
     --code-fn:      var(--flame);
     --code-str-alt: var(--mascot);
     --code-num:     var(--sun);
+  }
+  [data-theme="auto"] ::selection {
+    background: color-mix(in oklab, var(--accent) 24%, var(--bg-2));
+    color: var(--fg);
   }
 }
 
@@ -428,8 +457,9 @@ select:focus-visible {
   --bg: var(--paper); --bg-2: var(--paper-2); --bg-3: var(--paper-3);
   --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
   --accent: var(--acid); --accent-fg: var(--ink); --accent-ink: var(--acid-deep);
+  --accent-tint: color-mix(in oklab, var(--accent-ink) 22%, var(--bg));
   /* A paper island under a dark ancestor must not inherit the dark signal pair. */
-  --flame: #C53E00; --amber: #8A6512; --warn: #E0241A; --sky: #3A6EFF;
+  --flame: #C53E00; --amber: #7C570F; --warn: #E0241A; --sky: #3A6EFF;
 }
 
 /* thebird — warm-paper brand preset. A first-class swappable theme: it lives

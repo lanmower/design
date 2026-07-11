@@ -14,7 +14,7 @@ export {
     Panel, Card, Row, RowLink, PanelFromItems,
     Hero, HeroFromPageData, Marquee, Install, CliBlock, Receipt, Changelog,
     WorksList, WritingList, Manifesto, Section, PageHeader,
-    Kpi, Table, SearchInput, TextField, Select, EventList,
+    Kpi, Sparkline, BarChart, Table, SearchInput, TextField, Select, EventList,
     HomeView, ProjectView, Form,
     Spinner, Skeleton, Alert, FilterPills
 } from './components/content.js';
@@ -28,7 +28,7 @@ export {
 export { AgentChat, MESSAGE_CAP } from './components/agent-chat.js';
 
 export {
-    ConversationList, SessionCard, SessionDashboard, SessionMeta, fmtDuration
+    ConversationList, SessionCard, SessionDashboard, SessionMeta, fmtDuration, AgentListSkeleton
 } from './components/sessions.js';
 
 export { ContextPane } from './components/context-pane.js';

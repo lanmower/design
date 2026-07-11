@@ -38,6 +38,7 @@ function Hero() {
       eyebrow: hero.subheading || site.tagline || null,
       title: hero.heading || site.title,
       body: hero.body || '',
+      badges: hero.badges || null,
       actions
     })
   );
@@ -236,7 +237,7 @@ const App = C.AppShell({
   side: buildSide(),
   main: h('div', { id: 'all' },
     Hero(),
-    C.Marquee({ items: ['always open', '24 7 420', 'the creative department', 'shipping in public'], sep: '/' }),
+    C.Marquee({ items: ['open source', 'design tokens', 'buildless components', 'zero raw color literals'], sep: '/' }),
     Tabs(),
     Kits(),
     FileBrowser(),
