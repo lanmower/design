@@ -462,7 +462,26 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
             ...actions.filter(Boolean).map((a, i) => h('button', {
                 key: 'ma' + i, type: 'button', class: 'chat-msg-action',
                 title: a.title || a.label, 'aria-label': a.label || a.title,
-                onclick: (e) => { e.preventDefault(); a.onClick && a.onClick(e); },
+                onclick: (e) => {
+                    e.preventDefault();
+                    a.onClick && a.onClick(e);
+                    // Copy is the highest-traffic per-message action and, unlike
+                    // code-block/tool-result copy elsewhere in this file, had no
+                    // self-contained visual feedback — a sighted/mouse user saw
+                    // nothing happen. Flip the button's own label/icon the same
+                    // way those sibling copy controls already do.
+                    if (a.label === 'copy') {
+                        const btn = e.currentTarget;
+                        const labelEl = btn.querySelector('.chat-msg-action-label');
+                        clearTimeout(btn._dsCopyTimer);
+                        btn.classList.add('is-copied');
+                        if (labelEl) labelEl.textContent = 'copied';
+                        btn._dsCopyTimer = setTimeout(() => {
+                            btn.classList.remove('is-copied');
+                            if (labelEl) labelEl.textContent = 'copy';
+                        }, 1600);
+                    }
+                },
             }, a.icon ? Icon(a.icon, { size: 14 }) : null,
                a.label ? h('span', { class: 'chat-msg-action-label' }, a.label) : null)))
         : null;
@@ -493,9 +512,20 @@ export function flashComposerNote(composerEl, text) {
         note.setAttribute('aria-live', 'polite');
         composerEl.appendChild(note);
     }
-    note.textContent = text;
-    clearTimeout(note._dsNoteTimer);
-    note._dsNoteTimer = setTimeout(() => { note.remove(); }, 2600);
+    // A single shared node means a second call before the first note's timeout
+    // fires used to silently overwrite it (lost message, not just an early
+    // dismiss). Queue instead: show immediately if idle, otherwise append and
+    // let the display loop drain the queue in order.
+    note._dsNoteQueue = note._dsNoteQueue || [];
+    note._dsNoteQueue.push(text);
+    if (note._dsNoteTimer) return; // already draining the queue
+    const showNext = () => {
+        const next = note._dsNoteQueue.shift();
+        if (next === undefined) { note.remove(); note._dsNoteTimer = null; return; }
+        note.textContent = next;
+        note._dsNoteTimer = setTimeout(showNext, 2600);
+    };
+    showNext();
 }
 
 export function ChatComposer({ value, onInput, onSend, onEmoji, onCancel, busy, placeholder = 'message…', disabled, disabledReason, label, context, onPasteFiles, onDropFiles }) {

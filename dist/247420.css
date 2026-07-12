@@ -7130,6 +7130,7 @@
 .ds-247420 .chat-msg-action-label { font-size: var(--fs-tiny); }
 .ds-247420 .chat-msg-action:hover { background: var(--bg-2); color: var(--fg); }
 .ds-247420 .chat-msg-action:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; opacity: 1; }
+.ds-247420 .chat-msg-action.is-copied { color: var(--accent-ink); opacity: 1; }
 
 /* Empty state: a fresh thread is an invitation, not a void. */
 .ds-247420 .agentchat-empty {
@@ -7164,6 +7165,11 @@
 }
 .ds-247420 .agentchat-empty-suggestion:hover, .ds-247420 .chat-empty-suggestion:hover { background: color-mix(in srgb, var(--accent, var(--fg)) 12%, transparent); }
 .ds-247420 .agentchat-empty-suggestion:focus-visible, .ds-247420 .chat-empty-suggestion:focus-visible { outline: 2px solid var(--accent, var(--fg)); outline-offset: var(--focus-offset); }
+/* Follow-up chips (contextual, based on the last turn) vs empty-state seed
+   chips (generic starter ideas) previously shared identical DOM shape with no
+   visual signal distinguishing them - a dashed border reads as "derived from
+   context" without introducing a new color/shape language. */
+.ds-247420 .agentchat-followup { border-style: dashed; }
 
 /* Guided install path in the empty state: copy line + monospaced command rows
    (each with its own copy button) + a recheck button. No animation. */

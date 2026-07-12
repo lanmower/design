@@ -334,7 +334,15 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
     : null;
   const toolbar = (sort || filter || onErrorsOnly)
     ? h('div', { key: 'tb', class: 'ds-dash-toolbar', role: 'group', 'aria-label': 'sort and filter sessions' },
-        filter ? SearchInput({ key: 'filt', value: filter.value || '', label: filter.placeholder || 'Filter sessions', placeholder: filter.placeholder || 'Filter sessions', onInput: (v) => filter.onInput && filter.onInput(v) }) : null,
+        filter ? SearchInput({
+          key: 'filt', value: filter.value || '', label: filter.placeholder || 'Filter sessions', placeholder: filter.placeholder || 'Filter sessions',
+          onInput: (v) => filter.onInput && filter.onInput(v),
+          // `sessions` here is already the filtered/errors-only list, so its
+          // length IS the live result count - forward it to SearchInput's
+          // aria-live region whenever a filter is actually active, matching
+          // the same wiring ConversationList/history search already has.
+          resultCount: filter.value ? (sessions.length + ' result' + (sessions.length === 1 ? '' : 's')) : undefined,
+        }) : null,
         sort ? Select({ key: 'sort', value: sort.value || 'status', title: 'Sort sessions',
           options: [
             { value: 'status', label: 'sort: status' },

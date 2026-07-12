@@ -552,9 +552,13 @@ export function SearchInput({ value = '', placeholder = 'search…', onInput, on
             onclick: doClear,
         }, Icon('x'))
         : null;
-    if (resultCount == null && !clearBtn) return input;
-    // Visually-hidden live region announces the result count as it changes,
-    // without changing SearchInput's return shape for callers that don't pass it.
+    // Always return the same wrapping shape regardless of whether resultCount/
+    // clearBtn are present this render - a conditional bare-input-vs-wrapped-
+    // span return here previously changed SearchInput's VElement type at the
+    // SAME keyed slot from render to render (e.g. typing into an empty filter
+    // makes resultCount go from undefined to a string), and webjsx's applyDiff
+    // has no way to morph one element type into another in place - it produced
+    // a corrupted merged DOM node carrying attributes from both shapes.
     return h('span', { key, class: 'ds-search-input-wrap' },
         input,
         clearBtn,
