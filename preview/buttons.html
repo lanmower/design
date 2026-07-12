@@ -2,27 +2,36 @@
 <html lang="en" data-theme="auto" class="ds-247420"><head><meta charset="utf-8">
 <link rel="stylesheet" href="../colors_and_type.css">
 <link rel="stylesheet" href="../app-shell.css">
-<style>body{padding:24px;background:var(--panel-0);color:var(--panel-text);}</style>
+<style>body{padding:var(--space-4);background:var(--panel-0);color:var(--panel-text);}</style>
 <script defer src="./motion-default.js"></script>
 </head><body>
-<div style="font-family:var(--ff-mono);font-size:14px;text-transform:uppercase;letter-spacing:0.08em;color:var(--panel-text-2);margin-bottom:16px">247420 / components / buttons</div>
+<div class="ds-demo-label" style="font-family:var(--ff-mono);text-transform:uppercase;letter-spacing:var(--tr-label);color:var(--fg-3)">247420 / components / buttons</div>
 
-<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px">
+<!-- Variants — shared .ds-demo gallery cell (hairline box, flex-wrap, gap). -->
+<div class="ds-demo">
   <button class="btn-primary">ship it -></button>
   <button class="btn">read source</button>
   <button class="btn-ghost">cancel</button>
   <a href="#" class="btn">link as button</a>
 </div>
 
-<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px">
-  <button class="btn-primary" disabled style="opacity:0.5;cursor:not-allowed">disabled</button>
+<div class="ds-demo">
+  <button class="btn-primary" disabled>disabled</button>
   <button class="btn">
     <span class="ds-dot" style="color:var(--panel-accent)"></span>
     <span>with icon</span>
   </button>
-  <button class="btn" style="padding:5px 10px;font-size:14px">small</button>
-  <button class="btn" style="padding:10px 18px;font-size:14px">large</button>
 </div>
 
-<div style="font-family:var(--ff-mono);font-size:14px;color:var(--panel-text-2);margin-top:6px">primary · secondary · ghost — 6px radius, hover lightens, active darkens</div>
+<!-- Real size ladder (sm/md/lg) — heights snap to --ctl-sm/md/lg, no inline
+     padding overrides. Every variant honours the size class. -->
+<div class="ds-demo">
+  <button class="btn btn-sm">small</button>
+  <button class="btn">medium</button>
+  <button class="btn btn-lg">large</button>
+  <button class="btn-primary btn-sm">sm primary</button>
+  <button class="btn-ghost btn-lg">lg ghost</button>
+</div>
+
+<div class="ds-demo-desc" style="font-family:var(--ff-mono);margin-top:var(--space-2)">primary · secondary · ghost — size ladder sm/md/lg on the --ctl-* height scale</div>
 </body></html>

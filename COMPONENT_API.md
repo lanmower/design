@@ -158,10 +158,10 @@ Brand({ name: 'acme', leaf: 'dashboard' })
 ```
 
 ### Chip
-Inline colored badge/label.
+Inline colored badge/label. `size: 'sm' | 'md' | 'lg'` scales it; `tag: true` renders a rectangular sentence-case variant (`--r-0`, no caps) for dense data like table cells, in place of the default all-caps pill.
 
 ```js
-Chip({ tone = '', children })
+Chip({ tone = '', size = 'md', tag = false, children })
 ```
 
 | Prop | Type | Default | Description |
@@ -192,10 +192,10 @@ Pill({ tone: 'accent', children: 'PLAN' })
 ```
 
 ### Btn (Button)
-Flexible button component with support for multiple variants.
+Flexible button component with support for multiple variants. `size: 'sm' | 'md' | 'lg'` snaps the height to the `--ctl-sm/md/lg` ladder (28/34/42px, density-scaled) with horizontal-only padding — `md` is the base.
 
 ```js
-Btn({ href, variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled, class: className, key })
+Btn({ href, variant = 'default', size = 'md', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled, class: className, key })
 ```
 
 | Prop | Type | Default | Description |
@@ -557,17 +557,17 @@ SearchInput({ value = '', placeholder = 'search…', onInput, onSubmit, name = '
 ```
 
 ### TextField
-Labeled input or textarea.
+Labeled input or textarea. `size: 'sm' | 'md' | 'lg'` snaps the control height to the `--ctl-*` ladder (via `.ds-field--sm`/`--lg`).
 
 ```js
-TextField({ label, value = '', type = 'text', placeholder = '', onInput, onChange, name, key, hint, multiline, rows = 4 })
+TextField({ label, value = '', type = 'text', placeholder = '', onInput, onChange, name, key, hint, multiline, rows = 4, size = 'md' })
 ```
 
 ### Select
-Dropdown select input.
+Dropdown select input. `size: 'sm' | 'md' | 'lg'` snaps the control height to the `--ctl-*` ladder (via `.ds-field--sm`/`--lg`).
 
 ```js
-Select({ label, value = '', options = [], onChange, name, key, placeholder, hint })
+Select({ label, value = '', options = [], onChange, name, key, placeholder, hint, size = 'md' })
 ```
 
 ### EventList
@@ -1055,7 +1055,7 @@ CommunityShell({ topbar, crumb, side, main, status, narrow })
 
 Exports from already-documented modules above that previously had zero mention here. Signatures only (see the module's own source comments for behavior detail); expand into a full section if a consumer needs deeper docs for one of these.
 
-**Shell** (`shell.js`): `IconButton({ icon, onClick, title, size = 'base', variant = 'ghost', disabled = false })`, `Badge({ children, variant = 'default', tone = 'neutral' })`, `Crumb({ trail = [], leaf = '', right })`.
+**Shell** (`shell.js`): `IconButton({ icon, onClick, title, size = 'base', variant = 'ghost', disabled = false })`, `Badge({ children, variant = 'default', tone = 'neutral', size = 'md' })` (size `'sm' | 'md' | 'lg'`), `Crumb({ trail = [], leaf = '', right })`.
 
 **Content** (`content.js`): `Card`, `PanelFromItems({ heading, items = [], keyPrefix = 'i', count, style, kind, emptyText })`, `HeroFromPageData(hero)`, `Marquee({ items = [], sep = '/' })`, `CliBlock({ lines = [], heading = 'quick start', className = '' })`, `Spinner({ size = 'base', tone = 'accent', label = 'loading', key })`, `Skeleton({ height = '1em', width = '100%', count = 1, label = 'loading content', key })`, `Alert({ kind = 'info', children, onDismiss, title, key })`, `FilterPills({ options = [], selected, onSelect, label = 'filters' })`.
 

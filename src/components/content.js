@@ -547,7 +547,10 @@ export function SearchInput({ value = '', placeholder = 'search…', onInput, on
         h('span', { key: 'cnt', class: 'sr-only', role: 'status', 'aria-live': 'polite' }, resultCount));
 }
 
-export function TextField({ label, value = '', type = 'text', placeholder = '', onInput, onChange, name, key, hint, multiline, rows = 4, maxLength, min, max, error, title, 'aria-label': ariaLabel, 'aria-invalid': ariaInvalid, 'aria-describedby': ariaDescribedBy }) {
+export function TextField({ label, value = '', type = 'text', placeholder = '', onInput, onChange, name, key, hint, multiline, rows = 4, maxLength, min, max, error, title, size = 'md', 'aria-label': ariaLabel, 'aria-invalid': ariaInvalid, 'aria-describedby': ariaDescribedBy }) {
+    // size: 'sm' | 'md' | 'lg' — md is the base .ds-field control; sm/lg add a
+    // wrapper modifier that snaps the control height/padding/font to --ctl-*.
+    const sizeCls = size === 'sm' ? ' ds-field--sm' : (size === 'lg' ? ' ds-field--lg' : '');
     const errorId = error != null ? ((key ? key : 'tf') + '-err') : null;
     const describedBy = ariaDescribedBy || errorId || null;
     const input = multiline
@@ -573,7 +576,7 @@ export function TextField({ label, value = '', type = 'text', placeholder = '', 
             oninput: onInput ? (e) => onInput(e.target.value, e) : null,
             onchange: onChange ? (e) => onChange(e.target.value, e) : null
         });
-    return h('label', { key, class: 'ds-field' },
+    return h('label', { key, class: 'ds-field' + sizeCls },
         ...[
             label != null ? h('span', { key: 'l', class: 'ds-field-label' }, label) : null,
             input,
@@ -584,7 +587,8 @@ export function TextField({ label, value = '', type = 'text', placeholder = '', 
     );
 }
 
-export function Select({ label, value = '', options = [], onChange, name, key, placeholder, hint, title, 'aria-label': ariaLabel }) {
+export function Select({ label, value = '', options = [], onChange, name, key, placeholder, hint, title, size = 'md', 'aria-label': ariaLabel }) {
+    const sizeCls = size === 'sm' ? ' ds-field--sm' : (size === 'lg' ? ' ds-field--lg' : '');
     const opts = [];
     if (placeholder != null) opts.push(h('option', { key: '_ph', value: '', disabled: true, selected: value === '' || value == null }, placeholder));
     for (const o of options) {
@@ -599,8 +603,9 @@ export function Select({ label, value = '', options = [], onChange, name, key, p
         title,
         onchange: onChange ? (e) => onChange(e.target.value, e) : null
     }, ...opts);
-    if (label == null && hint == null) return select;
-    return h('label', { key, class: 'ds-field' },
+    if (label == null && hint == null && size === 'md') return select;
+    if (label == null && hint == null) return h('label', { key, class: 'ds-field' + sizeCls }, select);
+    return h('label', { key, class: 'ds-field' + sizeCls },
         label != null ? h('span', { key: 'l', class: 'ds-field-label' }, label) : null,
         select,
         hint != null ? h('span', { key: 'h', class: 'ds-field-hint' }, hint) : null

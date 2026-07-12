@@ -108,12 +108,36 @@
 }
 
 /* Tabs */
-.ds-ep-tabs { display: flex; flex-direction: column; min-height: 0; height: 100%; }
+.ds-ep-tabs { display: flex; flex-direction: column; min-height: 0; height: 100%; position: relative; }
 .ds-ep-tabs-head {
     display: flex; flex-shrink: 0; flex-wrap: nowrap;
     overflow-x: auto; scroll-behavior: smooth;
     background: var(--panel-1);
     border-bottom: 1px solid var(--rule);
+    position: relative;
+}
+/* Sliding indicator — a single 2px bar under the active tab that animates its
+   left/width between tabs (webgeist's "expensive" underline-slide), instead of
+   each tab toggling its own static border. A REAL child element positioned by
+   the Tabs ref (inline left/width/top). It lives as a child of the OUTER
+   .ds-ep-tabs column (position:relative), NOT the .ds-ep-tabs-head, because an
+   absolutely-positioned child of a horizontal flex container mis-sizes to 0 in
+   Chromium; the outer column is a vertical flex, which sizes it correctly.
+   The ref sets top to the head's height so it sits on the head's bottom edge.
+   .has-slider gates the static per-tab border off (below). */
+.ds-ep-tab-indicator {
+    /* Sized by left+right insets (set inline by positionSlider), NOT width — an
+       abspos element's `width` computes to 0 in some flex-sibling layouts in
+       Chromium, whereas insets size reliably. left+right at the same value
+       collapse it to 0 until positioned (no-JS: invisible). */
+    position: absolute; top: 0; left: 0; right: 100%; height: 2px;
+    background: var(--accent);
+    transition: left var(--dur-base, 160ms) var(--ease, ease),
+                right var(--dur-base, 160ms) var(--ease, ease);
+    pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+    .ds-ep-tab-indicator { transition: none; }
 }
 .ds-ep-tab {
     flex: 1; appearance: none; background: transparent; border: 0;
@@ -128,6 +152,9 @@
     color: var(--accent);
     border-bottom-color: var(--accent);
 }
+/* When the JS slider is active, the active tab's own static border is
+   redundant (the sliding bar draws it) — hide it so they don't double up. */
+.ds-ep-tabs-head.has-slider .ds-ep-tab.active { border-bottom-color: transparent; }
 /* Flex column so a full-height docked child (e.g. an inspector panel) fills
    the tab body instead of collapsing under a block container. */
 .ds-ep-tabs-body { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; }
@@ -333,7 +360,8 @@
 .ds-ep-actionbar > * { flex: 1 1 0; }
 .ds-ep-actionbar button {
     width: 100%;
-    min-height: 28px; height: 28px; padding: 0 10px;
+    /* Snapped to --ctl-sm (was a lone 28px literal that happened to match). */
+    min-height: var(--ctl-sm); height: var(--ctl-sm); padding: 0 var(--space-2-5);
     border-radius: var(--r-1, 4px);
     font: var(--fs-tiny, 12px)/1 var(--ff-mono, monospace);
 }
@@ -703,15 +731,19 @@
     display: flex; flex-direction: column;
     outline: none;
 }
-.ds-ep-dialog-head { padding: 14px 16px 6px; border-bottom: 1px solid var(--rule); }
-.ds-ep-dialog-title { margin: 0; font-size: 16px; font-weight: 600; }
-.ds-ep-dialog-body { padding: 14px 16px; }
+/* Padding tokenized to the --space-* scale (was raw 14/16/10/6) and shaved to
+   app density — a dialog is working chrome, not a marketing card. */
+.ds-ep-dialog-head { padding: var(--space-2-75) var(--space-3) var(--space-1-5); border-bottom: 1px solid var(--rule); }
+.ds-ep-dialog-title { margin: 0; font-size: var(--fs-body); font-weight: 600; }
+.ds-ep-dialog-body { padding: var(--space-2-75) var(--space-3); }
 .ds-ep-dialog-actions {
-    display: flex; gap: 8px; justify-content: flex-end;
-    padding: 10px 14px; border-top: 1px solid var(--rule);
+    display: flex; gap: var(--space-2); justify-content: flex-end;
+    padding: var(--space-2) var(--space-2-75); border-top: 1px solid var(--rule);
 }
 .ds-ep-dialog-btn {
-    padding: 8px 14px;
+    /* Snapped to the --ctl-sm rung + tokenized padding (was 8px 14px). */
+    min-height: var(--ctl-sm); padding: 0 var(--space-3);
+    display: inline-flex; align-items: center; justify-content: center;
     border: 1px solid var(--rule);
     border-radius: var(--r-1, 6px);
     background: var(--panel-2, transparent);
@@ -745,7 +777,7 @@
     border: 1px solid var(--rule);
     border-left: 3px solid var(--accent);
     border-radius: var(--r-1, 6px);
-    padding: 10px 14px;
+    padding: var(--space-2) var(--space-2-75);
     box-shadow: var(--shadow-3);
     min-width: 220px; max-width: 360px;
     opacity: 1;
@@ -838,7 +870,10 @@
 .ds-radio-row,
 .ds-toggle-row {
     display: inline-flex; align-items: center; gap: var(--space-2, 8px);
-    min-height: 44px;
+    /* Desktop density: ~30px rows, not the 44px touch target (which stacked a
+       lot of dead vertical space in inspector/settings forms). The full 44px
+       target is restored under pointer:coarse below. */
+    min-height: 30px;
     padding: var(--space-1, 4px) var(--space-2, 8px);
     cursor: pointer;
     color: var(--fg);
@@ -847,6 +882,10 @@
 .ds-check-row:has(input:disabled),
 .ds-radio-row:has(input:disabled),
 .ds-toggle-row:has(button:disabled) { opacity: 0.5; cursor: not-allowed; }
+/* Touch devices: restore the 44px minimum tap target. */
+@media (pointer: coarse) {
+    .ds-check-row, .ds-radio-row, .ds-toggle-row { min-height: 44px; }
+}
 
 .ds-check, .ds-radio {
     width: 18px; height: 18px;
@@ -1033,9 +1072,12 @@
     color: inherit; font: inherit;
     border: 1px solid var(--rule);
     border-radius: var(--r-1, 6px);
-    padding: 6px 12px;
+    padding: 0 var(--space-2-75);
     cursor: pointer;
-    min-height: 32px;
+    /* Snapped to the --ctl-sm rung so this small control shares the height
+       ladder with buttons/fields instead of a lone 32px literal. */
+    min-height: var(--ctl-sm); height: var(--ctl-sm);
+    display: inline-flex; align-items: center;
 }
 @media (pointer: coarse) {
     .ds-dropdown-trigger { min-height: 44px; }

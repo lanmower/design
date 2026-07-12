@@ -12,14 +12,22 @@ export function Brand({ name = '247420', leaf } = {}) {
         leaf || null);
 }
 
-export function Chip({ tone = '', children }) {
-    return h('span', { class: 'chip' + (tone ? ' tone-' + tone : '') }, children);
+export function Chip({ tone = '', size = 'md', tag = false, children }) {
+    // size: 'sm' | 'md' | 'lg'; tag=true -> rectangular sentence-case variant
+    // for dense data (drops the all-caps pill). Both are orthogonal to tone.
+    const sizeCls = size === 'sm' ? ' chip--sm' : (size === 'lg' ? ' chip--lg' : '');
+    return h('span', { class: 'chip' + sizeCls + (tag ? ' chip--tag' : '') + (tone ? ' tone-' + tone : '') }, children);
 }
 
-export function Btn({ href, variant = 'default', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled, class: className, key }) {
+export function Btn({ href, variant = 'default', size = 'md', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled, class: className, key }) {
     // Support legacy primary/ghost props for backward compatibility, but prefer variant
     const resolvedVariant = variant !== 'default' ? variant : (primary ? 'primary' : (ghost ? 'ghost' : (danger ? 'danger' : 'default')));
+    // size: 'sm' | 'md' | 'lg' — md is the base .btn rule (no class); sm/lg add a
+    // modifier that snaps height/padding/font to the --ctl-* ladder. Unknown
+    // sizes fall back to md so a typo never drops the button's base styling.
+    const sizeCls = size === 'sm' ? ' btn-sm' : (size === 'lg' ? ' btn-lg' : '');
     const cls = (resolvedVariant === 'primary' ? 'btn-primary' : (resolvedVariant === 'ghost' ? 'btn-ghost' : (resolvedVariant === 'danger' ? 'btn-primary danger' : 'btn')))
+        + sizeCls
         + (disabled ? ' is-disabled' : '')
         + (className ? ' ' + className : '');
     const onclick = (e) => {
@@ -67,8 +75,10 @@ export function IconButton({ icon, onClick, title, size = 'base', variant = 'gho
     }, Glyph({ children: icon, size }));
 }
 
-export function Badge({ children, variant = 'default', tone = 'neutral' }) {
-    return h('span', { class: 'ds-badge ds-badge-' + variant + ' tone-' + tone }, children);
+export function Badge({ children, variant = 'default', tone = 'neutral', size = 'md' }) {
+    // size: 'sm' | 'md' | 'lg' — md is the base 18px badge.
+    const sizeCls = size === 'sm' ? ' ds-badge--sm' : (size === 'lg' ? ' ds-badge--lg' : '');
+    return h('span', { class: 'ds-badge ds-badge-' + variant + sizeCls + ' tone-' + tone }, children);
 }
 
 // Pill — plain non-interactive label chip for tag-like annotations (a phase

@@ -184,7 +184,9 @@
   --space-1-75:  6px;
   --space-2:     8px;
   --space-2-5:   10px;
+  --space-2-75:  12px;   /* fills the 10->16 hole (row-form gap, dense cell pad) */
   --space-3:     16px;
+  --space-3-5:   20px;   /* fills the 16->24 hole (settings body, mono block pad) */
   --space-4:     24px;
   --space-5:     32px;
   --space-6:     48px;
@@ -258,6 +260,19 @@
   --size-base:   42px;
   --size-lg:     56px;
 
+  /* Dense control-height ladder — the actual heights front-door controls
+     (buttons, fields, rows) snap to, one rung tighter than the --size-*
+     chrome scale so app UI reads compact instead of marketing-scale. Density
+     scales them so [data-density=compact/spacious] moves every control at once.
+     Mirrors webgeist's 30/38/46 button ladder, retuned for this system. */
+  --ctl-sm:      calc(28px * var(--density));
+  --ctl-md:      calc(34px * var(--density));
+  --ctl-lg:      calc(42px * var(--density));
+  /* The canonical single-line input/select/searchfield height (== --ctl-md)
+     and the default list-row min-height, both density-aware. */
+  --field-height: var(--ctl-md);
+  --row-height:   calc(40px * var(--density));
+
   /* Unified focus-ring tokens (single source for the design system). Outset
      rings (the default) tokenize colour+width+offset; bordered text fields use
      the inset variant. Deliberate negative offsets on edge-flush/clipping
@@ -287,25 +302,26 @@
   outline-offset: var(--focus-offset);
 }
 
-/* Link focus-visible */
+/* Link focus-visible — all route through the single --focus-* token set so a
+   focus retune (colour/width/offset) happens in one place, never per selector. */
 a:focus-visible,
 [role="link"]:focus-visible {
-  outline: 2px solid var(--accent-ink);
-  outline-offset: 2px;
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 /* Form inputs with focus-visible */
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid var(--accent-ink);
-  outline-offset: 2px;
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 /* Interactive element focus-visible */
 [tabindex]:focus-visible {
-  outline: 2px solid var(--accent-ink);
-  outline-offset: 2px;
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 [data-theme="ink"],

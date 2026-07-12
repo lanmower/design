@@ -53,7 +53,30 @@ export function Tabs({ items = [], active, onChange, children, 'aria-label': ari
             if (btn) btn.focus();
         });
     };
-    return h('div', { class: 'ds-ep-tabs' },
+    // Position the sliding underline from the active tab's geometry. The ref is
+    // on the OUTER .ds-ep-tabs (position:relative) — the indicator is its child,
+    // NOT the flex head's (an abspos child of a horizontal flex row mis-sizes to
+    // 0 in Chromium). Runs on every render (ref fires after applyDiff) so a tab
+    // change re-measures; the CSS transition animates the move. left/width come
+    // from the active tab; top sits the bar on the head's bottom edge.
+    const positionSlider = (root) => {
+        if (!root) return;
+        const head = root.querySelector('.ds-ep-tabs-head');
+        const active = root.querySelector('.ds-ep-tab.active');
+        const ind = root.querySelector('.ds-ep-tab-indicator');
+        if (!head || !active || !ind) return;
+        // Size via left+right insets, NOT width: an abspos element's inline
+        // `width` computes to 0 in some flex-sibling layouts (Chromium), but
+        // left+right insets size reliably. left/right animate via the CSS
+        // transition on .ds-ep-tab-indicator.
+        const rootW = root.offsetWidth;
+        const l = active.offsetLeft, w = active.offsetWidth;
+        ind.style.left = l + 'px';
+        ind.style.right = Math.max(0, rootW - l - w) + 'px';
+        ind.style.top = (head.offsetTop + head.offsetHeight - 2) + 'px';
+        head.classList.add('has-slider');
+    };
+    return h('div', { class: 'ds-ep-tabs', ref: positionSlider },
         h('div', { class: 'ds-ep-tabs-head', role: 'tablist', 'aria-label': ariaLabel || 'tabs' },
             ...items.map((it, idx) => h('button', {
                 key: it.id,
@@ -69,6 +92,9 @@ export function Tabs({ items = [], active, onChange, children, 'aria-label': ari
                 onkeydown: (e) => onTabKeyDown(e, idx)
             }, it.label))
         ),
+        // The sliding underline — child of the outer column (see positionSlider).
+        // Keyed + decorative. Renders at 0-width until positioned (no-JS: hidden).
+        h('span', { key: '__ind', class: 'ds-ep-tab-indicator', 'aria-hidden': 'true' }),
         h('div', {
             class: 'ds-ep-tabs-body',
             role: 'tabpanel',

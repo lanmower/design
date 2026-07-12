@@ -297,7 +297,7 @@
   background: color-mix(in oklab, var(--fg) 8%, transparent);
 }
 .cm-cat-add:focus-visible {
-  outline: 2px solid var(--accent-ink);
+  outline: var(--focus-w) solid var(--focus-color);
   outline-offset: 2px;
 }
 
@@ -480,7 +480,7 @@
   background: color-mix(in oklab, var(--fg) 10%, transparent);
 }
 .cm-ch-action-btn:focus-visible {
-  outline: 2px solid var(--accent-ink);
+  outline: var(--focus-w) solid var(--focus-color);
   outline-offset: 2px;
 }
 
@@ -1063,44 +1063,44 @@
 .cm-server-icon:focus-visible,
 .cm-server-back:focus-visible,
 .cm-server-add:focus-visible {
-  outline: 2px solid var(--accent-ink);
+  outline: var(--focus-w) solid var(--focus-color);
   outline-offset: 2px;
   border-radius: var(--r-2);
 }
 
 .cm-channel-item:focus-visible {
-  outline: 2px solid var(--accent-ink);
+  outline: var(--focus-w) solid var(--focus-color);
   outline-offset: -2px;
   border-radius: var(--r-1);
 }
 
 .cm-server-header:focus-visible,
 .cm-category-header:focus-visible {
-  outline: 2px solid var(--accent-ink);
+  outline: var(--focus-w) solid var(--focus-color);
   outline-offset: -2px;
 }
 
 .cm-member-item:focus-visible {
-  outline: 2px solid var(--accent-ink);
+  outline: var(--focus-w) solid var(--focus-color);
   outline-offset: -2px;
   border-radius: var(--r-1);
 }
 
 .cm-vs-btn:focus-visible,
 .cm-user-btn:focus-visible {
-  outline: 2px solid var(--accent-ink);
+  outline: var(--focus-w) solid var(--focus-color);
   outline-offset: 2px;
   border-radius: var(--r-1);
 }
 
 /* ThreadPanel / Forum / Page interactive elements */
 .cm-tp-item:focus-visible,
-.cm-forum-item:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: -2px; border-radius: var(--r-1); }
+.cm-forum-item:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; border-radius: var(--r-1); }
 .cm-tp-new:focus-visible,
 .cm-tp-close:focus-visible,
 .cm-forum-new:focus-visible,
 .cm-forum-sort:focus-visible,
-.cm-page-edit:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; border-radius: var(--r-1); }
+.cm-page-edit:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 2px; border-radius: var(--r-1); }
 .cm-forum-search:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent-ink); }
 
 /* ---------- mobile header ---------- */
@@ -1129,7 +1129,7 @@
   border-radius: var(--r-1);
 }
 .cm-mh-btn:hover { background: var(--panel-3); }
-.cm-mh-btn:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.cm-mh-btn:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 2px; }
 .cm-mh-title {
   flex: 1 1 auto;
   min-width: 0;
@@ -1174,7 +1174,7 @@
   border-radius: var(--r-1);
 }
 .cm-rb-cancel:hover { background: var(--panel-3); color: var(--fg); }
-.cm-rb-cancel:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 1px; }
+.cm-rb-cancel:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; }
 
 /* ---------- banner ---------- */
 .cm-banner {

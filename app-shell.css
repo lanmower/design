@@ -319,12 +319,18 @@ body.canvas-host { background: transparent !important; }
 }
 .app-side a {
   display: grid; grid-template-columns: 18px 1fr auto;
-  gap: 10px; align-items: center;
-  padding: 12px 14px;
-  min-height: 44px;
-  border-radius: var(--r-pill);
+  gap: var(--space-2-5); align-items: center;
+  /* Dense rounded-rect nav row (was a 44px pill with 12px 14px padding — tall
+     and consumer-shaped). A --r-1 rounded rect at ~34px reads as compact app
+     chrome; the full 44px touch target is restored under pointer:coarse below. */
+  padding: var(--space-2) var(--space-2-5);
+  min-height: 34px;
+  border-radius: var(--r-1);
   color: var(--fg-2);
   margin-bottom: 2px;
+}
+@media (pointer: coarse) {
+  .app-side a { min-height: 44px; padding: var(--space-2-75) var(--space-3); }
 }
 .app-side a:hover { background: var(--bg-2); color: var(--fg); }
 .app-side a:focus-visible {
@@ -448,10 +454,16 @@ body.canvas-host { background: transparent !important; }
    ============================================================ */
 .btn, .btn-primary, .btn-ghost {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  padding: 8px 14px; min-height: 32px;
+  /* Fixed height + horizontal-only padding: the control height is exact and
+     alignable (flex centres the label vertically), the way webgeist snaps every
+     control to a height ladder. Default is the --ctl-md rung; --btn-sm/--btn-lg
+     retune height + h-padding + font per size. Density scales the ladder. */
+  height: var(--ctl-md); min-height: var(--ctl-md);
+  padding: 0 var(--space-2-75);
   font-family: var(--ff-body);
   font-weight: 600; font-size: var(--fs-sm);
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
   /* Rounded-rect app chrome, not a marketing-page stadium CTA.
      Shape vocabulary: r-1/r-2 = actionable buttons, icon-buttons, and
@@ -483,6 +495,33 @@ body.canvas-host { background: transparent !important; }
   outline: var(--focus-w) solid var(--focus-color);
   outline-offset: var(--focus-offset);
 }
+
+/* Button size ladder — the size prop on Btn() (sm | md | lg). md is the base
+   rule above; sm/lg retune height (off the --ctl-* ladder), horizontal padding,
+   and font-size so a size swap is one class, never inline padding overrides
+   (the old preview faked sizes with style=). Applies to every variant. */
+.btn-sm, .btn-sm.btn-primary, .btn-sm.btn-ghost {
+  height: var(--ctl-sm); min-height: var(--ctl-sm);
+  padding: 0 var(--space-2); font-size: var(--fs-tiny); gap: var(--space-1);
+}
+.btn-lg, .btn-lg.btn-primary, .btn-lg.btn-ghost {
+  height: var(--ctl-lg); min-height: var(--ctl-lg);
+  padding: 0 var(--space-4); font-size: var(--fs-body); gap: var(--space-2);
+}
+
+/* App-mode quiet interactions — the marketing hover-lift (translateY + shadow)
+   and the .row .meta slide read as decorative float on a dense working surface.
+   Under [data-typescale="app"], state changes are background/border-only: crisp,
+   no motion, no elevation. Marketing surfaces (no data-typescale) keep the lift. */
+[data-typescale="app"] .btn:hover,
+[data-typescale="app"] .btn-primary:hover,
+[data-typescale="app"] .btn-ghost:hover { transform: none; box-shadow: none; }
+[data-typescale="app"] .btn:active,
+[data-typescale="app"] .btn-primary:active,
+[data-typescale="app"] .btn-ghost:active { transform: none; }
+[data-typescale="app"] .panel { transition: box-shadow var(--dur-snap) var(--ease), border-color var(--dur-snap) var(--ease); }
+[data-typescale="app"] a.row:hover .meta,
+[data-typescale="app"] .row[role="button"]:hover .meta { transform: none; }
 
 /* ============================================================
    IconButton — square icon-only button
@@ -521,6 +560,10 @@ body.canvas-host { background: transparent !important; }
   border-radius: var(--r-pill);
   background: var(--bg-3); color: var(--fg-2);
 }
+/* Badge size ladder — sm for dense inline counts, lg for prominent markers.
+   Base (above) stays the 18px default. */
+.ds-badge.ds-badge--sm { min-width: 14px; height: 14px; padding: 0 var(--space-1); font-size: 10px; }
+.ds-badge.ds-badge--lg { min-width: 22px; height: 22px; padding: 0 var(--space-2); font-size: var(--fs-tiny); }
 /* Canonical tone names are tone-success / tone-error / tone-neutral. Every
    other tone name grouped into the same rule below (tone-green/tone-live,
    tone-flame, tone-wip, tone-sun/tone-yellow, tone-ok/tone-miss) is a
@@ -544,13 +587,24 @@ body.canvas-host { background: transparent !important; }
 .ds-badge.tone-orange  { background: color-mix(in oklab, var(--flame) 30%, var(--sun) 70%); color: var(--ink); }
 
 .chip {
-  display: inline-flex; align-items: center; gap: 6px;
+  display: inline-flex; align-items: center; gap: var(--space-1-75);
   padding: 3px 10px;
   background: var(--bg-2); color: var(--fg-2);
   font-family: var(--ff-body);
   font-size: var(--fs-tiny); font-weight: 600;
   letter-spacing: var(--tr-caps); text-transform: uppercase;
   border-radius: var(--r-pill);
+}
+/* Chip size ladder — sm for dense toolbars/table cells, lg for prominent
+   status. tone-* colouring (below) is orthogonal to size. */
+.chip.chip--sm { padding: var(--space-half) var(--space-2); font-size: var(--fs-micro); gap: var(--space-1); }
+.chip.chip--lg { padding: var(--space-1-75) var(--space-2-75); font-size: var(--fs-xs); }
+/* Tag variant — a rectangular, sentence-case chip for dense data (table cells,
+   inline labels) where the all-caps pill reads too shouty and space-hungry.
+   Keeps the tone-* palette; drops the caps + pill for a tight --r-0 corner. */
+.chip.chip--tag {
+  text-transform: none; letter-spacing: 0; font-weight: 500;
+  border-radius: var(--r-0); padding: var(--space-half) var(--space-2);
 }
 /* Same canonical/legacy-alias grouping as .ds-badge above. */
 .chip.tone-green, .chip.tone-live, .chip.tone-success, .chip.tone-ok {
@@ -621,6 +675,17 @@ body.canvas-host { background: transparent !important; }
 }
 .panel.panel-inline { background: var(--bg-2); padding: var(--space-3) var(--space-3); }
 .panel.panel-wide   { background: transparent; box-shadow: none; border: none; }
+/* Dense panel — a compact container for app surfaces (inspector sections,
+   sidebars) that want the .panel look without the roomy 16px pad + 24px stack
+   gap. Tighter corner + padding + head, so it sits between .panel and the
+   flush editor .ds-ep-panel. */
+.panel.panel--dense {
+  padding: var(--space-2); margin-bottom: var(--space-2-75);
+  border-radius: var(--r-1);
+}
+.panel.panel--dense .panel-head { padding: var(--space-1-5) var(--space-2); }
+.panel.panel--dense .panel-body { padding: var(--space-1-5) var(--space-2) var(--space-2); }
+.panel.panel--dense .panel-body > * + * { margin-top: var(--space-2); }
 .panel-head {
   display: flex; align-items: baseline; justify-content: space-between;
   /* Shares the .panel-body 16px side padding so the caps label and the body
@@ -650,9 +715,13 @@ body.canvas-host { background: transparent !important; }
   grid-template-columns: minmax(80px, 12ch) minmax(0, 1fr) auto;
   gap: var(--space-3);
   align-items: baseline;
-  padding: var(--space-3) var(--space-4);
+  /* App density is the BASE: a list row is quiet working chrome, so it defaults
+     to the compact 12px/16px rhythm (density-scaled) rather than the old
+     16px/24px marketing padding. .row--lede restores the roomier marketing
+     voice for editorial index pages. */
+  padding: calc(var(--space-2-75) * var(--density)) var(--space-3);
   background: var(--bg);
-  border-radius: var(--r-2);
+  border-radius: var(--r-1);
   color: var(--fg);
   position: relative;
   /* Only background + the leading rail animate; padding/size never change on
@@ -730,8 +799,14 @@ a.row:hover .meta, .row[role="button"]:hover .meta { color: var(--accent-ink); t
 .row.row-nocode { grid-template-columns: minmax(0, 1fr) auto; }
 
 .row .code  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
-.row .title { font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-lg); line-height: var(--lh-snug); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; min-width: 0; }
+/* Title defaults to the quiet app voice (fs-sm/500) — the 18px/600 marketing
+   voice is now opt-in via .row--lede. */
+.row .title { font-family: var(--ff-body); font-weight: 500; font-size: var(--fs-sm); line-height: var(--lh-snug); display: flex; align-items: baseline; gap: var(--space-2-5); flex-wrap: wrap; min-width: 0; }
 .row .title .sub { font-family: var(--ff-body); font-weight: 400; font-size: var(--fs-sm); color: var(--fg-3); }
+/* Marketing/editorial index row — restores the roomier padding + larger title
+   the default carried before app-scale became the base. */
+.row--lede { padding: var(--space-3) var(--space-4); }
+.row--lede .title { font-size: var(--fs-lg); font-weight: 600; }
 /* App typescale: list rows are quiet working chrome (the 18px/600 default is a
    marketing-surface voice). One size for ALL app list rows - matches
    .ds-file-row/.ds-session-title at fs-sm/500; values mirror the kit's own
@@ -970,16 +1045,19 @@ table.kv td:last-child {
 table {
   width: 100%; border-collapse: collapse;
   font-family: var(--ff-body); font-size: var(--fs-sm);
-  border-radius: var(--r-3); overflow: hidden;
+  /* A data grid, not a card: a tight --r-0 corner (was --r-3/22px, which read
+     as a rounded card). Cells drop to 8px 12px for a dense, scannable row
+     (was 12/14 x 16 => ~43px rows). Density scales the vertical padding. */
+  border-radius: var(--r-0); overflow: hidden;
 }
 table th {
   text-align: left;
-  padding: 12px 16px;
+  padding: calc(var(--space-2) * var(--density)) var(--space-2-75);
   font-size: var(--fs-tiny); font-weight: 600;
   color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-caps);
   background: var(--bg-2);
 }
-table td { padding: 14px 16px; border-top: 1px solid var(--rule); }
+table td { padding: calc(var(--space-2) * var(--density)) var(--space-2-75); border-top: 1px solid var(--rule); }
 table tr.clickable { cursor: pointer; }
 table tr.clickable:hover td { background: var(--bg-2); }
 table tr.clickable:focus-visible {
@@ -1047,13 +1125,16 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   gap: var(--space-2);
 }
 .kpi-card {
-  padding: var(--space-5);
+  /* Was --space-5 (32px) pad + --r-3 (22px) — four cards ate a full fold. A
+     16px pad on a --r-1 corner keeps them prominent but dense; the number drops
+     from a 48px marketing display to a 32px app-scale figure. */
+  padding: var(--space-3);
   background: var(--bg-2);
-  border-radius: var(--r-3);
+  border-radius: var(--r-1);
 }
 .kpi-card .num {
   font-family: var(--ff-body); font-weight: 600;
-  font-size: clamp(30px, 3.6cqi, 48px); line-height: 1;
+  font-size: clamp(22px, 3cqi, 32px); line-height: 1;
   letter-spacing: var(--tr-tight);
 }
 .kpi-card .lbl {
@@ -1102,11 +1183,14 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
    Empty state
    ============================================================ */
 .empty {
-  padding: var(--space-8);
+  /* Was --space-8 (96px) — an empty list spent 192px of vertical space on
+     nothing. --space-6 (48px) still centres a message with air, without the
+     empty state dominating the fold. Mobile drops it further (below). */
+  padding: var(--space-6);
   text-align: center;
   color: var(--fg-3);
   background: var(--bg-2);
-  border-radius: var(--r-3);
+  border-radius: var(--r-1);
   font-size: var(--fs-sm);
 }
 
@@ -2119,6 +2203,54 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   .ds-preview-meta { display: none; }
 }
 
+/* ============================================================
+   Catalog / demo shell — a shared, compact framing for the preview/*.html
+   component galleries, so each preview stops hand-rolling its own <style>
+   (body padding, section margins, demo boxes). Mirrors webgeist's dense
+   catalog: a 240px sticky sidebar + capped main + a hairline-bordered,
+   flex-wrapping .ds-demo cell that packs variants inline and reflows.
+   ============================================================ */
+.ds-catalog { display: flex; min-height: 100vh; gap: 0; }
+.ds-catalog-side {
+  width: 240px; flex-shrink: 0;
+  border-right: var(--bw-hair) solid var(--rule);
+  padding: var(--space-3);
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.ds-catalog-side h1 { font-size: var(--fs-lg); margin: 0 0 var(--space-1); }
+.ds-catalog-side .subtitle { font-size: var(--fs-micro); color: var(--fg-3); margin: 0 0 var(--space-4); }
+.ds-catalog-side nav h4 {
+  font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: var(--tr-label);
+  color: var(--fg-3); margin: var(--space-3) 0 var(--space-1);
+}
+.ds-catalog-side nav a {
+  display: block; padding: var(--space-half) 0; font-size: var(--fs-tiny);
+  color: var(--fg-2); text-decoration: none;
+}
+.ds-catalog-side nav a:hover { color: var(--accent-ink); }
+.ds-catalog-main { flex: 1; padding: var(--space-5); max-width: var(--measure-wide); min-width: 0; }
+.ds-catalog-section { margin-bottom: var(--space-5); padding-top: var(--space-3); border-top: var(--bw-hair) solid var(--rule); }
+.ds-catalog-section > h2 { font-size: var(--fs-h3-app); margin: 0 0 var(--space-3); }
+
+/* The gallery cell: a hairline-bordered, flex-wrapping bin that packs a
+   component's variants inline and reflows — the signature "showcase" frame. */
+.ds-demo {
+  border: var(--bw-hair) solid var(--rule);
+  border-radius: var(--r-1);
+  padding: var(--space-3);
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2);
+  background: var(--bg);
+}
+.ds-demo + .ds-demo { margin-top: var(--space-2-75); }
+.ds-demo-label { font-size: var(--fs-xs); font-weight: 500; margin: 0 0 var(--space-1); }
+.ds-demo-desc { font-size: var(--fs-tiny); color: var(--fg-3); margin: 0 0 var(--space-2); }
+
+@media (max-width: 768px) {
+  .ds-catalog { flex-direction: column; }
+  .ds-catalog-side { width: 100%; height: auto; position: static; border-right: 0; border-bottom: var(--bw-hair) solid var(--rule); }
+  .ds-catalog-main { padding: var(--space-3); }
+}
+
 /* -- File browser UX affordances ---------------------------- */
 /* Toolbar filter input — compact search box. */
 .ds-filter-input {
@@ -2986,18 +3118,60 @@ input[type="checkbox"], input[type="radio"] {
    Enhanced Form Inputs
    -------------------------------------------------------------- */
 
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-input[type="search"],
-input[type="url"],
-input[type="tel"],
-textarea,
-select {
+/* Base chrome for any BARE native control (outside .ds-field/.row-form/.input):
+   the same editorial tonal-fill + printed-baseline-rule as .ds-field, so a raw
+   <input> is never a browser-default white box in dark mode. The guards are
+   wrapped in :where() so they add ZERO specificity — the whole selector stays
+   at (0,1,1), exactly like `.ds-field input`, so the later .ds-field / .ds-field--sm
+   / .row-form descendant rules win by source order instead of being out-specified
+   (a bare :not(.input) counts as a class and would beat every .ds-field rule,
+   which clobbered the size variants). */
+input[type="text"]:where(:not(.input):not(.ds-search-input)),
+input[type="email"]:where(:not(.input):not(.ds-search-input)),
+input[type="password"]:where(:not(.input):not(.ds-search-input)),
+input[type="number"]:where(:not(.input):not(.ds-search-input)),
+input[type="search"]:where(:not(.input):not(.ds-search-input)),
+input[type="url"]:where(:not(.input):not(.ds-search-input)),
+input[type="tel"]:where(:not(.input):not(.ds-search-input)),
+textarea:where(:not(.input)),
+select:where(:not(.ds-select)) {
+  font: inherit; color: var(--fg);
+  background: var(--bg-2);
+  border: 0;
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
+              inset 0 calc(-1 * var(--bw-rule)) 0 var(--rule-strong);
+  border-radius: var(--r-1);
+  padding: 0 var(--space-3);
   transition: background var(--dur-snap) var(--ease),
               border-color var(--dur-snap) var(--ease),
               box-shadow var(--dur-snap) var(--ease);
+}
+/* Single-line bare controls snap to the field height; textarea keeps auto
+   height with symmetric padding (its content decides the box). */
+input[type="text"]:where(:not(.input):not(.ds-search-input)),
+input[type="email"]:where(:not(.input):not(.ds-search-input)),
+input[type="password"]:where(:not(.input):not(.ds-search-input)),
+input[type="number"]:where(:not(.input):not(.ds-search-input)),
+input[type="search"]:where(:not(.input):not(.ds-search-input)),
+input[type="url"]:where(:not(.input):not(.ds-search-input)),
+input[type="tel"]:where(:not(.input):not(.ds-search-input)),
+select:where(:not(.ds-select)) {
+  height: var(--field-height);
+}
+textarea:where(:not(.input)) { padding: var(--space-2) var(--space-3); min-height: calc(4 * 1.5em); }
+input[type="text"]:where(:not(.input):not(.ds-search-input)):focus-visible,
+input[type="email"]:where(:not(.input):not(.ds-search-input)):focus-visible,
+input[type="password"]:where(:not(.input):not(.ds-search-input)):focus-visible,
+input[type="number"]:where(:not(.input):not(.ds-search-input)):focus-visible,
+input[type="search"]:where(:not(.input):not(.ds-search-input)):focus-visible,
+input[type="url"]:where(:not(.input):not(.ds-search-input)):focus-visible,
+input[type="tel"]:where(:not(.input):not(.ds-search-input)):focus-visible,
+textarea:where(:not(.input)):focus-visible,
+select:where(:not(.ds-select)):focus-visible {
+  outline: none;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
+              inset 0 calc(-1 * var(--bw-chunk)) 0 var(--accent);
 }
 
 input[type="text"]::placeholder,
@@ -3131,11 +3305,29 @@ hr.rule-dotted { border-top: 1px dotted var(--rule-strong); }
      the electric lead on focus, instead of a uniform hairline box. */
   box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
               inset 0 calc(-1 * var(--bw-rule)) 0 var(--rule-strong);
-  border-radius: var(--r-2, 10px);
-  padding: 10px 14px;
+  /* Tighter corner than the old --r-2 (14px): a dense pro control, not a soft
+     consumer box. Single-line controls snap to --field-height with h-only
+     padding so they align pixel-exact with buttons on the same --ctl-md rung. */
+  border-radius: var(--r-1);
+  height: var(--field-height);
+  padding: 0 var(--space-3);
   transition: box-shadow var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease);
 }
-.ds-field textarea { min-height: calc(4 * 1.5em); resize: vertical; }
+/* textarea is multi-line: height is auto (min-height instead), keep symmetric
+   vertical padding so text doesn't sit flush to the top edge. */
+.ds-field textarea { height: auto; min-height: calc(4 * 1.5em); padding: var(--space-2) var(--space-3); resize: vertical; }
+
+/* Field size ladder (size prop on TextField/Select/SearchInput). md == base.
+   sm/lg retune height + h-padding + font off the --ctl-* ladder, matching the
+   button ladder so a form of mixed controls stays on one rhythm. */
+.ds-field--sm input, .ds-field--sm .ds-select, .ds-field--sm .ds-search-input {
+  height: var(--ctl-sm); padding: 0 var(--space-2-5); font-size: var(--fs-tiny);
+}
+.ds-field--sm textarea { height: auto; padding: var(--space-1-75) var(--space-2-5); font-size: var(--fs-tiny); }
+.ds-field--lg input, .ds-field--lg .ds-select, .ds-field--lg .ds-search-input {
+  height: var(--ctl-lg); padding: 0 var(--space-4); font-size: var(--fs-body);
+}
+.ds-field--lg textarea { height: auto; padding: var(--space-2-5) var(--space-4); font-size: var(--fs-body); }
 .ds-search-input::placeholder { color: var(--fg-3); }
 /* Only present when SearchInput is passed resultCount - transparent to any
    flex/grid layout the bare input previously sat in directly. */
