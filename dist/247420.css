@@ -793,11 +793,15 @@
 .ds-247420 .app-topbar nav a { flex: 0 0 auto; }
 .ds-247420 .app-topbar nav a {
   color: var(--fg-2);
-  padding: 12px 14px;
-  min-height: 44px;
+  /* Dense desktop chrome (was a 44px pill with 12px 14px pad — marketing-scale
+     touch target in the top bar). Matches the .app-side a treatment: ~34px,
+     --r-1 rounded rect, tighter padding. The 44px tap target is restored under
+     @media(pointer:coarse) (the existing .app-topbar nav a rule further down). */
+  padding: var(--space-2) var(--space-2-5);
+  min-height: 34px;
   display: flex;
   align-items: center;
-  border-radius: var(--r-pill);
+  border-radius: var(--r-1);
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
 .ds-247420 .app-topbar nav a:hover { background: var(--bg-2); color: var(--fg); }
@@ -9034,8 +9038,12 @@
 .ds-247420 .ds-dropdown-list { display: flex; flex-direction: column; }
 .ds-247420 .ds-dropdown-item {
     display: flex; align-items: center; gap: 8px;
-    min-height: 44px;
-    padding: 8px 12px;
+    /* Dense desktop row (was an unconditional 44px touch target — a menu of
+       these was very tall on desktop). ~30px here; the 44px tap target is
+       restored under @media(pointer:coarse) below, matching the .ds-check-row
+       treatment. */
+    min-height: 30px;
+    padding: var(--space-1-5) var(--space-2-75);
     background: transparent; border: 0;
     color: inherit; font: inherit; text-align: left;
     border-radius: var(--r-1, 4px);
@@ -9045,6 +9053,9 @@
 .ds-247420 .ds-dropdown-item:focus-visible {
     background: var(--panel-2, var(--rule));
     outline: none;
+}
+@media (pointer: coarse) {
+    .ds-247420 .ds-dropdown-item { min-height: 44px; padding: var(--space-2) var(--space-3); }
 }
 .ds-247420 .ds-dropdown-item:focus-visible {
     outline: var(--focus-w) solid var(--focus-color);

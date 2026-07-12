@@ -241,11 +241,15 @@ body.canvas-host { background: transparent !important; }
 .app-topbar nav a { flex: 0 0 auto; }
 .app-topbar nav a {
   color: var(--fg-2);
-  padding: 12px 14px;
-  min-height: 44px;
+  /* Dense desktop chrome (was a 44px pill with 12px 14px pad — marketing-scale
+     touch target in the top bar). Matches the .app-side a treatment: ~34px,
+     --r-1 rounded rect, tighter padding. The 44px tap target is restored under
+     @media(pointer:coarse) (the existing .app-topbar nav a rule further down). */
+  padding: var(--space-2) var(--space-2-5);
+  min-height: 34px;
   display: flex;
   align-items: center;
-  border-radius: var(--r-pill);
+  border-radius: var(--r-1);
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
 .app-topbar nav a:hover { background: var(--bg-2); color: var(--fg); }
