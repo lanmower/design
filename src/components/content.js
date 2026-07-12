@@ -521,9 +521,9 @@ export function PageHeader({ title, lede, eyebrow, right, compact, dense, id }) 
     );
 }
 
-export function SearchInput({ value = '', placeholder = 'search…', onInput, onSubmit, name = 'q', key, label }) {
-    return h('input', {
-        key,
+export function SearchInput({ value = '', placeholder = 'search…', onInput, onSubmit, name = 'q', key, label, resultCount }) {
+    const input = h('input', {
+        key: 'i',
         type: 'search',
         name,
         class: 'ds-search-input',
@@ -531,9 +531,20 @@ export function SearchInput({ value = '', placeholder = 'search…', onInput, on
         'aria-label': label || placeholder,
         value,
         oninput: onInput ? (e) => onInput(e.target.value, e) : null,
-        // IME guard: the Enter that commits a CJK composition must not submit.
-        onkeydown: onSubmit ? (e) => { if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) onSubmit(e.target.value, e); } : null
+        onkeydown: (e) => {
+            // Escape clears the field in place (stays focused) rather than
+            // falling through to whatever ancestor Escape handler exists.
+            if (e.key === 'Escape' && value) { e.preventDefault(); e.stopPropagation(); if (onInput) onInput('', e); return; }
+            // IME guard: the Enter that commits a CJK composition must not submit.
+            if (onSubmit && e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) onSubmit(e.target.value, e);
+        }
     });
+    if (resultCount == null) return input;
+    // Visually-hidden live region announces the result count as it changes,
+    // without changing SearchInput's return shape for callers that don't pass it.
+    return h('span', { key, class: 'ds-search-input-wrap' },
+        input,
+        h('span', { key: 'cnt', class: 'sr-only', role: 'status', 'aria-live': 'polite' }, resultCount));
 }
 
 export function TextField({ label, value = '', type = 'text', placeholder = '', onInput, onChange, name, key, hint, multiline, rows = 4, maxLength, min, max, error, title, 'aria-label': ariaLabel, 'aria-invalid': ariaInvalid, 'aria-describedby': ariaDescribedBy }) {

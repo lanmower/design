@@ -161,7 +161,7 @@ export function AgentChat(props = {}) {
     avatar, composerContext,
     followups = [], onFollowupClick,
     installHint, exportActions = [],
-    onPasteFiles, onDropFiles,
+    onPasteFiles, onDropFiles, onEmoji,
     shownMessages, onShowEarlier,
   } = props;
 
@@ -335,6 +335,7 @@ export function AgentChat(props = {}) {
     // navigates away from a live session.
     onPasteFiles,
     onDropFiles,
+    onEmoji,
   });
 
   // Contextual follow-up chips below the last SETTLED assistant turn (claude.ai/

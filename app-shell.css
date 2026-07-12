@@ -1447,7 +1447,8 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   background: var(--bg); color: var(--fg);
   border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1);
 }
-.ds-file-controls .ds-file-filter-input { flex: 0 1 220px; }
+.ds-file-controls .ds-file-filter-wrap { flex: 0 1 220px; display: contents; }
+.ds-file-controls .ds-file-filter-wrap .ds-file-filter-input { flex: 0 1 220px; }
 .ds-file-filter-input:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
 .ds-file-sort { display: flex; gap: var(--space-2); padding: 0 var(--space-2) var(--space-1); }
 .ds-file-sort-btn {
@@ -2615,10 +2616,13 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
      re-declare it; the sizing block now states the truth). */
   line-height: 1.5; resize: none;
   min-height: 28px; max-height: 200px;
-  box-sizing: border-box; overflow-y: hidden;
+  box-sizing: border-box;
+  /* Always auto, not focus-only: a capped-height composer that loses focus
+     while scrolled must still show its scrollbar - otherwise once the field
+     blurs there is zero cue that content exists below the fold. */
+  overflow-y: auto;
   scrollbar-width: thin;
 }
-.chat-composer textarea:focus { overflow-y: auto; }
 .chat-composer textarea::placeholder { color: var(--fg-3); }
 .chat-composer textarea:focus { background: none; border: none; box-shadow: none; outline: none; }
 .chat-composer .send {
@@ -3133,6 +3137,9 @@ hr.rule-dotted { border-top: 1px dotted var(--rule-strong); }
 }
 .ds-field textarea { min-height: calc(4 * 1.5em); resize: vertical; }
 .ds-search-input::placeholder { color: var(--fg-3); }
+/* Only present when SearchInput is passed resultCount - transparent to any
+   flex/grid layout the bare input previously sat in directly. */
+.ds-search-input-wrap { display: contents; }
 
 .ds-field input:focus-visible,
 .ds-field textarea:focus-visible,

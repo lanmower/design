@@ -477,7 +477,7 @@ function flashComposerNote(composerEl, text) {
     note._dsNoteTimer = setTimeout(() => { note.remove(); }, 2600);
 }
 
-export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu, onCancel, busy, placeholder = 'message…', disabled, disabledReason, label, context, onPasteFiles, onDropFiles }) {
+export function ChatComposer({ value, onInput, onSend, onEmoji, onCancel, busy, placeholder = 'message…', disabled, disabledReason, label, context, onPasteFiles, onDropFiles }) {
     // Keep a handle to the live textarea so send() reads the actual DOM value
     // (not the possibly-lagging `value` prop) and so we can sync the DOM value
     // only when it genuinely differs — re-applying `value` on every parent
@@ -644,9 +644,7 @@ export function ChatComposer({ value, onInput, onSend, onAttach, onEmoji, onMenu
         // (CSS) to save rows. Middot is kept product typography.
         h('div', { class: 'chat-composer-hint', 'aria-hidden': 'true' }, 'Enter to send · Shift+Enter for a new line'),
         h('div', { class: 'chat-composer-toolbar' },
-            onAttach ? h('button', { type: 'button', class: 'composer-btn', onclick: (e) => { e.preventDefault(); onAttach(e); }, 'aria-label': 'attach file', title: 'attach file' }, Icon('paperclip')) : null,
             onEmoji ? h('button', { type: 'button', class: 'composer-btn', onclick: (e) => { e.preventDefault(); onEmoji(e); }, 'aria-label': 'emoji picker', title: 'emoji picker (Ctrl+;)' }, Icon('smile')) : null,
-            onMenu ? h('button', { type: 'button', class: 'composer-btn', onclick: (e) => { e.preventDefault(); onMenu(e); }, 'aria-label': 'composer menu', title: 'more options' }, Icon('more-horizontal')) : null,
             busy && onCancel
                 ? h('button', { type: 'button', class: 'send cancel', onclick: (e) => { e.preventDefault(); onCancel(e); }, 'aria-label': 'stop generating', title: 'stop generating (Esc)' }, Icon('square'))
                 : h('button', { type: 'button', class: 'send', disabled: disabled || !(value && value.trim()), onclick: send,

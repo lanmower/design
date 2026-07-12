@@ -277,13 +277,25 @@ export function FileGrid({ files = [], onOpen, onAction, onUp, emptyText = 'No f
     // One toolbar baseline: filter + select-all + sort sit left, density is
     // pushed right by the spread. The filter used to be a separate right-aligned
     // strip ABOVE controls, giving two strips with conflicting alignment.
-    const filterCtl = filter ? h('input', {
-        key: 'filter',
-        class: 'ds-file-filter-input', type: 'search',
-        value: filter.value || '', placeholder: filter.placeholder || 'Filter files',
-        'aria-label': filter.placeholder || 'Filter files in this directory',
-        oninput: (e) => filter.onInput && filter.onInput(e.target.value),
-    }) : null;
+    const filterCtl = filter ? h('span', { key: 'filterwrap', class: 'ds-file-filter-wrap' },
+        h('input', {
+            key: 'filter',
+            class: 'ds-file-filter-input', type: 'search',
+            value: filter.value || '', placeholder: filter.placeholder || 'Filter files',
+            'aria-label': filter.placeholder || 'Filter files in this directory',
+            oninput: (e) => filter.onInput && filter.onInput(e.target.value),
+            onkeydown: (e) => {
+                if (e.key === 'Escape' && filter.value) { e.preventDefault(); e.stopPropagation(); filter.onInput && filter.onInput(''); }
+            },
+        }),
+        // Announces the filtered count as the filter narrows the list, so a
+        // screen-reader user gets the same feedback a sighted user reads off
+        // the grid without having to re-scan it after every keystroke. `files`
+        // here is already the host's filter-applied set (see hasFilter above) -
+        // there is no separate pre-filter total available inside this component.
+        h('span', { key: 'filtercount', class: 'sr-only', role: 'status', 'aria-live': 'polite' },
+            hasFilter ? files.length + (files.length === 1 ? ' file' : ' files') + ' shown' : '')
+    ) : null;
     const leftKids = [filterCtl, selectAllCtl, head].filter(Boolean);
     const controlsKids = [
         ...leftKids,

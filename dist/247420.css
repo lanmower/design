@@ -1983,7 +1983,8 @@
   background: var(--bg); color: var(--fg);
   border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1);
 }
-.ds-247420 .ds-file-controls .ds-file-filter-input { flex: 0 1 220px; }
+.ds-247420 .ds-file-controls .ds-file-filter-wrap { flex: 0 1 220px; display: contents; }
+.ds-247420 .ds-file-controls .ds-file-filter-wrap .ds-file-filter-input { flex: 0 1 220px; }
 .ds-247420 .ds-file-filter-input:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
 .ds-247420 .ds-file-sort { display: flex; gap: var(--space-2); padding: 0 var(--space-2) var(--space-1); }
 .ds-247420 .ds-file-sort-btn {
@@ -3151,10 +3152,13 @@
      re-declare it; the sizing block now states the truth). */
   line-height: 1.5; resize: none;
   min-height: 28px; max-height: 200px;
-  box-sizing: border-box; overflow-y: hidden;
+  box-sizing: border-box;
+  /* Always auto, not focus-only: a capped-height composer that loses focus
+     while scrolled must still show its scrollbar - otherwise once the field
+     blurs there is zero cue that content exists below the fold. */
+  overflow-y: auto;
   scrollbar-width: thin;
 }
-.ds-247420 .chat-composer textarea:focus { overflow-y: auto; }
 .ds-247420 .chat-composer textarea::placeholder { color: var(--fg-3); }
 .ds-247420 .chat-composer textarea:focus { background: none; border: none; box-shadow: none; outline: none; }
 .ds-247420 .chat-composer .send {
@@ -3661,6 +3665,9 @@
 }
 .ds-247420 .ds-field textarea { min-height: calc(4 * 1.5em); resize: vertical; }
 .ds-247420 .ds-search-input::placeholder { color: var(--fg-3); }
+/* Only present when SearchInput is passed resultCount - transparent to any
+   flex/grid layout the bare input previously sat in directly. */
+.ds-247420 .ds-search-input-wrap { display: contents; }
 
 .ds-247420 .ds-field input:focus-visible,
 .ds-247420 .ds-field textarea:focus-visible,
@@ -7093,6 +7100,15 @@
   .ds-247420 .ds-session-head .ds-search-input { min-height: 44px; }
 }
 .ds-247420 .ds-session-list, .ds-247420 .ds-session-groups { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-2); }
+.ds-247420 .ds-session-loadmore {
+  width: 100%; margin-top: var(--space-1); padding: 8px 12px;
+  font-size: var(--fs-sm); font-family: inherit; color: var(--fg-3);
+  background: none; border: var(--bw-hair) dashed var(--rule); border-radius: var(--r-1);
+  cursor: pointer; text-align: center;
+}
+.ds-247420 .ds-session-loadmore:hover { color: var(--fg); border-color: var(--fg-3); }
+.ds-247420 .ds-session-loadmore:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+@media (pointer: coarse) { .ds-247420 .ds-session-loadmore { min-height: 44px; } }
 /* Grouped rows (Today/Yesterday/...) lay out like the flat list; the section
    label sticks to the top of the scroll area for Claude-Desktop-style headers. */
 .ds-247420 .ds-session-group { display: flex; flex-direction: column; }

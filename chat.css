@@ -389,6 +389,15 @@
   .ds-session-head .ds-search-input { min-height: 44px; }
 }
 .ds-session-list, .ds-session-groups { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-2); }
+.ds-session-loadmore {
+  width: 100%; margin-top: var(--space-1); padding: 8px 12px;
+  font-size: var(--fs-sm); font-family: inherit; color: var(--fg-3);
+  background: none; border: var(--bw-hair) dashed var(--rule); border-radius: var(--r-1);
+  cursor: pointer; text-align: center;
+}
+.ds-session-loadmore:hover { color: var(--fg); border-color: var(--fg-3); }
+.ds-session-loadmore:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+@media (pointer: coarse) { .ds-session-loadmore { min-height: 44px; } }
 /* Grouped rows (Today/Yesterday/...) lay out like the flat list; the section
    label sticks to the top of the scroll area for Claude-Desktop-style headers. */
 .ds-session-group { display: flex; flex-direction: column; }

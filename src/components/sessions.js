@@ -35,7 +35,12 @@ export function fmtDuration(ms) {
 export function ConversationList({ sessions = [], selected, groups, search, caption,
                                    onSelect, onNew, newLabel = 'New chat',
                                    emptyText = 'No conversations yet', loading = false, error = null,
-                                   loadingText = 'Loading conversations…' } = {}) {
+                                   loadingText = 'Loading conversations…',
+                                   // hasMore/onLoadMore: the rail's host truncates the underlying
+                                   // session list at some limit (a 200+ conversation user would
+                                   // otherwise never reach older sessions) - mirrors the History
+                                   // tab's existing "load N older" EventList pattern.
+                                   hasMore = false, onLoadMore, loadMoreLabel = 'load more conversations' } = {}) {
   const rowFor = (s, i) => h('div', {
     // Stable key: prefer sid, else position - a missing/duplicate sid would make
     // key undefined and crash webjsx applyDiff ("reading 'key'" of undefined).
@@ -97,7 +102,14 @@ export function ConversationList({ sessions = [], selected, groups, search, capt
   } else {
     inner = sessions.map(rowFor);
   }
-  const body = h('div', { key: 'body', class: 'ds-session-list', role: 'listbox', 'aria-label': caption || 'Conversations' }, ...inner);
+  // The load-more row sits INSIDE the scrollable list body (not the outer
+  // .ds-sessions shell) so it scrolls with the rows it extends, matching
+  // where a user's eye already is after scrolling to the bottom of the rail.
+  const loadMoreRow = (hasMore && onLoadMore && sessions.length)
+    ? h('button', { key: 'loadmore', type: 'button', class: 'ds-session-loadmore', onclick: onLoadMore }, loadMoreLabel)
+    : null;
+  const body = h('div', { key: 'body', class: 'ds-session-list', role: 'listbox', 'aria-label': caption || 'Conversations' },
+    ...inner, loadMoreRow);
 
   return h('div', { class: 'ds-sessions' },
     h('div', { key: 'head', class: 'ds-session-head' },
