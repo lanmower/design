@@ -483,7 +483,7 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
 
 // Transient, non-blocking composer note (aria-live polite): e.g. a pasted image
 // when no onPasteFiles handler is wired. Pure-DOM, auto-clears.
-function flashComposerNote(composerEl, text) {
+export function flashComposerNote(composerEl, text) {
     if (!composerEl) return;
     let note = composerEl.querySelector('.chat-composer-note');
     if (!note) {
@@ -522,6 +522,15 @@ export function ChatComposer({ value, onInput, onSend, onEmoji, onCancel, busy, 
         const next = m ? (v.slice(0, m.index) + (m[0].startsWith(':') ? '' : v[m.index]) + ch + ' ') : (v + ch);
         if (onInput) onInput(next);
         if (taEl) {
+            // Programmatic .value= (like the draft-restore path) discards the
+            // native undo stack the same way — surface that once, matching the
+            // existing one-time draft-restore note pattern.
+            try {
+                if (!sessionStorage.getItem('ds.composer.undoNoteShown')) {
+                    sessionStorage.setItem('ds.composer.undoNoteShown', '1');
+                    flashComposerNote(taEl.closest('.chat-composer'), 'inserted — undo history does not include this insert');
+                }
+            } catch { /* sessionStorage unavailable (private mode etc) — skip the note */ }
             taEl.value = next;
             taEl.focus();
             taEl.selectionStart = taEl.selectionEnd = next.length;
@@ -670,9 +679,9 @@ export function ChatComposer({ value, onInput, onSend, onEmoji, onCancel, busy, 
                 if (e.key === ';' && e.ctrlKey) { e.preventDefault(); onEmoji && onEmoji(e); }
             } }),
         // Enter-to-send affordance (Claude-Desktop style): a muted hint visible
-        // while the composer is focused or carries a draft; hidden under 420px
-        // (CSS) to save rows. Middot is kept product typography.
-        h('div', { class: 'chat-composer-hint', 'aria-hidden': 'true' }, 'Enter to send · Shift+Enter for a new line'),
+        // at rest so it's discoverable without focusing the composer first;
+        // hidden under 420px (CSS) to save rows. Middot is kept product typography.
+        h('div', { class: 'chat-composer-hint' }, 'Enter to send · Shift+Enter for a new line'),
         h('div', { class: 'chat-composer-toolbar' },
             onEmoji ? h('button', { type: 'button', class: 'composer-btn', onclick: (e) => { e.preventDefault(); onEmoji(e); }, 'aria-label': 'emoji picker', title: 'emoji picker (Ctrl+;)' }, Icon('smile')) : null,
             busy && onCancel

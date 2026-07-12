@@ -2205,10 +2205,12 @@
 .ds-247420 .ds-file-row[data-file-type="archive"]  .ds-file-icon { color: var(--flame); }
 .ds-247420 .ds-file-row[data-file-type="document"] .ds-file-icon { color: var(--amber, var(--sun)); }
 
-/* Row actions — hidden until hover/focus, revealed without layout shift. */
+/* Row actions — a faint baseline keeps them discoverable at rest (not fully
+   hidden, which left mouse/trackpad users unable to find rename/move/delete
+   without accidentally hovering a row), full opacity on hover/focus. */
 .ds-247420 .ds-file-actions {
   display: inline-flex; gap: 2px; align-items: center;
-  opacity: 0; transition: opacity var(--dur-base) var(--ease);
+  opacity: 0.35; transition: opacity var(--dur-base) var(--ease);
 }
 .ds-247420 .ds-file-row:hover .ds-file-actions,
 .ds-247420 .ds-file-row:focus-within .ds-file-actions { opacity: 1; }
@@ -7668,14 +7670,13 @@
    windowed thread, dashboard stopping/external states, cwd validation.
 ============================================================================ */
 
-/* Enter-to-send hint: visible while the composer is focused or carries a
-   draft; hidden under 420px to save rows. */
+/* Enter-to-send hint: visible at rest so a new user with an empty composer
+   can discover Enter-vs-Shift+Enter without having to focus it first;
+   hidden under 420px to save rows. */
 .ds-247420 .chat-composer-hint {
-  display: none; width: 100%; order: 5; padding: 2px var(--space-1) 0;
+  display: block; width: 100%; order: 5; padding: 2px var(--space-1) 0;
   font-size: var(--fs-micro); color: var(--fg-3);
 }
-.ds-247420 .chat-composer:focus-within .chat-composer-hint,
-.ds-247420 .chat-composer.has-draft .chat-composer-hint { display: block; }
 @media (max-width: 420px) {
   .ds-247420 .chat-composer .chat-composer-hint { display: none; }
 }

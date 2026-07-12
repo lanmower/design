@@ -1653,10 +1653,12 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-file-row[data-file-type="archive"]  .ds-file-icon { color: var(--flame); }
 .ds-file-row[data-file-type="document"] .ds-file-icon { color: var(--amber, var(--sun)); }
 
-/* Row actions — hidden until hover/focus, revealed without layout shift. */
+/* Row actions — a faint baseline keeps them discoverable at rest (not fully
+   hidden, which left mouse/trackpad users unable to find rename/move/delete
+   without accidentally hovering a row), full opacity on hover/focus. */
 .ds-file-actions {
   display: inline-flex; gap: 2px; align-items: center;
-  opacity: 0; transition: opacity var(--dur-base) var(--ease);
+  opacity: 0.35; transition: opacity var(--dur-base) var(--ease);
 }
 .ds-file-row:hover .ds-file-actions,
 .ds-file-row:focus-within .ds-file-actions { opacity: 1; }

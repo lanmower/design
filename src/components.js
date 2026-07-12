@@ -21,7 +21,7 @@ export {
 
 export {
     fmtBytes, renderInline, hasSelectionInside,
-    ChatMessage, ChatComposer, Chat,
+    ChatMessage, ChatComposer, Chat, flashComposerNote,
     AICAT_FACE, AICatPortrait, AICat
 } from './components/chat.js';
 
