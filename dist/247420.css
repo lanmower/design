@@ -829,8 +829,13 @@
 .ds-247420 .brand .slash { color: var(--accent-ink); font-weight: 700; margin: 0 3px; }
 
 .ds-247420 .app-search {
-  display: inline-flex; align-items: center; gap: 10px;
-  padding: 9px 16px; background: var(--bg-2);
+  display: inline-flex; align-items: center; gap: var(--space-2-5);
+  /* Snap to the single-line control ladder (--field-height == --ctl-md, 34px,
+     density-scaled) so the topbar search aligns with sibling topbar controls and
+     shrinks under [data-density]. Was raw 9px 16px padding off the ladder — the
+     one front-door input the control-height port missed. */
+  height: var(--field-height);
+  padding: 0 var(--space-3); background: var(--bg-2);
   border-radius: var(--r-pill);
   font-size: var(--fs-sm); color: var(--fg-3);
   max-width: 360px;
@@ -1722,7 +1727,9 @@
 }
 .ds-247420 .ds-barchart-label { font-size: var(--fs-sm); color: var(--fg-2); }
 .ds-247420 .ds-barchart-track {
-  height: var(--space-2); border-radius: var(--r-pill);
+  /* 6px unifies with the system's other bar tracks (.ds-upload-bar,
+     .ds-bar-bg); was --space-2 (8px), the lone thicker slab in the bar family. */
+  height: var(--space-1-75); border-radius: var(--r-pill);
   background: var(--bg-3); overflow: hidden;
 }
 .ds-247420 .ds-barchart-fill {
@@ -8994,8 +9001,8 @@
     color: var(--panel-text, var(--fg-text));
     border: 1px solid var(--rule);
     border-radius: var(--r-1, 6px);
-    padding: 6px 10px;
-    font-size: 12px;
+    padding: var(--space-1-75) var(--space-2-5);
+    font-size: var(--fs-micro);
     line-height: 1.4;
     max-width: 280px;
     box-shadow: var(--shadow-3);

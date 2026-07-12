@@ -997,8 +997,8 @@
     color: var(--panel-text, var(--fg-text));
     border: 1px solid var(--rule);
     border-radius: var(--r-1, 6px);
-    padding: 6px 10px;
-    font-size: 12px;
+    padding: var(--space-1-75) var(--space-2-5);
+    font-size: var(--fs-micro);
     line-height: 1.4;
     max-width: 280px;
     box-shadow: var(--shadow-3);
