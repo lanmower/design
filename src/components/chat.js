@@ -198,7 +198,19 @@ function MdNode(p) {
         // arrive (an empty bubble until the CDN import resolves reads as a
         // hang); the resolved render swaps in sanitized markdown in place.
         if (isMarkdownDegraded()) el.textContent = p.text || '';
-        renderMarkdownCached(p.text || '').then((html) => { el.innerHTML = html; injectCodeCopy(el); });
+        renderMarkdownCached(p.text || '').then((html) => {
+            const swap = () => { el.innerHTML = html; injectCodeCopy(el); };
+            // Don't blow away an active text selection inside this bubble mid-swap
+            // (e.g. the user is mid-copy while a stream tick settles). Defer the
+            // swap once, until the selection changes (cleared or moved elsewhere).
+            const sel = typeof window !== 'undefined' ? window.getSelection() : null;
+            if (sel && sel.anchorNode && el.contains(sel.anchorNode)) {
+                const onSelChange = () => { document.removeEventListener('selectionchange', onSelChange); swap(); };
+                document.addEventListener('selectionchange', onSelChange, { once: true });
+                return;
+            }
+            swap();
+        });
     };
     return h('div', { class: 'chat-bubble chat-md', ref: refSink });
 }
@@ -626,6 +638,15 @@ export function ChatComposer({ value, onInput, onSend, onEmoji, onCancel, busy, 
                     e.preventDefault();
                     if (onPasteFiles) onPasteFiles(cd.files);
                     else flashComposerNote(e.currentTarget.closest('.chat-composer'), 'images are not supported yet');
+                    return;
+                }
+                // Large plain-text pastes (e.g. a whole file/log dropped into the
+                // composer) get no feedback otherwise — the textarea just grows to
+                // its max-height cap with no signal of how much landed. Note the
+                // character count; this does not change any truncation behavior.
+                const text = cd && cd.getData ? cd.getData('text/plain') : '';
+                if (text && text.length > 2000) {
+                    flashComposerNote(e.currentTarget.closest('.chat-composer'), 'pasted ' + text.length + ' characters');
                 }
             },
             onkeydown: (e) => {

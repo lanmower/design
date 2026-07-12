@@ -522,6 +522,9 @@ export function PageHeader({ title, lede, eyebrow, right, compact, dense, id }) 
 }
 
 export function SearchInput({ value = '', placeholder = 'search…', onInput, onSubmit, name = 'q', key, label, resultCount }) {
+    // Shared clear path — both the Escape key and the visible clear button
+    // call this, so there is exactly one place that clears the field.
+    const doClear = (e) => { if (onInput) onInput('', e); };
     const input = h('input', {
         key: 'i',
         type: 'search',
@@ -534,17 +537,28 @@ export function SearchInput({ value = '', placeholder = 'search…', onInput, on
         onkeydown: (e) => {
             // Escape clears the field in place (stays focused) rather than
             // falling through to whatever ancestor Escape handler exists.
-            if (e.key === 'Escape' && value) { e.preventDefault(); e.stopPropagation(); if (onInput) onInput('', e); return; }
+            if (e.key === 'Escape' && value) { e.preventDefault(); e.stopPropagation(); doClear(e); return; }
             // IME guard: the Enter that commits a CJK composition must not submit.
             if (onSubmit && e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) onSubmit(e.target.value, e);
         }
     });
-    if (resultCount == null) return input;
+    // Visible clear (X) button — mouse/touch users have no way to discover the
+    // Escape-to-clear shortcut, so this surfaces the same clear path visibly.
+    // Only rendered when there's something to clear.
+    const clearBtn = value
+        ? h('button', {
+            key: 'clr', type: 'button', class: 'ds-search-clear',
+            'aria-label': 'clear search',
+            onclick: doClear,
+        }, Icon('x'))
+        : null;
+    if (resultCount == null && !clearBtn) return input;
     // Visually-hidden live region announces the result count as it changes,
     // without changing SearchInput's return shape for callers that don't pass it.
     return h('span', { key, class: 'ds-search-input-wrap' },
         input,
-        h('span', { key: 'cnt', class: 'sr-only', role: 'status', 'aria-live': 'polite' }, resultCount));
+        clearBtn,
+        resultCount != null ? h('span', { key: 'cnt', class: 'sr-only', role: 'status', 'aria-live': 'polite' }, resultCount) : null);
 }
 
 export function TextField({ label, value = '', type = 'text', placeholder = '', onInput, onChange, name, key, hint, multiline, rows = 4, maxLength, min, max, error, title, size = 'md', 'aria-label': ariaLabel, 'aria-invalid': ariaInvalid, 'aria-describedby': ariaDescribedBy }) {

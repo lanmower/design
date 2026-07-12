@@ -342,7 +342,7 @@ export function AgentChat(props = {}) {
   // code / cowork surface these after a turn, not only on an empty thread). Shown
   // only when not busy and the last message is an assistant turn with body.
   const followupRow = (!busy && followups && followups.length && lastMsg && lastMsg.role === 'assistant' && msgHasBody(lastMsg))
-    ? h('div', { class: 'agentchat-followups', role: 'group', 'aria-label': 'suggested follow-ups', 'aria-hidden': 'true' },
+    ? h('div', { class: 'agentchat-followups', role: 'group', 'aria-label': 'suggested follow-ups' },
         ...followups.map((s, i) => h('button', {
           key: 'fu' + i, type: 'button', class: 'agentchat-empty-suggestion agentchat-followup',
           onclick: () => { const t = typeof s === 'string' ? s : (s.prompt || s.text || ''); if (onFollowupClick) onFollowupClick(t); else if (onSuggestionClick) onSuggestionClick(t); },

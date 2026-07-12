@@ -40,7 +40,12 @@ export function ConversationList({ sessions = [], selected, groups, search, capt
                                    // session list at some limit (a 200+ conversation user would
                                    // otherwise never reach older sessions) - mirrors the History
                                    // tab's existing "load N older" EventList pattern.
-                                   hasMore = false, onLoadMore, loadMoreLabel = 'load more conversations' } = {}) {
+                                   hasMore = false, onLoadMore, loadMoreLabel = 'load more conversations',
+                                   // resultCount: forwarded straight through to the inner SearchInput's
+                                   // aria-live region, so a real "N results" string (computed by the
+                                   // host from its filtered session list) reaches AT users instead of
+                                   // the region sitting permanently empty.
+                                   resultCount } = {}) {
   const rowFor = (s, i) => h('div', {
     // Stable key: prefer sid, else position - a missing/duplicate sid would make
     // key undefined and crash webjsx applyDiff ("reading 'key'" of undefined).
@@ -120,6 +125,7 @@ export function ConversationList({ sessions = [], selected, groups, search, capt
         label: search.placeholder || 'Search conversations',
         placeholder: search.placeholder || 'Search conversations',
         onInput: (v) => search.onInput && search.onInput(v),
+        resultCount,
       }) : null),
     // Per-tab caption telling the user what selecting a row does on this surface
     // (chat = resume the conversation, history = browse its events) so visually

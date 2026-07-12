@@ -3340,9 +3340,32 @@ hr.rule-dotted { border-top: 1px dotted var(--rule-strong); }
 }
 .ds-field--lg textarea { height: auto; padding: var(--space-2-5) var(--space-4); font-size: var(--fs-body); }
 .ds-search-input::placeholder { color: var(--fg-3); }
-/* Only present when SearchInput is passed resultCount - transparent to any
-   flex/grid layout the bare input previously sat in directly. */
+/* Only present when SearchInput is passed resultCount or has a value (clear
+   button) - transparent to any flex/grid layout the bare input previously
+   sat in directly. */
 .ds-search-input-wrap { display: contents; }
+
+/* Visible clear (X) button for SearchInput - mirrors .ds-alert-dismiss's
+   ghost-icon treatment but sized to the kit's 44px touch-target floor
+   (app-shell.css already establishes this convention for .ds-file-check /
+   .ds-density-btn / .ds-upload-act etc). Positioned by the consumer's own
+   flex/grid context (ds-search-input-wrap is display:contents), so it simply
+   sits after the input in DOM order. */
+.ds-search-clear {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  min-width: 44px; min-height: 44px;
+  flex-shrink: 0;
+  cursor: pointer;
+  color: var(--fg-3);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  border-radius: var(--r-1);
+  transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+}
+.ds-search-clear:hover { background: var(--bg-2); color: var(--fg); }
+.ds-search-clear:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 
 .ds-field input:focus-visible,
 .ds-field textarea:focus-visible,
