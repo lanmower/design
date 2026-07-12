@@ -399,6 +399,22 @@ body.canvas-host { background: transparent !important; }
 .app-main > .ds-files-stack,
 .app-main > .grow { flex: 1 1 auto; min-height: 0; }
 .app-main.narrow { max-width: var(--measure-narrow); margin: 0 auto; }
+/* Article-body heading rhythm and lede spacing, consumed by flatspace-rendered
+   long-form pages (docs, papers) that drop headings/panels directly into .app-main. */
+.app-main > h1,
+.app-main > h2,
+.app-main > h3 { margin-top: 36px; margin-bottom: 12px; }
+.app-main > h1:first-child { margin-top: 8px; }
+.app-main > .panel,
+.app-main > .work-detail-chips,
+.app-main > .cli { margin-top: 18px; margin-bottom: 18px; }
+.app-main .ds-lede { margin-top: 4px; margin-bottom: 18px; max-width: 64ch; line-height: 1.6; }
+.work-detail-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; row-gap: 10px; }
+@media (max-width: 720px) {
+  .app-main > h1,
+  .app-main > h2,
+  .app-main > h3 { margin-top: 28px; }
+}
 
 @media (min-width: 1400px) {
   /* Fluid ceiling, not a hard stop: scales from 1400px up to 1920px across the
