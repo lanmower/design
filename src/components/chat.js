@@ -224,6 +224,15 @@ function CodeNode(p) {
         const codeKey = (p.lang || '') + '|' + (p.code || '');
         if (el.dataset.codeKey === codeKey) return;
         el.dataset.codeKey = codeKey;
+        // Same in-progress-selection guard as MdNode.refSink: don't wipe an
+        // active text selection inside this block mid-stream-settle. Defer
+        // the highlight swap once, until the selection changes.
+        const sel = typeof window !== 'undefined' ? window.getSelection() : null;
+        if (sel && sel.anchorNode && el.contains(sel.anchorNode)) {
+            const onSelChange = () => { document.removeEventListener('selectionchange', onSelChange); highlightCodeBlockCached(el); };
+            document.addEventListener('selectionchange', onSelChange, { once: true });
+            return;
+        }
         highlightCodeBlockCached(el);
     };
     // Copy the raw code (not the highlighted DOM) for the structured CodeNode.
