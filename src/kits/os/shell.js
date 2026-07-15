@@ -74,6 +74,8 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
     brandEl.textContent = brand;
 
     const appsBtn = makeBtn(icons.apps, 'apps', 'apps');
+    appsBtn.setAttribute('aria-haspopup', 'menu');
+    appsBtn.setAttribute('aria-expanded', 'false');
     const newInstBtn = onNewInstance ? makeBtn(icons.plus, 'instance', 'add') : null;
 
     const instSwitch = document.createElement('div');
@@ -94,17 +96,29 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
 
     const appsMenu = document.createElement('div');
     appsMenu.className = 'os-menu';
+    appsMenu.setAttribute('role', 'menu');
+    appsMenu.setAttribute('aria-label', 'Apps');
 
     const sideRail = document.createElement('div');
     sideRail.className = 'os-side-rail';
+    sideRail.setAttribute('role', 'navigation');
+    sideRail.setAttribute('aria-label', 'App launcher rail');
 
     const drawer = document.createElement('div');
     drawer.className = 'os-drawer';
     drawer.setAttribute('aria-hidden', 'true');
+    // Full-screen overlay that traps the user's attention while open — the
+    // dialog role + aria-modal + aria-labelledby give a screen reader the
+    // same "you are now in a dialog named X" announcement a sighted user
+    // gets from the visual takeover.
+    drawer.setAttribute('role', 'dialog');
+    drawer.setAttribute('aria-modal', 'true');
+    drawer.setAttribute('aria-labelledby', 'os-drawer-title');
     const drawerHeader = document.createElement('div');
     drawerHeader.className = 'os-drawer-head';
     const drawerTitle = document.createElement('span');
     drawerTitle.className = 'os-drawer-title';
+    drawerTitle.id = 'os-drawer-title';
     drawerTitle.textContent = 'apps';
     const drawerClose = document.createElement('button');
     drawerClose.className = 'os-drawer-close';
@@ -121,6 +135,7 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
     for (const app of apps) {
         const iconSvg = app.icon || icons[app.id] || '';
         const menuBtn = makeBtn(iconSvg, app.name);
+        menuBtn.setAttribute('role', 'menuitem');
         menuBtn.addEventListener('click', () => { closeMenu(); openApp(app.id); });
         appsMenu.appendChild(menuBtn);
 
@@ -143,16 +158,40 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
 
     const taskbar = document.createElement('div');
     taskbar.className = 'os-taskbar';
+    // Taskbar contents are rebuilt on a 500ms poll whenever windows open/
+    // close/gain focus (refreshTaskbar below); aria-live announces those
+    // additions/removals to a screen reader, which otherwise gets no signal
+    // that the running-window list changed. "polite" so it never interrupts.
+    taskbar.setAttribute('role', 'toolbar');
+    taskbar.setAttribute('aria-label', 'Open windows');
+    taskbar.setAttribute('aria-live', 'polite');
+    taskbar.setAttribute('aria-relevant', 'additions removals');
 
     osRoot.append(menubar, appsMenu, taskbar);
     document.body.append(sideRail, drawer);
 
-    function openMenu() { appsMenu.classList.add('open'); }
-    function closeMenu() { appsMenu.classList.remove('open'); }
-    function openDrawer() { drawer.classList.add('open'); drawer.setAttribute('aria-hidden', 'false'); }
-    function closeDrawer() { drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); }
+    function openMenu() { appsMenu.classList.add('open'); appsBtn.setAttribute('aria-expanded', 'true'); }
+    function closeMenu() { appsMenu.classList.remove('open'); appsBtn.setAttribute('aria-expanded', 'false'); }
+    // Focus management: opening the drawer moves keyboard focus onto its
+    // close button (the first reachable control inside the now-visible
+    // dialog) so Tab starts inside it, not lost on a now-hidden ancestor;
+    // closing restores focus to whichever element opened it (homeBtn is the
+    // only trigger today) so the user's keyboard position isn't lost.
+    let drawerReturnFocus = null;
+    function openDrawer() {
+        drawerReturnFocus = document.activeElement;
+        drawer.classList.add('open');
+        drawer.setAttribute('aria-hidden', 'false');
+        drawerClose.focus();
+    }
+    function closeDrawer() {
+        drawer.classList.remove('open');
+        drawer.setAttribute('aria-hidden', 'true');
+        if (drawerReturnFocus && typeof drawerReturnFocus.focus === 'function') drawerReturnFocus.focus();
+        drawerReturnFocus = null;
+    }
 
-    appsBtn.addEventListener('click', e => { e.stopPropagation(); appsMenu.classList.toggle('open'); });
+    appsBtn.addEventListener('click', e => { e.stopPropagation(); appsMenu.classList.contains('open') ? closeMenu() : openMenu(); });
     homeBtn.addEventListener('click', e => { e.stopPropagation(); drawer.classList.contains('open') ? closeDrawer() : openDrawer(); });
     drawerClose.addEventListener('click', closeDrawer);
     drawer.addEventListener('click', e => { if (e.target === drawer) closeDrawer(); });
@@ -207,6 +246,9 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
             t.type = 'button';
             t.textContent = w.title;
             t.dataset.winId = w.id;
+            // aria-current announces which window is the active one; a
+            // sighted user reads this from the .focused visual state alone.
+            if (w.focused) t.setAttribute('aria-current', 'true');
             t.addEventListener('click', () => wm.focus(w.id));
             taskbar.appendChild(t);
         }

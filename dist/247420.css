@@ -60,8 +60,14 @@
   --sky:         #3A6EFF;
   /* --warn = interactive danger controls (buttons, banners, menus, error
      inputs); --danger below = passive error/status text and metrics
-     (kpi/sparkline deltas, auth-error text). Two tokens, one convention. */
-  --warn:        #E0241A;
+     (kpi/sparkline deltas, auth-error text). Two tokens, one convention.
+     #E0241A measured 4.19:1 on --paper — fails WCAG AA 4.5:1 for the many
+     TEXT usages (.field-error, .ds-btn-warn, .ds-stat-val.err-rate, toast/
+     session error labels), not just the interactive-control (>=3:1) usages.
+     Darkened to clear AA on --paper (5.29:1), --paper-2 (4.78:1), and the
+     thebird warm-paper preset (5.25:1) while staying visually a clear
+     warm red. */
+  --warn:        #C41C0C;
   /* Syntax-token aliases: light values pass 4.5:1 on paper; the dark blocks
      restore the bright dark-tuned originals. Components reference ONLY these. */
   --code-string:  var(--green);
@@ -477,7 +483,7 @@
   --accent: var(--acid); --accent-fg: var(--ink); --accent-ink: var(--acid-deep);
   --accent-tint: color-mix(in oklab, var(--accent-ink) 22%, var(--bg));
   /* A paper island under a dark ancestor must not inherit the dark signal pair. */
-  --flame: #C53E00; --amber: #7C570F; --warn: #E0241A; --sky: #3A6EFF;
+  --flame: #C53E00; --amber: #7C570F; --warn: #C41C0C; --sky: #3A6EFF;
 }
 
 /* thebird — warm-paper brand preset. A first-class swappable theme: it lives
@@ -951,6 +957,22 @@
 .ds-247420 .app-main > .ds-files-stack,
 .ds-247420 .app-main > .grow { flex: 1 1 auto; min-height: 0; }
 .ds-247420 .app-main.narrow { max-width: var(--measure-narrow); margin: 0 auto; }
+/* Article-body heading rhythm and lede spacing, consumed by flatspace-rendered
+   long-form pages (docs, papers) that drop headings/panels directly into .app-main. */
+.ds-247420 .app-main > h1,
+.ds-247420 .app-main > h2,
+.ds-247420 .app-main > h3 { margin-top: 36px; margin-bottom: 12px; }
+.ds-247420 .app-main > h1:first-child { margin-top: 8px; }
+.ds-247420 .app-main > .panel,
+.ds-247420 .app-main > .work-detail-chips,
+.ds-247420 .app-main > .cli { margin-top: 18px; margin-bottom: 18px; }
+.ds-247420 .app-main .ds-lede { margin-top: 4px; margin-bottom: 18px; max-width: 64ch; line-height: 1.6; }
+.ds-247420 .work-detail-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; row-gap: 10px; }
+@media (max-width: 720px) {
+  .ds-247420 .app-main > h1,
+  .ds-247420 .app-main > h2,
+  .ds-247420 .app-main > h3 { margin-top: 28px; }
+}
 
 @media (min-width: 1400px) {
   /* Fluid ceiling, not a hard stop: scales from 1400px up to 1920px across the
