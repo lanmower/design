@@ -1,4 +1,4 @@
-import { iconMarkup } from '../src/components/shell.js';
+import { iconMarkup } from '../../components/shell.js';
 
 // Same path table + attr contract as every other Icon() consumer (viewBox
 // 0 0 24 24, shared --ds-icon-stroke) — a raw-DOM innerHTML template can't

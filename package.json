@@ -15,12 +15,12 @@
       "import": "./src/kits/spoint/index.js",
       "default": "./src/kits/spoint/index.js"
     },
-    "./kits/spoint/loading-screen.js": "./src/kits/spoint/loading-screen.js",
-    "./kits/spoint/loading-screen.css": "./src/kits/spoint/loading-screen.css",
-    "./kits/spoint/game-hud.js": "./src/kits/spoint/game-hud.js",
-    "./kits/spoint/game-hud.css": "./src/kits/spoint/game-hud.css",
-    "./kits/spoint/host-join-lobby.js": "./src/kits/spoint/host-join-lobby.js",
-    "./kits/spoint/host-join-lobby.css": "./src/kits/spoint/host-join-lobby.css",
+    "./kits/spoint/*": "./src/kits/spoint/*",
+    "./kits/slides": {
+      "import": "./src/kits/slides/index.js",
+      "default": "./src/kits/slides/index.js"
+    },
+    "./kits/slides/deck-stage.js": "./src/kits/slides/deck-stage.js",
     "./kits/os": {
       "import": "./src/kits/os/index.js",
       "default": "./src/kits/os/index.js"
@@ -51,6 +51,10 @@
       "default": "./src/page-html.js"
     },
     "./src/page-html.js": "./src/page-html.js",
+    "./html-escape.js": "./src/html-escape.js",
+    "./components/shell.js": "./src/components/shell.js",
+    "./components/files.js": "./src/components/files.js",
+    "./components/files-modals.js": "./src/components/files-modals.js",
     "./web-components/ds-chat.js": "./src/web-components/ds-chat.js",
     "./web-components/freddie-chat.js": "./src/web-components/freddie-chat.js",
     "./package.json": "./package.json"
@@ -66,10 +70,12 @@
     "README.md"
   ],
   "scripts": {
+    "lint": "node scripts/lint.mjs",
     "lint:tokens": "node scripts/lint-tokens.mjs",
     "build": "node scripts/build.mjs",
     "lint:null-children": "node scripts/lint-null-children.mjs",
-    "lint:classes": "node scripts/lint-classes.mjs"
+    "lint:classes": "node scripts/lint-classes.mjs",
+    "tokens": "node scripts/generate-tokens-json.mjs"
   },
   "repository": {
     "type": "git",

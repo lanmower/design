@@ -28,9 +28,13 @@ export function fileGlyph(type) {
 }
 
 // The canonical kit byte formatter (chat.js re-exports it as fmtBytes). One
-// format everywhere: '0 B' for zero; the em-dash means unknown/null ONLY.
+// format everywhere: '0 B' for zero; the em-dash means unknown/null/invalid
+// (NaN, a negative count, or anything non-numeric never reaches the divide
+// loop — previously NaN fell through to the loop unchanged and rendered the
+// literal string "NaN B").
 export function fmtFileSize(bytes) {
     if (bytes == null) return '—';
+    if (typeof bytes !== 'number' || Number.isNaN(bytes) || bytes < 0) return '—';
     if (bytes === 0) return '0 B';
     const u = ['B', 'KB', 'MB', 'GB', 'TB'];
     let i = 0, n = bytes;

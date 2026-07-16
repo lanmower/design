@@ -1,6 +1,10 @@
 # 247420
 
 The 247420 / AnEntrypoint design system, packaged as a single-file ESM SDK.
+(`247420` is this project's internal bundle/codename -- it appears as the dist
+filename `dist/247420.js`/`dist/247420.css` and in a few package.json fields;
+the published npm package name is `anentrypoint-design`. Both names refer to
+the same single system.)
 
 friendly rounded sans body, monospace only on real code, tonal surfaces over borders, indicator rails for color-coded separation, generous negative space, terminal-flavoured rhythm.
 
@@ -162,7 +166,23 @@ All factories are pure: props in, WebJSX tree out. Component source is split per
 
 ## chat / markdown / code-highlight
 
-`Chat({ messages, onSend })` renders the bubble timeline; `ChatComposer({ onSend })` is the input row. Block markdown inside messages is sanitized through `renderMarkdown` (`marked@15` + `DOMPurify@3`, lazy-loaded from jsDelivr ESM on first call) and code blocks are highlighted by Prism (lazy-loaded core + per-language scripts via `ensurePrism` / `highlightAllUnder`). Direct `innerHTML` from chat content is forbidden — DOMPurify is the only XSS gate.
+`Chat({ messages, onSend })` renders the bubble timeline; `ChatComposer({ onSend })` is the input row. Block markdown inside messages is sanitized through `renderMarkdown` (`marked@15.0.12` + `DOMPurify@3.2.6`, lazy-loaded from jsDelivr ESM on first call) and code blocks are highlighted by Prism (`prismjs@1.30.0`, lazy-loaded core + per-language scripts via `ensurePrism` / `highlightAllUnder`). Direct `innerHTML` from chat content is forbidden — DOMPurify is the only XSS gate.
+
+**Network dependency — read this before deploying behind a strict CSP or air-gapped environment.** The chat/markdown pipeline fetches three packages from `cdn.jsdelivr.net` **at runtime, on first render**, not at build/install time: `marked`, `DOMPurify`, and (for fenced code blocks) Prism core + per-language grammars. This means a consumer's Content-Security-Policy must allowlist `cdn.jsdelivr.net` for `script-src`/`connect-src` or the fallback below fires on every render. Both dependencies are **fail-closed**: any failure to load the CDN modules — network error, timeout, CSP block, a malformed/empty response, or even a crash inside the loaded library's own `parse()`/`sanitize()` call — makes `renderMarkdown` return the input as **HTML-entity-escaped plain text** (never raw/unsanitized HTML, never a throw). `isDegraded()` reports this state so a consumer can show a subtle "plain text" affordance if desired; `isMarkdownDegraded` is also exported from the SDK root. The default URLs pin an exact semver (`marked@15.0.12`, `dompurify@3.2.6`, `prismjs@1.30.0`) rather than a floating tag, so the CDN cannot silently swap code under a running app; genuine Subresource Integrity (`integrity="sha384-..."` + `crossorigin`) is **not applied** here because these load via dynamic `import()` (marked/DOMPurify) and injected `<script src>` (Prism components), and neither browser dynamic-`import()` nor an auto-injected script tag currently has a standardized SRI attachment point the way a static `<script integrity>` tag does — version-pinning is the mitigation in place today. A consumer that wants to self-host, mirror-pin with real SRI on their own `<script integrity>` wrapper, or route through an internal proxy can override every URL before first render:
+
+```js
+import { configureMarkdownCdn, configurePrismCdn } from 'anentrypoint-design';
+
+// Optional. Zero-config consumers keep hitting the pinned jsDelivr defaults
+// above, byte-for-byte -- this is purely additive.
+configureMarkdownCdn({
+  markedUrl: 'https://your-mirror.example/marked@15.0.12/+esm',
+  purifyUrl: 'https://your-mirror.example/dompurify@3.2.6/+esm',
+});
+configurePrismCdn({ baseUrl: 'https://your-mirror.example/prismjs@1.30.0/components/' });
+```
+
+`getMarkdownCdnConfig()` / `getPrismCdnConfig()` return the URLs currently in effect (defaults or override) for a consumer's own audit tooling. Calling either configure function forces the next render to (re)load from the new URL, so an override can also be applied at runtime (e.g. after detecting the default CDN is unreachable) — a render already in flight still completes against whatever it already loaded.
 
 ```js
 import { components as C } from 'anentrypoint-design';
@@ -225,7 +245,7 @@ The full token list lives in `colors_and_type.css`. The voice rules and the stor
 
 ## why scope-prefixed
 
-Every selector in the bundle is namespaced under `.ds-247420` via PostCSS. The bundle ships Nunito + Archivo + JetBrains Mono + the design tokens **without** colliding with whatever the host app already runs. Add the class to a root element to opt in.
+Every selector in the bundle is namespaced under `.ds-247420` via PostCSS. The bundle ships a system-font stack (`--ff-body`/`--ff-display`/`--ff-mono`, no web-font `@import`/`@font-face` -- see `colors_and_type.css`) + the design tokens **without** colliding with whatever the host app already runs. Add the class to a root element to opt in. The font tokens are fully overridable: set `--ff-body`/`--ff-display`/`--ff-mono` on any scope to swap typography without touching component code.
 
 ## CSS only (no JS)
 

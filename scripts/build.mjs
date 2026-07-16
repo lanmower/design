@@ -65,9 +65,48 @@ const SCOPE = '.ds-247420';
 // file that never existed and logged "missing css" every build. The font-URL
 // rewrite below (url(./fonts/) -> unpkg) is retained as a guard for any future
 // self-hosted @font-face but is a no-op today.
+//
+// app-shell.css itself was split into src/css/app-shell/*.css (by component
+// family: topbar, panel/row, files, chat polish, workspace shell, etc) so no
+// single source sheet is thousands of lines. The root app-shell.css stays a
+// real, working file (it is a published package export consumed directly via
+// <link> by preview/*.html and ui_kits/*/index.html, never through this
+// build) — it now just re-exports the split files via @import, in the same
+// order, so a direct-link consumer sees identical rules. For the BUNDLED
+// dist output, this build reads the split files directly and concatenates
+// them with NO per-file header inserted between them (unlike every other
+// cssPart below) — that concatenation is byte-identical to the original
+// monolithic app-shell.css, which is what keeps dist/247420.css unchanged.
+const appShellSplitDir = path.join(root, 'src/css/app-shell');
+const appShellSplitFiles = [
+    'base.css',
+    'topbar.css',
+    'primitives.css',
+    'panel-row.css',
+    'hero-content.css',
+    'responsive.css',
+    'chat-basic.css',
+    'files.css',
+    'catalog-theme.css',
+    'chat-polish.css',
+    'sidebar-misc.css',
+    'states-interactions.css',
+    'loading-alerts.css',
+    'responsive2-workspace.css',
+    'row-print.css',
+    'data-density.css',
+    'kits-appended.css',
+];
+let appShellContent = '';
+for (const name of appShellSplitFiles) {
+    const file = path.join(appShellSplitDir, name);
+    if (!fs.existsSync(file)) { console.warn('[247420] missing app-shell split part:', name); continue; }
+    appShellContent += fs.readFileSync(file, 'utf8');
+}
+
 const cssParts = [
     ['colors_and_type.css', path.join(root, 'colors_and_type.css')],
-    ['app-shell.css', path.join(root, 'app-shell.css')],
+    ['app-shell.css', null], // content supplied directly below (split-file reassembly)
     ['community.css', path.join(root, 'community.css')],
     ['chat.css', path.join(root, 'chat.css')],
     ['editor-primitives.css', path.join(root, 'editor-primitives.css')],
@@ -82,6 +121,13 @@ const cssParts = [
 
 let raw = '';
 for (const [label, file] of cssParts) {
+    if (label === 'app-shell.css') {
+        // Reassembled from the split source files above (see appShellContent) —
+        // same label/header shape as every other part, so byte order in the
+        // final bundle is unaffected by the source-file reorganization.
+        raw += `\n/* ${label} */\n${appShellContent}`;
+        continue;
+    }
     if (!fs.existsSync(file)) { console.warn('[247420] missing css:', label); continue; }
     raw += `\n/* ${label} */\n${fs.readFileSync(file, 'utf8')}`;
 }

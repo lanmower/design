@@ -1,7 +1,7 @@
 // Core freddie pages: projects, home, sessions, agents, logs.
 import * as webjsx from '../../../../vendor/webjsx/index.js';
 import * as components from '../../../components.js';
-import { pre, form, skillLabel } from './helpers.js';
+import { pre, form, skillLabel } from '../../../components/freddie/helpers.js';
 
 const h = webjsx.createElement;
 const { Panel, Row, Hero, Receipt, Kpi, Table, EmptyState, Icon } = components;

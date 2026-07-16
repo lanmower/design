@@ -9,9 +9,9 @@ import { Router, createRouter } from './router.js';
 import * as components from './components.js';
 import * as motion from './motion.js';
 import * as debug from './debug.js';
-import { renderMarkdown, ensureReady as ensureMarkdownReady } from './markdown.js';
+import { renderMarkdown, ensureReady as ensureMarkdownReady, sanitizeHtml, isDegraded as isMarkdownDegraded, configureMarkdownCdn, getMarkdownCdnConfig } from './markdown.js';
 import { escapeHtml, escapeJson } from './html-escape.js';
-import { ensurePrism, highlightAllUnder } from './highlight.js';
+import { ensurePrism, highlightAllUnder, configurePrismCdn, getPrismCdnConfig } from './highlight.js';
 import { renderPageHtml } from './page-html.js';
 import { HeroFromPageData } from './components/content.js';
 import { ThemeToggle } from './components/theme-toggle.js';
@@ -37,9 +37,18 @@ export async function installStyles(target) {
     }
 }
 
+// Tracks nodes already mounted via mount() so a second mount() call onto the
+// same DOM node fails loud instead of silently layering a second render loop
+// (double applyDiff/animateTree on one root corrupts webjsx's diff state).
+const _mountedRoots = new WeakSet();
+
 export function mount(rootEl, viewFn, { autoScope = true } = {}) {
-    if (!rootEl) throw new Error('mount: rootEl required');
+    if (!rootEl) throw new Error('mount: rootEl required (received ' + (rootEl === null ? 'null' : typeof rootEl) + ')');
     if (typeof viewFn !== 'function') throw new Error('mount: viewFn required');
+    if (_mountedRoots.has(rootEl)) {
+        throw new Error('mount: this element is already mounted — call the returned render() to re-render, do not mount() the same root twice');
+    }
+    _mountedRoots.add(rootEl);
     if (autoScope && rootEl.classList && !rootEl.classList.contains(scope.slice(1))) {
         const cls = scope.slice(1);
         const inheritedFromAncestor = rootEl.closest && rootEl.closest('.' + cls);
@@ -67,8 +76,9 @@ export {
     registerDeckStage, getDeckStage,
     Router, createRouter,
     components, motion, debug, mountKit,
-    renderMarkdown, ensureMarkdownReady,
-    ensurePrism, highlightAllUnder,
+    renderMarkdown, ensureMarkdownReady, sanitizeHtml, isMarkdownDegraded,
+    configureMarkdownCdn, getMarkdownCdnConfig,
+    ensurePrism, highlightAllUnder, configurePrismCdn, getPrismCdnConfig,
     registerChatElement, DsChat,
     registerFreddieChatElement, FreddieChat,
     renderPageHtml, HeroFromPageData,

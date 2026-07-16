@@ -535,6 +535,49 @@ select:focus-visible {
   }
 }
 
+/* ============================================================
+   Semantic alias tier — primitive -> semantic -> component
+   ------------------------------------------------------------
+   Three layers, in order:
+     1. PRIMITIVE  (above)  raw palette values: --acid, --green, --sky, --warn,
+        --panel-1/2/3, --paper/--ink, etc. These are the only tokens that ever
+        carry a literal color/length. A re-brand edits primitives.
+     2. SEMANTIC   (here)   named-by-INTENT aliases that resolve to a primitive
+        (e.g. --accent: var(--panel-accent)). A component or a future re-brand
+        can retune ONE semantic variable (say, --rail-danger) without hunting
+        through every primitive it happens to reuse elsewhere.
+     3. COMPONENT  (app-shell.css, community.css, etc.) component sheets keep
+        consuming primitives directly today (--accent, --panel-*, --green,
+        --warn, ...) exactly as before — this tier does not repoint any
+        existing component rule. It exists so a FUTURE swap has a semantic
+        layer ready to migrate onto, one component sheet at a time, without
+        a flag-day rewrite. Purely additive: no primitive token's name or
+        value changes here, and no component references these new names yet.
+
+   Naming matches vocabulary already established elsewhere in this system:
+   --surface-1/2 mirror the --panel-1/--panel-2 tonal-surface steps already
+   used across app-shell.css/community.css; --rail-info/-success/-warning/-error
+   mirror the canonical .tone-info/.tone-success/.tone-warning/.tone-error
+   banner/badge/chip severity names (app-shell.css L592, community.css
+   .cm-banner.tone-*) rather than inventing a new severity vocabulary.
+   ============================================================ */
+:root {
+  /* --accent already exists as a primitive-facing alias (var(--acid)) above;
+     restated here under the semantic tier for discoverability alongside its
+     siblings. Same value, same token — not a second definition. */
+  --surface-1: var(--panel-1);
+  --surface-2: var(--panel-2);
+
+  /* Rail/status severity aliases — map onto the same color choices the
+     existing .cm-banner.tone-* rules in community.css already use, so a
+     future rail/indicator component can consume one semantic name instead
+     of picking the right primitive per severity by hand. */
+  --rail-info:    var(--sky);
+  --rail-success: var(--green-2);
+  --rail-warning: var(--amber);
+  --rail-error:   var(--warn);
+}
+
 /* Elevation tokens consumed by overlays (Tooltip, Popover, Dropdown, Dialog). */
 :root {
   --shadow-1: 0 1px 2px color-mix(in oklab, var(--fg) 8%, transparent);
