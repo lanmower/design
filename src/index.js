@@ -21,6 +21,8 @@ import * as theme from './theme.js';
 import { t, registerLocale, getLocale, setLocale, availableLocales } from './i18n.js';
 import { registerChatElement, DsChat } from './web-components/ds-chat.js';
 import { registerFreddieChatElement, FreddieChat } from './web-components/freddie-chat.js';
+import { formatTime, formatDateTime, formatNumber, formatRelativeTime } from './locale.js';
+import { queueMessage, listQueued, flushQueue, watchReconnect, isOnline } from './idb-outbox.js';
 
 let _installed = false;
 export async function installStyles(target) {
@@ -87,7 +89,9 @@ export {
     escapeHtml, escapeJson,
     uid, shortUid,
     theme, ThemeToggle,
-    t, registerLocale, getLocale, setLocale, availableLocales
+    t, registerLocale, getLocale, setLocale, availableLocales,
+    formatTime, formatDateTime, formatNumber, formatRelativeTime,
+    queueMessage, listQueued, flushQueue, watchReconnect, isOnline
 };
 export { applyTheme, getTheme, resolvedTheme, onThemeChange, initTheme,
          applyAccent, getAccent, applyDensity, getDensity } from './theme.js';

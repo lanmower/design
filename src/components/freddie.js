@@ -10,6 +10,7 @@ import { getRecentPaths, saveRecentPath, skillLabel, renderChatMessages } from '
 import { Panel, Row, Table, Kpi, PageHeader, SearchInput, TextField, Select } from './content.js';
 import { Chip, Btn, Icon } from './shell.js';
 import { formatTime } from '../locale.js';
+import { queueMessage, watchReconnect, isOnline } from '../idb-outbox.js';
 import { ChatMessage, ChatComposer } from './chat.js';
 import { fmtTime, fmtAgo } from './sessions.js';
 
@@ -107,15 +108,30 @@ export const home = makePage((ctx) => {
 
 export const chat = makePage((ctx) => {
     Object.assign(ctx.state, { loading: false, messages: [], draft: '', sending: false });
+    // Offline outbox: a prompt sent while genuinely offline queues to
+    // IndexedDB and auto-flushes on the real 'online' event, rather than
+    // surfacing a hard error the user can't act on. True offline LLM
+    // response generation is impossible by definition -- a queued message
+    // only gets a reply once connectivity actually returns.
+    async function sendToServer(body) {
+        const r = await api('/api/chat', { method: 'POST', body });
+        const reply = r.result || r.content || r.message || (r.messages && r.messages.at(-1)?.content) || JSON.stringify(r);
+        ctx.state.messages.push({ role: 'assistant', text: String(reply), time: formatTime(Date.now()) });
+    }
+    watchReconnect('chat', sendToServer);
     async function send(text) {
         const t = (text || ctx.state.draft || '').trim();
         if (!t || ctx.state.sending) return;
         ctx.state.messages.push({ role: 'user', text: t, time: formatTime(Date.now()) });
         ctx.set({ draft: '', sending: true });
+        if (!isOnline()) {
+            await queueMessage('chat', { prompt: t });
+            ctx.state.messages.push({ role: 'assistant', text: '(offline -- queued, will send when connection returns)', time: formatTime(Date.now()) });
+            ctx.set({ sending: false });
+            return;
+        }
         try {
-            const r = await api('/api/chat', { method: 'POST', body: { prompt: t } });
-            const reply = r.result || r.content || r.message || (r.messages && r.messages.at(-1)?.content) || JSON.stringify(r);
-            ctx.state.messages.push({ role: 'assistant', text: String(reply), time: formatTime(Date.now()) });
+            await sendToServer({ prompt: t });
         } catch (e) {
             ctx.state.messages.push({ role: 'assistant', text: 'Error: ' + String(e.message || e), time: formatTime(Date.now()) });
         }

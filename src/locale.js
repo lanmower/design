@@ -1,36 +1,17 @@
-// 247420 design system — locale controller.
+// 247420 design system — date/time/number formatting helpers.
 //
-// User-configurable locale override for date/time formatting; persists to
-// localStorage like theme.js's controller. Absent an override, falls back to
-// navigator.language (the browser's own locale) explicitly rather than
-// relying on Intl's implicit-undefined-locale default, so a caller can always
-// know which locale actually formatted a given string.
-
-const KEY = '247420:locale';
-
-function isBrowser() {
-    return typeof navigator !== 'undefined' && typeof window !== 'undefined';
-}
-
-function readStored() {
-    try { return window.localStorage.getItem(KEY) || null; } catch { return null; }
-}
-
-export function getLocale() {
-    const stored = readStored();
-    if (stored) return stored;
-    if (isBrowser() && navigator.language) return navigator.language;
-    return 'en-US';
-}
-
-export function setLocale(locale) {
-    if (!isBrowser()) return locale;
-    try {
-        if (locale) window.localStorage.setItem(KEY, locale);
-        else window.localStorage.removeItem(KEY);
-    } catch { /* swallow: persistence is best-effort, locale still applies in-memory this session */ }
-    return locale;
-}
+// Consumes i18n.js's getLocale() as the single source of truth for "what
+// locale is active" (its own ds-locale storage key + navigator.language
+// detection) rather than maintaining a second, independent locale setting --
+// two different "current locale" sources in the same package would silently
+// disagree with each other. i18n.js's getLocale() returns a short code
+// ('en'); Intl APIs accept a short code fine (BCP-47 allows bare language
+// subtags), so no expansion to a full region tag ('en-US') is needed or
+// assumed here -- if a consumer wants region-specific formatting (e.g. the
+// exact '1,234.56' vs '1.234,56' split within an 'en' vs 'en-GB' distinction)
+// they pass an explicit locale argument, same as every function below
+// already supports.
+import { getLocale } from './i18n.js';
 
 function hour12Preference(locale) {
     try { return Intl.DateTimeFormat(locale).resolvedOptions().hour12; }
@@ -54,7 +35,7 @@ export function formatDateTime(date, locale = getLocale()) {
 
 // formatNumber: replaces bare `n.toLocaleString()` -- explicit locale for
 // thousands-separator/decimal conventions that genuinely differ (e.g.
-// '1,234.5' en-US vs '1.234,5' de-DE).
+// '1,234.5' en vs '1.234,5' de).
 export function formatNumber(n, locale = getLocale()) {
     try { return n.toLocaleString(locale); } catch { return String(n); }
 }
