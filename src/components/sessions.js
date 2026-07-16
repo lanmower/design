@@ -6,6 +6,7 @@
 import * as webjsx from '../../vendor/webjsx/index.js';
 import { Btn, Icon } from './shell.js';
 import { Select, SearchInput } from './content.js';
+import { formatDateTime, formatNumber } from '../locale.js';
 const h = webjsx.createElement;
 
 // ONE duration format for every surface (live cards, running panel, session
@@ -15,7 +16,7 @@ const h = webjsx.createElement;
 // timestamp (freddie pages, chat transcripts). fmtTime -> localized
 // date+time string; fmtAgo -> coarse relative ('Ns/Nm/Nh/Nd ago').
 export function fmtTime(t) {
-  try { return new Date(t).toLocaleString(); } catch { return String(t || ''); }
+  try { return formatDateTime(t); } catch { return String(t || ''); }
 }
 export function fmtAgo(t) {
   if (!t) return '';
@@ -231,7 +232,7 @@ export function SessionCard({ session = {}, onStop, onOpen, onView, active = fal
   const elapsedText = s.elapsedMs != null ? fmtDuration(s.elapsedMs) : (s.elapsed != null ? s.elapsed : null);
   // At-a-glance cost/usage (the prompt's named command-center signal). Null-safe:
   // sessions with no cost source (external tally rows) simply omit the segment.
-  const tokText = s.tokens != null ? (typeof s.tokens === 'number' ? s.tokens.toLocaleString() : s.tokens) + ' tok' : null;
+  const tokText = s.tokens != null ? (typeof s.tokens === 'number' ? formatNumber(s.tokens) : s.tokens) + ' tok' : null;
   const costText = s.cost != null ? (typeof s.cost === 'number' ? '$' + s.cost.toFixed(4) : String(s.cost)) : null;
   // Cost is rendered as its own emphasized segment (not buried in the mono run)
   // so the command-center cost-at-a-glance signal is scannable.

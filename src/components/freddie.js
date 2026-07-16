@@ -9,6 +9,7 @@ import { makePage, api, loadingState, errorState, emptyState } from './freddie/r
 import { getRecentPaths, saveRecentPath, skillLabel, renderChatMessages } from './freddie/helpers.js';
 import { Panel, Row, Table, Kpi, PageHeader, SearchInput, TextField, Select } from './content.js';
 import { Chip, Btn, Icon } from './shell.js';
+import { formatTime } from '../locale.js';
 import { ChatMessage, ChatComposer } from './chat.js';
 import { fmtTime, fmtAgo } from './sessions.js';
 
@@ -109,14 +110,14 @@ export const chat = makePage((ctx) => {
     async function send(text) {
         const t = (text || ctx.state.draft || '').trim();
         if (!t || ctx.state.sending) return;
-        ctx.state.messages.push({ role: 'user', text: t, time: new Date().toLocaleTimeString() });
+        ctx.state.messages.push({ role: 'user', text: t, time: formatTime(Date.now()) });
         ctx.set({ draft: '', sending: true });
         try {
             const r = await api('/api/chat', { method: 'POST', body: { prompt: t } });
             const reply = r.result || r.content || r.message || (r.messages && r.messages.at(-1)?.content) || JSON.stringify(r);
-            ctx.state.messages.push({ role: 'assistant', text: String(reply), time: new Date().toLocaleTimeString() });
+            ctx.state.messages.push({ role: 'assistant', text: String(reply), time: formatTime(Date.now()) });
         } catch (e) {
-            ctx.state.messages.push({ role: 'assistant', text: 'Error: ' + String(e.message || e), time: new Date().toLocaleTimeString() });
+            ctx.state.messages.push({ role: 'assistant', text: 'Error: ' + String(e.message || e), time: formatTime(Date.now()) });
         }
         ctx.set({ sending: false });
     }
