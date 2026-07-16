@@ -593,6 +593,17 @@
 @media (hover: none), (pointer: coarse) {
   .ds-modal-input { font-size: 16px; min-height: 44px; }
 }
+/* PromptDialog's optional roots-chip row (destination-path prompts with more
+   than one allowed root) - same chip idiom the cwd editor's roots row uses. */
+.ds-prompt-roots { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.ds-prompt-root-chip {
+  background: var(--bg-2); border: var(--bw-hair) solid var(--rule); color: var(--fg-2);
+  border-radius: var(--r-pill); padding: 3px 10px; font: inherit; font-size: var(--fs-tiny);
+  cursor: pointer;
+}
+.ds-prompt-root-chip:hover { border-color: var(--accent); color: var(--fg); }
+.ds-prompt-root-chip:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+@media (pointer: coarse) { .ds-prompt-root-chip { min-height: 44px; } }
 /* In-body modal error (role=alert): mutation failures (409/403) surface INSIDE
    the dialog, not behind the fixed overlay. */
 .ds-modal-error {
