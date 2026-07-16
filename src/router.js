@@ -72,6 +72,42 @@ export class Router {
         this.render();
     }
 
+    // Swipe-to-navigate: touch-only (matchMedia (pointer:coarse), same real
+    // gate thebird's theme.css already uses for tap-target sizing, per its
+    // documented viewport contract). Left swipe -> next registered route,
+    // right swipe -> previous, cycling through registration order. A single
+    // touch gesture, not a drag-scroll hijack: only fires past a real
+    // distance+velocity threshold, and only when the touch didn't move
+    // vertically more than horizontally (so a vertical scroll never
+    // misfires as a swipe-nav).
+    enableSwipeNav({ minDistance = 60, maxVerticalDrift = 50 } = {}) {
+        if (typeof window === 'undefined' || !window.matchMedia) return this;
+        if (!window.matchMedia('(pointer:coarse)').matches) return this;
+        let startX = null, startY = null, startTime = 0;
+        const root = document.getElementById('app');
+        if (!root) return this;
+        root.addEventListener('touchstart', (e) => {
+            const t = e.touches[0];
+            startX = t.clientX; startY = t.clientY; startTime = Date.now();
+        }, { passive: true });
+        root.addEventListener('touchend', (e) => {
+            if (startX === null) return;
+            const t = e.changedTouches[0];
+            const dx = t.clientX - startX;
+            const dy = Math.abs(t.clientY - startY);
+            const dt = Date.now() - startTime;
+            startX = null;
+            if (dy > maxVerticalDrift || Math.abs(dx) < minDistance || dt > 600) return;
+            const names = [...this.routes.keys()];
+            const idx = names.indexOf(this.currentRoute);
+            if (idx === -1) return;
+            const nextIdx = dx < 0 ? idx + 1 : idx - 1;
+            if (nextIdx < 0 || nextIdx >= names.length) return;
+            this.navigate(names[nextIdx]);
+        }, { passive: true });
+        return this;
+    }
+
     start() {
         window.addEventListener('popstate', () => this.handlePopState());
         window.addEventListener('hashchange', () => this.handlePopState());
