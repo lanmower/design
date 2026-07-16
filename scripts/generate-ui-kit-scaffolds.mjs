@@ -27,7 +27,19 @@ import { kits } from '../ui_kits/kits.config.mjs';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const templatePath = join(root, 'ui_kits/_template/index.html');
-const template = readFileSync(templatePath, 'utf8');
+
+// Normalize CRLF -> LF on read. This repo's working tree checks files out
+// with CRLF (core.autocrlf=true on this Windows checkout) while git's blobs
+// -- and every string literal in this script -- are LF. Comparing/splicing
+// against a CRLF-read string silently fails to match (an og-block splice
+// dropped a whole block the first time this bit us), so every read in this
+// script normalizes first; output is written as LF and left to git/checkout
+// to re-normalize, matching how every other tracked text file here behaves.
+function readNormalized(path) {
+  return readFileSync(path, 'utf8').replace(/\r\n/g, '\n');
+}
+
+const template = readNormalized(templatePath);
 
 const CHECK = process.argv.includes('--check');
 
@@ -143,7 +155,7 @@ for (const kit of kits) {
   const outPath = join(root, 'ui_kits', kit.id, 'index.html');
   const rendered = render(kit);
   if (CHECK) {
-    const current = readFileSync(outPath, 'utf8');
+    const current = readNormalized(outPath);
     if (current !== rendered) {
       console.error(`[generate-ui-kit-scaffolds] DRIFT: ui_kits/${kit.id}/index.html does not match generated output`);
       drift++;
