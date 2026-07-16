@@ -829,7 +829,7 @@ export function JsonViewer({ value, emptyText = 'no data', maxHeight, mode = 'pl
     if (!text) return h('div', { class: 'ds-ep-json ds-ep-json-empty' }, emptyText);
     const style = maxHeight ? ('max-height:' + maxHeight) : null;
     if (!knownJson && (mode === 'highlight' || mode === 'tree')) {
-        try { parsed = JSON.parse(text); knownJson = true; } catch { /* not JSON — render plain */ }
+        try { parsed = JSON.parse(text); knownJson = true; } catch { /* swallow: not JSON — render plain */ }
     }
     let body;
     if (mode === 'tree' && knownJson && parsed !== null && typeof parsed === 'object') {

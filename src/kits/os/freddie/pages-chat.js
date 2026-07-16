@@ -6,7 +6,7 @@
 
 import * as webjsx from '../../../../vendor/webjsx/index.js';
 import * as components from '../../../components.js';
-import { getRecentPaths, saveRecentPath, skillLabel } from './helpers.js';
+import { getRecentPaths, saveRecentPath, skillLabel } from '../../../components/freddie/helpers.js';
 import { Chat, ChatComposer } from '../../../components/chat.js';
 
 const h = webjsx.createElement;

@@ -43,6 +43,12 @@ export function renderWindow(opts = {}) {
     el.className = 'wm-win';
     el.dataset.kind = kind;
     if (instanceId) el.dataset.instanceId = instanceId;
+    // Floating window chrome is a dialog surface: role="dialog" (not
+    // aria-modal, since sibling windows stay operable — this is a
+    // non-modal multi-window desktop, not a blocking modal) + aria-label
+    // from the titlebar text so AT announces which window has focus.
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-label', title);
     const b0 = clampBounds(bounds, null);
     el.style.left = b0.x + 'px';
     el.style.top = b0.y + 'px';
@@ -70,11 +76,22 @@ export function renderWindow(opts = {}) {
     // direction (n/s/e/w/ne/nw/se/sw) to the consumer's resize math. The SE
     // corner keeps the visible diagonal grip glyph (.wm-resize); the other
     // seven are invisible hit-zones (.wm-edge) styled in wm.css.
+    // NOT KEYBOARD ACCESSIBLE: these grips only wire pointerdown (see below);
+    // resize math is owned entirely by the consumer's pointermove handler
+    // (module comment at top of file), so there is no keydown-driven delta to
+    // wire without reaching into consumer-owned drag state. role="separator"
+    // + aria-orientation give a screen reader a name for the affordance even
+    // though it cannot be operated without a pointer -- an honest partial
+    // label, not a claim of full keyboard support.
+    const ORIENT = { n: 'horizontal', s: 'horizontal', ne: 'horizontal', nw: 'horizontal', se: 'horizontal', sw: 'horizontal', e: 'vertical', w: 'vertical' };
     const DIRS = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
     const grips = DIRS.map(dir => {
         const g = document.createElement('div');
         g.className = dir === 'se' ? 'wm-resize' : 'wm-edge';
         g.dataset.dir = dir;
+        g.setAttribute('role', 'separator');
+        g.setAttribute('aria-orientation', ORIENT[dir] || 'horizontal');
+        g.setAttribute('aria-label', 'resize ' + dir + ' (pointer only)');
         return g;
     });
 
@@ -87,6 +104,27 @@ export function renderWindow(opts = {}) {
     const focus = () => callbacks.onFocus && callbacks.onFocus();
 
     el.addEventListener('pointerdown', () => focus());
+
+    // Basic focus trap: while this window carries .wm-focused, Tab/Shift+Tab
+    // cycles only within its own focusable set instead of escaping to a
+    // sibling window or the page behind it. Scoped to keydown on `el` itself
+    // (additive listener, no DOM structure change) and gated on the class the
+    // consumer already toggles via setFocused/applyFocused below, so an
+    // unfocused window is completely untouched by this handler.
+    el.addEventListener('keydown', e => {
+        if (e.key !== 'Tab' || !el.classList.contains('wm-focused')) return;
+        const focusable = el.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+        }
+    });
 
     bar.addEventListener('pointerdown', e => {
         if (e.target.closest('.wm-btn')) return;

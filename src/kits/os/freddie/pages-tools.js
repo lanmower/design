@@ -1,7 +1,7 @@
 // Tools-ish freddie pages: analytics, models, cron, skills, config, env, tools, batch, gateway.
 import * as webjsx from '../../../../vendor/webjsx/index.js';
 import * as components from '../../../components.js';
-import { pre, form, skillLabel } from './helpers.js';
+import { pre, form, skillLabel } from '../../../components/freddie/helpers.js';
 
 const h = webjsx.createElement;
 const { Panel, Row, Receipt, Kpi, Table, Section, EmptyState, Chip, Icon } = components;

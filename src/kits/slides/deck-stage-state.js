@@ -21,7 +21,7 @@ export function restoreIndex(deckEl, slides) {
         if (raw == null) return 0;
         const n = parseInt(raw, 10);
         if (Number.isFinite(n) && n >= 0 && n < slides.length) return n;
-    } catch (e) { /* ignore */ }
+    } catch (e) { /* swallow: localStorage unavailable or corrupt saved-slide-index — fall back to slide 0 */ }
     return 0;
 }
 

@@ -179,7 +179,19 @@ export function ConfirmDialog({ title = 'Are you sure?', message, confirmLabel =
     });
 }
 
-export function PromptDialog({ title = 'Enter a name', value = '', placeholder = '', confirmLabel = 'ok', cancelLabel = 'cancel', onConfirm, onCancel, onInput, error, busy = false, busyLabel = 'working…' } = {}) {
+export function PromptDialog({ title = 'Enter a name', value = '', placeholder = '', confirmLabel = 'ok', cancelLabel = 'cancel', onConfirm, onCancel, onInput, error, busy = false, busyLabel = 'working…', roots, onPickRoot } = {}) {
+    // Optional one-click starting-point chips (e.g. a destination-path prompt
+    // for a filesystem with more than one allowed root) - a user typing a
+    // path has no way to discover what a second disjoint root even looks
+    // like otherwise. Each { path, label } fills the input via the same
+    // onInput callback a manual keystroke would.
+    const rootsRow = (roots && roots.length)
+        ? h('div', { class: 'ds-prompt-roots', role: 'group', 'aria-label': 'accessible folders' },
+            ...roots.map((r, i) => h('button', {
+                key: 'pr' + i, type: 'button', class: 'ds-prompt-root-chip',
+                onclick: () => { const p = r.path || r; if (onPickRoot) onPickRoot(p); else if (onInput) onInput(p); },
+            }, r.label || r.path || r)))
+        : null;
     return Modal({
         onClose: onCancel,
         kind: 'small',
@@ -199,7 +211,7 @@ export function PromptDialog({ title = 'Enter a name', value = '', placeholder =
                 if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); if (!busy) onConfirm && onConfirm(e.target.value); }
                 if (e.key === 'Escape') { e.preventDefault(); if (!busy) onCancel && onCancel(); }
             }
-        }), modalError(error)].filter(Boolean),
+        }), rootsRow, modalError(error)].filter(Boolean),
         actions: [
             Btn({ onClick: onCancel, disabled: busy, children: cancelLabel }),
             Btn({
