@@ -95,7 +95,15 @@
   }
 }
 
-.cli {
+/* .ds-cli-block — the multi-row article/transcript container (CliBlock()'s
+   outer wrapper holding stacked .ds-cli-row / .ds-cli-comment children).
+   Distinct from the bare `.cli` single prompt+cmd row primitive owned by
+   app-shell.css (Install(), HeroFromPageData(), terminal/site quickstart
+   lines) — the two used to share the `.cli` selector with incompatible
+   display models (flex row vs block transcript), so whichever stylesheet
+   loaded last silently won for both consumers. Renamed here to remove the
+   collision; see content.js CliBlock(). */
+.ds-cli-block {
   display: block;
   background: var(--panel-1);
   border-radius: var(--r-0);
@@ -110,7 +118,7 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
-.cli .ds-cli-comment {
+.ds-cli-block .ds-cli-comment {
   color: var(--panel-text-3);
   white-space: pre-wrap;
   word-break: break-word;
@@ -118,20 +126,20 @@
   padding: 3px 0;
   line-height: 1.6;
 }
-.cli .ds-cli-comment:empty::before { content: '\00a0'; }
-.cli .ds-cli-row {
+.ds-cli-block .ds-cli-comment:empty::before { content: '\00a0'; }
+.ds-cli-block .ds-cli-row {
   display: flex;
   gap: 10px;
   padding: 3px 0;
   white-space: pre-wrap;
   word-break: break-word;
 }
-.cli .ds-cli-row .prompt {
+.ds-cli-block .ds-cli-row .prompt {
   color: var(--panel-accent);
   flex: 0 0 auto;
   user-select: none;
 }
-.cli .ds-cli-row .cmd {
+.ds-cli-block .ds-cli-row .cmd {
   color: var(--panel-text);
   flex: 1 1 auto;
   white-space: pre-wrap;

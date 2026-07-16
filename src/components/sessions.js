@@ -11,6 +11,21 @@ const h = webjsx.createElement;
 // ONE duration format for every surface (live cards, running panel, session
 // meta, context pane): <60s -> 'Ns', <1h -> 'Nm Ss', else 'Nh Nm'. Durations
 // roll s -> m -> h instead of an hour-long run reading '3712s'.
+// ONE absolute-time / relative-time formatter for every surface that shows a
+// timestamp (freddie pages, chat transcripts). fmtTime -> localized
+// date+time string; fmtAgo -> coarse relative ('Ns/Nm/Nh/Nd ago').
+export function fmtTime(t) {
+  try { return new Date(t).toLocaleString(); } catch { return String(t || ''); }
+}
+export function fmtAgo(t) {
+  if (!t) return '';
+  const s = Math.floor((Date.now() - new Date(t).getTime()) / 1000);
+  if (s < 60) return s + 's ago';
+  if (s < 3600) return Math.floor(s / 60) + 'm ago';
+  if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+  return Math.floor(s / 86400) + 'd ago';
+}
+
 export function fmtDuration(ms) {
   if (ms == null || !isFinite(ms) || ms < 0) return '';
   const s = Math.round(ms / 1000);

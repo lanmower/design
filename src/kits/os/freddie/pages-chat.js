@@ -19,7 +19,7 @@ function parseSseEvents(text) {
         if (line.startsWith('event: ')) { curEvent = line.slice(7).trim(); }
         else if (line.startsWith('data: ')) { curData = line.slice(6).trim(); }
         else if (line === '' && curEvent) {
-            try { events.push({ event: curEvent, data: JSON.parse(curData) }); } catch {}
+            try { events.push({ event: curEvent, data: JSON.parse(curData) }); } catch { /* swallow: a malformed SSE event is dropped, the stream continues */ }
             curEvent = null; curData = '';
         }
     }
@@ -65,7 +65,7 @@ export function makeChatPage(ctx) {
                     const models = Array.isArray(j?.data) ? j.data.map(m => m.id) : [];
                     providers = [{ id: 'acptoapi', name: 'acptoapi gateway (' + baseUrl + ')', configured: true, models: ['auto', ...models] }, ...providers];
                 }
-            } catch {}
+            } catch { /* swallow: probing the local acptoapi gateway is opt-in best-effort, absence just means no providers shown */ }
         }
         const configuredProviders = providers.filter(p => p.configured);
 
@@ -89,7 +89,7 @@ export function makeChatPage(ctx) {
         };
 
         const cancelInFlight = () => {
-            if (chatState.abort) { try { chatState.abort.abort(); } catch {} chatState.abort = null; }
+            if (chatState.abort) { try { chatState.abort.abort(); } catch { /* swallow: the in-flight request may already be settled, abort() is a no-op then */ } chatState.abort = null; }
             chatState.busy = false;
             syncMessages();
             renderPage();
@@ -140,7 +140,7 @@ export function makeChatPage(ctx) {
                                     ? ('agent: ' + running + ' (step ' + (stepN + 1) + ')…')
                                     : ('agent thinking' + (stepN ? ' (step ' + stepN + ')' : '') + '…');
                                 renderPage();
-                            } catch {}
+                            } catch { /* swallow: progress-indicator update failing must not abort the agent run */ }
                         };
                         const out = await window.__thebirdRunAgent({ prompt: trimmed, onUpdate });
                         const turnMsgs = (out && Array.isArray(out.messages)) ? out.messages : [];

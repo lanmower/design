@@ -1,6 +1,7 @@
 import * as webjsx from 'webjsx';
 import { Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip, Btn, Row } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
+import { shortUid } from 'ds/uid.js';
 const h = webjsx.createElement;
 
 const root = document.getElementById('root');
@@ -152,7 +153,7 @@ function ApiKeys() {
             h('div', { class: 'ds-btn-row' },
                 h('input', { class: 'input ds-key-input', value: state.api_key, readonly: true }),
                 h('button', { class: 'btn', onclick: () => { navigator.clipboard?.writeText(state.api_key); } }, 'copy'),
-                h('button', { class: 'btn', onclick: () => { state.api_key = 'sk-247420-' + Math.random().toString(36).slice(2, 10) + '-' + Math.random().toString(36).slice(2, 5); state.dirty = true; kit.render(); } }, 'rotate')
+                h('button', { class: 'btn', onclick: () => { state.api_key = 'sk-247420-' + shortUid(8) + '-' + shortUid(5); state.dirty = true; kit.render(); } }, 'rotate')
             ) })
     ) });
 }

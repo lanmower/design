@@ -1,6 +1,7 @@
 import * as webjsx from 'webjsx';
 import { Topbar, Crumb, Status, AppShell, Panel, Heading, Lede, Chip, Icon, Divider } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
+import { shortUid } from 'ds/uid.js';
 const h = webjsx.createElement;
 
 const root = document.getElementById('root');
@@ -95,7 +96,7 @@ function startOAuthFlow(provider) {
 
 function generateState() {
     return btoa(JSON.stringify({
-        nonce: Math.random().toString(36).slice(2),
+        nonce: shortUid(11),
         timestamp: Date.now()
     }));
 }

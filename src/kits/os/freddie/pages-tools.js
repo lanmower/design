@@ -91,7 +91,7 @@ export function makeToolsPages(ctx) {
                     submit: 'save',
                     onSubmit: async (ev) => {
                         let v = ev.target.elements.value.value;
-                        try { v = JSON.parse(v); } catch {}
+                        try { v = JSON.parse(v); } catch { /* swallow: value may be a plain string, not JSON — keep it as-is */ }
                         await h0.pi.config.saveValue(ev.target.elements.key.value, v);
                         rerender();
                     },

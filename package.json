@@ -53,11 +53,17 @@
     "./src/page-html.js": "./src/page-html.js",
     "./web-components/ds-chat.js": "./src/web-components/ds-chat.js",
     "./web-components/freddie-chat.js": "./src/web-components/freddie-chat.js",
+    "./lint": {
+      "import": "./src/lint.js",
+      "default": "./src/lint.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
     "src",
+    "scripts/lint-glyphs.mjs",
+    "scripts/lint-null-children.mjs",
     "vendor/webjsx",
     "colors_and_type.css",
     "app-shell.css",
@@ -69,7 +75,8 @@
     "lint:tokens": "node scripts/lint-tokens.mjs",
     "build": "node scripts/build.mjs",
     "lint:null-children": "node scripts/lint-null-children.mjs",
-    "lint:classes": "node scripts/lint-classes.mjs"
+    "lint:classes": "node scripts/lint-classes.mjs",
+    "lint": "node scripts/lint-all.mjs"
   },
   "repository": {
     "type": "git",

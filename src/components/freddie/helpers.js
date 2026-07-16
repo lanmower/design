@@ -37,7 +37,7 @@ export function saveRecentPath(path) {
     if (typeof localStorage === 'undefined' || !path) return;
     const list = getRecentPaths().filter(p => p !== path);
     list.unshift(path);
-    try { localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, 10))); } catch {}
+    try { localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, 10))); } catch { /* swallow: persistence is best-effort, recent-path history is non-critical */ }
 }
 
 // Helper used by consumers that want to render chat-message arrays with

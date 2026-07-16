@@ -11,12 +11,14 @@ import * as motion from './motion.js';
 import * as debug from './debug.js';
 import { renderMarkdown, ensureReady as ensureMarkdownReady } from './markdown.js';
 import { escapeHtml, escapeJson } from './html-escape.js';
+import { uid, shortUid } from './uid.js';
 import { ensurePrism, highlightAllUnder } from './highlight.js';
 import { renderPageHtml } from './page-html.js';
 import { HeroFromPageData } from './components/content.js';
 import { ThemeToggle } from './components/theme-toggle.js';
 import { mountKit } from './bootstrap.js';
 import * as theme from './theme.js';
+import { t, registerLocale, getLocale, setLocale, availableLocales } from './i18n.js';
 import { registerChatElement, DsChat } from './web-components/ds-chat.js';
 import { registerFreddieChatElement, FreddieChat } from './web-components/freddie-chat.js';
 
@@ -73,7 +75,9 @@ export {
     registerFreddieChatElement, FreddieChat,
     renderPageHtml, HeroFromPageData,
     escapeHtml, escapeJson,
-    theme, ThemeToggle
+    uid, shortUid,
+    theme, ThemeToggle,
+    t, registerLocale, getLocale, setLocale, availableLocales
 };
 export { applyTheme, getTheme, resolvedTheme, onThemeChange, initTheme,
          applyAccent, getAccent, applyDensity, getDensity } from './theme.js';
@@ -91,7 +95,8 @@ export {
     FREDDIE_PAGES,
     home, chat, voice, sessions, projects, agents, analytics,
     models, cron, skills, config, env, tools, batch, gateway, chains,
-    skillLabel, getRecentPaths, saveRecentPath, renderChatMessages
+    skillLabel, getRecentPaths, saveRecentPath, renderChatMessages,
+    fmtBytes, fmtFileSize, fmtTime, fmtAgo, fmtDuration
 } from './components.js';
 
 export default {

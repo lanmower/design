@@ -9,6 +9,7 @@ import { register } from '../debug.js';
 import { Icon } from './shell.js';
 import { fmtFileSize } from './files.js';
 import { EmojiPicker } from './overlay-primitives.js';
+import { t } from '../i18n.js';
 
 // Matches a trailing `:keyword` at the end of the composer draft (optionally
 // preceded by whitespace/start-of-string) so typing `:smile` opens an inline
@@ -155,7 +156,7 @@ export function injectCodeCopy(container) {
             const code = pre.innerText;
             const done = () => { btn.textContent = 'copied'; btn.classList.add('is-copied'); setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('is-copied'); }, 1600); };
             if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done).catch(() => {});
-            else { try { const t = document.createElement('textarea'); t.value = code; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch {} }
+            else { try { const t = document.createElement('textarea'); t.value = code; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch { /* swallow: legacy execCommand copy fallback unsupported, nothing more to try */ } }
         });
         shell.appendChild(btn);
     });
@@ -241,7 +242,7 @@ function CodeNode(p) {
         const code = p.code || '';
         const done = () => { btn.textContent = 'copied'; btn.classList.add('is-copied'); setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('is-copied'); }, 1600); };
         if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done).catch(() => {});
-        else { try { const t = document.createElement('textarea'); t.value = code; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch {} }
+        else { try { const t = document.createElement('textarea'); t.value = code; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch { /* swallow: legacy execCommand copy fallback unsupported, nothing more to try */ } }
     };
     return h('div', { class: 'chat-bubble chat-code', ref: refSink },
         h('div', { class: 'chat-code-head' },
@@ -286,7 +287,7 @@ function ToolCallNode(p) {
             setTimeout(() => { b.textContent = 'copy'; b.classList.remove('is-copied'); }, 1600);
         };
         if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(() => {});
-        else { try { const t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch {} }
+        else { try { const t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch { /* swallow: legacy execCommand copy fallback unsupported, nothing more to try */ } }
     };
     const sectionLabel = (text, txt) => h('div', { class: 'chat-tool-section-label' },
         h('span', {}, text),
@@ -320,13 +321,13 @@ function ToolCallNode(p) {
 function ThinkingNode(p) {
     if (p.settled) {
         return h('details', { class: 'chat-bubble chat-thinking-settled' },
-            h('summary', {}, 'View thinking'),
+            h('summary', {}, t('chat.viewThinking', 'View thinking')),
             h('div', { class: 'chat-thinking-body' }, p.text)
         );
     }
     return h('div', { class: 'chat-bubble chat-thinking', role: 'status', 'aria-live': 'polite' },
         h('span', { class: 'chat-thinking-dots', 'aria-hidden': 'true' }, h('span'), h('span'), h('span')),
-        h('span', { class: 'chat-thinking-text' }, p.text || 'thinking…')
+        h('span', { class: 'chat-thinking-text' }, p.text || t('chat.thinking', 'thinking…'))
     );
 }
 
@@ -488,7 +489,7 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     // Flat layout leads the turn with a small role label (You / agent name)
     // above the content, the way claude.ai/code titles each turn.
     const roleLabel = isFlat
-        ? h('div', { class: 'chat-role', key: '_role' }, resolvedWho === 'you' ? 'You' : (name || 'Assistant'))
+        ? h('div', { class: 'chat-role', key: '_role' }, resolvedWho === 'you' ? t('chat.roleYou', 'You') : (name || t('chat.roleAssistant', 'Assistant')))
         : null;
     const stack = h('div', { class: 'chat-stack' }, roleLabel, ...bodyNodes, reactionRow, actionRow, meta);
     // Centered roles (system/tool/thinking) skip the avatar column entirely so
@@ -740,8 +741,8 @@ export function Chat({ title = 'chat', sub, messages = [], composer, header, sug
         h('div', { class: 'chat-thread', ref: threadRef, role: 'log', 'aria-label': 'chat messages' },
             messages.length === 0
                 ? h('div', { key: '_empty', class: 'chat-empty', role: 'status' },
-                    h('p', { class: 'chat-empty-title' }, 'start a conversation'),
-                    h('p', { class: 'chat-empty-sub' }, sub || 'Send a message to start the conversation'),
+                    h('p', { class: 'chat-empty-title' }, t('chat.startConversation', 'start a conversation')),
+                    h('p', { class: 'chat-empty-sub' }, sub || t('chat.emptySub', 'Send a message to start the conversation')),
                     (suggestions && suggestions.length)
                         ? h('div', { class: 'chat-empty-suggestions' },
                             ...suggestions.map((s, i) => h('button', { key: 'sug' + i, type: 'button', class: 'chat-empty-suggestion',

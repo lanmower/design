@@ -30,7 +30,7 @@ const state = {
 };
 
 const subs = new Set();
-const notify = () => subs.forEach(cb => { try { cb(); } catch (_) {} });
+const notify = () => subs.forEach(cb => { try { cb(); } catch (_) { /* swallow: a subscriber's error must not block notifying the rest */ } });
 
 const adapter = {
     get: () => state,

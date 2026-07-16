@@ -4,6 +4,7 @@ import * as webjsx from '../../vendor/webjsx/index.js';
 import { Btn, Icon } from './shell.js';
 import { fileGlyph, fmtFileSize } from './files.js';
 import { highlightAllUnder } from '../highlight.js';
+import { shortUid } from '../uid.js';
 const h = webjsx.createElement;
 
 // Full focusable set for the modal Tab trap — omitting textarea/select/a[href]
@@ -81,7 +82,7 @@ function Backdrop({ onClose, children, kind = '', labelledBy, busy = false } = {
             // Only restore focus when the modal is genuinely going away (not a
             // re-render remount) and focus is not already somewhere useful.
             if (removed && Backdrop._invoker && Backdrop._invoker.focus && Backdrop._invoker.isConnected) {
-                try { Backdrop._invoker.focus(); } catch {}
+                try { Backdrop._invoker.focus(); } catch { /* swallow: restoring focus on close is best-effort, teardown still completes */ }
             }
             if (removed) Backdrop._invoker = null;
         };
@@ -140,7 +141,7 @@ function Modal({ onClose, kind = '', head, headClass = '', headAttrs = {}, body,
     // stays constant across re-renders of the same dialog instance — an
     // incrementing counter advances on every render, leaving the previous
     // aria-labelledby reference pointing at a now-absent element.
-    const headId = head != null ? ('ds-modal-head-' + Math.random().toString(36).slice(2, 8)) : null;
+    const headId = head != null ? ('ds-modal-head-' + shortUid(6)) : null;
     return Backdrop({
         onClose,
         kind,
@@ -258,7 +259,7 @@ export function FilePreviewCode({ content = '', lang, filename } = {}) {
         const btn = e.currentTarget;
         const done = () => { btn.textContent = 'copied'; btn.classList.add('is-copied'); setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('is-copied'); }, 1600); };
         if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(content).then(done).catch(() => {});
-        else { try { const t = document.createElement('textarea'); t.value = content; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch {} }
+        else { try { const t = document.createElement('textarea'); t.value = content; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch { /* swallow: legacy execCommand copy fallback unsupported, nothing more to try */ } }
     };
     return h('div', { class: 'ds-preview-code-wrap' },
         h('div', { class: 'chat-code-head ds-preview-code-head' },
@@ -283,7 +284,7 @@ function codeBody({ content = '', lang } = {}) {
         : null;
     const highlightRef = (el) => {
         if (!el) return;
-        try { highlightAllUnder(el); } catch {}
+        try { highlightAllUnder(el); } catch { /* swallow: syntax highlighting is a progressive enhancement, plain code still renders */ }
     };
     return h('pre', { class: 'ds-preview-code' + (lang ? ' lang-' + lang : '') + (wantGutter ? ' has-gutter' : ''), ref: highlightRef },
         gutter,

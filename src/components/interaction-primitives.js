@@ -32,7 +32,7 @@ export function useDraggable(el, { data, kind, onDragStart, onDragEnd } = {}) {
         if (!active) return;
         const wasStarted = started;
         active = false; started = false;
-        try { if (pid != null) el.releasePointerCapture(pid); } catch {}
+        try { if (pid != null) el.releasePointerCapture(pid); } catch { /* swallow: pointer capture may already be released, drag end still proceeds */ }
         pid = null;
         el.removeAttribute('data-dragging');
         const hit = document.elementFromPoint(e.clientX, e.clientY);
@@ -47,7 +47,7 @@ export function useDraggable(el, { data, kind, onDragStart, onDragEnd } = {}) {
         if (e.button != null && e.button !== 0) return;
         active = true; started = false;
         startX = e.clientX; startY = e.clientY; pid = e.pointerId;
-        try { el.setPointerCapture(e.pointerId); } catch {}
+        try { el.setPointerCapture(e.pointerId); } catch { /* swallow: pointer capture unsupported/denied, drag still tracks via listeners */ }
         window.addEventListener('pointermove', onMove);
         window.addEventListener('pointerup', onUp);
         window.addEventListener('pointercancel', onUp);
@@ -111,7 +111,7 @@ export function useNumberScrub(el, { getValue, onChange, step = 0.01, threshold 
     };
     const onUp = () => {
         if (pid == null) return;
-        try { el.releasePointerCapture(pid); } catch {}
+        try { el.releasePointerCapture(pid); } catch { /* swallow: pointer capture may already be released, drag end still proceeds */ }
         pid = null;
         el.removeAttribute('data-scrubbing');
         window.removeEventListener('pointermove', onMove);
@@ -125,7 +125,7 @@ export function useNumberScrub(el, { getValue, onChange, step = 0.01, threshold 
         pid = e.pointerId; startX = e.clientX; moved = false;
         const cur = getValue ? getValue() : parseFloat(el.value);
         startV = Number.isFinite(cur) ? cur : 0;
-        try { el.setPointerCapture(pid); } catch {}
+        try { el.setPointerCapture(pid); } catch { /* swallow: pointer capture unsupported/denied, drag still tracks via listeners */ }
         window.addEventListener('pointermove', onMove);
         window.addEventListener('pointerup', onUp);
         window.addEventListener('pointercancel', onUp);
@@ -157,7 +157,7 @@ export function usePointerDrag(el, { onStart, onMove, onEnd, button = 0 } = {}) 
     };
     const finish = (e, cancelled) => {
         if (pid == null) return;
-        try { el.releasePointerCapture(pid); } catch {}
+        try { el.releasePointerCapture(pid); } catch { /* swallow: pointer capture may already be released, drag end still proceeds */ }
         pid = null;
         el.removeAttribute('data-pointer-dragging');
         window.removeEventListener('pointermove', onMoveEv);
@@ -173,7 +173,7 @@ export function usePointerDrag(el, { onStart, onMove, onEnd, button = 0 } = {}) 
         if (onStart && onStart(e) === false) return; // caller declined (e.g. raycast miss)
         pid = e.pointerId;
         el.setAttribute('data-pointer-dragging', 'true');
-        try { el.setPointerCapture(pid); } catch {}
+        try { el.setPointerCapture(pid); } catch { /* swallow: pointer capture unsupported/denied, drag still tracks via listeners */ }
         window.addEventListener('pointermove', onMoveEv);
         window.addEventListener('pointerup', onUpEv);
         window.addEventListener('pointercancel', onCancelEv);

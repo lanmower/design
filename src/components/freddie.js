@@ -10,20 +10,12 @@ import { getRecentPaths, saveRecentPath, skillLabel, renderChatMessages } from '
 import { Panel, Row, Table, Kpi, PageHeader, SearchInput, TextField, Select } from './content.js';
 import { Chip, Btn, Icon } from './shell.js';
 import { ChatMessage, ChatComposer } from './chat.js';
+import { fmtTime, fmtAgo } from './sessions.js';
 
 const h = webjsx.createElement;
 
 // ---- shared bits -----------------------------------------------------------
 
-const fmtTime = (t) => { try { return new Date(t).toLocaleString(); } catch { return String(t || ''); } };
-const fmtAgo = (t) => {
-    if (!t) return '';
-    const s = Math.floor((Date.now() - new Date(t).getTime()) / 1000);
-    if (s < 60) return s + 's ago';
-    if (s < 3600) return Math.floor(s / 60) + 'm ago';
-    if (s < 86400) return Math.floor(s / 3600) + 'h ago';
-    return Math.floor(s / 86400) + 'd ago';
-};
 const section = (title, ...children) => Panel({ title, children: children.flat().filter(Boolean) });
 const noteAlert = (note) => note ? h('div', { class: 'ds-alert ds-alert-' + note.kind, role: 'alert' },
     h('span', { class: 'ds-alert-icon' }, '!'),

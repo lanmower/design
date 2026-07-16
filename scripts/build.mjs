@@ -14,6 +14,7 @@ import { lintGlyphsOrThrow } from './lint-glyphs.mjs';
 import { lintNullChildrenOrThrow } from './lint-null-children.mjs';
 import { lintClassesOrThrow } from './lint-classes.mjs';
 import { lintInlineStylesOrThrow } from './lint-inline-styles.mjs';
+import { lintDuplicateSelectorsOrThrow } from './lint-duplicate-selectors.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -57,6 +58,14 @@ lintClassesOrThrow();
 // Inline-style gate: no layout properties in style= attributes (ui_kits/site
 // scope for now) — layout lives in classes so responsive rules stay in-sheet.
 lintInlineStylesOrThrow();
+
+// Duplicate-selector gate: refuse to build if any selector in the concatenated
+// cssParts bundle is redefined elsewhere (same file or another) with a
+// DIFFERENT rule body — the exact bug class hand-fixed for .ds-kbd/
+// .ds-field-*/.ds-session-row/.cli. Runs after cssParts below is only used
+// for the bundle itself, but the lint owns its own mirrored file list so it
+// can run standalone via lint-all.mjs too.
+lintDuplicateSelectorsOrThrow();
 
 const SCOPE = '.ds-247420';
 

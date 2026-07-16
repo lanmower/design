@@ -953,25 +953,10 @@
     display: flex; flex-direction: column; gap: var(--space-1, 4px);
     margin-bottom: var(--space-2, 8px);
 }
-.ds-field-label {
-    color: var(--fg-2, var(--fg));
-    font-size: var(--fs-sm, 14px);
-    font-weight: 500;
-}
-.ds-field-required {
-    color: var(--danger);
-    font-weight: 700;
-    margin-left: 2px;
-}
-.ds-field-hint {
-    color: var(--fg-3, var(--fg-2));
-    font-size: var(--fs-tiny, 12px);
-}
-.ds-field-error {
-    color: var(--danger);
-    font-size: var(--fs-tiny, 12px);
-    font-weight: 500;
-}
+/* .ds-field-label / .ds-field-required / .ds-field-hint / .ds-field-error
+   canonical definitions now live in app-shell.css alongside the rest of the
+   .ds-field family (this file's .ds-field-wrap consumes them by class name).
+   Removed here to stop the two bodies fighting on stylesheet load order. */
 .ds-field-wrap [aria-invalid="true"] {
     border-color: var(--danger) !important;
 }

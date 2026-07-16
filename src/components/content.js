@@ -267,13 +267,17 @@ export function Install({ cmd, copied, onCopy }) {
 // every portfolio consumer theme.mjs (zellous/wireweave/247420) had hand-rolled
 // identically: lines.map((l,i) => a div per line holding a prompt span ('$' or
 // '#' for a comment line) and a cmd span, all wrapped in a Panel. This factory
-// targets the multi-line `.cli` contract already defined in app-shell.css and
-// gm-prose.css (`.cli` holding `.ds-cli-row` rows — each a prompt+cmd pair —
-// and `.ds-cli-comment` comment rows). `lines` is [{kind, text}] where kind: 'cmt' renders a
+// targets the multi-line `.ds-cli-block` contract defined in gm-prose.css
+// (`.ds-cli-block` holding `.ds-cli-row` rows — each a prompt+cmd pair — and
+// `.ds-cli-comment` comment rows). `lines` is [{kind, text}] where kind: 'cmt' renders a
 // comment-only row (no prompt glyph); any other kind (or omitted) renders a
 // command row prefixed '$'. `heading` titles the wrapping Panel ('quick start'
 // default, matching every hand-rolled instance); pass `heading: null` to
-// render the bare `.cli` block with no Panel chrome.
+// render the bare `.ds-cli-block` block with no Panel chrome.
+// Note: this is a different component than the bare `.cli` single prompt+cmd
+// row primitive (app-shell.css; see Install() above and the per-line usage
+// in terminal/site quickstart renderers) — the two used to collide on the
+// same `.cli` class name with incompatible display models.
 export function CliBlock({ lines = [], heading = 'quick start', className = '' } = {}) {
     if (!lines || !lines.length) return null;
     const rows = lines.map((l, i) => {
@@ -285,7 +289,7 @@ export function CliBlock({ lines = [], heading = 'quick start', className = '' }
                 h('span', { class: 'prompt' }, '$'),
                 h('span', { class: 'cmd' }, text));
     });
-    const body = h('div', { class: 'cli' + (className ? ' ' + className : '') }, ...rows);
+    const body = h('div', { class: 'ds-cli-block' + (className ? ' ' + className : '') }, ...rows);
     return heading == null ? body : Panel({ title: heading, children: body });
 }
 

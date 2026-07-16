@@ -1,0 +1,32 @@
+name: ci
+
+# Lint gates + build + a publish dry-run, on every push/PR. Distinct from
+# publish.yml (which does a REAL npm publish on push to main) — this is the
+# fast, side-effect-free correctness gate.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install deps
+        run: npm install --no-audit --no-fund
+
+      - name: Lint (9 gates)
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish dry-run
+        run: npm publish --dry-run

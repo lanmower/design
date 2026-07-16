@@ -67,15 +67,75 @@ function joinHref(basePath, href) {
     return base + '/' + h.replace(/^\.?\//, '');
 }
 
+// Full SEO/OG/twitter/schema.org meta block, extracted so renderPageHtml
+// consumers (design's own marketing site, thebird's landing) can opt in
+// instead of hand-rolling ~40 lines of <meta> tags per theme.mjs.
+function renderSeoTags({ title, siteName, seo }) {
+    const desc = escape(seo.description || '');
+    const lang = escape(seo.lang || 'en');
+    const url = escape(seo.url || '');
+    const image = escape(seo.image || '');
+    const author = escape(seo.author || siteName);
+    const twitter = escape(seo.twitter || '');
+    const locale = escape(seo.locale || 'en_US');
+    const keywords = escape(Array.isArray(seo.keywords) ? seo.keywords.join(', ') : (seo.keywords || ''));
+    const ogTitle = escape(title);
+    const ogDesc = escape(seo.description || siteName);
+    let out = `
+<meta name="description" content="${desc}">
+${keywords ? `<meta name="keywords" content="${keywords}">` : ''}
+<meta name="author" content="${author}">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<meta name="generator" content="anentrypoint-design">
+${url ? `<link rel="canonical" href="${url}">` : ''}
+<meta property="og:type" content="website">
+<meta property="og:title" content="${ogTitle}">
+<meta property="og:description" content="${ogDesc}">
+${url ? `<meta property="og:url" content="${url}">` : ''}
+<meta property="og:site_name" content="${escape(siteName)}">
+<meta property="og:locale" content="${locale}">
+${image ? `<meta property="og:image" content="${image}">` : ''}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${ogTitle}">
+<meta name="twitter:description" content="${ogDesc}">
+${twitter ? `<meta name="twitter:site" content="${twitter}">` : ''}
+${image ? `<meta name="twitter:image" content="${image}">` : ''}`;
+    if (seo.ldJson !== false && (seo.description || url)) {
+        const ld = JSON.stringify({
+            '@context': 'https://schema.org', '@type': 'WebSite',
+            name: title, url: seo.url || '', description: seo.description || '', inLanguage: seo.lang || 'en',
+        }).replace(/</g, '\\u003c');
+        out += `\n<script type="application/ld+json">${ld}</script>`;
+    }
+    return out;
+}
+
 export function renderPageHtml({
     title = '247420', slug = 'index', siteName = '247420',
     navItems = [], basePath = '',
     hero, sections, examples, body,
-    theme = 'auto', cssHref, headExtra = ''
+    theme = 'auto', cssHref, headExtra = '',
+    // Extended affordances (all optional, all backward compatible — a call
+    // site that omits them gets byte-identical output to before these were
+    // added). See design/site/theme.mjs and thebird/site/theme.mjs for
+    // consumers of the full surface.
+    seo = null,               // { description, keywords, author, twitter, locale, lang, image, url, glyph, ldJson:boolean }
+    sidebar = null,           // { sections: [{ group, items: [{glyph,label,href}] }] } -> C.Side
+    marquee = null,           // { items: [...strings], sep }
+    panels = null,            // [{ id, title, count, items: [{code,title,sub,meta,href}] }] -> C.Panel + RowLink rows
+    quickstart = null,        // { heading, lines: [{ kind, text }] } -> cli block panel
+    statusLeft = null,        // override the default [siteName.toLowerCase(), slug] status-bar left cluster
+    statusRight = null,       // override the default ['live'] status-bar right cluster
+    faviconHref = null,       // static favicon URL (e.g. './favicon.svg'); takes precedence over faviconGlyph
+    faviconGlyph = null,      // single-character/emoji favicon rendered as an inline data: SVG
+    clientScriptExtra = '',   // raw JS appended after the mount() call in the client <script type="module">
+    version = null,           // pin BOTH the CSS href and the JS importmap to this exact version
+                               // instead of @latest (e.g. '0.0.320'); omitted -> default @latest behavior.
 } = {}) {
+    const pkgVersion = version || 'latest';
     const cssLink = cssHref
         ? `<link rel="stylesheet" href="${cssHref}">`
-        : `<link rel="stylesheet" href="https://unpkg.com/anentrypoint-design@latest/dist/247420.css">`;
+        : `<link rel="stylesheet" href="https://unpkg.com/anentrypoint-design@${pkgVersion}/dist/247420.css">`;
 
     // Resolve nav hrefs server-side against basePath. Client receives final URLs.
     const navResolved = (Array.isArray(navItems) ? navItems : []).map(([label, href]) =>
@@ -90,7 +150,20 @@ export function renderPageHtml({
         sections: Array.isArray(sections) ? sections : [],
         examples: Array.isArray(examples) ? examples : [],
         bodyHtml: body ? renderMarkdown(body) : '',
+        sidebar: sidebar || null,
+        marquee: marquee || null,
+        panels: Array.isArray(panels) ? panels : [],
+        quickstart: quickstart || null,
+        statusLeft: Array.isArray(statusLeft) ? statusLeft : null,
+        statusRight: Array.isArray(statusRight) ? statusRight : null,
     };
+
+    const seoTags = seo ? renderSeoTags({ title, siteName, seo }) : '';
+    const faviconTags = faviconHref
+        ? `<link rel="icon" href="${escape(faviconHref)}">`
+        : (faviconGlyph
+            ? `<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E${encodeURIComponent(faviconGlyph)}%3C/text%3E%3C/svg%3E">`
+            : '');
 
     // Theme attribute co-location is CORRECT here: dist/247420.css keys every
     // theme block off the COMPOUND selector `.ds-247420[data-theme="X"]`
@@ -107,9 +180,11 @@ export function renderPageHtml({
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escape(title)} — ${escape(siteName)}</title>
+${seoTags}
+${faviconTags}
 ${cssLink}
 <script type="importmap">
-{ "imports": { "anentrypoint-design": "https://unpkg.com/anentrypoint-design@latest/dist/247420.js" } }
+{ "imports": { "anentrypoint-design": "https://unpkg.com/anentrypoint-design@${pkgVersion}/dist/247420.js" } }
 </script>
 <style>
 .app-stage { width: 100%; max-width: var(--stage-wide, min(96vw, 1440px)); margin-inline: auto; padding: var(--space-6, 48px) var(--space-4, 24px) var(--space-8, 96px); display: grid; gap: var(--space-6, 48px); box-sizing: border-box }
@@ -218,6 +293,40 @@ function examplesNode(examples) {
   });
 }
 
+function panelNode(panel, idx) {
+  const items = Array.isArray(panel.items) ? panel.items : [];
+  if (!items.length) return null;
+  const rows = items.map((it, i) => {
+    const kids = [
+      h('span', { key: 'c', class: 'code' }, String(it.code || String(i + 1).padStart(2, '0'))),
+      h('span', { key: 't', class: 'title' }, String(it.title || it.name || '')),
+    ];
+    if (it.sub || it.desc) kids.push(h('span', { key: 'm', class: 'meta dim' }, ' — ' + (it.sub || it.desc)));
+    kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, it.meta || '->'));
+    return h('a', { key: i, class: 'row', href: it.href || '#' }, ...kids);
+  });
+  return C.Panel({ id: panel.id || null, title: panel.title || panel.name || '', count: panel.count || items.length, children: rows });
+}
+
+function marqueeNode(marquee) {
+  if (!marquee || !Array.isArray(marquee.items) || !marquee.items.length) return null;
+  return C.Marquee ? C.Marquee({ items: marquee.items, sep: marquee.sep || '/' }) : null;
+}
+
+function quickstartNode(quickstart) {
+  if (!quickstart || !Array.isArray(quickstart.lines) || !quickstart.lines.length) return null;
+  const lineNodes = quickstart.lines.map((l, i) => h('div', { key: 'q' + i, class: 'cli' },
+    h('span', { class: 'prompt' }, l.kind === 'cmt' ? '#' : '$'),
+    h('span', { class: 'cmd' }, l.text)
+  ));
+  return C.Panel({ title: quickstart.heading || 'quick start', children: h('div', { class: 'ds-quickstart' }, ...lineNodes) });
+}
+
+function sideNode(sidebar) {
+  if (!sidebar || !Array.isArray(sidebar.sections) || !sidebar.sections.length || !C.Side) return null;
+  return C.Side({ sections: sidebar.sections });
+}
+
 // minimal client-side markdown renderer matching server-side renderer (idempotent for already-html bodies)
 function __slug(s) { return String(s || '').trim().toLowerCase().replace(/[^\\w\\s-]/g, '').replace(/\\s+/g, '-'); }
 function __md(md) {
@@ -243,7 +352,10 @@ const bodyNode = data.bodyHtml ? C.Section({ children: h('div', { class: 'page-b
 
 const mainChildren = [
   heroNode(data.hero),
+  marqueeNode(data.marquee),
   ...data.sections.map(sectionNode),
+  ...(data.panels || []).map(panelNode),
+  quickstartNode(data.quickstart),
   examplesNode(data.examples),
   bodyNode,
 ].filter(Boolean);
@@ -251,9 +363,14 @@ const mainChildren = [
 mount(document.getElementById('app'), () => C.AppShell({
   topbar: C.Topbar({ brand: data.siteName, items: data.navItems, active: data.title }),
   crumb: C.Crumb({ leaf: data.title }),
+  side: sideNode(data.sidebar),
   main: h('div', { class: 'app-stage' }, ...mainChildren),
-  status: C.Status({ left: [data.siteName.toLowerCase(), data.slug], right: ['live'] }),
+  status: C.Status({
+    left: data.statusLeft || [data.siteName.toLowerCase(), data.slug],
+    right: data.statusRight || ['live'],
+  }),
 }));
+${clientScriptExtra}
 </script>
 </body>
 </html>`;

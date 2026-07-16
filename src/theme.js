@@ -37,7 +37,7 @@ function readStored() {
 }
 
 function writeStored(mode) {
-    try { window.localStorage.setItem(KEY, mode); } catch {}
+    try { window.localStorage.setItem(KEY, mode); } catch { /* swallow: persistence is best-effort, theme still applies in-memory */ }
 }
 
 function writeAttr(mode) {
@@ -53,7 +53,7 @@ function ensureMq() {
             // Re-emit so listeners can re-render derived UI even though
             // data-theme stays "auto" — the CSS @media handles the swap.
             for (const cb of listeners) {
-                try { cb({ mode: 'auto', resolved: _mq.matches ? 'ink' : 'paper' }); } catch {}
+                try { cb({ mode: 'auto', resolved: _mq.matches ? 'ink' : 'paper' }); } catch { /* swallow: a listener's error must not block notifying the rest */ }
             }
         }
     };
@@ -71,7 +71,7 @@ export function applyTheme(mode) {
         ? (_mq && _mq.matches ? 'ink' : 'paper')
         : mode;
     for (const cb of listeners) {
-        try { cb({ mode, resolved }); } catch {}
+        try { cb({ mode, resolved }); } catch { /* swallow: a listener's error must not block notifying the rest */ }
     }
     return mode;
 }
@@ -101,11 +101,11 @@ export function applyAccent(accent) {
     if (!isBrowser()) return accent;
     if (VALID_ACCENT.has(accent)) {
         document.documentElement.setAttribute('data-accent', accent);
-        try { window.localStorage.setItem(ACCENT_KEY, accent); } catch {}
+        try { window.localStorage.setItem(ACCENT_KEY, accent); } catch { /* swallow: persistence is best-effort, accent still applies in-memory */ }
     } else {
         // No accent attribute = the theme's default accent (green).
         document.documentElement.removeAttribute('data-accent');
-        try { window.localStorage.removeItem(ACCENT_KEY); } catch {}
+        try { window.localStorage.removeItem(ACCENT_KEY); } catch { /* swallow: persistence is best-effort, accent still applies in-memory */ }
     }
     return accent;
 }
@@ -119,7 +119,7 @@ export function applyDensity(density) {
     if (!isBrowser()) return density;
     if (VALID_DENSITY.has(density)) {
         document.documentElement.setAttribute('data-density', density);
-        try { window.localStorage.setItem(DENSITY_KEY, density); } catch {}
+        try { window.localStorage.setItem(DENSITY_KEY, density); } catch { /* swallow: persistence is best-effort, density still applies in-memory */ }
     }
     return density;
 }
@@ -148,5 +148,5 @@ export function initTheme() {
 
 if (isBrowser()) {
     // Run on next microtask so SSR-injected attributes settle first.
-    Promise.resolve().then(() => { try { initTheme(); } catch {} });
+    Promise.resolve().then(() => { try { initTheme(); } catch { /* swallow: deferred init is a progressive enhancement, page already rendered without it */ } });
 }

@@ -27,7 +27,7 @@ export function restoreIndex(deckEl, slides) {
 
 export function persistIndex(deckEl, index) {
     const storageKey = STORAGE_PREFIX + (location.pathname || '/');
-    try { localStorage.setItem(storageKey, String(index)); } catch (e) {}
+    try { localStorage.setItem(storageKey, String(index)); } catch (e) { /* swallow: persistence is best-effort, deck still shows the current slide */ }
 }
 
 export function collectSlides(deckEl, slot) {
@@ -66,7 +66,7 @@ export function applyIndex(deckEl, { index, prevIndex, slides, countEl, showOver
     if (countEl) countEl.textContent = String(curr + 1);
     persistIndex(deckEl, curr);
     if (broadcast) {
-        try { window.postMessage({ slideIndexChanged: curr }, '*'); } catch (e) {}
+        try { window.postMessage({ slideIndexChanged: curr }, '*'); } catch (e) { /* swallow: cross-frame notification is best-effort, local slide state already updated */ }
         deckEl.dispatchEvent(new CustomEvent('slidechange', {
             detail: {
                 index: curr, previousIndex: prev, total: slides.length,

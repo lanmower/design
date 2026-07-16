@@ -345,7 +345,7 @@ export function ResizeHandle({ axis = 'horizontal', onResize, ariaLabel } = {}) 
     };
     const onPointerUp = (e) => {
         dragOrigin = null;
-        try { e.currentTarget.releasePointerCapture && e.currentTarget.releasePointerCapture(e.pointerId); } catch {}
+        try { e.currentTarget.releasePointerCapture && e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* swallow: pointer capture may already be released, drag end still proceeds */ }
     };
     const onKeyDown = (e) => {
         const k = e.key;

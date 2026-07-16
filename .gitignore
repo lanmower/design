@@ -80,3 +80,4 @@ CLAUDE.md
 .claude/worktrees/
 # <<< plugkit managed
 .gm/pw-sock-*/
+.gm/.gm-continue-count

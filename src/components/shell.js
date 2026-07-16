@@ -345,9 +345,9 @@ function toggleSide(open, fromEl) {
     if (next) {
         const drawer = shell.querySelector('.app-side-shell');
         const focusable = drawer && drawer.querySelector('button, a, input, [tabindex]');
-        if (focusable) try { focusable.focus(); } catch (_) {}
+        if (focusable) try { focusable.focus(); } catch (_) { /* swallow: focus() can throw on a detached/hidden element, drawer still opens */ }
         const onKey = (e) => {
-            if (e.key === 'Escape') { toggleSide(false, btn || body); if (btn) try { btn.focus(); } catch (_) {} return; }
+            if (e.key === 'Escape') { toggleSide(false, btn || body); if (btn) try { btn.focus(); } catch (_) { /* swallow: focus() can throw on a detached/hidden element */ } return; }
             if (drawer) trapTab(drawer, e);
         };
         body._dsSideKey = onKey;
@@ -428,7 +428,7 @@ function toggleWs(which, fromEl) {
     });
     try {
         localStorage.setItem('ds.ws.' + which, nowCollapsed ? 'collapsed' : 'open');
-    } catch (_) {}
+    } catch (_) { /* swallow: persistence is best-effort, collapse state still applies in-memory */ }
     // Expanding restores the persisted width (seed skips collapsed columns, so
     // it must run after the open flag is written).
     if (!nowCollapsed) seedWsWidths(shell);
@@ -459,7 +459,7 @@ function wsResize(col, dx, persist = true, fromEl) {
     if (handle) { handle.setAttribute('aria-valuenow', String(next)); handle.setAttribute('aria-valuetext', next + ' pixels'); }
     // Commit to storage only on a settled move (pointerup / keyboard), not on
     // every pointermove frame (that fired dozens of synchronous writes per drag).
-    if (persist) { try { localStorage.setItem('ds.ws.w.' + col, String(next)); } catch (_) {} }
+    if (persist) { try { localStorage.setItem('ds.ws.w.' + col, String(next)); } catch (_) { /* swallow: persistence is best-effort, resize still applies in-memory */ } }
 }
 // Per-column viewport caps for persisted widths: a width dragged on a wide
 // monitor must not crush the content column when the page reloads on a
@@ -474,7 +474,7 @@ function seedWsWidths(el) {
             if (wsCollapsed(col, false)) return;
             const v = localStorage.getItem('ds.ws.w.' + col);
             if (v && /^\d+$/.test(v)) el.style.setProperty('--ws-' + col + '-w', `min(${v}px, ${WS_VW_CAP[col]})`);
-        } catch (_) {}
+        } catch (_) { /* swallow: localStorage unavailable, seeding is best-effort */ }
     });
 }
 function WsResizer(col) {
@@ -534,10 +534,10 @@ function toggleWsDrawer(which, open, fromEl) {
     // into the scrim/background content behind it).
     const drawer = shell.querySelector(which === 'pane' ? '.ws-pane' : '.ws-sessions');
     const focusable = drawer && drawer.querySelector('button, a, input, [tabindex]');
-    if (focusable) try { focusable.focus(); } catch (_) {}
+    if (focusable) try { focusable.focus(); } catch (_) { /* swallow: focus() can throw on a detached/hidden element, drawer still opens */ }
     removeWsDrawerHandlers(shell); // replace, never stack (opening one drawer over the other)
     const onKey = (e) => {
-        if (e.key === 'Escape') { toggleWsDrawer(which, false, shell); if (btn) try { btn.focus(); } catch (_) {} return; }
+        if (e.key === 'Escape') { toggleWsDrawer(which, false, shell); if (btn) try { btn.focus(); } catch (_) { /* swallow: focus() can throw on a detached/hidden element */ } return; }
         if (drawer) trapTab(drawer, e);
     };
     shell._wsEscHandler = onKey;
@@ -571,7 +571,7 @@ function wsCollapsed(which, fallback) {
         const v = localStorage.getItem('ds.ws.' + which);
         if (v === 'collapsed') return true;
         if (v === 'open') return false;
-    } catch (_) {}
+    } catch (_) { /* swallow: localStorage unavailable, fall back to caller-supplied default */ }
     return !!fallback;
 }
 

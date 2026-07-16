@@ -23,7 +23,7 @@ export function saveRecentPath(p) {
     try {
         const prev = getRecentPaths().filter(x => x !== p);
         localStorage.setItem('fd_recent_cwds', JSON.stringify([p, ...prev].slice(0, 5)));
-    } catch {}
+    } catch { /* swallow: persistence is best-effort, recent-path history is non-critical */ }
 }
 
 export function skillLabel(s) {
