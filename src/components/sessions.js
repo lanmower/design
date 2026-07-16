@@ -155,6 +155,13 @@ export function SessionMeta({ items = [] } = {}) {
           'aria-label': 'copy ' + (it.title || it.label || 'value'),
           onclick: () => it.onCopy(it.value),
         }, 'copy') : null,
+        // Generic secondary action (e.g. a directory row's "use as chat cwd")
+        // - kept distinct from onCopy since a fact can want a non-copy action,
+        // or (rare) both.
+        it.onAction ? h('button', {
+          key: 'a', type: 'button', class: 'ds-session-meta-action',
+          onclick: () => it.onAction(it.value),
+        }, it.actionLabel || 'use') : null,
       ].filter(Boolean))));
 }
 

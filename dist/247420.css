@@ -7099,6 +7099,37 @@
 .ds-247420 .agentchat-cwd-input[aria-invalid='true'] { border-color: var(--flame); box-shadow: inset 0 0 0 var(--bw-hair) var(--flame); }
 .ds-247420 .agentchat-cwd-input[aria-busy='true'] { border-color: var(--fg-3); box-shadow: inset 0 0 0 var(--bw-hair) var(--fg-3); }
 
+/* cwd practicality upgrade: editing mode stacks the input row plus any
+   optional roots/recent/browse rows the host wires, instead of a single flat
+   row - each sub-row wraps independently at narrow widths. */
+.ds-247420 .agentchat-cwd-editing { flex-direction: column; align-items: stretch; }
+.ds-247420 .agentchat-cwd-row { display: flex; align-items: center; gap: var(--space-2, 8px); flex-wrap: wrap; }
+.ds-247420 .agentchat-cwd-roots, .ds-247420 .agentchat-cwd-recent {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.ds-247420 .agentchat-cwd-recent-label { font-size: var(--fs-tiny); color: var(--fg-3); }
+.ds-247420 .agentchat-cwd-chip {
+  background: var(--bg-2); border: var(--bw-hair) solid var(--rule); color: var(--fg-2);
+  border-radius: var(--r-pill); padding: 3px 10px; font: inherit; font-size: var(--fs-tiny);
+  cursor: pointer;
+}
+.ds-247420 .agentchat-cwd-chip:hover { border-color: var(--accent); color: var(--fg); }
+.ds-247420 .agentchat-cwd-chip:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+.ds-247420 .agentchat-cwd-browse {
+  border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1);
+  padding: var(--space-2, 8px); background: var(--bg-2);
+  display: flex; flex-direction: column; gap: 6px;
+  max-height: 220px;
+}
+.ds-247420 .agentchat-cwd-browse-list { overflow-y: auto; display: flex; flex-direction: column; max-height: 160px; }
+.ds-247420 .agentchat-cwd-browse-item {
+  background: none; border: none; color: var(--fg-2); text-align: left;
+  padding: 6px 8px; border-radius: var(--r-1); font: inherit; font-size: var(--fs-tiny);
+  cursor: pointer;
+}
+.ds-247420 .agentchat-cwd-browse-item:hover, .ds-247420 .agentchat-cwd-browse-item:focus-visible { background: var(--bg-3, var(--bg)); color: var(--fg); }
+.ds-247420 .agentchat-cwd-browse-loading, .ds-247420 .agentchat-cwd-browse-empty { padding: 6px 8px; font-size: var(--fs-tiny); color: var(--fg-3); }
+
 /* head + thread */
 .ds-247420 .agentchat-head {
   display: flex;
@@ -7299,7 +7330,7 @@
 }
 /* Coarse-pointer (touch): raise cwd button to 44px minimum tap target */
 @media (pointer: coarse) {
-  .ds-247420 .agentchat-cwd-btn { min-height: 44px; }
+  .ds-247420 .agentchat-cwd-btn, .ds-247420 .agentchat-cwd-chip, .ds-247420 .agentchat-cwd-browse-item { min-height: 44px; }
 }
 
 /* ----------------------------------------------------------------------------
@@ -7385,7 +7416,7 @@
    label sticks to the top of the scroll area for Claude-Desktop-style headers. */
 .ds-247420 .ds-session-group { display: flex; flex-direction: column; }
 .ds-247420 .ds-session-group-rows { display: flex; flex-direction: column; gap: 2px; }
-.ds-247420 .ds-session-group-label { position: sticky; top: 0; z-index: 1; background: var(--bg-1, var(--bg)); font-size: var(--fs-tiny); font-weight: 600; color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-caps); padding: var(--space-2) var(--space-2) var(--space-1); }
+.ds-247420 .ds-session-group-label { position: sticky; top: 0; z-index: 1; background: var(--bg-1, var(--bg)); font-size: var(--fs-tiny); font-weight: 600; color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-label); padding: var(--space-2) var(--space-2) var(--space-1); }
 .ds-247420 .ds-session-row {
   position: relative; display: flex; align-items: center; gap: var(--space-2);
   width: 100%; padding: var(--space-2); min-height: 52px; margin-bottom: 2px;
@@ -7682,15 +7713,15 @@
 .ds-247420 .ds-session-meta-item + .ds-session-meta-item::before { content: '\00B7'; color: var(--fg-3); margin-right: var(--space-1); }
 .ds-247420 .ds-session-meta-label { color: var(--fg-3); }
 .ds-247420 .ds-session-meta-value { font-family: var(--ff-mono); color: var(--fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ds-247420 .ds-session-meta-copy {
+.ds-247420 .ds-session-meta-copy, .ds-247420 .ds-session-meta-action {
   padding: 2px 8px; min-height: 24px; cursor: pointer;
   background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1);
   color: var(--fg-3); font-family: var(--ff-body); font-size: var(--fs-micro);
 }
-.ds-247420 .ds-session-meta-copy:hover { background: var(--bg-3); color: var(--fg); }
-.ds-247420 .ds-session-meta-copy:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; }
+.ds-247420 .ds-session-meta-copy:hover, .ds-247420 .ds-session-meta-action:hover { background: var(--bg-3); color: var(--fg); }
+.ds-247420 .ds-session-meta-copy:focus-visible, .ds-247420 .ds-session-meta-action:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; }
 @media (pointer: coarse), (max-width: 640px) {
-  .ds-247420 .ds-session-meta-copy { min-height: 44px; min-width: 44px; }
+  .ds-247420 .ds-session-meta-copy, .ds-247420 .ds-session-meta-action { min-height: 44px; min-width: 44px; }
 }
 
 /* ============================================================================
@@ -7939,7 +7970,7 @@
 
 /* Live command-center: status-bucket groups + header breakdown + heartbeat. */
 .ds-247420 .ds-dash-group { display: flex; flex-direction: column; gap: var(--space-2); }
-.ds-247420 .ds-dash-group-label { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-caps); color: var(--fg-3); padding: 0 var(--space-1); }
+.ds-247420 .ds-dash-group-label { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tr-label); color: var(--fg-3); padding: 0 var(--space-1); }
 .ds-247420 .ds-dash-breakdown { display: flex; align-items: center; gap: var(--space-1); font-size: var(--fs-sm); color: var(--fg-2); }
 /* Shape-channel discs mirror the .status-dot-disc vocabulary (solid /
    solid+halo / hollow ring) so a colour-blind user can scan the breakdown by
