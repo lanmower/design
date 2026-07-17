@@ -130,6 +130,15 @@ export function injectCodeCopy(container) {
 const MD_STREAM_THROTTLE_MS = 120;
 const MD_STREAM_MIN_DELTA_CHARS = 40;
 
+// requestIdleCallback with a setTimeout fallback (Safari/non-browser test
+// contexts lack the real API). A settled historical message's parse is not
+// latency-critical the way a streaming turn's is — deferring it off the
+// critical path keeps a session-load burst of N historical bubbles from
+// racing N synchronous parses on the same tick.
+const scheduleIdle = typeof requestIdleCallback === 'function'
+    ? (fn) => requestIdleCallback(fn, { timeout: 500 })
+    : (fn) => setTimeout(fn, 0);
+
 function MdNode(p) {
     const refSink = (el) => {
         if (!el) return;
@@ -164,19 +173,34 @@ function MdNode(p) {
         // arrive (an empty bubble until the CDN import resolves reads as a
         // hang); the resolved render swaps in sanitized markdown in place.
         if (isMarkdownDegraded()) el.textContent = p.text || '';
-        renderMarkdownCached(p.text || '').then((html) => {
-            const swap = () => { el.innerHTML = html; injectCodeCopy(el); };
-            // Don't blow away an active text selection inside this bubble mid-swap
-            // (e.g. the user is mid-copy while a stream tick settles). Defer the
-            // swap once, until the selection changes (cleared or moved elsewhere).
-            const sel = typeof window !== 'undefined' ? window.getSelection() : null;
-            if (sel && sel.anchorNode && el.contains(sel.anchorNode)) {
-                const onSelChange = () => { document.removeEventListener('selectionchange', onSelChange); swap(); };
-                document.addEventListener('selectionchange', onSelChange, { once: true });
-                return;
-            }
-            swap();
-        });
+        function doParse() {
+            renderMarkdownCached(p.text || '').then((html) => {
+                // The element may have been recycled (webjsx applyDiff reused this
+                // DOM node for a different message) or detached by the time an
+                // idle-deferred parse resolves -- re-check the source key still
+                // matches before swapping innerHTML into what could now be a
+                // completely different message's bubble.
+                if (el.dataset.mdSrc !== srcKey) return;
+                const swap = () => { el.innerHTML = html; injectCodeCopy(el); };
+                // Don't blow away an active text selection inside this bubble mid-swap
+                // (e.g. the user is mid-copy while a stream tick settles). Defer the
+                // swap once, until the selection changes (cleared or moved elsewhere).
+                const sel = typeof window !== 'undefined' ? window.getSelection() : null;
+                if (sel && sel.anchorNode && el.contains(sel.anchorNode)) {
+                    const onSelChange = () => { document.removeEventListener('selectionchange', onSelChange); swap(); };
+                    document.addEventListener('selectionchange', onSelChange, { once: true });
+                    return;
+                }
+                swap();
+            });
+        }
+        // Streaming turns parse immediately (latency-critical: the user is
+        // watching this bubble grow). A settled historical message (no
+        // streamingCaret) is deferred to an idle slot -- not on the critical
+        // render path, so a page mounting many historical bubbles at once
+        // (session load) doesn't burst-parse them all synchronously.
+        if (p.streamingCaret) doParse();
+        else scheduleIdle(doParse);
     };
     return h('div', { class: 'chat-bubble chat-md', ref: refSink });
 }
