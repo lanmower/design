@@ -473,7 +473,7 @@ export function AgentChat(props = {}) {
     : null;
 
   const threadBody = h('div', { class: 'agentchat-thread-wrap' },
-    h('div', { class: 'agentchat-thread', ref: threadRef(messages.length), role: 'log', 'aria-label': 'conversation' },
+    h('div', { class: 'agentchat-thread', ref: threadRef(messages.length), role: 'log', 'aria-label': 'conversation', 'aria-live': 'polite', 'aria-relevant': 'additions' },
       emptyState,
       earlierRow,
       ...rows.filter(Boolean),

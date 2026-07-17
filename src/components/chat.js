@@ -530,7 +530,7 @@ export function Chat({ title = 'chat', sub, messages = [], composer, header, sug
                 ? h('span', { class: 'sub', 'aria-live': 'polite' }, msgCount + (msgCount === 1 ? ' message' : ' messages'))
                 : null
         ),
-        h('div', { class: 'chat-thread', ref: threadRef, role: 'log', 'aria-label': 'chat messages' },
+        h('div', { class: 'chat-thread', ref: threadRef, role: 'log', 'aria-label': 'chat messages', 'aria-live': 'polite', 'aria-relevant': 'additions' },
             messages.length === 0
                 ? h('div', { key: '_empty', class: 'chat-empty', role: 'status' },
                     h('p', { class: 'chat-empty-title' }, t('chat.startConversation', 'start a conversation')),
@@ -578,7 +578,7 @@ export function AICat({ name = 'aicat', messages = [], thinking, composer, statu
                 ? h('span', { class: 'sub', 'aria-live': 'polite' }, messages.length + (messages.length === 1 ? ' turn' : ' turns'))
                 : null
         ),
-        h('div', { class: 'chat-thread', ref: threadRef, role: 'log', 'aria-label': 'conversation turns' },
+        h('div', { class: 'chat-thread', ref: threadRef, role: 'log', 'aria-label': 'conversation turns', 'aria-live': 'polite', 'aria-relevant': 'additions' },
             ...all.map((m, i) => ChatMessage({ ...m, key: m.key != null ? m.key : i }))
         ),
         composer || null
