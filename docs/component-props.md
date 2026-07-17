@@ -307,7 +307,7 @@ A Claude-Desktop / cowork three-(or four-)column app shell.  Pure stateless chro
 
 **Kind:** component
 
-**Signature:** `headers` = `[]`, `rows` = `[]`, `onRowClick`, `emptyText` = `'nothing here yet'`, `rowLabels`, `striped` = `false`, `compact` = `false`
+**Signature:** `headers` = `[]`, `rows` = `[]`, `onRowClick`, `emptyText` = `'nothing here yet'`, `rowLabels`, `striped` = `false`, `compact` = `false`, `sortable` = `false`, `sortKey`, `sortDir` = `'asc'`, `onSort`
 
 ### SearchInput
 

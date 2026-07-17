@@ -5278,6 +5278,19 @@
   max-width: 100%;
 }
 .ds-247420 .ds-table-wrap > table { min-width: 100%; }
+/* Sortable column headers (Table's opt-in sortable prop) — a docstudio-cue
+   addition: color stays neutral at rest (this is a structural control, not a
+   brand moment) and only the active sort direction gets the accent tint,
+   matching the "color reserved for meaning, not decoration" pattern seen in
+   docstudio's admin table. */
+.ds-247420 .ds-table-sort-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: none; border: none; padding: 0; margin: 0;
+  font: inherit; font-weight: inherit; color: inherit; cursor: pointer;
+}
+.ds-247420 .ds-table-sort-btn:hover { color: var(--fg); }
+.ds-247420 .ds-table-sort-btn:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 2px; }
+.ds-247420 .ds-table-sort-btn.is-active { color: var(--accent-ink, var(--accent)); }
 
 
 /* == appended: settings kit cleanup == */
@@ -7208,6 +7221,35 @@
 }
 .ds-247420 .agentchat-title { font-size: 1em; margin: 0; }
 .ds-247420 .agentchat-sub { font-size: var(--fs-tiny); color: var(--fg-3); }
+/* Optional inline content viewer beside the thread (sidePanel prop) - a
+   docstudio-cue addition (its chat view keeps a document/PDF preview open
+   next to the conversation rather than in a separate tab). SplitPanel (an
+   existing kit primitive) owns the resizable layout; these rules only shape
+   the two panes' internal structure. */
+.ds-247420 .agentchat.has-side-panel { gap: 0; }
+.ds-247420 .agentchat.has-side-panel > .ds-ep-split { flex: 1; min-height: 0; }
+.ds-247420 .agentchat-main-col { display: flex; flex-direction: column; min-height: 0; height: 100%; gap: var(--space-2, 8px); }
+.ds-247420 .agentchat-side-panel { display: flex; flex-direction: column; height: 100%; min-height: 0; border-left: var(--bw-hair) solid var(--bg-3); }
+.ds-247420 .agentchat-side-panel-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-2, 8px) var(--space-3, 12px); border-bottom: var(--bw-hair) solid var(--bg-3);
+  flex: 0 0 auto;
+}
+.ds-247420 .agentchat-side-panel-title { font-size: var(--fs-tiny); font-weight: 600; color: var(--fg-2); text-transform: uppercase; letter-spacing: var(--tr-label); }
+.ds-247420 .agentchat-side-panel-close {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none; border: none; color: var(--fg-3); cursor: pointer;
+  padding: 4px; border-radius: var(--r-1);
+}
+.ds-247420 .agentchat-side-panel-close:hover { background: var(--bg-2); color: var(--fg); }
+.ds-247420 .agentchat-side-panel-close:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+.ds-247420 .agentchat-side-panel-body { flex: 1; min-height: 0; overflow: auto; }
+@media (max-width: 900px) {
+  /* A resizable side-by-side split is impractical below tablet width - stack
+     the preview under the thread instead of horizontally squeezing both. */
+  .ds-247420 .agentchat.has-side-panel > .ds-ep-split.horiz { flex-direction: column; }
+  .ds-247420 .agentchat-side-panel { border-left: none; border-top: var(--bw-hair) solid var(--bg-3); max-height: 45vh; }
+}
 /* Thread wrapper hosts the absolutely-positioned jump-to-latest button. */
 .ds-247420 .agentchat-thread-wrap { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .ds-247420 .agentchat-thread {
