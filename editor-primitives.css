@@ -1581,6 +1581,49 @@ input.ov-set-control[type="range"] { padding: 0; accent-color: var(--accent); }
 }
 .ov-perm-action:hover { background: var(--panel-2, var(--rule)); }
 
+/* ApprovalPrompt — inline in-thread tool-permission card: name/category
+   head, optional args preview, an optional free-text note, four resolution
+   actions. Distinct from PermissionMenu (a settings dropdown); this renders
+   directly in the chat flow like a message. */
+.ov-approval {
+    display: flex; flex-direction: column; gap: var(--space-2, 8px);
+    max-width: var(--measure, 640px);
+    padding: var(--space-4, 16px);
+    border: var(--bw-hair) solid var(--rule);
+    border-radius: var(--r-2, 12px);
+    background: var(--panel, var(--bg-2));
+    box-shadow: var(--shadow-1);
+}
+.ov-approval-head { display: flex; align-items: center; gap: var(--space-2, 8px); color: var(--accent-ink); }
+.ov-approval-icon { display: inline-flex; flex: 0 0 auto; }
+.ov-approval-tool { color: var(--fg); }
+.ov-approval-cat { color: var(--fg-3); font-weight: 400; }
+.ov-approval-args {
+    margin: 0; padding: var(--space-2, 8px);
+    background: var(--panel-2, var(--rule)); border-radius: var(--r-1, 10px);
+    font: var(--fs-tiny, 12px)/1.4 var(--ff-mono, monospace);
+    color: var(--fg-3); max-height: 100px; overflow: auto; white-space: pre-wrap; word-break: break-all;
+}
+.ov-approval-note {
+    width: 100%; min-height: 48px; resize: vertical;
+    padding: var(--space-2, 8px) var(--space-2-75, 12px);
+    border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1, 10px);
+    background: var(--bg); color: var(--fg); font: inherit; box-sizing: border-box;
+}
+.ov-approval-note:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.ov-approval-actions { display: flex; gap: var(--space-2, 8px); flex-wrap: wrap; align-items: center; }
+.ov-approval-btn {
+    appearance: none; border: var(--bw-hair) solid var(--rule); background: transparent;
+    color: var(--fg); font: inherit; font-size: var(--fs-tiny, 13px); font-weight: 500;
+    padding: var(--space-1-75, 6px) var(--space-3, 16px); border-radius: var(--r-pill, 999px); cursor: pointer;
+}
+.ov-approval-btn:hover { background: var(--panel-2, var(--rule)); }
+.ov-approval-btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.ov-approval-btn-primary:hover { filter: brightness(1.05); }
+.ov-approval-btn-soft { background: var(--panel-2, var(--rule)); border-color: transparent; }
+.ov-approval-btn-deny { margin-left: auto; border-color: var(--danger); color: var(--danger-ink, var(--danger)); }
+.ov-approval-btn-deny:hover { background: var(--danger); color: var(--bg); }
+
 /* CountdownDialog's ticking status line: tabular-nums so the number swap
    each second doesn't jitter the modal layout. */
 .ds-countdown-status {

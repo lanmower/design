@@ -2,7 +2,7 @@
 
 Generated from `src/components.js`'s real export barrel + each symbol's real definition in `src/components/*.js`, via `node scripts/generate-component-docs.mjs`. Do not hand-edit -- re-run after any component signature or JSDoc change.
 
-203 exported symbols across 17 source files.
+204 exported symbols across 17 source files.
 
 ---
 
@@ -1214,6 +1214,12 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 **Kind:** component
 
 **Signature:** `trigger`, `categories` = `[]`, `approved` = `[]`, `onToggle`, `onToggleAll`, `placement` = `'bottom-start'`, `ariaLabel` = `'Permissions'`
+
+### ApprovalPrompt
+
+**Kind:** component
+
+**Signature:** `toolName`, `categoryLabel`, `argsPreview`, `onDecision`, `autoFocusNote` = `true`
 
 ## `src/components/freddie.js`
 
