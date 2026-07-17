@@ -18,24 +18,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { walkFiles } from './lint-shared.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const SCAN_DIRS = ['src'];
 const SCAN_EXT = new Set(['.js', '.mjs']);
+const SKIP_DIRS = new Set(['node_modules', 'vendor']);
 
 // Per-file allowlist of line numbers or substrings audited as safe.
 const ALLOW = {};
-
-function* walk(dir) {
-  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
-    const p = path.join(dir, e.name);
-    if (e.isDirectory()) {
-      if (e.name === 'node_modules' || e.name === 'vendor') continue;
-      yield* walk(p);
-    } else if (SCAN_EXT.has(path.extname(e.name))) yield p;
-  }
-}
 
 // Blanks out `//` line-comment content (replacing with spaces, keeping
 // newlines and length so reported line numbers stay accurate) before the
@@ -108,7 +100,7 @@ export function lintNullChildrenOrThrow() {
   for (const dir of SCAN_DIRS) {
     const abs = path.join(root, dir);
     if (!fs.existsSync(abs)) continue;
-    for (const file of walk(abs)) {
+    for (const file of walkFiles(abs, SCAN_EXT, { skipDirs: SKIP_DIRS })) {
       const rel = path.relative(root, file);
       const src = fs.readFileSync(file, 'utf8');
       const allow = ALLOW[rel] || [];

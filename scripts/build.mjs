@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
-import { lintTokensOrThrow, lintRadiusOrThrow, lintSpacingOrThrow } from './lint-tokens.mjs';
+import { lintTokensOrThrow, lintRadiusOrThrow, lintSpacingOrThrow, lintTokensJsonInSyncOrThrow } from './lint-tokens.mjs';
 import { lintGlyphsOrThrow } from './lint-glyphs.mjs';
 import { lintNullChildrenOrThrow } from './lint-null-children.mjs';
 import { lintClassesOrThrow } from './lint-classes.mjs';
@@ -31,13 +31,20 @@ lintTokensOrThrow();
 // --r-4/--r-pill scale. Same unconditional placement as the other lints.
 lintRadiusOrThrow();
 
-// Spacing gate (report-only): logs raw margin/padding/gap literals bypassing
-// the --space-0..--space-10 8pt scale. Non-fatal — 639 hits found across the
-// component sheets on first run, too large a corpus to force into an audited
-// ALLOW list or a value-preserving mass-migration in one sitting. Promote to
-// a throwing hard gate (matching lintRadiusOrThrow's own trajectory) once the
-// corpus is triaged.
+// Spacing gate (ratchet): fails the build only if raw margin/padding/gap
+// literals bypassing the --space-0..--space-10 8pt scale INCREASE beyond the
+// frozen baseline in scripts/lint-spacing.baseline.json (356 hits across 9
+// component sheets as of the pass that froze it — same ratchet mechanism as
+// thebird's scripts/lint-i18n-ratchet.mjs). Prevents new bypasses from being
+// added silently without requiring the whole pre-existing corpus to be
+// triaged in one sitting; promote to a hard zero (matching
+// lintRadiusOrThrow's own trajectory) once it is.
 lintSpacingOrThrow();
+
+// tokens.json sync gate: refuse to build if colors_and_type.css's :root
+// values or site.yaml's accent_from/accent_to have drifted from tokens.json
+// (the single source of truth — see scripts/generate-tokens-css.mjs).
+lintTokensJsonInSyncOrThrow();
 
 // Glyph gate: refuse to build if any source hard-codes a decorative unicode
 // glyph (the machine-shaped tell the design system bans). Same unconditional

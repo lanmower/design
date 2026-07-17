@@ -11,41 +11,9 @@
       "default": "./dist/247420.js"
     },
     "./css": "./dist/247420.css",
-    "./kits/spoint": {
-      "import": "./src/kits/spoint/index.js",
-      "default": "./src/kits/spoint/index.js"
-    },
-    "./kits/spoint/*": "./src/kits/spoint/*",
-    "./kits/slides": {
-      "import": "./src/kits/slides/index.js",
-      "default": "./src/kits/slides/index.js"
-    },
-    "./kits/slides/deck-stage.js": "./src/kits/slides/deck-stage.js",
-    "./kits/os": {
-      "import": "./src/kits/os/index.js",
-      "default": "./src/kits/os/index.js"
-    },
-    "./kits/os/theme.css": "./src/kits/os/theme.css",
-    "./kits/os/wm.css": "./src/kits/os/wm.css",
-    "./kits/os/wm.js": "./src/kits/os/wm.js",
-    "./kits/os/launcher.js": "./src/kits/os/launcher.js",
-    "./kits/os/launcher.css": "./src/kits/os/launcher.css",
-    "./kits/os/validate.css": "./src/kits/os/validate.css",
-    "./kits/os/icons.js": "./src/kits/os/icons.js",
-    "./kits/os/shell.js": "./src/kits/os/shell.js",
-    "./kits/os/freddie-dashboard.js": "./src/kits/os/freddie-dashboard.js",
-    "./kits/os/freddie-dashboard.css": "./src/kits/os/freddie-dashboard.css",
-    "./kits/os/files-app.js": "./src/kits/os/files-app.js",
-    "./kits/os/monitor-app.js": "./src/kits/os/monitor-app.js",
-    "./kits/os/about-app.js": "./src/kits/os/about-app.js",
-    "./kits/os/terminal-app.js": "./src/kits/os/terminal-app.js",
-    "./kits/os/browser-app.js": "./src/kits/os/browser-app.js",
-    "./kits/os/validator-app.js": "./src/kits/os/validator-app.js",
-    "./kits/os/app-panes.css": "./src/kits/os/app-panes.css",
     "./colors_and_type.css": "./colors_and_type.css",
     "./app-shell.css": "./app-shell.css",
     "./community.css": "./community.css",
-    "./system.css": "./system.css",
     "./page-html": {
       "import": "./src/page-html.js",
       "default": "./src/page-html.js"
@@ -61,13 +29,45 @@
       "import": "./src/lint.js",
       "default": "./src/lint.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./kits/os": {
+      "import": "./src/kits/os/index.js",
+      "default": "./src/kits/os/index.js"
+    },
+    "./kits/os/about-app.js": "./src/kits/os/about-app.js",
+    "./kits/os/app-panes.css": "./src/kits/os/app-panes.css",
+    "./kits/os/browser-app.js": "./src/kits/os/browser-app.js",
+    "./kits/os/files-app.js": "./src/kits/os/files-app.js",
+    "./kits/os/freddie-dashboard.css": "./src/kits/os/freddie-dashboard.css",
+    "./kits/os/freddie-dashboard.js": "./src/kits/os/freddie-dashboard.js",
+    "./kits/os/icons.js": "./src/kits/os/icons.js",
+    "./kits/os/launcher.css": "./src/kits/os/launcher.css",
+    "./kits/os/launcher.js": "./src/kits/os/launcher.js",
+    "./kits/os/monitor-app.js": "./src/kits/os/monitor-app.js",
+    "./kits/os/shell.js": "./src/kits/os/shell.js",
+    "./kits/os/terminal-app.js": "./src/kits/os/terminal-app.js",
+    "./kits/os/theme.css": "./src/kits/os/theme.css",
+    "./kits/os/validate.css": "./src/kits/os/validate.css",
+    "./kits/os/wm.css": "./src/kits/os/wm.css",
+    "./kits/os/wm.js": "./src/kits/os/wm.js",
+    "./kits/slides": {
+      "import": "./src/kits/slides/index.js",
+      "default": "./src/kits/slides/index.js"
+    },
+    "./kits/slides/deck-stage.js": "./src/kits/slides/deck-stage.js",
+    "./kits/spoint": {
+      "import": "./src/kits/spoint/index.js",
+      "default": "./src/kits/spoint/index.js"
+    },
+    "./kits/spoint/*": "./src/kits/spoint/*"
   },
   "files": [
     "dist",
     "src",
     "scripts/lint-glyphs.mjs",
     "scripts/lint-null-children.mjs",
+    "scripts/lint-shared.mjs",
+    "scripts/lint-css.mjs",
     "vendor/webjsx",
     "colors_and_type.css",
     "app-shell.css",
@@ -77,13 +77,16 @@
   ],
   "scripts": {
     "lint": "node scripts/lint.mjs",
+    "lint:css": "node scripts/lint-css.mjs",
     "lint:tokens": "node scripts/lint-tokens.mjs",
     "build": "node scripts/build.mjs",
     "lint:null-children": "node scripts/lint-null-children.mjs",
     "lint:classes": "node scripts/lint-classes.mjs",
     "lint:ui-kits": "node scripts/generate-ui-kit-scaffolds.mjs --check",
     "tokens": "node scripts/generate-tokens-json.mjs",
+    "tokens:css": "node scripts/generate-tokens-css.mjs",
     "tokens:doc": "node scripts/generate-tokens-json.mjs && node scripts/generate-theme-tokens-doc.mjs",
+    "sitemap": "node scripts/generate-sitemap.mjs",
     "docs:components": "node scripts/generate-component-docs.mjs",
     "lint:component-docs": "node scripts/generate-component-docs.mjs --check",
     "generate:ui-kits": "node scripts/generate-ui-kit-scaffolds.mjs",

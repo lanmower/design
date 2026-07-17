@@ -20,10 +20,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const ALLOW_FILE = join(__dirname, 'lint-swallow-comments.allow.json');
 
-// Directories to scan for source files. This list is per-repo (edited in
-// each repo's copy of this script) — kept as a flat const so it's trivial
-// to see/adjust at the top of the file.
-const SCAN_DIRS = ['src'];
+// Directories to scan for source files. This file is shared byte-for-byte
+// across design/thebird/freddie (see AGENTS.md cross-repo tooling-dedup
+// note) — per-repo scan scope is NOT baked into the file anymore; it is
+// supplied via LINT_SWALLOW_SCAN_DIRS (comma-separated, relative to repo
+// root). Defaults to design's historical ['src'] when unset so a bare
+// `node scripts/lint-swallow-comments.mjs` in design is unchanged.
+const SCAN_DIRS = (process.env.LINT_SWALLOW_SCAN_DIRS || 'src').split(',').map((d) => d.trim()).filter(Boolean);
 const SCAN_EXT = /\.(js|mjs|cjs|ts|tsx)$/;
 const SKIP_PATH_PARTS = ['node_modules', '/vendor/', '/dist/', '/.git/'];
 

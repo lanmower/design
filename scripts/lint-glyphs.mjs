@@ -10,6 +10,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { walkManyDirs } from './lint-shared.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -53,23 +54,10 @@ function isAllowed(rel, line) {
     return list.some((s) => line.includes(s));
 }
 
-function walk(dir, acc) {
-    let entries;
-    try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
-    catch { return acc; }
-    for (const e of entries) {
-        const full = path.join(dir, e.name);
-        if (e.isDirectory()) walk(full, acc);
-        else if (SCAN_EXT.has(path.extname(e.name))) acc.push(full);
-    }
-    return acc;
-}
-
 // Returns the array of violation strings (empty == clean). Pure; no exit/log.
 export function findGlyphViolations() {
     const violations = [];
-    const files = [];
-    for (const d of SCAN_DIRS) walk(path.join(root, d), files);
+    const files = walkManyDirs(SCAN_DIRS.map((d) => path.join(root, d)), SCAN_EXT);
     for (const f of SCAN_ROOT_FILES) { const p = path.join(root, f); if (fs.existsSync(p)) files.push(p); }
     for (const file of files) {
         const rel = path.relative(root, file).split(path.sep).join('/');

@@ -10,6 +10,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { findTokensDrift, findSiteYamlDrift } from './generate-tokens-css.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -206,20 +207,63 @@ export function findSpacingViolations() {
     return violations;
 }
 
-// Report-only counterpart to lintTokensOrThrow/lintRadiusOrThrow — logs the
-// violation count instead of throwing. Not called from build.mjs. Promote to
-// lintSpacingOrThrow (and wire into build.mjs) once the 639-violation corpus
-// is triaged down to a small, genuinely-audited ALLOW list or migrated to
-// --space-N tokens, matching the radius lint's own trajectory.
-export function lintSpacingOrThrow() {
+// Ratchet baseline file — same pattern as thebird's scripts/lint-i18n-ratchet.mjs:
+// freeze the CURRENT violation count as a snapshot; the gate only fails if a
+// future run's count exceeds that snapshot. This lets the corpus (356 hits as
+// of the pass that added this gate, across 9 component sheets — mostly `em`-
+// relative micro-adjustments and shorthand pairs like `padding: 8px 16px` that
+// don't individually collapse onto a single --space-N without visual judgment)
+// stay un-migrated for now without silently growing. Promote to a hard zero
+// (delete the ratchet, require the ALLOW list instead) once the corpus is
+// triaged down, matching lintRadiusOrThrow's own trajectory.
+const SPACING_BASELINE_FILE = path.join(root, 'scripts', 'lint-spacing.baseline.json');
+
+// Report-only counterpart — logs the violation count instead of throwing.
+// Not called from build.mjs; kept for manual inspection.
+export function lintSpacingReport() {
     const violations = findSpacingViolations();
     if (violations.length) {
         console.warn('[lint-spacing] REPORT — ' + violations.length + ' raw margin/padding/gap literal(s) bypassing the --space-* scale from '
-            + TOKEN_SOURCE + ' (report-only, not a build gate yet):\n  ' + violations.slice(0, 20).join('\n  ')
+            + TOKEN_SOURCE + ':\n  ' + violations.slice(0, 20).join('\n  ')
             + (violations.length > 20 ? `\n  ...and ${violations.length - 20} more` : ''));
         return;
     }
     console.log('[lint-spacing] OK — ' + COMPONENT_SHEETS.length + ' component sheets use only the --space-* spacing scale.');
+}
+
+// Ratchet gate: fails only if the CURRENT violation count exceeds the frozen
+// baseline in scripts/lint-spacing.baseline.json. Does not require fixing the
+// pre-existing corpus in one pass — it just prevents new raw-spacing
+// literals from being added silently to the same 9 sheets. Called from
+// build.mjs (replacing the old report-only lintSpacingOrThrow) and the CLI
+// entry below. Pass `--write-spacing-baseline` to (re-)freeze the current
+// count after a reviewed, intentional change to the corpus.
+export function lintSpacingOrThrow() {
+    const violations = findSpacingViolations();
+    const count = violations.length;
+
+    if (process.argv.includes('--write-spacing-baseline')) {
+        fs.writeFileSync(SPACING_BASELINE_FILE, JSON.stringify({ count, updated: new Date().toISOString() }, null, 2) + '\n');
+        console.log(`[lint-spacing] wrote baseline count=${count} to ${path.relative(root, SPACING_BASELINE_FILE)}`);
+        return;
+    }
+
+    let baseline;
+    if (fs.existsSync(SPACING_BASELINE_FILE)) {
+        baseline = JSON.parse(fs.readFileSync(SPACING_BASELINE_FILE, 'utf8'));
+    } else {
+        fs.writeFileSync(SPACING_BASELINE_FILE, JSON.stringify({ count, updated: new Date().toISOString() }, null, 2) + '\n');
+        console.log(`[lint-spacing] no baseline found, wrote initial baseline count=${count}`);
+        return;
+    }
+
+    if (count > baseline.count) {
+        const msg = '[lint-spacing] FAIL — ' + count + ' raw margin/padding/gap literal(s) bypassing the --space-* scale from '
+            + TOKEN_SOURCE + ' exceeds frozen baseline ' + baseline.count + ':\n  ' + violations.join('\n  ')
+            + `\n[lint-spacing] Use --space-N tokens for new declarations, or re-run with --write-spacing-baseline if this growth is reviewed/intentional.`;
+        throw new Error(msg);
+    }
+    console.log('[lint-spacing] PASS — ' + count + ' <= baseline ' + baseline.count + ' (' + COMPONENT_SHEETS.length + ' component sheets).');
 }
 
 // Throws on violation, mirroring lintTokensOrThrow's shape exactly. Called
@@ -248,6 +292,26 @@ export function lintTokensOrThrow() {
     console.log('[lint-tokens] OK — ' + COMPONENT_SHEETS.length + ' component sheets are literal-free (all color from tokens).');
 }
 
+// tokens.json <-> colors_and_type.css / site.yaml sync gate: tokens.json is
+// the single source of truth for :root token VALUES (generate-tokens-css.mjs
+// is the reverse generator); this throws if the committed colors_and_type.css
+// or site/content/globals/site.yaml has drifted from it — i.e. it VERIFIES
+// the generated output is in sync, it does not police a human-authored
+// convention the way lintTokensOrThrow/lintRadiusOrThrow do. Run
+// `node scripts/generate-tokens-css.mjs` to re-sync before re-running this.
+export function lintTokensJsonInSyncOrThrow() {
+    const { cssEdits } = findTokensDrift();
+    const { edits: yamlEdits } = findSiteYamlDrift();
+    if (cssEdits.length || yamlEdits.length) {
+        const lines = [
+            ...cssEdits.map((e) => `colors_and_type.css: ${e.name}: "${e.oldValue}" (committed) != "${e.newValue}" (tokens.json)`),
+            ...yamlEdits.map((e) => `site.yaml: ${e.key}: "${e.current}" (committed) != "${e.wanted}" (tokens.json)`),
+        ];
+        throw new Error(`[lint-tokens-json] FAIL — colors_and_type.css / site.yaml out of sync with tokens.json:\n  ${lines.join('\n  ')}\n[lint-tokens-json] Run \`node scripts/generate-tokens-css.mjs\` to re-sync (or \`npm run tokens\` first if the CSS was the one intentionally retuned).`);
+    }
+    console.log('[lint-tokens-json] OK — colors_and_type.css and site.yaml match tokens.json.');
+}
+
 // CLI entry: `node scripts/lint-tokens.mjs`.
 if (process.argv[1] && process.argv[1].endsWith('lint-tokens.mjs')) {
     try { lintTokensOrThrow(); }
@@ -255,4 +319,6 @@ if (process.argv[1] && process.argv[1].endsWith('lint-tokens.mjs')) {
     try { lintRadiusOrThrow(); }
     catch (e) { console.error(e.message); process.exit(1); }
     lintSpacingOrThrow();
+    try { lintTokensJsonInSyncOrThrow(); }
+    catch (e) { console.error(e.message); process.exit(1); }
 }

@@ -11,7 +11,6 @@ export { renderBrowserPane } from './browser-app.js';
 export { renderFilesApp } from './files-app.js';
 export { renderMonitorApp } from './monitor-app.js';
 export { renderTerminal } from './terminal-app.js';
-export { renderValidator } from './validator-app.js';
 export { createFreddieDashboard } from './freddie-dashboard.js';
 
 export const themeUrl = new URL('./theme.css', import.meta.url).href;

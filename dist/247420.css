@@ -9852,8 +9852,9 @@
    Relationship to community.css: this is NOT a fork of community.css's content
    -- it is a small (~150-line), genuinely distinct app-shell WRAPPER around the
    canonical, complete community surface. community.css (~1650 lines) owns every
-   .cm-*/.ds-247420 .vx-* component (server rail, channel sidebar, chat header, member list,
-   voice PTT/VAD/webcam, thread panel, forum, page view) and is the canonical, .ds-247420 actively-referenced stylesheet -- it is the one listed in package.json's
+   .cm-* / .vx-* component (server rail, channel sidebar, chat header, member list,
+   voice PTT/VAD/webcam, thread panel, forum, page view) and is the canonical,
+   actively-referenced stylesheet -- it is the one listed in package.json's
    `exports`/`files`, the one scripts/build.mjs and scripts/lint-tokens.mjs treat
    as a first-class component sheet on its own, and the one THEME.md/
    COMPONENT_API.md document as the load-order anchor
@@ -9862,11 +9863,11 @@
    loads strictly AFTER community.css (see ui_kits/community-app/index.html) and
    only adds the .ca-* composition shell + category-color tokens that
    community.css deliberately has no opinion about -- it never redefines a
-   .cm-*/.vx-* rule community.css already owns. Canonical tokens/rules live in
+   .cm-* / .vx-* rule community.css already owns. Canonical tokens/rules live in
    community.css; only overrides/additions specific to mountCommunityApp's own
    composition live here. */
 
-html.ds-247420 .ca-app {
+.ds-247420.ds-247420 .ca-app {
   display: flex;
   flex-direction: column;
   height: 100vh;

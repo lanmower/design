@@ -13,6 +13,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { walkManyDirs } from './lint-shared.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -41,23 +42,10 @@ function declarationsAllowed(value) {
         .every((d) => WHITELIST_RE.some((re) => re.test(d)));
 }
 
-function walk(dir, acc) {
-    let entries;
-    try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
-    catch { return acc; }
-    for (const e of entries) {
-        const full = path.join(dir, e.name);
-        if (e.isDirectory()) walk(full, acc);
-        else if (SCAN_EXT.has(path.extname(e.name))) acc.push(full);
-    }
-    return acc;
-}
-
 // Returns the array of violation strings (empty == clean). Pure; no exit/log.
 export function findInlineStyleViolations() {
     const violations = [];
-    const files = [];
-    for (const d of SCAN_DIRS) walk(path.join(root, d), files);
+    const files = walkManyDirs(SCAN_DIRS.map((d) => path.join(root, d)), SCAN_EXT);
     for (const file of files) {
         const rel = path.relative(root, file).split(path.sep).join('/');
         const src = fs.readFileSync(file, 'utf8');
