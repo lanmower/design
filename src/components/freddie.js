@@ -14,6 +14,7 @@ import { register as registerDebug, unregister as unregisterDebug } from '../deb
 import { queueMessage, watchReconnect, isOnline } from '../idb-outbox.js';
 import { ChatMessage, ChatComposer } from './chat.js';
 import { fmtTime, fmtAgo } from './sessions.js';
+import { createVirtualizer, measureRef } from '../virtual-scroll.js';
 
 const h = webjsx.createElement;
 
@@ -107,8 +108,21 @@ export const home = makePage((ctx) => {
 
 // ---- chat ------------------------------------------------------------------
 
+// Below this thread length, mount every message directly -- virtualization's
+// scroll-listener + spacer-div overhead only pays for itself once the DOM
+// node count it would otherwise mount is large enough to matter.
+const VIRTUALIZE_THRESHOLD = 60;
+
 export const chat = makePage((ctx) => {
     Object.assign(ctx.state, { loading: false, messages: [], draft: '', sending: false });
+    const virtualizer = createVirtualizer();
+    let threadEl = null;
+    let range = { startIndex: 0, endIndex: 0, topSpacerPx: 0, bottomSpacerPx: 0 };
+    function recomputeRange() {
+        if (!threadEl) return;
+        virtualizer.setCount(ctx.state.messages.length);
+        range = virtualizer.computeRange(threadEl.scrollTop, threadEl.clientHeight);
+    }
     // Offline outbox: a prompt sent while genuinely offline queues to
     // IndexedDB and auto-flushes on the real 'online' event, rather than
     // surfacing a hard error the user can't act on. True offline LLM
@@ -138,15 +152,47 @@ export const chat = makePage((ctx) => {
         }
         ctx.set({ sending: false });
     }
+    // Combines the existing bottom-pin auto-scroll ref (stickyScroll) with the
+    // virtualizer's range recompute on every scroll tick. Both run off the
+    // SAME element -- one ref callback wiring both keeps a single listener
+    // registration instead of two refs fighting over the same node.
+    function threadRef(el) {
+        if (!el) { threadEl = null; return; }
+        threadEl = el;
+        stickyScroll(el);
+        if (!el.__vsScrollWired) {
+            el.__vsScrollWired = true;
+            el.addEventListener('scroll', () => { recomputeRange(); ctx.rerender(); }, { passive: true });
+        }
+        recomputeRange();
+    }
+
     return () => {
         const s = ctx.state;
+        const virtualized = s.messages.length > VIRTUALIZE_THRESHOLD;
+        let threadChildren;
+        if (!s.messages.length) {
+            threadChildren = [emptyState('send a prompt to start', Icon('forum'))];
+        } else if (!virtualized) {
+            threadChildren = s.messages.map((m, i) => ChatMessage({ ...m, key: i }));
+        } else {
+            recomputeRange();
+            const { startIndex, endIndex, topSpacerPx, bottomSpacerPx } = range;
+            threadChildren = [
+                h('div', { key: '_top_spacer', style: `height:${topSpacerPx}px` }),
+                ...s.messages.slice(startIndex, endIndex).map((m, i) => {
+                    const realIndex = startIndex + i;
+                    return h('div', { key: 'vm' + realIndex, ref: measureRef(virtualizer, realIndex) }, ChatMessage({ ...m, key: realIndex }));
+                }),
+                h('div', { key: '_bottom_spacer', style: `height:${bottomSpacerPx}px` }),
+            ];
+        }
         return h('div', { class: 'fd-chat' },
             PageHeader({ eyebrow: 'freddie', title: 'chat', lede: 'one-shot agent turns · POST /api/chat' }),
             liveRegion(s.sending ? 'waiting for assistant reply' : ''),
             h('div', { class: 'chat-thread fd-chat-thread', role: 'log', 'aria-label': 'chat messages',
-                ref: stickyScroll },
-                s.messages.length ? s.messages.map((m, i) => ChatMessage({ ...m, key: i }))
-                    : emptyState('send a prompt to start', Icon('forum')),
+                ref: threadRef },
+                ...threadChildren,
                 s.sending ? ChatMessage({ role: 'assistant', typing: true, key: '_typing' }) : null),
             ChatComposer({
                 value: s.draft,

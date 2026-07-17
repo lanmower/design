@@ -23,6 +23,7 @@ import { registerChatElement, DsChat } from './web-components/ds-chat.js';
 import { registerFreddieChatElement, FreddieChat } from './web-components/freddie-chat.js';
 import { formatTime, formatDateTime, formatNumber, formatRelativeTime } from './locale.js';
 import { queueMessage, listQueued, flushQueue, watchReconnect, isOnline } from './idb-outbox.js';
+import { createVirtualizer, measureRef } from './virtual-scroll.js';
 
 let _installed = false;
 export async function installStyles(target) {
@@ -91,7 +92,8 @@ export {
     theme, ThemeToggle,
     t, registerLocale, getLocale, setLocale, availableLocales,
     formatTime, formatDateTime, formatNumber, formatRelativeTime,
-    queueMessage, listQueued, flushQueue, watchReconnect, isOnline
+    queueMessage, listQueued, flushQueue, watchReconnect, isOnline,
+    createVirtualizer, measureRef
 };
 export { applyTheme, getTheme, resolvedTheme, onThemeChange, initTheme,
          applyAccent, getAccent, applyDensity, getDensity } from './theme.js';
