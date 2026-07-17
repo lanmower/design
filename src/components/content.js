@@ -6,6 +6,18 @@ import * as webjsx from '../../vendor/webjsx/index.js';
 import { Btn, Heading, Lede, Dot, Icon } from './shell.js';
 const h = webjsx.createElement;
 
+// Avatar — generic identity disc: an image when `src` resolves, else a
+// letter fallback derived from `name`/`fallback`. Kit previously only had
+// scoped one-offs (chat.js `.chat-avatar`, community.js `.cm-user-avatar`)
+// duplicating this same letter-fallback logic; this is the reusable version.
+export function Avatar({ name, src, fallback, size = 'md', key } = {}) {
+    const letter = fallback != null ? fallback
+        : (name ? String(name).trim().charAt(0).toUpperCase() || '?' : '?');
+    const cls = 'ds-avatar ds-avatar-' + size;
+    if (src) return h('img', { key, class: cls, src, alt: name || '', loading: 'lazy' });
+    return h('span', { key, class: cls, 'aria-hidden': !!name, role: name ? 'img' : undefined, 'aria-label': name || undefined }, letter);
+}
+
 export function Panel({ title, count, right, style = '', class: className = '', children, kind, id }) {
     const cls = 'panel' + (kind ? ' panel-' + kind : '') + (className ? ' ' + className : '');
     return h('div', { class: cls, style, id: id || null },

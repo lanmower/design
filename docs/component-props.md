@@ -2,7 +2,7 @@
 
 Generated from `src/components.js`'s real export barrel + each symbol's real definition in `src/components/*.js`, via `node scripts/generate-component-docs.mjs`. Do not hand-edit -- re-run after any component signature or JSDoc change.
 
-200 exported symbols across 17 source files.
+201 exported symbols across 17 source files.
 
 ---
 
@@ -375,6 +375,12 @@ A Claude-Desktop / cowork three-(or four-)column app shell.  Pure stateless chro
 
 **Signature:** `options` = `[]`, `selected`, `onSelect`, `label` = `'filters'`
 
+### Avatar
+
+**Kind:** component
+
+**Signature:** `name`, `src`, `fallback`, `size` = `'md'`, `key`
+
 ## `src/components/chat.js`
 
 ### fmtBytes
@@ -399,7 +405,7 @@ A Claude-Desktop / cowork three-(or four-)column app shell.  Pure stateless chro
 
 **Kind:** component
 
-**Signature:** `role`, `who` = `'them'`, `avatar`, `text`, `parts`, `time`, `typing`, `key`, `aicat`, `reactions`, `receipt`, `name`, `streaming`, `actions`, `incomplete`, `stopped`, `flat`
+**Signature:** `role`, `who` = `'them'`, `avatar`, `text`, `parts`, `time`, `typing`, `key`, `aicat`, `reactions`, `receipt`, `name`, `streaming`, `actions`, `incomplete`, `stopped`, `flat`, `error`, `onRetry`
 
 ### ChatComposer
 

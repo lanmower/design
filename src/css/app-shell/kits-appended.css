@@ -372,3 +372,16 @@
   .ds-chat-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; align-items: start; gap: var(--space-4); }
   .ds-chat-detail { display: block; position: sticky; top: 0; }
 }
+
+/* Avatar — generic identity disc primitive (content.js Avatar). Sized
+   variants mirror the existing chat-avatar/community-avatar footprints so
+   any consumer gets a consistent disc without duplicating the CSS. */
+.ds-avatar {
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: var(--bg-3); color: var(--fg);
+  font-family: var(--ff-mono); font-weight: 600; text-transform: lowercase;
+  letter-spacing: 0.02em; user-select: none; flex-shrink: 0; object-fit: cover;
+}
+.ds-avatar-sm { width: 24px; height: 24px; font-size: 10px; }
+.ds-avatar-md { width: 36px; height: 36px; font-size: 12px; }
+.ds-avatar-lg { width: 48px; height: 48px; font-size: 15px; }
