@@ -3525,6 +3525,20 @@
    ============================================================ */
 
 /* ------------------------------------------------------------
+   Table — clickable row focus ring
+   Table()'s onRowClick path (content.js) sets class="clickable"
+   role="button" tabindex="0" on the <tr>; the browser's native
+   :focus-visible outline on a <tr> renders inconsistently across
+   engines (often clipped by table border-collapse), so it needs
+   the same explicit outline treatment every other interactive
+   primitive in this file gets, via the shared --focus-* tokens.
+   -------------------------------------------------------------- */
+.ds-247420 tr.clickable:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: calc(-1 * var(--focus-offset));
+}
+
+/* ------------------------------------------------------------
    Component States — Disabled, Loading, Error, Success
    -------------------------------------------------------------- */
 

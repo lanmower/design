@@ -10,6 +10,7 @@ import { getRecentPaths, saveRecentPath, skillLabel, renderChatMessages } from '
 import { Panel, Row, Table, Kpi, PageHeader, SearchInput, TextField, Select } from './content.js';
 import { Chip, Btn, Icon } from './shell.js';
 import { formatTime } from '../locale.js';
+import { register as registerDebug, unregister as unregisterDebug } from '../debug.js';
 import { queueMessage, watchReconnect, isOnline } from '../idb-outbox.js';
 import { ChatMessage, ChatComposer } from './chat.js';
 import { fmtTime, fmtAgo } from './sessions.js';
@@ -704,6 +705,98 @@ export const health = makePage((ctx) => {
 
 // ---- debug -----------------------------------------------------------------
 
+// ---- logs --------------------------------------------------------------
+
+const LOG_SEVERITY_TONE = { error: 'error', warning: 'warning', info: 'accent', debug: 'muted' };
+
+export const logs = makePage((ctx) => {
+    Object.assign(ctx.state, { lines: [], subsystems: [], activeSubsystem: '', activeSeverity: '', q: '', connected: false, wsError: null });
+    const MAX_LINES = 500;
+
+    async function loadSubsystems() {
+        try { ctx.set({ subsystems: await api('/api/logs') }); }
+        catch (e) { /* non-fatal: subsystem list is a filter convenience, not required for the stream */ }
+    }
+
+    let unmounted = false;
+    let reconnectTimer = null;
+    function connect() {
+        if (unmounted) return;
+        if (typeof WebSocket === 'undefined') { ctx.set({ wsError: new Error('WebSocket not available in this environment') }); return }
+        const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const ws = new WebSocket(proto + '//' + location.host + '/api/logs/stream');
+        ws.onopen = () => ctx.set({ connected: true, wsError: null });
+        ws.onerror = () => ctx.set({ connected: false, wsError: new Error('log stream connection error') });
+        ws.onclose = () => { ctx.set({ connected: false }); if (!unmounted) reconnectTimer = setTimeout(connect, 3000); };
+        ws.onmessage = (ev) => {
+            let rec; try { rec = JSON.parse(ev.data); } catch { return; }
+            const next = [rec, ...ctx.state.lines].slice(0, MAX_LINES);
+            ctx.set({ lines: next });
+        };
+        currentWs = ws;
+    }
+    let currentWs = null;
+
+    loadSubsystems();
+    connect();
+    registerDebug('logs', () => ({ connected: ctx.state.connected, lineCount: ctx.state.lines.length, activeSubsystem: ctx.state.activeSubsystem, activeSeverity: ctx.state.activeSeverity }));
+    ctx.onCleanup(() => {
+        unmounted = true;
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        try { currentWs?.close(); } catch {}
+        unregisterDebug('logs');
+    });
+
+    function filtered() {
+        const s = ctx.state;
+        return s.lines.filter((l) => {
+            if (s.activeSubsystem && l.subsystem !== s.activeSubsystem) return false;
+            if (s.activeSeverity && l.severity !== s.activeSeverity) return false;
+            if (s.q && !String(l.msg || '').toLowerCase().includes(s.q.toLowerCase())) return false;
+            return true;
+        });
+    }
+
+    return () => {
+        const s = ctx.state;
+        const rows = filtered();
+        const severities = ['error', 'warning', 'info', 'debug'];
+        return [
+            PageHeader({
+                eyebrow: 'freddie', title: 'logs', lede: 'live JSONL log tail — /api/logs/stream',
+                right: s.connected ? Chip({ tone: 'ok', children: 'live' }) : Chip({ tone: 'miss', children: 'reconnecting…' }),
+            }),
+            s.wsError ? refreshError(s.wsError) : null,
+            h('div', { class: 'ds-toolbar' },
+                SearchInput({ value: s.q, placeholder: 'filter by message…', onInput: (v) => ctx.set({ q: v }), resultCount: rows.length }),
+                Select({
+                    label: 'subsystem', value: s.activeSubsystem, placeholder: 'all subsystems',
+                    options: (s.subsystems || []).map((name) => ({ value: name, label: name })),
+                    onChange: (v) => ctx.set({ activeSubsystem: v }),
+                }),
+                Select({
+                    label: 'severity', value: s.activeSeverity, placeholder: 'all severities',
+                    options: severities.map((sv) => ({ value: sv, label: sv })),
+                    onChange: (v) => ctx.set({ activeSeverity: v }),
+                }),
+            ),
+            rows.length ? section('lines · ' + rows.length,
+                Table({
+                    headers: ['time', 'subsystem', 'severity', 'message'],
+                    rows: rows.map((l) => [
+                        formatTime(l.ts ? Date.parse(l.ts) : Date.now()),
+                        l.subsystem || '—',
+                        Chip({ tone: LOG_SEVERITY_TONE[l.severity] || 'dim', children: l.severity || 'info' }),
+                        truncSpan(l.msg, TRUNC_DESC),
+                    ]),
+                }),
+            ) : emptyState(s.connected ? 'no log lines yet — waiting for activity' : 'connecting to log stream…'),
+        ].filter(Boolean);
+    };
+});
+
+// ---- debug -----------------------------------------------------------------
+
 export const debug = makePage((ctx) => {
     Object.assign(ctx.state, { sub: null, logs: null });
     async function load() { try { ctx.set({ loading: false, data: await api('/api/debug'), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
@@ -734,7 +827,7 @@ export const debug = makePage((ctx) => {
 export const FREDDIE_PAGES = {
     home, chat, voice, sessions, projects, agents, analytics,
     models, cron, skills, config, env, tools, batch, gateway, chains,
-    machines, health, debug,
+    machines, health, debug, logs,
 };
 
 export { skillLabel, getRecentPaths, saveRecentPath, renderChatMessages };

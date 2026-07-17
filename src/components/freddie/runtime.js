@@ -44,6 +44,7 @@ export function makePage(setup, { initial = {} } = {}) {
     return function pageRenderer(host) {
         const state = { loading: true, error: null, ...initial };
         const timers = [];
+        const cleanupFns = [];
         let elRef = null;
         let render = () => h('div', {});
         const ctx = {
@@ -51,7 +52,16 @@ export function makePage(setup, { initial = {} } = {}) {
             set(patch) { Object.assign(state, patch); ctx.rerender(); },
             rerender() { if (elRef) { try { applyDiff(elRef, wrap()); } catch (e) { console.warn('[freddie page rerender]', e); } } },
             interval(fn, ms) { const id = setInterval(fn, ms); timers.push(id); return id; },
-            cleanup() { for (const id of timers) clearInterval(id); timers.length = 0; },
+            // Register arbitrary teardown (WebSocket close, event listener removal,
+            // etc) alongside the existing interval-only cleanup() -- same
+            // unmount trigger (elRef going null in ref()), just not limited to
+            // setInterval ids.
+            onCleanup(fn) { cleanupFns.push(fn); },
+            cleanup() {
+                for (const id of timers) clearInterval(id); timers.length = 0;
+                for (const fn of cleanupFns) { try { fn(); } catch (e) { console.warn('[freddie page cleanup]', e); } }
+                cleanupFns.length = 0;
+            },
         };
         function wrap() {
             let body;
