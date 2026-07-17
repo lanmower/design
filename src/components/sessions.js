@@ -37,17 +37,24 @@ export function fmtDuration(ms) {
   return hrs + 'h ' + (m % 60) + 'm';
 }
 
-// ConversationList — the Claude-Desktop "Chats" column. Sessions grouped by a
-// caller-supplied group label, each row showing title/project, relative time,
-// agent badge, and a running/new-event indicator. Selecting a row switches the
-// active conversation.
-//
-//   sessions : [{ sid, title, project, agent, time, running, unread, rail }]
-//   selected : the active sid
-//   groups   : OPTIONAL [{ label, sids:[...] }] to bucket rows; else one flat list
-//   search   : { value, onInput, placeholder } inline filter (optional)
-//   onSelect(session), onNew() : intents
-//   emptyText, loading, error  : explicit states
+/**
+ * The Claude-Desktop "Chats" column. Sessions grouped by a caller-supplied
+ * group label, each row showing title/project, relative time, agent badge,
+ * and a running/new-event indicator. Selecting a row switches the active
+ * conversation.
+ *
+ * @param {Object} [props]
+ * @param {Array<{sid:*, title?:string, project?:string, agent?:string, time?:string, running?:boolean, unread?:boolean, rail?:string}>} [props.sessions=[]]
+ * @param {*} [props.selected] - the active sid.
+ * @param {Array<{label:string, sids:Array<*>}>} [props.groups] - OPTIONAL buckets for the rows; else one flat list.
+ * @param {{value:string, onInput:Function, placeholder?:string}} [props.search] - inline filter (optional).
+ * @param {Function} [props.onSelect] - onSelect(session).
+ * @param {Function} [props.onNew] - onNew().
+ * @param {string} [props.emptyText='No conversations yet']
+ * @param {boolean} [props.loading=false]
+ * @param {*} [props.error=null]
+ * @returns {*} webjsx vnode
+ */
 export function ConversationList({ sessions = [], selected, groups, search, caption,
                                    onSelect, onNew, newLabel = 'New chat',
                                    emptyText = 'No conversations yet', loading = false, error = null,
@@ -304,11 +311,27 @@ const STREAM_WORD = {
   lost: 'live stream offline — retrying…',
 };
 
-// The stop-all / stop-selected danger buttons are two-step (host-driven, the kit
-// is stateless): the first click fires onArmStop* so the host flips confirming*
-// true and re-renders; the armed button reads 'stop N sessions - press again'
-// and only THAT click fires the real onStopAll/onStopSelected. Hosts that wire
-// no onArmStop* keep the old single-click behavior.
+/**
+ * The live multi-session command center ("Live" dashboard).
+ *
+ * The stop-all / stop-selected danger buttons are two-step (host-driven, the
+ * kit is stateless): the first click fires onArmStop* so the host flips
+ * confirming* true and re-renders; the armed button reads 'stop N sessions -
+ * press again' and only THAT click fires the real onStopAll/onStopSelected.
+ * Hosts that wire no onArmStop* keep the old single-click behavior.
+ *
+ * @param {Object} [props]
+ * @param {Array<Object>} [props.sessions=[]] - session shape: `{ sid, realSid, title, agent, model, cwd, elapsedMs, counter, lastActivity, currentTool, status, stopping, external, isNew, cost, tokens }`.
+ * @param {Function} [props.onStop] - onStop(session).
+ * @param {Function} [props.onOpen] - onOpen(session).
+ * @param {Function} [props.onView] - onView(session).
+ * @param {Function} [props.onStopAll]
+ * @param {Function} [props.onStopSelected]
+ * @param {boolean} [props.confirmingStopAll=false]
+ * @param {boolean} [props.confirmingStopSelected=false]
+ * @param {'connected'|'connecting'|'lost'|'offline'} [props.streamState]
+ * @returns {*} webjsx vnode
+ */
 export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStopAll, onStopSelected,
                                    confirmingStopAll = false, confirmingStopSelected = false,
                                    onArmStopAll, onArmStopSelected,

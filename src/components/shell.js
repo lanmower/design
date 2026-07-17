@@ -6,19 +6,54 @@ import * as webjsx from '../../vendor/webjsx/index.js';
 import { trapTab } from './overlay-primitives.js';
 const h = webjsx.createElement;
 
+/**
+ * The wordmark used in Topbar/AppShell headers.
+ *
+ * @param {Object} [props]
+ * @param {string} [props.name='247420'] - the brand text.
+ * @param {*} [props.leaf] - optional trailing breadcrumb-style leaf, rendered after a " / " separator.
+ * @returns {*} webjsx vnode
+ */
 export function Brand({ name = '247420', leaf } = {}) {
     return h('span', { class: 'brand' }, name,
         leaf ? h('span', { class: 'slash' }, ' / ') : null,
         leaf || null);
 }
 
+/**
+ * A small pill/tag label.
+ *
+ * @param {Object} props
+ * @param {string} [props.tone=''] - semantic color tone (empty = neutral).
+ * @param {'sm'|'md'|'lg'} [props.size='md']
+ * @param {boolean} [props.tag=false] - true renders a rectangular sentence-case variant for dense data (drops the all-caps pill styling). Orthogonal to tone.
+ * @param {*} props.children
+ * @returns {*} webjsx vnode
+ */
 export function Chip({ tone = '', size = 'md', tag = false, children }) {
-    // size: 'sm' | 'md' | 'lg'; tag=true -> rectangular sentence-case variant
-    // for dense data (drops the all-caps pill). Both are orthogonal to tone.
     const sizeCls = size === 'sm' ? ' chip--sm' : (size === 'lg' ? ' chip--lg' : '');
     return h('span', { class: 'chip' + sizeCls + (tag ? ' chip--tag' : '') + (tone ? ' tone-' + tone : '') }, children);
 }
 
+/**
+ * The standard button/link factory. Renders an `<a>` when `href` is given,
+ * otherwise a `<button>`.
+ *
+ * @param {Object} props
+ * @param {string} [props.href] - if present, renders as a link instead of a button.
+ * @param {'default'|'primary'|'ghost'|'danger'} [props.variant='default']
+ * @param {'sm'|'md'|'lg'} [props.size='md']
+ * @param {*} props.children
+ * @param {Function} [props.onClick]
+ * @param {string} [props['aria-label']]
+ * @param {boolean} [props.primary] - legacy alias for variant:'primary', kept for backward compatibility.
+ * @param {boolean} [props.ghost] - legacy alias for variant:'ghost'.
+ * @param {boolean} [props.danger] - legacy alias for variant:'danger'.
+ * @param {boolean} [props.disabled]
+ * @param {string} [props.class] - extra class name(s) appended to the generated class list.
+ * @param {*} [props.key]
+ * @returns {*} webjsx vnode
+ */
 export function Btn({ href, variant = 'default', size = 'md', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled, class: className, key }) {
     // Support legacy primary/ghost props for backward compatibility, but prefer variant
     const resolvedVariant = variant !== 'default' ? variant : (primary ? 'primary' : (ghost ? 'ghost' : (danger ? 'danger' : 'default')));
@@ -575,24 +610,25 @@ function wsCollapsed(which, fallback) {
     return !!fallback;
 }
 
-// WorkspaceShell — a Claude-Desktop / cowork three-(or four-)column app shell.
-//
-//   rail   : the persistent left workspace nav (icon+label items, collapsible
-//            to icon-only). Pass the result of WorkspaceRail() or any vnode.
-//   sessions: an OPTIONAL second column (a conversation/session list) shown
-//            between the rail and the main content. Null hides it.
-//   main   : the primary content column (chat thread, files view, dashboard...).
-//   pane   : an OPTIONAL right context pane (per-conversation context, file
-//            preview...). Null hides it; collapsible when present.
-//   crumb  : an optional thin top chrome bar (breadcrumb + status), spanning
-//            the content area only (the rail has its own header).
-//   status : an optional footer.
-//   narrow : caller's isNarrow() — drives the mobile single-column collapse.
-//   railCollapsed / paneCollapsed : initial collapse (persisted state wins).
-//
-// Pure stateless chrome (props in, vnode out). Collapse is DOM-class + a
-// persisted flag, so the host does not have to thread collapse state through its
-// own store. Visual styling lives in app-shell.css (.ws-*).
+/**
+ * A Claude-Desktop / cowork three-(or four-)column app shell.
+ *
+ * Pure stateless chrome (props in, vnode out). Collapse is DOM-class + a
+ * persisted flag, so the host does not have to thread collapse state through
+ * its own store. Visual styling lives in app-shell.css (.ws-*).
+ *
+ * @param {Object} props
+ * @param {*} props.rail - the persistent left workspace nav (icon+label items, collapsible to icon-only). Pass the result of WorkspaceRail() or any vnode.
+ * @param {*} props.sessions - an OPTIONAL second column (a conversation/session list) shown between the rail and the main content. Null hides it.
+ * @param {*} props.main - the primary content column (chat thread, files view, dashboard...).
+ * @param {*} props.pane - an OPTIONAL right context pane (per-conversation context, file preview...). Null hides it; collapsible when present.
+ * @param {*} props.crumb - an optional thin top chrome bar (breadcrumb + status), spanning the content area only (the rail has its own header).
+ * @param {*} props.status - an optional footer.
+ * @param {boolean} props.narrow - caller's isNarrow() — drives the mobile single-column collapse.
+ * @param {boolean} props.railCollapsed - initial rail collapse (persisted state wins).
+ * @param {boolean} props.paneCollapsed - initial pane collapse (persisted state wins).
+ * @returns {*} webjsx vnode
+ */
 export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narrow,
                                  railCollapsed = false, paneCollapsed = false,
                                  railLabel = 'workspace navigation',

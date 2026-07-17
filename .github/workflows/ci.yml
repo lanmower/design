@@ -25,6 +25,9 @@ jobs:
       - name: Lint (9 gates)
         run: npm run lint
 
+      - name: Component docs up to date
+        run: npm run lint:component-docs
+
       - name: Build
         run: npm run build
 
