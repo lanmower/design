@@ -37,12 +37,26 @@ export function slugify(s) {
         .replace(/\s+/g, '-');
 }
 
+// Raw-HTML passthrough block, opt-in via ```html fences. Distinct from a
+// plain ``` code fence (which still escapes+<pre>-wraps its contents) — this
+// is for SSR call sites that are trusted, repo-authored content (a theme.mjs
+// page body sourced from the project's own YAML, never end-user input) and
+// need to emit real markup (e.g. an <iframe> demo embed) that must NOT be
+// escaped. There is no sanitization here by design: the caller owns trust.
+// A consumer rendering untrusted content must not route it through this
+// path — use markdown.js's DOMPurify-backed renderMarkdown for that instead.
 export function renderMarkdown(md) {
     const lines = String(md || '').split('\n');
     const out = [];
-    let inCode = false, inList = false;
+    let inCode = false, inList = false, inRawHtml = false;
     for (const line of lines) {
-        if (line.startsWith('```')) { if (inCode) { out.push('</pre>'); inCode = false; } else { out.push('<pre>'); inCode = true; } continue; }
+        if (line.trim() === '```html') { if (!inCode) { inRawHtml = true; continue; } }
+        if (line.startsWith('```')) {
+            if (inRawHtml) { inRawHtml = false; continue; }
+            if (inCode) { out.push('</pre>'); inCode = false; } else { out.push('<pre>'); inCode = true; }
+            continue;
+        }
+        if (inRawHtml) { out.push(line); continue; }
         if (inCode) { out.push(escape(line)); continue; }
         if (line.startsWith('# ')) { const t = line.slice(2); out.push(`<h1 id="${slugify(t)}">${escape(t)}</h1>`); }
         else if (line.startsWith('## ')) { const t = line.slice(3); out.push(`<h2 id="${slugify(t)}">${escape(t)}</h2>`); }
