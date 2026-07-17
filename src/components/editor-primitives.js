@@ -634,20 +634,32 @@ function ensureToastHost() {
     return _toastHostEl;
 }
 
-export function toast({ message, kind = 'info', duration = 3000 } = {}) {
+export function toast({ message, kind = 'info', duration = 3000, actionLabel, onAction } = {}) {
     const host = ensureToastHost();
     if (!host) return () => {};
     const el = document.createElement('div');
     el.className = 'ds-ep-toast kind-' + kind;
     el.setAttribute('role', 'status');
     el.setAttribute('aria-live', 'polite');
-    el.textContent = message;
-    host.appendChild(el);
+    const text = document.createElement('span');
+    text.className = 'ds-ep-toast-msg';
+    text.textContent = message;
+    el.appendChild(text);
     const dismiss = () => {
         if (!el.parentNode) return;
         el.classList.add('leaving');
         setTimeout(() => { el.parentNode && el.parentNode.removeChild(el); }, 200);
     };
+    if (actionLabel && onAction) {
+        el.classList.add('has-action');
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ds-ep-toast-action';
+        btn.textContent = actionLabel;
+        btn.onclick = () => onAction(dismiss);
+        el.appendChild(btn);
+    }
+    host.appendChild(el);
     if (duration > 0) setTimeout(dismiss, duration);
     return dismiss;
 }

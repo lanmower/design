@@ -9048,6 +9048,23 @@
 .ds-247420 .ds-ep-toast.kind-warn    { border-left-color: var(--warn); }
 .ds-247420 .ds-ep-toast.kind-error   { border-left-color: var(--danger); }
 .ds-247420 .ds-ep-toast.leaving { opacity: 0; transform: translateY(-6px); }
+.ds-247420 .ds-ep-toast.has-action {
+    display: flex; align-items: center; gap: var(--space-2);
+}
+.ds-247420 .ds-ep-toast-msg { flex: 1; }
+.ds-247420 .ds-ep-toast-action {
+    flex-shrink: 0;
+    background: transparent;
+    color: var(--accent-ink, var(--accent));
+    border: none;
+    font: inherit;
+    font-weight: 600;
+    padding: var(--space-1) var(--space-1-75);
+    border-radius: var(--r-1, 6px);
+    cursor: pointer;
+}
+.ds-247420 .ds-ep-toast-action:hover { background: var(--panel-2, var(--panel-bg)); }
+.ds-247420 .ds-ep-toast-action:focus-visible { outline: 2px solid var(--accent-ink, var(--accent)); outline-offset: 1px; }
 @media (max-width: 480px) {
     .ds-247420 .ds-ep-toast-host { left: 16px; right: 16px; align-items: center; }
     .ds-247420 .ds-ep-toast { width: 100%; max-width: 100%; }
