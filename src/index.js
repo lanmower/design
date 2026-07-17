@@ -24,6 +24,7 @@ import { registerFreddieChatElement, FreddieChat } from './web-components/freddi
 import { formatTime, formatDateTime, formatNumber, formatRelativeTime } from './locale.js';
 import { queueMessage, listQueued, flushQueue, watchReconnect, isOnline } from './idb-outbox.js';
 import { createVirtualizer, measureRef } from './virtual-scroll.js';
+import { applyMotion, getMotion, isMotionReduced, onMotionChange, initMotion } from './motion-toggle.js';
 
 let _installed = false;
 export async function installStyles(target) {
@@ -93,7 +94,8 @@ export {
     t, registerLocale, getLocale, setLocale, availableLocales,
     formatTime, formatDateTime, formatNumber, formatRelativeTime,
     queueMessage, listQueued, flushQueue, watchReconnect, isOnline,
-    createVirtualizer, measureRef
+    createVirtualizer, measureRef,
+    applyMotion, getMotion, isMotionReduced, onMotionChange, initMotion
 };
 export { applyTheme, getTheme, resolvedTheme, onThemeChange, initTheme,
          applyAccent, getAccent, applyDensity, getDensity } from './theme.js';
