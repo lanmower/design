@@ -241,6 +241,19 @@
   max-width: 100%;
 }
 .ds-table-wrap > table { min-width: 100%; }
+/* Sortable column headers (Table's opt-in sortable prop) — a docstudio-cue
+   addition: color stays neutral at rest (this is a structural control, not a
+   brand moment) and only the active sort direction gets the accent tint,
+   matching the "color reserved for meaning, not decoration" pattern seen in
+   docstudio's admin table. */
+.ds-table-sort-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: none; border: none; padding: 0; margin: 0;
+  font: inherit; font-weight: inherit; color: inherit; cursor: pointer;
+}
+.ds-table-sort-btn:hover { color: var(--fg); }
+.ds-table-sort-btn:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 2px; }
+.ds-table-sort-btn.is-active { color: var(--accent-ink, var(--accent)); }
 
 
 /* == appended: settings kit cleanup == */

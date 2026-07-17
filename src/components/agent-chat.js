@@ -15,6 +15,7 @@ import { ChatComposer, ChatMessage, makeThreadAutoScroll } from './chat.js';
 import { Select } from './content.js';
 import { Btn, Icon } from './shell.js';
 import { BreadcrumbPath } from './files.js';
+import { SplitPanel } from './editor-primitives.js';
 import { initializeCachesEagerly } from '../markdown-cache.js';
 
 const h = webjsx.createElement;
@@ -222,6 +223,14 @@ export function AgentChat(props = {}) {
     installHint, exportActions = [],
     onPasteFiles, onDropFiles, onEmoji,
     shownMessages, onShowEarlier,
+    // Optional inline content viewer beside the thread (a docstudio-cue
+    // addition: its chat view keeps a live document/PDF preview open next to
+    // the conversation instead of forcing a separate tab/window). The host
+    // supplies the actual preview vnode (FilePreviewPane/FileViewer or
+    // anything else) - this component only owns the split layout + a close
+    // affordance. Omitting sidePanel keeps every existing caller's output
+    // byte-identical (no SplitPanel wrapper at all when absent).
+    sidePanel, sidePanelTitle = 'preview', onCloseSidePanel,
   } = props;
 
   // Warm the markdown/Prism stack the moment the surface mounts so the CDN
@@ -453,14 +462,25 @@ export function AgentChat(props = {}) {
           : null)
     : null;
 
-  return h('div', { class: 'agentchat' },
-    AgentControls({ agents, selectedAgent, models, selectedModel, busy, status, modelsLoading, agentsLoading,
-                    onSelectAgent, onSelectModel, onNewChat, onStop, exportActions }),
-    CwdBar({ cwd, editing: cwdEditing, draft: cwdDraft, error: cwdError, checking: cwdChecking,
-             roots: cwdRoots, recent: cwdRecent, browse: cwdBrowse,
-             onEdit: onCwdEdit, onSave: onCwdSave, onCancel: onCwdCancel, onClear: onCwdClear, onDraft: onCwdDraft,
-             onBrowseToggle: onCwdBrowseToggle, onBrowseCrumb: onCwdBrowseCrumb, onBrowseEnter: onCwdBrowseEnter, onBrowsePick: onCwdBrowsePick }),
-    ...(banners || []).filter(Boolean),
+  const threadBody = h('div', { class: 'agentchat-thread-wrap' },
+    h('div', { class: 'agentchat-thread', ref: threadRef(messages.length), role: 'log', 'aria-label': 'conversation' },
+      emptyState,
+      earlierRow,
+      ...rows.filter(Boolean),
+      showWorkingTail
+        ? h('div', { key: '_working', class: 'agentchat-working', role: 'status', 'aria-live': 'polite' },
+            h('span', { class: 'chat-thinking-dots', 'aria-hidden': 'true' }, h('span'), h('span'), h('span')),
+            h('span', { class: 'agentchat-working-text' }, 'working…'))
+        : null,
+      followupRow),
+    // Jump-to-latest: hidden until the scroll listener adds .show (user scrolled
+    // up). Clicking returns to the live edge. Pure-DOM, like the kit's other
+    // stateless chrome, so the host needn't thread scroll state through state.
+    h('button', { class: 'agentchat-jump', type: 'button', 'aria-label': 'jump to latest', title: 'jump to latest',
+      onclick: (e) => scrollThreadToBottom(e.currentTarget) },
+      Icon('arrow-down', { size: 16 }), h('span', { class: 'agentchat-jump-label' }, 'latest')));
+
+  const mainColumn = h('div', { class: 'agentchat-main-col' },
     h('div', { class: 'agentchat-head' },
       h('h1', { class: 'agentchat-title' }, name + (selectedModel ? ' · ' + selectedModel : '')),
       h('span', { class: 'agentchat-sub', 'aria-hidden': busy ? 'true' : null },
@@ -468,23 +488,35 @@ export function AgentChat(props = {}) {
         // reconnecting-while-streaming state reads one word everywhere instead of
         // the head saying "streaming…" while the controls say "reconnecting…".
         busy ? (status || 'streaming…') : (messages.length ? messages.length + (messages.length === 1 ? ' message' : ' messages') : ''))),
-    h('div', { class: 'agentchat-thread-wrap' },
-      h('div', { class: 'agentchat-thread', ref: threadRef(messages.length), role: 'log', 'aria-label': 'conversation' },
-        emptyState,
-        earlierRow,
-        ...rows.filter(Boolean),
-        showWorkingTail
-          ? h('div', { key: '_working', class: 'agentchat-working', role: 'status', 'aria-live': 'polite' },
-              h('span', { class: 'chat-thinking-dots', 'aria-hidden': 'true' }, h('span'), h('span'), h('span')),
-              h('span', { class: 'agentchat-working-text' }, 'working…'))
-          : null,
-        followupRow),
-      // Jump-to-latest: hidden until the scroll listener adds .show (user scrolled
-      // up). Clicking returns to the live edge. Pure-DOM, like the kit's other
-      // stateless chrome, so the host needn't thread scroll state through state.
-      h('button', { class: 'agentchat-jump', type: 'button', 'aria-label': 'jump to latest', title: 'jump to latest',
-        onclick: (e) => scrollThreadToBottom(e.currentTarget) },
-        Icon('arrow-down', { size: 16 }), h('span', { class: 'agentchat-jump-label' }, 'latest'))),
-    composer,
+    threadBody,
+    composer);
+
+  // sidePanel renders the caller's content vnode (a FilePreviewPane, a plain
+  // iframe/embed, anything) inside a resizable SplitPanel beside the thread -
+  // omitted entirely when sidePanel is falsy so every existing caller's DOM
+  // output is byte-unchanged.
+  const body = sidePanel
+    ? SplitPanel({ orientation: 'horizontal', initial: '55%', min: 320,
+        children: [
+          mainColumn,
+          h('div', { class: 'agentchat-side-panel' },
+            h('div', { class: 'agentchat-side-panel-head' },
+              h('span', { class: 'agentchat-side-panel-title' }, sidePanelTitle),
+              onCloseSidePanel
+                ? h('button', { type: 'button', class: 'agentchat-side-panel-close', 'aria-label': 'close preview', title: 'close preview', onclick: onCloseSidePanel }, Icon('x', { size: 14 }))
+                : null),
+            h('div', { class: 'agentchat-side-panel-body' }, sidePanel)),
+        ] })
+    : mainColumn;
+
+  return h('div', { class: 'agentchat' + (sidePanel ? ' has-side-panel' : '') },
+    AgentControls({ agents, selectedAgent, models, selectedModel, busy, status, modelsLoading, agentsLoading,
+                    onSelectAgent, onSelectModel, onNewChat, onStop, exportActions }),
+    CwdBar({ cwd, editing: cwdEditing, draft: cwdDraft, error: cwdError, checking: cwdChecking,
+             roots: cwdRoots, recent: cwdRecent, browse: cwdBrowse,
+             onEdit: onCwdEdit, onSave: onCwdSave, onCancel: onCwdCancel, onClear: onCwdClear, onDraft: onCwdDraft,
+             onBrowseToggle: onCwdBrowseToggle, onBrowseCrumb: onCwdBrowseCrumb, onBrowseEnter: onCwdBrowseEnter, onBrowsePick: onCwdBrowsePick }),
+    ...(banners || []).filter(Boolean),
+    body,
   );
 }

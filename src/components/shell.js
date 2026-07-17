@@ -133,6 +133,7 @@ export const ICON_PATHS = {
     'check-check': '<path d="M18 6 7 17l-3-3"/><path d="m22 10-7.5 7.5L13 16"/>',
     'chevron-right': '<path d="m9 6 6 6-6 6"/>',
     'chevron-down': '<path d="m6 9 6 6 6-6"/>',
+    'chevron-up': '<path d="m6 15 6-6 6 6"/>',
     'arrow-down': '<path d="M12 5v14M5 12l7 7 7-7"/>',
     'arrow-right': '<path d="M5 12h14M12 5l7 7-7 7"/>',
     x: '<path d="M18 6 6 18M6 6l12 12"/>',

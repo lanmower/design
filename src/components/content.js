@@ -418,7 +418,7 @@ export function BarChart({ items = [], emptyText = 'no data yet' }) {
             h('div', { class: 'ds-barchart-value' }, it.display != null ? it.display : String(it.value)))));
 }
 
-export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothing here yet', rowLabels, striped = false, compact = false }) {
+export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothing here yet', rowLabels, striped = false, compact = false, sortable = false, sortKey, sortDir = 'asc', onSort }) {
     if (!rows || rows.length === 0) return h('div', { class: 'empty' }, emptyText);
     // rowLabels lets callers supply a plain-text label per row when the first
     // cell is a vnode (so the aria-label is meaningful, not the literal 'row').
@@ -435,8 +435,23 @@ export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothin
     // striped/compact are opt-in density modifiers (webgeist g-table parity) —
     // default false so the existing contract/visual is byte-unchanged.
     const wrapClass = 'ds-table-wrap' + (striped ? ' is-striped' : '') + (compact ? ' is-compact' : '');
+    // sortable is opt-in (default false, byte-unchanged for existing callers):
+    // a header becomes a real <button> announcing aria-sort, dispatching
+    // onSort(headerIndex) so the HOST owns the actual row-ordering logic (this
+    // component has no opinion on comparator/locale/type - it only renders the
+    // control and current state). A docstudio-style dense admin table needs
+    // sortable columns; Table previously had no way to express that at all.
+    const thFor = (hd, i) => {
+        if (!sortable || !onSort) return h('th', { key: i, scope: 'col' }, hd);
+        const isActive = sortKey === i;
+        const ariaSort = isActive ? (sortDir === 'desc' ? 'descending' : 'ascending') : 'none';
+        return h('th', { key: i, scope: 'col', 'aria-sort': ariaSort },
+            h('button', { type: 'button', class: 'ds-table-sort-btn' + (isActive ? ' is-active' : ''), onclick: () => onSort(i) },
+                h('span', { class: 'ds-table-sort-label' }, hd),
+                isActive ? Icon(sortDir === 'desc' ? 'chevron-down' : 'chevron-up', { size: 12 }) : null));
+    };
     return h('div', { class: wrapClass }, h('table', {},
-        h('thead', {}, h('tr', {}, ...headers.map((hd, i) => h('th', { key: i, scope: 'col' }, hd)))),
+        h('thead', {}, h('tr', {}, ...headers.map((hd, i) => thFor(hd, i)))),
         h('tbody', {}, ...rows.map((row, i) => h('tr', {
             key: i,
             class: onRowClick ? 'clickable' : '',
