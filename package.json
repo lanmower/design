@@ -83,6 +83,7 @@
     "lint:classes": "node scripts/lint-classes.mjs",
     "lint:ui-kits": "node scripts/generate-ui-kit-scaffolds.mjs --check",
     "tokens": "node scripts/generate-tokens-json.mjs",
+    "tokens:doc": "node scripts/generate-tokens-json.mjs && node scripts/generate-theme-tokens-doc.mjs",
     "generate:ui-kits": "node scripts/generate-ui-kit-scaffolds.mjs",
     "generate:preview-index": "node scripts/generate-preview-index.mjs",
     "a11y": "node scripts/a11y-audit.mjs"
