@@ -147,8 +147,8 @@ export function FileRow({ name, type = 'other', size, modified, code, onOpen, on
 // grid does not flash from a bare spinner to a full list (predictable perceived
 // perf, the file-manager feel). `rows` controls how many ghost rows render.
 export function FileSkeleton({ rows = 12 } = {}) {
-    return h('div', { class: 'ds-file-grid ds-file-skeleton', 'aria-hidden': 'true' },
-        ...Array.from({ length: Math.max(1, rows) }, (_, i) => h('div', { key: 'sk' + i, class: 'ds-file-row ds-file-row-skeleton' },
+    return h('div', { class: 'ds-file-grid ds-file-skeleton', role: 'status', 'aria-busy': 'true', 'aria-label': 'loading files' },
+        ...Array.from({ length: Math.max(1, rows) }, (_, i) => h('div', { key: 'sk' + i, class: 'ds-file-row ds-file-row-skeleton', 'aria-hidden': 'true' },
             h('span', { class: 'ds-skel ds-skel-icon' }),
             h('span', { class: 'ds-skel ds-skel-title' }),
             h('span', { class: 'ds-skel ds-skel-meta' })))

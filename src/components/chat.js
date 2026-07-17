@@ -97,7 +97,7 @@ function renderPart(p, key) {
     });
 }
 
-export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name, streaming, actions, incomplete, stopped, flat }) {
+export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name, streaming, actions, incomplete, stopped, flat, error, onRetry }) {
     _stats.messages += 1;
     // Support legacy 'who' prop, prefer 'role' with mapping:
     //   'user'      -> 'you'   (right-aligned, accent bubble)
@@ -144,6 +144,15 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
         typeof stopped === 'string' ? stopped : 'stopped — this turn was cancelled before it finished')];
     if (incomplete) bodyNodes = [...bodyNodes, h('div', { key: '_incomplete', class: 'chat-msg-notice is-incomplete', role: 'status' },
         typeof incomplete === 'string' ? incomplete : 'connection dropped mid-turn — the response may be incomplete')];
+    // Inline per-turn error: unlike a global toast, this pins the failure to
+    // the specific turn that failed (docstudio pattern) with a retry action
+    // right there instead of forcing the user to hunt for what broke.
+    if (error) bodyNodes = [...bodyNodes, h('div', { key: '_error', class: 'chat-msg-notice is-error', role: 'alert' },
+        h('span', {}, typeof error === 'string' ? error : 'this turn failed'),
+        onRetry ? h('button', {
+            type: 'button', class: 'chat-msg-retry-btn',
+            onclick: (e) => { e.preventDefault(); onRetry(e); },
+        }, 'retry') : null)];
     const reactionRow = reactions && reactions.length
         ? h('div', { class: 'chat-reactions' },
             ...reactions.map((r, i) => h('span', { class: 'rxn' + (r.you ? ' you' : ''), key: 'r' + i, 'aria-label': `${r.emoji} reaction (${String(r.count)} ${String(r.count) === '1' ? 'reaction' : 'reactions'})${r.you ? ' - you reacted' : ''}` },
