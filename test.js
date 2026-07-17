@@ -56,10 +56,11 @@ check('scripts/lint-inline-styles.mjs passes standalone', () => {
 
 check('scripts/lint-tokens.mjs spacing report does not exceed session baseline', () => {
     const out = run(process.execPath, ['scripts/lint-tokens.mjs']);
-    const m = out.match(/\[lint-spacing\] REPORT — (\d+) raw/);
+    const m = out.match(/\[lint-spacing\] (?:REPORT — (\d+) raw|PASS — (\d+) <= baseline (\d+))/);
     if (!m) throw new Error('lint-spacing report line not found: ' + out.slice(0, 200));
-    const count = Number(m[1]);
-    if (count > 641) throw new Error('spacing violation count regressed: ' + count + ' > 641 baseline');
+    const count = Number(m[1] ?? m[2]);
+    const baseline = m[3] ? Number(m[3]) : 641;
+    if (count > baseline) throw new Error('spacing violation count regressed: ' + count + ' > ' + baseline + ' baseline');
 });
 
 // -- New components: real ESM import, real invocation, real vnode shape --
