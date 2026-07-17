@@ -371,6 +371,12 @@ export function AgentChat(props = {}) {
       // replay. Retry rides the existing actions row.
       stopped: m.stopped,
       incomplete: m.incomplete,
+      // A dangling failed message (send rejected / no reply) gets its error
+      // pinned to that specific turn, with retry right there — same pattern
+      // as stopped/incomplete, but destructive-toned since this is a genuine
+      // failure rather than a neutral "not finished" state.
+      error: !isAssistant && i === lastIdx ? m.error : undefined,
+      onRetry: (!isAssistant && i === lastIdx && m.error && onRetryMessage) ? () => onRetryMessage(m) : undefined,
       parts: emptyStreaming ? undefined : (parts.length ? parts : [{ kind: 'text', text: '' }]),
     });
   });
