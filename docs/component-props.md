@@ -2,7 +2,7 @@
 
 Generated from `src/components.js`'s real export barrel + each symbol's real definition in `src/components/*.js`, via `node scripts/generate-component-docs.mjs`. Do not hand-edit -- re-run after any component signature or JSDoc change.
 
-201 exported symbols across 17 source files.
+203 exported symbols across 17 source files.
 
 ---
 
@@ -411,7 +411,7 @@ A Claude-Desktop / cowork three-(or four-)column app shell.  Pure stateless chro
 
 **Kind:** component
 
-**Signature:** `value`, `onInput`, `onSend`, `onEmoji`, `onCancel`, `busy`, `placeholder` = `'message…'`, `disabled`, `disabledReason`, `label`, `context`, `onPasteFiles`, `onDropFiles`
+**Signature:** `value`, `onInput`, `onSend`, `onEmoji`, `onCancel`, `busy`, `placeholder` = `'message…'`, `disabled`, `disabledReason`, `label`, `context`, `onPasteFiles`, `onDropFiles`, `streamingSince`, `detectAttachment`
 
 ### Chat
 
@@ -648,6 +648,12 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 **Kind:** component
 
 **Signature:** `title` = `'Enter a name'`, `value` = `''`, `placeholder` = `''`, `confirmLabel` = `'ok'`, `cancelLabel` = `'cancel'`, `onConfirm`, `onCancel`, `onInput`, `error`, `busy` = `false`, `busyLabel` = `'working…'`, `roots`, `onPickRoot`
+
+### CountdownDialog
+
+**Kind:** component
+
+**Signature:** `title` = `'Are you sure?'`, `message`, `seconds` = `10`, `onExpire`, `actions`
 
 ### FilePreviewMedia
 
@@ -1202,6 +1208,12 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 **Kind:** component
 
 **Signature:** `src`, `label` = `''`, `open` = `false`, `onClose`
+
+### PermissionMenu
+
+**Kind:** component
+
+**Signature:** `trigger`, `categories` = `[]`, `approved` = `[]`, `onToggle`, `onToggleAll`, `placement` = `'bottom-start'`, `ariaLabel` = `'Permissions'`
 
 ## `src/components/freddie.js`
 
