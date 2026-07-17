@@ -112,10 +112,10 @@
   },
   "devDependencies": {
     "axe-core": "^4.12.1",
-    "esbuild": "^0.28.0",
+    "esbuild": "^0.28.1",
     "playwright": "^1.61.1",
     "pngjs": "^7.0.0",
-    "postcss": "^8.5.12",
+    "postcss": "^8.5.19",
     "postcss-prefix-selector": "^2.1.1"
   }
 }
