@@ -1067,7 +1067,7 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 
 **Kind:** component
 
-**Signature:** `message`, `kind` = `'info'`, `duration` = `3000`
+**Signature:** `message`, `kind` = `'info'`, `duration` = `3000`, `actionLabel`, `onAction`
 
 ### Pager
 
