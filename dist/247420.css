@@ -7876,6 +7876,35 @@
   padding: 4px var(--space-3); font-size: var(--fs-tiny); color: var(--fg-2);
 }
 
+/* Streaming elapsed-time counter: ticks m:ss while a turn is in flight.
+   Tabular-nums so the digits don't jitter the layout every second. */
+.ds-247420 .chat-composer-elapsed {
+  order: 5; padding: 2px var(--space-1) 0;
+  font-size: var(--fs-micro); color: var(--fg-3);
+  font-variant-numeric: tabular-nums; font-feature-settings: 'tnum';
+}
+
+/* Detected-attachment badge: a dismissible pill above the textarea, styled
+   like the composer-note treatment (same tone/scale) rather than inventing
+   new chrome. */
+.ds-247420 .chat-composer-detected-badge {
+  display: flex; align-items: center; gap: var(--space-2, 8px);
+  padding: 4px var(--space-3); font-size: var(--fs-tiny); color: var(--fg-2);
+  background: var(--bg-2); border: var(--bw-hair) solid var(--rule);
+  border-radius: var(--r-1); width: 100%; order: -1;
+}
+.ds-247420 .chat-composer-detected-label { flex: 1 1 auto; }
+.ds-247420 .chat-composer-detected-dismiss {
+  flex: 0 0 auto; background: none; border: none; cursor: pointer;
+  color: var(--fg-3); font: inherit; font-size: var(--fs-tiny);
+  padding: 2px 6px; border-radius: var(--r-1);
+}
+.ds-247420 .chat-composer-detected-dismiss:hover { color: var(--fg); }
+.ds-247420 .chat-composer-detected-dismiss:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+@media (pointer: coarse) {
+  .ds-247420 .chat-composer-detected-dismiss { min-height: 44px; min-width: 44px; }
+}
+
 /* Drag-over ring: token accent, never a hex. */
 .ds-247420 .chat-composer.dragover { outline: var(--focus-w) solid var(--focus-color); outline-offset: calc(var(--focus-offset) * -1); border-radius: var(--r-2); }
 
@@ -9767,6 +9796,42 @@
     color: var(--panel-text-3, var(--fg-3));
     white-space: nowrap;
 }
+/* PermissionMenu (ov-perm) — roving-tabindex menuitemcheckbox rows +
+   approve-all/revoke-all actions, styled to match the sibling Dropdown menu. */
+.ds-247420 .ov-perm-menu { min-width: 220px; }
+.ds-247420 .ov-perm-list { display: flex; flex-direction: column; padding: var(--space-1, 4px); }
+.ds-247420 .ov-perm-item {
+    display: flex; align-items: center; gap: var(--space-2, 8px);
+    width: 100%; min-height: 36px;
+    padding: var(--space-2, 8px) var(--space-3, 16px);
+    background: transparent; border: 0;
+    color: var(--fg); font: inherit; text-align: left;
+    border-radius: var(--r-1, 10px); cursor: pointer;
+}
+.ds-247420 .ov-perm-item:hover { background: var(--panel-2, var(--rule)); }
+.ds-247420 .ov-perm-item[aria-checked="true"] { color: var(--accent-ink); }
+.ds-247420 .ov-perm-item[aria-checked="true"]::before { content: '[x] '; font-family: var(--ff-mono, monospace); }
+.ds-247420 .ov-perm-item[aria-checked="false"]::before { content: '[ ] '; font-family: var(--ff-mono, monospace); color: var(--fg-3); }
+.ds-247420 .ov-perm-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-247420 .ov-perm-actions {
+    display: flex; gap: var(--space-2, 8px);
+    padding: var(--space-2, 8px) var(--space-3, 16px);
+    border-top: 1px solid var(--rule); margin-top: var(--space-1, 4px);
+}
+.ds-247420 .ov-perm-action {
+    flex: 1; appearance: none; border: 1px solid var(--rule); background: transparent;
+    color: var(--fg-2); font: inherit; font-size: var(--fs-tiny, 12px);
+    padding: 4px 8px; border-radius: var(--r-1, 10px); cursor: pointer;
+}
+.ds-247420 .ov-perm-action:hover { background: var(--panel-2, var(--rule)); }
+
+/* CountdownDialog's ticking status line: tabular-nums so the number swap
+   each second doesn't jitter the modal layout. */
+.ds-247420 .ds-countdown-status {
+    font-variant-numeric: tabular-nums; font-feature-settings: 'tnum';
+    color: var(--fg-2);
+}
+
 .ds-247420 .ds-ep-divider-vertical {
     display: inline-block;
     align-self: stretch;

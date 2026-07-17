@@ -231,6 +231,46 @@ export function PromptDialog({ title = 'Enter a name', value = '', placeholder =
     });
 }
 
+// CountdownDialog — a modal with a role=status line ticking down from
+// `seconds` to 0 once per second, auto-firing onExpire at zero. Composes on
+// top of the same Modal() shell ConfirmDialog/PromptDialog use, so it
+// inherits Backdrop's focus-trap + Escape/backdrop-dismiss handling for free
+// rather than reimplementing dialog plumbing.
+export function CountdownDialog({ title = 'Are you sure?', message, seconds = 10, onExpire, actions } = {}) {
+    const startSeconds = Math.max(0, Math.floor(seconds));
+    return Modal({
+        onClose: undefined, // no implicit dismiss path unless the caller supplies one via `actions`
+        kind: 'small',
+        head: title,
+        body: [
+            message || '',
+            h('p', {
+                class: 'ds-countdown-status', role: 'status', 'aria-live': 'polite',
+                ref: (el) => {
+                    if (!el || el._dsCountdownTimer) return;
+                    let remaining = startSeconds;
+                    const render = () => { el.textContent = remaining + (remaining === 1 ? ' second' : ' seconds') + ' remaining'; };
+                    render();
+                    el._dsCountdownTimer = setInterval(() => {
+                        remaining -= 1;
+                        if (remaining <= 0) {
+                            clearInterval(el._dsCountdownTimer);
+                            el._dsCountdownTimer = null;
+                            remaining = 0;
+                            render();
+                            if (onExpire) onExpire();
+                            return;
+                        }
+                        render();
+                    }, 1000);
+                },
+            }),
+            modalError(null),
+        ].filter(Boolean),
+        actions: actions || [],
+    });
+}
+
 export function FilePreviewMedia({ src, type = 'other', name } = {}) {
     if (type === 'image') {
         // Fit-to-pane (default) vs actual-size (1:1) toggle + a checkerboard so

@@ -239,6 +239,82 @@ export function Dropdown({ trigger, items = [], onSelect, placement = 'bottom-st
         : h('button', { type: 'button', class: 'ds-dropdown-trigger', ref: refFn }, child || 'Menu');
 }
 
+// PermissionMenu — a role=menu of role=menuitemcheckbox rows, one per
+// category, with roving tabindex + Arrow-up/down/Home/End navigation and
+// Escape-closes-and-restores-focus, plus "Approve all"/"Revoke all" actions.
+// Mirrors Dropdown's own open/close + outside-click wiring (a portaled menu
+// element, a document-level mousedown listener, focus restored to the
+// trigger on close) rather than reimplementing that plumbing.
+export function PermissionMenu({ trigger, categories = [], approved = [], onToggle, onToggleAll, placement = 'bottom-start', ariaLabel = 'Permissions' } = {}) {
+    let triggerEl = null, open = false, menuEl = null, floating = null;
+    const isApproved = (id) => approved.indexOf(id) !== -1;
+    const liveItems = () => menuEl ? [...menuEl.querySelectorAll('[role="menuitemcheckbox"]')] : [];
+    const focusItem = (idx) => { const items = liveItems(); if (!items.length) return; items[((idx % items.length) + items.length) % items.length].focus(); };
+    const onDown = (e) => { if (menuEl && menuEl.contains(e.target)) return; if (triggerEl && triggerEl.contains(e.target)) return; close(false); };
+    const close = (restore = true) => {
+        if (!open) return; open = false;
+        if (floating) { floating.dispose(); floating = null; }
+        if (menuEl && menuEl.parentNode) menuEl.parentNode.removeChild(menuEl);
+        menuEl = null;
+        document.removeEventListener('mousedown', onDown, true);
+        if (triggerEl) triggerEl.setAttribute('aria-expanded', 'false');
+        if (restore && triggerEl) triggerEl.focus();
+    };
+    const toggle = (cat) => { if (onToggle) onToggle(cat.id, !isApproved(cat.id)); };
+    const onMenuKey = (e) => {
+        const items = liveItems(), idx = items.indexOf(document.activeElement);
+        if (e.key === 'Escape') { e.preventDefault(); close(); }
+        else if (e.key === 'ArrowDown') { e.preventDefault(); focusItem(idx + 1); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); focusItem(idx - 1); }
+        else if (e.key === 'Home') { e.preventDefault(); focusItem(0); }
+        else if (e.key === 'End') { e.preventDefault(); focusItem(items.length - 1); }
+        else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (idx >= 0) items[idx].click(); }
+    };
+    const renderMenu = () => {
+        const rows = categories.map((cat, i) => h('button', {
+            key: cat.id || i, type: 'button', role: 'menuitemcheckbox',
+            'aria-checked': isApproved(cat.id) ? 'true' : 'false',
+            class: 'ov-perm-item' + (isApproved(cat.id) ? ' is-approved' : ''),
+            tabindex: '-1',
+            onclick: () => toggle(cat),
+        }, h('span', { class: 'ov-perm-label' }, cat.label || cat.id)));
+        const actionsRow = h('div', { class: 'ov-perm-actions' },
+            h('button', { type: 'button', class: 'ov-perm-action', onclick: () => onToggleAll && onToggleAll(true) }, 'Approve all'),
+            h('button', { type: 'button', class: 'ov-perm-action', onclick: () => onToggleAll && onToggleAll(false) }, 'Revoke all'));
+        return h('div', { class: 'ov-perm-list' }, ...rows, actionsRow);
+    };
+    const openMenu = (focusFirst = true) => {
+        if (open || !triggerEl) return;
+        open = true;
+        menuEl = document.createElement('div');
+        menuEl.className = 'ds-popover ov-perm-menu';
+        menuEl.setAttribute('role', 'menu');
+        menuEl.setAttribute('aria-label', ariaLabel);
+        menuEl.tabIndex = -1;
+        webjsx.applyDiff(menuEl, renderMenu());
+        document.body.appendChild(menuEl);
+        menuEl.addEventListener('keydown', onMenuKey);
+        floating = useFloating(triggerEl, menuEl, { placement, offset: FLOAT_OFFSET_DROPDOWN });
+        document.addEventListener('mousedown', onDown, true);
+        triggerEl.setAttribute('aria-expanded', 'true');
+        if (focusFirst) queueMicrotask(() => focusItem(0));
+    };
+    const onTrigClick = () => { if (open) close(false); else openMenu(true); };
+    const onTrigKey = (e) => { if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!open) openMenu(true); else focusItem(0); } };
+    const refFn = (el) => {
+        if (!el || el._dsPermMenu) return;
+        el._dsPermMenu = true; triggerEl = el;
+        el.addEventListener('click', onTrigClick);
+        el.addEventListener('keydown', onTrigKey);
+        el.setAttribute('aria-haspopup', 'menu');
+        el.setAttribute('aria-expanded', 'false');
+    };
+    const child = (typeof trigger === 'function') ? trigger() : trigger;
+    return (child && child.type)
+        ? webjsx.createElement(child.type, { ...(child.props || {}), ref: refFn }, ...(child.children || []))
+        : h('button', { type: 'button', class: 'ov-perm-trigger', ref: refFn }, child || 'Permissions');
+}
+
 // Clamp a fixed-position box to the viewport given desired top-left coords.
 function _clampToViewport(x, y, w, h, margin = CLAMP_MARGIN) {
     const vw = (typeof window !== 'undefined' ? window.innerWidth : 1024);

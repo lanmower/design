@@ -40,7 +40,7 @@ export {
 } from './components/files.js';
 
 export {
-    ConfirmDialog, PromptDialog,
+    ConfirmDialog, PromptDialog, CountdownDialog,
     FilePreviewMedia, FilePreviewCode, FilePreviewText, FileViewer, FilePreviewPane
 } from './components/files-modals.js';
 
@@ -90,7 +90,7 @@ export {
 export {
     Tooltip, Popover, Dropdown, useLongPress, useFloating,
     CommandPalette, EmojiPicker, BootOverlay, SettingsPopover,
-    AuthModal, VideoLightbox
+    AuthModal, VideoLightbox, PermissionMenu
 } from './components/overlay-primitives.js';
 
 export {

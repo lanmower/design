@@ -803,6 +803,35 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   padding: 4px var(--space-3); font-size: var(--fs-tiny); color: var(--fg-2);
 }
 
+/* Streaming elapsed-time counter: ticks m:ss while a turn is in flight.
+   Tabular-nums so the digits don't jitter the layout every second. */
+.chat-composer-elapsed {
+  order: 5; padding: 2px var(--space-1) 0;
+  font-size: var(--fs-micro); color: var(--fg-3);
+  font-variant-numeric: tabular-nums; font-feature-settings: 'tnum';
+}
+
+/* Detected-attachment badge: a dismissible pill above the textarea, styled
+   like the composer-note treatment (same tone/scale) rather than inventing
+   new chrome. */
+.chat-composer-detected-badge {
+  display: flex; align-items: center; gap: var(--space-2, 8px);
+  padding: 4px var(--space-3); font-size: var(--fs-tiny); color: var(--fg-2);
+  background: var(--bg-2); border: var(--bw-hair) solid var(--rule);
+  border-radius: var(--r-1); width: 100%; order: -1;
+}
+.chat-composer-detected-label { flex: 1 1 auto; }
+.chat-composer-detected-dismiss {
+  flex: 0 0 auto; background: none; border: none; cursor: pointer;
+  color: var(--fg-3); font: inherit; font-size: var(--fs-tiny);
+  padding: 2px 6px; border-radius: var(--r-1);
+}
+.chat-composer-detected-dismiss:hover { color: var(--fg); }
+.chat-composer-detected-dismiss:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+@media (pointer: coarse) {
+  .chat-composer-detected-dismiss { min-height: 44px; min-width: 44px; }
+}
+
 /* Drag-over ring: token accent, never a hex. */
 .chat-composer.dragover { outline: var(--focus-w) solid var(--focus-color); outline-offset: calc(var(--focus-offset) * -1); border-radius: var(--r-2); }
 

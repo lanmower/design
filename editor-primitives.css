@@ -1535,6 +1535,42 @@ input.ov-set-control[type="range"] { padding: 0; accent-color: var(--accent); }
     color: var(--panel-text-3, var(--fg-3));
     white-space: nowrap;
 }
+/* PermissionMenu (ov-perm) — roving-tabindex menuitemcheckbox rows +
+   approve-all/revoke-all actions, styled to match the sibling Dropdown menu. */
+.ov-perm-menu { min-width: 220px; }
+.ov-perm-list { display: flex; flex-direction: column; padding: var(--space-1, 4px); }
+.ov-perm-item {
+    display: flex; align-items: center; gap: var(--space-2, 8px);
+    width: 100%; min-height: 36px;
+    padding: var(--space-2, 8px) var(--space-3, 16px);
+    background: transparent; border: 0;
+    color: var(--fg); font: inherit; text-align: left;
+    border-radius: var(--r-1, 10px); cursor: pointer;
+}
+.ov-perm-item:hover { background: var(--panel-2, var(--rule)); }
+.ov-perm-item[aria-checked="true"] { color: var(--accent-ink); }
+.ov-perm-item[aria-checked="true"]::before { content: '[x] '; font-family: var(--ff-mono, monospace); }
+.ov-perm-item[aria-checked="false"]::before { content: '[ ] '; font-family: var(--ff-mono, monospace); color: var(--fg-3); }
+.ov-perm-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ov-perm-actions {
+    display: flex; gap: var(--space-2, 8px);
+    padding: var(--space-2, 8px) var(--space-3, 16px);
+    border-top: 1px solid var(--rule); margin-top: var(--space-1, 4px);
+}
+.ov-perm-action {
+    flex: 1; appearance: none; border: 1px solid var(--rule); background: transparent;
+    color: var(--fg-2); font: inherit; font-size: var(--fs-tiny, 12px);
+    padding: 4px 8px; border-radius: var(--r-1, 10px); cursor: pointer;
+}
+.ov-perm-action:hover { background: var(--panel-2, var(--rule)); }
+
+/* CountdownDialog's ticking status line: tabular-nums so the number swap
+   each second doesn't jitter the modal layout. */
+.ds-countdown-status {
+    font-variant-numeric: tabular-nums; font-feature-settings: 'tnum';
+    color: var(--fg-2);
+}
+
 .ds-ep-divider-vertical {
     display: inline-block;
     align-self: stretch;

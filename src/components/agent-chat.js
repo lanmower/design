@@ -223,6 +223,7 @@ export function AgentChat(props = {}) {
     installHint, exportActions = [],
     onPasteFiles, onDropFiles, onEmoji,
     shownMessages, onShowEarlier,
+    streamingSince, detectAttachment,
     // Optional inline content viewer beside the thread (a docstudio-cue
     // addition: its chat view keeps a live document/PDF preview open next to
     // the conversation instead of forcing a separate tab/window). The host
@@ -411,6 +412,8 @@ export function AgentChat(props = {}) {
     onPasteFiles,
     onDropFiles,
     onEmoji,
+    streamingSince,
+    detectAttachment,
   });
 
   // Contextual follow-up chips below the last SETTLED assistant turn (claude.ai/
