@@ -4,7 +4,7 @@
 // through the main bundle entry so spoint can import directly from unpkg.
 
 export { renderLoadingScreen } from './loading-screen.js';
-export { renderGameHud } from './game-hud.js';
+export { renderGameHud, Crosshair, AmmoCounter, HealthBar, BoostIndicator } from './game-hud.js';
 export { renderHostJoinLobby } from './host-join-lobby.js';
 
 export const themeUrl = new URL('./loading-screen.css', import.meta.url).href;
