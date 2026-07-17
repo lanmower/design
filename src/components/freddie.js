@@ -761,7 +761,7 @@ export const logs = makePage((ctx) => {
 
     async function loadSubsystems() {
         try { ctx.set({ subsystems: await api('/api/logs') }); }
-        catch (e) { /* non-fatal: subsystem list is a filter convenience, not required for the stream */ }
+        catch (e) { /* swallow: non-fatal, subsystem list is a filter convenience, not required for the stream */ }
     }
 
     let unmounted = false;
@@ -789,7 +789,7 @@ export const logs = makePage((ctx) => {
     ctx.onCleanup(() => {
         unmounted = true;
         if (reconnectTimer) clearTimeout(reconnectTimer);
-        try { currentWs?.close(); } catch {}
+        try { currentWs?.close(); } catch { /* swallow: teardown-only close, socket may already be closed/closing */ }
         unregisterDebug('logs');
     });
 

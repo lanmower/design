@@ -60,6 +60,6 @@ export function formatRelativeTime(date, locale = getLocale(), now = Date.now())
             if (Math.abs(duration) < division.amount) return rtf.format(Math.round(duration), division.unit);
             duration /= division.amount;
         }
-    } catch { /* fall through to the plain-time fallback below */ }
+    } catch { /* swallow: Intl.RelativeTimeFormat unsupported/threw, fall through to the plain-time fallback below */ }
     return formatTime(date, locale);
 }
