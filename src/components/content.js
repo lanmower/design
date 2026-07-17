@@ -107,13 +107,20 @@ export function Row({ code, rank, title, sub, meta, active, state = 'default', o
     const railWord = rail === 'flame' ? 'error' : rail === 'purple' ? 'subagent' : null;
     // `detail` renders as a sibling block AFTER the title/meta children (its own
     // line via flex-basis:100% in .ds-row-detail), not inside the title span.
+    // The same `highlight` search term that marks matches in the collapsed
+    // title previously stopped applying the moment a row expanded - the
+    // expanded body (often the ONLY place a match beyond the 220-char title
+    // window is actually visible) rendered as plain unmarked text.
+    const detailNode = (highlight && typeof detail === 'string')
+        ? h('span', {}, ...[].concat(highlightTitle(detail, highlight)))
+        : detail;
     return h(isLink ? 'a' : 'div', props,
         railWord ? h('span', { class: 'sr-only' }, railWord) : null,
         leading != null ? leading : (codeVal != null ? h('span', { class: 'code' }, codeVal) : null),
         h('span', { class: 'title', title: typeof title === 'string' ? title : undefined }, titleNode, sub ? h('span', { class: 'sub', title: typeof sub === 'string' ? sub : undefined }, sub) : null),
         trailing != null ? trailing : (meta != null ? h('span', { class: 'meta' }, meta) : null),
         actionRow,
-        detail != null ? h('pre', { class: 'ds-row-detail' }, detail) : null);
+        detail != null ? h('pre', { class: 'ds-row-detail' }, detailNode) : null);
 }
 
 export function RowLink({ code, title, sub, meta, href = '#', key, target }) {

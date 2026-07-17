@@ -7448,6 +7448,12 @@
    ConversationList — left-rail "Chats" column.
 ---------------------------------------------------------------------------- */
 .ds-247420 .ds-sessions { display: flex; flex-direction: column; min-height: 0; height: 100%; }
+/* agentgui's search-results export row sits as a sibling ABOVE ConversationList
+   (not threaded through any of its props) - the wrapper must replicate the
+   same flex-column layout .ds-sessions itself uses so ConversationList's own
+   internal scroll region isn't broken by an extra non-flex ancestor. */
+.ds-247420 .agentgui-search-rail-wrap { display: flex; flex-direction: column; min-height: 0; height: 100%; }
+.ds-247420 .agentgui-search-export-row { flex: 0 0 auto; padding: var(--space-2) var(--space-3) 0; }
 /* One row: quiet icon new-chat beside the search. The list's new-chat must not
    repeat the rail's primary CTA - two identical green buttons on screen at
    once read as a layout mistake, and the rail action already owns 'new'. */
