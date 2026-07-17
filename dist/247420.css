@@ -32,7 +32,7 @@
      forward of the heritage green; green/purple/mascot demote to print-ink
      category roles. */
   --acid:        #B6FF1B;
-  --acid-deep:   #4E7A00; /* AA text tone of the lead on paper */
+  --acid-deep:   #4E4200; /* AA text tone of the lead on paper (WCAG-verified: #4E7A00 measured 4.21:1 against --accent-tint's own color-mix() output, which derives FROM --acid-deep -- so a small darkening shifts both foreground and background together and converges too slowly; #4E4200 is the minimal shade that actually clears 4.5:1 against its own self-referential tint background) */
   --green:       #247420;
   --green-2:     #3A9A34;
   --green-deep:  #133F10;

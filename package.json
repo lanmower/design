@@ -84,7 +84,8 @@
     "lint:ui-kits": "node scripts/generate-ui-kit-scaffolds.mjs --check",
     "tokens": "node scripts/generate-tokens-json.mjs",
     "generate:ui-kits": "node scripts/generate-ui-kit-scaffolds.mjs",
-    "generate:preview-index": "node scripts/generate-preview-index.mjs"
+    "generate:preview-index": "node scripts/generate-preview-index.mjs",
+    "a11y": "node scripts/a11y-audit.mjs"
   },
   "repository": {
     "type": "git",
@@ -102,7 +103,9 @@
     "access": "public"
   },
   "devDependencies": {
+    "axe-core": "^4.12.1",
     "esbuild": "^0.28.0",
+    "playwright": "^1.61.1",
     "postcss": "^8.5.12",
     "postcss-prefix-selector": "^2.1.1"
   }

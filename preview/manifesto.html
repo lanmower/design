@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en" data-theme="auto" class="ds-247420"><head><meta charset="utf-8">
+<title>manifesto preview</title>
 <link rel="stylesheet" href="../colors_and_type.css">
 <link rel="stylesheet" href="../app-shell.css">
 <style>
@@ -17,8 +18,9 @@
   .p2 .tag{background:var(--on-color);color:var(--purple);}
   .p3{background:var(--sun);color:var(--ink);}
   .p3 .tag{background:var(--ink);color:var(--sun);}
-  .p4{background:var(--mascot);color:var(--on-color);}
-  .p4 .tag{background:var(--on-color);color:var(--mascot);}
+  /* --mascot fails WCAG AA against --on-color (#fff, 3.51:1); --ink passes, same fix as .p3/--sun above */
+  .p4{background:var(--mascot);color:var(--ink);}
+  .p4 .tag{background:var(--ink);color:var(--mascot);}
 </style><script defer src="./motion-default.js"></script>
 </head><body>
 <div class="dateline"><span>247420 · MANIFESTO · 2018 -> FOREVER</span><span class="spread"></span><span>probably emerging</span></div>

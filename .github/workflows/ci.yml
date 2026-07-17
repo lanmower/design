@@ -28,5 +28,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Install Playwright chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: a11y audit (WCAG 2.1 AA, blocking)
+        run: npm run a11y
+
       - name: Publish dry-run
         run: npm publish --dry-run

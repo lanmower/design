@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="en" data-theme="auto" class="ds-247420"><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<html lang="en" data-theme="auto" class="ds-247420"><head><meta charset="utf-8">
+<title>colors semantic / 247420 preview</title><link rel="stylesheet" href="../colors_and_type.css">
 <link rel="stylesheet" href="../app-shell.css">
 <style>body{padding:20px;background:var(--panel-0);color:var(--panel-text);}
 .preview-grid > *{min-width:0;overflow:hidden;}
@@ -8,10 +9,12 @@
 </head><body>
 <div class="dateline"><span>247420 · COLORS · SEMANTIC</span><span class="spread"></span><span>05 TOKENS</span></div>
 <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;margin-top:16px" class="preview-grid">
-  <div style="background:var(--sky);color:var(--on-color);padding:12px;min-height:90px">
-    <div class="t-label" style="color:var(--on-color)">LINK</div>
-    <div class="t-micro" style="margin-top:4px;color:var(--on-color)">#3A6EFF</div>
-    <div class="t-micro" style="color:var(--on-color)">--sky · prose only</div>
+  <!-- --on-color (#fff, 4.32:1) AND --ink (#0e0e12, 4.45:1) both fail WCAG AA's
+       4.5:1 against --sky at this font size; only true black clears it -->
+  <div style="background:var(--sky);color:#000;padding:12px;min-height:90px">
+    <div class="t-label" style="color:#000">LINK</div>
+    <div class="t-micro" style="margin-top:4px;color:#000">#3A6EFF</div>
+    <div class="t-micro" style="color:#000">--sky · prose only</div>
   </div>
   <div style="background:var(--warn);color:var(--on-color);padding:12px;min-height:90px">
     <div class="t-label" style="color:var(--on-color)">WARN</div>
