@@ -30,6 +30,11 @@
       "default": "./src/lint.js"
     },
     "./package.json": "./package.json",
+    "./kits/flatspace-theme": {
+      "import": "./src/kits/flatspace-theme/index.js",
+      "default": "./src/kits/flatspace-theme/index.js"
+    },
+    "./kits/flatspace-theme/html-utils.js": "./src/kits/flatspace-theme/html-utils.js",
     "./kits/os": {
       "import": "./src/kits/os/index.js",
       "default": "./src/kits/os/index.js"
