@@ -73,6 +73,32 @@ export function useLongPress(targetEl, callback, { ms = 500 } = {}) {
     return () => { cancel(); evts.forEach(([k, fn]) => targetEl.removeEventListener(k, fn)); };
 }
 
+// withBusy — run an async action with its triggering button disabled +
+// busy-labelled, so a double-click/double-tap can't fire it twice and the
+// user sees progress. Restores the button (label, disabled state,
+// aria-busy) when the action settles, including on throw. Re-entry while
+// already busy is dropped silently rather than queued. Mirrors docstudio's
+// dom-busy.js withButtonBusy — agentgui's app.js has no equivalent anywhere,
+// so every async-click handler (share/delete/retry/approve-deny) is
+// currently unguarded against rapid repeat clicks firing the same mutating
+// request twice.
+export async function withBusy(btn, fn, busyLabel = '...') {
+    if (!btn) return fn();
+    if (btn.disabled) return;                 // already in flight -> drop the repeat
+    const prevHtml = btn.innerHTML;
+    const prevDisabled = btn.disabled;
+    btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
+    if (busyLabel != null) btn.textContent = busyLabel;
+    try {
+        return await fn();
+    } finally {
+        btn.disabled = prevDisabled;
+        btn.removeAttribute('aria-busy');
+        btn.innerHTML = prevHtml;
+    }
+}
+
 // Tooltip — single shared bubble appended to <body>.
 let _tipEl = null, _tipFloat = null, _tipTimer = null, _tipId = 0;
 function _hideTip() {

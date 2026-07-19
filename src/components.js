@@ -90,7 +90,7 @@ export {
 export {
     Tooltip, Popover, Dropdown, useLongPress, useFloating,
     CommandPalette, EmojiPicker, BootOverlay, SettingsPopover,
-    AuthModal, VideoLightbox, PermissionMenu, ApprovalPrompt
+    AuthModal, VideoLightbox, PermissionMenu, ApprovalPrompt, withBusy
 } from './components/overlay-primitives.js';
 
 export {
