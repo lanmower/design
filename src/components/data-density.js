@@ -71,6 +71,20 @@ export function BarRow({ label, value, pct = 0, tone } = {}) {
 }
 
 // ---------------------------------------------------------------------------
+// RateCell — a tone-colored numeric cell for dense admin/observability tables
+// (percentile latency columns, success-rate columns). Ported from docstudio's
+// admin-observability-views.js endpointsView() success-rate coloring, which
+// had no kit equivalent: a plain Table cell has no notion of a value implying
+// good/warn/bad. Host computes the tone (this component has no opinion on
+// thresholds, matching Table's onSort host-owns-logic convention) and passes
+// it plus the display text; renders inline so it drops into any Table row.
+// ---------------------------------------------------------------------------
+export function RateCell({ value, tone = 'neutral' } = {}) {
+    const cls = 'ds-rate-cell ds-rate-cell-' + tone;
+    return h('span', { class: cls }, value == null ? '–' : String(value));
+}
+
+// ---------------------------------------------------------------------------
 // StatTile / StatsGrid — compact KPI tiles, denser than the existing .kpi.
 //   cls on StatTile selects an accent variant: '' | 'rate-big' | 'err-rate'.
 // ---------------------------------------------------------------------------

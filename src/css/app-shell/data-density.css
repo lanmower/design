@@ -77,6 +77,16 @@
 .ds-stat-val.err-rate { font-size: clamp(24px, 7cqi, 32px); color: var(--warn); }
 .ds-stat-lbl { font-size: var(--fs-micro); color: var(--fg-3); margin-top: 2px; }
 
+/* RateCell — tone-colored numeric table cell (success-rate / percentile-latency
+   columns), ported from docstudio's endpointsView() success-rate coloring.
+   Neutral at rest; color carries meaning only, matching Table's sortable-header
+   restraint pattern. */
+.ds-rate-cell { font-variant-numeric: tabular-nums; font-weight: 600; }
+.ds-rate-cell-neutral { color: var(--fg-2); font-weight: 400; }
+.ds-rate-cell-good { color: var(--success); }
+.ds-rate-cell-warn { color: var(--warn); }
+.ds-rate-cell-bad { color: var(--danger); }
+
 /* Inline row — flex row with centered items and a small gap, for demo/kit
    markup that needs to lay siblings out horizontally without an inline style. */
 .ds-inline-row { display: flex; align-items: center; gap: var(--space-2, 8px); }

@@ -2,7 +2,7 @@
 
 Generated from `src/components.js`'s real export barrel + each symbol's real definition in `src/components/*.js`, via `node scripts/generate-component-docs.mjs`. Do not hand-edit -- re-run after any component signature or JSDoc change.
 
-206 exported symbols across 18 source files.
+218 exported symbols across 19 source files.
 
 ---
 
@@ -556,6 +556,80 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 **Kind:** component
 
 **Signature:** `workbook`, `activeSheet`, `onSheetChange`, `maxRows` = `DEFAULT_MAX_ROWS`, `maxCols` = `DEFAULT_MAX_COLS`, `truncated`, `loading`, `error`, `errorActionLabel` = `'retry'`, `onErrorAction`, `key`
+
+## `src/components/data-density.js`
+
+### DEFAULT_PHASES
+
+**Kind:** const
+
+**Signature:** `['PLAN', 'EXECUTE', 'EMIT', 'VERIFY', 'CONSOLIDATE', 'COMPLETE']`
+
+### PhaseWalk
+
+**Kind:** component
+
+**Signature:** `phases` = `DEFAULT_PHASES`, `reached` = `[]`, `gapKinds` = `[]`
+
+### TreeNode
+
+**Kind:** component
+
+**Signature:** `ts`, `kind`, `variant` = `''`, `phase`, `id`, `keyLabel`, `reason`, `deviationLabel`, `residuals`
+
+### BarRow
+
+**Kind:** component
+
+**Signature:** `label`, `value`, `pct` = `0`, `tone`
+
+### RateCell
+
+**Kind:** component
+
+**Signature:** `value`, `tone` = `'neutral'`
+
+### StatTile
+
+**Kind:** component
+
+**Signature:** `val`, `lbl`, `cls` = `''`
+
+### StatsGrid
+
+**Kind:** component
+
+**Signature:** `items` = `[]`
+
+### SubGrid
+
+**Kind:** component
+
+**Signature:** `items` = `[]`
+
+### SessionRow
+
+**Kind:** component
+
+**Signature:** `sessId`, `phaseWalkProps`, `events`, `verbs`, `prd`, `muts`, `resid`, `deviations`, `firstTs`, `lastTs`, `onClick`
+
+### DevRow
+
+**Kind:** component
+
+**Signature:** `ts`, `event`, `sess`, `operation`, `residuals`
+
+### LiveLogEntry
+
+**Kind:** component
+
+**Signature:** `ts`, `sub`, `tone`, `event`, `preview`
+
+### LiveLog
+
+**Kind:** component
+
+**Signature:** `entries` = `[]`, `autoScroll` = `true`
 
 ## `src/components/files.js`
 

@@ -36,6 +36,11 @@ export { ContextPane } from './components/context-pane.js';
 export { SpreadsheetPreview } from './components/spreadsheet-preview.js';
 
 export {
+    DEFAULT_PHASES, PhaseWalk, TreeNode, BarRow, RateCell,
+    StatTile, StatsGrid, SubGrid, SessionRow, DevRow, LiveLogEntry, LiveLog
+} from './components/data-density.js';
+
+export {
     fileGlyph, fmtFileSize,
     FileIcon, FileRow, FileGrid, FileSkeleton, sortFiles, FileToolbar, RootsPicker,
     DropZone, UploadProgress, EmptyState, BreadcrumbPath, BulkBar
