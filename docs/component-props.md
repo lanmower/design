@@ -30,7 +30,7 @@ A small pill/tag label.
 
 **Kind:** component
 
-**Signature:** `tone` = `''`, `size` = `'md'`, `tag` = `false`, `children`
+**Signature:** `tone` = `''`, `size` = `'md'`, `tag` = `false`, `onRemove`, `children`
 
 **Documented params:**
 
@@ -38,6 +38,7 @@ A small pill/tag label.
 - `props.tone` _(string)_ -- semantic color tone (empty = neutral).
 - `props.size` _('sm'|'md'|'lg')_
 - `props.tag` _(boolean)_ -- true renders a rectangular sentence-case variant for dense data (drops the all-caps pill styling). Orthogonal to tone.
+- `props.onRemove` _(Function)_ -- if given, renders a trailing dismiss (x) button that calls onRemove() on click. Omitted entirely (no button) when not supplied.
 - `props.children` _(*)_
 
 **Returns:** {*} webjsx vnode

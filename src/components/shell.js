@@ -27,12 +27,15 @@ export function Brand({ name = '247420', leaf } = {}) {
  * @param {string} [props.tone=''] - semantic color tone (empty = neutral).
  * @param {'sm'|'md'|'lg'} [props.size='md']
  * @param {boolean} [props.tag=false] - true renders a rectangular sentence-case variant for dense data (drops the all-caps pill styling). Orthogonal to tone.
+ * @param {Function} [props.onRemove] - if given, renders a trailing dismiss (x) button that calls onRemove() on click. Omitted entirely (no button) when not supplied.
  * @param {*} props.children
  * @returns {*} webjsx vnode
  */
-export function Chip({ tone = '', size = 'md', tag = false, children }) {
+export function Chip({ tone = '', size = 'md', tag = false, onRemove, children }) {
     const sizeCls = size === 'sm' ? ' chip--sm' : (size === 'lg' ? ' chip--lg' : '');
-    return h('span', { class: 'chip' + sizeCls + (tag ? ' chip--tag' : '') + (tone ? ' tone-' + tone : '') }, children);
+    return h('span', { class: 'chip' + sizeCls + (tag ? ' chip--tag' : '') + (tone ? ' tone-' + tone : '') + (onRemove ? ' ds-chip-removable' : '') },
+        children,
+        onRemove ? h('button', { type: 'button', class: 'ds-chip-remove-btn', 'aria-label': 'Remove', onclick: (e) => { e.stopPropagation(); onRemove(); } }, Icon('x')) : null);
 }
 
 /**
