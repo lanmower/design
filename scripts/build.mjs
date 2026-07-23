@@ -112,6 +112,7 @@ const appShellSplitFiles = [
     'row-print.css',
     'data-density.css',
     'kits-appended.css',
+    'git-status.css',
 ];
 let appShellContent = '';
 for (const name of appShellSplitFiles) {

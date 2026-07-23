@@ -23,6 +23,9 @@
     "./components/shell.js": "./src/components/shell.js",
     "./components/files.js": "./src/components/files.js",
     "./components/files-modals.js": "./src/components/files-modals.js",
+    "./components/overlay-primitives.js": "./src/components/overlay-primitives.js",
+    "./components/git-status.js": "./src/components/git-status.js",
+    "./components/worktree-switcher.js": "./src/components/worktree-switcher.js",
     "./web-components/ds-chat.js": "./src/web-components/ds-chat.js",
     "./web-components/freddie-chat.js": "./src/web-components/freddie-chat.js",
     "./lint": {
