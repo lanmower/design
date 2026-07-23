@@ -33,6 +33,8 @@ export {
 
 export { ContextPane } from './components/context-pane.js';
 
+export { SpreadsheetPreview } from './components/spreadsheet-preview.js';
+
 export {
     fileGlyph, fmtFileSize,
     FileIcon, FileRow, FileGrid, FileSkeleton, sortFiles, FileToolbar, RootsPicker,

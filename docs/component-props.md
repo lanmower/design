@@ -2,7 +2,7 @@
 
 Generated from `src/components.js`'s real export barrel + each symbol's real definition in `src/components/*.js`, via `node scripts/generate-component-docs.mjs`. Do not hand-edit -- re-run after any component signature or JSDoc change.
 
-205 exported symbols across 17 source files.
+206 exported symbols across 18 source files.
 
 ---
 
@@ -548,6 +548,14 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 **Kind:** component
 
 **Signature:** `agent`, `model`, `cwd`, `toolCount` = `0`, `usage`, `session`, `recentFiles`, `onSetCwd`, `onOpenFile`
+
+## `src/components/spreadsheet-preview.js`
+
+### SpreadsheetPreview
+
+**Kind:** component
+
+**Signature:** `workbook`, `activeSheet`, `onSheetChange`, `maxRows` = `DEFAULT_MAX_ROWS`, `maxCols` = `DEFAULT_MAX_COLS`, `truncated`, `loading`, `error`, `errorActionLabel` = `'retry'`, `onErrorAction`, `key`
 
 ## `src/components/files.js`
 

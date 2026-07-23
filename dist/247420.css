@@ -5423,6 +5423,49 @@
 .ds-247420 .ds-avatar-md { width: 36px; height: 36px; font-size: 12px; }
 .ds-247420 .ds-avatar-lg { width: 48px; height: 48px; font-size: 15px; }
 
+/* SpreadsheetPreview — tabbed inline spreadsheet/CSV viewer (docstudio
+   xls-preview.js port). Tabs reuse the same neutral-at-rest pattern as
+   Table's sortable headers; the truncation banner is persistent and never
+   hides the table underneath. */
+.ds-247420 .ds-sheet-preview { display: flex; flex-direction: column; gap: var(--space-2, 8px); min-width: 0; }
+.ds-247420 .ds-sheet-preview-tabbar {
+  display: flex; gap: var(--space-1, 4px); overflow-x: auto; -webkit-overflow-scrolling: touch;
+  border-bottom: 1px solid var(--border, var(--bg-3));
+}
+.ds-247420 .ds-sheet-preview-tab {
+  flex-shrink: 0; background: none; border: none; cursor: pointer;
+  padding: var(--space-1-5, 5px) var(--space-2-5, 10px);
+  font: inherit; color: var(--fg-3); border-bottom: 2px solid transparent;
+}
+.ds-247420 .ds-sheet-preview-tab:hover { color: var(--fg); }
+.ds-247420 .ds-sheet-preview-tab:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
+.ds-247420 .ds-sheet-preview-tab.is-active { color: var(--fg); border-bottom-color: var(--accent-ink, var(--accent)); }
+.ds-247420 .ds-sheet-preview-truncated {
+  font-size: var(--fs-tiny, 12px); color: var(--fg-3);
+  padding: var(--space-1, 4px) var(--space-2, 8px);
+  background: var(--bg-2); border-radius: var(--r-1, 6px);
+}
+.ds-247420 .ds-sheet-preview-body { overflow: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+.ds-247420 .ds-sheet-preview-table { min-width: 100%; border-collapse: collapse; font-size: var(--fs-sm, 13px); }
+.ds-247420 .ds-sheet-preview-table th, .ds-247420 .ds-sheet-preview-table td {
+  padding: var(--space-1-5, 5px) var(--space-2, 8px);
+  border-bottom: 1px solid var(--border, var(--bg-3));
+  text-align: left; white-space: nowrap;
+}
+.ds-247420 .ds-sheet-preview-table thead th {
+  position: sticky; top: 0; background: var(--bg-2); color: var(--fg-3);
+  font-weight: 600; z-index: 1;
+}
+.ds-247420 .ds-sheet-preview-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.ds-247420 .ds-sheet-preview-empty { padding: var(--space-3, 16px); color: var(--fg-3); }
+.ds-247420 .ds-sheet-preview-error-action {
+  align-self: flex-start; background: none; border: 1px solid var(--border, var(--bg-3));
+  border-radius: var(--r-1, 6px); padding: var(--space-1, 4px) var(--space-2-5, 10px);
+  font: inherit; color: var(--fg); cursor: pointer;
+}
+.ds-247420 .ds-sheet-preview-error-action:hover { background: var(--bg-2); }
+.ds-247420 .ds-sheet-preview-error-action:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 2px; }
+
 /* community.css */
 /* ============================================================
    247420 design system — community surface (Discord-style chat)
