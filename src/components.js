@@ -35,6 +35,10 @@ export { ContextPane } from './components/context-pane.js';
 
 export { SpreadsheetPreview } from './components/spreadsheet-preview.js';
 
+export { GitStatusPanel, GitDiffView } from './components/git-status.js';
+
+export { WorktreeSwitcher } from './components/worktree-switcher.js';
+
 export {
     DEFAULT_PHASES, PhaseWalk, TreeNode, BarRow, RateCell,
     StatTile, StatsGrid, SubGrid, SessionRow, DevRow, LiveLogEntry, LiveLog
