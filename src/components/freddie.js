@@ -15,6 +15,8 @@ import { queueMessage, watchReconnect, isOnline } from '../idb-outbox.js';
 import { ChatMessage, ChatComposer } from './chat.js';
 import { fmtTime, fmtAgo } from './sessions.js';
 import { createVirtualizer, measureRef } from '../virtual-scroll.js';
+import { GitStatusPanel, GitDiffView } from './git-status.js';
+import { WorktreeSwitcher } from './worktree-switcher.js';
 
 const h = webjsx.createElement;
 
@@ -868,12 +870,92 @@ export const debug = makePage((ctx) => {
     };
 });
 
+// ---- git ---------------------------------------------------------------
+
+export const git = makePage((ctx) => {
+    Object.assign(ctx.state, { cwd: null, status: null, log: null, worktrees: null, diff: null, activeFile: null, diffLoading: false, note: null });
+    async function load() {
+        try {
+            const proj = await api('/api/projects').catch(() => null);
+            const active = proj && proj.active;
+            const cwd = (active && typeof active === 'object' ? active.path : null) || ctx.state.cwd || '';
+            const qs = '?cwd=' + encodeURIComponent(cwd);
+            const [status, log, worktrees] = await Promise.all([
+                api('/api/git/status' + qs).catch((e) => ({ _err: e })),
+                api('/api/git/log' + qs + '&limit=20').catch((e) => ({ _err: e })),
+                api('/api/worktree' + qs).catch((e) => ({ _err: e })),
+            ]);
+            ctx.set({ loading: false, cwd, status, log, worktrees, error: null });
+        } catch (e) { ctx.set({ loading: false, error: e }); }
+    }
+    async function openDiff(file) {
+        ctx.set({ activeFile: file.path, diffLoading: true, diff: null });
+        try {
+            const qs = '?cwd=' + encodeURIComponent(ctx.state.cwd || '') + '&file=' + encodeURIComponent(file.path);
+            const res = await api('/api/git/diff' + qs);
+            ctx.set({ diff: res, diffLoading: false });
+        } catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) }, diffLoading: false }); }
+    }
+    async function createWorktree() {
+        const path = (ctx.state.newWtPath || '').trim();
+        const branch = (ctx.state.newWtBranch || '').trim();
+        if (!path) { ctx.set({ note: { kind: 'warn', msg: 'path required' } }); return; }
+        ctx.set({ busy: true, note: null });
+        try {
+            await api('/api/worktree', { method: 'POST', body: { cwd: ctx.state.cwd || '', path, branch: branch || undefined } });
+            ctx.state.newWtPath = ''; ctx.state.newWtBranch = '';
+            await load();
+        } catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); }
+        ctx.set({ busy: false });
+    }
+    load();
+    return () => {
+        const s = ctx.state;
+        if (s.loading) return loadingState('loading git status…');
+        if (s.error && !s.status) return errorState(s.error, load);
+        const statusFailed = s.status && s.status._err;
+        const logFailed = s.log && s.log._err;
+        const wtFailed = s.worktrees && s.worktrees._err;
+        const files = statusFailed ? [] : (s.status && s.status.files) || [];
+        const commits = logFailed ? [] : (s.log && s.log.commits) || s.log || [];
+        const worktrees = wtFailed ? [] : (s.worktrees && s.worktrees.worktrees) || s.worktrees || [];
+        const current = Array.isArray(worktrees) ? (worktrees.find(w => w.path === s.cwd) || {}).path : undefined;
+        return [
+            PageHeader({ eyebrow: 'freddie', title: 'git', lede: s.cwd || 'active project' }),
+            noteAlert(s.note),
+            statusFailed ? refreshError(statusFailed) : null,
+            section('worktrees',
+                WorktreeSwitcher({
+                    worktrees: Array.isArray(worktrees) ? worktrees : [],
+                    current,
+                    onSwitch: () => {},
+                    onCreate: () => ctx.set({ showWtForm: !s.showWtForm }),
+                }),
+                s.showWtForm ? h('div', { class: 'fd-row-actions' },
+                    TextField({ label: 'path', value: s.newWtPath, onInput: (v) => { s.newWtPath = v; }, placeholder: '/path/to/worktree' }),
+                    TextField({ label: 'branch (optional)', value: s.newWtBranch, onInput: (v) => { s.newWtBranch = v; }, placeholder: 'feature/x' }),
+                    Btn({ variant: 'primary', disabled: s.busy, children: s.busy ? 'working…' : 'create', onClick: createWorktree })) : null),
+            section('changed files',
+                statusFailed ? errorState(statusFailed) : GitStatusPanel({ files, onFileClick: openDiff, active: s.activeFile })),
+            section('diff' + (s.activeFile ? ' · ' + s.activeFile : ''),
+                s.diffLoading ? loadingState('loading diff…')
+                    : s.diff ? GitDiffView({ diff: s.diff.diff || s.diff, filename: s.activeFile })
+                        : emptyState('select a file to view its diff')),
+            section('log',
+                logFailed ? errorState(logFailed)
+                    : commits.length
+                        ? Table({ headers: ['sha', 'message', 'author', 'date'], rows: commits.slice(0, 20).map(c => [String(c.sha || c.hash || '').slice(0, 8), truncSpan(c.message || c.subject, TRUNC_SUB), c.author || '', c.date ? fmtAgo(c.date) : ''])})
+                        : emptyState('no commits')),
+        ].filter(Boolean);
+    };
+});
+
 // ---- registry --------------------------------------------------------------
 
 export const FREDDIE_PAGES = {
     home, chat, voice, sessions, projects, agents, analytics,
     models, cron, skills, config, env, tools, batch, gateway, chains,
-    machines, health, debug, logs,
+    machines, health, debug, logs, git,
 };
 
 export { skillLabel, getRecentPaths, saveRecentPath, renderChatMessages };
