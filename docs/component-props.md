@@ -2,7 +2,7 @@
 
 Generated from `src/components.js`'s real export barrel + each symbol's real definition in `src/components/*.js`, via `node scripts/generate-component-docs.mjs`. Do not hand-edit -- re-run after any component signature or JSDoc change.
 
-228 exported symbols across 21 source files.
+230 exported symbols across 21 source files.
 
 ---
 
@@ -990,6 +990,12 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 
 **Signature:** `schema = {}` _(positional arg)_
 
+### focusFirstInvalidField
+
+**Kind:** component
+
+**Signature:** `errors, order, getEl` _(positional arg)_
+
 ## `src/components/interaction-primitives.js`
 
 ### useDraggable
@@ -1281,6 +1287,12 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 **Kind:** component
 
 **Signature:** `succeeded` = `0`, `total` = `0`, `failedNames` = `[]`, `maxNames` = `3`
+
+### runBatchSequential
+
+**Kind:** component
+
+**Signature:** `items = [], fn, onProgress` _(positional arg)_
 
 ## `src/components/overlay-primitives.js`
 
