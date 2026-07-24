@@ -2,7 +2,7 @@
 
 Generated from `src/components.js`'s real export barrel + each symbol's real definition in `src/components/*.js`, via `node scripts/generate-component-docs.mjs`. Do not hand-edit -- re-run after any component signature or JSDoc change.
 
-230 exported symbols across 21 source files.
+239 exported symbols across 22 source files.
 
 ---
 
@@ -310,6 +310,18 @@ A Claude-Desktop / cowork three-(or four-)column app shell.  Pure stateless chro
 
 **Signature:** `headers` = `[]`, `rows` = `[]`, `onRowClick`, `emptyText` = `'nothing here yet'`, `rowLabels`, `striped` = `false`, `compact` = `false`, `sortable` = `false`, `sortKey`, `sortDir` = `'asc'`, `onSort`
 
+### HealthTable
+
+**Kind:** component
+
+**Signature:** `checks` = `{}`, `emptyText` = `'no health data'`, `okLabel` = `'ok'`, `missLabel` = `'no'`, `jsonTruncate` = `60`
+
+### ProcessRegistryTable
+
+**Kind:** component
+
+**Signature:** `processes` = `[]`, `emptyText` = `'no live processes'`, `extraColumns` = `[]`
+
 ### SearchInput
 
 **Kind:** component
@@ -380,7 +392,13 @@ A Claude-Desktop / cowork three-(or four-)column app shell.  Pure stateless chro
 
 **Kind:** component
 
-**Signature:** `name`, `src`, `fallback`, `size` = `'md'`, `key`
+**Signature:** `name`, `src`, `fallback`, `size` = `'md'`, `shape` = `'circle'`, `initialsCount` = `1`, `key`
+
+### avatarInitial
+
+**Kind:** component
+
+**Signature:** `name, count = 1` _(positional arg)_
 
 ## `src/components/chat.js`
 
@@ -1513,6 +1531,44 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 **Kind:** component
 
 **Signature:** `messages = [], opts = {}` _(positional arg)_
+
+## `src/components/freddie/runtime.js`
+
+### makePage
+
+**Kind:** component
+
+**Signature:** `setup, { initial = {} } = {}` _(positional arg)_
+
+### api
+
+**Kind:** component
+
+**Signature:** `path, opts = {}` _(positional arg)_
+
+### loadingState
+
+**Kind:** component
+
+**Signature:** `label = 'loading…'` _(positional arg)_
+
+### errorState
+
+**Kind:** component
+
+**Signature:** `err, onRetry` _(positional arg)_
+
+### emptyState
+
+**Kind:** component
+
+**Signature:** `text = 'nothing here yet', glyph = Icon('circle')` _(positional arg)_
+
+### refreshError
+
+**Kind:** component
+
+**Signature:** `err` _(positional arg)_
 
 ## `src/community-app.js`
 
