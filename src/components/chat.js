@@ -305,7 +305,7 @@ function ChatComposerElapsed({ streamingSince }) {
     });
 }
 
-export function ChatComposer({ value, onInput, onSend, onEmoji, onCancel, busy, placeholder = 'message…', disabled, disabledReason, label, context, onPasteFiles, onDropFiles, streamingSince, detectAttachment }) {
+export function ChatComposer({ value, onInput, onSend, onEmoji, onCancel, busy, placeholder = 'message…', disabled, disabledReason, label, context, onPasteFiles, onDropFiles, streamingSince, detectAttachment, mentionFiles }) {
     // Keep a handle to the live textarea so send() reads the actual DOM value
     // (not the possibly-lagging `value` prop) and so we can sync the DOM value
     // only when it genuinely differs — re-applying `value` on every parent
@@ -317,6 +317,14 @@ export function ChatComposer({ value, onInput, onSend, onEmoji, onCancel, busy, 
         if (onSend) onSend(v);
     };
     const triggerMatch = EMOJI_TRIGGER_RE.exec(value || '');
+    // `@`-file-mention autocomplete: host supplies mentionFiles (a flat list of
+    // {path,isDir} entries, or a plain string[] of paths — filterFileEntries
+    // normalizes both), we own detection/filtering/insertion. Caret-position-
+    // aware (extractAtQuery needs the text BEFORE the caret, not the whole
+    // draft) so an "@" earlier in an already-sent-past part of the text doesn't
+    // re-trigger after the cursor has moved on.
+    const caretPos = taEl ? taEl.selectionStart : (value || '').length;
+    const atQuery = mentionFiles ? extractAtQuery((value || '').slice(0, caretPos)) : null;
     // taEl is only assigned by taRef during DOM diffing, which happens AFTER
     // this render function returns — so on first paint of a trigger it is
     // still null here. Fall back to the live DOM textarea from the previous
@@ -470,6 +478,33 @@ export function ChatComposer({ value, onInput, onSend, onEmoji, onCancel, busy, 
         onSelect: (ch) => insertEmoji(ch),
         onClose: () => { if (taEl) { const v = taEl.value.replace(EMOJI_TRIGGER_RE, (full, tail) => full.slice(0, full.length - tail.length)); if (onInput) onInput(v); taEl.value = v; taEl.focus(); } },
     }) : null;
+    // insertMention: replace the in-progress @token (atQuery.start..caretPos)
+    // with the built mention text, mirroring insertEmoji's DOM-authoritative
+    // read/write-back so the native undo stack isn't clobbered any more than
+    // the existing emoji path already accepts.
+    const insertMention = (entry) => {
+        const v = (taEl && taEl.value) || value || '';
+        if (!atQuery) return;
+        // buildAtInsertText returns {text, cursorOffset} — cursorOffset is
+        // relative to the start of the inserted text, matching the emoji
+        // path's absolute-caret style once added to atQuery.start.
+        const { text: insertText, cursorOffset } = buildAtInsertText(entry.path, entry.isDir);
+        const next = v.slice(0, atQuery.start) + insertText + v.slice(caretPos);
+        if (onInput) onInput(next);
+        if (taEl) {
+            taEl.value = next;
+            taEl.focus();
+            const pos = atQuery.start + cursorOffset;
+            taEl.selectionStart = taEl.selectionEnd = pos;
+        }
+    };
+    const mentionEntries = atQuery ? filterFileEntries(mentionFiles, atQuery.query) : [];
+    const mentionPicker = atQuery ? CommandPalette({
+        open: true,
+        items: mentionEntries.map((e) => ({ label: e.path, group: null, icon: e.isDir ? '📁' : null, _entry: e })),
+        onSelect: (it) => insertMention(it._entry),
+        onClose: () => { if (taEl) { const v = taEl.value.slice(0, atQuery.start) + taEl.value.slice(caretPos); if (onInput) onInput(v); taEl.value = v; taEl.focus(); taEl.selectionStart = taEl.selectionEnd = atQuery.start; } },
+    }) : null;
     return h('div', {
         class: 'chat-composer' + (hasDraft ? ' has-draft' : '') + (disabled ? ' is-disabled' : ''),
         // A drop on the composer must NEVER navigate the browser away from the
@@ -489,6 +524,7 @@ export function ChatComposer({ value, onInput, onSend, onEmoji, onCancel, busy, 
     },
         contextLine,
         triggerPicker,
+        mentionPicker,
         h('textarea', { ref: taRef, placeholder, rows: 1,
             'aria-label': label || (disabled && disabledReason ? 'message input — ' + disabledReason : 'message input'),
             disabled: !!disabled, 'aria-disabled': disabled ? 'true' : null,
