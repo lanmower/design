@@ -14,7 +14,7 @@ export {
     Panel, Card, Row, RowLink, PanelFromItems,
     Hero, HeroFromPageData, Marquee, Install, CliBlock, Receipt, Changelog,
     WorksList, WritingList, Manifesto, Section, PageHeader,
-    Kpi, Sparkline, BarChart, Table, SearchInput, TextField, Select, EventList,
+    Kpi, Sparkline, BarChart, Table, HealthTable, ProcessRegistryTable, SearchInput, TextField, Select, EventList,
     HomeView, ProjectView, Form,
     Spinner, Skeleton, Alert, FilterPills, Avatar, avatarInitial
 } from './components/content.js';
@@ -113,5 +113,9 @@ export {
     models, cron, skills, config, env, tools, batch, gateway, chains,
     skillLabel, getRecentPaths, saveRecentPath, renderChatMessages
 } from './components/freddie.js';
+
+export {
+    makePage, api, loadingState, errorState, emptyState, refreshError
+} from './components/freddie/runtime.js';
 
 export { mountCommunityApp } from './community-app.js';

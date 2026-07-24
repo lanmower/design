@@ -3,7 +3,7 @@
 // ProjectView, Form. Pure factories.
 
 import * as webjsx from '../../vendor/webjsx/index.js';
-import { Btn, Heading, Lede, Dot, Icon } from './shell.js';
+import { Btn, Heading, Lede, Dot, Icon, Chip } from './shell.js';
 const h = webjsx.createElement;
 
 // Avatar — generic identity disc: an image when `src` resolves, else a
@@ -488,6 +488,52 @@ export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothin
             // keyboard activation matches click without page jump.
             ...(onRowClick ? { tabindex: '0', role: 'button', 'aria-label': 'open ' + labelFor(row, i), onkeydown: (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); onRowClick(i); } } } : {})
         }, ...row.map((c, j) => h('td', { key: j }, c == null ? '' : (typeof c === 'object' ? c : String(c)))))))));
+}
+
+// HealthTable — generic health-check table: given an arbitrary
+// `{checkName: value}` object, infers a Chip tone per row from the value's
+// own type (boolean true/false -> ok/miss Chip, object -> truncated JSON
+// string, else the raw value stringified) so a new backend health check
+// appears with zero per-check hardcoding at the call site. Ported from
+// freddie's health page (src/components/freddie.js's `health` page), which
+// hand-rolled this exact inference inline; promoted here as a reusable
+// primitive for any dashboard/monitoring surface with a health-check map
+// (agentgui's Live tab included). `okLabel`/`missLabel` let a caller
+// localize the two Chip strings; `jsonTruncate` caps the JSON.stringify
+// length for object-shaped values (matches freddie's own truncation width).
+export function HealthTable({ checks = {}, emptyText = 'no health data', okLabel = 'ok', missLabel = 'no', jsonTruncate = 60 } = {}) {
+    const entries = Object.entries(checks);
+    if (!entries.length) return h('div', { class: 'empty' }, emptyText);
+    const rows = entries.map(([name, v]) => {
+        let cell;
+        if (typeof v === 'object' && v !== null) {
+            const s = JSON.stringify(v);
+            cell = h('span', { title: s.length > jsonTruncate ? s : null }, s.length > jsonTruncate ? s.slice(0, jsonTruncate) + '…' : s);
+        } else if (v === true) cell = Chip({ tone: 'ok', children: okLabel });
+        else if (v === false) cell = Chip({ tone: 'miss', children: missLabel });
+        else cell = String(v);
+        return [name, cell];
+    });
+    return Table({ headers: ['check', 'status'], rows });
+}
+
+// ProcessRegistryTable — generic long-lived-process registry table: given a
+// list of `{kind, key, state}`-shaped rows (any in-flight process the host
+// tracks — an xstate machine, an ACP/direct-runner session, a background
+// job), renders a uniform table. Ported from freddie's `machines` page
+// (src/components/freddie.js), which used this exact shape for its xstate
+// machine census; generalized here since the shape (kind/key/state) applies
+// equally to agentgui's Live tab listing in-flight agent runner processes.
+// `extraColumns` lets a caller append columns beyond the base three (e.g. a
+// stop-action button) without forking the whole table.
+export function ProcessRegistryTable({ processes = [], emptyText = 'no live processes', extraColumns = [] } = {}) {
+    if (!processes.length) return h('div', { class: 'empty' }, emptyText);
+    const headers = ['kind', 'key', 'state', ...extraColumns.map(c => c.header)];
+    const rows = processes.map(p => [
+        p.kind || '—', p.key || '—', p.state || '—',
+        ...extraColumns.map(c => c.render(p))
+    ]);
+    return Table({ headers, rows });
 }
 
 export function HomeView({ state = {}, onNav, onToggleWork, works = [], posts = [], manifesto = [], currentlyShipping } = {}) {

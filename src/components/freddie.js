@@ -5,7 +5,7 @@
 // the single maintenance point for freddie GUI per the dynamic-stack contract.
 
 import * as webjsx from '../../vendor/webjsx/index.js';
-import { makePage, api, loadingState, errorState, emptyState } from './freddie/runtime.js';
+import { makePage, api, loadingState, errorState, emptyState, refreshError } from './freddie/runtime.js';
 import { getRecentPaths, saveRecentPath, skillLabel, renderChatMessages } from './freddie/helpers.js';
 import { Panel, Row, Table, Kpi, PageHeader, SearchInput, TextField, Select } from './content.js';
 import { Chip, Btn, Icon } from './shell.js';
@@ -28,10 +28,6 @@ const noteAlert = (note) => note ? h('div', { class: 'ds-alert ds-alert-' + note
     h('div', { class: 'ds-alert-content' }, note.msg)) : null;
 // Manual refresh button for non-polling pages — parity with auto-refreshing ones.
 const refreshBtn = (onClick, busy) => Btn({ children: busy ? 'refreshing…' : [Icon('refresh'), ' refresh'], disabled: !!busy, onClick, 'aria-label': 'refresh' });
-// Non-blocking refresh-error banner: keep last-good content, surface the failure.
-const refreshError = (err) => err ? h('div', { class: 'ds-alert ds-alert-warn', role: 'status', 'aria-live': 'polite' },
-    h('span', { class: 'ds-alert-icon' }, '!'),
-    h('div', { class: 'ds-alert-content' }, 'refresh failed: ' + String(err.message || err))) : null;
 // Polite live region announcing async busy/done state to screen readers.
 const liveRegion = (msg) => h('div', { class: 'fd-sr-live', role: 'status', 'aria-live': 'polite' }, msg || '');
 // Truncate with a title tooltip carrying the full text.

@@ -117,3 +117,20 @@ export function emptyState(text = 'nothing here yet', glyph = Icon('circle')) {
         h('div', { class: 'fd-empty-glyph', 'aria-hidden': 'true' }, glyph),
         h('div', { class: 'dim' }, text));
 }
+
+// refreshError — the never-blank-on-refresh-error convention: a monitoring
+// page whose poll fails AFTER already having last-good data keeps that data
+// visible and shows this non-blocking banner instead of falling back to
+// errorState's full-page replacement. errorState (above) is still correct
+// for the FIRST failed poll (no last-good data exists yet to keep showing) -
+// callers gate on `err && !data` -> errorState, `err && data` -> refreshError
+// alongside the still-rendered data, exactly as every freddie.js page does.
+// Previously a private per-file const; promoted here so any monitoring
+// surface (agentgui's Live tab included) can reuse the same convention
+// instead of re-deriving its own banner markup.
+export function refreshError(err) {
+    if (!err) return null;
+    return h('div', { class: 'ds-alert ds-alert-warn', role: 'status', 'aria-live': 'polite' },
+        h('span', { class: 'ds-alert-icon' }, '!'),
+        h('div', { class: 'ds-alert-content' }, 'refresh failed: ' + String(err.message || err)));
+}
