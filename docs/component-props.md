@@ -2,7 +2,7 @@
 
 Generated from `src/components.js`'s real export barrel + each symbol's real definition in `src/components/*.js`, via `node scripts/generate-component-docs.mjs`. Do not hand-edit -- re-run after any component signature or JSDoc change.
 
-218 exported symbols across 19 source files.
+228 exported symbols across 21 source files.
 
 ---
 
@@ -426,6 +426,12 @@ A Claude-Desktop / cowork three-(or four-)column app shell.  Pure stateless chro
 
 **Signature:** `composerEl, text` _(positional arg)_
 
+### ChatSuggestions
+
+**Kind:** component
+
+**Signature:** `heading` = `'What can I help with?'`, `subtext` = `''`, `suggestions` = `[]`
+
 ### AICAT_FACE
 
 **Kind:** const
@@ -557,6 +563,28 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 **Kind:** component
 
 **Signature:** `workbook`, `activeSheet`, `onSheetChange`, `maxRows` = `DEFAULT_MAX_ROWS`, `maxCols` = `DEFAULT_MAX_COLS`, `truncated`, `loading`, `error`, `errorActionLabel` = `'retry'`, `onErrorAction`, `key`
+
+## `src/components/git-status.js`
+
+### GitStatusPanel
+
+**Kind:** component
+
+**Signature:** `files` = `[]`, `onFileClick`, `emptyText` = `'no changes'`, `active`
+
+### GitDiffView
+
+**Kind:** component
+
+**Signature:** `diff` = `''`, `filename`
+
+## `src/components/worktree-switcher.js`
+
+### WorktreeSwitcher
+
+**Kind:** component
+
+**Signature:** `worktrees` = `[]`, `current`, `onSwitch`, `onCreate`, `ariaLabel` = `'switch worktree'`
 
 ## `src/components/data-density.js`
 
@@ -1224,6 +1252,36 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 
 **Signature:** `1440`
 
+### InfoRow
+
+**Kind:** component
+
+**Signature:** `label`, `value`, `key`
+
+### InfoSection
+
+**Kind:** component
+
+**Signature:** `title`, `rows`, `key`
+
+### DiagnosticsPanel
+
+**Kind:** component
+
+**Signature:** `title` = `'Diagnostics'`, `sections` = `[]`, `onRefresh`, `refreshing` = `false`, `key`
+
+### BatchProgressLabel
+
+**Kind:** component
+
+**Signature:** `label` = `'Processing'`, `done` = `0`, `total` = `0`, `key`
+
+### formatBatchOutcome
+
+**Kind:** component
+
+**Signature:** `succeeded` = `0`, `total` = `0`, `failedNames` = `[]`, `maxNames` = `3`
+
 ## `src/components/overlay-primitives.js`
 
 ### Tooltip
@@ -1309,6 +1367,12 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 **Kind:** component
 
 **Signature:** `btn, fn, busyLabel = '...'` _(positional arg)_
+
+### MenuButton
+
+**Kind:** component
+
+**Signature:** `trigger`, `items` = `[]`, `selected`, `onSelect`, `onRetry`, `placement` = `'bottom-start'`, `ariaLabel` = `'Menu'`, `emptyText` = `'No options available'`
 
 ## `src/components/freddie.js`
 
