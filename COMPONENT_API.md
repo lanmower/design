@@ -1354,6 +1354,16 @@ Scrollable dense log stream: colored subsystem tag + bold event name + muted pay
 
 ---
 
+## Docstudio-Ported Additions (`overlay-primitives.js`, `chat.js`, `editor-primitives.js`)
+
+- **`MenuButton`** (`overlay-primitives.js`) — icon-trigger select menu with a checkmark on the active item, roving keyboard nav (Arrow/Home/End/Esc + typeahead), mirroring `Dropdown`'s open/close/outside-click wiring. Items may carry `unavailable: true` to render a muted "unavailable — retry" row (`onRetry(id, item)`) instead of a selectable option — for an async-populated list that failed to load. An empty `items` array renders a static "No options available" row (`emptyText` prop), never a keyboard trap; a single-option list wraps roving nav to itself rather than throwing.
+- **`ChatSuggestions`** (`chat.js`) — centered blank-thread heading + subtext + a wrapped row of prompt chips (`{id, label, onPick}`). A one-shot `picked` guard means the first click of any kind (including a double-click race) is the only one that fires `onPick`; the host owns filling the composer and dismissing the component on first send.
+- **`BatchProgressLabel`** / **`formatBatchOutcome`** (`editor-primitives.js`) — `BatchProgressLabel({label, done, total})` renders a live `role="status"` "label (i/n)" readout for a sequential batch operation (upload queue, bulk action), going `aria-live="off"` once `done === total`. `formatBatchOutcome({succeeded, total, failedNames})` is a pure string helper for the aggregate completion toast — `"N/total succeeded"` or `"N/total succeeded; failed: a, b and N more"` (truncates past `maxNames`, default 3).
+- **`InfoRow` / `InfoSection` / `DiagnosticsPanel`** (`editor-primitives.js`) — static debug/system-info readouts: bordered sections of label + monospace-value rows. `InfoSection({rows: null})` renders a loading placeholder instead of an empty box before first data arrives. `DiagnosticsPanel({sections, onRefresh, refreshing})` composes a titled panel of sections with an optional refresh button that disables + `aria-busy`s itself mid-refresh. Distinct from `PropertyGrid`, which is for editable properties — these rows are read-only.
+- **Report/flag dialog usage pattern** (no new component — composed from existing `PromptDialog` + `ConfirmDialog`/toast) — for a "report this content" affordance: open `PromptDialog` with a placeholder listing example reasons (e.g. `"Why are you reporting this? (e.g. spam, harassment, off-topic)"`), then on submit show a toast or `ConfirmDialog` confirming success/failure. No new primitive is warranted; this is a thin composition of two dialogs already in the kit.
+
+---
+
 ## Utilities
 
 Non-component function exports useful to hosts wiring the kit's chat/session/file surfaces.

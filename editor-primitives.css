@@ -1092,6 +1092,87 @@
     .ds-dropdown-trigger { min-height: 44px; }
 }
 
+/* ---------------------------------------------------------------
+   MenuButton — checkmarked select menu, mirrors Dropdown's chrome
+   --------------------------------------------------------------- */
+.ov-menubutton-menu { padding: var(--space-1); }
+.ov-menubutton-list { display: flex; flex-direction: column; }
+.ov-menubutton-item {
+    display: flex; align-items: center; gap: var(--space-2);
+    min-height: 30px;
+    padding: var(--space-1-5) var(--space-2-75);
+    background: transparent; border: 0;
+    color: inherit; font: inherit; text-align: left;
+    border-radius: var(--r-1, 4px);
+    cursor: pointer;
+    width: 100%;
+}
+.ov-menubutton-item:hover,
+.ov-menubutton-item:focus-visible {
+    background: var(--panel-2, var(--rule));
+    outline: none;
+}
+@media (pointer: coarse) {
+    .ov-menubutton-item { min-height: 44px; padding: var(--space-2) var(--space-3); }
+}
+.ov-menubutton-item[aria-disabled="true"] {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+.ov-menubutton-check { width: 16px; display: inline-flex; justify-content: center; flex-shrink: 0; color: var(--accent, currentColor); }
+.ov-menubutton-label { flex: 1; min-width: 0; }
+.ov-menubutton-empty { padding: var(--space-2) var(--space-2-75); color: var(--fg-muted); font-size: var(--fs-sm); }
+.ov-menubutton-item.is-unavailable {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+    padding: var(--space-1-5) var(--space-2-75);
+    color: var(--fg-muted);
+}
+.ov-menubutton-retry {
+    appearance: none; background: transparent; border: 1px solid var(--rule);
+    border-radius: var(--r-1, 4px); color: inherit; font: inherit; font-size: var(--fs-sm);
+    padding: var(--space-hair) var(--space-1-5); cursor: pointer;
+}
+.ov-menubutton-retry:hover, .ov-menubutton-retry:focus-visible { background: var(--panel-2, var(--rule)); outline: none; }
+.ov-menubutton-trigger {
+    appearance: none;
+    background: var(--panel-2, transparent);
+    color: inherit; font: inherit;
+    border: 1px solid var(--rule);
+    border-radius: var(--r-1, 6px);
+    padding: 0 var(--space-2-75);
+    cursor: pointer;
+    min-height: var(--ctl-sm); height: var(--ctl-sm);
+    display: inline-flex; align-items: center;
+}
+@media (pointer: coarse) {
+    .ov-menubutton-trigger { min-height: 44px; }
+}
+
+/* ---------------------------------------------------------------
+   InfoRow / InfoSection / DiagnosticsPanel — static debug readouts
+   --------------------------------------------------------------- */
+.ds-ep-diagnostics { display: flex; flex-direction: column; gap: var(--space-3); }
+.ds-ep-diagnostics-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.ds-ep-diagnostics-title { margin: 0; font-size: var(--fs-lg); }
+.ds-ep-diagnostics-refresh {
+    appearance: none; background: var(--panel-2, transparent); color: inherit; font: inherit;
+    border: 1px solid var(--rule); border-radius: var(--r-1, 6px);
+    padding: var(--space-1) var(--space-2-75); cursor: pointer;
+}
+.ds-ep-diagnostics-refresh:disabled { opacity: 0.6; cursor: not-allowed; }
+.ds-ep-diagnostics-refresh:hover:not(:disabled), .ds-ep-diagnostics-refresh:focus-visible { background: var(--panel-3, var(--rule)); outline: none; }
+.ds-ep-infosection { border: 1px solid var(--rule); border-radius: var(--r-2, 8px); padding: var(--space-2-75); }
+.ds-ep-infosection-title { margin: 0 0 var(--space-1-5); font-size: var(--fs-sm); text-transform: uppercase; letter-spacing: 0.04em; color: var(--fg-muted); }
+.ds-ep-infosection-rows { display: flex; flex-direction: column; gap: var(--space-1); }
+.ds-ep-infosection-loading { padding: var(--space-2) 0; color: var(--fg-muted); font-size: var(--fs-sm); }
+.ds-ep-inforow { display: flex; align-items: baseline; gap: var(--space-2); justify-content: space-between; }
+.ds-ep-inforow-label { color: var(--fg-muted); font-size: var(--fs-sm); flex-shrink: 0; }
+.ds-ep-inforow-value { font-family: var(--font-mono, monospace); font-size: var(--fs-sm); text-align: right; word-break: break-word; }
+
+/* BatchProgressLabel */
+.ds-ep-batchprogress { font-variant-numeric: tabular-nums; }
+
 /* Interaction primitives — drag/drop + keyboard shortcuts */
 .ds-reorderable { display: flex; gap: var(--space-1, 4px); }
 .ds-reorderable-vertical { flex-direction: column; }

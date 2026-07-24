@@ -241,6 +241,31 @@ export function flashComposerNote(composerEl, text) {
     showNext();
 }
 
+// ChatSuggestions — centered blank-thread heading + subtext + a wrapped row
+// of prompt chips that fill the composer textarea on click and auto-dismiss
+// on first send. Ported from docstudio's empty-state composer-priming CTA
+// (distinct from a generic list EmptyState: this exists to seed a first
+// message, not to describe an empty list). `onPick(prompt, item)` is the
+// caller's single hook — the component does not touch the composer DOM
+// itself, so the host decides how "fill the composer" actually happens.
+// A rapid double-click on the same chip (or a click racing the first send)
+// is guarded by a one-shot `_picked` flag: only the first click of any kind
+// dispatches onPick, so the composer is never filled twice and the chips
+// never reappear having already been "used".
+export function ChatSuggestions({ heading = 'What can I help with?', subtext = '', suggestions = [] } = {}) {
+    let picked = false;
+    return h('div', { class: 'chat-suggestions', role: 'group', 'aria-label': heading },
+        h('h2', { class: 'chat-suggestions-heading' }, heading),
+        subtext ? h('p', { class: 'chat-suggestions-subtext' }, subtext) : null,
+        h('div', { class: 'chat-suggestions-list' },
+            ...suggestions.map((s, i) => h('button', {
+                key: s.id || i, type: 'button', class: 'chat-suggestions-chip',
+                onclick: () => { if (picked) return; picked = true; s.onPick ? s.onPick(s) : null; }
+            }, s.label))
+        )
+    );
+}
+
 // Cached once per session: coarse-pointer (touch/no-hover) devices get a
 // newline on Enter instead of send (mirrors the one-time-cache pattern
 // editor-primitives.js uses for its own pointer/matchMedia checks).

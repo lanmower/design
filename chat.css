@@ -835,6 +835,33 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 /* Drag-over ring: token accent, never a hex. */
 .chat-composer.dragover { outline: var(--focus-w) solid var(--focus-color); outline-offset: calc(var(--focus-offset) * -1); border-radius: var(--r-2); }
 
+/* ChatSuggestions — blank-thread composer-priming CTA. */
+.chat-suggestions {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: var(--space-2); padding: var(--space-6) var(--space-3);
+  max-width: 640px; margin: 0 auto;
+}
+.chat-suggestions-heading { margin: 0; font-size: var(--fs-xl); }
+.chat-suggestions-subtext { margin: 0; color: var(--fg-2); font-size: var(--fs-sm); }
+.chat-suggestions-list {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.chat-suggestions-chip {
+  appearance: none; background: var(--bg-2); border: var(--bw-hair) solid var(--rule);
+  border-radius: var(--r-pill, 999px); color: inherit; font: inherit; font-size: var(--fs-sm);
+  padding: var(--space-1-5) var(--space-3); cursor: pointer;
+}
+.chat-suggestions-chip:hover, .chat-suggestions-chip:focus-visible {
+  background: var(--panel-2, var(--rule)); outline: none;
+}
+.chat-suggestions-chip:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset);
+}
+@media (pointer: coarse) {
+  .chat-suggestions-chip { min-height: 44px; }
+}
+
 /* Per-bit composer context: only the bit that owns a control is a button. */
 .chat-composer-context-bit {
   display: inline; padding: 0; margin: 0;

@@ -21,7 +21,7 @@ export {
 
 export {
     fmtBytes, renderInline, hasSelectionInside,
-    ChatMessage, ChatComposer, Chat, flashComposerNote,
+    ChatMessage, ChatComposer, Chat, flashComposerNote, ChatSuggestions,
     AICAT_FACE, AICatPortrait, AICat
 } from './components/chat.js';
 
@@ -95,13 +95,16 @@ export {
     Collapse, CollapseGroup,
     Divider,
     useMediaQuery,
-    BP_SM, BP_MD, BP_LG, BP_XL
+    BP_SM, BP_MD, BP_LG, BP_XL,
+    InfoRow, InfoSection, DiagnosticsPanel,
+    BatchProgressLabel, formatBatchOutcome
 } from './components/editor-primitives.js';
 
 export {
     Tooltip, Popover, Dropdown, useLongPress, useFloating,
     CommandPalette, EmojiPicker, BootOverlay, SettingsPopover,
-    AuthModal, VideoLightbox, PermissionMenu, ApprovalPrompt, withBusy
+    AuthModal, VideoLightbox, PermissionMenu, ApprovalPrompt, withBusy,
+    MenuButton
 } from './components/overlay-primitives.js';
 
 export {

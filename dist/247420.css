@@ -8092,6 +8092,33 @@
 /* Drag-over ring: token accent, never a hex. */
 .ds-247420 .chat-composer.dragover { outline: var(--focus-w) solid var(--focus-color); outline-offset: calc(var(--focus-offset) * -1); border-radius: var(--r-2); }
 
+/* ChatSuggestions — blank-thread composer-priming CTA. */
+.ds-247420 .chat-suggestions {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: var(--space-2); padding: var(--space-6) var(--space-3);
+  max-width: 640px; margin: 0 auto;
+}
+.ds-247420 .chat-suggestions-heading { margin: 0; font-size: var(--fs-xl); }
+.ds-247420 .chat-suggestions-subtext { margin: 0; color: var(--fg-2); font-size: var(--fs-sm); }
+.ds-247420 .chat-suggestions-list {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.ds-247420 .chat-suggestions-chip {
+  appearance: none; background: var(--bg-2); border: var(--bw-hair) solid var(--rule);
+  border-radius: var(--r-pill, 999px); color: inherit; font: inherit; font-size: var(--fs-sm);
+  padding: var(--space-1-5) var(--space-3); cursor: pointer;
+}
+.ds-247420 .chat-suggestions-chip:hover, .ds-247420 .chat-suggestions-chip:focus-visible {
+  background: var(--panel-2, var(--rule)); outline: none;
+}
+.ds-247420 .chat-suggestions-chip:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset);
+}
+@media (pointer: coarse) {
+  .ds-247420 .chat-suggestions-chip { min-height: 44px; }
+}
+
 /* Per-bit composer context: only the bit that owns a control is a button. */
 .ds-247420 .chat-composer-context-bit {
   display: inline; padding: 0; margin: 0;
@@ -9536,6 +9563,87 @@
 @media (pointer: coarse) {
     .ds-247420 .ds-dropdown-trigger { min-height: 44px; }
 }
+
+/* ---------------------------------------------------------------
+   MenuButton — checkmarked select menu, mirrors Dropdown's chrome
+   --------------------------------------------------------------- */
+.ds-247420 .ov-menubutton-menu { padding: var(--space-1); }
+.ds-247420 .ov-menubutton-list { display: flex; flex-direction: column; }
+.ds-247420 .ov-menubutton-item {
+    display: flex; align-items: center; gap: var(--space-2);
+    min-height: 30px;
+    padding: var(--space-1-5) var(--space-2-75);
+    background: transparent; border: 0;
+    color: inherit; font: inherit; text-align: left;
+    border-radius: var(--r-1, 4px);
+    cursor: pointer;
+    width: 100%;
+}
+.ds-247420 .ov-menubutton-item:hover,
+.ds-247420 .ov-menubutton-item:focus-visible {
+    background: var(--panel-2, var(--rule));
+    outline: none;
+}
+@media (pointer: coarse) {
+    .ds-247420 .ov-menubutton-item { min-height: 44px; padding: var(--space-2) var(--space-3); }
+}
+.ds-247420 .ov-menubutton-item[aria-disabled="true"] {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+.ds-247420 .ov-menubutton-check { width: 16px; display: inline-flex; justify-content: center; flex-shrink: 0; color: var(--accent, currentColor); }
+.ds-247420 .ov-menubutton-label { flex: 1; min-width: 0; }
+.ds-247420 .ov-menubutton-empty { padding: var(--space-2) var(--space-2-75); color: var(--fg-muted); font-size: var(--fs-sm); }
+.ds-247420 .ov-menubutton-item.is-unavailable {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+    padding: var(--space-1-5) var(--space-2-75);
+    color: var(--fg-muted);
+}
+.ds-247420 .ov-menubutton-retry {
+    appearance: none; background: transparent; border: 1px solid var(--rule);
+    border-radius: var(--r-1, 4px); color: inherit; font: inherit; font-size: var(--fs-sm);
+    padding: var(--space-hair) var(--space-1-5); cursor: pointer;
+}
+.ds-247420 .ov-menubutton-retry:hover, .ds-247420 .ov-menubutton-retry:focus-visible { background: var(--panel-2, var(--rule)); outline: none; }
+.ds-247420 .ov-menubutton-trigger {
+    appearance: none;
+    background: var(--panel-2, transparent);
+    color: inherit; font: inherit;
+    border: 1px solid var(--rule);
+    border-radius: var(--r-1, 6px);
+    padding: 0 var(--space-2-75);
+    cursor: pointer;
+    min-height: var(--ctl-sm); height: var(--ctl-sm);
+    display: inline-flex; align-items: center;
+}
+@media (pointer: coarse) {
+    .ds-247420 .ov-menubutton-trigger { min-height: 44px; }
+}
+
+/* ---------------------------------------------------------------
+   InfoRow / InfoSection / DiagnosticsPanel — static debug readouts
+   --------------------------------------------------------------- */
+.ds-247420 .ds-ep-diagnostics { display: flex; flex-direction: column; gap: var(--space-3); }
+.ds-247420 .ds-ep-diagnostics-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.ds-247420 .ds-ep-diagnostics-title { margin: 0; font-size: var(--fs-lg); }
+.ds-247420 .ds-ep-diagnostics-refresh {
+    appearance: none; background: var(--panel-2, transparent); color: inherit; font: inherit;
+    border: 1px solid var(--rule); border-radius: var(--r-1, 6px);
+    padding: var(--space-1) var(--space-2-75); cursor: pointer;
+}
+.ds-247420 .ds-ep-diagnostics-refresh:disabled { opacity: 0.6; cursor: not-allowed; }
+.ds-247420 .ds-ep-diagnostics-refresh:hover:not(:disabled), .ds-247420 .ds-ep-diagnostics-refresh:focus-visible { background: var(--panel-3, var(--rule)); outline: none; }
+.ds-247420 .ds-ep-infosection { border: 1px solid var(--rule); border-radius: var(--r-2, 8px); padding: var(--space-2-75); }
+.ds-247420 .ds-ep-infosection-title { margin: 0 0 var(--space-1-5); font-size: var(--fs-sm); text-transform: uppercase; letter-spacing: 0.04em; color: var(--fg-muted); }
+.ds-247420 .ds-ep-infosection-rows { display: flex; flex-direction: column; gap: var(--space-1); }
+.ds-247420 .ds-ep-infosection-loading { padding: var(--space-2) 0; color: var(--fg-muted); font-size: var(--fs-sm); }
+.ds-247420 .ds-ep-inforow { display: flex; align-items: baseline; gap: var(--space-2); justify-content: space-between; }
+.ds-247420 .ds-ep-inforow-label { color: var(--fg-muted); font-size: var(--fs-sm); flex-shrink: 0; }
+.ds-247420 .ds-ep-inforow-value { font-family: var(--font-mono, monospace); font-size: var(--fs-sm); text-align: right; word-break: break-word; }
+
+/* BatchProgressLabel */
+.ds-247420 .ds-ep-batchprogress { font-variant-numeric: tabular-nums; }
 
 /* Interaction primitives — drag/drop + keyboard shortcuts */
 .ds-247420 .ds-reorderable { display: flex; gap: var(--space-1, 4px); }

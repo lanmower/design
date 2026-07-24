@@ -789,6 +789,97 @@ export function AuthModal({ mode = 'extension', error = '', busy = false, open =
     );
 }
 
+// MenuButton — icon-trigger select menu: one option carries a checkmark
+// (the active selection), roving keyboard nav mirrors Dropdown's own
+// open/close/outside-click/typeahead wiring, plus a stale/unavailable
+// per-item state that renders as a muted "unavailable — retry" row instead
+// of a normal selectable item (ported from docstudio's model-picker menu,
+// which shows a retry affordance when its option list fails to load).
+// Zero-option and single-option lists degrade gracefully: an empty list
+// renders a static "No options available" row (no crash, no keyboard trap,
+// nothing focusable); roving nav on a single-option list simply refocuses
+// the same item on every Arrow press (wrap-to-self), never throws.
+export function MenuButton({ trigger, items = [], selected, onSelect, onRetry, placement = 'bottom-start', ariaLabel = 'Menu', emptyText = 'No options available' } = {}) {
+    let triggerEl = null, open = false, menuEl = null, floating = null, typeBuf = '', typeTimer = null;
+    const liveBtns = () => menuEl ? [...menuEl.querySelectorAll('[role="menuitemradio"]:not([aria-disabled="true"])')] : [];
+    const focusItem = (idx) => { const b = liveBtns(); if (!b.length) return; b[((idx % b.length) + b.length) % b.length].focus(); };
+    const onDown = (e) => { if (menuEl && menuEl.contains(e.target)) return; if (triggerEl && triggerEl.contains(e.target)) return; close(false); };
+    const close = (restore = true) => {
+        if (!open) return; open = false;
+        if (floating) { floating.dispose(); floating = null; }
+        if (menuEl && menuEl.parentNode) menuEl.parentNode.removeChild(menuEl);
+        menuEl = null;
+        document.removeEventListener('mousedown', onDown, true);
+        if (triggerEl) triggerEl.setAttribute('aria-expanded', 'false');
+        if (restore && triggerEl) triggerEl.focus();
+    };
+    const select = (it) => { if (it.disabled || it.unavailable) return; if (onSelect) onSelect(it.id, it); close(); };
+    const onMenuKey = (e) => {
+        const b = liveBtns(), idx = b.indexOf(document.activeElement);
+        if (e.key === 'Escape') { e.preventDefault(); close(); }
+        else if (e.key === 'ArrowDown') { e.preventDefault(); focusItem(idx + 1); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); focusItem(idx - 1); }
+        else if (e.key === 'Home') { e.preventDefault(); focusItem(0); }
+        else if (e.key === 'End') { e.preventDefault(); focusItem(b.length - 1); }
+        else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (idx >= 0) b[idx].click(); }
+        else if (e.key.length === 1 && /\S/.test(e.key)) {
+            typeBuf += e.key.toLowerCase();
+            if (typeTimer) clearTimeout(typeTimer);
+            typeTimer = setTimeout(() => { typeBuf = ''; }, 600);
+            const m = items.findIndex(it => !it.disabled && !it.unavailable && (it.label || '').toLowerCase().startsWith(typeBuf));
+            if (m >= 0) focusItem(items.slice(0, m).filter(it => !it.disabled && !it.unavailable).length);
+        }
+    };
+    const openMenu = (focusFirst = true) => {
+        if (open || !triggerEl) return;
+        open = true;
+        menuEl = document.createElement('div');
+        menuEl.className = 'ds-popover ov-menubutton-menu';
+        menuEl.setAttribute('role', 'menu');
+        menuEl.setAttribute('aria-label', ariaLabel);
+        menuEl.tabIndex = -1;
+        const tree = items.length
+            ? h('div', { class: 'ov-menubutton-list' },
+                ...items.map((it, i) => it.unavailable
+                    ? h('div', { key: it.id || i, class: 'ov-menubutton-item is-unavailable' },
+                        h('span', { class: 'ov-menubutton-label' }, it.label || 'Unavailable'),
+                        h('button', { type: 'button', class: 'ov-menubutton-retry', onclick: () => onRetry && onRetry(it.id, it) }, 'Retry')
+                    )
+                    : h('button', {
+                        key: it.id || i, type: 'button', role: 'menuitemradio',
+                        'aria-checked': it.id === selected ? 'true' : 'false',
+                        class: 'ov-menubutton-item' + (it.disabled ? '' : ''),
+                        'aria-disabled': it.disabled ? 'true' : 'false',
+                        tabindex: '-1', onclick: () => select(it),
+                    },
+                        h('span', { class: 'ov-menubutton-check', 'aria-hidden': 'true' }, it.id === selected ? Icon('check', { size: 14 }) : ''),
+                        h('span', { class: 'ov-menubutton-label' }, it.label)
+                    )))
+            : h('div', { class: 'ov-menubutton-empty' }, emptyText);
+        webjsx.applyDiff(menuEl, tree);
+        document.body.appendChild(menuEl);
+        menuEl.addEventListener('keydown', onMenuKey);
+        floating = useFloating(triggerEl, menuEl, { placement, offset: FLOAT_OFFSET_DROPDOWN });
+        document.addEventListener('mousedown', onDown, true);
+        triggerEl.setAttribute('aria-expanded', 'true');
+        if (focusFirst && items.length) queueMicrotask(() => focusItem(0));
+    };
+    const onTrigClick = () => { if (open) close(false); else openMenu(true); };
+    const onTrigKey = (e) => { if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!open) openMenu(true); else focusItem(0); } };
+    const refFn = (el) => {
+        if (!el || el._ovMenuButton) return;
+        el._ovMenuButton = true; triggerEl = el;
+        el.addEventListener('click', onTrigClick);
+        el.addEventListener('keydown', onTrigKey);
+        el.setAttribute('aria-haspopup', 'menu');
+        el.setAttribute('aria-expanded', 'false');
+    };
+    const child = (typeof trigger === 'function') ? trigger() : trigger;
+    return (child && child.type)
+        ? webjsx.createElement(child.type, { ...(child.props || {}), ref: refFn }, ...(child.children || []))
+        : h('button', { type: 'button', class: 'ov-menubutton-trigger', ref: refFn }, child || 'Select');
+}
+
 // VideoLightbox — fullscreen video player overlay with backdrop dismiss.
 export function VideoLightbox({ src, label = '', open = false, onClose } = {}) {
     if (!open || !src) return null;
