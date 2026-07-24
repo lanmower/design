@@ -81,3 +81,4 @@ CLAUDE.md
 # <<< plugkit managed
 .gm/pw-sock-*/
 .gm/.gm-continue-count
+.gm/claim-audit-fired
