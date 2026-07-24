@@ -10478,6 +10478,32 @@
 .ds-247420 .agentgui-main-chat { display: flex; flex-direction: column; flex: 1; }
 .ds-247420 .agentgui-main .ds-section { margin: 0 0 var(--space-4, 16px); }
 
+/* Tab-switch entrance: navTo() sets a per-tab modifier class
+   (agentgui-main-<tab>) on the SAME #agentgui-main DOM node every switch
+   (webjsx patches props on the existing element rather than replacing it).
+   A single shared animation-name bound to the constant .agentgui-main base
+   class would only ever fire once (on first mount) since a CSS animation
+   restarts only when the animation-name value itself changes or the
+   element is detached/reattached - the base class never changes. Each tab
+   gets its OWN animation-name (functionally identical keyframes, distinct
+   names) so switching from e.g. agentgui-main-chat to agentgui-main-history
+   genuinely changes which animation-name applies, which is what makes the
+   browser replay the entrance on every switch. Matches the existing motion
+   craft level of ds-alert-in/ds-card-in/agentchat-jump.show instead of every
+   full-page tab swap happening with zero transition. */
+@media (prefers-reduced-motion: no-preference) {
+  .ds-247420 .agentgui-main-chat { animation: ds-main-in-chat var(--dur-base) var(--ease); }
+  .ds-247420 .agentgui-main-history { animation: ds-main-in-history var(--dur-base) var(--ease); }
+  .ds-247420 .agentgui-main-files { animation: ds-main-in-files var(--dur-base) var(--ease); }
+  .ds-247420 .agentgui-main-live { animation: ds-main-in-live var(--dur-base) var(--ease); }
+  .ds-247420 .agentgui-main-settings { animation: ds-main-in-settings var(--dur-base) var(--ease); }
+}
+@keyframes ds-main-in-chat { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes ds-main-in-history { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes ds-main-in-files { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes ds-main-in-live { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes ds-main-in-settings { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
 /* Readable backend health summary (replaces raw JSON dump). */
 .ds-247420 .health-summary { display: flex; flex-wrap: wrap; gap: .4em; margin: .6em 0; }
 .ds-247420 .health-chip {
@@ -10491,6 +10517,30 @@
   color: var(--accent-ink);
   background: color-mix(in srgb, var(--accent) 16%, transparent);
   border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+/* Standalone connection-status chip — same visual vocabulary as
+   .health-chip so a form's own connecting/connected/failed feedback reads
+   consistently with the healthSummary row beneath it, instead of one being
+   a colored chip and the other bare <p class="t-meta"> text. */
+.ds-247420 .ds-status-chip {
+  display: inline-flex; align-items: center; gap: .35em;
+  font-family: var(--ff-mono, ui-monospace, monospace);
+  font-size: .8rem; padding: .15em .55em; border-radius: var(--r-1, 6px);
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+  color: var(--fg-2);
+  border: var(--bw-hair, 1px) solid color-mix(in srgb, var(--fg) 12%, transparent);
+  margin: .4em 0;
+}
+.ds-247420 .ds-status-chip-ok {
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.ds-247420 .ds-status-chip-error {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  border-color: color-mix(in srgb, var(--danger) 35%, transparent);
 }
 
 /* Compact working-directory bar. */
