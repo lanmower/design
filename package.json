@@ -98,10 +98,7 @@
     "docs:components": "node scripts/generate-component-docs.mjs",
     "lint:component-docs": "node scripts/generate-component-docs.mjs --check",
     "generate:ui-kits": "node scripts/generate-ui-kit-scaffolds.mjs",
-    "generate:preview-index": "node scripts/generate-preview-index.mjs",
-    "a11y": "node scripts/a11y-audit.mjs",
-    "visual:update": "node scripts/visual-baseline.mjs update",
-    "visual:check": "node scripts/visual-baseline.mjs check"
+    "generate:preview-index": "node scripts/generate-preview-index.mjs"
   },
   "repository": {
     "type": "git",
@@ -119,10 +116,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "axe-core": "^4.12.1",
     "esbuild": "^0.28.1",
-    "playwright": "^1.61.1",
-    "pngjs": "^7.0.0",
     "postcss": "^8.5.19",
     "postcss-prefix-selector": "^2.1.1"
   }
