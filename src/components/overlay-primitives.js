@@ -189,11 +189,25 @@ export function Popover({ open, anchorEl, onClose, placement = 'bottom-start', c
     return null;
 }
 
-// Dropdown — button trigger + portaled menu.
-export function Dropdown({ trigger, items = [], onSelect, placement = 'bottom-start', ariaLabel } = {}) {
+// useRovingMenu — the shared open/close/outside-click/roving-nav/typeahead
+// state machine behind Dropdown, PermissionMenu, and MenuButton. All three
+// previously reimplemented an identical ~70-line skeleton (byte-identical
+// close() teardown, near-identical onMenuKey); this factors it into one
+// place so a fix/feature (e.g. typeahead) lands for every consumer instead
+// of drifting per-copy. `itemSelector` picks the live focusable items inside
+// the rendered menu (each consumer uses a different role: menuitem /
+// menuitemcheckbox / menuitemradio); `getLabel(item)` + `items` enable
+// typeahead when `typeahead` is true (Dropdown/MenuButton have it,
+// PermissionMenu's categories aren't typically typeahead-searched so it
+// defaults off but can opt in). Returns { refFn, onTrigClick, onTrigKey,
+// openMenu, close, focusItem, isOpen } — the caller still owns rendering the
+// menu's DOM/CSS (role/class per consumer stays distinct) and wires
+// `menuEl.addEventListener('keydown', onMenuKey)` itself via the returned
+// `onMenuKey`, since only the caller knows when its menuEl exists.
+export function useRovingMenu({ itemSelector, items = [], getLabel = (it) => it.label, typeahead = false, placement = 'bottom-start', onOpenChange } = {}) {
     let triggerEl = null, open = false, menuEl = null, floating = null, typeBuf = '', typeTimer = null;
-    const liveBtns = () => menuEl ? [...menuEl.querySelectorAll('[role="menuitem"]:not([aria-disabled="true"])')] : [];
-    const focusItem = (idx) => { const b = liveBtns(); if (!b.length) return; b[((idx % b.length) + b.length) % b.length].focus(); };
+    const liveItems = () => menuEl ? [...menuEl.querySelectorAll(itemSelector)] : [];
+    const focusItem = (idx) => { const b = liveItems(); if (!b.length) return; b[((idx % b.length) + b.length) % b.length].focus(); };
     const onDown = (e) => { if (menuEl && menuEl.contains(e.target)) return; if (triggerEl && triggerEl.contains(e.target)) return; close(false); };
     const close = (restore = true) => {
         if (!open) return; open = false;
@@ -203,32 +217,58 @@ export function Dropdown({ trigger, items = [], onSelect, placement = 'bottom-st
         document.removeEventListener('mousedown', onDown, true);
         if (triggerEl) triggerEl.setAttribute('aria-expanded', 'false');
         if (restore && triggerEl) triggerEl.focus();
+        if (onOpenChange) onOpenChange(false);
     };
-    const select = (it) => { if (it.disabled || it.separator) return; if (onSelect) onSelect(it.id, it); close(); };
     const onMenuKey = (e) => {
-        const b = liveBtns(), idx = b.indexOf(document.activeElement);
+        const b = liveItems(), idx = b.indexOf(document.activeElement);
         if (e.key === 'Escape') { e.preventDefault(); close(); }
         else if (e.key === 'ArrowDown') { e.preventDefault(); focusItem(idx + 1); }
         else if (e.key === 'ArrowUp') { e.preventDefault(); focusItem(idx - 1); }
         else if (e.key === 'Home') { e.preventDefault(); focusItem(0); }
         else if (e.key === 'End') { e.preventDefault(); focusItem(b.length - 1); }
         else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (idx >= 0) b[idx].click(); }
-        else if (e.key.length === 1 && /\S/.test(e.key)) {
+        else if (typeahead && e.key.length === 1 && /\S/.test(e.key)) {
             typeBuf += e.key.toLowerCase();
             if (typeTimer) clearTimeout(typeTimer);
             typeTimer = setTimeout(() => { typeBuf = ''; }, 600);
-            const m = items.findIndex(it => !it.separator && !it.disabled && (it.label || '').toLowerCase().startsWith(typeBuf));
-            if (m >= 0) focusItem(items.slice(0, m).filter(it => !it.separator && !it.disabled).length);
+            const selectable = items.filter(it => !it.separator && !it.disabled && !it.unavailable);
+            const m = selectable.findIndex(it => (getLabel(it) || '').toLowerCase().startsWith(typeBuf));
+            if (m >= 0) focusItem(m);
         }
     };
-    const openMenu = (focusFirst = true) => {
+    const openMenu = (buildMenuEl, focusFirst = true) => {
         if (open || !triggerEl) return;
         open = true;
-        menuEl = document.createElement('div');
-        menuEl.className = 'ds-popover ds-dropdown-menu';
-        menuEl.setAttribute('role', 'menu');
-        if (ariaLabel) menuEl.setAttribute('aria-label', ariaLabel);
+        menuEl = buildMenuEl();
         menuEl.tabIndex = -1;
+        document.body.appendChild(menuEl);
+        menuEl.addEventListener('keydown', onMenuKey);
+        floating = useFloating(triggerEl, menuEl, { placement, offset: FLOAT_OFFSET_DROPDOWN });
+        document.addEventListener('mousedown', onDown, true);
+        triggerEl.setAttribute('aria-expanded', 'true');
+        if (focusFirst && liveItems().length) queueMicrotask(() => focusItem(0));
+        if (onOpenChange) onOpenChange(true);
+    };
+    const onTrigClick = (buildMenuEl) => { if (open) close(false); else openMenu(buildMenuEl, true); };
+    const onTrigKey = (e, buildMenuEl) => { if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!open) openMenu(buildMenuEl, true); else focusItem(0); } };
+    const refFn = (dsFlag) => (el) => {
+        if (!el || el[dsFlag]) return;
+        el[dsFlag] = true; triggerEl = el;
+        el.setAttribute('aria-haspopup', 'menu');
+        el.setAttribute('aria-expanded', 'false');
+    };
+    return { refFn, onTrigClick, onTrigKey, openMenu, close, focusItem, isOpen: () => open };
+}
+
+// Dropdown — button trigger + portaled menu.
+export function Dropdown({ trigger, items = [], onSelect, placement = 'bottom-start', ariaLabel } = {}) {
+    const menu = useRovingMenu({ itemSelector: '[role="menuitem"]:not([aria-disabled="true"])', items, typeahead: true, placement });
+    const select = (it) => { if (it.disabled || it.separator) return; if (onSelect) onSelect(it.id, it); menu.close(); };
+    const buildMenuEl = () => {
+        const el = document.createElement('div');
+        el.className = 'ds-popover ds-dropdown-menu';
+        el.setAttribute('role', 'menu');
+        if (ariaLabel) el.setAttribute('aria-label', ariaLabel);
         const tree = h('div', { class: 'ds-dropdown-list' },
             ...items.map((it, i) => it.separator
                 ? h('div', { key: 'sep' + i, class: 'ds-dropdown-separator', role: 'separator' })
@@ -241,28 +281,17 @@ export function Dropdown({ trigger, items = [], onSelect, placement = 'bottom-st
                     it.glyph != null ? h('span', { class: 'ds-dropdown-glyph', 'aria-hidden': 'true' }, it.glyph) : null,
                     h('span', { class: 'ds-dropdown-label' }, it.label)
                 )));
-        webjsx.applyDiff(menuEl, tree);
-        document.body.appendChild(menuEl);
-        menuEl.addEventListener('keydown', onMenuKey);
-        floating = useFloating(triggerEl, menuEl, { placement, offset: FLOAT_OFFSET_DROPDOWN });
-        document.addEventListener('mousedown', onDown, true);
-        triggerEl.setAttribute('aria-expanded', 'true');
-        if (focusFirst) queueMicrotask(() => focusItem(0));
+        webjsx.applyDiff(el, tree);
+        return el;
     };
-    const onTrigClick = () => { if (open) close(false); else openMenu(true); };
-    const onTrigKey = (e) => { if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!open) openMenu(true); else focusItem(0); } };
-    const refFn = (el) => {
-        if (!el || el._dsDropdown) return;
-        el._dsDropdown = true; triggerEl = el;
-        el.addEventListener('click', onTrigClick);
-        el.addEventListener('keydown', onTrigKey);
-        el.setAttribute('aria-haspopup', 'menu');
-        el.setAttribute('aria-expanded', 'false');
-    };
+    const onTrigClick = () => menu.onTrigClick(buildMenuEl);
+    const onTrigKey = (e) => menu.onTrigKey(e, buildMenuEl);
+    const refFn = menu.refFn('_dsDropdown');
     const child = (typeof trigger === 'function') ? trigger() : trigger;
+    const wireRef = (el) => { refFn(el); if (el) { el.addEventListener('click', onTrigClick); el.addEventListener('keydown', onTrigKey); } };
     return (child && child.type)
-        ? webjsx.createElement(child.type, { ...(child.props || {}), ref: refFn }, ...(child.children || []))
-        : h('button', { type: 'button', class: 'ds-dropdown-trigger', ref: refFn }, child || 'Menu');
+        ? webjsx.createElement(child.type, { ...(child.props || {}), ref: wireRef }, ...(child.children || []))
+        : h('button', { type: 'button', class: 'ds-dropdown-trigger', ref: wireRef }, child || 'Menu');
 }
 
 // PermissionMenu — a role=menu of role=menuitemcheckbox rows, one per
@@ -272,31 +301,14 @@ export function Dropdown({ trigger, items = [], onSelect, placement = 'bottom-st
 // element, a document-level mousedown listener, focus restored to the
 // trigger on close) rather than reimplementing that plumbing.
 export function PermissionMenu({ trigger, categories = [], approved = [], onToggle, onToggleAll, placement = 'bottom-start', ariaLabel = 'Permissions' } = {}) {
-    let triggerEl = null, open = false, menuEl = null, floating = null;
     const isApproved = (id) => approved.indexOf(id) !== -1;
-    const liveItems = () => menuEl ? [...menuEl.querySelectorAll('[role="menuitemcheckbox"]')] : [];
-    const focusItem = (idx) => { const items = liveItems(); if (!items.length) return; items[((idx % items.length) + items.length) % items.length].focus(); };
-    const onDown = (e) => { if (menuEl && menuEl.contains(e.target)) return; if (triggerEl && triggerEl.contains(e.target)) return; close(false); };
-    const close = (restore = true) => {
-        if (!open) return; open = false;
-        if (floating) { floating.dispose(); floating = null; }
-        if (menuEl && menuEl.parentNode) menuEl.parentNode.removeChild(menuEl);
-        menuEl = null;
-        document.removeEventListener('mousedown', onDown, true);
-        if (triggerEl) triggerEl.setAttribute('aria-expanded', 'false');
-        if (restore && triggerEl) triggerEl.focus();
-    };
+    const menu = useRovingMenu({ itemSelector: '[role="menuitemcheckbox"]', items: categories, getLabel: (cat) => cat.label || cat.id, typeahead: true, placement });
     const toggle = (cat) => { if (onToggle) onToggle(cat.id, !isApproved(cat.id)); };
-    const onMenuKey = (e) => {
-        const items = liveItems(), idx = items.indexOf(document.activeElement);
-        if (e.key === 'Escape') { e.preventDefault(); close(); }
-        else if (e.key === 'ArrowDown') { e.preventDefault(); focusItem(idx + 1); }
-        else if (e.key === 'ArrowUp') { e.preventDefault(); focusItem(idx - 1); }
-        else if (e.key === 'Home') { e.preventDefault(); focusItem(0); }
-        else if (e.key === 'End') { e.preventDefault(); focusItem(items.length - 1); }
-        else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (idx >= 0) items[idx].click(); }
-    };
-    const renderMenu = () => {
+    const buildMenuEl = () => {
+        const el = document.createElement('div');
+        el.className = 'ds-popover ov-perm-menu';
+        el.setAttribute('role', 'menu');
+        el.setAttribute('aria-label', ariaLabel);
         const rows = categories.map((cat, i) => h('button', {
             key: cat.id || i, type: 'button', role: 'menuitemcheckbox',
             'aria-checked': isApproved(cat.id) ? 'true' : 'false',
@@ -307,38 +319,17 @@ export function PermissionMenu({ trigger, categories = [], approved = [], onTogg
         const actionsRow = h('div', { class: 'ov-perm-actions' },
             h('button', { type: 'button', class: 'ov-perm-action', onclick: () => onToggleAll && onToggleAll(true) }, 'Approve all'),
             h('button', { type: 'button', class: 'ov-perm-action', onclick: () => onToggleAll && onToggleAll(false) }, 'Revoke all'));
-        return h('div', { class: 'ov-perm-list' }, ...rows, actionsRow);
+        webjsx.applyDiff(el, h('div', { class: 'ov-perm-list' }, ...rows, actionsRow));
+        return el;
     };
-    const openMenu = (focusFirst = true) => {
-        if (open || !triggerEl) return;
-        open = true;
-        menuEl = document.createElement('div');
-        menuEl.className = 'ds-popover ov-perm-menu';
-        menuEl.setAttribute('role', 'menu');
-        menuEl.setAttribute('aria-label', ariaLabel);
-        menuEl.tabIndex = -1;
-        webjsx.applyDiff(menuEl, renderMenu());
-        document.body.appendChild(menuEl);
-        menuEl.addEventListener('keydown', onMenuKey);
-        floating = useFloating(triggerEl, menuEl, { placement, offset: FLOAT_OFFSET_DROPDOWN });
-        document.addEventListener('mousedown', onDown, true);
-        triggerEl.setAttribute('aria-expanded', 'true');
-        if (focusFirst) queueMicrotask(() => focusItem(0));
-    };
-    const onTrigClick = () => { if (open) close(false); else openMenu(true); };
-    const onTrigKey = (e) => { if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!open) openMenu(true); else focusItem(0); } };
-    const refFn = (el) => {
-        if (!el || el._dsPermMenu) return;
-        el._dsPermMenu = true; triggerEl = el;
-        el.addEventListener('click', onTrigClick);
-        el.addEventListener('keydown', onTrigKey);
-        el.setAttribute('aria-haspopup', 'menu');
-        el.setAttribute('aria-expanded', 'false');
-    };
+    const onTrigClick = () => menu.onTrigClick(buildMenuEl);
+    const onTrigKey = (e) => menu.onTrigKey(e, buildMenuEl);
+    const refFn = menu.refFn('_dsPermMenu');
     const child = (typeof trigger === 'function') ? trigger() : trigger;
+    const wireRef = (el) => { refFn(el); if (el) { el.addEventListener('click', onTrigClick); el.addEventListener('keydown', onTrigKey); } };
     return (child && child.type)
-        ? webjsx.createElement(child.type, { ...(child.props || {}), ref: refFn }, ...(child.children || []))
-        : h('button', { type: 'button', class: 'ov-perm-trigger', ref: refFn }, child || 'Permissions');
+        ? webjsx.createElement(child.type, { ...(child.props || {}), ref: wireRef }, ...(child.children || []))
+        : h('button', { type: 'button', class: 'ov-perm-trigger', ref: wireRef }, child || 'Permissions');
 }
 
 // ApprovalPrompt — an inline, in-thread tool-permission card (as opposed to
@@ -800,44 +791,13 @@ export function AuthModal({ mode = 'extension', error = '', busy = false, open =
 // nothing focusable); roving nav on a single-option list simply refocuses
 // the same item on every Arrow press (wrap-to-self), never throws.
 export function MenuButton({ trigger, items = [], selected, onSelect, onRetry, placement = 'bottom-start', ariaLabel = 'Menu', emptyText = 'No options available' } = {}) {
-    let triggerEl = null, open = false, menuEl = null, floating = null, typeBuf = '', typeTimer = null;
-    const liveBtns = () => menuEl ? [...menuEl.querySelectorAll('[role="menuitemradio"]:not([aria-disabled="true"])')] : [];
-    const focusItem = (idx) => { const b = liveBtns(); if (!b.length) return; b[((idx % b.length) + b.length) % b.length].focus(); };
-    const onDown = (e) => { if (menuEl && menuEl.contains(e.target)) return; if (triggerEl && triggerEl.contains(e.target)) return; close(false); };
-    const close = (restore = true) => {
-        if (!open) return; open = false;
-        if (floating) { floating.dispose(); floating = null; }
-        if (menuEl && menuEl.parentNode) menuEl.parentNode.removeChild(menuEl);
-        menuEl = null;
-        document.removeEventListener('mousedown', onDown, true);
-        if (triggerEl) triggerEl.setAttribute('aria-expanded', 'false');
-        if (restore && triggerEl) triggerEl.focus();
-    };
-    const select = (it) => { if (it.disabled || it.unavailable) return; if (onSelect) onSelect(it.id, it); close(); };
-    const onMenuKey = (e) => {
-        const b = liveBtns(), idx = b.indexOf(document.activeElement);
-        if (e.key === 'Escape') { e.preventDefault(); close(); }
-        else if (e.key === 'ArrowDown') { e.preventDefault(); focusItem(idx + 1); }
-        else if (e.key === 'ArrowUp') { e.preventDefault(); focusItem(idx - 1); }
-        else if (e.key === 'Home') { e.preventDefault(); focusItem(0); }
-        else if (e.key === 'End') { e.preventDefault(); focusItem(b.length - 1); }
-        else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (idx >= 0) b[idx].click(); }
-        else if (e.key.length === 1 && /\S/.test(e.key)) {
-            typeBuf += e.key.toLowerCase();
-            if (typeTimer) clearTimeout(typeTimer);
-            typeTimer = setTimeout(() => { typeBuf = ''; }, 600);
-            const m = items.findIndex(it => !it.disabled && !it.unavailable && (it.label || '').toLowerCase().startsWith(typeBuf));
-            if (m >= 0) focusItem(items.slice(0, m).filter(it => !it.disabled && !it.unavailable).length);
-        }
-    };
-    const openMenu = (focusFirst = true) => {
-        if (open || !triggerEl) return;
-        open = true;
-        menuEl = document.createElement('div');
-        menuEl.className = 'ds-popover ov-menubutton-menu';
-        menuEl.setAttribute('role', 'menu');
-        menuEl.setAttribute('aria-label', ariaLabel);
-        menuEl.tabIndex = -1;
+    const menu = useRovingMenu({ itemSelector: '[role="menuitemradio"]:not([aria-disabled="true"])', items, typeahead: true, placement });
+    const select = (it) => { if (it.disabled || it.unavailable) return; if (onSelect) onSelect(it.id, it); menu.close(); };
+    const buildMenuEl = () => {
+        const el = document.createElement('div');
+        el.className = 'ds-popover ov-menubutton-menu';
+        el.setAttribute('role', 'menu');
+        el.setAttribute('aria-label', ariaLabel);
         const tree = items.length
             ? h('div', { class: 'ov-menubutton-list' },
                 ...items.map((it, i) => it.unavailable
@@ -856,28 +816,17 @@ export function MenuButton({ trigger, items = [], selected, onSelect, onRetry, p
                         h('span', { class: 'ov-menubutton-label' }, it.label)
                     )))
             : h('div', { class: 'ov-menubutton-empty' }, emptyText);
-        webjsx.applyDiff(menuEl, tree);
-        document.body.appendChild(menuEl);
-        menuEl.addEventListener('keydown', onMenuKey);
-        floating = useFloating(triggerEl, menuEl, { placement, offset: FLOAT_OFFSET_DROPDOWN });
-        document.addEventListener('mousedown', onDown, true);
-        triggerEl.setAttribute('aria-expanded', 'true');
-        if (focusFirst && items.length) queueMicrotask(() => focusItem(0));
+        webjsx.applyDiff(el, tree);
+        return el;
     };
-    const onTrigClick = () => { if (open) close(false); else openMenu(true); };
-    const onTrigKey = (e) => { if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!open) openMenu(true); else focusItem(0); } };
-    const refFn = (el) => {
-        if (!el || el._ovMenuButton) return;
-        el._ovMenuButton = true; triggerEl = el;
-        el.addEventListener('click', onTrigClick);
-        el.addEventListener('keydown', onTrigKey);
-        el.setAttribute('aria-haspopup', 'menu');
-        el.setAttribute('aria-expanded', 'false');
-    };
+    const onTrigClick = () => menu.onTrigClick(buildMenuEl);
+    const onTrigKey = (e) => menu.onTrigKey(e, buildMenuEl);
+    const refFn = menu.refFn('_ovMenuButton');
     const child = (typeof trigger === 'function') ? trigger() : trigger;
+    const wireRef = (el) => { refFn(el); if (el) { el.addEventListener('click', onTrigClick); el.addEventListener('keydown', onTrigKey); } };
     return (child && child.type)
-        ? webjsx.createElement(child.type, { ...(child.props || {}), ref: refFn }, ...(child.children || []))
-        : h('button', { type: 'button', class: 'ov-menubutton-trigger', ref: refFn }, child || 'Select');
+        ? webjsx.createElement(child.type, { ...(child.props || {}), ref: wireRef }, ...(child.children || []))
+        : h('button', { type: 'button', class: 'ov-menubutton-trigger', ref: wireRef }, child || 'Select');
 }
 
 // VideoLightbox — fullscreen video player overlay with backdrop dismiss.

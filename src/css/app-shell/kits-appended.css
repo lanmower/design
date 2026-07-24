@@ -385,6 +385,7 @@
 .ds-avatar-sm { width: 24px; height: 24px; font-size: 10px; }
 .ds-avatar-md { width: 36px; height: 36px; font-size: 12px; }
 .ds-avatar-lg { width: 48px; height: 48px; font-size: 15px; }
+.ds-avatar-square { border-radius: var(--r-2, 6px); }
 
 /* SpreadsheetPreview — tabbed inline spreadsheet/CSV viewer (docstudio
    xls-preview.js port). Tabs reuse the same neutral-at-rest pattern as

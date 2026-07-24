@@ -2,6 +2,7 @@
 
 import * as webjsx from '../../vendor/webjsx/index.js';
 import { Icon } from './shell.js';
+import { Avatar, avatarInitial } from './content.js';
 import { sanitizeHtml } from '../markdown.js';
 const h = webjsx.createElement;
 
@@ -10,7 +11,6 @@ const h = webjsx.createElement;
 const clampCount = (n) => { const v = Number(n) || 0; return v > 99 ? '99+' : String(v); };
 
 export function ServerIcon({ id, name, icon, active, badge, onClick } = {}) {
-    const initials = (name || '?').slice(0, 2).toUpperCase();
     return h('div', {
         class: 'cm-server-icon' + (active ? ' active' : ''),
         onclick: onClick,
@@ -27,7 +27,7 @@ export function ServerIcon({ id, name, icon, active, badge, onClick } = {}) {
         }
     },
         h('span', { class: 'cm-server-pill' }),
-        icon ? h('img', { src: icon, alt: name }) : h('span', {}, initials),
+        icon ? h('img', { src: icon, alt: name }) : Avatar({ name, shape: 'square', initialsCount: 2 }),
         badge ? h('span', { class: 'cm-server-badge' }, badge > 99 ? '99+' : String(badge)) : null
     );
 }
@@ -88,7 +88,7 @@ export function ChannelItem({ id, name, type = 'text', active, voiceActive, voic
         ),
         voiceActive && participants.length ? h('div', { class: 'cm-ch-voice-users' },
             ...participants.map(p => h('div', { class: 'cm-ch-voice-user' + (p.speaking ? ' speaking' : '') },
-                h('div', { class: 'cm-ch-voice-user-avatar', style: p.color ? `--avatar-bg:${p.color}` : null }, (p.identity || '?').slice(0, 1).toUpperCase()),
+                h('div', { class: 'cm-ch-voice-user-avatar', style: p.color ? `--avatar-bg:${p.color}` : null }, avatarInitial(p.identity)),
                 h('span', { class: 'cm-ch-voice-user-name' }, p.identity)
             ))
         ) : null
@@ -120,7 +120,7 @@ export function ChannelCategory({ id, name, channels = [], collapsed, activeId, 
 }
 
 export function VoiceUser({ identity, speaking, color } = {}) {
-    const initial = (identity || '?').slice(0, 1).toUpperCase();
+    const initial = avatarInitial(identity);
     return h('div', { class: 'cm-voice-user' + (speaking ? ' speaking' : '') },
         h('div', { class: 'cm-voice-user-avatar', style: color ? `--avatar-bg:${color}` : null }, initial),
         h('span', { class: 'cm-voice-user-name' }, identity)
@@ -128,7 +128,7 @@ export function VoiceUser({ identity, speaking, color } = {}) {
 }
 
 export function UserPanel({ name, tag, color, muted, deafened, onMute, onDeafen, onSettings } = {}) {
-    const initial = (name || '?').slice(0, 1).toUpperCase();
+    const initial = avatarInitial(name);
     const handleSettings = (e) => {
         e.preventDefault();
         if (onSettings) {
@@ -204,7 +204,7 @@ export function ChannelSidebar({ serverName, channels = [], categories = [], act
 }
 
 export function MemberItem({ identity, name, color, status = 'online' } = {}) {
-    const initial = (name || identity || '?').slice(0, 1).toUpperCase();
+    const initial = avatarInitial(name || identity);
     return h('div', { class: 'cm-member-item' },
         h('div', { class: 'cm-member-avatar', style: color ? `--avatar-bg:${color}` : null },
             h('span', { class: 'cm-member-status' + (status === 'online' ? ' online' : '') }),

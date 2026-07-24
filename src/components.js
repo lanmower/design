@@ -16,7 +16,7 @@ export {
     WorksList, WritingList, Manifesto, Section, PageHeader,
     Kpi, Sparkline, BarChart, Table, SearchInput, TextField, Select, EventList,
     HomeView, ProjectView, Form,
-    Spinner, Skeleton, Alert, FilterPills, Avatar
+    Spinner, Skeleton, Alert, FilterPills, Avatar, avatarInitial
 } from './components/content.js';
 
 export {

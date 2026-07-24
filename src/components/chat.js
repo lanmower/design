@@ -10,6 +10,7 @@ import { fmtFileSize } from './files.js';
 import { EmojiPicker } from './overlay-primitives.js';
 import { t } from '../i18n.js';
 import { renderMessagePart as sharedRenderMessagePart, safeUrl as sharedSafeUrl, renderInline as sharedRenderInline, injectCodeCopy as sharedInjectCodeCopy } from './chat-message-parts.js';
+import { avatarInitial } from './content.js';
 
 // Matches a trailing `:keyword` at the end of the composer draft (optionally
 // preceded by whitespace/start-of-string) so typing `:smile` opens an inline
@@ -119,7 +120,7 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     const cls = 'chat-msg ' + resolvedWho + (aicat && resolvedWho === 'them' ? ' aicat' : '') + (isCentered ? ' centered' : '') + (isFlat ? ' chat-msg-flat' : '');
     const fallbackAvatar = avatar != null
         ? avatar
-        : (resolvedWho === 'you' ? 'u' : (name ? String(name).trim().charAt(0).toUpperCase() || '?' : '?'));
+        : (resolvedWho === 'you' ? 'u' : avatarInitial(name));
     const av = h('span', { class: 'chat-avatar' }, fallbackAvatar);
     let bodyNodes;
     if (typing) bodyNodes = [h('div', { class: 'chat-bubble', key: 'typb' }, h('span', { class: 'chat-typing' }, h('span'), h('span'), h('span')))];
