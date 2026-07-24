@@ -430,7 +430,7 @@ A Claude-Desktop / cowork three-(or four-)column app shell.  Pure stateless chro
 
 **Kind:** component
 
-**Signature:** `value`, `onInput`, `onSend`, `onEmoji`, `onCancel`, `busy`, `placeholder` = `'message…'`, `disabled`, `disabledReason`, `label`, `context`, `onPasteFiles`, `onDropFiles`, `streamingSince`, `detectAttachment`
+**Signature:** `value`, `onInput`, `onSend`, `onEmoji`, `onCancel`, `busy`, `placeholder` = `'message…'`, `disabled`, `disabledReason`, `label`, `context`, `onPasteFiles`, `onDropFiles`, `streamingSince`, `detectAttachment`, `mentionFiles`
 
 ### Chat
 
