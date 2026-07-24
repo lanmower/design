@@ -72,7 +72,7 @@ export {
 export { ThemeToggle } from './components/theme-toggle.js';
 
 export {
-    Checkbox, Radio, RadioGroup, Toggle, Field, useFormValidation
+    Checkbox, Radio, RadioGroup, Toggle, Field, useFormValidation, focusFirstInvalidField
 } from './components/form-primitives.js';
 
 export {
@@ -97,7 +97,7 @@ export {
     useMediaQuery,
     BP_SM, BP_MD, BP_LG, BP_XL,
     InfoRow, InfoSection, DiagnosticsPanel,
-    BatchProgressLabel, formatBatchOutcome
+    BatchProgressLabel, formatBatchOutcome, runBatchSequential
 } from './components/editor-primitives.js';
 
 export {

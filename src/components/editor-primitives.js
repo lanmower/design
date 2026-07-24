@@ -990,3 +990,29 @@ export function formatBatchOutcome({ succeeded = 0, total = 0, failedNames = [],
     const more = failedNames.length > maxNames ? ` and ${failedNames.length - maxNames} more` : '';
     return `${succeeded}/${total} succeeded; failed: ${shown}${more}`;
 }
+
+// runBatchSequential — pure async orchestration companion to
+// BatchProgressLabel/formatBatchOutcome: runs `items` through `fn` one at a
+// time (never in parallel, matching docstudio's rate-limited bulk-action
+// runner), never aborting on a single item's failure. `onProgress({done,
+// total})` fires after each item settles so a host can drive
+// BatchProgressLabel live; the final `{succeeded, total, failedNames}`
+// return shape feeds formatBatchOutcome directly. `fn` receives (item, index)
+// and may reject/throw — a rejection is recorded as a failure keyed by
+// `item.name != null ? item.name : String(item)`, never re-thrown.
+export async function runBatchSequential(items = [], fn, onProgress) {
+    const total = items.length;
+    let succeeded = 0;
+    const failedNames = [];
+    for (let i = 0; i < total; i += 1) {
+        const item = items[i];
+        try {
+            await fn(item, i);
+            succeeded += 1;
+        } catch (err) {
+            failedNames.push(item && item.name != null ? item.name : String(item));
+        }
+        if (onProgress) onProgress({ done: i + 1, total });
+    }
+    return { succeeded, total, failedNames };
+}

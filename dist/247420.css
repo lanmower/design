@@ -9634,7 +9634,7 @@
 }
 .ds-247420 .ds-ep-diagnostics-refresh:disabled { opacity: 0.6; cursor: not-allowed; }
 .ds-247420 .ds-ep-diagnostics-refresh:hover:not(:disabled), .ds-247420 .ds-ep-diagnostics-refresh:focus-visible { background: var(--panel-3, var(--rule)); outline: none; }
-.ds-247420 .ds-ep-infosection { border: 1px solid var(--rule); border-radius: var(--r-2, 8px); padding: var(--space-2-75); }
+.ds-247420 .ds-ep-infosection { border: 1px solid var(--rule); border-radius: var(--r-2, 8px); padding: var(--space-2-75); min-height: 4.5rem; }
 .ds-247420 .ds-ep-infosection-title { margin: 0 0 var(--space-1-5); font-size: var(--fs-sm); text-transform: uppercase; letter-spacing: 0.04em; color: var(--fg-muted); }
 .ds-247420 .ds-ep-infosection-rows { display: flex; flex-direction: column; gap: var(--space-1); }
 .ds-247420 .ds-ep-infosection-loading { padding: var(--space-2) 0; color: var(--fg-muted); font-size: var(--fs-sm); }
