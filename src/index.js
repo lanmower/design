@@ -13,6 +13,8 @@ import { renderMarkdown, ensureReady as ensureMarkdownReady, sanitizeHtml, isDeg
 import { escapeHtml, escapeJson } from './html-escape.js';
 import { uid, shortUid } from './uid.js';
 import { ensurePrism, highlightAllUnder, configurePrismCdn, getPrismCdnConfig } from './highlight.js';
+import { ensureMermaid, renderMermaid, renderMermaidBlocksUnder, configureMermaidCdn, getMermaidCdnConfig } from './mermaid.js';
+import { ensureKatex, renderMathBlocksUnder, configureKatexCdn, getKatexCdnConfig } from './math.js';
 import { renderPageHtml } from './page-html.js';
 import { HeroFromPageData } from './components/content.js';
 import { ThemeToggle } from './components/theme-toggle.js';
@@ -85,6 +87,8 @@ export {
     renderMarkdown, ensureMarkdownReady, sanitizeHtml, isMarkdownDegraded,
     configureMarkdownCdn, getMarkdownCdnConfig,
     ensurePrism, highlightAllUnder, configurePrismCdn, getPrismCdnConfig,
+    ensureMermaid, renderMermaid, renderMermaidBlocksUnder, configureMermaidCdn, getMermaidCdnConfig,
+    ensureKatex, renderMathBlocksUnder, configureKatexCdn, getKatexCdnConfig,
     registerChatElement, DsChat,
     registerFreddieChatElement, FreddieChat,
     renderPageHtml, HeroFromPageData,
@@ -99,6 +103,8 @@ export {
 };
 export { applyTheme, getTheme, resolvedTheme, onThemeChange, initTheme,
          applyAccent, getAccent, applyDensity, getDensity } from './theme.js';
+export { extractAtQuery, buildEntriesFromFiles, filterFileEntries, buildAtInsertText,
+         buildAtMentionText, buildFileAtMentionsText } from './file-mention.js';
 export const h = webjsx.createElement;
 export const applyDiff = webjsx.applyDiff;
 

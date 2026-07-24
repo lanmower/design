@@ -33,16 +33,32 @@ function statusMeta(status) {
 const EXT_TYPE = {
     js: 'code', mjs: 'code', cjs: 'code', ts: 'code', tsx: 'code', jsx: 'code',
     py: 'code', rs: 'code', go: 'code', java: 'code', c: 'code', cpp: 'code', h: 'code',
-    css: 'code', scss: 'code', html: 'code', json: 'code', yml: 'code', yaml: 'code', toml: 'code', sh: 'code',
-    md: 'document', mdx: 'document', txt: 'text',
-    png: 'image', jpg: 'image', jpeg: 'image', gif: 'image', svg: 'image', webp: 'image',
-    mp4: 'video', mov: 'video', webm: 'video',
-    mp3: 'audio', wav: 'audio',
-    zip: 'archive', tar: 'archive', gz: 'archive',
+    css: 'code', less: 'code', scss: 'code', html: 'code', htm: 'code', json: 'code', jsonl: 'code',
+    yml: 'code', yaml: 'code', toml: 'code', sh: 'code', bash: 'code', zsh: 'code', fish: 'code',
+    sql: 'code', graphql: 'code', gql: 'code', tf: 'code', hcl: 'code',
+    md: 'document', mdx: 'document', txt: 'text', pdf: 'document', docx: 'document', doc: 'document',
+    png: 'image', jpg: 'image', jpeg: 'image', gif: 'image', svg: 'image', webp: 'image', bmp: 'image', ico: 'image', avif: 'image',
+    mp4: 'video', mov: 'video', webm: 'video', avi: 'video', mkv: 'video',
+    mp3: 'audio', wav: 'audio', flac: 'audio', ogg: 'audio', m4a: 'audio',
+    zip: 'archive', tar: 'archive', gz: 'archive', '7z': 'archive', rar: 'archive', bz2: 'archive',
+};
+
+// Filenames (not extensions) that need a specific bucket regardless of any
+// trailing dot-segment — lockfiles have no meaningful "extension" split and
+// dotfiles like .gitignore/.env would otherwise fall through to 'other'.
+const NAME_TYPE = {
+    'package-lock.json': 'code', 'yarn.lock': 'code', 'bun.lock': 'code',
+    'pnpm-lock.yaml': 'code', 'cargo.lock': 'code', 'composer.lock': 'code',
+    '.gitignore': 'text', '.gitattributes': 'text', '.gitmodules': 'text',
+    '.env': 'text', '.editorconfig': 'text', '.npmrc': 'text',
 };
 
 function fileTypeFromPath(pathname = '') {
     const base = pathname.split('/').pop() || pathname;
+    const lower = base.toLowerCase();
+    if (NAME_TYPE[lower]) return NAME_TYPE[lower];
+    if (lower.startsWith('.env.')) return 'text';
+    if (lower === 'dockerfile' || lower.startsWith('dockerfile.')) return 'code';
     const dot = base.lastIndexOf('.');
     if (dot <= 0) return 'other';
     return EXT_TYPE[base.slice(dot + 1).toLowerCase()] || 'other';

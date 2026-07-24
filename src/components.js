@@ -27,6 +27,8 @@ export {
 
 export { AgentChat, MESSAGE_CAP } from './components/agent-chat.js';
 
+export { ChatMinimap, CHAT_MINIMAP_WIDTH } from './components/chat-minimap.js';
+
 export {
     ConversationList, SessionCard, SessionDashboard, SessionMeta, fmtDuration, fmtTime, fmtAgo, AgentListSkeleton
 } from './components/sessions.js';
@@ -38,6 +40,12 @@ export { SpreadsheetPreview } from './components/spreadsheet-preview.js';
 export { GitStatusPanel, GitDiffView } from './components/git-status.js';
 
 export { WorktreeSwitcher } from './components/worktree-switcher.js';
+
+export { PluginsConfig } from './components/plugins-config.js';
+
+export { SkillsConfig } from './components/skills-config.js';
+
+export { ModelsConfig } from './components/models-config.js';
 
 export {
     DEFAULT_PHASES, PhaseWalk, TreeNode, BarRow, RateCell,
@@ -66,7 +74,8 @@ export {
 } from './components/community.js';
 
 export {
-    PttButton, VadMeter, WebcamPreview, VoiceSettingsModal, AudioQueue, VoiceControls
+    PttButton, VadMeter, WebcamPreview, VoiceSettingsModal, AudioQueue, VoiceControls,
+    playCompletionCue
 } from './components/voice.js';
 
 export { ThemeToggle } from './components/theme-toggle.js';
@@ -78,7 +87,8 @@ export {
 export {
     useDraggable, useDropTarget, useNumberScrub, usePointerDrag, Reorderable,
     useKeyboardShortcut, formatShortcut, ShortcutHint, ShortcutList,
-    useKeyboardShortcutHelp, ShortcutHelpDialog
+    useKeyboardShortcutHelp, ShortcutHelpDialog,
+    isMobileNow, onMobileChange
 } from './components/interaction-primitives.js';
 
 export {

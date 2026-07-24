@@ -503,6 +503,55 @@
 .ds-session-state { padding: var(--space-5) var(--space-3); text-align: center; color: var(--fg-3); font-size: var(--fs-sm); }
 .ds-session-state-error { color: var(--flame); }
 
+/* Fork/branch tree nesting — child sessions indent under their parent with a
+   collapse toggle and a small branch glyph, mirroring pi-web's SessionSidebar
+   tree without reimplementing its inline-style React component. */
+.ds-session-row-nested { position: relative; }
+.ds-session-tree-toggle {
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; padding: 0; background: none; border: none;
+  color: var(--fg-3); cursor: pointer; transform: rotate(0deg); transition: transform var(--dur-snap) var(--ease);
+}
+.ds-session-tree-toggle.open { transform: rotate(90deg); }
+.ds-session-tree-toggle:hover { color: var(--fg); }
+.ds-session-fork-icon { flex: 0 0 auto; display: inline-flex; color: var(--fg-3); }
+
+/* Hover-revealed rename/delete row actions. */
+.ds-session-row-actions { flex: 0 0 auto; display: none; align-items: center; gap: var(--space-1); }
+.ds-session-row:hover .ds-session-row-actions,
+.ds-session-row:focus-within .ds-session-row-actions { display: flex; }
+.ds-session-row-action {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; padding: 0; background: var(--bg-2); border: var(--border-w) solid var(--border);
+  border-radius: var(--r-1); color: var(--fg-3); cursor: pointer;
+}
+.ds-session-row-action:hover { background: var(--bg-3); color: var(--fg); border-color: var(--fg-3); }
+.ds-session-row-action-danger:hover { background: color-mix(in srgb, var(--flame) 12%, var(--bg-2)); color: var(--flame); border-color: var(--flame); }
+@media (pointer: coarse) { .ds-session-row-action { min-width: 44px; min-height: 44px; } }
+
+/* Inline rename — the row's title area swaps for a text input at the same
+   height; no modal, matches the row-in-place edit pattern used elsewhere. */
+.ds-session-rename-input {
+  flex: 1; min-width: 0; font-size: var(--fs-sm); font-family: inherit; color: var(--fg);
+  background: var(--bg); border: var(--border-w) solid var(--accent); border-radius: var(--r-1);
+  padding: var(--space-1) var(--space-2);
+}
+.ds-session-rename-input:focus { outline: none; }
+
+/* Inline delete confirm — same row height, two flat buttons, no modal;
+   mirrors SessionDashboard's arm-then-confirm bulk-stop control. */
+.ds-session-confirm-msg { flex: 1; min-width: 0; font-size: var(--fs-sm); color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-session-confirm-actions { flex: 0 0 auto; display: flex; gap: var(--space-1); }
+.ds-session-confirm-delete, .ds-session-confirm-cancel {
+  font-size: var(--fs-tiny); font-weight: 600; padding: var(--space-1) var(--space-2);
+  border-radius: var(--r-1); cursor: pointer;
+}
+.ds-session-confirm-delete { background: var(--flame); border: none; color: var(--bg); }
+.ds-session-confirm-delete:hover { filter: brightness(1.1); }
+.ds-session-confirm-cancel { background: var(--bg-2); border: var(--border-w) solid var(--border); color: var(--fg-2); }
+.ds-session-confirm-cancel:hover { background: var(--bg-3); color: var(--fg); }
+@media (pointer: coarse) { .ds-session-confirm-delete, .ds-session-confirm-cancel { min-height: 44px; } }
+
 /* ----------------------------------------------------------------------------
    SessionDashboard — grid of live-session cards.
 ---------------------------------------------------------------------------- */
@@ -1212,3 +1261,82 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   filter: none;
 }
 .chat-composer .send.cancel:active { filter: brightness(0.96); }
+
+/* ChatMinimap — scroll-position density overview beside a chat thread.
+   Purely token-driven (no raw color literals — see lintTokensOrThrow). Dot
+   position/tooltip offsets are set imperatively in JS (chat-minimap.js) since
+   they are per-render numeric layout, not a static rule. */
+.chat-minimap {
+  position: relative;
+  flex-shrink: 0;
+  align-self: stretch;
+  cursor: default;
+  user-select: none;
+  border-left: var(--bw-hair) solid var(--rule);
+  background: var(--bg-2);
+  overflow: visible;
+}
+.chat-minimap-viewport {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: color-mix(in oklab, var(--fg-3) 12%, transparent);
+  border-top: var(--bw-hair) solid var(--rule);
+  border-bottom: var(--bw-hair) solid var(--rule);
+  pointer-events: none;
+  z-index: 1;
+}
+.chat-minimap-centerline {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--rule);
+  transform: translateX(-50%);
+  z-index: 0;
+}
+.chat-minimap-dot {
+  position: absolute;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-pill, 999px);
+  transform: translate(-50%, -50%) scale(1);
+  transition: transform 0.1s;
+  z-index: 2;
+}
+.chat-minimap-dot.is-user {
+  background: color-mix(in oklab, var(--accent) 18%, transparent);
+  border: 1.5px solid color-mix(in oklab, var(--accent) 70%, transparent);
+}
+.chat-minimap-dot.is-assistant {
+  background: color-mix(in oklab, var(--fg-3) 12%, transparent);
+  border: 1.5px solid color-mix(in oklab, var(--fg-3) 50%, transparent);
+}
+.chat-minimap-dot.is-nearest { transform: translate(-50%, -50%) scale(1.6); }
+.chat-minimap-tooltip {
+  position: absolute;
+  right: 100%;
+  margin-right: var(--space-1);
+  background: var(--bg);
+  border-top: var(--bw-hair) solid var(--rule);
+  border-right: var(--bw-hair) solid var(--rule);
+  border-bottom: var(--bw-hair) solid var(--rule);
+  border-left: 2px solid var(--fg-3);
+  border-radius: var(--r-1);
+  padding: calc(var(--space-1) / 2) var(--space-2);
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.45;
+  font-size: var(--fs-tiny);
+  color: var(--fg-3);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: top 0.1s, opacity 0.1s;
+}
+.chat-minimap-tooltip.is-user { border-left-color: color-mix(in oklab, var(--accent) 70%, transparent); }
+.chat-minimap-tooltip.is-assistant { border-left-color: color-mix(in oklab, var(--fg-3) 50%, transparent); }
+.chat-minimap-tooltip.is-nearest { opacity: 1; color: var(--fg); }

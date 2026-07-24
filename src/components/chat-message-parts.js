@@ -18,9 +18,12 @@
 import * as webjsx from '../../vendor/webjsx/index.js';
 import { renderMarkdownCached, highlightCodeBlockCached } from '../markdown-cache.js';
 import { isDegraded as isMarkdownDegraded } from '../markdown.js';
+import { renderMermaidBlocksUnder } from '../mermaid.js';
+import { renderMathBlocksUnder } from '../math.js';
 import { Icon } from './shell.js';
 import { fmtFileSize } from './files.js';
 import { t } from '../i18n.js';
+import { GitDiffView } from './git-status.js';
 
 const h = webjsx.createElement;
 
@@ -181,7 +184,17 @@ function MdNode(p) {
                 // matches before swapping innerHTML into what could now be a
                 // completely different message's bubble.
                 if (el.dataset.mdSrc !== srcKey) return;
-                const swap = () => { el.innerHTML = html; injectCodeCopy(el); };
+                const swap = () => {
+                    el.innerHTML = html;
+                    delete el.dataset.mathWired;
+                    injectCodeCopy(el);
+                    // Diagram/math enrichment runs AFTER sanitized HTML is in the DOM
+                    // (never on raw markdown source) and is best-effort: a failed or
+                    // still-loading mermaid/katex CDN leaves the fenced/literal source
+                    // visible rather than blocking or blanking the bubble.
+                    renderMermaidBlocksUnder(el).catch(() => {});
+                    renderMathBlocksUnder(el).catch(() => {});
+                };
                 // Don't blow away an active text selection inside this bubble mid-swap
                 // (e.g. the user is mid-copy while a stream tick settles). Defer the
                 // swap once, until the selection changes (cleared or moved elsewhere).
@@ -238,6 +251,22 @@ function CodeNode(p) {
     );
 }
 
+// A tool result reads as a unified diff when it has at least one `@@ ... @@`
+// hunk header and a +/- line — cheap enough to check on every render (no
+// caching) since it only runs once per settled tool card, not per rAF tick.
+function looksLikeUnifiedDiff(text) {
+    if (!text || text.indexOf('@@') === -1) return false;
+    return /^@@ .* @@/m.test(text) && /^[+-]/m.test(text);
+}
+
+// Pull a filename out of a unified diff's `+++ b/path` (or `--- a/path`)
+// header line, for the GitDiffView head label — best-effort, no filename is
+// fine (GitDiffView renders headerless).
+function filenameFromDiff(text) {
+    const m = /^\+\+\+ b?\/?(.+)$/m.exec(text) || /^--- a?\/?(.+)$/m.exec(text);
+    return m ? m[1].trim() : undefined;
+}
+
 // Freddie-flavored agent parts: collapsible tool-call card, tool-result, and
 // transient thinking indicator. Each renders as a `chat-bubble` variant so the
 // surrounding ChatMessage chrome (avatar/meta/reactions) stays consistent.
@@ -278,9 +307,18 @@ function ToolCallNode(p) {
                 hasArgs ? h('div', { class: 'chat-tool-section' },
                     sectionLabel('args', argsText),
                     h('pre', { class: 'chat-tool-pre' }, h('code', {}, argsText))) : null,
-                resultText ? h('div', { class: 'chat-tool-section' },
-                    sectionLabel(p.error ? 'error' : 'result', resultText),
-                    h('pre', { class: 'chat-tool-pre' + (p.error ? ' is-error' : '') }, h('code', {}, resultText)))
+                resultText
+                    ? (!p.error && looksLikeUnifiedDiff(resultText)
+                        // A patch-shaped tool result (edit/write/diff tools) renders
+                        // through the same split unified-diff view git-status.js's
+                        // GitDiffView already owns, instead of a raw JSON/text dump —
+                        // colored +/- hunks read far better than escaped plaintext.
+                        ? h('div', { class: 'chat-tool-section' },
+                            sectionLabel('result', resultText),
+                            GitDiffView({ diff: resultText, filename: filenameFromDiff(resultText) }))
+                        : h('div', { class: 'chat-tool-section' },
+                            sectionLabel(p.error ? 'error' : 'result', resultText),
+                            h('pre', { class: 'chat-tool-pre' + (p.error ? ' is-error' : '') }, h('code', {}, resultText))))
                     // A finished tool with no output would otherwise render no result
                     // section, reading identically to a still-running tool. Show an
                     // explicit placeholder so "done, empty" is distinguishable.

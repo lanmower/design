@@ -32,7 +32,7 @@ export function ToolbarRow(...actions) {
     return h('div', { class: 'ds-ep-toolbar-row', role: 'toolbar' }, ...kids(flat));
 }
 
-export function Tabs({ items = [], active, onChange, children, 'aria-label': ariaLabel } = {}) {
+export function Tabs({ items = [], active, onChange, children, 'aria-label': ariaLabel, onClose, scroll = false } = {}) {
     // Roving tabindex + arrow nav per WAI-ARIA tabs pattern.
     // Only the active tab is in the tab order; arrows move focus + activate.
     const activeIdx = Math.max(0, items.findIndex(it => it.id === active));
@@ -76,21 +76,48 @@ export function Tabs({ items = [], active, onChange, children, 'aria-label': ari
         ind.style.top = (head.offsetTop + head.offsetHeight - 2) + 'px';
         head.classList.add('has-slider');
     };
+    // scroll=true: tabs size to content (min/max-width) instead of stretching
+    // equally (flex:1) — the shape pi-web's TabBar uses for an open-file strip
+    // where tab count is unbounded and overflow-x scroll (already on
+    // .ds-ep-tabs-head) needs real per-tab widths to have something to scroll.
+    // onClose: per-item close affordance — a close button plus middle-click
+    // (auxclick button 1) to close, matching pi-web's TabBar. Opt-in: passing
+    // onClose without scroll still renders close buttons on the flex:1 tabs.
+    const closable = typeof onClose === 'function';
     return h('div', { class: 'ds-ep-tabs', ref: positionSlider },
-        h('div', { class: 'ds-ep-tabs-head', role: 'tablist', 'aria-label': ariaLabel || 'tabs' },
-            ...items.map((it, idx) => h('button', {
+        h('div', { class: 'ds-ep-tabs-head' + (scroll ? ' scroll' : ''), role: 'tablist', 'aria-label': ariaLabel || 'tabs' },
+            ...items.map((it, idx) => h('span', {
                 key: it.id,
-                type: 'button',
-                class: 'ds-ep-tab' + (it.id === active ? ' active' : ''),
-                role: 'tab',
-                id: 'tab-' + it.id,
-                'aria-selected': it.id === active ? 'true' : 'false',
-                'aria-controls': 'tabpanel-' + it.id,
-                'aria-label': typeof it.label === 'string' ? it.label : ('tab ' + (idx + 1)),
-                tabindex: idx === activeIdx ? '0' : '-1',
-                onclick: () => onChange && onChange(it.id),
-                onkeydown: (e) => onTabKeyDown(e, idx)
-            }, it.label))
+                class: 'ds-ep-tab-wrap' + (it.id === active ? ' active' : ''),
+                onmousedown: closable ? (e) => { if (e.button === 1) e.preventDefault(); } : null,
+                onauxclick: closable ? (e) => {
+                    if (e.button !== 1) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onClose(it.id);
+                } : null
+            },
+                h('button', {
+                    type: 'button',
+                    class: 'ds-ep-tab' + (it.id === active ? ' active' : ''),
+                    role: 'tab',
+                    id: 'tab-' + it.id,
+                    title: typeof it.label === 'string' ? it.label : undefined,
+                    'aria-selected': it.id === active ? 'true' : 'false',
+                    'aria-controls': 'tabpanel-' + it.id,
+                    'aria-label': typeof it.label === 'string' ? it.label : ('tab ' + (idx + 1)),
+                    tabindex: idx === activeIdx ? '0' : '-1',
+                    onclick: () => onChange && onChange(it.id),
+                    onkeydown: (e) => onTabKeyDown(e, idx)
+                }, it.label),
+                closable ? h('button', {
+                    type: 'button',
+                    class: 'ds-ep-tab-close',
+                    title: 'Close',
+                    'aria-label': 'Close ' + (typeof it.label === 'string' ? it.label : 'tab'),
+                    onclick: (e) => { e.stopPropagation(); onClose(it.id); }
+                }, Icon('x', { size: 14 })) : null
+            ))
         ),
         // The sliding underline — child of the outer column (see positionSlider).
         // Keyed + decorative. Renders at 0-width until positioned (no-JS: hidden).

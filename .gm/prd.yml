@@ -1919,3 +1919,60 @@
   subject: Live-fetch verification (2nd gm-continue confirming pass) found the deploy workflow itself never ships editor-primitives.css to production -- .github/workflows/gh-pages.yml's static-root-file copy list only included app-shell.css/colors_and_type.css, missing 6 other real CSS files (app-surfaces.css, chat.css, community.css, community-app.css, editor-primitives.css, gm-prose.css, marketing.css). Confirmed app-surfaces.css/chat.css (referenced by ui_kits/workspace) and community.css/community-app.css (referenced by ui_kits/community-app) are ALSO live-404ing on the deployed site -- pre-existing bugs unrelated to this session's edits, same failure mode. Fix the workflow's copy list comprehensively, not just add editor-primitives.css.
   status: completed
   witness: '.github/workflows/gh-pages.yml''s static-root-file copy list expanded from 2 CSS files (app-shell.css, colors_and_type.css) to all 9 real root CSS files (app-shell.css, app-surfaces.css, chat.css, colors_and_type.css, community.css, community-app.css, editor-primitives.css, gm-prose.css, marketing.css). Confirmed via grep across all ui_kits/*/index.html that exactly 7 distinct CSS filenames are referenced by real HTML (matches the fix scope); gm-prose.css/marketing.css included for future-proofing though not currently referenced by any kit. New test.js check cross-references every ui_kit index.html''s referenced CSS filenames against the workflow''s copy list -- node test.js: all 37 checks pass. node scripts/build.mjs: all lint gates pass'
+- id: plugins-config-component
+  witness_evidence: Created src/components/plugins-config.js (PluginsConfig), scoped CSS src/css/app-shell/plugins-config.css registered in build.mjs appShellSplitFiles, barrel export in src/components.js. node scripts/build.mjs passed all lint gates (tokens, radius, spacing, glyphs, null-children, classes, inline-styles, duplicate-selectors) and produced dist bundle. Witnessed via node import + render with freddie-shaped plugin data (name/version/surfaces/requires/enabled/source/status) -> root DIV rendered successfully.
+  status: completed
+  witness: node scripts/build.mjs green (all lint gates pass, dist bundle emitted). node import+render of PluginsConfig with freddie plugin-contract-shaped fixture data produced a real DOM DIV root, no throw.
+  commit_comment: Add PluginsConfig component (plugin/extension management panel) ported from pi-web, adapted to freddie's {name,version,surfaces,requires,register} plugin contract
+- id: skills-config-empty-loading-error-states
+  subject: Empty/loading/error states mirroring PluginsConfig sidebar-status pattern
+  status: completed
+  witness: 'exec_js witness: empty skills -> ''No skills found''; loading=true -> ''Loading…''; error=''boom'' -> ds-plugins-status-error shows ''boom'''
+- id: skills-config-component
+  subject: Create src/components/skills-config.js SkillsConfig webjsx component following plugins-config.js pattern, adapted to freddie skill shape {file,name,description,frontmatter,body,platforms}, category derived from path
+  status: completed
+  witness: 'src/components/skills-config.js created, exports SkillsConfig; exec_js witness: overlay=1, groups=3, rows=3, detailPresent=true'
+- id: skills-config-sidebar-grouping
+  subject: Sidebar list grouped by category (creative/data/ops/planning/software-development) with per-skill enable dot + name
+  status: completed
+  witness: exec_js witness groups=3 (software-development/ops/data), each with grouped rows + dot
+- id: skills-config-search-filter
+  subject: Search/filter input over skill name+description using existing SearchInput/FilterPills primitives
+  status: completed
+  witness: 'exec_js witness: query=nomatch-xyz -> ''No skills match your search''; query=etl -> 1 filtered row ''etl'''
+- id: skills-config-detail-pane
+  subject: 'Detail pane: name, description, platforms chips, enable/disable toggle, body preview'
+  status: completed
+  witness: 'exec_js witness: detailPresent=true, bodyPreviewPresent=true for selected skill with body'
+- id: skills-config-toggle-callback
+  subject: onToggle(skill) callback wiring, busy state during toggle, matches PluginsConfig busyName pattern
+  status: completed
+  witness: 'exec_js witness: toggle class has on for enabled skill code-review, no on for disabled deploy; onToggle wired via onclick'
+- id: skills-config-witness-build-output
+  subject: Witness dist/247420.js and dist/247420.css contain SkillsConfig symbol / ds-skills- selectors post-build
+  status: completed
+  witness: grep -c SkillsConfig dist/247420.js = 1; grep -c ds-skills-group-label dist/247420.css = 1, confirmed post node scripts/build.mjs
+- id: skills-config-css
+  subject: Add scoped ds-skills-* CSS file src/css/app-shell/skills-config.css following plugins-config.css conventions (tokens only, no raw colors/radius)
+  status: completed
+  witness: src/css/app-shell/skills-config.css created, ds-skills-* selectors, tokens-only (var(--fg-3) etc), no raw colors/radius
+- id: skills-config-css-manifest-wire
+  subject: Wire skills-config.css into scripts/build.mjs appShellSplitFiles array
+  status: completed
+  witness: scripts/build.mjs appShellSplitFiles array includes skills-config.css after models-config.css
+- id: skills-config-build-lint-pass
+  subject: Run node scripts/build.mjs full build incl lint gates, fix failures
+  status: completed
+  witness: 'node scripts/build.mjs ran clean: lint-tokens/radius/spacing/tokens-json/glyphs/null-children/classes/inline-styles/duplicate-selectors all OK, dist/247420.js + .css produced'
+- id: skills-config-platforms-chip-rendering
+  subject: Render platforms array as chips when present, omit section when absent/empty
+  status: completed
+  witness: 'exec_js witness: skill with platforms:[''linux'',''macos''] selected -> ds-plugins-chip texts [''linux'',''macos'']; skill with no platforms -> ''all platforms'' fallback text, no chips'
+- id: skills-config-no-decorative-glyphs
+  subject: No decorative glyphs beyond kit Icon SVGs, status via tone dot text label not color alone
+  status: completed
+  witness: component uses Icon('circle-dot') for empty state only + tone dot span with tone-add/tone-neutral classes for status, no emoji/unicode decorative glyphs in source
+- id: skills-config-barrel-export
+  subject: Export SkillsConfig from src/components.js barrel
+  status: completed
+  witness: src/components.js exports SkillsConfig from ./components/skills-config.js; dist/247420.js grep -c SkillsConfig = 1 post-build

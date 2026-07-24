@@ -2812,6 +2812,24 @@
 }
 .ds-247420 .ds-preview-text { white-space: pre-wrap; word-break: break-word; }
 .ds-247420 .ds-preview-code code, .ds-247420 .ds-preview-text code { font: inherit; color: inherit; background: none; }
+/* wrap-lines toggle (ported from pi-web's DisplayMode word-wrap control) */
+.ds-247420 .ds-preview-code.is-wrapped { white-space: pre-wrap; overflow-wrap: anywhere; }
+.ds-247420 .ds-preview-wrap-toggle.active { color: var(--paper); background: color-mix(in oklab, var(--paper) 18%, transparent); }
+/* source/preview mode switch (ported from pi-web's markdown/HTML DisplayMode
+   tabs) — the host supplies already-rendered, already-sanitized HTML via
+   `previewHtml`; this component only toggles visibility. */
+.ds-247420 .ds-preview-mode-switch { display: inline-flex; gap: var(--space-1); margin-right: var(--space-1); }
+.ds-247420 .ds-preview-mode-btn {
+  font-family: var(--ff-mono); font-size: var(--fs-micro);
+  padding: var(--space-1) var(--space-2); border-radius: var(--r-1);
+  color: var(--paper-3); background: none; border: none; cursor: pointer;
+}
+.ds-247420 .ds-preview-mode-btn.active { color: var(--paper); background: color-mix(in oklab, var(--paper) 18%, transparent); }
+.ds-247420 .ds-preview-html {
+  flex: 1; min-height: 0; overflow: auto;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-0); border-radius: var(--r-2);
+}
 .ds-247420 .ds-preview-truncated {
   margin-top: var(--space-2); padding-top: var(--space-2);
   border-top: var(--bw-hair) solid color-mix(in oklab, var(--paper) 20%, transparent);
@@ -3153,6 +3171,31 @@
 .ds-247420 .chat-bubble.chat-md td { border: var(--bw-hair) solid var(--rule); padding: 4px 10px; text-align: left; }
 .ds-247420 .chat-bubble.chat-md th { background: color-mix(in oklab, var(--fg) 5%, transparent); font-weight: 600; }
 .ds-247420 .chat-bubble.chat-md hr { border: 0; border-top: var(--bw-hair) solid var(--rule); margin: 12px 0; }
+
+/* Mermaid diagram blocks — rendered SVG swapped in over the fenced source by
+   src/mermaid.js's renderMermaidBlocksUnder(); the source .pre stays in the
+   DOM (display:none) behind a source/diagram toggle button. */
+.ds-247420 .ds-mermaid-block {
+  position: relative; margin: var(--space-2) 0;
+  border: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
+  border-radius: var(--r-1); background: var(--bg); padding: 12px 16px;
+}
+.ds-247420 .ds-mermaid-diagram { overflow-x: auto; display: flex; justify-content: center; }
+.ds-247420 .ds-mermaid-diagram svg { max-width: 100%; height: auto; }
+.ds-247420 .ds-mermaid-toggle {
+  position: absolute; top: 6px; right: 6px;
+  font: inherit; font-size: var(--fs-xs); line-height: 1;
+  background: color-mix(in oklab, var(--fg) 8%, transparent);
+  color: var(--fg); border: none; border-radius: var(--r-1);
+  padding: 4px 8px; cursor: pointer;
+}
+.ds-247420 .ds-mermaid-toggle:hover { background: color-mix(in oklab, var(--fg) 14%, transparent); }
+
+/* Inline/display math — KaTeX HTML swapped into text nodes by
+   src/math.js's renderMathBlocksUnder(). Display math centers on its own line;
+   inline math sits within running text. */
+.ds-247420 .ds-math-display { display: block; margin: var(--space-2) 0; text-align: center; overflow-x: auto; }
+.ds-247420 .ds-math-inline { display: inline-block; }
 
 .ds-247420 .chat-msg .chat-bubble.chat-code,
 .ds-247420 .chat-msg.you .chat-bubble.chat-code,
@@ -5607,6 +5650,265 @@
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .ds-247420 .ds-dropdown-item[aria-disabled="true"] .ds-wts-item-branch { color: var(--fg); font-weight: 600; }
+/* ============================================================
+   PluginsConfig — plugin/extension list + detail modal.
+   ============================================================ */
+
+.ds-247420 .ds-plugins-overlay {
+  position: fixed; inset: 0; z-index: var(--z-modal, 1000);
+  background: color-mix(in oklab, var(--ink) 35%, transparent);
+  display: flex; align-items: center; justify-content: center;
+  padding: var(--space-3);
+}
+.ds-247420 .ds-plugins-modal {
+  width: min(860px, 100%); height: min(76vh, 720px);
+  background: var(--bg); border: var(--bw-hair) solid var(--rule); border-radius: var(--r-3);
+  display: flex; flex-direction: column; overflow: hidden;
+  box-shadow: var(--shadow-3, 0 8px 32px rgba(0,0,0,0.18));
+}
+.ds-247420 .ds-plugins-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--bw-hair) solid var(--rule); flex: 0 0 auto;
+}
+.ds-247420 .ds-plugins-title { font-size: var(--fs-md); font-weight: 700; color: var(--fg); }
+.ds-247420 .ds-plugins-close {
+  background: none; border: none; color: var(--fg-3); cursor: pointer;
+  font-size: 20px; line-height: 1; padding: 2px 6px; border-radius: var(--r-1);
+}
+.ds-247420 .ds-plugins-close:hover { background: var(--bg-2); color: var(--fg); }
+.ds-247420 .ds-plugins-close:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+
+.ds-247420 .ds-plugins-body { flex: 1 1 auto; display: flex; overflow: hidden; }
+
+.ds-247420 .ds-plugins-sidebar {
+  width: 245px; flex: 0 0 auto; overflow-y: auto;
+  border-right: var(--bw-hair) solid var(--rule); background: var(--bg-2);
+  padding: var(--space-2);
+}
+.ds-247420 .ds-plugins-sidebar-status {
+  padding: var(--space-3) var(--space-2); font-size: var(--fs-sm); color: var(--fg-3);
+}
+.ds-247420 .ds-plugins-sidebar-status.ds-plugins-status-error { color: var(--flame); }
+.ds-247420 .ds-plugins-list { display: flex; flex-direction: column; gap: 2px; }
+
+.ds-247420 .ds-plugins-row {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: var(--space-2); border-radius: var(--r-2);
+  background: none; border: var(--bw-hair) solid transparent; text-align: left; cursor: pointer;
+  color: var(--fg); font: inherit;
+  transition: background var(--dur-snap) var(--ease), border-color var(--dur-snap) var(--ease);
+}
+.ds-247420 .ds-plugins-row:hover { background: var(--bg-3, var(--bg)); }
+.ds-247420 .ds-plugins-row.active { background: var(--accent-tint); border-color: var(--accent); }
+.ds-247420 .ds-plugins-row:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+
+.ds-247420 .ds-plugins-row-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ds-247420 .ds-plugins-row-name {
+  font-family: var(--ff-mono); font-size: var(--fs-sm); color: var(--fg);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ds-247420 .ds-plugins-row-meta {
+  font-size: var(--fs-micro); color: var(--fg-3);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ds-247420 .ds-plugins-row-busy { flex: 0 0 auto; font-size: var(--fs-micro); color: var(--fg-3); }
+
+.ds-247420 .ds-plugins-dot {
+  flex: 0 0 auto; width: 7px; height: 7px; border-radius: 50%;
+}
+.ds-247420 .ds-plugins-dot.tone-add { background: var(--green-2); }
+.ds-247420 .ds-plugins-dot.tone-delete { background: var(--flame); }
+.ds-247420 .ds-plugins-dot.tone-neutral { background: var(--fg-3); }
+
+.ds-247420 .ds-plugins-main { flex: 1 1 auto; overflow-y: auto; padding: var(--space-4); }
+
+.ds-247420 .ds-plugins-empty {
+  height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--space-2); color: var(--fg-3);
+}
+
+.ds-247420 .ds-plugins-detail { display: flex; flex-direction: column; gap: var(--space-4); max-width: 640px; }
+.ds-247420 .ds-plugins-detail-head {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap;
+}
+.ds-247420 .ds-plugins-detail-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.ds-247420 .ds-plugins-detail-title .name {
+  font-family: var(--ff-mono); font-size: var(--fs-md); font-weight: 600; color: var(--fg);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ds-247420 .ds-plugins-version { font-size: var(--fs-micro); color: var(--fg-3); }
+
+.ds-247420 .ds-plugins-toggle {
+  flex: 0 0 auto; width: 40px; height: 22px; border-radius: 11px; border: none; padding: 0;
+  background: var(--rule); position: relative; cursor: pointer;
+  transition: background var(--dur-snap) var(--ease);
+}
+.ds-247420 .ds-plugins-toggle.on { background: var(--accent); }
+.ds-247420 .ds-plugins-toggle[disabled] { cursor: wait; opacity: 0.65; }
+.ds-247420 .ds-plugins-toggle-knob {
+  position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--bg); box-shadow: var(--shadow-1, 0 1px 4px rgba(0,0,0,0.22));
+  transition: left var(--dur-snap) var(--ease);
+}
+.ds-247420 .ds-plugins-toggle.on .ds-plugins-toggle-knob { left: 21px; }
+
+.ds-247420 .ds-plugins-fact-grid {
+  display: grid; grid-template-columns: minmax(96px, 130px) minmax(0, 1fr);
+  gap: 9px var(--space-3); font-size: var(--fs-sm);
+}
+.ds-247420 .ds-plugins-fact-label { color: var(--fg-3); }
+.ds-247420 .ds-plugins-fact-value { color: var(--fg-2); }
+.ds-247420 .ds-plugins-fact-value.ds-plugins-mono { font-family: var(--ff-mono); overflow-wrap: anywhere; }
+.ds-247420 .ds-plugins-fact-value.tone-text-add { color: var(--green-2); }
+.ds-247420 .ds-plugins-fact-value.tone-text-delete { color: var(--flame); }
+.ds-247420 .ds-plugins-fact-value.tone-text-neutral { color: var(--fg-3); }
+
+.ds-247420 .ds-plugins-group-label {
+  font-size: var(--fs-micro); font-weight: 600; color: var(--fg-3);
+  text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 6px;
+}
+.ds-247420 .ds-plugins-requires-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.ds-247420 .ds-plugins-chip {
+  font-family: var(--ff-mono); font-size: var(--fs-micro); color: var(--fg-2);
+  border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1); padding: 2px 7px;
+}
+.ds-247420 .ds-plugins-requires-empty { font-size: var(--fs-sm); color: var(--fg-3); }
+
+.ds-247420 .ds-plugins-detail-actions { display: flex; gap: var(--space-2); }
+.ds-247420 .ds-plugins-btn {
+  padding: 6px 12px; background: none; border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
+  color: var(--fg-2); cursor: pointer; font-size: var(--fs-sm);
+}
+.ds-247420 .ds-plugins-btn:hover { background: var(--bg-2); }
+.ds-247420 .ds-plugins-btn[disabled] { cursor: not-allowed; opacity: 0.5; }
+
+.ds-247420 .ds-plugins-footer {
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: var(--space-2) var(--space-4);
+  border-top: var(--bw-hair) solid var(--rule); flex: 0 0 auto;
+}
+.ds-247420 .ds-plugins-footer-count { font-size: var(--fs-micro); color: var(--fg-3); }
+/* ============================================================
+   ModelsConfig — provider/model availability panel.
+   ============================================================ */
+.ds-247420 .ds-mc { display: flex; flex-direction: column; gap: var(--space-3); }
+
+.ds-247420 .ds-mc-loading, .ds-247420 .ds-mc-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--space-2); padding: var(--space-6) var(--space-3);
+  color: var(--fg-3); text-align: center;
+}
+.ds-247420 .ds-mc-empty-hint { font-size: var(--fs-xs); color: var(--fg-3); }
+
+/* Summary bar: totals + last-checked + refresh/rebuild actions. */
+.ds-247420 .ds-mc-summary {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.ds-247420 .ds-mc-summary-facts { display: flex; gap: var(--space-3); font-size: var(--fs-sm); color: var(--fg-2); }
+.ds-247420 .ds-mc-summary-ts { color: var(--fg-3); }
+.ds-247420 .ds-mc-summary-actions { display: flex; align-items: center; gap: var(--space-2); }
+.ds-247420 .ds-mc-rebuild-error { font-size: var(--fs-xs); color: var(--flame); }
+
+/* Two-pane body: provider tree (left) + model detail (right). */
+.ds-247420 .ds-mc-body {
+  display: grid; grid-template-columns: minmax(220px, 300px) 1fr; gap: var(--space-3);
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .ds-247420 .ds-mc-body { grid-template-columns: 1fr; }
+}
+
+.ds-247420 .ds-mc-tree { display: flex; flex-direction: column; gap: 2px; }
+.ds-247420 .ds-mc-tree-group + .ds-mc-tree-group { margin-top: 2px; }
+
+.ds-247420 .ds-mc-key-chip {
+  font-family: var(--ff-mono); font-size: var(--fs-micro); font-weight: 700;
+  padding: 1px 6px; border-radius: var(--r-1);
+}
+.ds-247420 .ds-mc-key-chip.tone-ok { color: var(--green-2); background: var(--green-tint); }
+.ds-247420 .ds-mc-key-chip.tone-fail { color: var(--fg-3); background: var(--bg-3); }
+
+.ds-247420 .ds-mc-sampler {
+  display: inline-block; margin: 2px 0 4px 12px;
+  font-size: var(--fs-micro); padding: 1px 6px; border-radius: var(--r-1);
+}
+.ds-247420 .ds-mc-sampler.tone-ok { color: var(--green-2); background: var(--green-tint); }
+.ds-247420 .ds-mc-sampler.tone-fail { color: var(--ink); background: var(--sun); }
+
+/* Detail pane */
+.ds-247420 .ds-mc-detail-empty { padding: var(--space-3); color: var(--fg-3); font-size: var(--fs-sm); }
+.ds-247420 .ds-mc-detail-head {
+  display: flex; align-items: center; gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+.ds-247420 .ds-mc-detail-title { font-family: var(--ff-mono); font-size: var(--fs-base); font-weight: 700; }
+
+.ds-247420 .ds-mc-discovery-error {
+  display: flex; align-items: center; gap: var(--space-1-75);
+  padding: var(--space-1-75) var(--space-2);
+  margin-bottom: var(--space-2);
+  color: var(--flame); background: color-mix(in oklab, var(--flame) 12%, transparent);
+  border-radius: var(--r-1); font-size: var(--fs-xs);
+}
+
+.ds-247420 .ds-mc-model-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.ds-247420 .ds-mc-model-row {
+  padding: var(--space-2); border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
+}
+.ds-247420 .ds-mc-model-row.active { border-color: var(--accent); background: var(--accent-tint); }
+.ds-247420 .ds-mc-model-head {
+  display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;
+  margin-bottom: var(--space-1-75);
+}
+.ds-247420 .ds-mc-model-id { font-family: var(--ff-mono); font-size: var(--fs-sm); font-weight: 600; }
+.ds-247420 .ds-mc-model-via { font-size: var(--fs-micro); color: var(--fg-3); }
+.ds-247420 .ds-mc-usable-chip {
+  font-size: var(--fs-micro); font-weight: 700; padding: 1px 6px; border-radius: var(--r-1);
+  margin-left: auto;
+}
+.ds-247420 .ds-mc-usable-chip.tone-ok { color: var(--green-2); background: var(--green-tint); }
+.ds-247420 .ds-mc-usable-chip.tone-fail { color: var(--fg-3); background: var(--bg-3); }
+
+/* 7-mode availability grid — one chip per mode, wraps on narrow panes. */
+.ds-247420 .ds-mc-mode-grid { display: flex; flex-wrap: wrap; gap: 4px; }
+.ds-247420 .ds-mc-chip {
+  font-family: var(--ff-mono); font-size: var(--fs-micro); font-weight: 600;
+  padding: 2px 7px; border-radius: var(--r-1);
+  border: var(--bw-hair) solid transparent;
+}
+.ds-247420 .ds-mc-chip.tone-ok { color: var(--green-2); background: var(--green-tint); }
+.ds-247420 .ds-mc-chip.tone-fail { color: var(--on-color); background: var(--flame); }
+.ds-247420 .ds-mc-chip.tone-skip { color: var(--fg-3); background: var(--bg-3); }
+.ds-247420 .ds-mc-chip.tone-unknown { color: var(--fg-3); background: none; border-color: var(--rule); opacity: 0.6; }
+/* ============================================================
+   SkillsConfig — skill list + detail panel. Shares chrome with
+   PluginsConfig (.ds-plugins-overlay/-modal/-header/-body/-sidebar/-list/
+   -row/-dot/-main/-detail/-toggle/-fact-grid/-chip/-footer); the classes
+   below are the skills-specific additions only.
+   ============================================================ */
+
+.ds-247420 .ds-skills-search-row {
+  padding: var(--space-2) var(--space-4);
+  border-bottom: var(--bw-hair) solid var(--rule); flex: 0 0 auto;
+}
+
+.ds-247420 .ds-skills-group { margin-bottom: var(--space-2); }
+.ds-247420 .ds-skills-group-label {
+  padding: var(--space-2) var(--space-2) 3px;
+  font-size: var(--fs-micro); font-weight: 600; color: var(--fg-3);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+
+.ds-247420 .ds-skills-description { font-size: var(--fs-sm); color: var(--fg-2); line-height: 1.5; }
+
+.ds-247420 .ds-skills-body-group { display: flex; flex-direction: column; }
+.ds-247420 .ds-skills-body-preview {
+  font-family: var(--ff-mono); font-size: var(--fs-micro); color: var(--fg-2);
+  background: var(--bg-2); border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
+  padding: var(--space-3); overflow: auto; max-height: 260px; white-space: pre-wrap; word-break: break-word;
+}
 
 /* community.css */
 /* ============================================================
@@ -7761,6 +8063,55 @@
 .ds-247420 .ds-session-state { padding: var(--space-5) var(--space-3); text-align: center; color: var(--fg-3); font-size: var(--fs-sm); }
 .ds-247420 .ds-session-state-error { color: var(--flame); }
 
+/* Fork/branch tree nesting — child sessions indent under their parent with a
+   collapse toggle and a small branch glyph, mirroring pi-web's SessionSidebar
+   tree without reimplementing its inline-style React component. */
+.ds-247420 .ds-session-row-nested { position: relative; }
+.ds-247420 .ds-session-tree-toggle {
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; padding: 0; background: none; border: none;
+  color: var(--fg-3); cursor: pointer; transform: rotate(0deg); transition: transform var(--dur-snap) var(--ease);
+}
+.ds-247420 .ds-session-tree-toggle.open { transform: rotate(90deg); }
+.ds-247420 .ds-session-tree-toggle:hover { color: var(--fg); }
+.ds-247420 .ds-session-fork-icon { flex: 0 0 auto; display: inline-flex; color: var(--fg-3); }
+
+/* Hover-revealed rename/delete row actions. */
+.ds-247420 .ds-session-row-actions { flex: 0 0 auto; display: none; align-items: center; gap: var(--space-1); }
+.ds-247420 .ds-session-row:hover .ds-session-row-actions,
+.ds-247420 .ds-session-row:focus-within .ds-session-row-actions { display: flex; }
+.ds-247420 .ds-session-row-action {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; padding: 0; background: var(--bg-2); border: var(--border-w) solid var(--border);
+  border-radius: var(--r-1); color: var(--fg-3); cursor: pointer;
+}
+.ds-247420 .ds-session-row-action:hover { background: var(--bg-3); color: var(--fg); border-color: var(--fg-3); }
+.ds-247420 .ds-session-row-action-danger:hover { background: color-mix(in srgb, var(--flame) 12%, var(--bg-2)); color: var(--flame); border-color: var(--flame); }
+@media (pointer: coarse) { .ds-247420 .ds-session-row-action { min-width: 44px; min-height: 44px; } }
+
+/* Inline rename — the row's title area swaps for a text input at the same
+   height; no modal, matches the row-in-place edit pattern used elsewhere. */
+.ds-247420 .ds-session-rename-input {
+  flex: 1; min-width: 0; font-size: var(--fs-sm); font-family: inherit; color: var(--fg);
+  background: var(--bg); border: var(--border-w) solid var(--accent); border-radius: var(--r-1);
+  padding: var(--space-1) var(--space-2);
+}
+.ds-247420 .ds-session-rename-input:focus { outline: none; }
+
+/* Inline delete confirm — same row height, two flat buttons, no modal;
+   mirrors SessionDashboard's arm-then-confirm bulk-stop control. */
+.ds-247420 .ds-session-confirm-msg { flex: 1; min-width: 0; font-size: var(--fs-sm); color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-247420 .ds-session-confirm-actions { flex: 0 0 auto; display: flex; gap: var(--space-1); }
+.ds-247420 .ds-session-confirm-delete, .ds-247420 .ds-session-confirm-cancel {
+  font-size: var(--fs-tiny); font-weight: 600; padding: var(--space-1) var(--space-2);
+  border-radius: var(--r-1); cursor: pointer;
+}
+.ds-247420 .ds-session-confirm-delete { background: var(--flame); border: none; color: var(--bg); }
+.ds-247420 .ds-session-confirm-delete:hover { filter: brightness(1.1); }
+.ds-247420 .ds-session-confirm-cancel { background: var(--bg-2); border: var(--border-w) solid var(--border); color: var(--fg-2); }
+.ds-247420 .ds-session-confirm-cancel:hover { background: var(--bg-3); color: var(--fg); }
+@media (pointer: coarse) { .ds-247420 .ds-session-confirm-delete, .ds-247420 .ds-session-confirm-cancel { min-height: 44px; } }
+
 /* ----------------------------------------------------------------------------
    SessionDashboard — grid of live-session cards.
 ---------------------------------------------------------------------------- */
@@ -8470,6 +8821,85 @@
 }
 .ds-247420 .chat-composer .send.cancel:active { filter: brightness(0.96); }
 
+/* ChatMinimap — scroll-position density overview beside a chat thread.
+   Purely token-driven (no raw color literals — see lintTokensOrThrow). Dot
+   position/tooltip offsets are set imperatively in JS (chat-minimap.js) since
+   they are per-render numeric layout, not a static rule. */
+.ds-247420 .chat-minimap {
+  position: relative;
+  flex-shrink: 0;
+  align-self: stretch;
+  cursor: default;
+  user-select: none;
+  border-left: var(--bw-hair) solid var(--rule);
+  background: var(--bg-2);
+  overflow: visible;
+}
+.ds-247420 .chat-minimap-viewport {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: color-mix(in oklab, var(--fg-3) 12%, transparent);
+  border-top: var(--bw-hair) solid var(--rule);
+  border-bottom: var(--bw-hair) solid var(--rule);
+  pointer-events: none;
+  z-index: 1;
+}
+.ds-247420 .chat-minimap-centerline {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--rule);
+  transform: translateX(-50%);
+  z-index: 0;
+}
+.ds-247420 .chat-minimap-dot {
+  position: absolute;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-pill, 999px);
+  transform: translate(-50%, -50%) scale(1);
+  transition: transform 0.1s;
+  z-index: 2;
+}
+.ds-247420 .chat-minimap-dot.is-user {
+  background: color-mix(in oklab, var(--accent) 18%, transparent);
+  border: 1.5px solid color-mix(in oklab, var(--accent) 70%, transparent);
+}
+.ds-247420 .chat-minimap-dot.is-assistant {
+  background: color-mix(in oklab, var(--fg-3) 12%, transparent);
+  border: 1.5px solid color-mix(in oklab, var(--fg-3) 50%, transparent);
+}
+.ds-247420 .chat-minimap-dot.is-nearest { transform: translate(-50%, -50%) scale(1.6); }
+.ds-247420 .chat-minimap-tooltip {
+  position: absolute;
+  right: 100%;
+  margin-right: var(--space-1);
+  background: var(--bg);
+  border-top: var(--bw-hair) solid var(--rule);
+  border-right: var(--bw-hair) solid var(--rule);
+  border-bottom: var(--bw-hair) solid var(--rule);
+  border-left: 2px solid var(--fg-3);
+  border-radius: var(--r-1);
+  padding: calc(var(--space-1) / 2) var(--space-2);
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.45;
+  font-size: var(--fs-tiny);
+  color: var(--fg-3);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: top 0.1s, opacity 0.1s;
+}
+.ds-247420 .chat-minimap-tooltip.is-user { border-left-color: color-mix(in oklab, var(--accent) 70%, transparent); }
+.ds-247420 .chat-minimap-tooltip.is-assistant { border-left-color: color-mix(in oklab, var(--fg-3) 50%, transparent); }
+.ds-247420 .chat-minimap-tooltip.is-nearest { opacity: 1; color: var(--fg); }
+
 /* editor-primitives.css */
 /* editor-primitives.css — chrome for in-engine editors, inspectors, IDEs,
    debug HUDs. All rules under .ds-247420 scope (build prefixes). Tokens
@@ -8612,15 +9042,38 @@
 @media (prefers-reduced-motion: reduce) {
     .ds-247420 .ds-ep-tab-indicator { transition: none; }
 }
+/* scroll: content-sized tabs (min/max-width, no stretch) so overflow-x on the
+   head has real per-tab width to scroll against — the pi-web TabBar shape for
+   an unbounded open-file/open-session strip, vs. the default fixed small set
+   that stretches evenly across the available width. */
+.ds-247420 .ds-ep-tabs-head.scroll .ds-ep-tab-wrap { flex: 0 0 auto; min-width: 80px; max-width: 180px; }
+.ds-247420 .ds-ep-tabs-head.scroll .ds-ep-tab { flex: 1; min-width: 0; }
+.ds-247420 .ds-ep-tab-wrap { display: flex; align-items: stretch; flex: 1; min-width: 0; }
 .ds-247420 .ds-ep-tab {
-    flex: 1; appearance: none; background: transparent; border: 0;
+    flex: 1; min-width: 0; appearance: none; background: transparent; border: 0;
     border-bottom: 2px solid transparent;
     color: var(--panel-text-3);
     padding: 8px 10px;
     font: inherit; cursor: pointer;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     transition: color var(--dur-snap, 80ms) var(--ease, ease), border-color var(--dur-snap, 80ms) var(--ease, ease);
 }
 .ds-247420 .ds-ep-tab:hover { color: var(--panel-text-2); }
+/* Close button — hidden until hover/focus within the tab, matching pi-web's
+   hover-reveal close affordance; always visible on the active tab so touch/
+   keyboard users without hover can still find it. */
+.ds-247420 .ds-ep-tab-close {
+    appearance: none; background: transparent; border: 0; border-radius: var(--r-0);
+    display: flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; margin: var(--space-1-75) var(--space-1) var(--space-1-75) 0; padding: 0;
+    flex-shrink: 0; color: var(--panel-text-3); cursor: pointer;
+    opacity: 0; transition: opacity var(--dur-snap, 80ms) var(--ease, ease), background var(--dur-snap, 80ms) var(--ease, ease), color var(--dur-snap, 80ms) var(--ease, ease);
+}
+.ds-247420 .ds-ep-tab-wrap:hover .ds-ep-tab-close,
+.ds-247420 .ds-ep-tab-wrap:focus-within .ds-ep-tab-close,
+.ds-247420 .ds-ep-tab-wrap.active .ds-ep-tab-close { opacity: 1; }
+.ds-247420 .ds-ep-tab-close:hover { background: var(--panel-2); color: var(--panel-text-1); }
+.ds-247420 .ds-ep-tab-close:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; opacity: 1; }
 .ds-247420 .ds-ep-tab.active {
     color: var(--accent);
     border-bottom-color: var(--accent);

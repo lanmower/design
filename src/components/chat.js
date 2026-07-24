@@ -7,10 +7,11 @@ import { initializeCachesEagerly, getCacheStats } from '../markdown-cache.js';
 import { register } from '../debug.js';
 import { Icon } from './shell.js';
 import { fmtFileSize } from './files.js';
-import { EmojiPicker } from './overlay-primitives.js';
+import { EmojiPicker, CommandPalette } from './overlay-primitives.js';
 import { t } from '../i18n.js';
 import { renderMessagePart as sharedRenderMessagePart, safeUrl as sharedSafeUrl, renderInline as sharedRenderInline, injectCodeCopy as sharedInjectCodeCopy } from './chat-message-parts.js';
 import { avatarInitial } from './content.js';
+import { extractAtQuery, filterFileEntries, buildAtInsertText } from '../file-mention.js';
 
 // Matches a trailing `:keyword` at the end of the composer draft (optionally
 // preceded by whitespace/start-of-string) so typing `:smile` opens an inline

@@ -113,6 +113,9 @@ const appShellSplitFiles = [
     'data-density.css',
     'kits-appended.css',
     'git-status.css',
+    'plugins-config.css',
+    'models-config.css',
+    'skills-config.css',
 ];
 let appShellContent = '';
 for (const name of appShellSplitFiles) {

@@ -659,6 +659,24 @@
 }
 .ds-preview-text { white-space: pre-wrap; word-break: break-word; }
 .ds-preview-code code, .ds-preview-text code { font: inherit; color: inherit; background: none; }
+/* wrap-lines toggle (ported from pi-web's DisplayMode word-wrap control) */
+.ds-preview-code.is-wrapped { white-space: pre-wrap; overflow-wrap: anywhere; }
+.ds-preview-wrap-toggle.active { color: var(--paper); background: color-mix(in oklab, var(--paper) 18%, transparent); }
+/* source/preview mode switch (ported from pi-web's markdown/HTML DisplayMode
+   tabs) — the host supplies already-rendered, already-sanitized HTML via
+   `previewHtml`; this component only toggles visibility. */
+.ds-preview-mode-switch { display: inline-flex; gap: var(--space-1); margin-right: var(--space-1); }
+.ds-preview-mode-btn {
+  font-family: var(--ff-mono); font-size: var(--fs-micro);
+  padding: var(--space-1) var(--space-2); border-radius: var(--r-1);
+  color: var(--paper-3); background: none; border: none; cursor: pointer;
+}
+.ds-preview-mode-btn.active { color: var(--paper); background: color-mix(in oklab, var(--paper) 18%, transparent); }
+.ds-preview-html {
+  flex: 1; min-height: 0; overflow: auto;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-0); border-radius: var(--r-2);
+}
 .ds-preview-truncated {
   margin-top: var(--space-2); padding-top: var(--space-2);
   border-top: var(--bw-hair) solid color-mix(in oklab, var(--paper) 20%, transparent);
