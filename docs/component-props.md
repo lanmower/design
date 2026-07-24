@@ -2,7 +2,7 @@
 
 Generated from `src/components.js`'s real export barrel + each symbol's real definition in `src/components/*.js`, via `node scripts/generate-component-docs.mjs`. Do not hand-edit -- re-run after any component signature or JSDoc change.
 
-239 exported symbols across 22 source files.
+247 exported symbols across 26 source files.
 
 ---
 
@@ -482,20 +482,34 @@ A Claude-Desktop / cowork three-(or four-)column app shell.  Pure stateless chro
 
 **Signature:** `100`
 
+## `src/components/chat-minimap.js`
+
+### ChatMinimap
+
+**Kind:** component
+
+**Signature:** `messages` = `[]`, `getThreadEl`, `getMessageEl`, `width` = `CHAT_MINIMAP_WIDTH`
+
+### CHAT_MINIMAP_WIDTH
+
+**Kind:** const
+
+**Signature:** `36`
+
 ## `src/components/sessions.js`
 
 ### ConversationList
 
-The Claude-Desktop "Chats" column. Sessions grouped by a caller-supplied group label, each row showing title/project, relative time, agent badge, and a running/new-event indicator. Selecting a row switches the active conversation.
+The Claude-Desktop "Chats" column. Sessions grouped by a caller-supplied group label, each row showing title/project, relative time, agent badge, and a running/new-event indicator. Selecting a row switches the active conversation.  another row's `sid` under that row (fork/branch tree), with an indent guide, a branch glyph, and a per-node collapse toggle. Ignored when `groups` is set (grouping and tree-nesting are mutually exclusive row layouts). `expanded`/ `onToggleExpand` are host-driven (kit stays stateless): a `sid` NOT present in the `expanded` Set renders collapsed once it has children. hover-revealed rename action (row becomes an inline text input while active). button click, before `onRename` commits; host flips `renaming` to this sid. delete action; clicking it arms an inline two-button confirm row (same height, no modal), mirroring SessionDashboard's arm-then-confirm stop control.
 
 **Kind:** component
 
-**Signature:** `sessions` = `[]`, `selected`, `groups`, `search`, `caption`, `onSelect`, `onNew`, `newLabel` = `'New chat'`, `emptyText` = `'No conversations yet'`, `loading` = `false`, `error` = `null`, `loadingText` = `'Loading conversations…'`, `hasMore` = `false`, `onLoadMore`, `loadMoreLabel` = `'load more conversations'`, `resultCount`
+**Signature:** `sessions` = `[]`, `selected`, `groups`, `search`, `caption`, `onSelect`, `onNew`, `newLabel` = `'New chat'`, `emptyText` = `'No conversations yet'`, `loading` = `false`, `error` = `null`, `loadingText` = `'Loading conversations…'`, `hasMore` = `false`, `onLoadMore`, `loadMoreLabel` = `'load more conversations'`, `resultCount`, `tree` = `false`, `expanded`, `onToggleExpand`, `onRename`, `renaming`, `onStartRename`, `onCancelRename`, `onDelete`, `confirmingDelete`, `onArmDelete`, `onCancelDelete`
 
 **Documented params:**
 
 - `props` _(Object)_
-- `props.sessions` _(Array<{sid:*, title?:string, project?:string, agent?:string, time?:string, running?:boolean, unread?:boolean, rail?:string}>)_
+- `props.sessions` _(Array<{sid:*, title?:string, project?:string, agent?:string, time?:string, running?:boolean, unread?:boolean, rail?:string, parentSid?:*}>)_
 - `props.selected` _(*)_ -- the active sid.
 - `props.groups` _(Array<{label:string, sids:Array<*>}>)_ -- OPTIONAL buckets for the rows; else one flat list.
 - `props.search` _({value:string, onInput:Function, placeholder?:string})_ -- inline filter (optional).
@@ -504,6 +518,17 @@ The Claude-Desktop "Chats" column. Sessions grouped by a caller-supplied group l
 - `props.emptyText` _(string)_
 - `props.loading` _(boolean)_
 - `props.error` _(*)_
+- `props.tree` _(boolean)_ -- OPTIONAL: nest rows whose `parentSid` matches
+- `props.expanded` _(Set<*>|Array<*>)_ -- sids whose children are shown, when `tree`.
+- `props.onToggleExpand` _(Function)_ -- onToggleExpand(sid), when `tree`.
+- `props.onRename` _(Function)_ -- onRename(session, newTitle). Presence enables the
+- `props.renaming` _(*)_ -- sid of the row currently in rename-edit mode (host-driven).
+- `props.onStartRename` _(Function)_ -- onStartRename(session) - fired by the rename
+- `props.onCancelRename` _(Function)_ -- onCancelRename() - Escape / blur-without-change.
+- `props.onDelete` _(Function)_ -- onDelete(session). Presence enables the hover-revealed
+- `props.confirmingDelete` _(*)_ -- sid currently showing the armed delete-confirm state.
+- `props.onArmDelete` _(Function)_ -- onArmDelete(session) - first delete click.
+- `props.onCancelDelete` _(Function)_ -- onCancelDelete() - confirm-row Cancel click.
 
 **Returns:** {*} webjsx vnode
 
@@ -603,6 +628,30 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 **Kind:** component
 
 **Signature:** `worktrees` = `[]`, `current`, `onSwitch`, `onCreate`, `ariaLabel` = `'switch worktree'`
+
+## `src/components/plugins-config.js`
+
+### PluginsConfig
+
+**Kind:** component
+
+**Signature:** `plugins` = `[]`, `selected` = `null`, `loading` = `false`, `error` = `null`, `busyName` = `null`, `onSelect`, `onToggle`, `onReload`, `onClose`
+
+## `src/components/skills-config.js`
+
+### SkillsConfig
+
+**Kind:** component
+
+**Signature:** `skills` = `[]`, `selected` = `null`, `loading` = `false`, `error` = `null`, `busyName` = `null`, `query` = `''`, `onQuery`, `onSelect`, `onToggle`, `onClose`
+
+## `src/components/models-config.js`
+
+### ModelsConfig
+
+**Kind:** component
+
+**Signature:** `data`, `loading`, `error`, `selectedProviderId`, `onSelectProvider`, `selectedModel`, `onSelectModel`, `onRefresh`, `onRebuild`, `rebuilding`, `rebuildError`
 
 ## `src/components/data-density.js`
 
@@ -794,7 +843,7 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 
 **Kind:** component
 
-**Signature:** `content` = `''`, `lang`, `filename`
+**Signature:** `content` = `''`, `lang`, `filename`, `wrap`, `onWrapToggle`, `previewHtml`, `previewLabel` = `'preview'`, `mode`, `onModeChange`
 
 ### FilePreviewText
 
@@ -962,6 +1011,12 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 
 **Signature:** `muted` = `false`, `deafened` = `false`, `cameraOn` = `false`, `screenShareOn` = `false`, `onMic`, `onDeafen`, `onCamera`, `onScreenShare`, `onSettings`, `onLeave`
 
+### playCompletionCue
+
+**Kind:** component
+
+**Signature:** _(no props)_
+
 ## `src/components/theme-toggle.js`
 
 ### ThemeToggle
@@ -1082,6 +1137,18 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 
 **Signature:** `open` = `false`, `onClose`, `registry`
 
+### isMobileNow
+
+**Kind:** component
+
+**Signature:** _(no props)_
+
+### onMobileChange
+
+**Kind:** component
+
+**Signature:** `cb` _(positional arg)_
+
 ## `src/components/editor-primitives.js`
 
 ### Toolbar
@@ -1100,7 +1167,7 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 
 **Kind:** component
 
-**Signature:** `items` = `[]`, `active`, `onChange`, `children`, `aria-label` _(local: ariaLabel)_
+**Signature:** `items` = `[]`, `active`, `onChange`, `children`, `aria-label` _(local: ariaLabel)_, `onClose`, `scroll` = `false`
 
 ### TreeView
 
