@@ -17,6 +17,7 @@ import { Btn, Icon } from './shell.js';
 import { BreadcrumbPath } from './files.js';
 import { SplitPanel } from './editor-primitives.js';
 import { initializeCachesEagerly } from '../markdown-cache.js';
+import { ChatMinimap } from './chat-minimap.js';
 
 const h = webjsx.createElement;
 
@@ -224,6 +225,17 @@ export function AgentChat(props = {}) {
     onPasteFiles, onDropFiles, onEmoji,
     shownMessages, onShowEarlier,
     streamingSince, detectAttachment,
+    // @-mention file autocomplete in the composer — a flat list of file paths
+    // the host already has (e.g. its Files tab data source). Purely forwarded
+    // to ChatComposer; omitting it keeps every existing caller unchanged (no
+    // mention affordance appears without it).
+    mentionFiles,
+    // Optional scroll-position minimap alongside the thread (ChatMinimap).
+    // false/omitted keeps every existing caller byte-identical (no minimap
+    // column at all). true renders the strip using this component's own
+    // thread ref via a shared getter — no extra DOM wiring needed from the
+    // host beyond passing showMinimap.
+    showMinimap = false,
     // Optional inline content viewer beside the thread (a docstudio-cue
     // addition: its chat view keeps a live document/PDF preview open next to
     // the conversation instead of forcing a separate tab/window). The host
@@ -414,6 +426,7 @@ export function AgentChat(props = {}) {
     onEmoji,
     streamingSince,
     detectAttachment,
+    mentionFiles,
   });
 
   // Contextual follow-up chips below the last SETTLED assistant turn (claude.ai/
@@ -472,8 +485,18 @@ export function AgentChat(props = {}) {
           : null)
     : null;
 
+  // ChatMinimap needs a getter that resolves the live thread element lazily
+  // (it may mount before the thread's own ref fires). A holder object keeps
+  // the element across re-renders without introducing component state.
+  const threadElHolder = { el: null };
+  const combinedThreadRef = (el) => {
+    threadElHolder.el = el;
+    const dispose = threadRef(messages.length)(el);
+    return dispose;
+  };
+
   const threadBody = h('div', { class: 'agentchat-thread-wrap' },
-    h('div', { class: 'agentchat-thread', ref: threadRef(messages.length), role: 'log', 'aria-label': 'conversation', 'aria-live': 'polite', 'aria-relevant': 'additions' },
+    h('div', { class: 'agentchat-thread', ref: combinedThreadRef, role: 'log', 'aria-label': 'conversation', 'aria-live': 'polite', 'aria-relevant': 'additions' },
       emptyState,
       earlierRow,
       ...rows.filter(Boolean),
@@ -488,7 +511,12 @@ export function AgentChat(props = {}) {
     // stateless chrome, so the host needn't thread scroll state through state.
     h('button', { class: 'agentchat-jump', type: 'button', 'aria-label': 'jump to latest', title: 'jump to latest',
       onclick: (e) => scrollThreadToBottom(e.currentTarget) },
-      Icon('arrow-down', { size: 16 }), h('span', { class: 'agentchat-jump-label' }, 'latest')));
+      Icon('arrow-down', { size: 16 }), h('span', { class: 'agentchat-jump-label' }, 'latest')),
+    // Optional scroll-position overview strip, sharing the same live thread
+    // element the auto-scroll/jump logic already resolves via threadElHolder.
+    showMinimap
+      ? ChatMinimap({ messages, getThreadEl: () => threadElHolder.el })
+      : null);
 
   const mainColumn = h('div', { class: 'agentchat-main-col' },
     h('div', { class: 'agentchat-head' },

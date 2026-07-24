@@ -14,6 +14,9 @@ import { register as registerDebug, unregister as unregisterDebug } from '../deb
 import { queueMessage, watchReconnect, isOnline } from '../idb-outbox.js';
 import { ChatMessage, ChatComposer } from './chat.js';
 import { fmtTime, fmtAgo } from './sessions.js';
+import { ModelsConfig } from './models-config.js';
+import { SkillsConfig } from './skills-config.js';
+import { PluginsConfig } from './plugins-config.js';
 import { createVirtualizer, measureRef } from '../virtual-scroll.js';
 import { GitStatusPanel, GitDiffView } from './git-status.js';
 import { WorktreeSwitcher } from './worktree-switcher.js';
@@ -364,44 +367,34 @@ export const analytics = makePage((ctx) => {
 // ---- models ----------------------------------------------------------------
 
 export const models = makePage((ctx) => {
-    Object.assign(ctx.state, { discovering: false });
+    Object.assign(ctx.state, { rebuilding: false, selectedProviderId: null, selectedModel: null });
+    // GET /api/models/availability — the real per-(provider x model x mode)
+    // availability matrix (plugins/gui-models-discover), per freddie's AGENTS.md
+    // "Model availability matrix" section. 404 with {error,hint} when the
+    // matrix file hasn't been built yet — ModelsConfig itself renders that
+    // as an empty state with a "build availability matrix" action.
     async function load() {
-        try {
-            const [providers, cached, sampler] = await Promise.all([
-                api('/api/models/providers').catch(() => []),
-                api('/api/models/cached').catch(() => ({})),
-                api('/api/models/sampler').catch(() => ({})),
-            ]);
-            ctx.set({ loading: false, providers, cached, sampler, error: null });
-        } catch (e) { ctx.set({ loading: false, error: e }); }
+        try { ctx.set({ loading: false, data: await api('/api/models/availability'), error: null }); }
+        catch (e) { ctx.set({ loading: false, data: null, error: (e && e.body) || e }); }
     }
-    async function discover() {
-        if (ctx.state.discovering) return;
-        ctx.set({ discovering: true });
-        try { await api('/api/models/discover', { method: 'POST', body: {} }); await load(); }
-        catch (e) { ctx.set({ error: e }); }
-        ctx.set({ discovering: false });
+    async function rebuild() {
+        if (ctx.state.rebuilding) return;
+        ctx.set({ rebuilding: true, rebuildError: null });
+        try { await api('/api/models/availability/rebuild', { method: 'POST', body: {} }); await load(); }
+        catch (e) { ctx.set({ rebuildError: e }); }
+        ctx.set({ rebuilding: false });
     }
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState('loading models…');
-        if (s.error && !s.providers) return errorState(s.error, load);
-        const providers = Array.isArray(s.providers) ? s.providers : [];
-        const cached = s.cached || {};
-        const status = s.sampler?.status || {};
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'models', lede: providers.length + ' providers', right: Btn({ variant: 'primary', disabled: s.discovering, children: s.discovering ? 'discovering…' : 'discover', onClick: discover }) }),
-            liveRegion(s.discovering ? 'discovering models' : ''),
-            section('providers', providers.length ? Table({
-                headers: ['provider', 'sampler', 'cached models'],
-                rows: providers.map(p => {
-                    const name = typeof p === 'string' ? p : p.id || p.provider;
-                    const st = status[name];
-                    const cm = (cached[name] || []);
-                    return [name, st ? (st.available === false ? Chip({ tone: 'miss', children: 'down' }) : Chip({ tone: 'ok', children: 'up' })) : '—', Array.isArray(cm) ? cm.length : '—'];
-                }),
-            }) : emptyState('no providers; set provider API keys')),
+            PageHeader({ eyebrow: 'freddie', title: 'models', lede: s.data ? (s.data.summary?.total_models ?? 0) + ' models across ' + (s.data.summary?.total_providers ?? 0) + ' providers' : 'model availability matrix' }),
+            ModelsConfig({
+                data: s.data, loading: s.loading, error: s.error,
+                selectedProviderId: s.selectedProviderId, onSelectProvider: (id) => ctx.set({ selectedProviderId: id, selectedModel: null }),
+                selectedModel: s.selectedModel, onSelectModel: (m) => ctx.set({ selectedModel: m }),
+                onRefresh: load, onRebuild: rebuild, rebuilding: s.rebuilding, rebuildError: s.rebuildError,
+            }),
         ];
     };
 });
@@ -444,22 +437,59 @@ export const cron = makePage((ctx) => {
 // ---- skills ----------------------------------------------------------------
 
 export const skills = makePage((ctx) => {
-    Object.assign(ctx.state, { open: null });
+    Object.assign(ctx.state, { selected: null, query: '', busyName: null });
     async function load() { try { ctx.set({ loading: false, list: await api('/api/skills'), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState('loading skills…');
-        if (s.error) return errorState(s.error, load);
-        const list = Array.isArray(s.list) ? s.list : (s.list?.skills || []);
+        // GET /api/skills returns {home:[...], bundled:[...], skillState} —
+        // two source lists (user ~/.freddie/skills vs bundled skills/ dirs)
+        // plus a per-skill enabled/disabled state map, not a flat array.
+        // Concat both sources (home overrides bundled on name collision,
+        // matching src/skills/index.js's own findSkill() precedence) and
+        // resolve enabled state from skillState (default true when absent).
+        const raw = s.list && typeof s.list === 'object' ? s.list : {};
+        const rawList = Array.isArray(raw) ? raw : [...(raw.bundled || []), ...(raw.home || [])];
+        const skillState = raw.skillState || {};
+        const mapped = rawList.map((sk) => ({
+            file: sk.file || sk.path || sk.name,
+            name: sk.name,
+            description: sk.description || (sk.frontmatter && sk.frontmatter.description) || '',
+            platforms: sk.platforms || (sk.frontmatter && sk.frontmatter.platforms),
+            enabled: skillState[sk.name] !== false,
+        }));
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'skills', lede: list.length + ' skills' }),
-            section('skills', list.length ? list.map((sk, i) => h('div', { key: i },
-                Row({ code: (sk.source || 'fs').slice(0, 3), title: sk.name, sub: trunc(sk.description, TRUNC_DESC).text,
-                    onClick: () => ctx.set({ open: s.open === i ? null : i }), active: s.open === i }),
-                s.open === i ? h('pre', { class: 'fd-pre fd-skill-body' }, sk.body || sk.content || '(no body)') : null,
-            )) : emptyState('no skills')),
-        ].filter(Boolean);
+            PageHeader({ eyebrow: 'freddie', title: 'skills', lede: mapped.length + ' skills' }),
+            SkillsConfig({
+                skills: mapped, selected: s.selected, loading: s.loading, error: s.error,
+                busyName: s.busyName, query: s.query, onQuery: (q) => ctx.set({ query: q }),
+                onSelect: (name) => ctx.set({ selected: s.selected === name ? null : name }),
+            }),
+        ];
+    };
+});
+
+// ---- plugins -----------------------------------------------------------------
+
+export const plugins = makePage((ctx) => {
+    Object.assign(ctx.state, { selected: null });
+    // GET /api/plugins — flat {name,version,surfaces,requires,source,enabled}
+    // list, per plugins/gui-plugins-list/plugin.js (distinct from
+    // /api/plugin-graph's D3 {nodes,edges} shape built for the dependency
+    // visualization, not a flat list UI).
+    async function load() { try { ctx.set({ loading: false, list: await api('/api/plugins'), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
+    load();
+    return () => {
+        const s = ctx.state;
+        const list = Array.isArray(s.list) ? s.list : (s.list?.plugins || []);
+        return [
+            PageHeader({ eyebrow: 'freddie', title: 'plugins', lede: list.length + ' plugins loaded' }),
+            PluginsConfig({
+                plugins: list, selected: s.selected, loading: s.loading, error: s.error,
+                onSelect: (name) => ctx.set({ selected: s.selected === name ? null : name }),
+                onReload: load,
+            }),
+        ];
     };
 });
 
@@ -950,7 +980,7 @@ export const git = makePage((ctx) => {
 
 export const FREDDIE_PAGES = {
     home, chat, voice, sessions, projects, agents, analytics,
-    models, cron, skills, config, env, tools, batch, gateway, chains,
+    models, cron, skills, plugins, config, env, tools, batch, gateway, chains,
     machines, health, debug, logs, git,
 };
 
