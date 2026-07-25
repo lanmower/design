@@ -7187,6 +7187,11 @@
   pointer-events: none;
   opacity: 0;
 }
+@media (max-width: 480px) {
+  /* .vx-ptt stretches full-width on narrow viewports, leaving no room for
+     the glow's -4px bleed without overflowing the viewport edge. */
+  .ds-247420 .vx-ptt-glow { inset: -4px 0; }
+}
 .ds-247420 .vx-ptt-recording, .ds-247420 .vx-ptt-live {
   background: var(--accent);
   color: var(--accent-fg);
