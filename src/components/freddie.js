@@ -17,9 +17,9 @@ import { fmtTime, fmtAgo } from './sessions.js';
 import { ModelsConfig } from './models-config.js';
 import { SkillsConfig } from './skills-config.js';
 import { PluginsConfig } from './plugins-config.js';
-import { createVirtualizer, measureRef } from '../virtual-scroll.js';
 import { GitStatusPanel, GitDiffView } from './git-status.js';
 import { WorktreeSwitcher } from './worktree-switcher.js';
+import { AgentChat } from './agent-chat.js';
 
 const h = webjsx.createElement;
 
@@ -46,10 +46,6 @@ const TRUNC_PROMPT = 50;  // batch prompt cells
 const truncSpan = (s, n) => { const t = trunc(s, n); return h('span', { title: t.title }, t.text); };
 // Cap a raw JSON dump for an inline table cell without losing the data via tooltip.
 const truncJson = (v, n = TRUNC_TITLE) => truncSpan(JSON.stringify(v), n);
-// Autoscroll a thread only when the user is already near the bottom, so
-// scrolling up to read history is not yanked back down on the next render.
-const stickyScroll = (el) => { if (!el) return; const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80; if (nearBottom) el.scrollTop = el.scrollHeight; };
-
 // ---- home ------------------------------------------------------------------
 
 export const home = makePage((ctx) => {
@@ -109,98 +105,196 @@ export const home = makePage((ctx) => {
 
 // ---- chat ------------------------------------------------------------------
 
-// Below this thread length, mount every message directly -- virtualization's
-// scroll-listener + spacer-div overhead only pays for itself once the DOM
-// node count it would otherwise mount is large enough to matter.
-const VIRTUALIZE_THRESHOLD = 60;
+// Parse a fetch Response body as a Server-Sent-Events frame stream. There is
+// no EventSource-over-POST in browsers (EventSource only does GET, no custom
+// headers/body), so a POST-based SSE consumer has to manually decode the
+// ReadableStream and split on blank-line-terminated `event: X\ndata: Y\n\n`
+// frames. No existing SSE-parsing utility exists elsewhere in this SDK
+// (checked idb-outbox.js and grepped src/ for `text/event-stream`) -- this is
+// the first, generic enough (event name + JSON.parse'd data) to reuse for any
+// future SSE endpoint, not freddie-chat-specific in shape.
+async function* parseSseStream(response) {
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '';
+    try {
+        for (;;) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buf += decoder.decode(value, { stream: true });
+            // Frames are separated by a blank line; a frame may itself contain
+            // multiple `field: value` lines (event/data/id/retry) but this
+            // server only ever emits one `event:` + one `data:` line per frame.
+            let sep;
+            while ((sep = buf.indexOf('\n\n')) !== -1) {
+                const frame = buf.slice(0, sep);
+                buf = buf.slice(sep + 2);
+                let event = 'message', dataLines = [];
+                for (const line of frame.split('\n')) {
+                    if (line.startsWith('event:')) event = line.slice(6).trim();
+                    else if (line.startsWith('data:')) dataLines.push(line.slice(5).trim());
+                }
+                if (!dataLines.length) continue;
+                let data;
+                try { data = JSON.parse(dataLines.join('\n')); } catch { data = dataLines.join('\n'); }
+                yield { event, data };
+            }
+        }
+    } finally {
+        try { reader.releaseLock(); } catch { /* stream already closed/errored */ }
+    }
+}
+
+// Map a freddie tool_progress SSE payload ({name, args, partial}) to an
+// AgentChat tool part. There is no matching id to correlate a later
+// "done" state (freddie's stream has no discrete tool-start/tool-end pair --
+// tool_progress fires zero-or-more times per call while it runs, and the
+// authoritative role:'tool' result only arrives batched in the final
+// `message`/`done` events) so every progress part renders as 'running'; the
+// turn-settle pass below promotes matching parts to 'done'/'error' once the
+// real tool_call_id/content pairs are known.
+function toolProgressPart(payload) {
+    return { kind: 'tool', name: payload.name || 'tool', args: payload.args || {}, status: 'running' };
+}
+
+// After `done`, freddie's persisted message list is the source of truth:
+// walk it and rebuild the assistant turn's parts as interleaved
+// text/tool/tool_result, replacing the provisional tool_progress-only parts
+// accumulated during streaming. assistant messages with tool_calls become
+// running tool parts (by call id); role:'tool' messages settle the matching
+// part to done/error by tool_call_id.
+function partsFromMessages(assistantAndToolMessages) {
+    const parts = [];
+    const byId = new Map();
+    for (const m of assistantAndToolMessages) {
+        if (m.role === 'assistant') {
+            if (m.content) parts.push({ kind: 'md', text: m.content });
+            for (const tc of (m.tool_calls || [])) {
+                const part = { kind: 'tool', _id: tc.id, name: tc.name || tc.function?.name || 'tool', args: tc.arguments || tc.function?.arguments || {}, status: 'running' };
+                parts.push(part);
+                if (tc.id) byId.set(tc.id, part);
+            }
+        } else if (m.role === 'tool') {
+            const target = m.tool_call_id ? byId.get(m.tool_call_id) : null;
+            let content = m.content;
+            let isError = false;
+            try { const parsed = JSON.parse(content); if (parsed && parsed.error) { isError = true; } } catch { /* not JSON, leave as-is */ }
+            if (target) { target.result = content; target.status = isError ? 'error' : 'done'; target.error = isError || undefined; }
+            else parts.push({ kind: 'tool_result', name: 'result', result: content, error: isError || undefined, status: isError ? 'error' : 'done' });
+        }
+    }
+    return parts;
+}
 
 export const chat = makePage((ctx) => {
-    Object.assign(ctx.state, { loading: false, messages: [], draft: '', sending: false });
-    const virtualizer = createVirtualizer();
-    let threadEl = null;
-    let range = { startIndex: 0, endIndex: 0, topSpacerPx: 0, bottomSpacerPx: 0 };
-    function recomputeRange() {
-        if (!threadEl) return;
-        virtualizer.setCount(ctx.state.messages.length);
-        range = virtualizer.computeRange(threadEl.scrollTop, threadEl.clientHeight);
-    }
+    Object.assign(ctx.state, { loading: false, messages: [], draft: '', busy: false, error: null, abort: null });
+
     // Offline outbox: a prompt sent while genuinely offline queues to
     // IndexedDB and auto-flushes on the real 'online' event, rather than
     // surfacing a hard error the user can't act on. True offline LLM
     // response generation is impossible by definition -- a queued message
-    // only gets a reply once connectivity actually returns.
-    async function sendToServer(body) {
+    // only gets a reply once connectivity actually returns. Reconnect-flush
+    // still goes through the single-shot JSON path (no live UI to stream
+    // into for a message sent while this page may not even be mounted).
+    async function sendQueuedToServer(body) {
         const r = await api('/api/chat', { method: 'POST', body });
         const reply = r.result || r.content || r.message || (r.messages && r.messages.at(-1)?.content) || JSON.stringify(r);
-        ctx.state.messages.push({ role: 'assistant', text: String(reply), time: formatTime(Date.now()) });
+        ctx.state.messages.push({ id: 'a' + Date.now(), role: 'assistant', content: String(reply), time: formatTime(Date.now()) });
+        ctx.rerender();
     }
-    watchReconnect('chat', sendToServer);
+    watchReconnect('chat', sendQueuedToServer);
+
     async function send(text) {
-        const t = (text || ctx.state.draft || '').trim();
-        if (!t || ctx.state.sending) return;
-        ctx.state.messages.push({ role: 'user', text: t, time: formatTime(Date.now()) });
-        ctx.set({ draft: '', sending: true });
+        const t = (typeof text === 'string' ? text : ctx.state.draft || '').trim();
+        if (!t || ctx.state.busy) return;
+        const userMsg = { id: 'u' + Date.now(), role: 'user', content: t, time: formatTime(Date.now()) };
+        const curMsg = { id: 'a' + (Date.now() + 1), role: 'assistant', content: '', time: formatTime(Date.now()), parts: [] };
+        ctx.state.messages = [...ctx.state.messages, userMsg, curMsg];
+        ctx.set({ draft: '', busy: true, error: null });
+
         if (!isOnline()) {
             await queueMessage('chat', { prompt: t });
-            ctx.state.messages.push({ role: 'assistant', text: '(offline -- queued, will send when connection returns)', time: formatTime(Date.now()) });
-            ctx.set({ sending: false });
+            ctx.state.messages = ctx.state.messages.slice(0, -1);
+            ctx.state.messages.push({ id: curMsg.id, role: 'assistant', content: '(offline -- queued, will send when connection returns)', time: formatTime(Date.now()) });
+            ctx.set({ busy: false });
             return;
         }
+
+        const ctrl = new AbortController();
+        ctx.state.abort = ctrl;
+        const cur = ctx.state.messages[ctx.state.messages.length - 1];
         try {
-            await sendToServer({ prompt: t });
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
+                body: JSON.stringify({ prompt: t, sessionId: ctx.state.sessionId || undefined }),
+                signal: ctrl.signal,
+            });
+            if (!res.ok || !res.body) {
+                const txt = await res.text().catch(() => '');
+                throw new Error(txt || ('HTTP ' + res.status));
+            }
+            let finalMessages = null;
+            for await (const { event, data } of parseSseStream(res)) {
+                if (ctrl.signal.aborted) break;
+                if (event === 'start') {
+                    if (data && data.sessionId) ctx.state.sessionId = data.sessionId;
+                } else if (event === 'tool_progress') {
+                    cur.parts.push(toolProgressPart(data || {}));
+                    ctx.rerender();
+                } else if (event === 'message') {
+                    // Buffered per-message events land right before `done` -- accumulate
+                    // rather than rerender per-message; the final rebuild below is O(1)
+                    // extra work and avoids a flurry of rerenders in the same tick.
+                    (finalMessages || (finalMessages = [])).push(data);
+                } else if (event === 'error') {
+                    cur.error = String((data && data.error) || 'stream error');
+                    ctx.rerender();
+                } else if (event === 'done') {
+                    if (finalMessages && finalMessages.length) {
+                        cur.parts = partsFromMessages(finalMessages);
+                        // Prefer the settled assistant text as plain content when the
+                        // rebuilt parts carry exactly one md part (the common no-tool-call
+                        // case) -- keeps AgentChat's md-vs-content dedup path simple.
+                        cur.content = '';
+                    } else if (data && data.result) {
+                        cur.content = String(data.result);
+                    }
+                    ctx.rerender();
+                }
+            }
         } catch (e) {
-            ctx.state.messages.push({ role: 'assistant', text: 'Error: ' + String(e.message || e), time: formatTime(Date.now()) });
+            if (e && e.name === 'AbortError') {
+                cur.stopped = true;
+            } else {
+                cur.error = String(e && e.message || e);
+            }
+        } finally {
+            ctx.state.abort = null;
+            ctx.set({ busy: false });
         }
-        ctx.set({ sending: false });
     }
-    // Combines the existing bottom-pin auto-scroll ref (stickyScroll) with the
-    // virtualizer's range recompute on every scroll tick. Both run off the
-    // SAME element -- one ref callback wiring both keeps a single listener
-    // registration instead of two refs fighting over the same node.
-    function threadRef(el) {
-        if (!el) { threadEl = null; return; }
-        threadEl = el;
-        stickyScroll(el);
-        if (!el.__vsScrollWired) {
-            el.__vsScrollWired = true;
-            el.addEventListener('scroll', () => { recomputeRange(); ctx.rerender(); }, { passive: true });
-        }
-        recomputeRange();
+
+    function stop() {
+        if (ctx.state.abort) { try { ctx.state.abort.abort(); } catch { /* already settled */ } }
     }
 
     return () => {
         const s = ctx.state;
-        const virtualized = s.messages.length > VIRTUALIZE_THRESHOLD;
-        let threadChildren;
-        if (!s.messages.length) {
-            threadChildren = [emptyState('send a prompt to start', Icon('forum'))];
-        } else if (!virtualized) {
-            threadChildren = s.messages.map((m, i) => ChatMessage({ ...m, key: i }));
-        } else {
-            recomputeRange();
-            const { startIndex, endIndex, topSpacerPx, bottomSpacerPx } = range;
-            threadChildren = [
-                h('div', { key: '_top_spacer', style: `height:${topSpacerPx}px` }),
-                ...s.messages.slice(startIndex, endIndex).map((m, i) => {
-                    const realIndex = startIndex + i;
-                    return h('div', { key: 'vm' + realIndex, ref: measureRef(virtualizer, realIndex) }, ChatMessage({ ...m, key: realIndex }));
-                }),
-                h('div', { key: '_bottom_spacer', style: `height:${bottomSpacerPx}px` }),
-            ];
-        }
         return h('div', { class: 'fd-chat' },
-            PageHeader({ eyebrow: 'freddie', title: 'chat', lede: 'one-shot agent turns · POST /api/chat' }),
-            liveRegion(s.sending ? 'waiting for assistant reply' : ''),
-            h('div', { class: 'chat-thread fd-chat-thread', role: 'log', 'aria-label': 'chat messages',
-                ref: threadRef },
-                ...threadChildren,
-                s.sending ? ChatMessage({ role: 'assistant', typing: true, key: '_typing' }) : null),
-            ChatComposer({
-                value: s.draft,
-                placeholder: s.sending ? 'waiting for reply…' : 'message…',
-                disabled: s.sending,
+            AgentChat({
+                messages: s.messages,
+                busy: s.busy,
+                draft: s.draft,
+                status: s.busy ? 'streaming…' : 'ready',
+                agentName: 'freddie',
+                placeholder: s.busy ? 'waiting for reply…' : 'message…',
+                showMinimap: true,
+                banners: s.error ? [noteAlert({ kind: 'error', msg: s.error })] : [],
                 onInput: (v) => { s.draft = v; },
                 onSend: send,
+                onStop: stop,
+                onNewChat: () => ctx.set({ messages: [], draft: '', error: null, sessionId: null }),
             }));
     };
 });
