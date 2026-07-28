@@ -1979,11 +1979,6 @@
   subject: 117 raw px spacing literals in src/css/app-shell/kits-appended.css migrate to --space-* scale
   witness: 'exec_js-16 scan: kits-appended.css=117 raw px in padding/margin/gap declarations'
   status: pending
-- id: spacing-literals-chat
-  subject: 104 raw px spacing literals in chat.css migrate to --space-* scale
-  witness: 66 -> 17 violating lines.
-  status: completed
-  commit_comment: spacing literals migrated to --space-* scale
 - id: spacing-literals-files
   subject: 46 raw px spacing literals in src/css/app-shell/files.css migrate to --space-* scale
   witness: 'exec_js-16 scan: files.css=46'
@@ -2028,21 +2023,6 @@
   subject: 8 raw font-size px in src/css/app-shell/files.css migrate to --fs-* scale
   witness: exec_js-16 scan
   status: pending
-- id: important-purge-os-theme
-  subject: 128 !important declarations in src/kits/os/theme.css indicate specificity war, not intent
-  witness: '128 -> 60, root cause fixed rather than flags deleted: os/theme.css is not in the dist bundle so it is never build-scoped, and it competed with wm.css at equal specificity with undefined load order. Scoping to .ds-247420 wins on specificity (0,2,0 vs 0,1,0), which is order-independent, removing ~47. The 60 remaining are documented in place: inline geometry written by wm.js during drag/resize, the print block that must flatten it, density vars redefined at higher specificity, and the brand accent pinned against equal-specificity attribute selectors.'
-  status: completed
-  commit_comment: fix the cause (unscoped equal-specificity competition), not the symptom
-- id: spacing-literals-editor-primitives
-  subject: 176 raw px spacing literals in editor-primitives.css migrate to --space-* scale
-  witness: 55 -> 1 violating lines; part of the repo-wide 646 -> 366 migration.
-  status: completed
-  commit_comment: spacing literals migrated to --space-* scale
-- id: spacing-literals-community
-  subject: 87 raw px spacing literals in community.css migrate to --space-* scale
-  witness: 55 -> 4 violating lines.
-  status: completed
-  commit_comment: spacing literals migrated to --space-* scale
 - id: important-purge-responsive
   subject: 8 !important in src/css/app-shell/responsive.css resolve via specificity/container queries
   witness: 'exec_js-15 scan: responsive.css=8'
@@ -2051,11 +2031,6 @@
   subject: 35 raw px spacing literals in src/css/app-shell/data-density.css migrate to --space-* scale
   witness: 'exec_js-16 scan: data-density.css=35'
   status: pending
-- id: pure-black-white-literals
-  subject: '12 pure #000/#fff literals bypass the theme token system and break in the opposite theme'
-  witness: 'os/theme.css 7 -> 1 (the one remaining is intentional and documented). Found a real bug en route: .wm-context-menu carried var(--panel-2, #1a1a1a) and var(--fg, #fff) dark-baked fallbacks which would have rendered white text on a near-white panel had they fired in paper mode.'
-  status: completed
-  commit_comment: 7 -> 1; removes dark-baked fallbacks that would break paper theme
 - id: fontsize-literals-chat-polish
   subject: 7 raw font-size px in chat-polish.css migrate to --fs-* scale
   witness: exec_js-16 scan
@@ -2068,20 +2043,10 @@
   subject: homepage/app.js is the only kit containing a gradient; confirm it is a deliberate art-directed moment not decorative glow
   witness: 'exec_js-11 survey: homepage gradient:true, all 20 other kits false'
   status: pending
-- id: kit-loading-states-sweep
-  subject: every data surface needs an authored loading state; skeleton primitives exist (.ds-session-row-skeleton) but are not used by most kits
-  witness: Covered by the same sweep - skeleton primitives (.ds-event-row-skeleton, .ds-skel*) reused rather than new markup invented; witnessed rendering live on settings.
-  status: completed
-  commit_comment: loading skeletons reuse existing primitives
 - id: focus-visible-coverage
   subject: audit every interactive element has a visible focus ring; keyboard order must match visual order
   witness: 'craft floor + layout playbook: keyboard/touch/AT order agrees with visual order'
   status: pending
-- id: contrast-audit-all-tokens
-  subject: verify body/placeholder >=4.5:1 and large text >=3:1 across light+dark+ink themes for every token pair
-  witness: 'Measured real WCAG ratios in a live browser across all three themes by switching data-theme on the root and reading computed token values (browser-24). Every pair passes AA: body 17.07 in all three; secondary 14.51 light / 15.44 dark+ink; muted 6.86 light / 9.35 dark+ink; --accent-ink 8.85 light / 15.88 dark+ink. The weakest (muted on paper, 6.86) still clears the 4.5:1 body floor. The --accent fill vs --accent-ink text split documented in AGENTS.md is working as intended.'
-  status: completed
-  commit_comment: all token pairs pass WCAG AA in light, dark and ink
 - id: touch-target-full-sweep
   subject: sweep every interactive control across all kits for the 44px pointer:coarse floor, not just pager/segmented/terminal already fixed
   witness: this session fixed 3 families; others unaudited
@@ -2098,11 +2063,6 @@
   subject: AGENTS.md records the CI-blocking a11y audit was removed with no replacement; restore axe-core WCAG checking without a browser-automation dependency
   witness: 'AGENTS.md: ''CI-blocking a11y enforcement they provided has no current replacement, tracked as a residual gap'''
   status: pending
-- id: dead-class-sweep
-  subject: sweep every preview page and kit for CSS classes referenced in markup but having zero rules (the 2026-07-10 defect class)
-  witness: 'Two passes. First pass on preview pages was a FALSE POSITIVE - browser-11 showed .wrap/.prin/.ttl computing real styles (display:grid, padding:22px, font-size:30px) because those pages define them in inline <style> blocks my css-file-only scan could not see. Second pass found 13 genuinely unstyled classes used by kit markup, all confirmed by exec_js-30 and witnessed live (community elements at display:block/padding:0/radius:0, avatar a 1425x25 bar). All 13 now styled and re-witnessed: avatar 36x36 border-radius:50%, messages flex gap:16px, caret animating only under prefers-reduced-motion:no-preference.'
-  status: completed
-  commit_comment: 13 genuinely unstyled classes fixed; preview-page suspicion was a false positive
 - id: scrollbar-styling-consistency
   subject: audit scrollbar treatment across surfaces; inconsistent or default scrollbars read as unfinished
   witness: app-main uses scrollbar-gutter:stable; other scroll containers unaudited
@@ -2115,11 +2075,6 @@
   subject: src/kits/os/theme.css holds 229 raw spacing, 70 raw font-size, 128 !important, 15 z-index, 7 pure black/white - the single worst-debt file in the repo
   witness: 'exec_js-15 and exec_js-16 scans both rank it #1 in every category'
   status: pending
-- id: kit-error-states-sweep
-  subject: every kit needs an authored error state naming problem + recovery, per craft floor copy rule
-  witness: 'Covered by the same sweep. Every error names problem AND recovery per the craft rule: terminal ''shell exited (code 137) - the pty was killed by the OOM reaper, so scrollback is frozen''; search ''index out of date - results would be wrong rather than missing, so nothing is shown''; error_404 explicitly notes the back-to-index link does not depend on the failed lookup, because the recovery has to survive when the page IS the failure.'
-  status: completed
-  commit_comment: error states name problem and recovery, not 'something went wrong'
 - id: pager-current-contrast-bug
   subject: ds-ep-pager-num.is-current sets color:var(--accent-ink) on background:var(--accent); AGENTS.md says dark theme makes accent-ink the bright lime itself
   witness: editor-primitives.css:439-443 read directly this session
@@ -2136,11 +2091,6 @@
   subject: row-print.css exists; verify print output is deliberate across all kits not just rows
   witness: src/css/app-shell/row-print.css is 75 lines covering rows only
   status: pending
-- id: kit-empty-states-sweep
-  subject: every kit needs a real empty state (no rows/no results/no sessions), not a blank panel
-  witness: '15 kits gained reachable empty/loading/error states, each wired to a real state toggle in existing chrome so no state lives only in dead code. Witnessed live in a real browser on ui_kits/settings/: clicking the empty toggle renders .ds-empty-state (''no notification channels connected''), error renders .ds-alert (''preferences did not save - the server holds a newer copy of these toggles than this tab does''), loading renders .ds-event-row-skeleton. Native component props used where they existed (FileGrid loading/emptyAction, ConversationList loading/error/emptyText, SessionDashboard offline/streamState) rather than hand-rolled markup. blog/docs skipped (static html, no app.js); slide_deck/system_primer skipped (fixed local constants, no data surface, so states would be fiction).'
-  status: completed
-  commit_comment: '15 kits: reachable empty/loading/error states using native component props where available'
 - id: measure-cap-audit
   subject: verify body text measure stays 65-75ch everywhere; --measure is 68ch but app surfaces may exceed
   witness: craft floor type rule
@@ -2317,11 +2267,6 @@
   subject: AGENTS.md updated for new primitives (ds-app-surface, ds-panel-trio, ds-panel-flush) and the drained rows
   witness: AGENTS.md documents ds-panel-trio which had no CSS rule until this session
   status: pending
-- id: baseline-ratchet-spacing
-  subject: lint-spacing PASS is baseline-capped at 362 and never ratchets down as literals are removed; make the baseline auto-tighten
-  witness: 'Baseline now moves down with the work: 647 -> 366 via the script''s own --write-spacing-baseline flag, and the widened gate makes it a real number rather than the fictional 362 that only ever measured an @import barrel.'
-  status: completed
-  commit_comment: spacing ratchet now tracks the real measured count
 - id: component-api-md-refresh
   subject: COMPONENT_API.md must document new layout primitives
   witness: COMPONENT_API.md exists at repo root
@@ -2430,11 +2375,6 @@
   subject: browser verb returns result:null for an IIFE expression body; only an explicit return-statement body captures the value
   witness: browser-4 dispatch with (()=>{...})() body returned ok:true result:null; identical logic as a return-statement body (browser-5) returned the full JSON payload
   status: pending
-- id: t-label-duplication
-  subject: at least 6 selectors hand-reimplement the .t-label recipe (--ff-mono + uppercase + letter-spacing + muted colour) instead of composing it, so the label voice can drift per-sheet
-  witness: '9 duplicates found (not the 6 first counted), all folded onto shared rules. The substantive finding is drift: the single small-label voice was running five different letter-spacing values (.06/.08/.09/.1em, --tr-caps, --tr-label) and two sizes. Two apparent duplicates deliberately NOT folded: .cm-cat-extra sets letter-spacing:0/text-transform:none which RESETS an inherited uppercase voice rather than copying one, and .cm-user-tag is a handle - content, not chrome - so it stays sentence-case.'
-  status: completed
-  commit_comment: unify 9 drifted copies of the .t-label voice; 2 deliberate non-duplicates left alone
 - id: community-css-never-loaded-by-kit
   subject: community.css is a published <link> export but ui_kits/community/index.html links only colors_and_type.css + app-shell.css, so the entire .cm-* shell chrome (server rail, sidebar, member list) is unstyled on its own kit page
   witness: 'witnessed live: .cm-server-rail computed to 1425px instead of its authored 72px, proving the sheet is absent from that page'
@@ -2443,8 +2383,3 @@
   subject: 23 raw px literals live inside inline <style> blocks in 5 html files, invisible to every lint gate because the gates scan only .css files
   witness: 'exec_js-25: blog/index.html=10, preview/colors-core=7, preview/data-density=4, colors-lore=1, colors-semantic=1'
   status: pending
-- id: fontsize-literals-os-theme
-  subject: 29 raw font-size px literals in src/kits/os/theme.css sit below the --fs-* scale floor of 12px, so they cannot migrate without a new sub-12px tier
-  witness: '29 -> 0 after adding --fs-pico (10px) and --fs-nano (11px) to colors_and_type.css. Verified: grep -cE font-size:[0-9]+px on src/kits/os/theme.css returns 0. Two tiers not five - 11px was 72% of sites and 10px the only other value with weight, so the 9/11.5/12.5px outliers each snap to a neighbour within 1px rather than each earning a tier and making the scale one in name only. tokens.json and docs/theme-tokens.md re-synced.'
-  status: completed
-  commit_comment: 29 raw font-sizes -> 0 via two new sub-12px tiers
