@@ -69,6 +69,87 @@ check('scripts/lint-tokens.mjs spacing report does not exceed session baseline',
     if (count > baseline) throw new Error('spacing violation count regressed: ' + count + ' > ' + baseline + ' baseline');
 });
 
+// -- Shipped TypeScript declarations: real generator, real files, real gate --
+check('types/*.d.ts exist, are declared by package.json, and cover the whole barrel', () => {
+    const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+    if (pkg.types !== './types/index.d.ts') throw new Error('package.json "types" not pointing at ./types/index.d.ts: ' + pkg.types);
+    if (!pkg.exports['.'].types) throw new Error('exports["."] has no "types" condition — a bundler-resolution consumer gets no types');
+    if (!pkg.files.includes('types')) throw new Error('"types" missing from package.json files[] — the declarations would not be published');
+    const dts = fs.readFileSync(path.join(root, 'types/components.d.ts'), 'utf8');
+    // Every component symbol in the real barrel must have a declaration.
+    const barrel = fs.readFileSync(path.join(root, 'src/components.js'), 'utf8');
+    const names = new Set();
+    for (const m of barrel.matchAll(/export\s*\{([^}]*)\}\s*from\s*'([^']+)';/g)) {
+        for (const s of m[1].split(',').map((x) => x.trim()).filter(Boolean)) names.add(s.split(' as ')[0].trim());
+    }
+    const missing = [...names].filter((n) => !new RegExp(`\\b(?:function|const|class)\\s+${n}\\b`).test(dts));
+    if (missing.length) throw new Error('barrel symbols with no declaration: ' + missing.slice(0, 8).join(', '));
+});
+
+check('component types + docs are generated from ONE shared extraction (no second parser to drift)', () => {
+    for (const f of ['scripts/generate-component-docs.mjs', 'scripts/generate-component-types.mjs']) {
+        const src = fs.readFileSync(path.join(root, f), 'utf8');
+        if (!/from '\.\/component-surface\.mjs'/.test(src)) throw new Error(f + ' no longer imports the shared extraction — a second parser can now drift');
+    }
+});
+
+check('the type-staleness gate really FAILS on a changed signature (not merely green)', () => {
+    const target = path.join(root, 'src/components/shell/atoms.js');
+    const original = fs.readFileSync(target, 'utf8');
+    const probed = original.replace(
+        "export function Pill({ tone = '', children, key } = {})",
+        "export function Pill({ tone = '', children, key, __staleProbe } = {})");
+    if (probed === original) throw new Error('probe anchor not found in atoms.js — update this test to a current signature');
+    try {
+        fs.writeFileSync(target, probed);
+        const r = spawnSync(process.execPath, ['scripts/generate-component-types.mjs', '--check'], { cwd: root, encoding: 'utf8' });
+        if (r.status === 0) throw new Error('lint:component-types passed against a CHANGED signature — the gate cannot fail, so it is not a gate');
+    } finally {
+        fs.writeFileSync(target, original);
+    }
+    // And confirm it returns to green once reverted, so the failure above was
+    // caused by the probe and not by a pre-existing stale checkout.
+    const after = spawnSync(process.execPath, ['scripts/generate-component-types.mjs', '--check'], { cwd: root, encoding: 'utf8' });
+    if (after.status !== 0) throw new Error('types still stale after revert: ' + (after.stdout || '') + (after.stderr || ''));
+});
+
+check('sideEffects is an honest array — declares the real registrations, does not over-claim', () => {
+    const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+    if (!Array.isArray(pkg.sideEffects)) throw new Error('sideEffects must be an array; a blanket false would break the custom-element registration in src/index.js');
+    // src/index.js registers <ds-chat>/<freddie-chat> at module scope — it MUST
+    // be listed or a bundler may drop the registration.
+    if (!pkg.sideEffects.some((p) => p.includes('index.js'))) throw new Error('src/index.js registers custom elements at module scope but is not declared side-effectful');
+    if (!pkg.sideEffects.some((p) => p.includes('.css'))) throw new Error('CSS is side-effectful and must be declared');
+    // Every listed JS path must actually exist, or the entry is noise that
+    // silently protects nothing.
+    for (const p of pkg.sideEffects) {
+        if (!p.endsWith('.js')) continue;
+        const rel = p.replace(/^\.\//, '');
+        if (rel.startsWith('dist/')) continue; // build artifact, may be absent pre-build
+        if (!fs.existsSync(path.join(root, rel))) throw new Error('sideEffects lists a non-existent file: ' + p);
+    }
+    // And a module with NO module-scope side effect must not be listed —
+    // over-declaring is what defeats tree-shaking for consumers.
+    const dbg = fs.readFileSync(path.join(root, 'src/debug.js'), 'utf8');
+    const hasTopLevelCall = dbg.split(/\r?\n/).some((l) => /^[a-zA-Z_$][\w$]*\(/.test(l));
+    if (!hasTopLevelCall && pkg.sideEffects.some((p) => p.includes('debug.js'))) {
+        throw new Error('src/debug.js has no module-scope side effect but is declared side-effectful — over-claiming blocks tree-shaking');
+    }
+});
+
+check('busy and loading stay DISTINCT props on FileGrid (not merged/aliased)', () => {
+    const src = fs.readFileSync(path.join(root, 'src/components/files/grid.js'), 'utf8');
+    if (!/loading\s*=\s*false/.test(src)) throw new Error('FileGrid lost its `loading` prop');
+    if (!/\bbusy\b/.test(src)) throw new Error('FileGrid lost its `busy` prop');
+    // loading drives SHAPE (skeleton / refreshing dim)...
+    if (!/if \(loading && !files\.length\) return FileSkeleton/.test(src)) throw new Error('loading no longer drives the cold-load skeleton');
+    if (!/const refreshing = loading && files\.length > 0/.test(src)) throw new Error('loading no longer drives the refreshing dim');
+    // ...busy drives INTERACTIVITY, forwarded per-row.
+    if (!/busy: busy != null \? !!busy : !!f\.busy/.test(src)) throw new Error('busy is no longer forwarded per-row to FileRow');
+    // The distinction must stay documented, since that JSDoc is what types it.
+    if (!/a USER ACTION is in flight/.test(src)) throw new Error('the busy-vs-loading distinction is no longer documented at the signature');
+});
+
 // -- New components: real ESM import, real invocation, real vnode shape --
 const { Pill } = await import('./src/components/shell.js');
 const { Pager, JsonViewer, ToolbarRow, PropertyGridRow, InlineEditableField, Grid, GridItem, Collapse, CollapseGroup, Divider } = await import('./src/components/editor-primitives.js');
