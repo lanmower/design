@@ -1975,11 +1975,6 @@
   subject: bert embedder plugin crashes in wasm (plugin_error) making codesearch+recall unavailable
   witness: '.gm/exec-spool/.watcher.log embed_query_failed: [plugin_error] wasm backtrace fn 397/396/611/4407; both vector and keyword fallback returned nothing across two fresh spool boots; codesearch-1/-4 and recall-1 all ok:false'
   status: pending
-- id: uppercase-transform-audit
-  subject: 50 text-transform:uppercase occurrences risk the tracked-uppercase-eyebrow-everywhere grammar the craft floor bans; audit which are a system vs habit
-  witness: Measured actual RENDERED uppercase text across four kits rather than counting text-transform declarations, since the declaration count says nothing about whether the treatment is applied to labels or to prose. Dashboard 43 elements (38 short <=14ch, 5 medium, 0 long), gm_inspector 48 (34/12/2), system_primer 13 (10/1/2), community 8 (7/1/0). Uppercase is overwhelmingly on SHORT labels, which is the legitimate .t-label system this repo deliberately maintains, not the tracked-uppercase-eyebrow-over-every-section grammar the craft floor bans - that concern was the separate eyebrow audit, which cut 34 rendered eyebrows to 4. The only long instances are two panel-head titles where a long panel name is set in caps (screen-real-estate primitives, semantic tokens - invert with theme); a mild readability cost on a title, not a defect in the treatment. No action taken.
-  status: completed
-  commit_comment: 'audited rendered uppercase: overwhelmingly short labels, the deliberate .t-label system'
 - id: ds-section-root-audit-remaining
   subject: aicat/chat/community/gallery/project_page/slide_deck/system_primer/signin/error_404 still use .ds-section as app root; decide per-kit whether editorial 96px rhythm is correct or app-surface applies
   witness: 'exec_js-11 survey: 9 kits still on ds-section root; dashboard/settings/search/terminal/gm_inspector migrated'
@@ -1990,8 +1985,9 @@
   status: pending
 - id: touch-target-full-sweep
   subject: sweep every interactive control across all kits for the 44px pointer:coarse floor, not just pager/segmented/terminal already fixed
-  witness: this session fixed 3 families; others unaudited
-  status: pending
+  witness: 'Swept every interactive control (button, a[href], input, select, textarea, [role=button], [tabindex]) under REAL coarse-pointer emulation - CDP setDeviceMetricsOverride mobile:true plus setTouchEmulationEnabled plus setEmitTouchEventsForMouse, which is what actually flips the pointer:coarse media query - rather than reading CSS. Found two gaps that specific-case rules had missed: the base .input at 34px (specific inputs like ds-file-filter-input/ds-modal-input/ds-term-input already had floors, but the primitive every form uses did not) and .skip-link at 39px on every kit. Fixed both. Dashboard 15 controls and settings 17 controls now measure 0 under 44px; file_browser was already clean at 69 controls. The skip link is floored unconditionally rather than behind pointer:coarse, because switch and head-pointer users are not reported as coarse pointers and need the target just as much.'
+  status: completed
+  commit_comment: sweep all controls under real touch emulation; base input and skip link floored
 - id: display-type-ceiling-audit
   subject: verify no display type exceeds 6rem and tracking floor -0.04em holds
   witness: craft floor type rule; --fs-mega/--fs-hero clamp to 96px
@@ -2024,11 +2020,6 @@
   subject: row-print.css exists; verify print output is deliberate across all kits not just rows
   witness: src/css/app-shell/row-print.css is 75 lines covering rows only
   status: pending
-- id: measure-cap-audit
-  subject: verify body text measure stays 65-75ch everywhere; --measure is 68ch but app surfaces may exceed
-  witness: Measured RENDERED line length rather than reading max-width declarations, since a cap only matters if it actually binds at the width the text renders at. Across project_page, homepage and system_primer every prose block measures 41-65ch (lede 41, ds-hero-body 50, ds-work-body and ds-manifesto-para 65) and ZERO exceed 85ch. The --measure (68ch), --measure-wide and --measure-narrow caps are binding as intended, so the craft-floor 65-75ch body target holds. No action needed.
-  status: completed
-  commit_comment: verified rendered measure 41-65ch across prose surfaces, none over 85ch
 - id: component-css-colocation-audit
   subject: SessionRow layout lived in chat.css while its sub-parts lived in data-density.css; audit every component for split-home defects of the same shape
   witness: fixed this session for SessionRow; same shape may exist for other components
@@ -2205,3 +2196,8 @@
   subject: community.css referenced var(--fs-0/--fs-1/--fs-3, Npx) - tokens that do not exist in colors_and_type.css - so the px fallback was what actually rendered
   witness: found during the font-size migration; repointed onto real tokens
   status: pending
+- id: ratchet-slack-absorbs-violations
+  subject: a ratchet baseline with slack silently absorbs new violations - while the count sat at 55 against a frozen 56, an injected raw font-size:17px still PASSED. The baseline must be re-frozen downward whenever the real count drops, or the gate stops catching the next regression
+  witness: 'Discovered while verifying the fontsize gate: with the real count at 55 and the baseline frozen at 56, an injected raw font-size:17px still PASSED because the ratchet had a unit of slack. Re-froze to 55 and re-ran - raw literal now FAILs, as do max()/clamp() with no token, while token-anchored max()/clamp() correctly pass. Recorded so the same slack is not left on lint-spacing or lint-important.'
+  status: completed
+  commit_comment: re-freeze ratchets downward when the count drops, or they absorb the next regression
