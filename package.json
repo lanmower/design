@@ -116,7 +116,8 @@
     "a11y": "node scripts/a11y-audit.mjs",
     "a11y:baseline": "node scripts/a11y-audit.mjs --write-baseline",
     "visual": "node scripts/visual-baseline.mjs check",
-    "visual:update": "node scripts/visual-baseline.mjs update"
+    "visual:update": "node scripts/visual-baseline.mjs update",
+    "lint:dead-controls": "node scripts/lint-dead-controls.mjs"
   },
   "repository": {
     "type": "git",

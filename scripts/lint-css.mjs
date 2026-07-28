@@ -27,6 +27,7 @@ import { lintInlineStylesOrThrow } from './lint-inline-styles.mjs';
 import { lintDuplicateSelectorsOrThrow } from './lint-duplicate-selectors.mjs';
 import { lintSwallowCommentsOrThrow } from './lint-swallow-comments.mjs';
 import { lintInlineCssOrThrow } from './lint-inline-css.mjs';
+import { lintDeadControlsOrThrow } from './lint-dead-controls.mjs';
 
 // Each entry: a human label for the report, and the check function to run.
 // EVERY check here throws on violation and is counted in the pass/fail tally.
@@ -60,6 +61,12 @@ const CHECKS = [
     ['inline-styles', lintInlineStylesOrThrow],
     ['duplicate-selectors', lintDuplicateSelectorsOrThrow],
     ['swallow-comments', lintSwallowCommentsOrThrow],
+    // A rendered control that cannot act — an empty handler body, or an
+    // href="#" that goes nowhere. Both shipped in quantity (6 no-op handlers
+    // across three kits, 24 placeholder links across blog and docs) precisely
+    // because nothing checked: the affordance renders either way, so the defect
+    // is invisible until someone clicks.
+    ['dead-controls', lintDeadControlsOrThrow],
 ];
 
 // Runs every rule module's check, prints one aggregated report, and returns
