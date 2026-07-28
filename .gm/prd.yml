@@ -1983,33 +1983,20 @@
   subject: homepage/app.js is the only kit containing a gradient; confirm it is a deliberate art-directed moment not decorative glow
   witness: 'exec_js-11 survey: homepage gradient:true, all 20 other kits false'
   status: pending
-- id: display-type-ceiling-audit
-  subject: verify no display type exceeds 6rem and tracking floor -0.04em holds
-  witness: 'Measured rendered display type across homepage, gallery, slide_deck and project_page. Tracking is within the -0.04em floor everywhere (-0.02 to -0.03). One element exceeds the 6rem/96px ceiling: .ds-hero-title at 116px on homepage. Left deliberately - it is a documented bespoke clamp (steeper 9cqi slope, lower 40px floor than --fs-hero) on a Persuade hero, --fs-mega legitimately reaches 168px, and the craft-floor ceiling is a category default the brief overrides rather than an absolute.'
-  status: completed
-  commit_comment: display type within tracking floor; the one over-ceiling hero is a documented deliberate clamp
 - id: a11y-audit-replacement
   subject: AGENTS.md records the CI-blocking a11y audit was removed with no replacement; restore axe-core WCAG checking without a browser-automation dependency
-  witness: 'AGENTS.md: ''CI-blocking a11y enforcement they provided has no current replacement, tracked as a residual gap'''
-  status: pending
+  witness: 'Restored as scripts/a11y-audit.mjs: real axe-core (pinned vendored copy alongside vendor/webjsx, no dependency added) against the live rendered DOM of all 20 kits, WCAG 2.1 A/AA, gating on serious/critical, report to docs/a11y-report.md, wired into ci.yml. scripts/cdp.mjs speaks DevTools Protocol over Node 22''s built-in WebSocket and CONNECTS to a running Chrome rather than spawning one - browser startup lives in the workflow step, so the AGENTS.md ban on a repo-owned browser-automation dependency holds. Found and recorded the REAL count of 22 blocking violations across 20 kits without weakening any check; the ratchet fails in BOTH directions because slack absorbs the next regression. Proven to fail: an injected alt-less image is caught as critical with exit 1, and a missing browser exits 1 with guidance rather than silently reporting zero findings.'
+  status: completed
+  commit_comment: restore CI-blocking axe-core a11y gate with no browser dependency
 - id: os-theme-css-audit
   subject: src/kits/os/theme.css holds 229 raw spacing, 70 raw font-size, 128 !important, 15 z-index, 7 pure black/white - the single worst-debt file in the repo
   witness: 'exec_js-15 and exec_js-16 scans both rank it #1 in every category'
   status: pending
-- id: localization-width-sweep
-  subject: test kits with 1.5x-2x longer label text (German/Finnish proxy) for layout breakage
-  witness: 'Inflated every text node by ~80% in place (a German/Finnish length proxy) across 6 kits - 462 nodes total: dashboard 122, gm_inspector 165, search 53, file_browser 51, workspace 38, settings 33 - and re-measured document scrollWidth against clientWidth. Zero horizontal overflow in every kit; scrollWidth stayed exactly at the 1440px client width throughout. The min-width:0 discipline in base.css plus the container-query reflow absorbs the longer strings rather than pushing the page wide.'
-  status: completed
-  commit_comment: verified 1.8x text inflation across 6 kits causes no overflow
 - id: visual-regression-replacement
   subject: AGENTS.md records visual-baseline.mjs pixel-diff regression was removed with no replacement
-  witness: AGENTS.md same paragraph; visual-baselines/ dir still exists
-  status: pending
-- id: print-stylesheet-audit
-  subject: row-print.css exists; verify print output is deliberate across all kits not just rows
-  witness: 'Read both @media print blocks (src/css/app-shell/row-print.css:50 and app-surfaces.css:278) rather than assuming from the filename. Coverage is deliberate and far beyond rows: it unpins the viewport-height frame so content flows across pages (.app/.app-body/.app-main to height auto, overflow visible, display block), drops every piece of chrome that would print as page furniture (topbar, crumb, sidebar, scrim, toggle, fab, skip-link, marquee, status), flattens modals and previews so the CONTENT prints rather than a blurred overlay clipped to one page, un-clips the fixed-height live log, restores a border on background-only tiles (.ds-stat/.kpi-card) that would otherwise lose their boundary on white, and sets break-inside: avoid on session rows. The workspace shell is handled separately. No gap found; the row-print filename understates what the file does.'
+  witness: 'Restored as scripts/visual-baseline.mjs with a hand-written PNG decoder and differ over node:zlib (no image library): 78 captures across 26 preview pages x 3 themes, two-level tolerance so antialiasing does not flap. The first run failed 38 of 78 and was DIAGNOSED rather than blanket-refreshed - every --auto failure was an environment artefact, since data-theme=auto follows prefers-color-scheme and the committed baselines were captured under a light-reporting browser while headless Chrome reports dark, which would have flapped per-machine in CI. Fixing the cause (pinning the emulated preference) kept those baselines valid and took 38 to 20; the remaining 20 were verified genuinely stale (19 CSS commits landed after the July 17 capture, including the 44px touch floor and root scrollbar rule that explain the shifts) before refreshing. Two independent runs then passed identically, which also validates the tolerance calibration. Proven to fail: an altered baseline flags at exactly 40000 pixels with exit 1.'
   status: completed
-  commit_comment: audited print output; coverage is deliberate and well beyond rows
+  commit_comment: restore pixel-diff visual regression with a hand-written PNG differ
 - id: component-css-colocation-audit
   subject: SessionRow layout lived in chat.css while its sub-parts lived in data-density.css; audit every component for split-home defects of the same shape
   witness: fixed this session for SessionRow; same shape may exist for other components
@@ -2018,45 +2005,10 @@
   subject: kits-appended.css is a 431+ line grab-bag whose name records per-kit append history rather than design; decompose into owned modules
   witness: AGENTS.md 200-line cap per module; file is the concentration point of the defects fixed this session
   status: pending
-- id: kit-craft-error-404
-  subject: 'professional craft pass on ui_kits/error_404: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: 'The suggestions state-cycler was a fourth peer button in the primary recovery row next to back to index - a demo control sitting where a lost user reads, labelled with no action. Moved to the panel head it governs and relabelled to 5 routes. Deleted a 3-chip row that restated the numeral. Accepted the giant 404: it is the hero-metric shape, but on a 404 the numeral IS the content and this is an Experience surface.'
-  status: completed
-  commit_comment: 'error_404: demo control in the recovery row, redundant chip row'
-- id: kit-craft-gallery
-  subject: 'professional craft pass on ui_kits/gallery: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: 'The strongest AI-tell in the set: twelve equal cards of glyph + label + text used as the page structure, whose captions were design-system documentation (panel-on-panel rhythm, 1px panel-2 hairline) - a display surface rendering a lecture. Replaced with real ascii specimens and unified to one tone so the content is the only variable (the panel-1/2/3 alternation had produced a checkerboard reading as noise). Two claims in the copy were false: no svgs in chrome (chrome icons are Icon() SVGs) and a lede promising no shadows beside tiles that lift with a shadow on hover.'
-  status: completed
-  commit_comment: 'gallery: card-grid scaffold whose captions were documentation, plus two false copy claims'
-- id: kit-craft-homepage
-  subject: 'professional craft pass on ui_kits/homepage: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: 'The state cycler rode in the topbar as a fifth nav item, stealing the active highlight from the real section; moved to the panel head it governs so nav is destinations only. Section eyebrow read 08 of ~61 - a position indicator on a non-sequence, and ~61 contradicted the 8 works listed; dropped, since the count already lives in the status bar. The hero''s narrow right column rendered empty, leaving the asymmetric grid looking broken at desktop; badges are now wired from counts the page already knows. Accepted the display-scale hero: 116px is a deliberate documented bespoke clamp on a Persuade surface and already uses --accent-ink correctly.'
-  status: completed
-  commit_comment: 'homepage: demo control in primary nav, contradictory eyebrow count, empty hero column'
-- id: kit-craft-signin
-  subject: 'professional craft pass on ui_kits/signin: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: 'Found and fixed a real logic bug: the password.length<6 check ran in reset mode where no password field renders, so submitting a reset was blocked by an error about an off-screen field. Reset was also a one-way door - it is not in the mode row, so nothing read as active and no link returned; it now marks signin as origin and relabels it back to sign in. Removed a full-width magic-link button that sat directly under the OAuth set and read as a fourth provider while duplicating the mode row below. The sent state was a dead end (mistype your address and the only recovery was a reload) - added use a different email. Errors rewritten to name problem and fix (enter a real email -> that address has no @ - check for a typo) with role=alert. Verified live in HEAD.'
-  status: completed
-  commit_comment: 'signin: reset-mode validation bug, one-way door, dead-end sent state, real error copy'
-- id: kit-craft-system-primer
-  subject: 'professional craft pass on ui_kits/system_primer: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: 'All four items in the page''s only sidebar were inert - no href, no onClick - while styled identically to working nav. Anchored all four to matching panel ids. count: 7 was hardcoded on the semantic panel and would silently go stale; counts now read off the arrays. Switched to PageHeader dense so reference content starts in the first fold instead of spending it on a display H1 plus a narrow-measure lede.'
-  status: completed
-  commit_comment: 'system_primer: four inert sidebar items styled as working nav, hardcoded count'
 - id: ai-tell-hero-metric-template
   subject: scan for the big-number/small-label/supporting-stats/accent hero-metric template
   witness: craft floor Refuse list; dashboard Kpi and gm_inspector StatTile are candidates to review
   status: pending
-- id: kit-craft-project-page
-  subject: 'professional craft pass on ui_kits/project_page: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: 'changelog carried tab: readme and navigated to the wrong place. Two simultaneous acid you-are-here markers meant the page''s strongest signal was used for two unrelated meanings; only tab items take active now (verified exactly 1 before and after a tab switch) and the phantom permanently-active overview is gone. Seven dead sidebar items across reference/links given real hrefs and section ids (verified 0 dead links). The status bar read typescript - 0 errors - 0 warnings, an IDE status bar borrowed onto a package README reporting a build that is not running; it now describes the page. Kept stars 3,124 as legitimate package-receipt context rather than a hero metric.'
-  status: completed
-  commit_comment: 'project_page: wrong-tab nav bug, duplicated active signal, 7 dead links, borrowed IDE status bar'
-- id: kit-craft-slide-deck
-  subject: 'professional craft pass on ui_kits/slide_deck: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: 'Both title slides set accent: green/mascot, feeding a raw lore FILL token into --slide-accent which the stylesheet reads as color: - the exact --accent vs --accent-ink split AGENTS.md warns about, rendering titles muted mid-green on near-black. Dropped so the CSS falls through to its correct --accent-ink default; kept the accentStyle mechanism with a comment on why nothing sets it. The sidebar slide list was a static readout, so reaching slide 5 meant four presses of next - it navigates and marks active now. prev/next silently no-opped at the ends and now disable. Slide 2 copy named Space Grotesk and JetBrains Mono, contradicting the system-font-only policy. Verified 0 raw accent overrides remain in HEAD.'
-  status: completed
-  commit_comment: 'slide_deck: fill-token-as-text bug, non-navigable slide list, copy contradicting the font policy'
 - id: kit-craft-settings
   subject: 'professional craft pass on ui_kits/settings: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
   witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/settings
@@ -2073,21 +2025,6 @@
   subject: src/components/freddie.js is 988 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
   witness: exec_js-17 line count = 988; AGENTS.md states 'The 200-line cap applies per-module'
   status: pending
-- id: agents-md-refresh
-  subject: AGENTS.md updated for new primitives (ds-app-surface, ds-panel-trio, ds-panel-flush) and the drained rows
-  witness: 'AGENTS.md gained present-tense rules for everything this pass established (barrel completeness as a hard gate, ratchet-baselines-are-debt, --z-* and the sub-12px floor, the transition:all ban, .ds-app-surface and the panel-row primitives, import-then-bare-export). Crucially it also honoured the file''s own deflation policy rather than only growing: the dated Learning audit block - the largest present-tense violation in the file - was drained to the two operational rules still live, with the narrative left to git log/CHANGELOG, and four more detail-heavy entries compressed to rs-learn pointers.'
-  status: completed
-  commit_comment: 'AGENTS.md: new invariants added and the dated audit block drained'
-- id: component-api-md-refresh
-  subject: COMPONENT_API.md must document new layout primitives
-  witness: 'COMPONENT_API.md gained an import-path-stability note: symbols are stable at the barrel/package root but their DEFINING file moves across splits, so a consumer must never import from a submodule path. Points at the CI-gated docs/component-props.md.'
-  status: completed
-  commit_comment: 'COMPONENT_API: import-path stability across module splits'
-- id: lint-add-split-sheet-coverage
-  subject: extend COMPONENT_SHEETS to follow @import barrels or enumerate src/css/app-shell/*.css so the 5322-line blind spot is gated
-  witness: COMPONENT_SHEETS now lists ENTRY POINTS and expandSheets() resolves the @import graph transitively (cycle- and duplicate-safe, memoized); every scanner iterates that expansion. Coverage went 9 -> 30 sheets. A FULL_COVERAGE_DIRS guard hard-fails if any .css in src/css/app-shell/ is unreachable from an entry point, which is what caught the four sheets that were bundled into dist but never imported by the barrel.
-  status: completed
-  commit_comment: lint coverage 9 -> 30 sheets via transitive @import expansion plus a completeness guard
 - id: preview-page-parity
   subject: every new primitive needs a preview page entry so it is discoverable and visually regression-checkable
   witness: preview/ has 30 pages; ds-app-surface/ds-panel-trio/ds-panel-flush have none
@@ -2096,11 +2033,6 @@
   subject: src/components/files-modals.js is 477 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
   witness: exec_js-17 line count = 477; AGENTS.md states 'The 200-line cap applies per-module'
   status: pending
-- id: changelog-entries
-  subject: CHANGELOG.md entry per commit landed this session
-  witness: One entry per commit landed this session, subject plus a one-sentence why, matching the file's existing dash-prefixed prose format. No recipes - the recipe lives in the commit body.
-  status: completed
-  commit_comment: 'CHANGELOG: one entry per session commit'
 - id: module-cap-os-shell
   subject: src/kits/os/shell.js is 336 lines against the 200-line cap
   witness: exec_js-17 line count
@@ -2133,11 +2065,6 @@
   subject: src/components/community.js is 449 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
   witness: exec_js-17 line count = 449; AGENTS.md states 'The 200-line cap applies per-module'
   status: pending
-- id: module-cap-sessions
-  subject: src/components/sessions.js is 586 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
-  witness: 'Split into a thin barrel over single-responsibility submodules. Files over the documented 200-line cap dropped from 18 to 8 repo-wide, and the survivors are single cohesive units (one component or one coupled behaviour family) where a further split would cut a unit purely to hit a number. Every barrel uses import-then-bare-export, not export-from, because generate-component-docs.mjs resolves symbols by regex against the barrel with a one-hop import fallback and a pure re-export rewrites the doc with drift warnings. Verified three ways: docs/component-props.md held at 247 symbols and 0 drift, npm run build passes, and all 17 kits render live with zero console errors - a build-time-resolvable import can still break at runtime, so the render sweep is the load-bearing check. page-html.js additionally byte-compared old vs new across three input cases (empty, fully-populated, favicon/css variants) - all identical, which caught two real escaping bugs in the extracted client-script template literal that build and lint both missed.'
-  status: completed
-  commit_comment: split into barrel + submodules under the 200-line cap
 - id: module-cap-chat-message-parts
   subject: src/components/chat-message-parts.js is 419 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
   witness: exec_js-17 line count = 419; AGENTS.md states 'The 200-line cap applies per-module'
@@ -2150,11 +2077,6 @@
   subject: src/components/interaction-primitives.js is 391 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
   witness: exec_js-17 line count = 391; AGENTS.md states 'The 200-line cap applies per-module'
   status: pending
-- id: lint-tokens-json-whitespace-compare
-  subject: lint-tokens-json compares multi-line token values byte-for-byte including indentation, so --shadow-3/--shadow-overlay report as mismatched against tokens.json when the two strings are semantically identical
-  witness: 'findTokensDrift compared token values with strict ===, so the three multi-line --shadow-* tokens reported permanent drift although character-identical once whitespace collapses. Line endings were part of the comparison, which is why it passed on CRLF and failed CI on LF, breaking both the ci and publish workflows. Added sameCssValue() normalising whitespace runs and comma spacing. Verified adversarially: unmodified PASS, an injected --space-3 16px->17px still FAILs, a whitespace-only reflow PASSes.'
-  status: completed
-  commit_comment: fix whitespace-sensitive token comparison that broke CI on LF checkouts
 - id: browser-verb-page-undefined-urlmode
   subject: 'browser verb url= prefix mode throws ReferenceError: page is not defined when the body uses page.evaluate; only the separate session-new + navigate + bare-eval sequence works'
   witness: 'browser-1 dispatch with url= + await page.waitForTimeout returned exception ReferenceError: page is not defined; browser-2/3/5 (session new, bare URL navigate, bare return-statement eval) all succeeded. Matches the recurring plugkit-infra issue AGENTS.md records at 2026-07-10.'
@@ -2171,8 +2093,3 @@
   subject: dist/ is listed in .gitignore yet its files are tracked in git, so every build regenerates them into conflicts on any concurrent push - one already forced a rebase abort this session
   witness: git ls-files dist/ returns dist/247420.css, dist/247420.js and others while .gitignore:13 says dist/; git_push-71 was rejected with CONFLICT (content) in dist/247420.js. .github/workflows/gh-pages.yml builds dist itself (copies assets in, uploads ./dist) so the tracked copy is not what CI consumes.
   status: pending
-- id: community-css-nonexistent-fs-tokens
-  subject: community.css referenced var(--fs-0/--fs-1/--fs-3, Npx) - tokens that do not exist in colors_and_type.css - so the px fallback was what actually rendered
-  witness: 10 declarations referenced var(--fs-0/--fs-1/--fs-3, Npx) - tokens absent from colors_and_type.css - so the px fallback was what actually rendered rather than the theme. Repointed onto real tokens, plus a stale var(--fs-micro, 11px) fallback where the token is 12px.
-  status: completed
-  commit_comment: fix 10 declarations referencing tokens that do not exist
