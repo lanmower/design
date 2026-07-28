@@ -140,10 +140,13 @@ function Theme() {
 }
 
 function Notify() {
+    // No `code` — these are settings, not an indexed list. Carrying a one-glyph
+    // code would reserve the row's 12ch leading gutter for a single character
+    // and strand the label far right of its own panel edge.
     return Panel({ title: 'notifications', class: 'ds-panel-gap', children: [
-        Row({ key: 'n1', code: '@', title: 'mentions',  sub: 'when someone @s you',          meta: h('span', {}, Toggle({ on: state.notify.mentions, onChange: (v) => state.notify.mentions = v })) }),
-        Row({ key: 'n2', code: '-', title: 'releases',  sub: 'on every tagged build',        meta: h('span', {}, Toggle({ on: state.notify.releases, onChange: (v) => state.notify.releases = v })) }),
-        Row({ key: 'n3', code: '-', title: 'marketing', sub: 'occasional product updates',   meta: h('span', {}, Toggle({ on: state.notify.marketing, onChange: (v) => state.notify.marketing = v })) })
+        Row({ key: 'n1', title: 'mentions',  sub: 'when someone @s you',        meta: Toggle({ on: state.notify.mentions,  onChange: (v) => state.notify.mentions = v }) }),
+        Row({ key: 'n2', title: 'releases',  sub: 'on every tagged build',      meta: Toggle({ on: state.notify.releases,  onChange: (v) => state.notify.releases = v }) }),
+        Row({ key: 'n3', title: 'marketing', sub: 'occasional product updates', meta: Toggle({ on: state.notify.marketing, onChange: (v) => state.notify.marketing = v }) })
     ] });
 }
 
@@ -183,7 +186,7 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-section ds-settings-main' },
+            h('div', { class: 'ds-app-surface ds-settings-main' },
                 Heading({ level: 1, children: 'settings' }),
                 Lede({ children: 'every input primitive in one surface — fields, toggles, segmented buttons, danger panel, save bar.' }),
                 view,

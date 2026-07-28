@@ -79,7 +79,7 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-section ds-section-pad' },
+            h('div', { class: 'ds-app-surface ds-section-pad' },
                 Heading({ level: 1, children: 'search' }),
                 Lede({ children: 'query bar in the topbar, faceted filters in the sidebar, ranked results in panel rows. same row primitive every other surface uses.' }),
                 rows.length ? Panel({ title: 'results', count: rows.length, class: 'ds-panel-gap', children:

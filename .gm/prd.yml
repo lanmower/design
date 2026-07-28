@@ -1971,3 +1971,7 @@
   subject: Export SkillsConfig from src/components.js barrel
   status: completed
   witness: src/components.js exports SkillsConfig from ./components/skills-config.js; dist/247420.js grep -c SkillsConfig = 1 post-build
+- id: codesearch-embedder-wasm-crash
+  subject: bert embedder plugin crashes in wasm (plugin_error) making codesearch+recall unavailable
+  witness: '.gm/exec-spool/.watcher.log embed_query_failed: [plugin_error] wasm backtrace fn 397/396/611/4407; both vector and keyword fallback returned nothing across two fresh spool boots; codesearch-1/-4 and recall-1 all ok:false'
+  status: pending

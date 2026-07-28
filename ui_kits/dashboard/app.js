@@ -1,5 +1,5 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip, Kpi, BarChart, Table, Receipt, Changelog, Row, RowLink, Grid, GridItem } from 'ds/components.js';
+import { Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip, Kpi, BarChart, Table, Receipt, Changelog, Row } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
 
@@ -70,26 +70,36 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-section ds-section-pad' },
+            h('div', { class: 'ds-app-surface ds-section-pad' },
                 Heading({ level: 1, children: 'dashboard' }),
                 Lede({ children: 'kpis, tables, receipts, changelog — every content primitive in one operations surface.' }),
+                // Reading order: headline counters lead (the glance), then the
+                // paired analysis, then the three reference panels. Each tier is
+                // separated by the .ds-panel-gap/.ds-panel-duo outer rhythm,
+                // which is deliberately wider than any panel's inner gap.
                 Panel({ title: 'live metrics', count: kpis.length, class: 'ds-panel-gap', children: Kpi({ items: kpis }) }),
                 h('div', { class: 'ds-panel-duo' },
-                    Panel({ title: 'traffic by channel', count: channelBreakdown.length, children: BarChart({ items: channelBreakdown }) }),
-                    Panel({ title: 'top endpoints', count: tableRows.length, children: h('div', { class: 'ds-scroll-x' }, Table({ headers: tableHeaders, rows: tableRows })) })
+                    Panel({ title: 'traffic by channel', count: channelBreakdown.length, class: 'ds-panel-flush', children: BarChart({ items: channelBreakdown }) }),
+                    Panel({ title: 'top endpoints', count: tableRows.length, class: 'ds-panel-flush', children: h('div', { class: 'ds-scroll-x' }, Table({ headers: tableHeaders, rows: tableRows })) })
                 ),
-                Grid({ children: [
-                    GridItem({ xs: true, md: 4, children: Panel({ title: 'environment', children: Receipt({ rows: receipt }) }) }),
-                    GridItem({ xs: true, md: 4, children: Panel({ title: 'recent events', count: events.length, children: events.length
+                // Three equal reference panels. A real 3-track grid, not
+                // percentage flex-basis: with basis+gap the three tracks
+                // overflow 100% and the last one wraps to its own row.
+                // .ds-panel-flush drops each panel's own bottom margin so the
+                // grid gap is the single source of separation in the row.
+                h('div', { class: 'ds-panel-trio' },
+                    Panel({ title: 'environment', class: 'ds-panel-flush', children: Receipt({ rows: receipt }) }),
+                    Panel({ title: 'recent events', count: events.length, class: 'ds-panel-flush', children: events.length
                         ? events.map((e, i) => Row({ key: 'ev' + i, code: e.code, title: e.title, sub: e.sub, meta: e.meta }))
-                        : h('div', { class: 'empty' }, 'no events yet') }) }),
-                    GridItem({ xs: true, md: 4, children: Panel({ title: 'changelog', count: changelog.length, children: Changelog({ entries: changelog }) }) }),
-                ] }),
+                        : h('div', { class: 'empty' }, 'no events yet') }),
+                    Panel({ title: 'changelog', count: changelog.length, class: 'ds-panel-flush', children: Changelog({ entries: changelog }) })
+                ),
                 Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
                     h('p', {}, '· ', Chip({ tone: 'accent', children: 'Kpi' }), ' for headline counters with trend delta + sparkline.'),
                     h('p', {}, '· ', Chip({ tone: 'accent', children: 'BarChart' }), ' for a category breakdown, ', Chip({ tone: 'accent', children: 'Table' }), ' for tabular metrics, ', Chip({ tone: 'accent', children: 'Row' }), ' for event lists.'),
                     h('p', {}, '· ', Chip({ tone: 'accent', children: 'Receipt' }), ' for kv environment manifest, ', Chip({ tone: 'accent', children: 'Changelog' }), ' for release log.'),
-                    h('p', {}, '· ', Chip({ tone: 'accent', children: 'Grid' }), '/', Chip({ tone: 'accent', children: 'GridItem' }), ' for the 3-up environment/events/changelog row (replaces a dead ds-panel-trio class with no matching CSS rule).')
+                    h('p', {}, '· ', Chip({ tone: 'accent', children: 'ds-panel-trio' }), '/', Chip({ tone: 'accent', children: 'ds-panel-duo' }), ' for multi-panel rows — real grid tracks that step down on container width, not the viewport.'),
+                    h('p', {}, '· ', Chip({ tone: 'accent', children: 'ds-panel-flush' }), ' on any panel inside a gap-owning row, so the container is the single source of separation.')
                 ) })
             )
         ],

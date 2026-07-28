@@ -70,7 +70,7 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-section ds-section-pad-sm' },
+            h('div', { class: 'ds-app-surface ds-section-pad-sm' },
                 h('div', { class: 'ds-kit-head-row' },
                     h('div', {}, Heading({ level: 1, children: 'terminal' })),
                     ThemeToggle()

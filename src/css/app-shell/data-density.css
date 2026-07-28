@@ -102,10 +102,28 @@
 .ds-sub-btn:hover { border-color: var(--accent); color: var(--accent-ink); }
 .ds-sub-btn span { display: block; font-size: 18px; font-weight: 700; color: var(--accent-ink); }
 
-/* SessionRow — base .ds-session-row (layout, hover/focus/active states,
-   rail-tone indicators) is canonically defined in chat.css alongside the
-   rest of the chat session-list component; this file only carries the
-   dev/admin-row sub-parts (id/counts/devcnt/span) that decorate it. */
+/* SessionRow — the RICH treatment (hover/focus/active, rail tones, nesting,
+   inline rename/delete) lives in chat.css with the rest of the chat session
+   list. But SessionRow is part of this data-density family and is used by kits
+   that never link chat.css (gm_inspector links only colors_and_type +
+   app-shell + editor-primitives), where the component rendered with NO layout
+   at all: gap resolved to `normal`, so id/counts/devcnt/phasewalk/span all
+   butted together at 0px. The layout floor therefore belongs here, next to the
+   sub-parts it positions, so the component is never shipped shapeless.
+   chat.css still layers its interactive states on top; these declarations are
+   identical to the ones there, so a kit loading both gets the same result. */
+.ds-session-row {
+  position: relative; display: flex; align-items: center; gap: var(--space-2);
+  width: 100%; padding: var(--space-2); min-height: 52px; margin-bottom: 2px;
+  background: transparent; border: none; border-radius: var(--r-1);
+  text-align: left; color: var(--fg);
+}
+/* Only an interactive row gets the pointer affordance (chat.css sets cursor
+   unconditionally because every row there is clickable; here rows are often
+   static readouts). */
+.ds-session-row[role="button"], a.ds-session-row { cursor: pointer; }
+
+/* Sub-parts that decorate the row above. */
 .ds-session-row-id {
   font-family: var(--ff-mono); font-size: var(--fs-micro); color: var(--accent-ink);
   flex: 0 1 160px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;

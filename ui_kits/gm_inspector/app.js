@@ -90,7 +90,7 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-section ds-section-pad' },
+            h('div', { class: 'ds-app-surface ds-section-pad' },
                 Heading({ level: 1, children: 'gm inspector' }),
                 Lede({ children: 'session list, process tree, deviations, live stream -- the data-density component family (PhaseWalk, TreeNode, BarRow, StatsGrid, SessionRow, DevRow, LiveLog) composed into one observability surface.' }),
                 Panel({ title: 'overview', count: kpis.length, class: 'ds-panel-gap', children: StatsGrid({ items: kpis }) }),

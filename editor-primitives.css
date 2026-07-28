@@ -442,6 +442,15 @@
     border-color: var(--accent);
 }
 .ds-ep-pager-ellipsis { padding: 0 var(--space-hair, 2px); opacity: 0.6; }
+/* Touch floor. Pager controls render ~21px tall, so on a coarse pointer they
+   were the smallest interactive targets in the kit — every other control family
+   here (.ds-sub-btn, .ds-session-row, .ds-file-act, .btn) already floors at
+   44px, and paging is a repeated, mis-tap-prone action. The visible mark stays
+   compact; only the hit area grows. */
+@media (pointer: coarse) {
+  .ds-ep-pager-btn, .ds-ep-pager-num { min-height: 44px; min-width: 44px; }
+  .ds-ep-pager { gap: var(--space-2); }
+}
 .ds-ep-pager-total { white-space: nowrap; margin-left: auto; }
 
 /* Grid / GridItem — 24-column responsive layout. GridItem's flex-basis is
