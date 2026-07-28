@@ -109,7 +109,11 @@ export function MenuButton({ trigger, items = [], selected, onSelect, onRetry, p
                     : h('button', {
                         key: it.id || i, type: 'button', role: 'menuitemradio',
                         'aria-checked': it.id === selected ? 'true' : 'false',
-                        class: 'ov-menubutton-item' + (it.disabled ? '' : ''),
+                        // No disabled modifier class: editor-primitives.css styles
+                        // .ov-menubutton-item[aria-disabled="true"] directly, so the
+                        // aria attribute below is both the semantics and the hook.
+                        // (This was a ternary whose branches returned the same string.)
+                        class: 'ov-menubutton-item',
                         'aria-disabled': it.disabled ? 'true' : 'false',
                         tabindex: '-1', onclick: () => select(it),
                     },

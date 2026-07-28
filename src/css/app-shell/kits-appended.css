@@ -806,3 +806,22 @@
   .cursor-blink { animation: ds-cursor-blink 1s step-end infinite; }
   @keyframes ds-cursor-blink { 50% { opacity: 0; } }
 }
+
+/* == appended: panel width modifier == */
+/* .panel.panel-inline-wide — a width-capped inline note panel. Companion to
+   the .panel-inline / .panel-wide modifiers in panel-row.css: those two change
+   the panel's SURFACE (tonal fill / chrome-stripped), this one changes only
+   its MEASURE, so it composes with either. Introduced when ui_kits/docs's
+   `[!] note` panel traded `style="max-width:640px"` for a class (the inline-
+   style sweep) but never got a rule written, leaving that panel to run the
+   full column width. 640px is the note measure, deliberately narrower than
+   --measure-narrow (760px): the aside is meant to read as a set-aside block
+   against the surrounding prose, not to match its column. It is a literal
+   rather than a new token because it has exactly one consumer — promote it to
+   --measure-note the moment a second surface wants the same cap.
+   `margin-right: auto` (not `margin: 0 auto`) keeps the panel left-aligned to
+   the prose it interrupts and preserves .panel's own --space-4 stack margin. */
+.panel.panel-inline-wide {
+  max-width: 640px;
+  margin-right: auto;
+}

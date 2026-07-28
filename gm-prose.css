@@ -232,3 +232,29 @@
   display: block;
   margin-bottom: var(--space-1);
 }
+
+/* .ds-prose-endnote — the closing line of an article ("end. reply by opening a
+   pr."), set off from the body it terminates. Quieter and smaller than prose:
+   it takes the mono face and the --panel-text-2 tone that this sheet's other
+   ancillary voices use (.toc a, .gm-callout .who, .card .desc), so the endnote
+   reads as chrome around the article rather than a final paragraph of it. The
+   generous --space-5 lead is what does the "set off" — it breaks the paragraph
+   rhythm so the eye registers the piece has ended before reading the words.
+   Sized at --fs-xs rather than the --fs-nano label rung: this is a readable
+   sentence with a link in it, not an uppercase micro-label.
+   Replaces the inline style ui_kits/blog carried before the inline-style
+   sweep, which named this class without ever defining it. */
+.ds-prose .ds-prose-endnote,
+.ds-prose-endnote {
+  margin-top: var(--space-5);
+  margin-bottom: 0;
+  font-family: var(--ff-mono);
+  font-size: var(--fs-xs);
+  line-height: 1.6;
+  color: var(--panel-text-2);
+}
+/* The endnote's link keeps the prose accent but stays in the quiet register —
+   --panel-accent is the panel-ramp counterpart of --accent-ink (a readable
+   TEXT tone), never the bare --accent fill, which is ~1.07:1 on paper. */
+.ds-prose-endnote a { color: var(--panel-accent); text-decoration: none; }
+.ds-prose-endnote a:hover { text-decoration: underline; }

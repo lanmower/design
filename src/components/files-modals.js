@@ -159,7 +159,7 @@ function Modal({ onClose, kind = '', head, headClass = '', headAttrs = {}, body,
 // mutation is visible at the point of action, inside the focus trap — not a
 // sibling stuck in page flow behind the fixed backdrop).
 function modalError(error) {
-    return error ? h('p', { class: 'ds-modal-error field-error', role: 'alert' }, String(error)) : null;
+    return error ? h('p', { class: 'ds-modal-error', role: 'alert' }, String(error)) : null;
 }
 
 // `error` renders inside .ds-modal-body (role=alert, error tone). `busy`

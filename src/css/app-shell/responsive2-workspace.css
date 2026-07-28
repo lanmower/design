@@ -10,8 +10,16 @@
    even on a wide desktop. Drawer/scrim/toggle are absolute (anchored to .app), so
    they overlay the window, not the page. */
 @container (max-width: 900px) {
-  .app-body,
-  .app-body.no-side { grid-template-columns: 1fr !important; }
+  /* `.app`-scoped for specificity instead of an !important flag. The bare
+     `.app-body` half of this list is (0,1,0) and was out-specified by
+     `.app-body.no-side` (0,2,0) in topbar.css; scoping lifts both halves to
+     (0,2,0)/(0,3,0), which also lands later in source than topbar.css, so the
+     drawer collapse wins on merit. `.app` is guaranteed: `.app-body` is
+     emitted only as a direct child of `.app` (single call site, shell.js
+     AppShell), and this @container query already requires `.app` as its
+     container ancestor. */
+  .app .app-body,
+  .app .app-body.no-side { grid-template-columns: 1fr; }
   .app-side-shell {
     position: absolute;
     /* Full-height overlay drawer: the merged .app-chrome wraps and its real
@@ -36,9 +44,13 @@
   .app-side-shell.open,
   .app-side.open,
   .app-body.side-open .app-side-shell { transform: translateX(0); }
+  /* No flags needed: the ONLY other rule that touches these properties is the
+     `.app-side` base in topbar.css, which already sets `flex-direction: column`
+     and never sets `flex-wrap` (nowrap is the initial value anyway). This rule
+     is equal-specificity and later in source, so it wins unaided. */
   .app-side {
-    flex-direction: column !important;
-    flex-wrap: nowrap !important;
+    flex-direction: column;
+    flex-wrap: nowrap;
     gap: var(--space-2);
     padding: var(--space-3);
     font-size: var(--fs-sm);

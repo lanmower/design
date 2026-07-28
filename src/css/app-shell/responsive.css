@@ -53,16 +53,28 @@
   .panel-body { padding: var(--space-2); overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .panel-body > table { min-width: 100%; }
 
-  .row {
-    grid-template-columns: minmax(0, 1fr) auto !important;
+  /* Scoped to the `.app` shell so this wins on SPECIFICITY (0,2,0) rather than
+     on an !important flag. Three rules would otherwise beat a bare `.row`
+     (0,1,0) here: `.row.row-nocode` (0,2,0, panel-row.css) out-specifies it,
+     and the `@media(481-1024)` + `@media(max-width:768px)` `.row` rules later
+     in THIS file win on source order (a media query adds no specificity).
+     `.app` is safe to require: `.app-body`/`.row` only ever render inside it
+     (single call site, shell.js AppShell). */
+  .app .row {
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--space-2); padding: var(--space-2-75) var(--space-3);
-    row-gap: var(--space-1) !important;
+    row-gap: var(--space-1);
   }
   .row .sub { grid-column: 1 / -1; order: 3; }
   .row .title { font-size: var(--fs-sm); }
   /* Changelog carries 3 children: give date+ver line one, message wraps below
-     (the generic 2-col .row override staggers it into an implicit row). */
-  .ds-changelog-row { grid-template-columns: minmax(70px, 10ch) minmax(0, 1fr) !important; }
+     (the generic 2-col .row override staggers it into an implicit row).
+     Needs (0,3,0) to clear BOTH the `.app .row` rule directly above and
+     `.ds-changelog-row`'s own !important base in hero-content.css — an
+     !important base can only be beaten by another !important, so this one
+     stays until that upstream flag is removed (hero-content.css is outside
+     this change's scope). */
+  .app .row.ds-changelog-row { grid-template-columns: minmax(70px, 10ch) minmax(0, 1fr) !important; }
   .ds-changelog-row .title { grid-column: 1 / -1; }
 
   /* Buttons */
@@ -150,12 +162,20 @@
    Container Query Responsive (720px and below)
    ---------------------------------------------------------------------- */
 @container (max-width: 760px) {
-  .app-body { grid-template-columns: 1fr !important; }
+  /* `.app`-scoped for specificity, not an !important flag: the bare `.app-body`
+     (0,1,0) was out-specified by `.app-body.no-side` (0,2,0) in topbar.css, so
+     a sidebar-less shell kept its base template. `.app .app-body` is (0,2,0)
+     and lands later in source, beating both topbar.css rules on merit. */
+  .app .app-body { grid-template-columns: 1fr; }
   .app-side-shell { border-right: 0; border-bottom: 1px solid var(--rule); }
   .app-topbar nav { font-size: var(--fs-xs); gap: var(--space-2-75); }
-  .row { grid-template-columns: minmax(0, 1fr) auto !important; row-gap: var(--space-1) !important; }
+  /* Same (0,2,0) lift as the 480px block above — clears `.row.row-nocode` and
+     the later `@media` `.row` rules in this file without a flag. */
+  .app .row { grid-template-columns: minmax(0, 1fr) auto; row-gap: var(--space-1); }
   .row .sub { grid-column: 1 / -1; order: 3; }
-  .ds-changelog-row { grid-template-columns: minmax(70px, 10ch) minmax(0, 1fr) !important; }
+  /* (0,3,0) + !important: still required to beat `.ds-changelog-row`'s
+     !important base in hero-content.css (see the 480px block). */
+  .app .row.ds-changelog-row { grid-template-columns: minmax(70px, 10ch) minmax(0, 1fr) !important; }
   .ds-changelog-row .title { grid-column: 1 / -1; }
 }
 

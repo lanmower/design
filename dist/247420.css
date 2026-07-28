@@ -681,7 +681,7 @@
   left: 0;
   background: var(--accent);
   color: var(--accent-fg);
-  padding: 8px 16px;
+  padding: var(--space-2) var(--space-3);
   text-decoration: none;
   /* Must outrank every layer of chrome once focused, or the first Tab press
      lands on a control hidden behind the sticky header (was z-index:100,
@@ -695,6 +695,35 @@
   top: 10px;
   outline: var(--focus-w) solid var(--focus-color);
   outline-offset: var(--focus-offset);
+}
+/* Visually-hidden but still in the accessibility tree. Emitted by Row() (the
+   rail status word), FilterBar()/FileGrid() (aria-live result counts) and
+   form-primitives' required marker — all of which shipped BEFORE this rule
+   existed anywhere the app shell loads. The only other definitions live in
+   app-surfaces.css (pre-scoped to `.ds-247420`, so it never reaches a kit that
+   does not mount that root) and editor-primitives.css (a separate opt-in
+   <link>), which left every app-shell consumer rendering screen-reader-only
+   text VISIBLY the moment it passed `rail`/`resultCount`.
+   Deliberately NOT `display:none` / `visibility:hidden` / `width:0`: those
+   remove the node from the accessibility tree too, which defeats the entire
+   purpose — the text exists only for AT. The clip + 1px box is what keeps it
+   announced while occupying no visible area.
+   `margin: -1px` is OFF-SCALE ON PURPOSE — it is not rhythm, it is one half of
+   the canonical visually-hidden idiom: the negative margin cancels the 1px box
+   so the clipped element contributes zero layout. Snapping it to a --space-*
+   rung would reintroduce a measurable gap. `clip` is deprecated but retained
+   alongside `clip-path` for older AT/browser pairs that ignore the latter. */
+.ds-247420 .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 .ds-247420 body {
   background: var(--bg);
@@ -1028,7 +1057,11 @@
   border-radius: var(--r-pill);
 }
 /* The lime active pill is the sidebar's one accent moment; its own count
-   chip rides the ink-on-accent pair instead of a second competing hue. */
+   chip rides the ink-on-accent pair instead of a second competing hue.
+   The bare --accent here is deliberate and is NOT the usual accent-as-text
+   defect: the chip's own background is --accent-fg (ink), so this is the
+   INVERTED pair -- lime on ink, which is the high-contrast direction. Only
+   accent-coloured text on a normal background needs --accent-ink. */
 .ds-247420 .app-side a.active .count {
   background: color-mix(in oklab, var(--accent-fg) 82%, transparent);
   color: var(--accent);
@@ -2002,16 +2035,28 @@
   .ds-247420 .panel-body { padding: var(--space-2); overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .ds-247420 .panel-body > table { min-width: 100%; }
 
-  .ds-247420 .row {
-    grid-template-columns: minmax(0, 1fr) auto !important;
+  /* Scoped to the `.app` shell so this wins on SPECIFICITY (0,2,0) rather than
+     on an !important flag. Three rules would otherwise beat a bare `.row`
+     (0,1,0) here: `.row.row-nocode` (0,2,0, panel-row.css) out-specifies it,
+     and the `@media(481-1024)` + `@media(max-width:768px)` `.row` rules later
+     in THIS file win on source order (a media query adds no specificity).
+     `.app` is safe to require: `.app-body`/`.row` only ever render inside it
+     (single call site, shell.js AppShell). */
+  .ds-247420 .app .row {
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--space-2); padding: var(--space-2-75) var(--space-3);
-    row-gap: var(--space-1) !important;
+    row-gap: var(--space-1);
   }
   .ds-247420 .row .sub { grid-column: 1 / -1; order: 3; }
   .ds-247420 .row .title { font-size: var(--fs-sm); }
   /* Changelog carries 3 children: give date+ver line one, message wraps below
-     (the generic 2-col .row override staggers it into an implicit row). */
-  .ds-247420 .ds-changelog-row { grid-template-columns: minmax(70px, 10ch) minmax(0, 1fr) !important; }
+     (the generic 2-col .row override staggers it into an implicit row).
+     Needs (0,3,0) to clear BOTH the `.app .row` rule directly above and
+     `.ds-changelog-row`'s own !important base in hero-content.css — an
+     !important base can only be beaten by another !important, so this one
+     stays until that upstream flag is removed (hero-content.css is outside
+     this change's scope). */
+  .ds-247420 .app .row.ds-changelog-row { grid-template-columns: minmax(70px, 10ch) minmax(0, 1fr) !important; }
   .ds-247420 .ds-changelog-row .title { grid-column: 1 / -1; }
 
   /* Buttons */
@@ -2098,12 +2143,20 @@
    Container Query Responsive (720px and below)
    ---------------------------------------------------------------------- */
 @container (max-width: 760px) {
-  .ds-247420 .app-body { grid-template-columns: 1fr !important; }
+  /* `.app`-scoped for specificity, not an !important flag: the bare `.app-body`
+     (0,1,0) was out-specified by `.app-body.no-side` (0,2,0) in topbar.css, so
+     a sidebar-less shell kept its base template. `.app .app-body` is (0,2,0)
+     and lands later in source, beating both topbar.css rules on merit. */
+  .ds-247420 .app .app-body { grid-template-columns: 1fr; }
   .ds-247420 .app-side-shell { border-right: 0; border-bottom: 1px solid var(--rule); }
   .ds-247420 .app-topbar nav { font-size: var(--fs-xs); gap: var(--space-2-75); }
-  .ds-247420 .row { grid-template-columns: minmax(0, 1fr) auto !important; row-gap: var(--space-1) !important; }
+  /* Same (0,2,0) lift as the 480px block above — clears `.row.row-nocode` and
+     the later `@media` `.row` rules in this file without a flag. */
+  .ds-247420 .app .row { grid-template-columns: minmax(0, 1fr) auto; row-gap: var(--space-1); }
   .ds-247420 .row .sub { grid-column: 1 / -1; order: 3; }
-  .ds-247420 .ds-changelog-row { grid-template-columns: minmax(70px, 10ch) minmax(0, 1fr) !important; }
+  /* (0,3,0) + !important: still required to beat `.ds-changelog-row`'s
+     !important base in hero-content.css (see the 480px block). */
+  .ds-247420 .app .row.ds-changelog-row { grid-template-columns: minmax(70px, 10ch) minmax(0, 1fr) !important; }
   .ds-247420 .ds-changelog-row .title { grid-column: 1 / -1; }
 }
 
@@ -3754,9 +3807,14 @@
   animation: spinner-rotate 0.8s linear infinite;
 }
 
-/* Error state */
+/* Error state.
+   No !important: the only rule in the kit that also resets a matching element's
+   border-color is the bare-control base below (`textarea:where(:not(.input))`
+   et al, which use the `border: 0` shorthand). Those selectors are (0,0,1) —
+   the :where() guard adds nothing — so every selector in this list out-specifies
+   them on merit, and specificity beats the later source position. */
 .ds-247420 .error, .ds-247420[data-state="error"], .ds-247420 .row.error, .ds-247420 input.error, .ds-247420 textarea.error {
-  border-color: var(--warn) !important;
+  border-color: var(--warn);
   background-color: color-mix(in oklab, var(--warn) 6%, var(--bg));
 }
 .ds-247420 .error::placeholder { color: color-mix(in oklab, var(--warn) 60%, var(--fg-3)); }
@@ -4268,7 +4326,17 @@
 .ds-247420 .skip-to-main:focus { top: 10px; }
 
 /* Reduced motion preferences — scoped to the DS surface so it doesn't reach
-   into and neutralize the host document's own motion. */
+   into and neutralize the host document's own motion.
+   The !important flags here are LOAD-BEARING and must not be "cleaned up":
+   `.ds-247420 *` / `.app *` is only (0,1,0) — the universal selector adds
+   nothing — yet it has to defeat every animation/transition declaration in the
+   kit, many of which are strictly more specific. Concrete rules it would
+   otherwise lose to: `.ds-dropzone.dragover` (0,2,0, files.css),
+   `.ds-upload-bar.indeterminate .ds-upload-fill` (0,3,0, files.css),
+   `.list-item.drag-after::after` (0,2,1, this file). Raising this selector to
+   out-specify an open-ended set of future component rules is not possible, so
+   the flag is the only correct mechanism — this is a WCAG 2.3.3 guarantee,
+   not a stylistic preference. */
 @media (prefers-reduced-motion: reduce) {
   .ds-247420 *, .ds-247420 .app * {
     animation-duration: 0.01ms !important;
@@ -4276,7 +4344,9 @@
     transition-duration: 0.01ms !important;
   }
   /* Kill the residual paint frame of looping skeleton/shimmer placeholders and
-     give reduced-motion users a steady placeholder fill instead. */
+     give reduced-motion users a steady placeholder fill instead.
+     Also load-bearing: `.skeleton` is (0,1,0) and must override
+     `.ds-session-row-skeleton .ds-skel` (0,2,0), which sets its own shimmer. */
   .ds-247420 .skeleton, .ds-247420 .ds-skeleton, .ds-247420 .ds-session-row-skeleton .ds-skel {
     animation: none !important;
     background: var(--bg-2) !important;
@@ -4545,8 +4615,16 @@
    even on a wide desktop. Drawer/scrim/toggle are absolute (anchored to .app), so
    they overlay the window, not the page. */
 @container (max-width: 900px) {
-  .ds-247420 .app-body,
-  .ds-247420 .app-body.no-side { grid-template-columns: 1fr !important; }
+  /* `.app`-scoped for specificity instead of an !important flag. The bare
+     `.app-body` half of this list is (0,1,0) and was out-specified by
+     `.app-body.no-side` (0,2,0) in topbar.css; scoping lifts both halves to
+     (0,2,0)/(0,3,0), which also lands later in source than topbar.css, so the
+     drawer collapse wins on merit. `.app` is guaranteed: `.app-body` is
+     emitted only as a direct child of `.app` (single call site, shell.js
+     AppShell), and this @container query already requires `.app` as its
+     container ancestor. */
+  .ds-247420 .app .app-body,
+  .ds-247420 .app .app-body.no-side { grid-template-columns: 1fr; }
   .ds-247420 .app-side-shell {
     position: absolute;
     /* Full-height overlay drawer: the merged .app-chrome wraps and its real
@@ -4571,9 +4649,13 @@
   .ds-247420 .app-side-shell.open,
   .ds-247420 .app-side.open,
   .ds-247420 .app-body.side-open .app-side-shell { transform: translateX(0); }
+  /* No flags needed: the ONLY other rule that touches these properties is the
+     `.app-side` base in topbar.css, which already sets `flex-direction: column`
+     and never sets `flex-wrap` (nowrap is the initial value anyway). This rule
+     is equal-specificity and later in source, so it wins unaided. */
   .ds-247420 .app-side {
-    flex-direction: column !important;
-    flex-wrap: nowrap !important;
+    flex-direction: column;
+    flex-wrap: nowrap;
     gap: var(--space-2);
     padding: var(--space-3);
     font-size: var(--fs-sm);
@@ -6063,6 +6145,25 @@
 @media (prefers-reduced-motion: no-preference) {
   .ds-247420 .cursor-blink { animation: ds-cursor-blink 1s step-end infinite; }
   @keyframes ds-cursor-blink { 50% { opacity: 0; } }
+}
+
+/* == appended: panel width modifier == */
+/* .panel.panel-inline-wide — a width-capped inline note panel. Companion to
+   the .panel-inline / .panel-wide modifiers in panel-row.css: those two change
+   the panel's SURFACE (tonal fill / chrome-stripped), this one changes only
+   its MEASURE, so it composes with either. Introduced when ui_kits/docs's
+   `[!] note` panel traded `style="max-width:640px"` for a class (the inline-
+   style sweep) but never got a rule written, leaving that panel to run the
+   full column width. 640px is the note measure, deliberately narrower than
+   --measure-narrow (760px): the aside is meant to read as a set-aside block
+   against the surrounding prose, not to match its column. It is a literal
+   rather than a new token because it has exactly one consumer — promote it to
+   --measure-note the moment a second surface wants the same cap.
+   `margin-right: auto` (not `margin: 0 auto`) keeps the panel left-aligned to
+   the prose it interrupts and preserves .panel's own --space-4 stack margin. */
+.ds-247420 .panel.panel-inline-wide {
+  max-width: 640px;
+  margin-right: auto;
 }
 /* ============================================================
    Git status panel + diff view — changed-file list, unified diff.
@@ -9688,7 +9789,12 @@
 .ds-247420 .ds-ep-tab-close:hover { background: var(--panel-2); color: var(--panel-text-1); }
 .ds-247420 .ds-ep-tab-close:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; opacity: 1; }
 .ds-247420 .ds-ep-tab.active {
-    color: var(--accent);
+    /* --accent-ink for the TEXT, bare --accent for the RULE. The lime fill
+       measures 1.07:1 against paper, so as a text colour it is invisible in
+       light theme; --accent-ink is 8.85:1. Both resolve to the same value in
+       dark, which is exactly why this class of bug hides until someone opens
+       the light theme. Borders are fills and keep the lead accent. */
+    color: var(--accent-ink);
     border-bottom-color: var(--accent);
 }
 /* When the JS slider is active, the active tab's own static border is
@@ -9735,8 +9841,12 @@
     color: var(--panel-text);
 }
 .ds-247420 .ds-ep-tree-item.selected > .ds-ep-tree-row {
+    /* The 22% accent wash is a FILL and stays on the lead accent; the label on
+       top of it is text and takes --accent-ink (bare --accent is 1.07:1 on
+       paper -- invisible in light theme, identical to --accent-ink in dark,
+       which is why it reads fine until someone switches themes). */
     background: color-mix(in oklab, var(--accent) 22%, transparent);
-    color: var(--accent);
+    color: var(--accent-ink);
 }
 .ds-247420 .ds-ep-tree-twist {
     width: 12px; flex-shrink: 0; text-align: center;
@@ -12000,6 +12110,32 @@
   display: block;
   margin-bottom: var(--space-1);
 }
+
+/* .ds-prose-endnote — the closing line of an article ("end. reply by opening a
+   pr."), set off from the body it terminates. Quieter and smaller than prose:
+   it takes the mono face and the --panel-text-2 tone that this sheet's other
+   ancillary voices use (.toc a, .gm-callout .who, .card .desc), so the endnote
+   reads as chrome around the article rather than a final paragraph of it. The
+   generous --space-5 lead is what does the "set off" — it breaks the paragraph
+   rhythm so the eye registers the piece has ended before reading the words.
+   Sized at --fs-xs rather than the --fs-nano label rung: this is a readable
+   sentence with a link in it, not an uppercase micro-label.
+   Replaces the inline style ui_kits/blog carried before the inline-style
+   sweep, which named this class without ever defining it. */
+.ds-247420 .ds-prose .ds-prose-endnote,
+.ds-247420 .ds-prose-endnote {
+  margin-top: var(--space-5);
+  margin-bottom: 0;
+  font-family: var(--ff-mono);
+  font-size: var(--fs-xs);
+  line-height: 1.6;
+  color: var(--panel-text-2);
+}
+/* The endnote's link keeps the prose accent but stays in the quiet register —
+   --panel-accent is the panel-ramp counterpart of --accent-ink (a readable
+   TEXT tone), never the bare --accent fill, which is ~1.07:1 on paper. */
+.ds-247420 .ds-prose-endnote a { color: var(--panel-accent); text-decoration: none; }
+.ds-247420 .ds-prose-endnote a:hover { text-decoration: underline; }
 
 /* marketing.css */
 /* marketing.css — landing / docs site surface family (the agentgui flatspace

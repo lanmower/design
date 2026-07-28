@@ -21,7 +21,7 @@ button, input, select, textarea { font: inherit; }
   left: 0;
   background: var(--accent);
   color: var(--accent-fg);
-  padding: 8px 16px;
+  padding: var(--space-2) var(--space-3);
   text-decoration: none;
   /* Must outrank every layer of chrome once focused, or the first Tab press
      lands on a control hidden behind the sticky header (was z-index:100,
@@ -35,6 +35,35 @@ button, input, select, textarea { font: inherit; }
   top: 10px;
   outline: var(--focus-w) solid var(--focus-color);
   outline-offset: var(--focus-offset);
+}
+/* Visually-hidden but still in the accessibility tree. Emitted by Row() (the
+   rail status word), FilterBar()/FileGrid() (aria-live result counts) and
+   form-primitives' required marker — all of which shipped BEFORE this rule
+   existed anywhere the app shell loads. The only other definitions live in
+   app-surfaces.css (pre-scoped to `.ds-247420`, so it never reaches a kit that
+   does not mount that root) and editor-primitives.css (a separate opt-in
+   <link>), which left every app-shell consumer rendering screen-reader-only
+   text VISIBLY the moment it passed `rail`/`resultCount`.
+   Deliberately NOT `display:none` / `visibility:hidden` / `width:0`: those
+   remove the node from the accessibility tree too, which defeats the entire
+   purpose — the text exists only for AT. The clip + 1px box is what keeps it
+   announced while occupying no visible area.
+   `margin: -1px` is OFF-SCALE ON PURPOSE — it is not rhythm, it is one half of
+   the canonical visually-hidden idiom: the negative margin cancels the 1px box
+   so the clipped element contributes zero layout. Snapping it to a --space-*
+   rung would reintroduce a measurable gap. `clip` is deprecated but retained
+   alongside `clip-path` for older AT/browser pairs that ignore the latter. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 body {
   background: var(--bg);

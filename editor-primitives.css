@@ -172,7 +172,12 @@
 .ds-ep-tab-close:hover { background: var(--panel-2); color: var(--panel-text-1); }
 .ds-ep-tab-close:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; opacity: 1; }
 .ds-ep-tab.active {
-    color: var(--accent);
+    /* --accent-ink for the TEXT, bare --accent for the RULE. The lime fill
+       measures 1.07:1 against paper, so as a text colour it is invisible in
+       light theme; --accent-ink is 8.85:1. Both resolve to the same value in
+       dark, which is exactly why this class of bug hides until someone opens
+       the light theme. Borders are fills and keep the lead accent. */
+    color: var(--accent-ink);
     border-bottom-color: var(--accent);
 }
 /* When the JS slider is active, the active tab's own static border is
@@ -219,8 +224,12 @@
     color: var(--panel-text);
 }
 .ds-ep-tree-item.selected > .ds-ep-tree-row {
+    /* The 22% accent wash is a FILL and stays on the lead accent; the label on
+       top of it is text and takes --accent-ink (bare --accent is 1.07:1 on
+       paper -- invisible in light theme, identical to --accent-ink in dark,
+       which is why it reads fine until someone switches themes). */
     background: color-mix(in oklab, var(--accent) 22%, transparent);
-    color: var(--accent);
+    color: var(--accent-ink);
 }
 .ds-ep-tree-twist {
     width: 12px; flex-shrink: 0; text-align: center;

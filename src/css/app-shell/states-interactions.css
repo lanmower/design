@@ -56,11 +56,16 @@ button:disabled, [disabled] {
   animation: spinner-rotate 0.8s linear infinite;
 }
 
-/* Error state */
+/* Error state.
+   No !important: the only rule in the kit that also resets a matching element's
+   border-color is the bare-control base below (`textarea:where(:not(.input))`
+   et al, which use the `border: 0` shorthand). Those selectors are (0,0,1) —
+   the :where() guard adds nothing — so every selector in this list out-specifies
+   them on merit, and specificity beats the later source position. */
 .error, [data-state="error"],
 .row.error, input.error,
 textarea.error {
-  border-color: var(--warn) !important;
+  border-color: var(--warn);
   background-color: color-mix(in oklab, var(--warn) 6%, var(--bg));
 }
 .error::placeholder { color: color-mix(in oklab, var(--warn) 60%, var(--fg-3)); }
@@ -576,7 +581,17 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
 .skip-to-main:focus { top: 10px; }
 
 /* Reduced motion preferences — scoped to the DS surface so it doesn't reach
-   into and neutralize the host document's own motion. */
+   into and neutralize the host document's own motion.
+   The !important flags here are LOAD-BEARING and must not be "cleaned up":
+   `.ds-247420 *` / `.app *` is only (0,1,0) — the universal selector adds
+   nothing — yet it has to defeat every animation/transition declaration in the
+   kit, many of which are strictly more specific. Concrete rules it would
+   otherwise lose to: `.ds-dropzone.dragover` (0,2,0, files.css),
+   `.ds-upload-bar.indeterminate .ds-upload-fill` (0,3,0, files.css),
+   `.list-item.drag-after::after` (0,2,1, this file). Raising this selector to
+   out-specify an open-ended set of future component rules is not possible, so
+   the flag is the only correct mechanism — this is a WCAG 2.3.3 guarantee,
+   not a stylistic preference. */
 @media (prefers-reduced-motion: reduce) {
   .ds-247420 *, .app * {
     animation-duration: 0.01ms !important;
@@ -584,7 +599,9 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
     transition-duration: 0.01ms !important;
   }
   /* Kill the residual paint frame of looping skeleton/shimmer placeholders and
-     give reduced-motion users a steady placeholder fill instead. */
+     give reduced-motion users a steady placeholder fill instead.
+     Also load-bearing: `.skeleton` is (0,1,0) and must override
+     `.ds-session-row-skeleton .ds-skel` (0,2,0), which sets its own shimmer. */
   .skeleton, .ds-skeleton, .ds-session-row-skeleton .ds-skel {
     animation: none !important;
     background: var(--bg-2) !important;
