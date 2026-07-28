@@ -15,114 +15,18 @@
 //     theme: 'auto' | 'light' | 'ink',
 //     cssHref, headExtra,
 //   })
+//
+// This module is a barrel over ./page-html/: the server-side markdown+href
+// helpers, the <head> tag builders, the inline <style> block, and the client
+// mount script string. The public export surface here is unchanged — no
+// consumer import needs to move.
 
-// Single source of HTML escaping lives in markdown.js (full entity set). Kept
-// the `escape` export name for backward compatibility with any consumer.
-import { escapeHtml } from './markdown.js';
-export const escape = escapeHtml;
+import { escape, inlineMd, slugify, renderMarkdown, joinHref } from './page-html/markdown.js';
+import { renderSeoTags, renderFaviconTags, renderCssLink } from './page-html/head-tags.js';
+import { PAGE_INLINE_STYLES } from './page-html/page-styles.js';
+import { CLIENT_SCRIPT } from './page-html/client-script.js';
 
-export function inlineMd(s) {
-    return s
-        .replace(/`([^`]+)`/g, '<code>$1</code>')
-        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-}
-
-// GitHub-flavored heading slug: lowercase, strip non-word/non-space/non-hyphen,
-// collapse whitespace to hyphens. Matches the fallback anchor target a hero/nav
-// CTA's `#slug` href expects to resolve against a `## slug text` body heading.
-export function slugify(s) {
-    return String(s || '').trim().toLowerCase()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/\s+/g, '-');
-}
-
-// Raw-HTML passthrough block, opt-in via ```html fences. Distinct from a
-// plain ``` code fence (which still escapes+<pre>-wraps its contents) — this
-// is for SSR call sites that are trusted, repo-authored content (a theme.mjs
-// page body sourced from the project's own YAML, never end-user input) and
-// need to emit real markup (e.g. an <iframe> demo embed) that must NOT be
-// escaped. There is no sanitization here by design: the caller owns trust.
-// A consumer rendering untrusted content must not route it through this
-// path — use markdown.js's DOMPurify-backed renderMarkdown for that instead.
-export function renderMarkdown(md) {
-    const lines = String(md || '').split('\n');
-    const out = [];
-    let inCode = false, inList = false, inRawHtml = false;
-    for (const line of lines) {
-        if (line.trim() === '```html') { if (!inCode) { inRawHtml = true; continue; } }
-        if (line.startsWith('```')) {
-            if (inRawHtml) { inRawHtml = false; continue; }
-            if (inCode) { out.push('</pre>'); inCode = false; } else { out.push('<pre>'); inCode = true; }
-            continue;
-        }
-        if (inRawHtml) { out.push(line); continue; }
-        if (inCode) { out.push(escape(line)); continue; }
-        if (line.startsWith('# ')) { const t = line.slice(2); out.push(`<h1 id="${slugify(t)}">${escape(t)}</h1>`); }
-        else if (line.startsWith('## ')) { const t = line.slice(3); out.push(`<h2 id="${slugify(t)}">${escape(t)}</h2>`); }
-        else if (line.startsWith('### ')) { const t = line.slice(4); out.push(`<h3 id="${slugify(t)}">${escape(t)}</h3>`); }
-        else if (line.startsWith('- ')) { if (!inList) { out.push('<ul>'); inList = true; } out.push(`<li>${inlineMd(escape(line.slice(2)))}</li>`); }
-        else { if (inList) { out.push('</ul>'); inList = false; } if (line.trim()) out.push(`<p>${inlineMd(escape(line))}</p>`); }
-    }
-    if (inList) out.push('</ul>');
-    if (inCode) out.push('</pre>');
-    return out.join('\n');
-}
-
-// Join a basePath prefix to a nav href. Absolute URLs and hash links pass
-// through unchanged; leading-slash paths get the prefix.
-function joinHref(basePath, href) {
-    if (!href) return '#';
-    const h = String(href);
-    if (/^([a-z]+:|#|\/\/)/i.test(h)) return h;
-    if (!basePath) return h;
-    const base = basePath.replace(/\/+$/, '');
-    if (h.startsWith('/')) return base + h;
-    return base + '/' + h.replace(/^\.?\//, '');
-}
-
-// Full SEO/OG/twitter/schema.org meta block, extracted so renderPageHtml
-// consumers (design's own marketing site, thebird's landing) can opt in
-// instead of hand-rolling ~40 lines of <meta> tags per theme.mjs.
-function renderSeoTags({ title, siteName, seo }) {
-    const desc = escape(seo.description || '');
-    const lang = escape(seo.lang || 'en');
-    const url = escape(seo.url || '');
-    const image = escape(seo.image || '');
-    const author = escape(seo.author || siteName);
-    const twitter = escape(seo.twitter || '');
-    const locale = escape(seo.locale || 'en_US');
-    const keywords = escape(Array.isArray(seo.keywords) ? seo.keywords.join(', ') : (seo.keywords || ''));
-    const ogTitle = escape(title);
-    const ogDesc = escape(seo.description || siteName);
-    let out = `
-<meta name="description" content="${desc}">
-${keywords ? `<meta name="keywords" content="${keywords}">` : ''}
-<meta name="author" content="${author}">
-<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-<meta name="generator" content="anentrypoint-design">
-${url ? `<link rel="canonical" href="${url}">` : ''}
-<meta property="og:type" content="website">
-<meta property="og:title" content="${ogTitle}">
-<meta property="og:description" content="${ogDesc}">
-${url ? `<meta property="og:url" content="${url}">` : ''}
-<meta property="og:site_name" content="${escape(siteName)}">
-<meta property="og:locale" content="${locale}">
-${image ? `<meta property="og:image" content="${image}">` : ''}
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${ogTitle}">
-<meta name="twitter:description" content="${ogDesc}">
-${twitter ? `<meta name="twitter:site" content="${twitter}">` : ''}
-${image ? `<meta name="twitter:image" content="${image}">` : ''}`;
-    if (seo.ldJson !== false && (seo.description || url)) {
-        const ld = JSON.stringify({
-            '@context': 'https://schema.org', '@type': 'WebSite',
-            name: title, url: seo.url || '', description: seo.description || '', inLanguage: seo.lang || 'en',
-        }).replace(/</g, '\\u003c');
-        out += `\n<script type="application/ld+json">${ld}</script>`;
-    }
-    return out;
-}
+export { escape, inlineMd, slugify, renderMarkdown };
 
 export function renderPageHtml({
     title = '247420', slug = 'index', siteName = '247420',
@@ -147,9 +51,7 @@ export function renderPageHtml({
                                // instead of @latest (e.g. '0.0.320'); omitted -> default @latest behavior.
 } = {}) {
     const pkgVersion = version || 'latest';
-    const cssLink = cssHref
-        ? `<link rel="stylesheet" href="${cssHref}">`
-        : `<link rel="stylesheet" href="https://unpkg.com/anentrypoint-design@${pkgVersion}/dist/247420.css">`;
+    const cssLink = renderCssLink({ cssHref, pkgVersion });
 
     // Resolve nav hrefs server-side against basePath. Client receives final URLs.
     const navResolved = (Array.isArray(navItems) ? navItems : []).map(([label, href]) =>
@@ -173,11 +75,7 @@ export function renderPageHtml({
     };
 
     const seoTags = seo ? renderSeoTags({ title, siteName, seo }) : '';
-    const faviconTags = faviconHref
-        ? `<link rel="icon" href="${escape(faviconHref)}">`
-        : (faviconGlyph
-            ? `<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E${encodeURIComponent(faviconGlyph)}%3C/text%3E%3C/svg%3E">`
-            : '');
+    const faviconTags = renderFaviconTags({ faviconHref, faviconGlyph });
 
     // Theme attribute co-location is CORRECT here: dist/247420.css keys every
     // theme block off the COMPOUND selector `.ds-247420[data-theme="X"]`
@@ -201,42 +99,7 @@ ${cssLink}
 { "imports": { "anentrypoint-design": "https://unpkg.com/anentrypoint-design@${pkgVersion}/dist/247420.js" } }
 </script>
 <style>
-.app-stage { width: 100%; max-width: var(--stage-wide, min(96vw, 1440px)); margin-inline: auto; padding: var(--space-6, 48px) var(--space-4, 24px) var(--space-8, 96px); display: grid; gap: var(--space-6, 48px); box-sizing: border-box }
-@media (max-width: 768px) { .app-stage { padding: var(--space-4, 24px) var(--space-3, 16px) var(--space-6, 48px); gap: var(--space-5, 32px) } }
-.page-body > :first-child { margin-top: 0 }
-.page-body h1 { margin-top: 0 } .page-body h2 { margin-top: var(--space-5, 32px) } .page-body h3 { margin-top: var(--space-4, 24px) }
-.page-body > * + * { margin-top: var(--space-3, 16px) }
-.page-body pre { margin: var(--space-3, 16px) 0; background: var(--panel-2); padding: var(--space-3, 16px); border-radius: var(--r-1, 10px); overflow-x: auto }
-/* .app-stage owns inter-block rhythm via grid gap; sections/hero must not double it.
-   These selectors carry !important because this inline block loads before the
-   unpkg CSS bundle, which would otherwise win on load-order for equal specificity. */
-.ds-247420 .app-stage > .ds-hero { margin: 0 !important; padding: var(--space-4, 24px) 0 0 !important; max-width: none !important; gap: var(--space-4, 24px) !important }
-.ds-247420 .app-stage > .ds-section { margin: 0 !important }
-.app-stage .row + .row { margin-top: var(--space-1, 4px) }
-.app-stage .ds-section .row { margin-top: var(--space-2, 8px) }
-.app-stage .ds-section > p.ds-lede { margin: 0 0 var(--space-3, 16px); max-width: var(--measure, 68ch); color: var(--fg-2) }
-.row-benefit { font-style: italic; color: var(--fg-3); font-size: var(--fs-sm); margin-top: var(--space-1, 4px) }
-.ds-row-arrow { margin-left: auto; opacity: .5; transition: opacity var(--dur-snap, 80ms) var(--ease) }
-a.row:hover .ds-row-arrow { opacity: 1 }
-/* hero stat strip — all badges as a wrapping inline rhythm, not one empty panel */
-.ds-hero-stats { display: flex; flex-wrap: wrap; gap: var(--space-3, 16px) var(--space-5, 32px); margin-top: var(--space-2, 8px) }
-.ds-hero-stat { display: flex; align-items: baseline; gap: var(--space-2, 8px) }
-.ds-hero-stat-n { font-family: var(--ff-body); font-weight: 700; font-size: var(--fs-lg, 18px); color: var(--fg) }
-.ds-hero-stat-l { font-size: var(--fs-sm, 15px); color: var(--fg-3) }
-/* accent sits on its own line, muted, so it reads as a distinct aside instead
-   of running on from the hero body sentence. */
-.ds-hero-accent { display: block; margin-top: var(--space-2, 8px); color: var(--fg-3) }
-/* feature rows — single-column stack (the dashboard .row grid forces a 3-col
-   code/title/meta layout that mangles title+desc+benefit) */
-/* background uses a theme-neutral panel token (resolves per data-theme) so dark
-   mode doesn't flash a literal white card before/independent of the bundle.
-   Flat tonal fill only — no border-left rail accent (house style: no bespoke
-   tile chrome, no shadows, no borders; see ui_kits/gallery/app.js). */
-.ds-feature { padding: var(--space-3, 16px) var(--space-4, 24px); background: var(--panel-1, var(--bg)); border-radius: var(--r-2, 14px); display: grid; gap: var(--space-1, 4px) }
-.ds-feature + .ds-feature { margin-top: var(--space-2, 8px) }
-.ds-feature-title { font-weight: 600; font-size: var(--fs-lg, 18px); color: var(--fg) }
-.ds-feature-desc { font-size: var(--fs-sm, 15px); color: var(--fg-2); line-height: 1.5; overflow-wrap: anywhere }
-.ds-feature-benefit { font-style: italic; font-size: var(--fs-sm, 15px); color: var(--fg-3); margin-top: var(--space-1, 4px) }
+${PAGE_INLINE_STYLES}
 </style>
 <script id="__site__" type="application/json">${JSON.stringify(pageData).replace(/</g, '\\u003c')}</script>
 ${headExtra}
@@ -244,147 +107,7 @@ ${headExtra}
 <body>
 <div id="app"></div>
 <script type="module">
-import { mount, components as C, h } from 'anentrypoint-design';
-const data = JSON.parse(document.getElementById('__site__').textContent);
-
-function heroNode(hero) {
-  if (!hero) return null;
-  const badges = Array.isArray(hero.badges) ? hero.badges.filter(Boolean) : [];
-  const badgeRow = badges.length
-    ? h('div', { class: 'ds-hero-stats' }, ...badges.map((b, i) =>
-        h('span', { key: i, class: 'ds-hero-stat' },
-          h('strong', { class: 'ds-hero-stat-n' }, String(b.label != null ? b.label : b)),
-          b.desc ? h('span', { class: 'ds-hero-stat-l' }, String(b.desc)) : null,
-        )))
-    : null;
-  return h('div', { class: 'ds-hero' },
-    hero.eyebrow ? h('span', { class: 'eyebrow' }, hero.eyebrow) : null,
-    h('h1', { class: 'ds-hero-title' }, hero.heading || hero.title || data.title),
-    (hero.body || hero.subheading) ? h('p', { class: 'ds-hero-body' },
-      hero.body || hero.subheading,
-      hero.accent ? h('span', { class: 'ds-hero-accent' }, ' ' + hero.accent) : null,
-    ) : null,
-    Array.isArray(hero.ctas) && hero.ctas.length
-      ? h('div', { class: 'ds-hero-actions' }, ...hero.ctas.map((c, i) =>
-          h('a', { key: i, class: i === 0 ? 'btn btn-accent' : 'btn btn-ghost', href: c.href || '#' }, c.label || c.cta || 'go')))
-      : null,
-    badgeRow,
-  );
-}
-
-function sectionNode(sec, idx) {
-  const features = sec.features || sec.items || [];
-  const rows = features.map((f, i) => {
-    const kids = [h('div', { key: 't', class: 'ds-feature-title' }, String(f.name || ''))];
-    if (f.desc) kids.push(h('div', { key: 'd', class: 'ds-feature-desc', innerHTML: String(f.desc).replace(/\`([^\`]+)\`/g, '<code>$1</code>') }));
-    if (f.benefit) kids.push(h('div', { key: 'b', class: 'ds-feature-benefit' }, String(f.benefit)));
-    return h('div', { key: i, class: 'ds-feature' }, ...kids);
-  });
-  return C.Section({
-    id: sec.id || null,
-    title: sec.name || sec.title || sec.id,
-    children: [
-      sec.lede ? h('p', { class: 'ds-lede' }, sec.lede) : null,
-      ...rows,
-      sec.body && String(sec.body).trim() ? h('div', { class: 'page-body', innerHTML: __md(sec.body) }) : null,
-    ].filter(Boolean),
-  });
-}
-
-function examplesNode(examples) {
-  if (!examples || !examples.length) return null;
-  return C.Section({
-    title: 'explore',
-    children: examples.map((e, i) => {
-      const kids = [
-        h('span', { key: 'c', class: 'code' }, String(i + 1).padStart(2, '0')),
-        h('span', { key: 't', class: 'title' }, String(e.label || e.name || e.href || '')),
-      ];
-      if (e.desc) kids.push(h('span', { key: 'm', class: 'meta dim' }, ' — ' + e.desc));
-      kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, '->'));
-      return h('a', { key: i, class: 'row', href: e.href || '#' }, ...kids);
-    }),
-  });
-}
-
-function panelNode(panel, idx) {
-  const items = Array.isArray(panel.items) ? panel.items : [];
-  if (!items.length) return null;
-  const rows = items.map((it, i) => {
-    const kids = [
-      h('span', { key: 'c', class: 'code' }, String(it.code || String(i + 1).padStart(2, '0'))),
-      h('span', { key: 't', class: 'title' }, String(it.title || it.name || '')),
-    ];
-    if (it.sub || it.desc) kids.push(h('span', { key: 'm', class: 'meta dim' }, ' — ' + (it.sub || it.desc)));
-    kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, it.meta || '->'));
-    return h('a', { key: i, class: 'row', href: it.href || '#' }, ...kids);
-  });
-  return C.Panel({ id: panel.id || null, title: panel.title || panel.name || '', count: panel.count || items.length, children: rows });
-}
-
-function marqueeNode(marquee) {
-  if (!marquee || !Array.isArray(marquee.items) || !marquee.items.length) return null;
-  return C.Marquee ? C.Marquee({ items: marquee.items, sep: marquee.sep || '/' }) : null;
-}
-
-function quickstartNode(quickstart) {
-  if (!quickstart || !Array.isArray(quickstart.lines) || !quickstart.lines.length) return null;
-  const lineNodes = quickstart.lines.map((l, i) => h('div', { key: 'q' + i, class: 'cli' },
-    h('span', { class: 'prompt' }, l.kind === 'cmt' ? '#' : '$'),
-    h('span', { class: 'cmd' }, l.text)
-  ));
-  return C.Panel({ title: quickstart.heading || 'quick start', children: h('div', { class: 'ds-quickstart' }, ...lineNodes) });
-}
-
-function sideNode(sidebar) {
-  if (!sidebar || !Array.isArray(sidebar.sections) || !sidebar.sections.length || !C.Side) return null;
-  return C.Side({ sections: sidebar.sections });
-}
-
-// minimal client-side markdown renderer matching server-side renderer (idempotent for already-html bodies)
-function __slug(s) { return String(s || '').trim().toLowerCase().replace(/[^\\w\\s-]/g, '').replace(/\\s+/g, '-'); }
-function __md(md) {
-  const lines = String(md || '').split('\\n');
-  const out = []; let inCode = false, inList = false;
-  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const inl = (s) => s.replace(/\`([^\`]+)\`/g, '<code>$1</code>').replace(/\\*\\*([^*]+)\\*\\*/g, '<strong>$1</strong>').replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, '<a href="$2">$1</a>');
-  for (const line of lines) {
-    if (line.startsWith('\`\`\`')) { if (inCode) { out.push('</pre>'); inCode = false; } else { out.push('<pre>'); inCode = true; } continue; }
-    if (inCode) { out.push(esc(line)); continue; }
-    if (line.startsWith('# ')) { const t = line.slice(2); out.push('<h1 id="' + __slug(t) + '">' + esc(t) + '</h1>'); }
-    else if (line.startsWith('## ')) { const t = line.slice(3); out.push('<h2 id="' + __slug(t) + '">' + esc(t) + '</h2>'); }
-    else if (line.startsWith('### ')) { const t = line.slice(4); out.push('<h3 id="' + __slug(t) + '">' + esc(t) + '</h3>'); }
-    else if (line.startsWith('- ')) { if (!inList) { out.push('<ul>'); inList = true; } out.push('<li>' + inl(esc(line.slice(2))) + '</li>'); }
-    else { if (inList) { out.push('</ul>'); inList = false; } if (line.trim()) out.push('<p>' + inl(esc(line)) + '</p>'); }
-  }
-  if (inList) out.push('</ul>');
-  if (inCode) out.push('</pre>');
-  return out.join('\\n');
-}
-
-const bodyNode = data.bodyHtml ? C.Section({ children: h('div', { class: 'page-body', innerHTML: data.bodyHtml }) }) : null;
-
-const mainChildren = [
-  heroNode(data.hero),
-  marqueeNode(data.marquee),
-  ...data.sections.map(sectionNode),
-  ...(data.panels || []).map(panelNode),
-  quickstartNode(data.quickstart),
-  examplesNode(data.examples),
-  bodyNode,
-].filter(Boolean);
-
-mount(document.getElementById('app'), () => C.AppShell({
-  topbar: C.Topbar({ brand: data.siteName, items: data.navItems, active: data.title }),
-  crumb: C.Crumb({ leaf: data.title }),
-  side: sideNode(data.sidebar),
-  main: h('div', { class: 'app-stage' }, ...mainChildren),
-  status: C.Status({
-    left: data.statusLeft || [data.siteName.toLowerCase(), data.slug],
-    right: data.statusRight || ['live'],
-  }),
-}));
-${clientScriptExtra}
+${CLIENT_SCRIPT}${clientScriptExtra}
 </script>
 </body>
 </html>`;
