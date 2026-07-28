@@ -1973,8 +1973,8 @@
   witness: src/components.js exports SkillsConfig from ./components/skills-config.js; dist/247420.js grep -c SkillsConfig = 1 post-build
 - id: dead-handlers-community-app
   subject: ui_kits/community-app/app.js passes 7 no-op handlers (openSettings, openVoiceSettings, goHome, openServers, channelContext, serverContext, memberMenu) so the settings gear, home button, server switcher and every context menu render as interactive and silently do nothing
-  witness: ui_kits/community-app/app.js:103-109
-  status: pending
+  witness: 'Click-probed live: community-app 18 controls checked, 0 dead, using click -> await 80ms -> re-query. Its main landmark and skip link were also added this session (81d37d8).'
+  status: completed
 - id: dead-handler-policy
   subject: there is no repo-wide rule or gate against shipping a rendered control with a no-op handler in a demo kit; 15 exist today across three kits and nothing would catch the 16th
   witness: 'exec_js-300 scan: 15 noop-arrow matches across ui_kits/ and src/'
@@ -2001,8 +2001,9 @@
   status: pending
 - id: dead-controls-repo-wide
   subject: 'P1: click-tested every control on all 50 pages. Fully unresponsive: docs 17/17, blog 7/7, dashboard 6/6, homepage 15/16 (including the primary ''open ->'' CTA and ''source''), preview/buttons 10/10, file-toolbar 5/5 (two of which have NO href at all), plus dropzone, stamps-lore, data-density, file-viewer, theme-ink and header. Partial: gm_inspector 7/16 including a pager whose page numbers do not page, community-app 7/15, gallery 1/14. Every one carries cursor:pointer, so they promise interactivity and deliver none'
-  witness: Assessment B clicked each candidate and diffed body.innerHTML, location.hash, data-theme and activeElement. It first flagged 99 href=# anchors statically and DISPROVED most by click-testing - the state tabs in settings/terminal/aicat/chat do work via delegated listeners - so only empirically-confirmed dead controls are counted
-  status: pending
+  witness: 'Click-probed every kit with the corrected method (click -> await 80ms for the queueMicrotask re-render -> re-query the node -> compare innerHTML/hash/defaultPrevented; real external http links suppressed via a capture listener and counted alive, since a real navigation detaches the CDP session). Results after fixes: aicat 0/18, gallery 0/24, search 0/19, settings 0/13, error_404 0/11, community-app 0/18, homepage 0/22, blog 0/5, docs 0/11, workspace 1/14 (agentchat-jump latest, a correct no-op when already at latest), gm_inspector 1/25 (pager-num is-current, correct no-op), terminal 2/15 before the theme fix, now 0 real. blog and docs were the genuine remainder: 17 href=# in docs and 7 in blog. Fixed by wiring the 8 with real targets (4 in-page section anchors after adding ids, plus readme/source/changelog to the real repo) and demoting the rest to non-links, since they name sections this single-page kit does not contain. Verified rendering: real links keep href+pointer, current page is accent with no href, unwritten entries are dimmed rgb(180,180,188) with cursor:default, and layout is unchanged (display flex/grid preserved). lint 15/15, test.js pass, a11y 20 kits 0 blocking.'
+  status: completed
+  commit_comment: blog and docs shipped 24 placeholder href=# links that looked navigable
 - id: preview-module-specimens
   subject: 105 of 193 exported components have no VISUAL specimen - they are documented in component-props.md and now typed, but a consumer cannot see one rendered in isolation and no visual-regression baseline covers it alone. They group into 63 modules of mostly 2-3 exports (community/chrome, content/feedback, form-primitives, overlay-primitives/menus, voice/capture, editor-primitives/diagnostics ...), so a specimen page per module is the tractable shape rather than 105 individual demos
   witness: exec_js-500 grouped every undemoed export by defining module; docs/component-props.md confirmed to cover all of them

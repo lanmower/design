@@ -197,6 +197,14 @@ body.canvas-host { background: transparent !important; }
    claim to be pressable — no pointer, no hover highlight. (An anchor without
    href is already skipped by the tab order and exposed as generic, not link.) */
 .app-side a:not([href]) { cursor: default; }
+/* An entry naming a section/tag that does not exist yet — in the sidebar tree
+   or the topbar nav. It stays visible so the intended shape of the docs is
+   legible, but it is not a link and must not read as one: dimmed, and inert
+   like any other href-less anchor. Both selectors are needed because the two
+   navs style their anchors separately. */
+.app-side a.is-unwritten,
+.app-topbar nav a.is-unwritten { color: var(--fg-3); cursor: default; }
+.app-topbar nav a.is-unwritten:hover { background: none; color: var(--fg-3); }
 .app-side a[href]:hover { background: var(--bg-2); color: var(--fg); }
 .app-side a:focus-visible {
   outline: var(--focus-w) solid var(--focus-color);
