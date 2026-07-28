@@ -1973,5 +1973,6 @@
   witness: src/components.js exports SkillsConfig from ./components/skills-config.js; dist/247420.js grep -c SkillsConfig = 1 post-build
 - id: inline-style-block-literals
   subject: 23 raw px literals live inside inline <style> blocks in 5 html files, invisible to every lint gate because the gates scan only .css files
-  witness: 'exec_js-25: blog/index.html=10, preview/colors-core=7, preview/data-density=4, colors-lore=1, colors-semantic=1'
-  status: pending
+  witness: 'Closed by adding scripts/lint-inline-css.mjs, a 15th gate running the existing colour/radius/spacing/font-size matchers over CSS inside HTML <style> blocks. The real extent was 46 violations across 24 files, twice what a css-only scan could see, reduced to 7 behind a ratchet over 50 HTML files. Ratchet rather than hard zero because several pages are specimens whose job is demonstrating a value, but deliberately NOT a per-file allowlist, which would exempt those files wholesale and stop watching exactly the pages most likely to accumulate raw CSS. Proven to fail: an injected margin:37px gives FAIL with the correct file:line and exit 1 through npm run lint, and a violation injected after 7 lines of comment and attribute content still reports the right line number, so the comment-desync bug class is not reintroduced. Negative controls clean across var() fallbacks, calc, max, CSS and HTML comments, style attributes, and body text printing a hex. One migration was reverted after CDP measurement showed --fs-h4 resolving to 23.04px rather than the intended 24px. All 81 visual baselines still match.'
+  status: completed
+  commit_comment: gate inline <style> blocks; 46 -> 7 across 24 files
