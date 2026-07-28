@@ -1279,6 +1279,14 @@
      the glow's -4px bleed without overflowing the viewport edge. */
   .vx-ptt-glow { inset: -4px 0; }
 }
+@media (max-height: 420px) {
+  /* Phone-in-landscape: topbar + chat-head + user-identity bar alone can
+     consume most of a ~320px-tall viewport, leaving no room for the fixed
+     120px .vx-ptt plus the voice grid above it -- shrink the PTT button so
+     both remain visible instead of the label clipping off-screen. */
+  .vx-ptt { min-width: 88px; min-height: 64px; padding: var(--space-2); }
+  .vx-ptt-icon { font-size: var(--fs-lg); }
+}
 .vx-ptt-recording, .vx-ptt-live {
   background: var(--accent);
   color: var(--accent-fg);
