@@ -2247,3 +2247,8 @@
   subject: dist/ is listed in .gitignore yet its files are tracked in git, so every build regenerates them into conflicts on any concurrent push - one already forced a rebase abort this session
   witness: git ls-files dist/ returns dist/247420.css, dist/247420.js and others while .gitignore:13 says dist/; git_push-71 was rejected with CONFLICT (content) in dist/247420.js. .github/workflows/gh-pages.yml builds dist itself (copies assets in, uploads ./dist) so the tracked copy is not what CI consumes.
   status: pending
+- id: changelog-important-load-bearing
+  subject: the !important on .ds-changelog-row grid-template-columns cannot be removed by scoping; removing it collapses the version column to zero width at tablet
+  witness: Tested empirically rather than assumed. Removal changes the tablet computed template from 120.75px 77.625px 70.125px to 103.5px 0px 165px - the version column collapses to zero and the version silently disappears. Reverted, restored-to-baseline confirmed by diff, and commented in place with the measured before/after so the next audit does not repeat the experiment.
+  status: completed
+  commit_comment: document why the changelog !important is load-bearing
