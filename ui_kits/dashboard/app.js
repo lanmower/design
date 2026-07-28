@@ -43,12 +43,16 @@ const changelog = [
     { date: '2026-05-07', ver: 'v0.4.10', msg: 'migrate session store · add p99 to /metrics' }
 ];
 
+// No 01/02/03 index: the feed is already ordered by the `meta` age column, so a
+// counter would carry no information and would read as a ranking that isn't one.
+// The rail tone is the real signal — it says what KIND of event this was, which
+// is what an operator scans for.
 const events = [
-    { code: '01', title: 'deploy succeeded',  sub: 'v0.4.12 · all regions',     meta: '2m' },
-    { code: '02', title: 'cache flushed',     sub: 'edge-cache · eu-west-1',    meta: '14m' },
-    { code: '03', title: 'p95 spike',         sub: '/api/upload · 1.4s',        meta: '38m' },
-    { code: '04', title: 'cron ran',          sub: 'reindex-search · ok',       meta: '1h' },
-    { code: '05', title: 'config reloaded',   sub: 'feature flags',             meta: '3h' }
+    { title: 'deploy succeeded',  sub: 'v0.4.12 · all regions',  meta: '2m',  rail: 'green' },
+    { title: 'cache flushed',     sub: 'edge-cache · eu-west-1', meta: '14m' },
+    { title: 'p95 spike',         sub: '/api/upload · 1.4s',     meta: '38m', rail: 'flame' },
+    { title: 'cron ran',          sub: 'reindex-search · ok',    meta: '1h',  rail: 'green' },
+    { title: 'config reloaded',   sub: 'feature flags',          meta: '3h' }
 ];
 
 function App() {
@@ -90,7 +94,7 @@ function App() {
                 h('div', { class: 'ds-panel-trio' },
                     Panel({ title: 'environment', class: 'ds-panel-flush', children: Receipt({ rows: receipt }) }),
                     Panel({ title: 'recent events', count: events.length, class: 'ds-panel-flush', children: events.length
-                        ? events.map((e, i) => Row({ key: 'ev' + i, code: e.code, title: e.title, sub: e.sub, meta: e.meta }))
+                        ? events.map((e, i) => Row({ key: 'ev' + i, title: e.title, sub: e.sub, meta: e.meta, rail: e.rail }))
                         : h('div', { class: 'empty' }, 'no events yet') }),
                     Panel({ title: 'changelog', count: changelog.length, class: 'ds-panel-flush', children: Changelog({ entries: changelog }) })
                 ),

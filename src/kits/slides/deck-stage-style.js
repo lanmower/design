@@ -28,8 +28,11 @@ export const STYLESHEET = `
       visibility: hidden;
     }
     ::slotted([data-deck-active]) { opacity: 1; pointer-events: auto; visibility: visible; }
+    /* These stack only against each other: :host is position:fixed, so the
+       shadow root is its own stacking context and the old max-int values
+       bought nothing over the scale's rungs. Controls sit above tap zones. */
     .tapzones {
-      position: fixed; inset: 0; display: flex; z-index: 2147482000; pointer-events: none;
+      position: fixed; inset: 0; display: flex; z-index: var(--z-raised); pointer-events: none;
     }
     .tapzone { flex: 1; pointer-events: auto; -webkit-tap-highlight-color: transparent; }
     @media (hover: hover) and (pointer: fine) { .tapzones { display: none; } }
@@ -48,7 +51,7 @@ export const STYLESHEET = `
       opacity: 0; pointer-events: none;
       transition: opacity 260ms ease, transform 260ms cubic-bezier(.2,.8,.2,1), filter 260ms ease;
       transform-origin: center bottom;
-      z-index: 2147483000;
+      z-index: var(--z-sticky);
       user-select: none;
     }
     .overlay[data-visible] {

@@ -147,7 +147,12 @@ input[type="checkbox"], input[type="radio"] {
   min-height: 120px;
   display: flex; align-items: center; justify-content: center;
   text-align: center; color: var(--fg-3);
-  transition: all var(--dur-snap) var(--ease);
+  /* Explicit list, never `all` — the only things `.drop-zone.active` changes
+     are the dashed border tone, the tinted fill and the label colour. `all`
+     also animated padding/min-height/border-width, so a drop target visibly
+     resized mid-drag instead of snapping. */
+  transition: background var(--dur-snap) var(--ease), border-color var(--dur-snap) var(--ease),
+    color var(--dur-snap) var(--ease);
 }
 .drop-zone.active {
   border-color: var(--accent);
@@ -187,7 +192,7 @@ input[type="checkbox"], input[type="radio"] {
   border-radius: var(--r-2);
   box-shadow: var(--shadow-overlay);
   min-width: 160px;
-  z-index: calc(var(--z-overlay, 1000) + 1);
+  z-index: var(--z-dropdown);
   padding: 4px 0;
 }
 
@@ -566,7 +571,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   position: absolute; top: -40px; left: 0;
   background: var(--fg); color: var(--bg);
   padding: 8px 16px; border-radius: var(--r-1);
-  text-decoration: none; z-index: var(--z-overlay, 1000);
+  text-decoration: none; z-index: var(--z-top);
 }
 .skip-to-main:focus { top: 10px; }
 
@@ -689,7 +694,7 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   padding: var(--space-3) var(--space-4);
   max-width: 320px;
   box-shadow: var(--shadow-overlay);
-  z-index: calc(var(--z-overlay, 1000) + 10);
+  z-index: var(--z-toast);
 }
 
 @keyframes toast-slide-in {

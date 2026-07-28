@@ -202,7 +202,7 @@
 
 /* Jump-to-latest: hidden until the thread scroll listener adds .show. */
 .agentchat-jump {
-  position: absolute; right: 16px; bottom: 12px; z-index: 3;
+  position: absolute; right: 16px; bottom: 12px; z-index: var(--z-raised);
   display: none; align-items: center; gap: .35em;
   padding: .4em .8em; font: inherit; font-size: var(--fs-tiny); cursor: pointer;
   border-radius: var(--r-pill); border: var(--bw-hair) solid var(--rule);
@@ -474,7 +474,7 @@
    label sticks to the top of the scroll area for Claude-Desktop-style headers. */
 .ds-session-group { display: flex; flex-direction: column; }
 .ds-session-group-rows { display: flex; flex-direction: column; gap: 2px; }
-.ds-session-group-label { position: sticky; top: 0; z-index: 1; background: var(--bg-1, var(--bg)); font-size: var(--fs-tiny); font-weight: 600; color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-label); padding: var(--space-2) var(--space-2) var(--space-1); }
+.ds-session-group-label { position: sticky; top: 0; z-index: var(--z-sticky); background: var(--bg-1, var(--bg)); font-size: var(--fs-tiny); font-weight: 600; color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-label); padding: var(--space-2) var(--space-2) var(--space-1); }
 .ds-session-row {
   position: relative; display: flex; align-items: center; gap: var(--space-2);
   width: 100%; padding: var(--space-2); min-height: 52px; margin-bottom: 2px;
@@ -1108,7 +1108,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
    structured CodeNode). injectCodeCopy reads the language- class. */
 .chat-code-block { position: relative; }
 .chat-code-lang {
-  position: absolute; top: 0; left: 0; z-index: 2;
+  position: absolute; top: 0; left: 0; z-index: var(--z-raised);
   padding: 2px var(--space-2); border-bottom-right-radius: var(--r-1);
   font-family: var(--ff-mono); font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: var(--tr-caps);
   color: var(--fg-3); background: color-mix(in oklab, var(--fg) 6%, transparent);
@@ -1284,7 +1284,10 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   border-top: var(--bw-hair) solid var(--rule);
   border-bottom: var(--bw-hair) solid var(--rule);
   pointer-events: none;
-  z-index: 1;
+  /* Minimap internal order: centerline < viewport < dot < tooltip. All four
+     live inside the one raised widget, so they share its rung and differ
+     only by a local offset. */
+  z-index: calc(var(--z-raised) + 1);
 }
 .chat-minimap-centerline {
   position: absolute;
@@ -1294,7 +1297,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   width: 1px;
   background: var(--rule);
   transform: translateX(-50%);
-  z-index: 0;
+  z-index: var(--z-raised);
 }
 .chat-minimap-dot {
   position: absolute;
@@ -1304,7 +1307,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   border-radius: var(--r-pill, 999px);
   transform: translate(-50%, -50%) scale(1);
   transition: transform 0.1s;
-  z-index: 2;
+  z-index: calc(var(--z-raised) + 2);
 }
 .chat-minimap-dot.is-user {
   background: color-mix(in oklab, var(--accent) 18%, transparent);
@@ -1326,7 +1329,10 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   border-left: 2px solid var(--fg-3);
   border-radius: var(--r-1);
   padding: calc(var(--space-1) / 2) var(--space-2);
-  z-index: 100;
+  /* Top of the minimap's internal order. Deliberately NOT --z-tooltip: it is
+     clipped to the minimap rail rather than floating over the app, so it must
+     not outrank real overlays that may cover the rail. */
+  z-index: calc(var(--z-raised) + 3);
   pointer-events: none;
   opacity: 0.45;
   font-size: var(--fs-tiny);

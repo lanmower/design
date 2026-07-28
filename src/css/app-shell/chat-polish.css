@@ -126,7 +126,12 @@
 .chat-bubble.chat-md li { margin: var(--space-1) 0; }
 .chat-bubble.chat-md blockquote {
   margin: var(--space-2) 0; padding: 4px 12px;
-  border-left: 3px solid color-mix(in oklab, currentColor 30%, transparent);
+  /* DELIBERATE, but slimmed to the --bw-rule tier. This is a real markdown
+     <blockquote> inside a chat bubble: the left rule is the standard
+     typographic quotation mark, not a colored alert stripe (the tone is a
+     currentColor mix that inherits the bubble's own ink — never an accent).
+     A 3px off-scale literal read as the generic tell; 2px reads as type. */
+  border-left: var(--bw-rule) solid color-mix(in oklab, currentColor 30%, transparent);
   color: color-mix(in oklab, currentColor 75%, transparent); font-style: italic;
 }
 .chat-bubble.chat-md pre {

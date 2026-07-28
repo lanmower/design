@@ -5,6 +5,13 @@ const h = webjsx.createElement;
 
 const root = document.getElementById('root');
 
+// Eyebrows here are reserved for the two slides that are a DIFFERENT KIND of
+// slide from the body of the deck: the opening masthead and the closing marker.
+// The interior slides deliberately carry none. Their eyebrows were the bare
+// numbers 01-04, which is a position indicator, not a category label — and the
+// deck already shows position twice (the `ds-deck-count` "n / 6" readout and
+// the numbered sidebar list), so a third copy named nothing new. If you add a
+// slide, it gets no eyebrow unless it genuinely names a new section.
 const slides = [
     {
         kind: 'title',
@@ -15,13 +22,11 @@ const slides = [
     },
     {
         kind: 'lede',
-        eyebrow: '01',
         title: 'one tool, one font, one rhythm.',
         body: 'space grotesk for prose, jetbrains mono for tokens. nothing else. the rhythm is 8pt all the way down.'
     },
     {
         kind: 'bullets',
-        eyebrow: '02',
         title: 'three modes for theme',
         items: [
             ['auto',  'follow the OS — re-renders live when you flip dark mode'],
@@ -31,13 +36,11 @@ const slides = [
     },
     {
         kind: 'quote',
-        eyebrow: '03',
         body: '"the surface should never lie about what the program is doing."',
         cite: '— 247420 design principle'
     },
     {
         kind: 'split',
-        eyebrow: '04',
         title: 'usable terminals are instant.',
         left: 'output appears the moment it exists. no reveal animation, no typewriter — the user is waiting on real work.',
         right: 'showcase terminals can play a loop. they are clearly labelled "demo" and pause on prefers-reduced-motion.'
@@ -56,7 +59,9 @@ const state = { i: 0 };
 function Slide(s) {
     // custom-property-only inline: carries the per-slide accent tone, no layout
     const accentStyle = s.accent ? `--slide-accent:var(--${s.accent})` : '';
-    const eyebrow = h('div', { class: 'ds-slide-eyebrow' }, s.eyebrow || '');
+    // null, not an empty div — an empty .ds-slide-eyebrow still paints its
+    // margin-bottom, leaving an unexplained gap above the eyebrow-less slides.
+    const eyebrow = s.eyebrow ? h('div', { class: 'ds-slide-eyebrow' }, s.eyebrow) : null;
 
     if (s.kind === 'title') {
         return h('div', { class: 'ds-slide-col ds-slide-col--start', style: accentStyle },

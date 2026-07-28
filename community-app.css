@@ -166,7 +166,7 @@ html.ds-247420 .vx-view .vx-grid {
 @media (max-width: 900px) {
   html.ds-247420 .ca-rail {
     position: absolute;
-    z-index: 20;
+    z-index: calc(var(--z-drawer) + 1);
     top: 0; left: 0; bottom: 0;
     width: 240px; min-width: 240px;
     transform: translateX(-110%);
@@ -181,7 +181,7 @@ html.ds-247420 .vx-view .vx-grid {
     content: '';
     position: absolute;
     inset: 0;
-    z-index: 15;
+    z-index: var(--z-drawer);
     background: color-mix(in oklab, var(--ink, #000) 40%, transparent);
     pointer-events: none;
   }

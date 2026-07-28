@@ -187,12 +187,24 @@
   border-radius: var(--r-hair);
   font-family: var(--ff-mono);
 }
+/* Attributed callout — an editorial pull-quote (it carries a .who byline), so
+   the left accent is DELIBERATE, not the generic alert stripe. Expressed via
+   the house .panel-spine idiom (absolute ::before rail at --bw-chunk, squared
+   leading corners) instead of a raw 3px border-left, so it stays on the border
+   scale and matches the spine primitive in panel-row.css. */
 .ds-prose .gm-callout {
+  position: relative;
   margin: 18px 0;
-  padding: 14px 18px;
+  padding: var(--space-2-75) var(--space-3-5);
+  padding-left: calc(var(--space-3-5) + var(--bw-chunk));
   background: var(--panel-1);
-  border-left: 3px solid var(--panel-accent);
+  border-radius: 0 var(--r-1) var(--r-1) 0;
   color: var(--panel-text);
+}
+.ds-prose .gm-callout::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: var(--bw-chunk); background: var(--panel-accent);
+  border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
 }
 .ds-prose .gm-callout .who {
   display: block;

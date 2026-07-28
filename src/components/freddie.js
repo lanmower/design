@@ -80,7 +80,7 @@ export const home = makePage((ctx) => {
         const tools = ctx.host?.pi?.tools?.size ?? s.toolsCount ?? '—';
         const skills = ctx.host?.pi?.skills?.size ?? s.skillsCount ?? '—';
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'dashboard', lede: 'agent harness · live overview' }),
+            PageHeader({ title: 'dashboard', lede: 'agent harness · live overview' }),
             Kpi({ items: [
                 [tools, 'tools'],
                 [skills, 'skills'],
@@ -315,7 +315,7 @@ export const voice = makePage((ctx) => {
         const v = s.voice;
         const enabled = v && (v.enabled || v.transcription || v.tts);
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'voice', lede: 'voice surfaces', right: enabled ? Chip({ tone: 'ok', children: 'enabled' }) : Chip({ tone: 'neutral', children: 'not configured' }) }),
+            PageHeader({ title: 'voice', lede: 'voice surfaces', right: enabled ? Chip({ tone: 'ok', children: 'enabled' }) : Chip({ tone: 'neutral', children: 'not configured' }) }),
             enabled
                 ? section('backends', Table({ headers: ['capability', 'status'], rows: [['transcription', v.transcription ? Chip({ tone: 'ok', children: 'on' }) : Chip({ tone: 'neutral', children: 'off' })], ['tts', v.tts ? Chip({ tone: 'ok', children: 'on' }) : Chip({ tone: 'neutral', children: 'off' })]] }))
                 : section('status', emptyState('no voice backend wired in this build. configure a transcription/tts plugin to enable.')),
@@ -349,7 +349,7 @@ export const sessions = makePage((ctx) => {
         if (s.error && !s.list) return errorState(s.error, load);
         const list = Array.isArray(s.list) ? s.list : [];
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'sessions', lede: list.length + ' sessions', right: refreshBtn(refresh, s.refreshing) }),
+            PageHeader({ title: 'sessions', lede: list.length + ' sessions', right: refreshBtn(refresh, s.refreshing) }),
             s.error && s.list ? refreshError(s.error) : null,
             SearchInput({ value: s.q, label: 'search sessions', placeholder: 'search messages…', onInput: (v) => { s.q = v; }, onSubmit: (v) => search(v) }),
             section('sessions',
@@ -392,7 +392,7 @@ export const projects = makePage((ctx) => {
         const d = s.data || {}; const list = d.projects || [];
         const activeName = (d.active && d.active.name) || d.active || 'default';
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'projects', lede: 'isolated workspaces · active: ' + activeName }),
+            PageHeader({ title: 'projects', lede: 'isolated workspaces · active: ' + activeName }),
             noteAlert(s.note),
             section('projects',
                 list.length ? list.map((p, i) => Row({
@@ -421,7 +421,7 @@ export const agents = makePage((ctx) => {
         if (s.error && !s.data) return errorState(s.error, load);
         const d = s.data || {};
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'agents', lede: 'live agent activity' }),
+            PageHeader({ title: 'agents', lede: 'live agent activity' }),
             s.error && s.data ? refreshError(s.error) : null,
             Kpi({ items: [[d.count ?? 0, 'active'], [d.turns ?? 0, 'total turns'], [d.last_activity ? fmtAgo(d.last_activity) : '—', 'last activity']] }),
             section('detail', Table({ headers: ['field', 'value'], rows: Object.entries(d).map(([k, v]) => [k, String(v)]) })),
@@ -450,7 +450,7 @@ export const analytics = makePage((ctx) => {
         const ok = samp.filter(x => x && x.available !== false).length;
         const sum = s.avail?.summary || {};
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'analytics', lede: 'provider availability & sampler health' }),
+            PageHeader({ title: 'analytics', lede: 'provider availability & sampler health' }),
             s.error && (s.sampler || s.avail) ? refreshError(s.error) : null,
             Kpi({ items: [[ok + '/' + samp.length, 'providers up'], [sum.total_models ?? '—', 'models'], [sum.usable_in_any_mode ?? '—', 'usable']] }),
             section('sampler', samp.length ? Table({ headers: ['provider', 'available', 'fails'], rows: Object.entries(s.sampler.status).map(([k, v]) => [k, v.available === false ? 'no' : 'yes', String(v.failCount ?? 0)]) }) : emptyState('no sampler data')),
@@ -482,7 +482,7 @@ export const models = makePage((ctx) => {
     return () => {
         const s = ctx.state;
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'models', lede: s.data ? (s.data.summary?.total_models ?? 0) + ' models across ' + (s.data.summary?.total_providers ?? 0) + ' providers' : 'model availability matrix' }),
+            PageHeader({ title: 'models', lede: s.data ? (s.data.summary?.total_models ?? 0) + ' models across ' + (s.data.summary?.total_providers ?? 0) + ' providers' : 'model availability matrix' }),
             ModelsConfig({
                 data: s.data, loading: s.loading, error: s.error,
                 selectedProviderId: s.selectedProviderId, onSelectProvider: (id) => ctx.set({ selectedProviderId: id, selectedModel: null }),
@@ -514,7 +514,7 @@ export const cron = makePage((ctx) => {
         if (s.error && !s.list) return errorState(s.error, load);
         const list = Array.isArray(s.list) ? s.list : [];
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'cron', lede: list.length + ' scheduled jobs' }),
+            PageHeader({ title: 'cron', lede: list.length + ' scheduled jobs' }),
             noteAlert(s.note),
             section('jobs', list.length ? list.map((j, i) => Row({
                 key: i, code: j.enabled ? Icon('play') : Icon('pause'), title: j.cron, sub: trunc(j.prompt, TRUNC_SUB).text,
@@ -553,7 +553,7 @@ export const skills = makePage((ctx) => {
             enabled: skillState[sk.name] !== false,
         }));
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'skills', lede: mapped.length + ' skills' }),
+            PageHeader({ title: 'skills', lede: mapped.length + ' skills' }),
             SkillsConfig({
                 skills: mapped, selected: s.selected, loading: s.loading, error: s.error,
                 busyName: s.busyName, query: s.query, onQuery: (q) => ctx.set({ query: q }),
@@ -577,7 +577,7 @@ export const plugins = makePage((ctx) => {
         const s = ctx.state;
         const list = Array.isArray(s.list) ? s.list : (s.list?.plugins || []);
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'plugins', lede: list.length + ' plugins loaded' }),
+            PageHeader({ title: 'plugins', lede: list.length + ' plugins loaded' }),
             PluginsConfig({
                 plugins: list, selected: s.selected, loading: s.loading, error: s.error,
                 onSelect: (name) => ctx.set({ selected: s.selected === name ? null : name }),
@@ -620,7 +620,7 @@ export const config = makePage((ctx) => {
         const skinList = Array.isArray(s.skins) ? s.skins : (s.skins?.skins || s.skins?.available || []);
         const activeSkin = cfg.skin || s.skins?.active || '';
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'config', lede: 'runtime configuration' }),
+            PageHeader({ title: 'config', lede: 'runtime configuration' }),
             noteAlert(s.note),
             liveRegion(s.busy ? 'saving configuration' : ''),
             nested.length ? h('div', { class: 'ds-alert ds-alert-info', role: 'note' },
@@ -676,7 +676,7 @@ export const env = makePage((ctx) => {
         const providerEnvs = new Set(auth.map(a => a.env));
         const otherRows = vars.filter(v => !providerEnvs.has(v.key)).map(v => [v.key, v.set ? Chip({ tone: 'ok', children: v.source || 'set' }) : Chip({ tone: 'neutral', children: 'unset' })]);
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'keys', lede: 'provider api keys · stored locally, never displayed' }),
+            PageHeader({ title: 'keys', lede: 'provider api keys · stored locally, never displayed' }),
             noteAlert(s.note),
             section('provider keys',
                 auth.length ? auth.map((a, i) => Row({
@@ -707,7 +707,7 @@ export const tools = makePage((ctx) => {
         const groups = {};
         for (const t of list) { const g = t.toolset || 'core'; (groups[g] = groups[g] || []).push(t); }
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'tools', lede: list.length + ' tools' }),
+            PageHeader({ title: 'tools', lede: list.length + ' tools' }),
             SearchInput({ value: s.q, label: 'filter tools', placeholder: 'filter tools…', onInput: (v) => ctx.set({ q: v }) }),
             ...Object.entries(groups).map(([g, ts]) => section(g + ' · ' + ts.length, ts.map((t, i) => h('div', { key: i },
                 Row({ title: t.name, sub: trunc(t.schema?.description || t.description, TRUNC_DESC).text, onClick: () => ctx.set({ open: ctx.state.open === t.name ? null : t.name }), active: ctx.state.open === t.name }),
@@ -733,7 +733,7 @@ export const batch = makePage((ctx) => {
     return () => {
         const s = ctx.state;
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'batch', lede: 'parallel prompt runner' }),
+            PageHeader({ title: 'batch', lede: 'parallel prompt runner' }),
             noteAlert(s.note),
             section('prompts',
                 TextField({ label: 'prompts (one per line)', value: s.prompts, multiline: true, rows: 6, onInput: (v) => { s.prompts = v; } }),
@@ -767,7 +767,7 @@ export const gateway = makePage((ctx) => {
         const platforms = d.platforms || d;
         const rows = Object.entries(platforms).map(([k, v]) => [k, typeof v === 'object' ? (v.running || v.up ? Chip({ tone: 'ok', children: 'up' }) : Chip({ tone: 'miss', children: 'down' })) : String(v)]);
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'gateway', lede: 'messaging platform status' }),
+            PageHeader({ title: 'gateway', lede: 'messaging platform status' }),
             s.error && s.data ? refreshError(s.error) : null,
             section('platforms', rows.length ? Table({ headers: ['platform', 'status'], rows }) : emptyState('no platforms configured')),
         ].filter(Boolean);
@@ -806,7 +806,7 @@ export const chains = makePage((ctx) => {
         const chainsList = s.list?.chains || s.list || [];
         const up = s.health && (s.health.ok || s.health.status === 'ok' || s.health.healthy);
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'chains', lede: 'acptoapi fallback chains', right: up ? Chip({ tone: 'ok', children: 'acptoapi up' }) : Chip({ tone: 'miss', children: 'acptoapi down' }) }),
+            PageHeader({ title: 'chains', lede: 'acptoapi fallback chains', right: up ? Chip({ tone: 'ok', children: 'acptoapi up' }) : Chip({ tone: 'miss', children: 'acptoapi down' }) }),
             noteAlert(s.note),
             section('chains', Array.isArray(chainsList) && chainsList.length ? chainsList.map((c, i) => Row({
                 key: i, title: c.name || c, sub: Array.isArray(c.links) ? c.links.join(' -> ') : '',
@@ -833,7 +833,7 @@ export const machines = makePage((ctx) => {
         const d = s.data || {};
         const list = Array.isArray(d) ? d : (d.machines || Object.entries(d).map(([kind, v]) => ({ kind, ...(typeof v === 'object' ? v : { value: v }) })));
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'machines', lede: 'persisted xstate machine census' }),
+            PageHeader({ title: 'machines', lede: 'persisted xstate machine census' }),
             s.error && s.data ? refreshError(s.error) : null,
             section('machines', list.length ? Table({
                 headers: ['kind', 'key', 'state'],
@@ -863,7 +863,7 @@ export const health = makePage((ctx) => {
         const hd = s.health || {};
         const provs = Array.isArray(s.providers) ? s.providers : (s.providers?.providers || []);
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'health', lede: 'system & provider health', right: hd.ok ? Chip({ tone: 'ok', children: 'healthy' }) : Chip({ tone: 'miss', children: 'degraded' }) }),
+            PageHeader({ title: 'health', lede: 'system & provider health', right: hd.ok ? Chip({ tone: 'ok', children: 'healthy' }) : Chip({ tone: 'miss', children: 'degraded' }) }),
             s.error && (s.health || s.providers) ? refreshError(s.error) : null,
             section('checks', Object.keys(hd).length ? Table({ headers: ['check', 'status'], rows: Object.entries(hd).map(([k, v]) => [k, typeof v === 'object' ? truncJson(v) : (v === true ? Chip({ tone: 'ok', children: 'ok' }) : v === false ? Chip({ tone: 'miss', children: 'no' }) : String(v))]) }) : emptyState('no health data')),
             provs.length ? section('providers', Table({ headers: ['provider', 'status'], rows: provs.map(p => { const n = typeof p === 'string' ? p : p.name || p.id; const ok = typeof p === 'object' ? (p.ok ?? p.available) : null; return [n, ok == null ? '—' : (ok ? Chip({ tone: 'ok', children: 'up' }) : Chip({ tone: 'miss', children: 'down' }))]; }) })) : null,
@@ -931,7 +931,7 @@ export const logs = makePage((ctx) => {
         const severities = ['error', 'warning', 'info', 'debug'];
         return [
             PageHeader({
-                eyebrow: 'freddie', title: 'logs', lede: 'live JSONL log tail — /api/logs/stream',
+                title: 'logs', lede: 'live JSONL log tail — /api/logs/stream',
                 right: s.connected ? Chip({ tone: 'ok', children: 'live' }) : Chip({ tone: 'miss', children: 'reconnecting…' }),
             }),
             s.wsError ? refreshError(s.wsError) : null,
@@ -981,7 +981,7 @@ export const debug = makePage((ctx) => {
         const d = s.data || {};
         const subsystems = d.subsystems || Object.keys(d);
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'debug', lede: 'subsystem snapshots & logs' }),
+            PageHeader({ title: 'debug', lede: 'subsystem snapshots & logs' }),
             section('subsystems', subsystems.length ? subsystems.map((name, i) => Row({
                 key: i, title: name, onClick: () => loadLogs(name), active: s.sub === name,
             })) : emptyState('no debug subsystems')),
@@ -1041,7 +1041,7 @@ export const git = makePage((ctx) => {
         const worktrees = wtFailed ? [] : (s.worktrees && s.worktrees.worktrees) || s.worktrees || [];
         const current = Array.isArray(worktrees) ? (worktrees.find(w => w.path === s.cwd) || {}).path : undefined;
         return [
-            PageHeader({ eyebrow: 'freddie', title: 'git', lede: s.cwd || 'active project' }),
+            PageHeader({ title: 'git', lede: s.cwd || 'active project' }),
             noteAlert(s.note),
             statusFailed ? refreshError(statusFailed) : null,
             section('worktrees',

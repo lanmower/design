@@ -561,7 +561,7 @@
 /* Copy affordance (copyable:true) — floats over the viewer's top-right. */
 .ds-ep-json-wrap { position: relative; }
 .ds-ep-json-copy {
-    position: absolute; top: var(--space-1-75, 6px); right: var(--space-1-75, 6px); z-index: 1;
+    position: absolute; top: var(--space-1-75, 6px); right: var(--space-1-75, 6px); z-index: var(--z-raised);
     appearance: none; cursor: pointer;
     background: var(--panel-1, var(--bg-1));
     border: 1px solid var(--rule);
@@ -678,7 +678,7 @@
    ContextMenu
    --------------------------------------------------------------- */
 .ds-ep-ctxmenu-backdrop {
-    position: fixed; inset: 0; z-index: 9000;
+    position: fixed; inset: 0; z-index: var(--z-dropdown);
 }
 .ds-ep-ctxmenu {
     position: absolute;
@@ -718,7 +718,7 @@
    Drawer
    --------------------------------------------------------------- */
 .ds-ep-drawer-backdrop {
-    position: fixed; inset: 0; z-index: 8500;
+    position: fixed; inset: 0; z-index: var(--z-drawer);
     background: var(--scrim);
 }
 .ds-ep-drawer {
@@ -745,7 +745,7 @@
    Dialog
    --------------------------------------------------------------- */
 .ds-ep-dialog-backdrop {
-    position: fixed; inset: 0; z-index: 9500;
+    position: fixed; inset: 0; z-index: var(--z-modal);
     background: var(--scrim-strong);
     display: flex; align-items: center; justify-content: center;
     padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
@@ -798,7 +798,7 @@
     position: fixed;
     top: max(16px, env(safe-area-inset-top));
     right: max(16px, env(safe-area-inset-right));
-    z-index: 9800;
+    z-index: var(--z-toast);
     display: flex; flex-direction: column; gap: 8px;
     pointer-events: none;
 }
@@ -807,7 +807,13 @@
     background: var(--panel-1, var(--panel-bg));
     color: var(--panel-text, var(--fg-text));
     border: 1px solid var(--rule);
-    border-left: 3px solid var(--accent);
+    /* DELIBERATE accent spine (same intent as .panel-spine, expressed as a
+       border because a toast has no free ::before — the host stacks them and
+       .has-action reflows the box). Load-bearing, not decoration: this edge is
+       the ONLY channel carrying toast severity — .kind-success/.kind-warn/
+       .kind-error below recolour border-left-color and nothing else. Do not
+       demote to a hairline; that would erase the status signal. */
+    border-left: var(--bw-chunk) solid var(--accent);
     border-radius: var(--r-1, 6px);
     padding: var(--space-2) var(--space-2-75);
     box-shadow: var(--shadow-3);
@@ -1026,7 +1032,7 @@
 .ds-tooltip {
     position: fixed;
     left: 0; top: 0;
-    z-index: 9700;
+    z-index: var(--z-tooltip);
     background: var(--panel-1, var(--panel-bg));
     color: var(--panel-text, var(--fg-text));
     border: 1px solid var(--rule);
@@ -1049,7 +1055,7 @@
 .ds-popover {
     position: fixed;
     left: 0; top: 0;
-    z-index: 9600;
+    z-index: var(--z-dropdown);
     background: var(--panel-1, var(--panel-bg));
     color: var(--panel-text, var(--fg-text));
     border: 1px solid var(--rule);
@@ -1260,7 +1266,7 @@
    --------------------------------------------------------------- */
 .ov-cmd-backdrop {
     position: fixed; inset: 0;
-    z-index: var(--z-overlay, 1000);
+    z-index: var(--z-modal);
     background: color-mix(in oklab, var(--fg) 32%, transparent);
     display: flex; align-items: flex-start; justify-content: center;
     padding: 12vh var(--space-3, 16px) var(--space-3, 16px);
@@ -1315,7 +1321,8 @@
    --------------------------------------------------------------- */
 .ov-emoji-root {
     position: fixed; left: 0; top: 0;
-    z-index: var(--z-overlay, 1000);
+    /* Anchored to a trigger, not a blocking surface — dropdown rung. */
+    z-index: var(--z-dropdown);
     width: 280px;
     display: flex; flex-direction: column;
     background: var(--bg-2); color: var(--fg);
@@ -1353,7 +1360,7 @@
    --------------------------------------------------------------- */
 .ov-boot {
     position: fixed; inset: 0;
-    z-index: calc(var(--z-overlay, 1000) + 100);
+    z-index: var(--z-top);
     background: var(--bg);
     display: flex; align-items: center; justify-content: center;
     color: var(--fg);
@@ -1396,7 +1403,8 @@
    --------------------------------------------------------------- */
 .ov-set-root {
     position: fixed; left: 0; top: 0;
-    z-index: var(--z-overlay, 1000);
+    /* Anchored to a trigger, not a blocking surface — dropdown rung. */
+    z-index: var(--z-dropdown);
     width: 300px; max-height: 70vh;
     display: flex; flex-direction: column;
     background: var(--bg-2); color: var(--fg);
@@ -1445,7 +1453,7 @@ input.ov-set-control[type="range"] { padding: 0; accent-color: var(--accent); }
 
 /* AuthModal — ov-auth-* */
 .ov-auth-backdrop {
-    position: fixed; inset: 0; z-index: var(--z-overlay, 1000);
+    position: fixed; inset: 0; z-index: var(--z-modal);
     display: flex; align-items: center; justify-content: center;
     background: var(--scrim-strong);
 }
@@ -1474,7 +1482,7 @@ input.ov-set-control[type="range"] { padding: 0; accent-color: var(--accent); }
 
 /* VideoLightbox — ov-lightbox-* */
 .ov-lightbox-backdrop {
-    position: fixed; inset: 0; z-index: var(--z-overlay-top, 1100);
+    position: fixed; inset: 0; z-index: var(--z-modal);
     display: flex; align-items: center; justify-content: center;
     background: var(--scrim-media);
 }

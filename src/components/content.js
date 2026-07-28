@@ -538,14 +538,23 @@ export function ProcessRegistryTable({ processes = [], emptyText = 'no live proc
 
 export function HomeView({ state = {}, onNav, onToggleWork, works = [], posts = [], manifesto = [], currentlyShipping } = {}) {
     return [
+        // The page's one deliberate kicker. 'an entrypoint' is the collective's
+        // name-as-tagline — it says something the <h1> does not, and it is the
+        // masthead position where a print eyebrow actually belongs. The sections
+        // below intentionally carry NO eyebrow: each has a heading that already
+        // names it, so a kicker there would only restate the <h3> one word
+        // shorter. Do not add eyebrows to the sibling sections to "match" this.
         Hero({
             eyebrow: 'an entrypoint',
             title: 'Small, weird, useful tools — built in public.',
             body: '247420 is a creative collective of eight, scattered across three timezones. We have been shipping open-source tools for the web since 2018.',
             accent: 'Some become the future. Most don\'t. That\'s the deal.'
         }),
+        // Titleless section: promoted its former eyebrow to the actual heading
+        // rather than leaving a kicker hovering over an unnamed panel. The label
+        // was carrying the section's only name, so it became the <h3>.
         currentlyShipping ? Section({
-            eyebrow: 'currently shipping',
+            title: 'currently shipping',
             children: Panel({
                 kind: 'wide',
                 children: currentlyShipping.map((row, i) => {
@@ -560,15 +569,15 @@ export function HomeView({ state = {}, onNav, onToggleWork, works = [], posts = 
             })
         }) : null,
         works.length ? Section({
-            eyebrow: 'works', title: 'Everything else.',
+            title: 'Everything else.',
             children: WorksList({ works, openedIndex: state.opened ?? -1, onToggle: onToggleWork })
         }) : null,
         posts.length ? Section({
-            eyebrow: 'writing', title: 'When we have something to say.',
+            title: 'When we have something to say.',
             children: WritingList({ posts })
         }) : null,
         manifesto.length ? Section({
-            eyebrow: 'who\'s here', title: 'Eight people, three timezones, one ongoing conversation.',
+            title: 'Eight people, three timezones, one ongoing conversation.',
             children: Manifesto({ paragraphs: manifesto })
         }) : null
     ].filter(Boolean);

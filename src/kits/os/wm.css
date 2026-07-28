@@ -8,7 +8,7 @@
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: 9000;
+    z-index: var(--z-window);
 }
 
 .wm-win {
@@ -119,7 +119,7 @@
 /* Edge + corner resize hit-zones. Invisible (no glyph) — they only widen the
  * grab area beyond the SE .wm-resize grip. `width`/`height` are the grab
  * thickness; corners overlap edges and win via later source order + size. */
-.wm-edge { position: absolute; touch-action: none; z-index: 1; }
+.wm-edge { position: absolute; touch-action: none; z-index: var(--z-raised); }
 .wm-edge[data-dir='n'] { top: -3px; left: 8px; right: 8px; height: 8px; cursor: ns-resize; }
 .wm-edge[data-dir='s'] { bottom: -3px; left: 8px; right: 8px; height: 8px; cursor: ns-resize; }
 .wm-edge[data-dir='e'] { right: -3px; top: 8px; bottom: 8px; width: 8px; cursor: ew-resize; }

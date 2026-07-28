@@ -23,7 +23,10 @@ button, input, select, textarea { font: inherit; }
   color: var(--accent-fg);
   padding: 8px 16px;
   text-decoration: none;
-  z-index: 100;
+  /* Must outrank every layer of chrome once focused, or the first Tab press
+     lands on a control hidden behind the sticky header (was z-index:100,
+     which the header alone now matches). */
+  z-index: var(--z-top);
   border-radius: var(--r-pill);
   font-weight: 600;
   font-size: var(--fs-sm);

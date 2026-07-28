@@ -3,7 +3,7 @@
    ============================================================ */
 
 .ds-plugins-overlay {
-  position: fixed; inset: 0; z-index: var(--z-modal, 1000);
+  position: fixed; inset: 0; z-index: var(--z-modal);
   background: color-mix(in oklab, var(--ink) 35%, transparent);
   display: flex; align-items: center; justify-content: center;
   padding: var(--space-3);

@@ -127,7 +127,7 @@ html, body {
     min-width: 220px;
     top: calc(var(--os-bar-h) + var(--space-1, 4px));
     left: var(--space-2, 8px);
-    z-index: 9500;
+    z-index: var(--z-dropdown);
     display: none;
     flex-direction: column;
     gap: 2px;
@@ -275,7 +275,7 @@ html, body {
     align-items: center;
     padding: var(--space-2, 8px) 0;
     gap: var(--space-1, 4px);
-    z-index: 9100;
+    z-index: var(--z-dock);
     pointer-events: auto;
 }
 .os-rail-btn {
@@ -299,7 +299,7 @@ html, body {
     position: fixed;
     inset: 0;
     background: var(--os-bg-0);
-    z-index: 9700;
+    z-index: var(--z-modal);
     pointer-events: auto;
     display: none;
     flex-direction: column;
@@ -370,7 +370,7 @@ html, body {
 .os-instances .os-btn { flex: 0 0 auto; min-width: 36px; padding: 2px 8px; font-family: var(--os-mono); font-size: 11px; }
 .os-instances .os-btn.active { background: var(--panel-select, var(--os-accent-soft)); color: var(--os-fg); border-color: var(--panel-accent, var(--os-accent)); box-shadow: inset 0 0 0 1px var(--panel-accent, var(--os-accent)); }
 .os-menubar [data-role="home"] { display: none; }
-.os-root { position: fixed; inset: 0; display: flex; flex-direction: column; pointer-events: none; z-index: 9300; }
+.os-root { position: fixed; inset: 0; display: flex; flex-direction: column; pointer-events: none; z-index: calc(var(--z-dock) + 2); }
 .os-menubar, .os-taskbar { pointer-events: auto; flex: 0 0 auto; }
 .os-taskbar { margin-top: auto; }
 .wm-root { top: var(--os-bar-h) !important; bottom: var(--os-bar-h) !important; inset: var(--os-bar-h) 0 var(--os-bar-h) 0 !important; }
@@ -553,12 +553,12 @@ html.bars-hidden .os-taskbar { display: none !important; }
 
 /* OS-shell z-index layering: .os-root above .wm-root so its .os-menu dropdowns
  * paint above windows. */
-.ds-247420 .os-root { z-index: 9300 !important; }
-.ds-247420 .os-menubar { z-index: 9200 !important; position: relative; }
-.ds-247420 .os-taskbar { z-index: 9200 !important; position: relative; }
-.ds-247420 .os-menu { z-index: 9500 !important; }
-.ds-247420 .wm-root { z-index: 9000; }
-.ds-247420 .launcher-dock { z-index: 9100; }
+.ds-247420 .os-root { z-index: calc(var(--z-dock) + 2) !important; }
+.ds-247420 .os-menubar { z-index: calc(var(--z-dock) + 1) !important; position: relative; }
+.ds-247420 .os-taskbar { z-index: calc(var(--z-dock) + 1) !important; position: relative; }
+.ds-247420 .os-menu { z-index: var(--z-dropdown) !important; }
+.ds-247420 .wm-root { z-index: var(--z-window); }
+.ds-247420 .launcher-dock { z-index: var(--z-dock); }
 
 /* Touch/gesture hardening. */
 html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-text-size-adjust: 100%; }
@@ -572,7 +572,7 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   position: fixed;
   pointer-events: none;
   display: none;
-  z-index: 9050;
+  z-index: calc(var(--z-window) + 1);
   background: color-mix(in oklab, var(--os-accent) 20%, transparent);
   border: 2px solid var(--os-accent);
   border-radius: var(--r-0);
@@ -594,7 +594,7 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   background: var(--os-bg-2);
   border: 1px solid var(--os-accent);
   border-radius: var(--r-0);
-  z-index: 9600;
+  z-index: var(--z-modal);
   font-family: var(--ff-ui);
   color: var(--os-fg);
   min-width: 280px;
@@ -699,7 +699,7 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
 .ds-247420 .tb-sess-add-lbl { line-height: 1; }
 
 .tb-sess-overlay {
-  position: fixed; inset: 0; z-index: 9800;
+  position: fixed; inset: 0; z-index: var(--z-modal);
   background: var(--scrim);
   display: flex; align-items: center; justify-content: center;
   animation: tb-sess-fade 120ms ease;
@@ -747,7 +747,7 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
 .tb-sess-modal-btn.danger:hover { background: color-mix(in oklab, var(--danger) 80%, var(--ink)); }
 
 .tb-sess-empty {
-  position: fixed; inset: 0; z-index: 8900;
+  position: fixed; inset: 0; z-index: var(--z-window);
   display: flex; align-items: center; justify-content: center;
   pointer-events: none;
 }
@@ -893,7 +893,7 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
 .ds-247420 .wm-canvas { position: absolute; inset: 0; transform-origin: 0 0; will-change: transform; }
 
 /* ---- wm context menu (was: docs/wm.js showWindowMenu cssText) ---- */
-.ds-247420 .wm-context-menu { position: fixed; background: var(--panel-2, #1a1a1a); border: 1px solid color-mix(in oklab, var(--fg) 18%, transparent); border-radius: var(--r-0); z-index: 9700; font-family: var(--ff-ui); color: var(--fg, #fff); min-width: 140px; box-shadow: 0 8px 32px rgba(0, 0, 0, .35); padding: 4px; }
+.ds-247420 .wm-context-menu { position: fixed; background: var(--panel-2, #1a1a1a); border: 1px solid color-mix(in oklab, var(--fg) 18%, transparent); border-radius: var(--r-0); z-index: var(--z-dropdown); font-family: var(--ff-ui); color: var(--fg, #fff); min-width: 140px; box-shadow: 0 8px 32px rgba(0, 0, 0, .35); padding: 4px; }
 .ds-247420 .wm-context-menu-item { display: block; width: 100%; padding: 7px 10px; border: none; border-radius: var(--r-0); background: none; color: inherit; font-family: inherit; text-align: left; cursor: pointer; font-size: 13px; }
 .ds-247420 .wm-context-menu-item:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); }
 

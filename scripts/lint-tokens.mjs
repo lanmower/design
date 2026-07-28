@@ -16,6 +16,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 
 // Sheets that MUST be literal-free (every color comes from a token).
+//
+// NOTE: entries here are ENTRY POINTS, not necessarily leaf stylesheets. A
+// barrel sheet (one whose entire body is `@import url(...)` re-exports, e.g.
+// the root app-shell.css re-exporting src/css/app-shell/*.css) contains no
+// declarations of its own, so scanning the barrel alone lints nothing. See
+// expandSheets() below: every entry is expanded transitively through its
+// @import graph so the real leaf sheets are what actually get scanned.
 const COMPONENT_SHEETS = [
     'app-shell.css',
     'community.css',
@@ -26,7 +33,86 @@ const COMPONENT_SHEETS = [
     'src/kits/os/theme.css',
     'src/kits/os/freddie-dashboard.css',
     'src/kits/spoint/loading-screen.css',
+    // Split app-shell sheets that build.mjs bundles into dist (see its
+    // appShellSplitFiles list) but that the root app-shell.css barrel does NOT
+    // @import — so the @import expansion cannot reach them. Listed directly so
+    // they are linted; the FULL_COVERAGE_DIRS guard below is what surfaced the
+    // omission. (The barrel gap itself is a separate, real defect: a consumer
+    // that <link>s app-shell.css directly gets none of these rules, while the
+    // bundled dist/247420.css does include them.)
+    'src/css/app-shell/git-status.css',
+    'src/css/app-shell/plugins-config.css',
+    'src/css/app-shell/models-config.css',
+    'src/css/app-shell/skills-config.css',
 ];
+
+// Directories whose EVERY .css file must end up in the expanded scan set.
+// This is the anti-regression guard for the class of bug where a new split
+// sheet is dropped into src/css/app-shell/ but never wired into the root
+// app-shell.css barrel — it would then be built into dist (build.mjs keeps its
+// own appShellSplitFiles list) while remaining invisible to all three
+// scanners. The guard makes that divergence a hard lint failure instead of a
+// silent hole.
+const FULL_COVERAGE_DIRS = ['src/css/app-shell'];
+
+// Resolve a sheet's `@import url('...')` / `@import "..."` targets to
+// repo-relative POSIX paths, ignoring remote (http/protocol-relative) imports.
+function importTargets(rel, src) {
+    const dir = path.posix.dirname(rel.split(path.sep).join('/'));
+    const out = [];
+    const re = /@import\s+(?:url\(\s*)?["']([^"']+)["']\s*\)?/g;
+    let m;
+    while ((m = re.exec(src)) !== null) {
+        const spec = m[1];
+        if (/^(?:[a-z]+:)?\/\//i.test(spec)) continue; // remote import — not ours to lint
+        out.push(path.posix.normalize(path.posix.join(dir, spec)));
+    }
+    return out;
+}
+
+// Expand COMPONENT_SHEETS through their @import graph (depth-first, cycle- and
+// duplicate-safe), then assert FULL_COVERAGE_DIRS are fully covered. Returns
+// the repo-relative leaf paths every scanner iterates. A barrel that imports
+// only other sheets contributes no lines of its own, but is kept in the set —
+// harmless, and it keeps a stray declaration in a barrel from escaping.
+let _expandedCache = null;
+export function expandSheets() {
+    if (_expandedCache) return _expandedCache;
+    const seen = new Set();
+    const order = [];
+    const visit = (rel) => {
+        const key = rel.split(path.sep).join('/');
+        if (seen.has(key)) return;
+        seen.add(key);
+        const file = path.join(root, key);
+        if (!fs.existsSync(file)) { console.warn('[lint-tokens] missing:', key); return; }
+        order.push(key);
+        const src = fs.readFileSync(file, 'utf8');
+        for (const t of importTargets(key, src)) visit(t);
+    };
+    for (const rel of COMPONENT_SHEETS) visit(rel);
+
+    // Coverage guard — every .css in a FULL_COVERAGE_DIRS directory must have
+    // been reached by the expansion above.
+    const uncovered = [];
+    for (const dir of FULL_COVERAGE_DIRS) {
+        const abs = path.join(root, dir);
+        if (!fs.existsSync(abs)) continue;
+        for (const name of fs.readdirSync(abs)) {
+            if (!name.endsWith('.css')) continue;
+            const key = `${dir}/${name}`;
+            if (!seen.has(key)) uncovered.push(key);
+        }
+    }
+    if (uncovered.length) {
+        throw new Error('[lint-tokens] FAIL — stylesheet(s) in a full-coverage directory are not reachable from any COMPONENT_SHEETS entry, so they are unlinted:\n  '
+            + uncovered.join('\n  ')
+            + '\n[lint-tokens] Add an @import for each to the owning barrel sheet (e.g. app-shell.css), or add it directly to COMPONENT_SHEETS in scripts/lint-tokens.mjs.');
+    }
+
+    _expandedCache = order;
+    return order;
+}
 
 // The token source — allowed to define raw values (that IS its job).
 // Listed for clarity; simply not scanned.
@@ -80,6 +166,16 @@ const ALLOW = {
     'editor-primitives.css': [
         'background: #000', // intentional: lightbox video letterbox — true black media frame
     ],
+    // DEBT, not intentional (added 2026-07-28, when the @import expansion below
+    // first made src/css/app-shell/*.css visible to this gate at all). A 22px-
+    // tall toggle track with `border-radius: 11px` is a pill; the correct value
+    // is var(--r-pill). It is ALLOW-listed only so the newly-widened scan does
+    // not hard-fail the build on a pre-existing literal that the CSS owner —
+    // not this script — must fix. Delete this entry the moment the declaration
+    // moves onto var(--r-pill); it must not become a permanent exemption.
+    'src/css/app-shell/plugins-config.css': [
+        'border-radius: 11px',
+    ],
 };
 
 function isAllowed(rel, line) {
@@ -119,7 +215,7 @@ function stripThemableLiterals(code) {
 // so build.mjs can call it inline and decide how to fail.
 export function findTokenViolations() {
     const violations = [];
-    for (const rel of COMPONENT_SHEETS) {
+    for (const rel of expandSheets()) {
         const file = path.join(root, rel);
         if (!fs.existsSync(file)) { console.warn('[lint-tokens] missing:', rel); continue; }
         const src = fs.readFileSync(file, 'utf8');
@@ -143,7 +239,7 @@ export function findTokenViolations() {
 // moment it lands.
 export function findRadiusViolations() {
     const violations = [];
-    for (const rel of COMPONENT_SHEETS) {
+    for (const rel of expandSheets()) {
         const file = path.join(root, rel);
         if (!fs.existsSync(file)) continue;
         const src = fs.readFileSync(file, 'utf8');
@@ -159,7 +255,11 @@ export function findRadiusViolations() {
             .split(/\r?\n/);
         const rawLines = src.split(/\r?\n/);
         codeLines.forEach((code, i) => {
-            if (RADIUS_RE.test(code)) {
+            // Honors the same audited ALLOW list as findTokenViolations /
+            // findSpacingViolations — previously this scanner ignored it, so a
+            // justified (or explicitly debt-tracked) radius literal had no way
+            // to be exempted short of weakening RADIUS_RE itself.
+            if (RADIUS_RE.test(code) && !isAllowed(rel, rawLines[i])) {
                 violations.push(`${rel}:${i + 1}: ${rawLines[i].trim()}`);
             }
         });
@@ -183,7 +283,7 @@ export function findRadiusViolations() {
 // once the corpus is triaged file-by-file.
 export function findSpacingViolations() {
     const violations = [];
-    for (const rel of COMPONENT_SHEETS) {
+    for (const rel of expandSheets()) {
         const file = path.join(root, rel);
         if (!fs.existsSync(file)) continue;
         const src = fs.readFileSync(file, 'utf8');
@@ -216,6 +316,22 @@ export function findSpacingViolations() {
 // stay un-migrated for now without silently growing. Promote to a hard zero
 // (delete the ratchet, require the ALLOW list instead) once the corpus is
 // triaged down, matching lintRadiusOrThrow's own trajectory.
+//
+// BASELINE JUMPED 362 -> 649 on 2026-07-28. This is NOT 287 new literals: it
+// is 287 literals that were always there and were never being counted. The
+// root app-shell.css is an @import barrel over src/css/app-shell/*.css, so
+// listing 'app-shell.css' in COMPONENT_SHEETS scanned 24 lines of @import
+// statements and zero declarations — all ~5,500 lines of the 21 split sheets
+// were invisible to all three scanners. expandSheets() now follows the import
+// graph (plus a FULL_COVERAGE_DIRS guard for split files the barrel forgot),
+// so 649 is the first honest measurement of the corpus.
+//
+// 649 is a DEBT FIGURE TO DRIVE DOWN, never a budget to spend. The ratchet only
+// enforces "no worse"; every triage pass that migrates declarations onto
+// --space-N should re-run with --write-spacing-baseline so the number falls and
+// the gate tightens behind it. Do not re-freeze upward to make a failing run
+// pass — a rising count means new raw literals landed, which is exactly what
+// this gate exists to catch.
 const SPACING_BASELINE_FILE = path.join(root, 'scripts', 'lint-spacing.baseline.json');
 
 // Report-only counterpart — logs the violation count instead of throwing.
@@ -228,7 +344,7 @@ export function lintSpacingReport() {
             + (violations.length > 20 ? `\n  ...and ${violations.length - 20} more` : ''));
         return;
     }
-    console.log('[lint-spacing] OK — ' + COMPONENT_SHEETS.length + ' component sheets use only the --space-* spacing scale.');
+    console.log('[lint-spacing] OK — ' + expandSheets().length + ' component sheets use only the --space-* spacing scale.');
 }
 
 // Ratchet gate: fails only if the CURRENT violation count exceeds the frozen
@@ -263,7 +379,7 @@ export function lintSpacingOrThrow() {
             + `\n[lint-spacing] Use --space-N tokens for new declarations, or re-run with --write-spacing-baseline if this growth is reviewed/intentional.`;
         throw new Error(msg);
     }
-    console.log('[lint-spacing] PASS — ' + count + ' <= baseline ' + baseline.count + ' (' + COMPONENT_SHEETS.length + ' component sheets).');
+    console.log('[lint-spacing] PASS — ' + count + ' <= baseline ' + baseline.count + ' (' + expandSheets().length + ' component sheets).');
 }
 
 // Throws on violation, mirroring lintTokensOrThrow's shape exactly. Called
@@ -276,7 +392,7 @@ export function lintRadiusOrThrow() {
             + `\n[lint-radius] ${violations.length} violation(s). If a literal is genuinely non-scale (e.g. a one-off outside every rung), add it to the audited ALLOW list in scripts/lint-tokens.mjs.`;
         throw new Error(msg);
     }
-    console.log('[lint-radius] OK — ' + COMPONENT_SHEETS.length + ' component sheets use only the --r-* radius scale.');
+    console.log('[lint-radius] OK — ' + expandSheets().length + ' component sheets use only the --r-* radius scale.');
 }
 
 // Throws on violation; build.mjs calls this so a regression fails the build
@@ -289,7 +405,7 @@ export function lintTokensOrThrow() {
             + `\n[lint-tokens] ${violations.length} violation(s). If a literal is genuinely non-themable, add it to the audited ALLOW list in scripts/lint-tokens.mjs.`;
         throw new Error(msg);
     }
-    console.log('[lint-tokens] OK — ' + COMPONENT_SHEETS.length + ' component sheets are literal-free (all color from tokens).');
+    console.log('[lint-tokens] OK — ' + expandSheets().length + ' component sheets are literal-free (all color from tokens).');
 }
 
 // tokens.json <-> colors_and_type.css / site.yaml sync gate: tokens.json is

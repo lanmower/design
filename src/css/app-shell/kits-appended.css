@@ -199,10 +199,24 @@
   .ds-slide-split { grid-template-columns: 1fr; }
 }
 .ds-slide-split-cell {
-  padding: 18px; background: var(--bg-2); border-radius: var(--r-2);
+  padding: var(--space-3-5); background: var(--bg-2); border-radius: var(--r-2);
   color: var(--fg-2); font-size: var(--fs-lg); line-height: var(--lh-base); min-width: 0;
 }
-.ds-slide-split-cell--accent { border-left: 3px solid var(--slide-accent, var(--accent)); }
+/* DELIBERATE accent spine — this modifier's only job is to mark the emphasized
+   half of a split slide (see ui_kits/slide_deck/app.js), so the rule is the
+   whole component, not decoration on a card. Routed through the house
+   .panel-spine idiom (::before rail at --bw-chunk, squared leading corners)
+   instead of an off-scale 3px border-left. */
+.ds-slide-split-cell--accent {
+  position: relative;
+  padding-left: calc(var(--space-3-5) + var(--bw-chunk));
+  border-radius: 0 var(--r-2) var(--r-2) 0;
+}
+.ds-slide-split-cell--accent::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: var(--bw-chunk); background: var(--slide-accent, var(--accent));
+  border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
+}
 
 /* --- error 404 --------------------------------------------- */
 .ds-err-hero {
@@ -248,7 +262,7 @@
   display: flex; align-items: center; justify-content: center;
   padding: clamp(12px, 4vw, 32px);
   padding-bottom: max(clamp(12px, 4vw, 32px), env(safe-area-inset-bottom));
-  z-index: 50;
+  z-index: var(--z-modal);
 }
 .ds-lightbox-card {
   background: var(--panel-0); border-radius: var(--r-2); padding: clamp(16px, 4vw, 28px);
@@ -403,7 +417,7 @@
    otherwise it reads as one more field rather than as the action for all of
    them. Spacing is density-scaled like the rest of the surface. */
 .ds-savebar {
-  position: sticky; bottom: var(--space-2); z-index: 2;
+  position: sticky; bottom: var(--space-2); z-index: var(--z-sticky);
   display: flex; align-items: center;
   justify-content: flex-end; gap: var(--space-2); flex-wrap: wrap;
   padding: calc(var(--space-2-75) * var(--density)) calc(var(--space-3) * var(--density));
@@ -557,7 +571,7 @@
 }
 .ds-sheet-preview-table thead th {
   position: sticky; top: 0; background: var(--bg-2); color: var(--fg-3);
-  font-weight: 600; z-index: 1;
+  font-weight: 600; z-index: var(--z-sticky);
 }
 .ds-sheet-preview-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .ds-sheet-preview-empty { padding: var(--space-3, 16px); color: var(--fg-3); }

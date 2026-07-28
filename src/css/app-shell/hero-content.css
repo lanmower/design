@@ -100,7 +100,7 @@
    ============================================================ */
 .ds-grain { position: relative; isolation: isolate; }
 .ds-grain::after {
-  content: ''; position: absolute; inset: 0; z-index: -1;
+  content: ''; position: absolute; inset: 0; z-index: var(--z-below);
   pointer-events: none;
   background-image: var(--grain);
   background-size: 160px 160px;

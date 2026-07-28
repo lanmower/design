@@ -247,8 +247,61 @@
      edges (panel spine, expo numbering). A literal length, not a color. */
   --ink-offset:  3px;
 
-  --z-header:    100;
-  --z-overlay:   1000;
+  /* ============================================================
+     Stacking scale — the ONE ordered set of layers anything may
+     paint into. Rungs are 100 apart so a future layer can be
+     inserted between two neighbours without renumbering the rest,
+     and so a component may locally offset (+1/+2) within its own
+     rung without colliding with the next one.
+
+     Order is the contract; the numbers are just how it is spelled.
+     Read top to bottom as "what paints over what":
+
+       --z-below     -1   decorative texture UNDER its own content
+                          (.ds-grain/.ds-halftone print layer)
+       --z-base       0   in-flow content; the default plane
+       --z-raised     100 a thing lifted above its siblings inside
+                          one component (code-lang tab, timeline dot,
+                          selection checkbox, resize handle)
+       --z-sticky     200 sticky-within-a-scroller chrome: section
+                          labels, sticky table headers, save bars.
+                          Above raised content it scrolls past.
+       --z-header     300 the app's own sticky chrome band
+                          (.app-topbar/.app-chrome)
+       --z-drawer     400 off-canvas panels (sidebar/pane/session
+                          drawers) and their scrim, which must cover
+                          the header they slide over
+       --z-window     500 free-floating window-manager surfaces —
+                          the OS kit's .wm-root canvas of draggable
+                          windows. Above the shell, below all
+                          transient popups.
+       --z-dock       600 persistent OS shell furniture that must
+                          stay above windows: launcher dock, menubar,
+                          taskbar, os-root
+       --z-dropdown   700 menus/popovers anchored to a trigger; they
+                          must escape the dock that spawned them
+       --z-modal      800 blocking dialogs, lightboxes, command
+                          palettes and their backdrops
+       --z-toast      900 transient notifications — above a modal,
+                          because they report on what the modal did
+       --z-tooltip   1000 pointer-following hint; never blocked
+       --z-top       1100 last resort: boot/loading veils and
+                          full-screen takeovers that outrank
+                          everything, including a tooltip
+     ============================================================ */
+  --z-below:      -1;
+  --z-base:        0;
+  --z-raised:    100;
+  --z-sticky:    200;
+  --z-header:    300;
+  --z-drawer:    400;
+  --z-window:    500;
+  --z-dock:      600;
+  --z-dropdown:  700;
+  --z-modal:     800;
+  --z-toast:     900;
+  --z-tooltip:  1000;
+  --z-top:      1100;
 
   --measure:     68ch;
   --measure-wide:   940px;
@@ -591,11 +644,10 @@
      scrim; heavier than --shadow-3 and theme-driven (was raw rgba(0,0,0,.4)). */
   --shadow-overlay: 0 12px 40px color-mix(in oklab, var(--fg) 28%, transparent),
                     0 4px 12px  color-mix(in oklab, var(--fg) 16%, transparent);
-  --z-dropdown:  600;
-  --z-popover:   700;
-  --z-modal:     800;
-  --z-toast:     900;
-  --z-tooltip:  1000;
+  /* --z-popover is an alias, not a rung: popovers and dropdowns are the
+     same anchored-to-a-trigger layer and must never be able to drift
+     apart. The rungs themselves live with the stacking scale above. */
+  --z-popover:   var(--z-dropdown);
 }
 
 /* app-shell.css */
@@ -624,7 +676,10 @@
   color: var(--accent-fg);
   padding: 8px 16px;
   text-decoration: none;
-  z-index: 100;
+  /* Must outrank every layer of chrome once focused, or the first Tab press
+     lands on a control hidden behind the sticky header (was z-index:100,
+     which the header alone now matches). */
+  z-index: var(--z-top);
   border-radius: var(--r-pill);
   font-weight: 600;
   font-size: var(--fs-sm);
@@ -1575,7 +1630,7 @@
    ============================================================ */
 .ds-247420 .ds-grain { position: relative; isolation: isolate; }
 .ds-247420 .ds-grain::after {
-  content: ''; position: absolute; inset: 0; z-index: -1;
+  content: ''; position: absolute; inset: 0; z-index: var(--z-below);
   pointer-events: none;
   background-image: var(--grain);
   background-size: 160px 160px;
@@ -2459,7 +2514,7 @@
 }
 .ds-247420 .ds-file-cell-meta { font-family: var(--ff-mono); font-size: var(--fs-micro); color: var(--fg-3); text-align: left; }
 .ds-247420 .ds-file-cell-check {
-  position: absolute; top: 4px; left: 4px; z-index: 1;
+  position: absolute; top: 4px; left: 4px; z-index: var(--z-raised);
   background: color-mix(in oklab, var(--bg) 78%, transparent);
 }
 
@@ -2605,7 +2660,7 @@
 .ds-247420 .ds-dropzone--wrap { position: relative; border: none; border-radius: 0; background: transparent; }
 .ds-247420 .ds-dropzone--wrap > .ds-dropzone-inner { display: none; }
 .ds-247420 .ds-dropzone--wrap.dragover > .ds-dropzone-inner {
-  display: flex; position: absolute; inset: 0; z-index: 5;
+  display: flex; position: absolute; inset: 0; z-index: var(--z-raised);
   margin: 0; padding: var(--space-3);
   align-items: center; justify-content: center;
   background: color-mix(in srgb, var(--bg) 84%, transparent);
@@ -2697,7 +2752,7 @@
 
 /* -- Modals ------------------------------------------------- */
 .ds-247420 .ds-modal-backdrop {
-  position: fixed; inset: 0; z-index: var(--z-modal, 800);
+  position: fixed; inset: 0; z-index: var(--z-modal);
   display: flex; align-items: center; justify-content: center;
   /* Notch/home-indicator safe: near-fullscreen modals must not slide under. */
   padding: max(var(--space-3), env(safe-area-inset-top))
@@ -3158,7 +3213,12 @@
 .ds-247420 .chat-bubble.chat-md li { margin: var(--space-1) 0; }
 .ds-247420 .chat-bubble.chat-md blockquote {
   margin: var(--space-2) 0; padding: 4px 12px;
-  border-left: 3px solid color-mix(in oklab, currentColor 30%, transparent);
+  /* DELIBERATE, but slimmed to the --bw-rule tier. This is a real markdown
+     <blockquote> inside a chat bubble: the left rule is the standard
+     typographic quotation mark, not a colored alert stripe (the tone is a
+     currentColor mix that inherits the bubble's own ink — never an accent).
+     A 3px off-scale literal read as the generic tell; 2px reads as type. */
+  border-left: var(--bw-rule) solid color-mix(in oklab, currentColor 30%, transparent);
   color: color-mix(in oklab, currentColor 75%, transparent); font-style: italic;
 }
 .ds-247420 .chat-bubble.chat-md pre {
@@ -3734,7 +3794,12 @@
   min-height: 120px;
   display: flex; align-items: center; justify-content: center;
   text-align: center; color: var(--fg-3);
-  transition: all var(--dur-snap) var(--ease);
+  /* Explicit list, never `all` — the only things `.drop-zone.active` changes
+     are the dashed border tone, the tinted fill and the label colour. `all`
+     also animated padding/min-height/border-width, so a drop target visibly
+     resized mid-drag instead of snapping. */
+  transition: background var(--dur-snap) var(--ease), border-color var(--dur-snap) var(--ease),
+    color var(--dur-snap) var(--ease);
 }
 .ds-247420 .drop-zone.active {
   border-color: var(--accent);
@@ -3774,7 +3839,7 @@
   border-radius: var(--r-2);
   box-shadow: var(--shadow-overlay);
   min-width: 160px;
-  z-index: calc(var(--z-overlay, 1000) + 1);
+  z-index: var(--z-dropdown);
   padding: 4px 0;
 }
 
@@ -4153,7 +4218,7 @@
   position: absolute; top: -40px; left: 0;
   background: var(--fg); color: var(--bg);
   padding: 8px 16px; border-radius: var(--r-1);
-  text-decoration: none; z-index: var(--z-overlay, 1000);
+  text-decoration: none; z-index: var(--z-top);
 }
 .ds-247420 .skip-to-main:focus { top: 10px; }
 
@@ -4273,7 +4338,7 @@
   padding: var(--space-3) var(--space-4);
   max-width: 320px;
   box-shadow: var(--shadow-overlay);
-  z-index: calc(var(--z-overlay, 1000) + 10);
+  z-index: var(--z-toast);
 }
 
 @keyframes toast-slide-in {
@@ -4447,8 +4512,9 @@
     width: 280px; max-width: 80%;
     transform: translateX(-100%);
     transition: transform var(--dur-base, 240ms) var(--ease, ease);
-    /* Above the sticky chrome (z-header): scrim > chrome > content budget. */
-    z-index: calc(var(--z-header, 100) + 2);
+    /* Drawer rung, above the sticky chrome it slides over. +1 puts the panel
+       itself over its own scrim (--z-drawer), which is the layer below it. */
+    z-index: calc(var(--z-drawer) + 1);
     background: var(--bg);
     border-right: 1px solid color-mix(in oklab, var(--fg) 8%, transparent);
     overflow-y: auto;
@@ -4489,8 +4555,9 @@
   display: none;
   position: absolute; inset: 0;
   background: color-mix(in oklab, var(--bg) 60%, transparent);
-  /* Above the sticky chrome so nav behind an open drawer is not clickable. */
-  z-index: calc(var(--z-header, 100) + 1);
+  /* Above the sticky chrome so nav behind an open drawer is not clickable.
+     Base of the drawer rung — the panel itself sits one above this. */
+  z-index: var(--z-drawer);
 }
 @container (max-width: 900px) {
   .ds-247420 .app-body.side-open .app-side-scrim { display: block; }
@@ -4502,9 +4569,10 @@
 .ds-247420 .app-side-toggle {
   display: none;
   position: absolute; top: calc((var(--app-topbar-h) - 44px) / 2); left: 10px;
-  /* Above the sticky topbar/chrome (z-header) and the drawer/scrim so the
-     translucent blurred chrome never paints over or intercepts the toggle. */
-  z-index: calc(var(--z-header, 100) + 3);
+  /* Above the sticky topbar/chrome and the drawer/scrim so the translucent
+     blurred chrome never paints over or intercepts the toggle. Top of the
+     drawer rung: scrim < panel < toggle. */
+  z-index: calc(var(--z-drawer) + 2);
   /* 44x44 minimum hit area (WCAG 2.5.5 / Apple HIG) - 36px is below the
      reliable-tap threshold on touch. */
   width: 44px; height: 44px;
@@ -4606,7 +4674,7 @@
 /* Column resize handles: a thin keyboard-accessible separator pinned to the
    right edge of each chrome track; drag (or ArrowLeft/Right) writes a clamped
    inline --ws-*-w. */
-.ds-247420 .ws-resizer { grid-row: 1 / -1; align-self: stretch; justify-self: end; width: 8px; margin-right: -4px; z-index: 5; cursor: col-resize; background: transparent; border: none; padding: 0; touch-action: none; }
+.ds-247420 .ws-resizer { grid-row: 1 / -1; align-self: stretch; justify-self: end; width: 8px; margin-right: -4px; z-index: var(--z-raised); cursor: col-resize; background: transparent; border: none; padding: 0; touch-action: none; }
 .ds-247420 .ws-resizer::after { content: ""; display: block; width: 2px; height: 100%; margin: 0 auto; background: transparent; transition: background var(--dur-snap) var(--ease); }
 .ds-247420 .ws-resizer:hover::after, .ds-247420 .ws-resizer:focus-visible::after { background: var(--accent); }
 .ds-247420 .ws-resizer:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
@@ -4795,7 +4863,7 @@
   .ds-247420 .ws-pane {
     position: fixed; inset: 0 0 0 auto;
     width: min(340px, 85vw);
-    z-index: 42; transform: translateX(110%);
+    z-index: calc(var(--z-drawer) + 1); transform: translateX(110%);
     transition: transform var(--dur-base) var(--ease);
   }
   .ds-247420 .ws-shell.ws-pane-open .ws-pane { transform: translateX(0); width: min(340px, 85vw); }
@@ -4804,7 +4872,7 @@
   .ds-247420 .ws-pane-drawer-toggle { display: inline-flex; }
   /* Scrim is always present from this stage down so it FADES with the drawer
      instead of hard-appearing; pointer-events gate keeps it inert while closed. */
-  .ds-247420 .ws-scrim { display: block; opacity: 0; pointer-events: none; position: fixed; inset: 0; z-index: 41; background: color-mix(in srgb, var(--fg) 38%, transparent); transition: opacity var(--dur-base) var(--ease); }
+  .ds-247420 .ws-scrim { display: block; opacity: 0; pointer-events: none; position: fixed; inset: 0; z-index: var(--z-drawer); background: color-mix(in srgb, var(--fg) 38%, transparent); transition: opacity var(--dur-base) var(--ease); }
   .ds-247420 .ws-shell.ws-sessions-open .ws-scrim, .ds-247420 .ws-shell.ws-pane-open .ws-scrim { opacity: 1; pointer-events: auto; }
 }
 
@@ -4826,7 +4894,7 @@
     /* Immune to the desktop collapse var (--ws-sessions-w:0px persisted from
        a desktop session would open an invisible 0-width drawer). */
     width: min(max(var(--ws-sessions-w), 280px), 80vw);
-    z-index: 42; transform: translateX(-110%);
+    z-index: calc(var(--z-drawer) + 1); transform: translateX(-110%);
     transition: transform var(--dur-base) var(--ease);
     border-right: var(--bw-hair) solid var(--bg-3);
     overscroll-behavior: contain;
@@ -4853,7 +4921,9 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: "content";
   }
-  .ds-247420 .ws-rail { position: fixed; inset: 0 auto 0 0; width: var(--ws-rail-w-collapsed); z-index: 40; }
+  /* Persistent chrome, not a drawer: it stays put while the session/pane
+     drawers slide over it, so it sits on the header rung below them. */
+  .ds-247420 .ws-rail { position: fixed; inset: 0 auto 0 0; width: var(--ws-rail-w-collapsed); z-index: var(--z-header); }
   .ds-247420 .ws-rail .ws-rail-brand,
   .ds-247420 .ws-rail .ws-rail-action-label,
   .ds-247420 .ws-rail .ws-rail-item-label,
@@ -5338,10 +5408,24 @@
   .ds-247420 .ds-slide-split { grid-template-columns: 1fr; }
 }
 .ds-247420 .ds-slide-split-cell {
-  padding: 18px; background: var(--bg-2); border-radius: var(--r-2);
+  padding: var(--space-3-5); background: var(--bg-2); border-radius: var(--r-2);
   color: var(--fg-2); font-size: var(--fs-lg); line-height: var(--lh-base); min-width: 0;
 }
-.ds-247420 .ds-slide-split-cell--accent { border-left: 3px solid var(--slide-accent, var(--accent)); }
+/* DELIBERATE accent spine — this modifier's only job is to mark the emphasized
+   half of a split slide (see ui_kits/slide_deck/app.js), so the rule is the
+   whole component, not decoration on a card. Routed through the house
+   .panel-spine idiom (::before rail at --bw-chunk, squared leading corners)
+   instead of an off-scale 3px border-left. */
+.ds-247420 .ds-slide-split-cell--accent {
+  position: relative;
+  padding-left: calc(var(--space-3-5) + var(--bw-chunk));
+  border-radius: 0 var(--r-2) var(--r-2) 0;
+}
+.ds-247420 .ds-slide-split-cell--accent::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: var(--bw-chunk); background: var(--slide-accent, var(--accent));
+  border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
+}
 
 /* --- error 404 --------------------------------------------- */
 .ds-247420 .ds-err-hero {
@@ -5387,7 +5471,7 @@
   display: flex; align-items: center; justify-content: center;
   padding: clamp(12px, 4vw, 32px);
   padding-bottom: max(clamp(12px, 4vw, 32px), env(safe-area-inset-bottom));
-  z-index: 50;
+  z-index: var(--z-modal);
 }
 .ds-247420 .ds-lightbox-card {
   background: var(--panel-0); border-radius: var(--r-2); padding: clamp(16px, 4vw, 28px);
@@ -5542,7 +5626,7 @@
    otherwise it reads as one more field rather than as the action for all of
    them. Spacing is density-scaled like the rest of the surface. */
 .ds-247420 .ds-savebar {
-  position: sticky; bottom: var(--space-2); z-index: 2;
+  position: sticky; bottom: var(--space-2); z-index: var(--z-sticky);
   display: flex; align-items: center;
   justify-content: flex-end; gap: var(--space-2); flex-wrap: wrap;
   padding: calc(var(--space-2-75) * var(--density)) calc(var(--space-3) * var(--density));
@@ -5696,7 +5780,7 @@
 }
 .ds-247420 .ds-sheet-preview-table thead th {
   position: sticky; top: 0; background: var(--bg-2); color: var(--fg-3);
-  font-weight: 600; z-index: 1;
+  font-weight: 600; z-index: var(--z-sticky);
 }
 .ds-247420 .ds-sheet-preview-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .ds-247420 .ds-sheet-preview-empty { padding: var(--space-3, 16px); color: var(--fg-3); }
@@ -5824,7 +5908,7 @@
    ============================================================ */
 
 .ds-247420 .ds-plugins-overlay {
-  position: fixed; inset: 0; z-index: var(--z-modal, 1000);
+  position: fixed; inset: 0; z-index: var(--z-modal);
   background: color-mix(in oklab, var(--ink) 35%, transparent);
   display: flex; align-items: center; justify-content: center;
   padding: var(--space-3);
@@ -7035,7 +7119,7 @@
 @media (max-width: 900px) {
   .ds-247420 .cm-channel-sidebar {
     position: absolute;
-    z-index: 20;
+    z-index: calc(var(--z-drawer) + 1);
     top: 0;
     left: 72px;
     bottom: 0;
@@ -7048,7 +7132,7 @@
   .ds-247420 .cm-member-list.open {
     display: flex;
     position: absolute;
-    z-index: 20;
+    z-index: calc(var(--z-drawer) + 1);
     top: 0;
     right: 0;
     bottom: 0;
@@ -7068,7 +7152,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    z-index: 15;
+    z-index: var(--z-drawer);
     background: color-mix(in oklab, var(--ink) 40%, transparent);
     pointer-events: none;
   }
@@ -7230,7 +7314,12 @@
   gap: var(--space-2);
   padding: var(--space-1) var(--space-2);
   background: var(--bg-2);
-  border-left: 3px solid var(--accent);
+  /* Hairline, not a 3px accent bar. This is a transient status strip pinned
+     above the composer (role=status, "Replying to <author>"), not a card or a
+     callout — the tinted fill already carries the attachment. A chunky left
+     bar here was the generic accent-stripe tell; the real accent still lands
+     on .cm-rb-author. */
+  border-left: var(--bw-hair) solid var(--rule-strong);
   font-size: 0.85rem;
 }
 .ds-247420 .cm-rb-label { flex: none; color: var(--fg-2); }
@@ -7619,7 +7708,7 @@
 @media (max-width: 900px) {
   .ds-247420 .cm-thread-panel {
     position: absolute;
-    z-index: 20;
+    z-index: calc(var(--z-drawer) + 1);
     top: 0; right: 0; bottom: 0;
     height: auto;
     width: min(320px, 90vw);
@@ -7945,7 +8034,7 @@
 
 /* Jump-to-latest: hidden until the thread scroll listener adds .show. */
 .ds-247420 .agentchat-jump {
-  position: absolute; right: 16px; bottom: 12px; z-index: 3;
+  position: absolute; right: 16px; bottom: 12px; z-index: var(--z-raised);
   display: none; align-items: center; gap: .35em;
   padding: .4em .8em; font: inherit; font-size: var(--fs-tiny); cursor: pointer;
   border-radius: var(--r-pill); border: var(--bw-hair) solid var(--rule);
@@ -8216,7 +8305,7 @@
    label sticks to the top of the scroll area for Claude-Desktop-style headers. */
 .ds-247420 .ds-session-group { display: flex; flex-direction: column; }
 .ds-247420 .ds-session-group-rows { display: flex; flex-direction: column; gap: 2px; }
-.ds-247420 .ds-session-group-label { position: sticky; top: 0; z-index: 1; background: var(--bg-1, var(--bg)); font-size: var(--fs-tiny); font-weight: 600; color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-label); padding: var(--space-2) var(--space-2) var(--space-1); }
+.ds-247420 .ds-session-group-label { position: sticky; top: 0; z-index: var(--z-sticky); background: var(--bg-1, var(--bg)); font-size: var(--fs-tiny); font-weight: 600; color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-label); padding: var(--space-2) var(--space-2) var(--space-1); }
 .ds-247420 .ds-session-row {
   position: relative; display: flex; align-items: center; gap: var(--space-2);
   width: 100%; padding: var(--space-2); min-height: 52px; margin-bottom: 2px;
@@ -8850,7 +8939,7 @@
    structured CodeNode). injectCodeCopy reads the language- class. */
 .ds-247420 .chat-code-block { position: relative; }
 .ds-247420 .chat-code-lang {
-  position: absolute; top: 0; left: 0; z-index: 2;
+  position: absolute; top: 0; left: 0; z-index: var(--z-raised);
   padding: 2px var(--space-2); border-bottom-right-radius: var(--r-1);
   font-family: var(--ff-mono); font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: var(--tr-caps);
   color: var(--fg-3); background: color-mix(in oklab, var(--fg) 6%, transparent);
@@ -9025,7 +9114,10 @@
   border-top: var(--bw-hair) solid var(--rule);
   border-bottom: var(--bw-hair) solid var(--rule);
   pointer-events: none;
-  z-index: 1;
+  /* Minimap internal order: centerline < viewport < dot < tooltip. All four
+     live inside the one raised widget, so they share its rung and differ
+     only by a local offset. */
+  z-index: calc(var(--z-raised) + 1);
 }
 .ds-247420 .chat-minimap-centerline {
   position: absolute;
@@ -9035,7 +9127,7 @@
   width: 1px;
   background: var(--rule);
   transform: translateX(-50%);
-  z-index: 0;
+  z-index: var(--z-raised);
 }
 .ds-247420 .chat-minimap-dot {
   position: absolute;
@@ -9045,7 +9137,7 @@
   border-radius: var(--r-pill, 999px);
   transform: translate(-50%, -50%) scale(1);
   transition: transform 0.1s;
-  z-index: 2;
+  z-index: calc(var(--z-raised) + 2);
 }
 .ds-247420 .chat-minimap-dot.is-user {
   background: color-mix(in oklab, var(--accent) 18%, transparent);
@@ -9067,7 +9159,10 @@
   border-left: 2px solid var(--fg-3);
   border-radius: var(--r-1);
   padding: calc(var(--space-1) / 2) var(--space-2);
-  z-index: 100;
+  /* Top of the minimap's internal order. Deliberately NOT --z-tooltip: it is
+     clipped to the minimap rail rather than floating over the app, so it must
+     not outrank real overlays that may cover the rail. */
+  z-index: calc(var(--z-raised) + 3);
   pointer-events: none;
   opacity: 0.45;
   font-size: var(--fs-tiny);
@@ -9646,7 +9741,7 @@
 /* Copy affordance (copyable:true) — floats over the viewer's top-right. */
 .ds-247420 .ds-ep-json-wrap { position: relative; }
 .ds-247420 .ds-ep-json-copy {
-    position: absolute; top: var(--space-1-75, 6px); right: var(--space-1-75, 6px); z-index: 1;
+    position: absolute; top: var(--space-1-75, 6px); right: var(--space-1-75, 6px); z-index: var(--z-raised);
     appearance: none; cursor: pointer;
     background: var(--panel-1, var(--bg-1));
     border: 1px solid var(--rule);
@@ -9763,7 +9858,7 @@
    ContextMenu
    --------------------------------------------------------------- */
 .ds-247420 .ds-ep-ctxmenu-backdrop {
-    position: fixed; inset: 0; z-index: 9000;
+    position: fixed; inset: 0; z-index: var(--z-dropdown);
 }
 .ds-247420 .ds-ep-ctxmenu {
     position: absolute;
@@ -9803,7 +9898,7 @@
    Drawer
    --------------------------------------------------------------- */
 .ds-247420 .ds-ep-drawer-backdrop {
-    position: fixed; inset: 0; z-index: 8500;
+    position: fixed; inset: 0; z-index: var(--z-drawer);
     background: var(--scrim);
 }
 .ds-247420 .ds-ep-drawer {
@@ -9830,7 +9925,7 @@
    Dialog
    --------------------------------------------------------------- */
 .ds-247420 .ds-ep-dialog-backdrop {
-    position: fixed; inset: 0; z-index: 9500;
+    position: fixed; inset: 0; z-index: var(--z-modal);
     background: var(--scrim-strong);
     display: flex; align-items: center; justify-content: center;
     padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
@@ -9883,7 +9978,7 @@
     position: fixed;
     top: max(16px, env(safe-area-inset-top));
     right: max(16px, env(safe-area-inset-right));
-    z-index: 9800;
+    z-index: var(--z-toast);
     display: flex; flex-direction: column; gap: 8px;
     pointer-events: none;
 }
@@ -9892,7 +9987,13 @@
     background: var(--panel-1, var(--panel-bg));
     color: var(--panel-text, var(--fg-text));
     border: 1px solid var(--rule);
-    border-left: 3px solid var(--accent);
+    /* DELIBERATE accent spine (same intent as .panel-spine, expressed as a
+       border because a toast has no free ::before — the host stacks them and
+       .has-action reflows the box). Load-bearing, not decoration: this edge is
+       the ONLY channel carrying toast severity — .kind-success/.kind-warn/
+       .kind-error below recolour border-left-color and nothing else. Do not
+       demote to a hairline; that would erase the status signal. */
+    border-left: var(--bw-chunk) solid var(--accent);
     border-radius: var(--r-1, 6px);
     padding: var(--space-2) var(--space-2-75);
     box-shadow: var(--shadow-3);
@@ -10111,7 +10212,7 @@
 .ds-247420 .ds-tooltip {
     position: fixed;
     left: 0; top: 0;
-    z-index: 9700;
+    z-index: var(--z-tooltip);
     background: var(--panel-1, var(--panel-bg));
     color: var(--panel-text, var(--fg-text));
     border: 1px solid var(--rule);
@@ -10134,7 +10235,7 @@
 .ds-247420 .ds-popover {
     position: fixed;
     left: 0; top: 0;
-    z-index: 9600;
+    z-index: var(--z-dropdown);
     background: var(--panel-1, var(--panel-bg));
     color: var(--panel-text, var(--fg-text));
     border: 1px solid var(--rule);
@@ -10345,7 +10446,7 @@
    --------------------------------------------------------------- */
 .ds-247420 .ov-cmd-backdrop {
     position: fixed; inset: 0;
-    z-index: var(--z-overlay, 1000);
+    z-index: var(--z-modal);
     background: color-mix(in oklab, var(--fg) 32%, transparent);
     display: flex; align-items: flex-start; justify-content: center;
     padding: 12vh var(--space-3, 16px) var(--space-3, 16px);
@@ -10400,7 +10501,8 @@
    --------------------------------------------------------------- */
 .ds-247420 .ov-emoji-root {
     position: fixed; left: 0; top: 0;
-    z-index: var(--z-overlay, 1000);
+    /* Anchored to a trigger, not a blocking surface — dropdown rung. */
+    z-index: var(--z-dropdown);
     width: 280px;
     display: flex; flex-direction: column;
     background: var(--bg-2); color: var(--fg);
@@ -10438,7 +10540,7 @@
    --------------------------------------------------------------- */
 .ds-247420 .ov-boot {
     position: fixed; inset: 0;
-    z-index: calc(var(--z-overlay, 1000) + 100);
+    z-index: var(--z-top);
     background: var(--bg);
     display: flex; align-items: center; justify-content: center;
     color: var(--fg);
@@ -10481,7 +10583,8 @@
    --------------------------------------------------------------- */
 .ds-247420 .ov-set-root {
     position: fixed; left: 0; top: 0;
-    z-index: var(--z-overlay, 1000);
+    /* Anchored to a trigger, not a blocking surface — dropdown rung. */
+    z-index: var(--z-dropdown);
     width: 300px; max-height: 70vh;
     display: flex; flex-direction: column;
     background: var(--bg-2); color: var(--fg);
@@ -10530,7 +10633,7 @@
 
 /* AuthModal — ov-auth-* */
 .ds-247420 .ov-auth-backdrop {
-    position: fixed; inset: 0; z-index: var(--z-overlay, 1000);
+    position: fixed; inset: 0; z-index: var(--z-modal);
     display: flex; align-items: center; justify-content: center;
     background: var(--scrim-strong);
 }
@@ -10559,7 +10662,7 @@
 
 /* VideoLightbox — ov-lightbox-* */
 .ds-247420 .ov-lightbox-backdrop {
-    position: fixed; inset: 0; z-index: var(--z-overlay-top, 1100);
+    position: fixed; inset: 0; z-index: var(--z-modal);
     display: flex; align-items: center; justify-content: center;
     background: var(--scrim-media);
 }
@@ -11006,7 +11109,7 @@
 @media (max-width: 900px) {
   .ds-247420.ds-247420 .ca-rail {
     position: absolute;
-    z-index: 20;
+    z-index: calc(var(--z-drawer) + 1);
     top: 0; left: 0; bottom: 0;
     width: 240px; min-width: 240px;
     transform: translateX(-110%);
@@ -11021,7 +11124,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    z-index: 15;
+    z-index: var(--z-drawer);
     background: color-mix(in oklab, var(--ink, #000) 40%, transparent);
     pointer-events: none;
   }
@@ -11504,12 +11607,24 @@
   border-radius: var(--r-hair);
   font-family: var(--ff-mono);
 }
+/* Attributed callout — an editorial pull-quote (it carries a .who byline), so
+   the left accent is DELIBERATE, not the generic alert stripe. Expressed via
+   the house .panel-spine idiom (absolute ::before rail at --bw-chunk, squared
+   leading corners) instead of a raw 3px border-left, so it stays on the border
+   scale and matches the spine primitive in panel-row.css. */
 .ds-247420 .ds-prose .gm-callout {
+  position: relative;
   margin: 18px 0;
-  padding: 14px 18px;
+  padding: var(--space-2-75) var(--space-3-5);
+  padding-left: calc(var(--space-3-5) + var(--bw-chunk));
   background: var(--panel-1);
-  border-left: 3px solid var(--panel-accent);
+  border-radius: 0 var(--r-1) var(--r-1) 0;
   color: var(--panel-text);
+}
+.ds-247420 .ds-prose .gm-callout::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: var(--bw-chunk); background: var(--panel-accent);
+  border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
 }
 .ds-247420 .ds-prose .gm-callout .who {
   display: block;
@@ -11560,7 +11675,7 @@
 .ds-247420 .sp-loading {
   position: fixed;
   inset: 0;
-  z-index: 10000;
+  z-index: var(--z-top);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11691,7 +11806,7 @@
 .ds-247420 .sp-lobby {
   position: fixed;
   inset: 0;
-  z-index: 9500;
+  z-index: var(--z-modal);
   display: flex;
   align-items: center;
   justify-content: center;

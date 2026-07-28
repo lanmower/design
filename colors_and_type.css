@@ -245,8 +245,61 @@
      edges (panel spine, expo numbering). A literal length, not a color. */
   --ink-offset:  3px;
 
-  --z-header:    100;
-  --z-overlay:   1000;
+  /* ============================================================
+     Stacking scale — the ONE ordered set of layers anything may
+     paint into. Rungs are 100 apart so a future layer can be
+     inserted between two neighbours without renumbering the rest,
+     and so a component may locally offset (+1/+2) within its own
+     rung without colliding with the next one.
+
+     Order is the contract; the numbers are just how it is spelled.
+     Read top to bottom as "what paints over what":
+
+       --z-below     -1   decorative texture UNDER its own content
+                          (.ds-grain/.ds-halftone print layer)
+       --z-base       0   in-flow content; the default plane
+       --z-raised     100 a thing lifted above its siblings inside
+                          one component (code-lang tab, timeline dot,
+                          selection checkbox, resize handle)
+       --z-sticky     200 sticky-within-a-scroller chrome: section
+                          labels, sticky table headers, save bars.
+                          Above raised content it scrolls past.
+       --z-header     300 the app's own sticky chrome band
+                          (.app-topbar/.app-chrome)
+       --z-drawer     400 off-canvas panels (sidebar/pane/session
+                          drawers) and their scrim, which must cover
+                          the header they slide over
+       --z-window     500 free-floating window-manager surfaces —
+                          the OS kit's .wm-root canvas of draggable
+                          windows. Above the shell, below all
+                          transient popups.
+       --z-dock       600 persistent OS shell furniture that must
+                          stay above windows: launcher dock, menubar,
+                          taskbar, os-root
+       --z-dropdown   700 menus/popovers anchored to a trigger; they
+                          must escape the dock that spawned them
+       --z-modal      800 blocking dialogs, lightboxes, command
+                          palettes and their backdrops
+       --z-toast      900 transient notifications — above a modal,
+                          because they report on what the modal did
+       --z-tooltip   1000 pointer-following hint; never blocked
+       --z-top       1100 last resort: boot/loading veils and
+                          full-screen takeovers that outrank
+                          everything, including a tooltip
+     ============================================================ */
+  --z-below:      -1;
+  --z-base:        0;
+  --z-raised:    100;
+  --z-sticky:    200;
+  --z-header:    300;
+  --z-drawer:    400;
+  --z-window:    500;
+  --z-dock:      600;
+  --z-dropdown:  700;
+  --z-modal:     800;
+  --z-toast:     900;
+  --z-tooltip:  1000;
+  --z-top:      1100;
 
   --measure:     68ch;
   --measure-wide:   940px;
@@ -589,9 +642,8 @@ select:focus-visible {
      scrim; heavier than --shadow-3 and theme-driven (was raw rgba(0,0,0,.4)). */
   --shadow-overlay: 0 12px 40px color-mix(in oklab, var(--fg) 28%, transparent),
                     0 4px 12px  color-mix(in oklab, var(--fg) 16%, transparent);
-  --z-dropdown:  600;
-  --z-popover:   700;
-  --z-modal:     800;
-  --z-toast:     900;
-  --z-tooltip:  1000;
+  /* --z-popover is an alias, not a rung: popovers and dropdowns are the
+     same anchored-to-a-trigger layer and must never be able to drift
+     apart. The rungs themselves live with the stacking scale above. */
+  --z-popover:   var(--z-dropdown);
 }
