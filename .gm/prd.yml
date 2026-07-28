@@ -2035,11 +2035,6 @@
   subject: src/kits/os/theme.css holds 229 raw spacing, 70 raw font-size, 128 !important, 15 z-index, 7 pure black/white - the single worst-debt file in the repo
   witness: 'exec_js-15 and exec_js-16 scans both rank it #1 in every category'
   status: pending
-- id: pager-current-contrast-bug
-  subject: ds-ep-pager-num.is-current sets color:var(--accent-ink) on background:var(--accent); AGENTS.md says dark theme makes accent-ink the bright lime itself
-  witness: 'Audited every color: declaration across all 24 nested sheets live (604 checked) for the documented --accent-vs---accent-ink rule. Found 4 bare-accent-as-text sites, of which 2 were real defects (.ds-ep-tab.active, .ds-ep-tree-item.selected > .ds-ep-tree-row) and 2 were correct (the sidebar count chip sits on an --accent-fg ink background so bare --accent is the inverted high-contrast pair; .ds-ep-json-k uses var(--sky, var(--accent)) and --sky is defined in all three themes so the fallback is unreachable). Measured the actual cost: bare --accent as text is 1.07:1 against --bg in light and 1.03:1 against --bg-2, versus 8.85:1 for --accent-ink. Both resolve identically at 15.88:1 in dark, which is why the bug hides until the light theme is opened. Fixed both real sites; documented the sidebar one so a later audit does not invert it wrongly. Re-audit confirms 0 real violations remain.'
-  status: completed
-  commit_comment: fix 2 accent-as-text sites measuring 1.07:1 on paper; document the 2 correct ones
 - id: localization-width-sweep
   subject: test kits with 1.5x-2x longer label text (German/Finnish proxy) for layout breakage
   witness: 'layout playbook: localization must not break structure'
@@ -2086,8 +2081,9 @@
   status: pending
 - id: kit-craft-docs
   subject: 'professional craft pass on ui_kits/docs: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/docs
-  status: pending
+  witness: panel-inline-wide defined as a measure modifier composing with the existing panel surface modifiers.
+  status: completed
+  commit_comment: 'docs: panel-inline-wide defined'
 - id: ai-tell-hero-metric-template
   subject: scan for the big-number/small-label/supporting-stats/accent hero-metric template
   witness: craft floor Refuse list; dashboard Kpi and gm_inspector StatTile are candidates to review
@@ -2114,8 +2110,9 @@
   status: pending
 - id: kit-craft-blog
   subject: 'professional craft pass on ui_kits/blog: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/blog
-  status: pending
+  witness: ds-prose-endnote defined and verified live (mono 14px rgb(180,180,188) with a 32px lead vs body system-ui 15px rgb(244,241,233)); remaining blog-only classes (.post-body/.post-meta/.centered/.accent) filed as their own follow-up rather than papered over.
+  status: completed
+  commit_comment: 'blog: endnote rule defined and verified'
 - id: degenerate-overflow-many
   subject: every list tested with 500+ items for virtualization/perf
   witness: src/virtual-scroll.js exists; usage unaudited
@@ -2262,13 +2259,16 @@
   status: pending
 - id: sr-only-missing-from-app-shell
   subject: .sr-only is emitted by Row() and FileGrid() but has no rule in app-shell.css; it is defined only in app-surfaces.css (scoped) and editor-primitives.css. 7 kits render Row(). Currently latent because no kit fixture passes the rail/resultCount props that trigger it, but any consumer using those props gets visible screen-reader text.
-  witness: reported by the symbol-graph sheet audit; app-shell.css has no .sr-only rule
-  status: pending
+  witness: 'Defined in src/css/app-shell/base.css beside .skip-link using the canonical clip-path/clip + 1px box + margin:-1px idiom. Verified against the REAL accessibility tree rather than inferred from computed style: probed with Accessibility.getFullAXTree on the docs kit, chosen because it links only app-shell.css so a working rule there can only come from this one. The .sr-only probe is PRESENT in the a11y tree while a display:none control is ABSENT, and its box measures 1x1 clipped against a 200x21 unclassed sibling with identical text. Visually clipped, still announced. The -1px is off-scale on purpose (it cancels the 1px box) and trips the spacing lint; rather than raise the ratchet - which would hide real regressions - .skip-link padding was migrated onto tokens in the same section so the net count held at 227.'
+  status: completed
+  commit_comment: define .sr-only in app-shell; verified present in a11y tree, absent for display:none control
 - id: field-error-dead-token
   subject: .field-error on files-modals.js:162 is a redundant second token - the co-applied .ds-modal-error is defined in app-shell/files.css:609 and already supplies the warn colour. Drop the dead token rather than linking app-surfaces.css into file_browser for it.
-  witness: symbol-graph audit
-  status: pending
+  witness: 'Verified before removing rather than assuming: .field-error''s only definition is app-surfaces.css:99 and is just color:var(--warn), and file_browser does not link that sheet. .ds-modal-error (files.css:609) already supplies margin, padding, border, background, color and font-size, and being later at equal specificity already won the colour. The token contributed nothing. Removed; confirmed the rendered class list is exactly ds-modal-error with role=alert intact.'
+  status: completed
+  commit_comment: remove dead .field-error token; .ds-modal-error already covers it
 - id: blog-docs-terminal-undefined-classes
   subject: blog uses .post-body/.post-meta/.centered/.accent/.ds-prose-endnote, docs uses .panel-inline-wide, terminal uses a ds-cli- fragment - none have a rule in any sheet
-  witness: symbol-graph audit across all kits
-  status: pending
+  witness: 'panel-inline-wide traced via git log -S to commit 9f7b76c: the markup previously read class=panel style=max-width:640px and the inline-style sweep swapped in a class without ever writing the rule - a genuine measure modifier, not a typo. Given max-width:640px + margin-right:auto so it composes with the .panel-inline/.panel-wide surface modifiers. ds-prose-endnote traced to the same commit; placed in base.css NOT gm-prose.css after live verification showed a gm-prose rule does not apply at all, because ui_kits/blog links only colors_and_type.css and app-shell.css and never the separately-published gm-prose.css. Retoned onto the app ramp (--fg-3) and inherits .ds-prose a''s --accent-ink for links rather than restating the bare fill.'
+  status: completed
+  commit_comment: define panel-inline-wide and ds-prose-endnote; both traced to an inline-style sweep that dropped the rules
