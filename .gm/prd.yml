@@ -1999,3 +1999,7 @@
   subject: scripts/a11y-audit.mjs reports 0 blocking locally but 8 in GitHub Actions CI (blog 2, community 2, dashboard 1, terminal 3), failing the build. The CI log prints only counts, not rule ids or selectors, which is itself a harness weakness
   witness: gh run view of the ci workflow after commit 5e78da3
   status: pending
+- id: visual-baselines-platform-bound
+  subject: 'committed visual baselines are Windows-captured PNGs and cannot gate an Ubuntu runner: a full re-capture drifted 78 of 81 pages there, every failing page a type specimen at sub-3% delta with no layout change. Real fix is capturing baselines on Linux in a container matching the runner'
+  witness: 'gh run view ci: [visual-baseline] FAIL - 78 page(s) drifted, type-mono/type-prose/type-scale/wordmarks across all three themes at 0.7-2.5%, max channel delta ~230'
+  status: pending
