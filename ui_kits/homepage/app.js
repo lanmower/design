@@ -21,23 +21,34 @@ const shipping = [
     { name: 'thebird', sub: '—', live: false }
 ];
 
+// `href` (the "open ->" button) and `source` (the "source" button) are the two
+// destinations WorksList renders inside an expanded work. Both are required:
+// WorksList falls back to '#' when they are absent, which renders the buttons
+// as real, pressable affordances that lead nowhere. Every entry below points at
+// a repo that actually exists under the AnEntrypoint org.
+const GH = 'https://github.com/AnEntrypoint/';
 const works = [
-    { code: '001', title: 'gm', sub: 'state machine for coding agents', meta: '2025 · 3k', body: 'a tiny deterministic state machine that lets llms code without losing their minds. it thinks so you don\'t have to (as much).' },
-    { code: '002', title: 'zellous', sub: 'production push-to-talk', meta: '2024 · shipped', body: 'hold the button. talk. someone on the other side hears you. opus codec, dynamic rooms, 50-message replay.' },
-    { code: '003', title: 'spoint', sub: 'spawnpoint', meta: '2024 · shipped', body: 'the directory for "where should we start?" one url, one room, everyone lands in the same place.' },
-    { code: '004', title: 'flatspace', sub: 'flat-file cms', meta: 'wip', body: 'still figuring out what to say about this one. come back tuesday.' },
-    { code: '005', title: 'thebird', sub: '—', meta: 'wip', body: 'yes, the name is a reference. no, we won\'t tell you to what.' },
-    { code: '006', title: 'mcp-repl', sub: 'repl for mcp', meta: '2024 · live', body: 'executenodejs, executedeno, executebash, astgrep_search. if you don\'t know what those are, this one isn\'t for you.' },
-    { code: '007', title: 'mutagen', sub: 'adaptogen server', meta: '2024 · live', body: 'everything to do with a dapp deg3n. read the source.' },
-    { code: '008', title: 'techshaman', sub: 'member site', meta: 'ongoing', body: 'the official website for the techshaman. an entrypoint probably emerging.' }
+    { code: '001', title: 'gm', sub: 'state machine for coding agents', meta: '2025 · 3k', body: 'a tiny deterministic state machine that lets llms code without losing their minds. it thinks so you don\'t have to (as much).', href: GH + 'gm', source: GH + 'gm' },
+    { code: '002', title: 'zellous', sub: 'production push-to-talk', meta: '2024 · shipped', body: 'hold the button. talk. someone on the other side hears you. opus codec, dynamic rooms, 50-message replay.', href: GH + 'zellous', source: GH + 'zellous' },
+    { code: '003', title: 'spoint', sub: 'spawnpoint', meta: '2024 · shipped', body: 'the directory for "where should we start?" one url, one room, everyone lands in the same place.', href: GH + 'spoint', source: GH + 'spoint' },
+    { code: '004', title: 'flatspace', sub: 'flat-file cms', meta: 'wip', body: 'still figuring out what to say about this one. come back tuesday.', href: GH + 'flatspace', source: GH + 'flatspace' },
+    { code: '005', title: 'thebird', sub: '—', meta: 'wip', body: 'yes, the name is a reference. no, we won\'t tell you to what.', href: GH + 'thebird', source: GH + 'thebird' },
+    { code: '006', title: 'mcp-repl', sub: 'repl for mcp', meta: '2024 · live', body: 'executenodejs, executedeno, executebash, astgrep_search. if you don\'t know what those are, this one isn\'t for you.', href: GH + 'mcp-repl', source: GH + 'mcp-repl' },
+    { code: '007', title: 'mutagen', sub: 'adaptogen server', meta: '2024 · live', body: 'everything to do with a dapp deg3n. read the source.', href: GH + 'mutagen', source: GH + 'mutagen' },
+    { code: '008', title: 'techshaman', sub: 'member site', meta: 'ongoing', body: 'the official website for the techshaman. an entrypoint probably emerging.', href: GH + 'techshaman', source: GH + 'techshaman' }
 ];
 
+// There is no posts backend behind this kit, so these link to the blog kit —
+// which renders the first entry below as a full post — rather than to invented
+// per-post URLs that would 404. href:'#' (the previous value) rendered five
+// anchors that looked like article links and did nothing when clicked.
+const POST_HREF = '../blog/';
 const posts = [
-    { date: '2026.04.14', title: 'we were here first', tag: 'lore', href: '#' },
-    { date: '2026.03.22', title: 'gm v0.4 postmortem, or: why state machines', tag: 'gm', href: '#' },
-    { date: '2026.02.09', title: 'push-to-talk is a protocol, not a feature', tag: 'zellous', href: '#' },
-    { date: '2025.12.11', title: 'against the vibe-coded interface', tag: 'manifesto', href: '#' },
-    { date: '2025.10.03', title: 'notes on shipping weird', tag: 'notes', href: '#' }
+    { date: '2026.04.14', title: 'we were here first', tag: 'lore', href: POST_HREF },
+    { date: '2026.03.22', title: 'gm v0.4 postmortem, or: why state machines', tag: 'gm', href: POST_HREF },
+    { date: '2026.02.09', title: 'push-to-talk is a protocol, not a feature', tag: 'zellous', href: POST_HREF },
+    { date: '2025.12.11', title: 'against the vibe-coded interface', tag: 'manifesto', href: POST_HREF },
+    { date: '2025.10.03', title: 'notes on shipping weird', tag: 'notes', href: POST_HREF }
 ];
 
 const manifesto = [
