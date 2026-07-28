@@ -13,7 +13,8 @@
 //     voiceParticipants, micMuted, voiceDeafened,
 //     audioQueueItems, audioQueueCurrentId, audioQueuePaused,
 //     showAuthModal, settingsOpen, voiceSettingsOpen, replyTarget,
-//     mobileMenuOpen   // drives the .ca-rail off-canvas drawer on narrow shells
+//     mobileMenuOpen,  // drives the .ca-rail off-canvas drawer on narrow shells
+//     canManage        // gates the rail's "+ create channel" affordance
 //   }
 //   adapter.subscribe(cb) -> unsubscribe   // cb fires when any snapshot field changes
 //   adapter.actions = {
@@ -22,7 +23,8 @@
 //     channelContext(id, x, y), serverContext(id, x, y), switchServer(id),
 //     goHome(), openServers(), memberMenu(id, name, x, y),
 //     replaySegment(id), skipSegment(), pauseQueue(), resumeQueue(),
-//     setInput(v), startReply(msg), cancelReply(), deleteMessage(id)
+//     setInput(v), startReply(msg), cancelReply(), deleteMessage(id),
+//     createChannel()  // optional; when present + canManage, rail shows a "+" next to "rooms"
 //   }
 //   adapter.helpers = { avatarColor(id), initial(name), formatTime(ts) }
 //
@@ -65,11 +67,12 @@ export function mountCommunityApp(root, adapter = {}) {
         const voice = channels.filter(c => c.type === 'voice' || c.type === 'threaded');
         const cur = s.currentChannel || {};
         const servers = s.servers || [];
+        if (text.length || !servers.length) {
+            out.push(groupHeader('rooms', s));
+        }
         if (text.length) {
-            out.push(h('div', { class: 'group' }, 'rooms'));
             for (const c of text) out.push(railPill(c, cur, false, s));
         } else if (!servers.length) {
-            out.push(h('div', { class: 'group' }, 'rooms'));
             out.push(h('div', { class: 'rail-empty', role: 'status' }, 'no rooms yet'));
         }
         if (voice.length) {
@@ -83,6 +86,15 @@ export function mountCommunityApp(root, adapter = {}) {
         }
         return h('div', {}, ...out);
     };
+
+    const groupHeader = (label, s) => h('div', { class: 'group group-header' },
+        h('span', {}, label),
+        (s.canManage && A.createChannel)
+            ? h('button', {
+                type: 'button', class: 'group-add-btn', 'aria-label': 'create channel', title: 'Create channel',
+                onclick: (e) => { e.preventDefault(); e.stopPropagation(); A.createChannel(); },
+            }, Icon('plus', { size: 13 }))
+            : null);
 
     const railPill = (c, cur, isVoice, s) => {
         const active = cur.id === c.id;

@@ -176,6 +176,7 @@ export const ICON_PATHS = {
     'arrow-down': '<path d="M12 5v14M5 12l7 7 7-7"/>',
     'arrow-right': '<path d="M5 12h14M12 5l7 7-7 7"/>',
     x: '<path d="M18 6 6 18M6 6l12 12"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
     play: '<path d="M6 4v16l14-8z"/>',
     pause: '<path d="M8 5v14M16 5v14"/>',
     refresh: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',

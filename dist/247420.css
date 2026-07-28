@@ -10724,6 +10724,29 @@
   color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
   padding: 10px 8px 4px;
 }
+.ds-247420.ds-247420 .ca-rail .group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: var(--space-1, 4px);
+}
+.ds-247420.ds-247420 .ca-rail .group-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--r-0);
+  background: transparent;
+  color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
+  cursor: pointer;
+}
+.ds-247420.ds-247420 .ca-rail .group-add-btn:hover {
+  background: var(--bg-3, color-mix(in oklab, var(--fg) 8%, transparent));
+  color: var(--fg-2, color-mix(in oklab, var(--fg) 78%, transparent));
+}
 .ds-247420.ds-247420 .ca-rail a {
   display: flex;
   align-items: center;
