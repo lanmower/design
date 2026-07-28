@@ -1977,8 +1977,9 @@
   status: completed
 - id: preview-index-coverage
   subject: preview/ has 28 specimen pages against 193 exported components; the index is the SDK's browsable catalogue and covers a minority of the surface
-  witness: ls preview/*.html vs exec_js-350 export count
-  status: pending
+  witness: 'The measurement in the row was of the wrong thing. Only 1 of 29 preview pages (data-density) actually IMPORTED components; the other 28 are hand-written HTML that imitates component output, which drifts silently the moment a component changes. True rendered-specimen coverage was 11 of 219 exports, not 28 pages of coverage. Added preview/content.html + content.js: 25 real imported components from the largest module (content.js, 35 exports) rendered across 21 labelled specimens. Coverage now 36 of 219 imported by a preview module (11 -> 36, gaps 208 -> 183). Preview index regenerated, 29 -> 30 pages. The specimen immediately paid for itself by catching 4 wrong prop names that hand-written HTML could never have surfaced (Sparkline points->values, BarChart bars->items, FilterPills pills/active->options/selected with object ids, Skeleton rows->count) plus a real SDK bug: PageHeader/Panel/Section rendered id="null" because `id: id || null` stringifies rather than omitting - fixed at all 4 sites, verified idNullCount 0 with real ids still resolving. lint 16/16, test.js pass, a11y 20 kits 0 blocking.'
+  status: completed
+  commit_comment: only 1 of 29 preview pages actually rendered a component; the rest imitate markup
 - id: dead-handlers-workspace
   subject: ui_kits/workspace/app.js passes onStop/onOpen/onView/onStopAll as no-op arrows to SessionDashboard, so the Stop control on a running agent session renders as interactive and does nothing when clicked
   witness: 'Verified in HEAD (81d37d8..4f5e3f2 range, ui_kits/workspace/app.js committed). Click-probed live with the correct method (click -> await 80ms for the queueMicrotask re-render -> re-query, external http links excluded): workspace 14 controls checked, 1 dead, and that one is the agentchat-jump ''latest'' button which is a correct no-op when the thread is already at the latest message. onStop/onStopAll/onOpen/onView are wired and rows leave the list on stop.'
@@ -1993,8 +1994,9 @@
   status: completed
 - id: blog-docs-pre-sdk-era
   subject: 'P3: ui_kits/blog and ui_kits/docs have zero JS and hand-authored bodies with inline <style> blocks while the other 18 kits render through mountKit + AppShell. Both lack a skip link and docs has no h1. kits.config.mjs documents them as deliberate outliers, but they sit among the kits as apparent peer reference implementations while demonstrating the opposite of the documented architecture'
-  witness: kits.config.mjs header comment; exec_js-420 shows blog and docs at 0 app.js lines
-  status: pending
+  witness: 'Resolved as: the concrete defects fixed, the architectural difference kept deliberately. The row named three specifics - no skip link on either, no h1 on docs - and all are fixed: both now render h1=1, skip=true, main id=app-main (verified across all 20 kits, 19->20 clean). Their 24 placeholder href=# links are also fixed (commit 346c8ff) and both now probe 0 dead controls. What remains is the zero-JS architecture itself, and that is intentional and already documented in ui_kits/kits.config.mjs:7-13, which lists blog and docs alongside community-app and workspace as outliers with genuinely custom markup that must stay hand-edited. Verified they are genuinely script-free (0 <script> tags in each) while still functional - the docs sidebar toggle works via inline onclick, measured app-body -> app-body side-open. Converting them to mountKit+AppShell would delete the one thing they demonstrate: that the SDK stylesheet stands up with no JavaScript at all. a11y-audit 20 kits 0 blocking, lint 16/16, test.js pass.'
+  status: completed
+  commit_comment: blog/docs zero-JS outlier status is deliberate and documented; its actual defects are fixed
 - id: preview-module-specimens
   subject: 105 of 193 exported components have no VISUAL specimen - they are documented in component-props.md and now typed, but a consumer cannot see one rendered in isolation and no visual-regression baseline covers it alone. They group into 63 modules of mostly 2-3 exports (community/chrome, content/feedback, form-primitives, overlay-primitives/menus, voice/capture, editor-primitives/diagnostics ...), so a specimen page per module is the tractable shape rather than 105 individual demos
   witness: exec_js-500 grouped every undemoed export by defining module; docs/component-props.md confirmed to cover all of them

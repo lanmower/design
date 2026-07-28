@@ -9,7 +9,7 @@ const h = webjsx.createElement;
 
 export function Panel({ title, count, right, style = '', class: className = '', children, kind, id }) {
     const cls = 'panel' + (kind ? ' panel-' + kind : '') + (className ? ' ' + className : '');
-    return h('div', { class: cls, style, id: id || null },
+    return h('div', { class: cls, style, ...(id ? { id } : {}) },
         title != null ? h('div', { class: 'panel-head' },
             h('span', {}, title),
             right != null ? right : (count != null ? h('span', {}, String(count)) : null)
@@ -48,7 +48,7 @@ export function PanelFromItems({ heading, items = [], keyPrefix = 'i', count, st
 }
 
 export function Section({ title, eyebrow, children, id }) {
-    return h('section', { class: 'ds-section', id: id || null },
+    return h('section', { class: 'ds-section', ...(id ? { id } : {}) },
         eyebrow ? h('span', { class: 'eyebrow' }, eyebrow) : null,
         title ? h('h3', {}, title) : null,
         ...(Array.isArray(children) ? children : [children])

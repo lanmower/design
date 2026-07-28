@@ -129,7 +129,7 @@ export function PageHeader({ title, lede, eyebrow, right, compact, dense, id }) 
     // of a display H1 over a paragraph. App surfaces (files, dashboards,
     // settings) should not spend 150px of fold on an intro.
     if (dense) {
-        return h('section', { class: 'ds-section ds-section-compact ds-page-header-dense', id: id || null },
+        return h('section', { class: 'ds-section ds-section-compact ds-page-header-dense', ...(id ? { id } : {}) },
             h('div', { class: 'ds-page-header-dense-row' },
                 ...[
                     title != null ? h('h1', { key: 'dh' }, title) : null,
@@ -137,7 +137,7 @@ export function PageHeader({ title, lede, eyebrow, right, compact, dense, id }) 
                     right != null ? h('div', { key: 'dr', class: 'ds-page-header-right' }, ...(Array.isArray(right) ? right : [right])) : null,
                 ].filter(Boolean)));
     }
-    return h('section', { class: 'ds-section' + (compact ? ' ds-section-compact' : ''), id: id || null },
+    return h('section', { class: 'ds-section' + (compact ? ' ds-section-compact' : ''), ...(id ? { id } : {}) },
         eyebrow ? h('span', { class: 'eyebrow' }, eyebrow) : null,
         title != null ? h('h1', {}, title) : null,
         lede != null ? h('p', { class: 'lede' }, lede) : null,
