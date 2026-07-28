@@ -33,7 +33,14 @@ export const kits = [
     screenLabel: '07 AICat',
     htmlTheme: true,
     themeColorMetas: true,
-    stylesheets: [],
+    // AICat renders through ChatComposer + the chat-message-parts tool/stream
+    // blocks, whose .chat-tool-*/.chat-stream-*/.chat-thinking-*/
+    // .chat-composer-toolbar rules live only in chat.css (app-shell's
+    // chat-basic/chat-polish cover the bubble/thread layer, not these).
+    // ChatComposer also mounts EmojiPicker + CommandPalette from
+    // overlay-primitives, styled by editor-primitives.css's .ov-emoji-*/
+    // .ov-cmd-* families.
+    stylesheets: ['chat.css', 'editor-primitives.css'],
     importExtra: ['ds/'],
   },
   {
@@ -113,7 +120,10 @@ export const kits = [
     screenLabel: '06 Chat',
     htmlTheme: false, // no data-theme attr, but DOES carry theme-color metas — unique combo, unlike community which omits both
     themeColorMetas: true,
-    stylesheets: [],
+    // Same pair as aicat: Chat()/ChatComposer emit the chat.css-only
+    // tool/stream/thinking/composer-toolbar families, and ChatComposer's
+    // EmojiPicker/CommandPalette need editor-primitives' .ov-* rules.
+    stylesheets: ['chat.css', 'editor-primitives.css'],
     importExtra: ['ds/'],
   },
   {
@@ -186,7 +196,11 @@ export const kits = [
     screenLabel: '08 File Browser',
     htmlTheme: true,
     themeColorMetas: true,
-    stylesheets: [],
+    // Most file-browser primitives live in app-shell's files.css, but eight
+    // classes this kit renders sit only in chat.css: .ds-file-more/-count/
+    // -btn (FileGrid's overflow footer) and .ds-preview-step/-gutter/
+    // -code-wrap/-code-head/-media-alpha (FileViewer + FilePreviewCode/Media).
+    stylesheets: ['chat.css'],
     importExtra: [],
     seo: {
       author: '247420 / AnEntrypoint',
@@ -200,7 +214,13 @@ export const kits = [
     screenLabel: '07 Community',
     htmlTheme: false, // no data-theme attr — one of two thin kits that omit it
     themeColorMetas: false, // no theme-color metas either — community omits both
-    stylesheets: [],
+    // The entire .cm-* shell chrome (server rail, channel sidebar, member
+    // list, voice strip, user panel, chat header) is defined ONLY in
+    // community.css; app-shell.css has no .cm-* rules at all and
+    // app-surfaces.css carries only print-media overrides for them. Without
+    // this link the rail rendered at the container's full width instead of
+    // its authored 72px and every child sat unstyled.
+    stylesheets: ['community.css'],
     importExtra: ['ds/'],
   },
 ];
