@@ -73,6 +73,16 @@ function splitBlocks(text) {
 
 const DECL_RE = /(--[a-zA-Z0-9-]+)(\s*:\s*)([^;]+)(;)/g;
 
+// Whitespace-insensitive equality for a CSS declaration value. CSS collapses
+// any run of whitespace (including newlines) to a single separator, so two
+// values differing only in wrapping or indentation are the same declaration.
+// Also normalises the space after a comma so a wrapped comma-separated list
+// compares equal to the single-line form of itself.
+function sameCssValue(a, b) {
+    const norm = (v) => String(v).replace(/\s+/g, ' ').replace(/\s*,\s*/g, ', ').trim();
+    return norm(a) === norm(b);
+}
+
 // Returns { cssEdits, yamlEdits } -- neither applied. Pure, so lint-tokens.mjs
 // can call it inline to gate the build without duplicating this logic.
 export function findTokensDrift() {
@@ -95,7 +105,16 @@ export function findTokensDrift() {
             const oldValue = m[3].trim();
             if (!(name in flat)) continue; // token no longer in JSON -- leave CSS alone; forward generator will re-pick it up
             const newValue = flat[name];
-            if (newValue === oldValue) continue;
+            // Multi-line token values (the --shadow-* stack pairs two comma-
+            // separated layers across two lines) carry the CSS file's own
+            // newline + continuation indent, which tokens.json does not
+            // reproduce byte-for-byte. A strict compare therefore reported
+            // three shadow tokens as permanently drifted even though the
+            // values are character-identical once whitespace runs collapse --
+            // it passed on CRLF checkouts and failed CI on LF ones, which is
+            // exactly the shape of a whitespace-sensitive comparison. Compare
+            // semantically; CSS treats any whitespace run as one separator.
+            if (sameCssValue(newValue, oldValue)) continue;
             const absStart = block.bodyStart + m.index + m[1].length + m[2].length;
             const absEnd = absStart + m[3].length;
             cssEdits.push({ start: absStart, end: absEnd, name, oldValue, newValue });
