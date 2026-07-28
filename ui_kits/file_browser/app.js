@@ -158,7 +158,10 @@ function pickFiles() {
 }
 
 function App() {
-    const main = h('div', { class: 'ds-files-stack' },
+    // ds-files-stack owns the full-height scroll geometry; ds-app-surface adds
+    // the Operate typescale so the page title sits at the app ceiling instead
+    // of the 64px display size, which outweighs the file list it labels.
+    const main = h('div', { class: 'ds-files-stack ds-app-surface' },
         h('h1', {}, 'file browser'),
         h('p', { class: 'lede' },
             'static demo of the 247420 file-browser primitives. drop files to fake-upload, click rows to preview, ',

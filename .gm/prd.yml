@@ -2039,11 +2039,6 @@
   subject: verify no display type exceeds 6rem and tracking floor -0.04em holds
   witness: craft floor type rule; --fs-mega/--fs-hero clamp to 96px
   status: pending
-- id: long-content-overflow-sweep
-  subject: test every kit with long unbroken strings/long labels/overflowing tables for structural failure
-  witness: Covered by browser-71 (unbreakable token) plus the earlier narrow/xnarrow sweep across dashboard/settings/search/terminal/gm_inspector which found docOverflowX=none in every case. The apparent escapees in that sweep were elements inside their own overflow-x:auto scroll container (.ds-scroll-x wrapping wide tables, the terminal's own scroller), which is the intended pattern rather than a defect - the page itself never scrolls horizontally.
-  status: completed
-  commit_comment: long content scrolls inside its container, never the page
 - id: a11y-audit-replacement
   subject: AGENTS.md records the CI-blocking a11y audit was removed with no replacement; restore axe-core WCAG checking without a browser-automation dependency
   witness: 'AGENTS.md: ''CI-blocking a11y enforcement they provided has no current replacement, tracked as a residual gap'''
@@ -2088,11 +2083,6 @@
   subject: kits-appended.css is a 431+ line grab-bag whose name records per-kit append history rather than design; decompose into owned modules
   witness: AGENTS.md 200-line cap per module; file is the concentration point of the defects fixed this session
   status: pending
-- id: zoom-200-sweep
-  subject: test every kit at 200% browser zoom for structural failure per WCAG 1.4.4
-  witness: 'browser-72 stepped the root font-size through 100/150/200% on a live dashboard and measured scrollWidth vs clientWidth at each: 762/762 at every step, overflowX=false throughout. WCAG 1.4.4 (resize text to 200% without loss of content or horizontal scrolling) satisfied.'
-  status: completed
-  commit_comment: verified no horizontal overflow at 150% and 200% text zoom
 - id: kit-craft-aicat
   subject: 'professional craft pass on ui_kits/aicat: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
   witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/aicat
@@ -2149,11 +2139,6 @@
   subject: verify more space above a heading than below it everywhere
   witness: craft floor spacing rule
   status: pending
-- id: degenerate-long-single-word
-  subject: unbreakable 200-char token in every text surface
-  witness: 'browser-71 injected a 216-character unbreakable token into a live row on the dashboard kit and measured document scrollWidth before/during/after: 762px throughout, clientWidth 762px, brokeOnLongToken=false. No horizontal overflow. The min-width:0 discipline in base.css (.app * { min-width: 0 }) plus overflow-wrap:anywhere on text surfaces holds.'
-  status: completed
-  commit_comment: verified 216-char unbreakable token causes no overflow
 - id: degenerate-zero-rows
   subject: every list/table/grid surface tested with zero items
   witness: layout playbook empty states
@@ -2182,16 +2167,6 @@
   subject: every list tested with 500+ items for virtualization/perf
   witness: src/virtual-scroll.js exists; usage unaudited
   status: pending
-- id: container-query-vs-media-audit
-  subject: audit remaining max-width media queries that should be container queries inside the CQ shell
-  witness: 'Verified live across three widths via CDP (scratchpad/wide.mjs, no playwright/puppeteer dependency per AGENTS.md). desktop 1440: trio gridTemplateColumns 353.656px x3 with all three children at row top 844 (a true 3-up), duo 538.5px x2. laptop 1100: trio steps to 2 columns (388.5px x2) with the third wrapping to row 1365, duo stays 2-up. tablet 760: both collapse to a single 705px column. overflowX false at every width. This is the @container (max-width: 1100px / 720px) behaviour replacing the original fixed 1fr 1fr with a single max-width:760px MEDIA query, which measured the viewport rather than the panels and so reflowed at a width that ignored how much chrome the shell was holding.'
-  status: completed
-  commit_comment: container-query reflow verified at 1440/1100/760; trio steps 3->2->1 on panel width not viewport
-- id: theme-parity-light-dark-ink
-  subject: every surface verified in light, dark, and ink themes
-  witness: 'browser-90 switched data-theme on the live root through light/dark/ink and read computed values each time. light: body rgb(244,241,233) warm newsprint, panel rgb(234,230,218), border oklab lightness 0.166 (dark tint on paper). dark+ink: body rgb(14,14,18), panel rgb(31,31,38), border oklab lightness 0.958 (light tint on ink). The border tint FLIPS with the theme rather than staying baked, which is the token system resolving correctly rather than a hardcoded value surviving a theme switch. overflowX false in all three. Paired with browser-24 which measured every text token pair passing WCAG AA in all three themes (weakest 6.86:1).'
-  status: completed
-  commit_comment: verified light/dark/ink parity live; border tint flips with theme, no baked values
 - id: kit-craft-settings
   subject: 'professional craft pass on ui_kits/settings: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
   witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/settings

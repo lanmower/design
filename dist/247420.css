@@ -5288,9 +5288,15 @@
    app scale (--fs-h1-app, 22-30px) is what these tokens exist for. Applied
    here rather than as a data-attribute on each kit shell so any surface using
    this root gets the app voice without a per-kit opt-in that kits forget. */
-.ds-247420 .ds-app-surface > h1, .ds-247420 .ds-app-surface > .t-h1 { font-size: var(--fs-h1-app); line-height: 1.15; }
-.ds-247420 .ds-app-surface > h2, .ds-247420 .ds-app-surface > .t-h2 { font-size: var(--fs-h2-app); }
-.ds-247420 .ds-app-surface > h3, .ds-247420 .ds-app-surface > .t-h3 { font-size: var(--fs-h3-app); }
+/* Descendant, not direct-child: a kit that wraps its title in a head row (an
+   h1 beside a theme toggle, say) still gets the app voice. The direct-child
+   form silently missed exactly that shape and left those titles at the 64px
+   display ceiling -- the surface opted in but the rule did not reach the
+   heading. Nested .ds-section content is unaffected because nothing re-raises
+   the size below this point. */
+.ds-247420 .ds-app-surface h1, .ds-247420 .ds-app-surface .t-h1 { font-size: var(--fs-h1-app); line-height: 1.15; }
+.ds-247420 .ds-app-surface h2, .ds-247420 .ds-app-surface .t-h2 { font-size: var(--fs-h2-app); }
+.ds-247420 .ds-app-surface h3, .ds-247420 .ds-app-surface .t-h3 { font-size: var(--fs-h3-app); }
 /* The lede is supporting chrome under an app title, not a marketing stand-first:
    it drops to body size and keeps a readable measure instead of --fs-xl. */
 .ds-247420 .ds-app-surface > .lede, .ds-247420 .ds-app-surface > .t-lede { font-size: var(--fs-body); max-width: 60ch; }
@@ -5396,7 +5402,7 @@
   margin: var(--space-3) auto;
   background: var(--bg-2);
   border-radius: var(--r-2);
-  padding: clamp(16px, 5vw, 64px);
+  padding: clamp(var(--space-3), 5vw, var(--space-7));
   box-sizing: border-box;
   display: flex;
   overflow: hidden;
@@ -5411,8 +5417,10 @@
 }
 .ds-247420 .ds-deck-slide { flex: 1; display: flex; min-width: 0; }
 .ds-247420 .ds-deck-controls {
+  /* 14px sits between --space-2-75 (12) and --space-3 (16) with no tier; it is
+     the deck control spacing tuned against the mono glyph run. */
   display: flex; align-items: center; justify-content: center; gap: 14px;
-  padding: 8px; font-family: var(--ff-mono); font-size: var(--fs-sm);
+  padding: var(--space-2); font-family: var(--ff-mono); font-size: var(--fs-sm);
 }
 .ds-247420 .ds-deck-count { color: var(--fg-3); }
 @media (pointer: coarse) {
@@ -5439,9 +5447,9 @@
    full-bleed slide chrome, not panel chrome) and owns its own bottom gutter. */
 .ds-247420 .ds-slide-eyebrow {
   color: var(--fg-3);
-  margin-bottom: clamp(12px, 2.5cqw, 24px);
+  margin-bottom: clamp(var(--space-2-75), 2.5cqw, var(--space-4));
 }
-.ds-247420 .ds-slide-col { display: flex; flex-direction: column; justify-content: center; gap: clamp(12px, 2.5cqw, 24px); min-width: 0; }
+.ds-247420 .ds-slide-col { display: flex; flex-direction: column; justify-content: center; gap: clamp(var(--space-2-75), 2.5cqw, var(--space-4)); min-width: 0; }
 .ds-247420 .ds-slide-col--start { align-items: flex-start; }
 .ds-247420 .ds-slide-col--narrow { max-width: 38ch; }
 .ds-247420 .ds-slide-col--quote { max-width: 42ch; }
@@ -5455,15 +5463,17 @@
   font-size: clamp(var(--fs-h3), 4.5cqw, var(--fs-h1));
   line-height: var(--lh-snug); color: var(--fg); font-weight: 500; min-width: 0;
 }
-.ds-247420 .ds-slide-h1--lead { margin-bottom: 12px; }
+.ds-247420 .ds-slide-h1--lead { margin-bottom: var(--space-2-75); }
 .ds-247420 .ds-slide-quote-body {
   font-size: clamp(var(--fs-lg), 3.5cqw, var(--fs-h2));
   line-height: var(--lh-snug); color: var(--fg); font-weight: 400; font-style: italic;
 }
 .ds-247420 .ds-slide-cite { font-family: var(--ff-mono); font-size: var(--fs-sm); color: var(--fg-3); }
 .ds-247420 .ds-slide-bullet {
-  display: flex; gap: clamp(8px, 2vw, 18px); align-items: baseline;
-  border-bottom: 1px solid var(--rule); padding: 12px 0; flex-wrap: wrap;
+  /* 18px ceiling has no tier (--space-3 is 16, --space-3-5 is 20); it is the
+     bullet key/value split tuned against the clamp(56px,18%,100px) key column. */
+  display: flex; gap: clamp(var(--space-2), 2vw, 18px); align-items: baseline;
+  border-bottom: 1px solid var(--rule); padding: var(--space-2-75) 0; flex-wrap: wrap;
 }
 .ds-247420 .ds-slide-bullet-key {
   flex: 0 1 clamp(56px, 18%, 100px); min-width: 0;
@@ -5471,7 +5481,7 @@
   color: var(--slide-accent, var(--accent-ink));
 }
 .ds-247420 .ds-slide-bullet-val { color: var(--fg-2); font-size: var(--fs-lg); min-width: 0; }
-.ds-247420 .ds-slide-split { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(12px, 3vw, 32px); margin-top: 12px; }
+.ds-247420 .ds-slide-split { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(var(--space-2-75), 3vw, var(--space-5)); margin-top: var(--space-2-75); }
 @media (max-width: 760px) {
   .ds-247420 .ds-slide-split { grid-template-columns: 1fr; }
 }
@@ -5497,7 +5507,10 @@
 
 /* --- error 404 --------------------------------------------- */
 .ds-247420 .ds-err-hero {
-  padding: clamp(16px, 5vw, 36px) clamp(12px, 4vw, 22px);
+  /* 36px/22px clamp ceilings and the 14px gap are off-scale on purpose: this
+     hero is centred around a clamp(56px,20vw,120px) numeral and the insets are
+     tuned to it, not to the panel rhythm the --space-* scale encodes. */
+  padding: clamp(var(--space-3), 5vw, 36px) clamp(var(--space-2-75), 4vw, 22px);
   text-align: center; display: flex; flex-direction: column; gap: 14px; align-items: center;
 }
 .ds-247420 .ds-err-numeral {
@@ -5505,25 +5518,25 @@
   line-height: 1; color: var(--panel-text-3); letter-spacing: -0.03em;
 }
 .ds-247420 .ds-err-path {
-  display: inline-flex; gap: 6px; align-items: baseline; flex-wrap: wrap; max-width: 100%;
+  display: inline-flex; gap: var(--space-1-75); align-items: baseline; flex-wrap: wrap; max-width: 100%;
   font-family: var(--ff-mono); font-size: 13px; color: var(--panel-text-2);
-  background: var(--panel-1); padding: 6px 12px; border-radius: var(--r-0);
+  background: var(--panel-1); padding: var(--space-1-75) var(--space-2-75); border-radius: var(--r-0);
   overflow-wrap: anywhere; word-break: break-all;
 }
 
 /* --- gallery ------------------------------------------------ */
 .ds-247420 .ds-tile-grid {
-  padding: clamp(8px, 2.5vw, 16px);
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr)); gap: 8px;
+  padding: clamp(var(--space-2), 2.5vw, var(--space-3));
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr)); gap: var(--space-2);
 }
 .ds-247420 .ds-tile-grid--tight { grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr)); }
 .ds-247420 .ds-swatch-grid {
-  padding: clamp(8px, 2.5vw, 16px);
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(160px, 100%), 1fr)); gap: 12px;
+  padding: clamp(var(--space-2), 2.5vw, var(--space-3));
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(160px, 100%), 1fr)); gap: var(--space-2-75);
 }
 .ds-247420 .ds-gallery-tile {
-  cursor: pointer; display: flex; flex-direction: column; gap: 6px;
-  padding: 12px; border-radius: var(--r-1); min-height: clamp(120px, 18vw, 160px);
+  cursor: pointer; display: flex; flex-direction: column; gap: var(--space-1-75);
+  padding: var(--space-2-75); border-radius: var(--r-1); min-height: clamp(120px, 18vw, 160px);
   border: 0; text-align: left; font: inherit; color: inherit;
   background: var(--tile-tone, var(--panel-1));
   transition: transform var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease);
@@ -5537,20 +5550,23 @@
 .ds-247420 .ds-lightbox {
   position: fixed; inset: 0; background: var(--scrim);
   display: flex; align-items: center; justify-content: center;
-  padding: clamp(12px, 4vw, 32px);
-  padding-bottom: max(clamp(12px, 4vw, 32px), env(safe-area-inset-bottom));
+  padding: clamp(var(--space-2-75), 4vw, var(--space-5));
+  padding-bottom: max(clamp(var(--space-2-75), 4vw, var(--space-5)), env(safe-area-inset-bottom));
   z-index: var(--z-modal);
 }
 .ds-247420 .ds-lightbox-card {
-  background: var(--panel-0); border-radius: var(--r-2); padding: clamp(16px, 4vw, 28px);
+  /* 28px ceiling has no tier (--space-4 is 24, --space-5 is 32); it is the
+     lightbox card inset tuned against the min(520px,100%) card width. */
+  background: var(--panel-0); border-radius: var(--r-2); padding: clamp(var(--space-3), 4vw, 28px);
   width: min(520px, 100%); min-width: 0;
   max-height: calc(100vh - 24px);
   max-height: calc(100dvh - 24px);
   overflow: auto;
-  display: flex; flex-direction: column; gap: 14px;
+  display: flex; flex-direction: column; gap: 14px; /* off-scale, matches the card inset above */
 }
 .ds-247420 .ds-lightbox-preview {
-  padding: clamp(16px, 6vw, 36px); border-radius: var(--r-1); text-align: center;
+  /* 36px ceiling has no tier (--space-5 is 32, --space-6 is 48). */
+  padding: clamp(var(--space-3), 6vw, 36px); border-radius: var(--r-1); text-align: center;
   font-family: var(--ff-mono); white-space: pre-line; font-size: clamp(16px, 5vw, 24px);
   background: var(--tile-tone, var(--panel-1));
 }
@@ -5560,25 +5576,31 @@
 @media (max-width: 480px) {
   .ds-247420 .ds-topbar-search { flex-basis: 100%; }
 }
-.ds-247420 .ds-empty-state { padding: clamp(16px, 5vw, 24px); text-align: center; color: var(--panel-text-3); }
+.ds-247420 .ds-empty-state { padding: clamp(var(--space-3), 5vw, var(--space-4)); text-align: center; color: var(--panel-text-3); }
 .ds-247420 .ds-empty-state-glyph { font-size: clamp(24px, 6vw, 32px); }
-.ds-247420 .ds-empty-state-msg { margin: 6px 0; }
+.ds-247420 .ds-empty-state-msg { margin: var(--space-1-75) 0; }
 .ds-247420 .ds-empty-state-hint { margin: 0; font-size: var(--fs-sm); }
 
 /* --- system primer ------------------------------------------ */
+/* The three primer panels below share one fluid inset,
+   clamp(10px, 2.5vw, 14px) clamp(10px, 3vw, 18px), and a 14/18px gap. None of
+   10/14/18 is a --space-* tier (the scale jumps 8 -> 10 -> 12 -> 16 -> 20) and
+   the three values are tuned as a set against the 64px label columns, so the
+   panels stay optically identical to each other. Snapping any one of them
+   desyncs the family; they are deliberate literals, not un-migrated drift. */
 .ds-247420 .ds-swatch-grid-sm {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(min(110px, 100%), 1fr));
-  gap: 12px; padding: clamp(10px, 2.5vw, 14px) clamp(10px, 3vw, 18px);
+  gap: var(--space-2-75); padding: clamp(10px, 2.5vw, 14px) clamp(10px, 3vw, 18px);
 }
 .ds-247420 .ds-swatch-grid-lg { grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr)); }
-.ds-247420 .ds-swatch-col { display: flex; flex-direction: column; gap: 6px; }
+.ds-247420 .ds-swatch-col { display: flex; flex-direction: column; gap: var(--space-1-75); }
 .ds-247420 .ds-swatch-chip { height: 48px; border-radius: var(--r-1); border: 1px solid var(--rule); background: var(--swatch, var(--panel-1)); }
 .ds-247420 .ds-swatch-chip--big { height: 64px; }
 .ds-247420 .ds-swatch-name { font-family: var(--ff-mono); font-size: 11px; color: var(--fg-3); }
 .ds-247420 .ds-type-panel { padding: clamp(10px, 2.5vw, 14px) clamp(10px, 3vw, 18px); display: flex; flex-direction: column; gap: 14px; }
 .ds-247420 .ds-type-row {
   display: flex; align-items: baseline; gap: 14px;
-  border-bottom: 1px solid var(--rule); padding-bottom: 8px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--rule); padding-bottom: var(--space-2); flex-wrap: wrap;
 }
 .ds-247420 .ds-type-row-label { flex: 0 0 64px; font-family: var(--ff-mono); font-size: 11px; color: var(--fg-3); }
 .ds-247420 .ds-type-sample {
@@ -5586,7 +5608,7 @@
   font-size: var(--sample-size, var(--fs-body));
 }
 .ds-247420 .ds-prim-panel { padding: clamp(10px, 2.5vw, 14px) clamp(10px, 3vw, 18px); display: flex; flex-direction: column; gap: 18px; }
-.ds-247420 .ds-prim-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.ds-247420 .ds-prim-row { display: flex; gap: var(--space-2-5); flex-wrap: wrap; align-items: center; }
 .ds-247420 .ds-prim-label { flex: 0 0 64px; font-family: var(--ff-mono); font-size: 11px; color: var(--fg-3); }
 
 /* == appended: content-site == */
@@ -5642,7 +5664,7 @@
    matching the "color reserved for meaning, not decoration" pattern seen in
    docstudio's admin table. */
 .ds-247420 .ds-table-sort-btn {
-  display: inline-flex; align-items: center; gap: 4px;
+  display: inline-flex; align-items: center; gap: var(--space-1);
   background: none; border: none; padding: 0; margin: 0;
   font: inherit; font-weight: inherit; color: inherit; cursor: pointer;
 }
@@ -5715,55 +5737,56 @@
 /* == appended: signin kit cleanup == */
 /* -- signin kit (ui_kits/signin) -- */
 .ds-247420 .ds-auth-wrap { padding: var(--space-2, 8px); display: flex; flex-direction: column; align-items: center; }
-.ds-247420 .ds-auth-col { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 8px; margin: clamp(12px, 4vw, 24px) 0; min-width: 0; }
-.ds-247420 .ds-auth-form { padding: clamp(12px, 3vw, 18px); display: flex; flex-direction: column; gap: 10px; }
+.ds-247420 .ds-auth-col { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: var(--space-2); margin: clamp(var(--space-2-75), 4vw, var(--space-4)) 0; min-width: 0; }
+/* 18px ceiling: no tier between --space-3 (16) and --space-3-5 (20). */
+.ds-247420 .ds-auth-form { padding: clamp(var(--space-2-75), 3vw, 18px); display: flex; flex-direction: column; gap: var(--space-2-5); }
 .ds-247420 .ds-auth-sent { align-items: center; text-align: center; }
 .ds-247420 .ds-auth-sent-glyph { font-size: 32px; color: var(--panel-accent); }
 .ds-247420 .ds-auth-sent-title { margin: 0; font-weight: 600; }
 .ds-247420 .ds-auth-sent-sub { margin: 0; color: var(--panel-text-2); overflow-wrap: anywhere; }
-.ds-247420 .ds-auth-field { display: flex; flex-direction: column; gap: 4px; }
+.ds-247420 .ds-auth-field { display: flex; flex-direction: column; gap: var(--space-1); }
 /* .ds-auth-field-label joins the kit small-label voice above, no overrides. */
-.ds-247420 .ds-auth-row-between { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-.ds-247420 .ds-auth-remember { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.ds-247420 .ds-auth-row-between { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
+.ds-247420 .ds-auth-remember { display: flex; align-items: center; gap: var(--space-1-75); cursor: pointer; }
 .ds-247420 .ds-auth-remember-text { color: var(--panel-text-2); font-size: 13px; }
 .ds-247420 .ds-auth-forgot { font-size: 13px; }
-.ds-247420 .ds-auth-error { padding: 8px 10px; background: var(--panel-1); border-radius: var(--r-0); color: var(--danger); font-size: 13px; overflow-wrap: anywhere; }
-.ds-247420 .ds-auth-providers { display: flex; gap: 8px; flex-wrap: wrap; }
-.ds-247420 .ds-auth-provider-btn { flex: 1 1 100px; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; }
+.ds-247420 .ds-auth-error { padding: var(--space-2) var(--space-2-5); background: var(--panel-1); border-radius: var(--r-0); color: var(--danger); font-size: 13px; overflow-wrap: anywhere; }
+.ds-247420 .ds-auth-providers { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.ds-247420 .ds-auth-provider-btn { flex: 1 1 100px; min-width: 0; display: flex; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-2-5); }
 .ds-247420 .ds-auth-provider-btn--loading { opacity: 0.7; pointer-events: none; }
 .ds-247420 .ds-auth-provider-glyph { font-family: var(--ff-mono); color: var(--panel-text-3); display: inline-flex; }
-.ds-247420 .ds-auth-modes { display: flex; justify-content: center; gap: 14px; margin-top: 8px; font-size: 13px; flex-wrap: wrap; }
+.ds-247420 .ds-auth-modes { display: flex; justify-content: center; gap: 14px; /* off-scale, matches the auth form inset */ margin-top: var(--space-2); font-size: 13px; flex-wrap: wrap; }
 .ds-247420 .ds-auth-mode-link { color: var(--panel-text-3); text-decoration: none; }
 .ds-247420 .ds-auth-mode-link--active { color: var(--panel-text); text-decoration: underline; }
-.ds-247420 .ds-auth-fineprint { text-align: center; font-size: 12px; color: var(--panel-text-3); margin: 6px 0; }
+.ds-247420 .ds-auth-fineprint { text-align: center; font-size: 12px; color: var(--panel-text-3); margin: var(--space-1-75) 0; }
 
 /* == appended: gallery-misc kit cleanup == */
 /* --- shared helpers (converted from inline styles) --- */
 .ds-247420 .ds-m0 { margin: 0; }
 .ds-247420 .ds-text-2 { color: var(--panel-text-2); }
 .ds-247420 .ds-text-3 { color: var(--panel-text-3); }
-.ds-247420 .ds-kit-head { display: flex; align-items: center; justify-content: space-between; gap: clamp(8px, 2vw, 16px); flex-wrap: wrap; }
+.ds-247420 .ds-kit-head { display: flex; align-items: center; justify-content: space-between; gap: clamp(var(--space-2), 2vw, var(--space-3)); flex-wrap: wrap; }
 
 /* --- gallery kit --- */
 .ds-247420 .ds-tile-cap { flex: 1; display: flex; align-items: center; justify-content: center; font-family: var(--ff-mono); white-space: pre-line; color: var(--panel-text-2); font-size: 18px; min-width: 0; text-align: center; }
-.ds-247420 .ds-tile-meta { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 12px; flex-wrap: wrap; min-width: 0; }
+.ds-247420 .ds-tile-meta { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1-75); font-size: 12px; flex-wrap: wrap; min-width: 0; }
 .ds-247420 .ds-tile-glyph { font-family: var(--ff-mono); color: var(--panel-text-3); }
 .ds-247420 .ds-tile-label { color: var(--panel-text); overflow-wrap: anywhere; }
 .ds-247420 .ds-gal-swatch { height: 64px; border-radius: var(--r-0); background: var(--swatch, var(--panel-1)); }
-.ds-247420 .ds-gal-swatch-meta { display: flex; justify-content: space-between; gap: 6px; flex-wrap: wrap; font-family: var(--ff-mono); font-size: 11px; min-width: 0; }
+.ds-247420 .ds-gal-swatch-meta { display: flex; justify-content: space-between; gap: var(--space-1-75); flex-wrap: wrap; font-family: var(--ff-mono); font-size: 11px; min-width: 0; }
 .ds-247420 .ds-gal-swatch-name { color: var(--panel-text); }
 .ds-247420 .ds-gal-swatch-hint { color: var(--panel-text-3); overflow-wrap: anywhere; }
-.ds-247420 .ds-lightbox-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ds-247420 .ds-lightbox-head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
 /* .ds-lightbox-tag joins the kit small-label voice above, no overrides. */
 
 /* --- error_404 kit --- */
-.ds-247420 .ds-err-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
-.ds-247420 .ds-err-chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+.ds-247420 .ds-err-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; justify-content: center; margin-top: var(--space-1-75); }
+.ds-247420 .ds-err-chips { display: flex; gap: var(--space-1-75); flex-wrap: wrap; justify-content: center; margin-top: var(--space-1); }
 
 /* == appended: terminal-capp kit cleanup == */
 /* --- terminal kit ------------------------------------------ */
-.ds-247420 .ds-section-pad-sm { padding: 8px; }
-.ds-247420 .ds-kit-head-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.ds-247420 .ds-section-pad-sm { padding: var(--space-2); }
+.ds-247420 .ds-kit-head-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
 .ds-247420 .ds-cli-cmt .cmd { color: var(--fg-3); }
 .ds-247420 .ds-cli-out .cmd { color: var(--fg-2); }
 .ds-247420 .ds-cli-ok .prompt, .ds-247420 .ds-cli-ok .cmd { color: var(--accent-ink); }
