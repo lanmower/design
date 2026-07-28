@@ -1975,40 +1975,10 @@
   subject: bert embedder plugin crashes in wasm (plugin_error) making codesearch+recall unavailable
   witness: '.gm/exec-spool/.watcher.log embed_query_failed: [plugin_error] wasm backtrace fn 397/396/611/4407; both vector and keyword fallback returned nothing across two fresh spool boots; codesearch-1/-4 and recall-1 all ok:false'
   status: pending
-- id: fontsize-literals-kits-appended
-  subject: 19 raw font-size px literals in kits-appended.css migrate to --fs-* scale
-  witness: 23 -> 6. Remaining are 3 fluid clamps, 2 icon sizes and a max(16px,...) iOS guard, each commented.
-  status: completed
-  commit_comment: font-size literals migrated
-- id: fontsize-literals-community
-  subject: 8 raw font-size px in community.css migrate to --fs-* scale
-  witness: 19 -> 1 (one icon size).
-  status: completed
-  commit_comment: font-size literals migrated
-- id: fontsize-literals-gm-prose
-  subject: 7 raw font-size px in gm-prose.css migrate to --fs-* scale
-  witness: 7 -> 2 (a deliberate 12.5px mono half-step and an already-documented root-relative 0.7rem).
-  status: completed
-  commit_comment: font-size literals migrated
 - id: uppercase-transform-audit
   subject: 50 text-transform:uppercase occurrences risk the tracked-uppercase-eyebrow-everywhere grammar the craft floor bans; audit which are a system vs habit
   witness: 'exec_js-15 scan: chat.css=10, editor-primitives.css=7, community.css=5, hero-content.css=5, kits-appended.css=4'
   status: pending
-- id: spacing-literals-hero-content
-  subject: 23 raw px spacing literals in src/css/app-shell/hero-content.css migrate to --space-* scale
-  witness: Covered by the same wave; hero-content font-size 3 -> 2 with two bespoke display clamps kept.
-  status: completed
-  commit_comment: covered by the css token waves
-- id: fontsize-literals-files
-  subject: 8 raw font-size px in src/css/app-shell/files.css migrate to --fs-* scale
-  witness: 8 -> 5; 4 icon sizes plus .ds-modal-input's 16px, which is a platform constant not a type size - var(--fs-body) drops to 15px under data-typescale=sm and would silently re-cross the iOS auto-zoom threshold.
-  status: completed
-  commit_comment: font-size literals migrated; documented the iOS zoom trap
-- id: fontsize-literals-chat-polish
-  subject: 7 raw font-size px in chat-polish.css migrate to --fs-* scale
-  witness: 12 -> 7; the 7 are 2 icon sizes and 5 em-relative inline elements that must track their parent (substituting --fs-h1..h3 would render a chat-bubble heading at 34px+, dwarfing the message it labels).
-  status: completed
-  commit_comment: font-size literals migrated
 - id: ds-section-root-audit-remaining
   subject: aicat/chat/community/gallery/project_page/slide_deck/system_primer/signin/error_404 still use .ds-section as app root; decide per-kit whether editorial 96px rhythm is correct or app-surface applies
   witness: 'exec_js-11 survey: 9 kits still on ds-section root; dashboard/settings/search/terminal/gm_inspector migrated'
@@ -2145,16 +2115,6 @@
   subject: extend COMPONENT_SHEETS to follow @import barrels or enumerate src/css/app-shell/*.css so the 5322-line blind spot is gated
   witness: scripts/lint-tokens.mjs COMPONENT_SHEETS array read directly
   status: pending
-- id: lint-add-important-gate
-  subject: add a lint gate capping/forbidding new !important outside documented escape hatches
-  witness: 'Ratchet at 38. A hard zero would force specificity wars, which is worse than the documented load-bearing flags (reduced-motion, forced-colors, print, utility resets). The ratchet stops a NEW one landing silently. Proven to fail: an extra !important gave 39 > 38 and exit 1.'
-  status: completed
-  commit_comment: ratchet important gate at 38; proven to fail on injection
-- id: lint-add-transition-all-gate
-  subject: 'add a lint gate forbidding ''transition: all'''
-  witness: Hard zero-tolerance gate. Unlike the token gates this can stay hard permanently - there is no legitimate transition:all that a named property list does not express better, and all animates layout properties. Proven to fail on injection, and the z-index gate simultaneously returned to OK, showing failures are not sticky.
-  status: completed
-  commit_comment: hard transition-all gate; proven to fail on injection
 - id: preview-page-parity
   subject: every new primitive needs a preview page entry so it is discoverable and visually regression-checkable
   witness: preview/ has 30 pages; ds-app-surface/ds-panel-trio/ds-panel-flush have none
@@ -2187,11 +2147,6 @@
   subject: src/components/voice.js is 296 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
   witness: exec_js-17 line count = 296; AGENTS.md states 'The 200-line cap applies per-module'
   status: pending
-- id: lint-add-fontsize-gate
-  subject: add a lint gate for raw font-size px outside the token source
-  witness: 'Ratchet at 56 rather than hard zero, because the residue is per-declaration judgment (icon marks sized via font-size, em-relative inline elements) not unmigrated debt. Baseline documented as a figure to drive DOWN, never a budget to raise. Proven to fail: font-size:17px gave 57 > 56 and exit 1.'
-  status: completed
-  commit_comment: ratchet fontsize gate at 56; proven to fail on injection
 - id: module-cap-page-html
   subject: src/page-html.js is 392 lines against the 200-line cap
   witness: exec_js-17 line count
@@ -2208,11 +2163,6 @@
   subject: src/components/sessions.js is 586 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
   witness: exec_js-17 line count = 586; AGENTS.md states 'The 200-line cap applies per-module'
   status: pending
-- id: lint-add-zindex-gate
-  subject: add a lint gate for z-index literals once a --z-* scale exists
-  witness: 'Hard zero-tolerance gate added. The --z-* migration left the corpus genuinely clean, so any hit is a fresh regression rather than legacy debt. Proven to fail: injecting z-index:9999 produced FAIL and exit 1 across lint-tokens.mjs, npm run lint and npm run build.'
-  status: completed
-  commit_comment: hard zindex gate; proven to fail on injection
 - id: module-cap-agent-chat
   subject: src/components/agent-chat.js is 561 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
   witness: exec_js-17 line count = 561; AGENTS.md states 'The 200-line cap applies per-module'
@@ -2249,11 +2199,6 @@
   subject: dist/ is listed in .gitignore yet its files are tracked in git, so every build regenerates them into conflicts on any concurrent push - one already forced a rebase abort this session
   witness: git ls-files dist/ returns dist/247420.css, dist/247420.js and others while .gitignore:13 says dist/; git_push-71 was rejected with CONFLICT (content) in dist/247420.js. .github/workflows/gh-pages.yml builds dist itself (copies assets in, uploads ./dist) so the tracked copy is not what CI consumes.
   status: pending
-- id: lint-spacing-outside-checks-loop
-  subject: lintSpacingOrThrow was called outside the CHECKS loop in lint-css.mjs under a stale comment claiming it was report-only and never throws; it became a ratchet and does throw, so a real spacing regression would have escaped as an unhandled exception rather than a reported failed check
-  witness: Moved lintSpacingOrThrow into the CHECKS loop in lint-css.mjs and fixed the same hole in lint-tokens.mjs's CLI entry, so a spacing regression now reports as a failed check with a clean message and exit 1 instead of printing a stack trace.
-  status: completed
-  commit_comment: spacing gate now reports as a check instead of throwing out of the runner
 - id: community-css-nonexistent-fs-tokens
   subject: community.css referenced var(--fs-0/--fs-1/--fs-3, Npx) - tokens that do not exist in colors_and_type.css - so the px fallback was what actually rendered
   witness: found during the font-size migration; repointed onto real tokens
