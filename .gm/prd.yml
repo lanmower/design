@@ -1991,16 +1991,6 @@
   subject: AGENTS.md records the CI-blocking a11y audit was removed with no replacement; restore axe-core WCAG checking without a browser-automation dependency
   witness: 'AGENTS.md: ''CI-blocking a11y enforcement they provided has no current replacement, tracked as a residual gap'''
   status: pending
-- id: scrollbar-styling-consistency
-  subject: audit scrollbar treatment across surfaces; inconsistent or default scrollbars read as unfinished
-  witness: 'Measured every scroll container live (any element with overflow-x/y auto or scroll and real height) across four kits. chat.css already styled its thread and code blocks thin with a token colour, but 4 of 4 containers on dashboard, 7 of 7 on gm_inspector and 1 of 1 on file_browser fell back to the UA default - .app-side-shell, .app-main, .ds-scroll-x, .ds-table-wrap, .ds-live-log all unstyled. A default scrollbar is a bright seam against a near-black panel in ink and dark, and reads inconsistently between two panels on the same page. Promoted the existing per-component pattern (scrollbar-width thin, scrollbar-color var(--bg-3) transparent) to a root rule on .app/.ds-stage and descendants so the thumb follows the active theme and later scrollers inherit it. Re-measured: 4/4, 7/7 and 1/1 styled, zero unstyled.'
-  status: completed
-  commit_comment: promote scrollbar treatment to a root rule; every container was UA-default except chat
-- id: icon-set-coverage
-  subject: ICON_PATHS out-of-set name renders an EMPTY span (silent bug); audit every Icon() call site resolves
-  witness: 'AGENTS.md names this as a silent bug class: an out-of-set name passed to Icon() renders an EMPTY span with no error. Extracted every key from ICON_PATHS (69 defined) and every Icon(name) call site across src/ and ui_kits/ (42 distinct names used). Zero used names are undefined, so no call site currently renders an empty span. Clean.'
-  status: completed
-  commit_comment: verified all 42 Icon() names resolve against the 69 defined; no empty-span bugs
 - id: os-theme-css-audit
   subject: src/kits/os/theme.css holds 229 raw spacing, 70 raw font-size, 128 !important, 15 z-index, 7 pure black/white - the single worst-debt file in the repo
   witness: 'exec_js-15 and exec_js-16 scans both rank it #1 in every category'
@@ -2077,11 +2067,6 @@
   subject: audit every modal for whether the task needs interruption or protected focus
   witness: craft floor Refuse list; settings DiscardConfirmModal reviewed, others unaudited
   status: pending
-- id: copy-voice-sweep
-  subject: 'audit all UI copy for product voice: controls name their action, errors name problem+recovery, no generic filler'
-  witness: 'Scanned every button, link, alert title and empty-state message across 7 kits for generic filler. The only hits were the words empty and error on the demo state-toggle controls the states sweep added - controls naming which state to render, correct as labels rather than filler. Read the real copy live by activating each error state: terminal gives shell exited (code 137) / the pty was killed by the OOM reaper, so scrollback is frozen and nothing you type now would reach a shell; search gives index out of date / results would be wrong rather than missing so nothing is shown; dashboard gives event stream disconnected / the eu-west-1 collector stopped answering 38s ago, metrics above still come from the edge and are current. Each names a specific cause AND what it means for what you are looking at, in the product lowercase voice.'
-  status: completed
-  commit_comment: audited UI copy across 7 kits; errors name specific cause and consequence
 - id: degenerate-single-row
   subject: every list/grid tested with exactly one item (grid collapse behavior)
   witness: layout playbook degenerate input
@@ -2156,8 +2141,9 @@
   status: pending
 - id: module-cap-agent-chat
   subject: src/components/agent-chat.js is 561 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
-  witness: exec_js-17 line count = 561; AGENTS.md states 'The 200-line cap applies per-module'
-  status: pending
+  witness: 'Split into a thin barrel over single-responsibility submodules, continuing the pattern established for editor-primitives/overlay-primitives/content. Files over the documented 200-line cap drop from 18 to 6 repo-wide, and the remaining few are marginally over rather than multiples of it. Every barrel uses import-then-bare-export rather than export-from, because generate-component-docs.mjs resolves each symbol by regex against the barrel with a one-hop import fallback and a pure re-export rewrites the doc with drift warnings. Verified behaviour-preserving three ways: docs/component-props.md stayed at 247 symbols with 0 drift (only source paths moved), npm run build passes, and all 17 kits render live with zero console errors - an import that resolves at build time can still break at runtime, so the render sweep is the load-bearing check.'
+  status: completed
+  commit_comment: split into barrel + submodules under the 200-line cap
 - id: module-cap-chat-message-parts
   subject: src/components/chat-message-parts.js is 419 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
   witness: exec_js-17 line count = 419; AGENTS.md states 'The 200-line cap applies per-module'
