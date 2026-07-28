@@ -45,6 +45,12 @@
   --mascot-2:    #FF3CA7;
   --mascot-tint: #F7CEDD;
   --mascot-deep: #B81F63;
+  /* Fixed ink-surface mascot text tone (6.67:1 on --ink). Unlike
+     --mascot-deep, this NEVER follows the theme: it is for always-dark
+     surfaces like the .cli card, which stay ink under a light theme and so
+     need a tone chosen for ink rather than for the active theme. Same role
+     --paper-3-dark plays for the tier-3 text ramp. */
+  --mascot-on-ink: #FF5C9E;
 
   /* Signals */
   --sun:         #F5C344;
@@ -126,6 +132,17 @@
   --cat-sun:     var(--sun);
   --cat-flame:   var(--flame);
   --cat-sky:     var(--sky);
+
+  /* Readable TEXT tones for the category hues — the same FILL/TEXT split the
+     lead accent already draws with --accent (fill) vs --accent-ink (text).
+     The bare --cat-* values are chroma-matched to sit behind ink on a swatch,
+     avatar, or tag; as `color:` on newsprint paper they land at ~3.1:1, under
+     the 4.5:1 floor. Any `color:` use of a category hue takes the -ink tone;
+     only background/border-color take the bare one. Each -deep source is
+     already remapped per-theme below, so these follow the theme too. */
+  --cat-green-ink:  var(--green-deep);
+  --cat-purple-ink: var(--purple-deep);
+  --cat-mascot-ink: var(--mascot-deep);
 
   --panel-bg:     var(--bg);
   --panel-bg-2:   var(--bg-2);
@@ -435,6 +452,14 @@
   --mascot-deep: #FF5C9E;
   --purple-2:  #C277FF;
   --green:     #5CBF52;
+  /* --cat-*-ink text tones for dark. The :root sources (--green-deep #133F10,
+     --purple-deep #220026) are near-black PAPER tones — on ink they land at
+     1.60:1 / 1.01:1, i.e. invisible. Repoint them at the dark-tuned values
+     already proven above: #5CBF52 8.28:1 on ink / 7.04:1 on --bg-2, #C277FF
+     6.77:1 / 5.75:1. --cat-mascot-ink needs no entry here: it tracks
+     --mascot-deep, which this same block already remaps to #FF5C9E. */
+  --cat-green-ink:  #5CBF52;
+  --cat-purple-ink: #C277FF;
   --code-string:  var(--green-2);
   --code-keyword: var(--sky);
   --code-fn:      var(--flame);
@@ -488,6 +513,8 @@
     --mascot-deep: #FF5C9E;
     --purple-2:  #C277FF;
     --green:     #5CBF52;
+    --cat-green-ink:  #5CBF52;
+    --cat-purple-ink: #C277FF;
     --code-string:  var(--green-2);
     --code-keyword: var(--sky);
     --code-fn:      var(--flame);
@@ -533,6 +560,10 @@
   --cat-green: inherit;
   --cat-purple: inherit;
   --cat-mascot: inherit;
+  --cat-green-ink: inherit;
+  --cat-purple-ink: inherit;
+  --cat-mascot-ink: inherit;
+  --mascot-on-ink: inherit;
   --cat-sun: inherit;
   --cat-flame: inherit;
   --cat-sky: inherit;
@@ -3015,10 +3046,15 @@
   background: color-mix(in oklab, var(--flame) 12%, var(--bg));
   color: var(--flame); font-size: var(--fs-xs);
 }
+/* --ink, not --on-color: --on-color is a fixed #fff, which reads fine on a dark
+   fill but measures 3.07:1 on --warn (#FF5A52, a light red) -- below the 4.5:1
+   floor. --ink on the same fill measures 6.27:1. Same principle as the
+   --accent/--accent-ink split the token layer documents: a light saturated fill
+   takes the dark text tone. Measured in a live browser. */
 .ds-247420 .btn-primary.danger {
   background: var(--warn);
   border-color: var(--warn);
-  color: var(--on-color);
+  color: var(--ink);
 }
 .ds-247420 .btn-primary.danger:hover { filter: brightness(0.92); border-color: var(--warn); }
 
@@ -6006,12 +6042,23 @@
 /* --- terminal kit ------------------------------------------ */
 .ds-247420 .ds-section-pad-sm { padding: var(--space-2); }
 .ds-247420 .ds-kit-head-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
-.ds-247420 .ds-cli-cmt .cmd { color: var(--fg-3); }
-.ds-247420 .ds-cli-out .cmd { color: var(--fg-2); }
-.ds-247420 .ds-cli-ok .prompt, .ds-247420 .ds-cli-ok .cmd { color: var(--accent-ink); }
-.ds-247420 .ds-cli-warn .prompt, .ds-247420 .ds-cli-warn .cmd { color: var(--mascot-deep); }
-.ds-247420 .ds-cli-log .prompt { color: var(--fg-3); }
-.ds-247420 .ds-cli-log .cmd { color: var(--fg-2); font-family: var(--ff-mono); }
+/* `.cli` (hero-content.css) is an ALWAYS-INK card: it sets a var(--ink)
+   background with var(--paper) text in every theme, by design. So its text
+   tones must be ink-surface tones, NOT the theme-relative fg / accent-ink /
+   mascot-deep ramps. Those resolve to the PAPER tier under a light theme and
+   paint dark text on this permanently dark card: --fg-3 lands at 2.48:1,
+   --fg-2 at 1.18:1, --mascot-deep at 3.13:1 — all failing AA, and all
+   invisible on a machine whose browser defaults to a dark color-scheme.
+   The tones below are theme-independent and measured on --ink:
+   --paper-3-dark 9.35:1, --paper-2 13.26:1, --acid 15.88:1, and the dark
+   mascot tone 6.67:1. Same FILL-vs-TEXT discipline --accent/--accent-ink
+   draws, applied to a surface that never follows the theme. */
+.ds-247420 .ds-cli-cmt .cmd { color: var(--paper-3-dark); }
+.ds-247420 .ds-cli-out .cmd { color: var(--paper-2); }
+.ds-247420 .ds-cli-ok .prompt, .ds-247420 .ds-cli-ok .cmd { color: var(--acid); }
+.ds-247420 .ds-cli-warn .prompt, .ds-247420 .ds-cli-warn .cmd { color: var(--mascot-on-ink); }
+.ds-247420 .ds-cli-log .prompt { color: var(--paper-3-dark); }
+.ds-247420 .ds-cli-log .cmd { color: var(--paper-2); font-family: var(--ff-mono); }
 .ds-247420 .ds-term-body { padding: var(--space-2-75) var(--space-3-5); display: flex; flex-direction: column; gap: var(--space-1); background: var(--bg-2); border-radius: var(--r-1); }
 .ds-247420 .ds-term-body--tall { min-height: 280px; }
 .ds-247420 .ds-term-input-row { margin-top: var(--space-1-75); }
