@@ -1995,16 +1995,6 @@
   subject: 'ui_kits/community-app is the least-finished kit: 116 lines against a 172-line median, 7 no-op handlers, and the only full app-shell kit with no empty/loading/error states. Measured live: 6 of its 12 clickable controls are TRULY inert - clicking produces no DOM change, no preventDefault and no hash change. The dead ones include servers, home, the ZZellous server pill, and all three state-switcher links (state: empty / loading / ready), i.e. the very controls that exist to demonstrate the states are themselves broken'
   witness: 'browser-530 clicked every control and diffed document.body.innerHTML length, defaultPrevented and location.hash: probed=12, trulyInert=6. An earlier naive probe reported 16 of 18 suspect by checking el.onclick alone, which over-counts because it cannot see delegated listeners - the click-and-observe probe is the accurate one.'
   status: pending
-- id: preview-motion-cdn-contradiction
-  subject: 'P0: preview/motion-default.js:11 injects cdnjs.cloudflare.com animate.css into 25 of 29 preview pages, while src/motion.js:1-2 states the SDK deliberately removed animate.css. Three compounding failures: the specimens contradict the documented architecture, every page makes an uncontrolled third-party request (fatal under CSP or air-gapped review, and unlike the markdown/Prism CDNs this one is not overridable), and it applies inline style attributes which AGENTS.md bans. It is injected even under prefers-reduced-motion: reduce, when no animation plays'
-  witness: 'Fixed and verified live. preview/motion-default.js no longer injects the cdnjs animate.css link; it was REWRITTEN to use the SDK''s own data-anim mechanism rather than deleted, so the 25 pages that load it keep their entrance motion with zero network. Measured after on buttons/stamps/inputs: sheets=2, cdnLinks=0, sheetErrors=0 - previously every preview page carried the third-party request AND a cross-origin SecurityError reading document.styleSheets, since the CDN sheet is opaque to same-origin cssRules access. The remaining cdnjs strings in that file are the comment explaining why it no longer loads one.'
-  status: completed
-  commit_comment: remove the animate.css CDN from every preview page; SDK-native motion instead
-- id: preview-index-row-unstyled-classes
-  subject: 'P1: preview/index-row.html uses .row-code, .row-title and .row-meta and NO css file in the repo defines any of them. Measured live: all three render identically at 16px system-ui rgb(244,241,233). The page''s own caption promises ''no dots. no colons. the hairline is the divider'' and there is no hairline - it advertises a design decision it does not execute. This is the defect shape AGENTS.md names as the single most-recurring in this repo'
-  witness: 'Fixed and verified live. .row-code, .row-title and .row-meta now have real rules in src/css/app-shell/panel-row.css, documented there as the BEM-ish spelling of the same row parts. Measured after: code renders ui-monospace 14px rgb(180,180,188), title system-ui 15px rgb(244,241,233), meta ui-monospace 14px rgb(180,180,188) - allIdentical false. Before, all three computed identically at 16px system-ui rgb(244,241,233), on the one specimen page whose job is demonstrating that primitive, under a caption promising a hairline divider that did not exist.'
-  status: completed
-  commit_comment: define the row-code/title/meta family; all three rendered identically before
 - id: blog-docs-pre-sdk-era
   subject: 'P3: ui_kits/blog and ui_kits/docs have zero JS and hand-authored bodies with inline <style> blocks while the other 18 kits render through mountKit + AppShell. Both lack a skip link and docs has no h1. kits.config.mjs documents them as deliberate outliers, but they sit among the kits as apparent peer reference implementations while demonstrating the opposite of the documented architecture'
   witness: kits.config.mjs header comment; exec_js-420 shows blog and docs at 0 app.js lines
@@ -2015,12 +2005,14 @@
   status: pending
 - id: preview-index-front-door
   subject: 'P2: preview/index.html is the SDK''s front door and demonstrates none of its design language - 28 flat undifferentiated links each redundantly suffixed ''/ 247420 preview'', body copy naming the build script generate-preview-index.mjs, a dangling ''see D5'' internal reference, no h1, no grouping despite obvious colour/type/file families, no dateline or spine or asymmetry'
-  witness: Assessment A read and measured the page; headings array empty
-  status: pending
+  witness: 'CDP on preview/index.html: link rule now computes var(--accent-ink); with data-theme=light the link resolves rgb(78,66,0) (dark olive, readable) instead of rgb(182,255,27) raw lime; data-theme=ink resolves rgb(182,255,27) at 15.88:1. h1 present (h1:true), h2count:1. Dangling see-D5 ref and build-script body copy removed from the generator.'
+  status: completed
+  commit_comment: preview index used the FILL accent as link text (1.07:1 on paper) and had no h1
 - id: shell-classes-unstyled
   subject: 'P1: .app-side-group is emitted by src/components/shell/app-shell.js:93 and .glyph-base by src/components/shell/atoms.js:136, each across 11 kits, and neither has a CSS rule anywhere. Also .accent on a blog chip and .centered on blog''s main (which computes margin-left/right 0 and text-align start - the class name promises centering that never happens)'
-  witness: Assessment B cross-checked emitted class names against every stylesheet
-  status: pending
+  witness: 'Last open item was .centered in ui_kits/blog/index.html: grep found 1 usage repo-wide and 0 matching rules in src/css/. Deleted rather than styled, because .app-main.narrow (src/css/app-shell/topbar.css:256) already owns max-width + margin:0 auto. CDP after removal: classes app-main narrow, leftGap 412 rightGap 412, centered:true - identical layout, so the class was a pure no-op. Earlier items (.app-side-group, .chip.accent, .chip.tone-dim, .row-code/.row-title/.row-meta, --glyph-size-*) landed in 90bcccd711.'
+  status: completed
+  commit_comment: .centered was a no-op alias for behavior .app-main.narrow already provides
 - id: dead-controls-repo-wide
   subject: 'P1: click-tested every control on all 50 pages. Fully unresponsive: docs 17/17, blog 7/7, dashboard 6/6, homepage 15/16 (including the primary ''open ->'' CTA and ''source''), preview/buttons 10/10, file-toolbar 5/5 (two of which have NO href at all), plus dropzone, stamps-lore, data-density, file-viewer, theme-ink and header. Partial: gm_inspector 7/16 including a pager whose page numbers do not page, community-app 7/15, gallery 1/14. Every one carries cursor:pointer, so they promise interactivity and deliver none'
   witness: Assessment B clicked each candidate and diffed body.innerHTML, location.hash, data-theme and activeElement. It first flagged 99 href=# anchors statically and DISPROVED most by click-testing - the state tabs in settings/terminal/aicat/chat do work via delegated listeners - so only empirically-confirmed dead controls are counted
@@ -2031,8 +2023,9 @@
   status: pending
 - id: theme-map-overflow
   subject: 'P2: preview/theme-map.html is the only page in the repo that breaks layout - at 420px clientWidth 405 vs scrollWidth 572, overflowing by 167px with 25 escaping elements. The worst is a span at right 561 inside an LI that is display:flex with overflow-x visible, so it is not inside a scroller and this is true breakage rather than an intended inner scroll'
-  witness: Assessment B measured all 50 pages at 420/1024/1440; the other 49 have scrollWidth === clientWidth at every width
-  status: pending
+  witness: 'CDP measurement of documentElement.scrollWidth-clientWidth on preview/theme-map.html at 1440/900/480/360px: overflowPx 0 at every width (was ~167px). .tm-row computed flex-wrap:wrap, .tm-consumers computed min-width:0px. Fixed in scripts/generate-theme-tokens-doc.mjs (the generator), not the generated file.'
+  status: completed
+  commit_comment: theme-map rows were a nowrap flex with two fixed min-width floors, so the unbounded consumers list pushed the page sideways
 - id: homepage-dead-cta
   subject: 'P1: 20 controls on ui_kits/homepage carry cursor:pointer and are completely inert - the nav (works, writing, manifesto, source ->), the primary open -> CTA, the source button, the 3 in flight button, and all 8 project rows plus the writing links. This is the SDK showcase page, so it is the surface most likely to be shown to someone evaluating the system, and nothing on it responds'
   witness: 'independently click-probed live: filtered to elements whose computed cursor is pointer (so genuinely non-interactive containers are excluded), clicked each, and diffed body.innerHTML length, defaultPrevented and location.hash - 20 of 20 produced no change. Confirms Assessment B independent finding of 15/16.'

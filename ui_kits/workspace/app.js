@@ -55,17 +55,26 @@ const state = {
     ],
 };
 
-// More than one option each, otherwise the pickers are single-choice selects
-// that cannot change — a control that only ever has its current value is the
-// same dead affordance as an unwired handler.
+// Both pickers deliberately stay single-entry, and this is a WORKAROUND for an
+// SDK defect, not a design choice.
+//
+// AgentControls renders the agent and model pickers as sibling Selects. In the
+// no-label/no-hint/md branch, Select() (src/components/content/fields.js:110)
+// returns the bare <select> and DISCARDS the caller's `key`, so both siblings
+// carry the same internal key 'i'. The keyed diff then treats them as one node:
+// the first re-render after ANY state change destroys the agent picker and
+// leaves the model picker wearing title="Select agent". Measured directly --
+// two selects before, one after, mislabelled.
+//
+// So multi-option pickers here would visibly corrupt the toolbar the first time
+// anyone used them, which is a worse lie than a control that plainly has one
+// option. Restore the option lists once Select preserves the caller key in the
+// bare branch; nothing in this kit needs to change but these two arrays.
 const AGENTS = [
     { id: 'claude-code', name: 'claude-code' },
-    { id: 'opencode', name: 'opencode' },
 ];
 const MODELS = [
     { id: 'sonnet', name: 'sonnet' },
-    { id: 'opus', name: 'opus' },
-    { id: 'gpt-5', name: 'gpt-5' },
 ];
 
 function ChatTab() {
