@@ -1142,7 +1142,12 @@
 @media (pointer: coarse) {
   .ds-247420 .app-side a { min-height: 44px; padding: var(--space-2-75) var(--space-3); }
 }
-.ds-247420 .app-side a:hover { background: var(--bg-2); color: var(--fg); }
+/* A sidebar row with no href and no handler is a static label, not a control:
+   Side() emits it as an <a> only so it keeps the grid layout above. It must not
+   claim to be pressable — no pointer, no hover highlight. (An anchor without
+   href is already skipped by the tab order and exposed as generic, not link.) */
+.ds-247420 .app-side a:not([href]) { cursor: default; }
+.ds-247420 .app-side a[href]:hover { background: var(--bg-2); color: var(--fg); }
 .ds-247420 .app-side a:focus-visible {
   outline: var(--focus-w) solid var(--focus-color);
   outline-offset: var(--focus-offset);
@@ -6993,13 +6998,13 @@
   font-weight: 600;
   font-size: var(--fs-sm);
   letter-spacing: -0.01em;
-  cursor: pointer;
-  transition: background var(--dur-snap) var(--ease);
-  user-select: none;
+  /* No cursor:pointer, no :hover background, no user-select:none. This is a
+     static <div> (community/navigation.js) with no handler and no role — it
+     just names the current server. Those three properties are the vocabulary
+     of a pressable control, so together they promised a menu that does not
+     exist: the pointer and the hover highlight both invited a click that
+     nothing answers. Restore them only alongside a real handler + role. */
   flex-shrink: 0;
-}
-.ds-247420 .cm-server-header:hover {
-  background: color-mix(in oklab, var(--fg) 6%, var(--bg-2));
 }
 .ds-247420 .cm-server-header-name {
   flex: 1;
@@ -10376,8 +10381,14 @@
     font: var(--fs-tiny, 12px)/1 var(--ff-mono, monospace);
     color: var(--panel-text-3, var(--fg-3));
 }
+/* 24px pointer-target floor on both pager controls. Measured live on a real
+   paged table: the prev/next buttons rendered 36x21 and the numbered ones
+   23x21 -- under the minimum target size in height for both, and in BOTH axes
+   for the numbered case. Padding alone cannot guarantee the floor because
+   font-size varies per consumer, so it is stated explicitly. */
 .ds-247420 .ds-ep-pager-btn {
     appearance: none; cursor: pointer;
+    min-height: 24px;
     background: var(--panel-2, var(--bg-2));
     border: 1px solid var(--rule);
     color: var(--panel-text, var(--fg));
@@ -10392,10 +10403,13 @@
 .ds-247420 .ds-ep-pager-numbered { flex-wrap: wrap; }
 .ds-247420 .ds-ep-pager-num {
     appearance: none; cursor: pointer;
+    min-height: 24px;
     background: var(--panel-2, var(--bg-2));
     border: 1px solid var(--rule);
     color: var(--panel-text, var(--fg));
-    min-width: 1.75em;
+    /* max() rather than a bare 1.75em: at the small font a pager uses, 1.75em
+       computed to 23px -- just under the target floor. */
+    min-width: max(24px, 1.75em);
     padding: var(--space-half, 3px) var(--space-1, 4px);
     border-radius: var(--r-1, 4px);
     font: inherit;

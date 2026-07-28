@@ -54,10 +54,13 @@ const EMULATED_COLOR_SCHEME = 'light';
 // the transition entirely, so axe always samples the settled, real colours.
 const EMULATED_REDUCED_MOTION = 'reduce';
 
-// _template is a scaffold stub, not a real page.
+// A kit is auditable if it has an index.html to serve. _template holds only
+// index.html.tmpl (a generator input, deliberately not servable), so it drops
+// out here structurally rather than via a name it could later be renamed out
+// of — one rule instead of a hardcoded exclusion sitting beside it.
 function listKits() {
     return readdirSync(kitsDir, { withFileTypes: true })
-        .filter((d) => d.isDirectory() && d.name !== '_template')
+        .filter((d) => d.isDirectory())
         .map((d) => d.name)
         .filter((n) => existsSync(join(kitsDir, n, 'index.html')))
         .sort();

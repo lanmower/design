@@ -26,7 +26,13 @@ import { fileURLToPath } from 'node:url';
 import { kits } from '../ui_kits/kits.config.mjs';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
-const templatePath = join(root, 'ui_kits/_template/index.html');
+// .tmpl, not .html: this file is a build input full of unsubstituted {{VAR}}
+// placeholders and a <script src="./app.js"> pointing at a file that does not
+// exist in _template. As index.html it was served at 200 alongside the real
+// kits, rendering raw "{{TITLE}} / 247420" text and 404-ing its own script —
+// a broken page sitting among the reference implementations. The extension is
+// what keeps it un-servable while it stays the source this generator reads.
+const templatePath = join(root, 'ui_kits/_template/index.html.tmpl');
 
 // Normalize CRLF -> LF on read. This repo's working tree checks files out
 // with CRLF (core.autocrlf=true on this Windows checkout) while git's blobs
