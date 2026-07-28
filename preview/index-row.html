@@ -2,10 +2,17 @@
 <html lang="en" data-theme="auto" class="ds-247420"><head><meta charset="utf-8">
 <title>index row / 247420 preview</title><link rel="stylesheet" href="../colors_and_type.css">
 <link rel="stylesheet" href="../app-shell.css">
-<style>body{padding:var(--space-3-5);background:var(--panel-0);color:var(--panel-text);}</style><script defer src="./motion-default.js"></script>
+<style>
+body{padding:var(--space-3-5);background:var(--panel-0);color:var(--panel-text);}
+/* Page-local spacing lives here, not in style= attributes — an inline layout
+   string escapes every media query and the [data-density] rules
+   (scripts/lint-inline-styles.mjs). */
+.ir-stack{margin-top:var(--space-3)}
+.ir-note{margin-top:var(--space-3)}
+</style><script defer src="./motion-default.js"></script>
 </head><body>
 <div class="dateline"><span>247420 · COMPONENTS · INDEX-ROW</span><span class="spread"></span><span>CORE PRIMITIVE</span></div>
-<div style="margin-top:14px">
+<div class="row-list ir-stack">
   <div class="row">
     <div class="row-code">001</div>
     <div class="row-title">gm</div>
@@ -22,5 +29,5 @@
     <div class="row-meta">wip</div>
   </div>
 </div>
-<div class="t-meta" style="margin-top:12px">how we list projects. no dots. no colons. the hairline is the divider.</div>
+<div class="t-meta ir-note">how we list projects. no dots. no colons. the hairline is the divider.</div>
 </body></html>

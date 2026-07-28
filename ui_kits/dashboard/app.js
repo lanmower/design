@@ -102,22 +102,32 @@ function EventsPanel() {
     return h('div', {}, ...events.map((e, i) => Row({ key: 'ev' + i, title: e.title, sub: e.sub, meta: e.meta, rail: e.rail })));
 }
 
+const feedCountOf = () => (state.feed === 'ready' ? events.length : 0);
+
 function App() {
-    const feedCount = state.feed === 'ready' ? events.length : 0;
+    const feedCount = feedCountOf();
     return AppShell({
         topbar: Topbar({ brand: '247420', leaf: 'dashboard', items: [['index', '../../'], ['docs', '../docs/'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'dashboard' }),
         side: Side({
             sections: [
+                // Every entry anchors to the panel it names. These were four
+                // inert rows styled exactly like working nav; the counts were
+                // also invented, so they now read off the data each panel draws.
                 { group: 'views', items: [
-                    { glyph: '*', label: 'overview', count: '·', key: 'o' },
-                    { glyph: '-', label: 'requests', count: 5,    key: 'r' },
-                    { glyph: '-', label: 'errors',   count: 2,    key: 'e' },
-                    { glyph: '-', label: 'cron',     count: 7,    key: 'c' }
+                    { glyph: '*', label: 'overview',      count: kpis.length,             key: 'o', href: '#p-metrics' },
+                    { glyph: '-', label: 'endpoints',     count: tableRows.length,        key: 'r', href: '#p-endpoints' },
+                    { glyph: '-', label: 'events',        count: feedCountOf(),           key: 'e', href: '#p-events' },
+                    { glyph: '-', label: 'changelog',     count: changelog.length,        key: 'c', href: '#p-changelog' }
                 ] },
+                // Environment is a READOUT, not navigation — there is no
+                // per-environment view in this kit to switch to. It anchors to
+                // the environment receipt, which is the panel that actually
+                // carries this information, rather than promising a filter it
+                // cannot perform.
                 { group: 'env', items: [
-                    { glyph: h('span', { class: 'ds-dot' }), label: 'production', count: 'eu', key: 'p', color: 'var(--panel-accent)' },
-                    { glyph: h('span', { class: 'ds-dot' }), label: 'staging',    count: 'us', key: 's', color: 'var(--mascot)' }
+                    { glyph: h('span', { class: 'ds-dot ds-dot-on' }), label: 'production', count: 'eu', key: 'p', color: 'var(--panel-accent)', href: '#p-environment' },
+                    { glyph: h('span', { class: 'ds-dot ds-dot-off' }), label: 'staging',   count: 'us', key: 's', color: 'var(--mascot)', href: '#p-environment' }
                 ] },
                 // Reachable state switcher — the events panel is the kit's
                 // reference data surface, so every state it can be in is one
@@ -137,10 +147,10 @@ function App() {
                 // paired analysis, then the three reference panels. Each tier is
                 // separated by the .ds-panel-gap/.ds-panel-duo outer rhythm,
                 // which is deliberately wider than any panel's inner gap.
-                Panel({ title: 'live metrics', count: kpis.length, class: 'ds-panel-gap', children: Kpi({ items: kpis }) }),
+                Panel({ id: 'p-metrics', title: 'live metrics', count: kpis.length, class: 'ds-panel-gap', children: Kpi({ items: kpis }) }),
                 h('div', { class: 'ds-panel-duo' },
                     Panel({ title: 'traffic by channel', count: channelBreakdown.length, class: 'ds-panel-flush', children: BarChart({ items: channelBreakdown }) }),
-                    Panel({ title: 'top endpoints', count: tableRows.length, class: 'ds-panel-flush', children: h('div', { class: 'ds-scroll-x' }, Table({ headers: tableHeaders, rows: tableRows })) })
+                    Panel({ id: 'p-endpoints', title: 'top endpoints', count: tableRows.length, class: 'ds-panel-flush', children: h('div', { class: 'ds-scroll-x' }, Table({ headers: tableHeaders, rows: tableRows })) })
                 ),
                 // Three equal reference panels. A real 3-track grid, not
                 // percentage flex-basis: with basis+gap the three tracks
@@ -148,9 +158,9 @@ function App() {
                 // .ds-panel-flush drops each panel's own bottom margin so the
                 // grid gap is the single source of separation in the row.
                 h('div', { class: 'ds-panel-trio' },
-                    Panel({ title: 'environment', class: 'ds-panel-flush', children: Receipt({ rows: receipt }) }),
-                    Panel({ title: 'recent events', count: feedCount, class: 'ds-panel-flush', children: EventsPanel() }),
-                    Panel({ title: 'changelog', count: changelog.length, class: 'ds-panel-flush', children: Changelog({ entries: changelog }) })
+                    Panel({ id: 'p-environment', title: 'environment', class: 'ds-panel-flush', children: Receipt({ rows: receipt }) }),
+                    Panel({ id: 'p-events', title: 'recent events', count: feedCount, class: 'ds-panel-flush', children: EventsPanel() }),
+                    Panel({ id: 'p-changelog', title: 'changelog', count: changelog.length, class: 'ds-panel-flush', children: Changelog({ entries: changelog }) })
                 ),
                 Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
                     h('p', {}, '· ', Chip({ tone: 'accent', children: 'Kpi' }), ' for headline counters with trend delta + sparkline.'),

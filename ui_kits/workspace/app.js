@@ -17,10 +17,17 @@ const sessions = [
     { sid: 's4', title: 'investigate CI timeout', project: 'agentgui', time: '3h', rail: 'flame' },
 ];
 
-const liveSessions = [
+// Mutable on purpose: the dashboard's stop controls actually remove rows from
+// this list, so a Stop button on a running agent does what its label says
+// rather than being a decorative affordance.
+let liveSessions = [
     { sid: 's1', agentName: 'claude-code', model: 'sonnet', cwd: 'kit', status: 'running', startedAt: Date.now() - 120000 },
     { sid: 's4', agentName: 'opencode', model: 'gpt-5', cwd: 'agentgui', status: 'error', startedAt: Date.now() - 900000 },
 ];
+// Restoring the list is what makes stop re-testable: without it the only way
+// back to a populated dashboard is a page reload, so cycling the state switcher
+// through `ready` re-seeds it.
+const seedSessions = liveSessions.slice();
 
 // `railPhase` drives the conversation rail. ConversationList already owns
 // loading (its .ds-session-row-skeleton shimmer), error and empty internally —
@@ -34,22 +41,54 @@ const state = {
     selectedSid: 's1',
     draft: '',
     busy: false,
+    // The agent/model pickers and the working-directory bar are real controls
+    // in AgentChat, so this kit holds the state they edit rather than passing
+    // fixed strings and leaving every one of them inert.
+    agent: 'claude-code',
+    model: 'sonnet',
+    cwd: 'kit',
+    cwdEditing: false,
+    cwdDraft: '',
     messages: [
         { role: 'user', content: 'the auth middleware refactor — where should the session-token check live?' },
         { role: 'assistant', parts: [{ kind: 'md', text: 'Move it into a single `verifySession(req)` helper called from the route guard, not scattered per-route. Two call sites currently duplicate the check — that duplication is the actual bug risk.' }] },
     ],
 };
 
+// More than one option each, otherwise the pickers are single-choice selects
+// that cannot change — a control that only ever has its current value is the
+// same dead affordance as an unwired handler.
+const AGENTS = [
+    { id: 'claude-code', name: 'claude-code' },
+    { id: 'opencode', name: 'opencode' },
+];
+const MODELS = [
+    { id: 'sonnet', name: 'sonnet' },
+    { id: 'opus', name: 'opus' },
+    { id: 'gpt-5', name: 'gpt-5' },
+];
+
 function ChatTab() {
     return AgentChat({
-        agents: [{ id: 'claude-code', name: 'claude-code' }],
-        selectedAgent: 'claude-code',
-        models: [{ id: 'sonnet', name: 'sonnet' }],
-        selectedModel: 'sonnet',
+        agents: AGENTS,
+        selectedAgent: state.agent,
+        models: MODELS,
+        selectedModel: state.model,
+        onSelectAgent: (id) => { state.agent = id; render(); },
+        onSelectModel: (id) => { state.model = id; render(); },
         messages: state.messages,
         busy: state.busy,
         draft: state.draft,
-        cwd: 'kit',
+        // Working-directory bar: change/set opens the editor, save commits,
+        // cancel backs out, 'use default' clears it.
+        cwd: state.cwd,
+        cwdEditing: state.cwdEditing,
+        cwdDraft: state.cwdDraft,
+        onCwdEdit: () => { state.cwdEditing = true; state.cwdDraft = state.cwd; render(); },
+        onCwdDraft: (v) => { state.cwdDraft = v; },
+        onCwdSave: () => { state.cwd = (state.cwdDraft || '').trim(); state.cwdEditing = false; render(); },
+        onCwdCancel: () => { state.cwdEditing = false; state.cwdDraft = ''; render(); },
+        onCwdClear: () => { state.cwd = ''; state.cwdEditing = false; render(); },
         onInput: (v) => { state.draft = v; },
         onSend: () => {
             if (!state.draft.trim()) return;
@@ -72,10 +111,24 @@ function LiveTab() {
         offline: p === 'error',
         streamState: p === 'loading' ? 'connecting' : (p === 'error' ? 'offline' : 'connected'),
         emptyText: 'nothing running right now — start an agent from the chat tab and it shows up here while it works.',
-        onStop: () => {},
-        onOpen: () => {},
-        onView: () => {},
-        onStopAll: () => {},
+        activeSid: state.selectedSid,
+        // Stop really stops: the row leaves the dashboard and the rail count
+        // drops with it. Nothing here reports success it did not have.
+        onStop: (s) => {
+            liveSessions = liveSessions.filter((x) => x.sid !== s.sid);
+            render();
+        },
+        onStopAll: () => { liveSessions = []; render(); },
+        // Open selects the session and returns to the chat surface, which is
+        // where an opened session is actually read.
+        onOpen: (s) => {
+            state.selectedSid = s.sid;
+            state.tab = 'chat';
+            render();
+        },
+        // View marks the row active in place — the dashboard's own selected
+        // treatment is the visible result, not a dialog this kit has no backend for.
+        onView: (s) => { state.selectedSid = s.sid; render(); },
     });
 }
 
@@ -94,6 +147,9 @@ function App() {
                 // living surface in this kit rather than backend-only.
                 { label: 'state: ' + state.railPhase, key: 'phase', onClick: () => {
                     state.railPhase = RAIL_PHASES[(RAIL_PHASES.indexOf(state.railPhase) + 1) % RAIL_PHASES.length];
+                    // Returning to `ready` restores the seed list, so a dashboard
+                    // emptied by stop-all can be brought back without a reload.
+                    if (state.railPhase === 'ready') liveSessions = seedSessions.slice();
                     render();
                 } },
             ],
@@ -108,7 +164,17 @@ function App() {
             emptyText: 'no conversations yet — hit new chat and the first one lands here.',
             selected: state.selectedSid,
             onSelect: (s) => { state.selectedSid = s.sid; render(); },
-            onNew: () => { state.messages = []; render(); },
+            // A new chat clears the transcript AND drops the conversation
+            // selection while switching to the chat surface — clearing messages
+            // alone was invisible whenever the transcript was already empty or
+            // the live tab was in front, which is what made this read as dead.
+            onNew: () => {
+                state.messages = [];
+                state.draft = '';
+                state.selectedSid = null;
+                state.tab = 'chat';
+                render();
+            },
         }),
         main: state.tab === 'chat' ? ChatTab() : LiveTab(),
         status: Status({

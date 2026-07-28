@@ -1114,6 +1114,14 @@
   padding: var(--space-5) var(--space-3);
   font-size: var(--fs-sm);
 }
+/* Sidebar section wrapper emitted by Side() (src/components/shell/app-shell.js).
+   It is the `role="group"` that owns the heading + its links, so it must be the
+   thing that groups them visually too: without a rule it was a bare block, and
+   the only separation between sections came from .app-side's own flex gap —
+   which meant the heading floated equidistant between the group it labels and
+   the one above it. Stacking the group's own children tightly re-attaches the
+   heading to its links. */
+.ds-247420 .app-side-group { display: flex; flex-direction: column; gap: var(--space-hair); }
 .ds-247420 .app-side .group {
   font-size: var(--fs-xs); font-weight: 600;
   color: var(--fg-3); padding: 0 var(--space-3);
@@ -1438,6 +1446,15 @@
 .ds-247420 .chip.tone-wip, .ds-247420 .chip.tone-neutral {
   background: var(--bg-3); color: var(--fg-2);
 }
+/* `.chip.accent` is the bare-adjective spelling of tone-accent (ui_kits/blog
+   uses it for a "draft" chip). It had no rule anywhere, so an accented chip
+   rendered byte-identical to a plain one. Folded into the alias grouping rather
+   than given its own block, so the two spellings cannot drift apart. --accent
+   is the FILL and --accent-ink the readable text tone (AGENTS.md) — the bare
+   lead is ~1.07:1 on paper and unreadable as text. */
+.ds-247420 .chip.accent, .ds-247420 .chip.tone-accent {
+  background: var(--accent-tint); color: var(--accent-ink);
+}
 /* tone-dim was applied by five kits (aicat, project_page, signin, system_primer,
    terminal) with no rule anywhere, so a "dim" chip rendered byte-identical to a
    plain one — measured at rgb(234,230,218) on rgb(31,31,38), same opacity. It is
@@ -1495,6 +1512,19 @@
   font-family: var(--ff-mono); font-size: var(--fs-tiny);
   opacity: 0.8;
 }
+/* Glyph() (src/components/shell/atoms.js) emits `glyph glyph-{size}` and an
+   inline `font-size: var(--glyph-size-{size}, <literal>)`. The custom property
+   is the documented theming hook — it is what lets a theme retune glyph scale
+   without touching the component — but nothing declared it, so every glyph fell
+   through to the hard-coded inline literal and the hook was inert. Declaring
+   the three rungs on the scale makes the hook real; the sm/lg classes also give
+   the box a matching footprint instead of the one-size 18px square. */
+/* Values mirror Glyph()'s own inline fallbacks exactly (11 / 13 / 16px), so
+   declaring the hook changes nothing visually — it only makes the property
+   themeable, which is what it always claimed to be. */
+.ds-247420 .glyph { --glyph-size-sm: var(--fs-nano); --glyph-size-base: var(--fs-tiny); --glyph-size-lg: var(--fs-body); }
+.ds-247420 .glyph-sm { width: 14px; height: 14px; }
+.ds-247420 .glyph-lg { width: 22px; height: 22px; }
 
 /* ============================================================
    Panel — soft tonal container, no border decoration
@@ -1653,10 +1683,19 @@
    takes the full width instead of wrapping in the narrow code gutter. */
 .ds-247420 .row.row-nocode { grid-template-columns: minmax(0, 1fr) auto; }
 
-.ds-247420 .row .code  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
+/* `.row-code` / `.row-title` / `.row-meta` are the BEM-ish spelling of the same
+   three cells as `.code` / `.title` / `.meta`. Both spellings are live in the
+   wild (preview/index-row.html uses the hyphenated one), and a cell that
+   matches no rule falls back to browser defaults — 16px body text in all three
+   tracks, which is precisely the undifferentiated render the specimen page was
+   shipping. Aliased rather than renamed so neither spelling can silently go
+   unstyled again. */
+.ds-247420 .row .code,
+.ds-247420 .row .row-code  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
 /* Title defaults to the quiet app voice (fs-sm/500) — the 18px/600 marketing
    voice is now opt-in via .row--lede. */
-.ds-247420 .row .title { font-family: var(--ff-body); font-weight: 500; font-size: var(--fs-sm); line-height: var(--lh-snug); display: flex; align-items: baseline; gap: var(--space-2-5); flex-wrap: wrap; min-width: 0; }
+.ds-247420 .row .title,
+.ds-247420 .row .row-title { font-family: var(--ff-body); font-weight: 500; font-size: var(--fs-sm); line-height: var(--lh-snug); display: flex; align-items: baseline; gap: var(--space-2-5); flex-wrap: wrap; min-width: 0; }
 .ds-247420 .row .title .sub { font-family: var(--ff-body); font-weight: 400; font-size: var(--fs-sm); color: var(--fg-3); }
 /* Marketing/editorial index row — restores the roomier padding + larger title
    the default carried before app-scale became the base. */
@@ -1672,7 +1711,20 @@
 /* Context-pane cwd fact reads as a path (like .ds-dash-cwd/.ds-session-agent/
    .ds-dash-model) -- scoped to that one row so no other Row .sub is affected. */
 .ds-247420 .ds-context-cwd-row .row .sub { font-family: var(--ff-mono); }
-.ds-247420 .row .meta  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; align-self: center; }
+.ds-247420 .row .meta,
+.ds-247420 .row .row-meta  { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; align-self: center; }
+/* `.row-meta` carries free prose ("state machine · 3k · shipping"), unlike
+   `.meta`'s short tabular counts — so it wraps instead of forcing the row's
+   third track wide enough to overflow a phone viewport. */
+.ds-247420 .row .row-meta { white-space: normal; }
+/* Hairline-divided index list. `.row` is deliberately hairline-FREE (the rail
+   is the affordance), but an editorial index reads as a printed table of
+   contents: the divider IS the structure, which is what
+   preview/index-row.html's caption claims. Opt-in on the container so no
+   existing rail-based list changes. */
+.ds-247420 .row-list > .row + .row { margin-top: 0; border-top: 1px solid var(--rule); border-radius: 0; }
+.ds-247420 .row-list > .row:first-child { border-radius: var(--r-1) var(--r-1) 0 0; }
+.ds-247420 .row-list > .row:last-child { border-radius: 0 0 var(--r-1) var(--r-1); }
 /* WorksList meta pairs a label with a disclosure chevron, inline-aligned. */
 .ds-247420 .ds-works-meta { display: inline-flex; align-items: center; gap: .4em; }
 

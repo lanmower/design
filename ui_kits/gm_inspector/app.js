@@ -166,14 +166,22 @@ function App() {
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'gm_inspector' }),
         side: Side({
             sections: [
+                // Every entry anchors to the panel it names. These were inert
+                // rows styled exactly like working nav. The counts now track
+                // storeState like the panel headings do, so the sidebar cannot
+                // claim 5 sessions while the sessions panel draws its empty state.
                 { group: 'views', items: [
-                    { glyph: '*', label: 'overview', count: '·', key: 'o' },
-                    { glyph: '-', label: 'sessions', count: sessions.length, key: 's' },
-                    { glyph: '-', label: 'process tree', count: treeNodes.length, key: 't' },
-                    { glyph: '-', label: 'deviations', count: deviations.length, key: 'd' }
+                    { glyph: '*', label: 'overview',     count: kpis.length,          key: 'o', href: '#p-overview' },
+                    { glyph: '-', label: 'sessions',     count: countFor(sessions),   key: 's', href: '#p-sessions' },
+                    { glyph: '-', label: 'process tree', count: countFor(treeNodes),  key: 't', href: '#p-tree' },
+                    { glyph: '-', label: 'deviations',   count: countFor(deviations), key: 'd', href: '#p-deviations' }
                 ] },
+                // Phase is a READOUT of where the inspected walk ended, not a
+                // control — there is no other phase to switch to. It anchors to
+                // the overview panel that carries the same summary rather than
+                // sitting there as an anchor that goes nowhere.
                 { group: 'phase', items: [
-                    { glyph: h('span', { class: 'ds-dot' }), label: 'COMPLETE', count: '5/5', key: 'p', color: 'var(--success)' }
+                    { glyph: h('span', { class: 'ds-dot ds-dot-on' }), label: 'COMPLETE', count: '5/5', key: 'p', color: 'var(--success)', href: '#p-overview' }
                 ] },
                 // Reachable state switcher for the three data surfaces above.
                 { group: 'store state', items: STORE_PHASES.map((s) => ({
@@ -187,11 +195,11 @@ function App() {
             h('div', { class: 'ds-app-surface ds-section-pad' },
                 Heading({ level: 1, children: 'gm inspector' }),
                 Lede({ children: 'session list, process tree, deviations, live stream -- the data-density component family (PhaseWalk, TreeNode, BarRow, StatsGrid, SessionRow, DevRow, LiveLog) composed into one observability surface.' }),
-                Panel({ title: 'overview', count: kpis.length, class: 'ds-panel-gap', children: StatsGrid({ items: kpis }) }),
-                Panel({ title: 'sessions', count: countFor(sessions), class: 'ds-panel-gap', children: SessionsBody() }),
+                Panel({ id: 'p-overview', title: 'overview', count: kpis.length, class: 'ds-panel-gap', children: StatsGrid({ items: kpis }) }),
+                Panel({ id: 'p-sessions', title: 'sessions', count: countFor(sessions), class: 'ds-panel-gap', children: SessionsBody() }),
                 h('div', { class: 'ds-panel-duo' },
-                    Panel({ title: 'process tree', count: countFor(treeNodes), children: TreeBody() }),
-                    Panel({ title: 'deviations', count: countFor(deviations), children: DevBody() })
+                    Panel({ id: 'p-tree', title: 'process tree', count: countFor(treeNodes), children: TreeBody() }),
+                    Panel({ id: 'p-deviations', title: 'deviations', count: countFor(deviations), children: DevBody() })
                 ),
                 Panel({ title: 'recall score histogram', class: 'ds-panel-gap', children: h('div', {},
                     BarRow({ label: '0.5-0.6', value: '12', pct: 40, tone: 'var(--accent)' }),

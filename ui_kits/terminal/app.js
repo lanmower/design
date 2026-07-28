@@ -72,6 +72,36 @@ const reduced = typeof matchMedia !== 'undefined'
     && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const demo = { visible: reduced ? demoScript.slice() : [], looping: !reduced };
 
+// Commands the live shell has run, newest last — what `history (up)` walks.
+const history = [];
+let historyIdx = -1;
+
+// Empties the scrollback and drops the shell into its own empty state, which is
+// the honest reading of a cleared shell (the empty panel explains what lands
+// there). Both the sidebar item and Cmd/Ctrl+K call this.
+function clearScrollback() {
+    liveTranscript.length = 0;
+    live.phase = 'empty';
+    historyIdx = -1;
+    kit.render();
+}
+
+// Walks back through previously-run commands into the input, oldest-last like a
+// real shell. With no history it says so in the scrollback instead of silently
+// doing nothing — the whole point of this pass.
+function recallHistory() {
+    if (!history.length) {
+        if (live.phase !== 'ready') live.phase = 'ready';
+        liveTranscript.push({ kind: 'cmt', text: '# nothing in history yet — run a command first' });
+        kit.render();
+        return;
+    }
+    historyIdx = historyIdx < 0 ? history.length - 1 : Math.max(0, historyIdx - 1);
+    live.input = history[historyIdx];
+    if (live.phase !== 'ready') live.phase = 'ready';
+    kit.render();
+}
+
 const LINE_PROMPTS = { cmt: '#', cmd: '$', out: '·', ok: '+', warn: '!', log: '·' };
 function Line(l, i, opts = {}) {
     const prompt = LINE_PROMPTS[l.kind];
@@ -94,8 +124,20 @@ function App() {
         side: Side({
             sections: [
                 { group: 'sessions', items: [
-                    { glyph: '*', label: 'live',     count: 'on', key: 'l' },
-                    { glyph: '-', label: 'demo loop', count: demo.looping ? 'play' : 'still', key: 'd' }
+                    // 'live' is a readout of which shell this kit is showing —
+                    // there is only one, so it anchors to that panel rather
+                    // than posing as a session picker.
+                    { glyph: '*', label: 'live', count: live.phase === 'ready' ? liveTranscript.length : 0, key: 'l', href: '#p-live' },
+                    // The demo loop control actually pauses and resumes the
+                    // playback it names.
+                    { glyph: '-', label: 'demo loop', count: demo.looping ? 'play' : 'still', key: 'd',
+                      href: '#p-demo',
+                      onClick: (e) => {
+                          e.preventDefault();
+                          demo.looping = !demo.looping;
+                          if (demo.looping) tick();
+                          kit.render();
+                      } }
                 ] },
                 // Reachable state switcher for the live shell panel.
                 { group: 'shell state', items: PHASES.map((p) => ({
@@ -103,9 +145,14 @@ function App() {
                     label: p, key: 'ph-' + p, active: live.phase === p,
                     onClick: (e) => { e.preventDefault(); live.phase = p; kit.render(); }
                 })) },
+                // These name real shell affordances, so they perform them
+                // rather than documenting a keystroke and doing nothing when
+                // clicked. Both are also bound to the keys they advertise.
                 { group: 'shortcuts', items: [
-                    { glyph: '·', label: 'clear (⌘k)',  key: 'c' },
-                    { glyph: '·', label: 'history (up)', key: 'h' }
+                    { glyph: '·', label: 'clear (⌘k)', key: 'c',
+                      onClick: (e) => { e.preventDefault(); clearScrollback(); } },
+                    { glyph: '·', label: 'history (up)', key: 'h',
+                      onClick: (e) => { e.preventDefault(); recallHistory(); } }
                 ] }
             ]
         }),
@@ -119,6 +166,7 @@ function App() {
 
                 // Live terminal — usable, no reveal delays.
                 Panel({
+                    id: 'p-live',
                     title: 'live · ' + live.cwd,
                     count: live.phase === 'ready' ? liveTranscript.length : 0,
                     class: 'ds-panel-gap',
@@ -138,8 +186,15 @@ function App() {
                                     if (e.key === 'Enter' && live.input.trim()) {
                                         liveTranscript.push({ kind: 'cmd', text: live.input });
                                         liveTranscript.push({ kind: 'out', text: '(stub) ran: ' + live.input });
+                                        history.push(live.input);
+                                        historyIdx = -1;
                                         live.input = '';
                                         kit.render();
+                                    } else if (e.key === 'ArrowUp') {
+                                        // The sidebar advertises 'history (up)';
+                                        // the key it names has to do it too.
+                                        e.preventDefault();
+                                        recallHistory();
                                     }
                                 }
                             })
@@ -149,6 +204,7 @@ function App() {
 
                 // Demo loop — decorative showcase only.
                 Panel({
+                    id: 'p-demo',
                     title: 'demo · build pipeline',
                     count: demo.visible.length + '/' + demoScript.length,
                     class: 'ds-panel-gap',
@@ -173,16 +229,39 @@ function App() {
 
 const kit = mountKit({ root, view: App, screen: '09 Terminal' });
 
-// Demo loop animation. Stays off when prefers-reduced-motion is on.
-if (demo.looping) {
-    let i = 0;
-    function tick() {
-        if (i >= demoScript.length) {
-            setTimeout(() => { demo.visible = []; i = 0; kit.render(); tick(); }, 2500);
-            return;
-        }
-        const step = demoScript[i++];
-        setTimeout(() => { demo.visible.push(step); kit.render(); tick(); }, step.d);
+// The sidebar advertises 'clear (⌘k)'; bind the keystroke it names so the label
+// is true on both surfaces.
+document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        clearScrollback();
     }
-    tick();
+});
+
+// Demo loop animation. Stays off when prefers-reduced-motion is on, and the
+// sidebar's 'demo loop' item pauses/resumes it — hence module scope with a
+// `looping` guard on every step rather than a closure that cannot be stopped.
+// `pending` is the guard against a paused-then-resumed loop running two
+// interleaved timer chains over the same index.
+let demoIdx = 0;
+let demoPending = false;
+function tick() {
+    if (!demo.looping || demoPending) return;
+    if (demoIdx >= demoScript.length) {
+        demoPending = true;
+        setTimeout(() => {
+            demoPending = false;
+            if (!demo.looping) return;
+            demo.visible = []; demoIdx = 0; kit.render(); tick();
+        }, 2500);
+        return;
+    }
+    const step = demoScript[demoIdx++];
+    demoPending = true;
+    setTimeout(() => {
+        demoPending = false;
+        if (!demo.looping) return;
+        demo.visible.push(step); kit.render(); tick();
+    }, step.d);
 }
+tick();

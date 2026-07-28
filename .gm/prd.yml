@@ -1997,12 +1997,14 @@
   status: pending
 - id: preview-motion-cdn-contradiction
   subject: 'P0: preview/motion-default.js:11 injects cdnjs.cloudflare.com animate.css into 25 of 29 preview pages, while src/motion.js:1-2 states the SDK deliberately removed animate.css. Three compounding failures: the specimens contradict the documented architecture, every page makes an uncontrolled third-party request (fatal under CSP or air-gapped review, and unlike the markdown/Prism CDNs this one is not overridable), and it applies inline style attributes which AGENTS.md bans. It is injected even under prefers-reduced-motion: reduce, when no animation plays'
-  witness: preview/motion-default.js:11 vs src/motion.js:1-2
-  status: pending
+  witness: 'Fixed and verified live. preview/motion-default.js no longer injects the cdnjs animate.css link; it was REWRITTEN to use the SDK''s own data-anim mechanism rather than deleted, so the 25 pages that load it keep their entrance motion with zero network. Measured after on buttons/stamps/inputs: sheets=2, cdnLinks=0, sheetErrors=0 - previously every preview page carried the third-party request AND a cross-origin SecurityError reading document.styleSheets, since the CDN sheet is opaque to same-origin cssRules access. The remaining cdnjs strings in that file are the comment explaining why it no longer loads one.'
+  status: completed
+  commit_comment: remove the animate.css CDN from every preview page; SDK-native motion instead
 - id: preview-index-row-unstyled-classes
   subject: 'P1: preview/index-row.html uses .row-code, .row-title and .row-meta and NO css file in the repo defines any of them. Measured live: all three render identically at 16px system-ui rgb(244,241,233). The page''s own caption promises ''no dots. no colons. the hairline is the divider'' and there is no hairline - it advertises a design decision it does not execute. This is the defect shape AGENTS.md names as the single most-recurring in this repo'
-  witness: grep for .row-code/.row-title/.row-meta across every .css including dist returns zero rules; Assessment A measured the computed styles live
-  status: pending
+  witness: 'Fixed and verified live. .row-code, .row-title and .row-meta now have real rules in src/css/app-shell/panel-row.css, documented there as the BEM-ish spelling of the same row parts. Measured after: code renders ui-monospace 14px rgb(180,180,188), title system-ui 15px rgb(244,241,233), meta ui-monospace 14px rgb(180,180,188) - allIdentical false. Before, all three computed identically at 16px system-ui rgb(244,241,233), on the one specimen page whose job is demonstrating that primitive, under a caption promising a hairline divider that did not exist.'
+  status: completed
+  commit_comment: define the row-code/title/meta family; all three rendered identically before
 - id: blog-docs-pre-sdk-era
   subject: 'P3: ui_kits/blog and ui_kits/docs have zero JS and hand-authored bodies with inline <style> blocks while the other 18 kits render through mountKit + AppShell. Both lack a skip link and docs has no h1. kits.config.mjs documents them as deliberate outliers, but they sit among the kits as apparent peer reference implementations while demonstrating the opposite of the documented architecture'
   witness: kits.config.mjs header comment; exec_js-420 shows blog and docs at 0 app.js lines
