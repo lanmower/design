@@ -1499,9 +1499,9 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 
 ### sessions
 
-**Kind:** const
+**Kind:** const (factory-wrapped)
 
-**Signature:** `s.sessions \|\| []`
+**Signature:** `makePage((ctx) => {`
 
 ### projects
 
@@ -1535,9 +1535,9 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 
 ### skills
 
-**Kind:** const
+**Kind:** const (factory-wrapped)
 
-**Signature:** `ctx.host?.pi?.skills?.size ?? s.skillsCount ?? '—'`
+**Signature:** `makePage((ctx) => {`
 
 ### config
 
@@ -1553,9 +1553,9 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 
 ### tools
 
-**Kind:** const
+**Kind:** const (factory-wrapped)
 
-**Signature:** `ctx.host?.pi?.tools?.size ?? s.toolsCount ?? '—'`
+**Signature:** `makePage((ctx) => {`
 
 ### batch
 
