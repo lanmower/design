@@ -755,9 +755,19 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 
 ### FileGrid
 
+The directory listing.  `loading` and `busy` are NOT two spellings of one state -- they are the two halves of this SDK's standing distinction, and FileGrid is the component that takes both because it is the one place both are in play at once:  loading -- a DATA FETCH is in flight. Owns which SHAPE renders: with no rows yet it is a cold load and the whole grid is replaced by FileSkeleton; with rows already on screen it is a refresh and the existing rows stay mounted and dim (is-refreshing), because flashing a populated directory back to shimmer reads as data loss. busy    -- a USER ACTION is in flight (a rename/move/delete round-trip). Owns INTERACTIVITY, not shape: it is forwarded to each FileRow as `busy`, which disables that row's open + mutation controls so a second click cannot fire the same mutation twice.  A grid can be `busy` while not `loading` (a delete is posting, rows fully rendered) and `loading` while not `busy` (a plain refresh). Passing one for the other is a real bug, not a style choice, so they are deliberately not merged and neither is an alias of the other.
+
 **Kind:** component
 
 **Signature:** `files` = `[]`, `onOpen`, `onAction`, `onUp`, `emptyText` = `'No files here yet'`, `emptyAction`, `sort`, `filter`, `loading` = `false`, `shown`, `onShowMore`, `actions`, `busy`, `selectable` = `false`, `selected`, `onToggleSelect`, `marked` = `selected`, `onMark` = `onToggleSelect`, `onSelectAll`, `onClearSelection`, `density` = `'list'`, `onDensity`, `thumbUrl`
+
+**Documented params:**
+
+- `files` _(Array)_ -- the directory entries to render.
+- `loading` _(boolean)_ -- a data fetch is in flight (skeleton when cold, dim when refreshing).
+- `busy` _(boolean)_ -- a user-initiated mutation is in flight; disables every row's controls. Per-entry `f.busy` is used when this is not passed.
+- `emptyText` _(string)_ -- copy for the empty/filtered-miss state.
+- `density` _('list'|'compact'|'thumb')_ -- row density; 'thumb' switches to the multi-column cell grid.
 
 ### FileSkeleton
 

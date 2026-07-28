@@ -1411,25 +1411,28 @@ export interface FileRowProps {
 export declare function FileRow(props?: FileRowProps): VNode;
 
 /**
+ * The directory listing.  `loading` and `busy` are NOT two spellings of one state -- they are the two halves of this SDK's standing distinction, and FileGrid is the component that takes both because it is the one place both are in play at once:  loading -- a DATA FETCH is in flight. Owns which SHAPE renders: with no rows yet it is a cold load and the whole grid is replaced by FileSkeleton; with rows already on screen it is a refresh and the existing rows stay mounted and dim (is-refreshing), because flashing a populated directory back to shimmer reads as data loss. busy    -- a USER ACTION is in flight (a rename/move/delete round-trip). Owns INTERACTIVITY, not shape: it is forwarded to each FileRow as `busy`, which disables that row's open + mutation controls so a second click cannot fire the same mutation twice.  A grid can be `busy` while not `loading` (a delete is posting, rows fully rendered) and `loading` while not `busy` (a plain refresh). Passing one for the other is a real bug, not a style choice, so they are deliberately not merged and neither is an alias of the other.
+ *
  * Props for {@link FileGrid} (src/components/files.js).
  */
 export interface FileGridProps {
-    /** @default [] */
+    /** the directory entries to render. @default [] */
     files?: any[];
     onOpen?: (...args: any[]) => any;
     onAction?: (...args: any[]) => any;
     onUp?: (...args: any[]) => any;
-    /** @default 'No files here yet' */
+    /** copy for the empty/filtered-miss state. @default 'No files here yet' */
     emptyText?: string;
     emptyAction?: any;
     sort?: any;
     filter?: any;
-    /** @default false */
+    /** a data fetch is in flight (skeleton when cold, dim when refreshing). @default false */
     loading?: boolean;
     shown?: any;
     onShowMore?: (...args: any[]) => any;
     actions?: any;
-    busy?: any;
+    /** a user-initiated mutation is in flight; disables every row's controls. Per-entry `f.busy` is used when this is not passed. */
+    busy?: boolean;
     /** @default false */
     selectable?: boolean;
     selected?: any;
@@ -1440,8 +1443,8 @@ export interface FileGridProps {
     onMark?: (...args: any[]) => any;
     onSelectAll?: (...args: any[]) => any;
     onClearSelection?: (...args: any[]) => any;
-    /** @default 'list' */
-    density?: string;
+    /** row density; 'thumb' switches to the multi-column cell grid. @default 'list' */
+    density?: 'list' | 'compact' | 'thumb';
     onDensity?: (...args: any[]) => any;
     thumbUrl?: any;
 }
