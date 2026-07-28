@@ -5,8 +5,19 @@
   "type": "module",
   "main": "./dist/247420.js",
   "module": "./dist/247420.js",
+  "types": "./types/index.d.ts",
+  "sideEffects": [
+    "*.css",
+    "./src/index.js",
+    "./src/styles.js",
+    "./src/markdown-cache.js",
+    "./src/components/chat/stats.js",
+    "./src/web-components/freddie-chat.js",
+    "./dist/247420.js"
+  ],
   "exports": {
     ".": {
+      "types": "./types/index.d.ts",
       "import": "./dist/247420.js",
       "default": "./dist/247420.js"
     },
@@ -72,6 +83,7 @@
   "files": [
     "dist",
     "src",
+    "types",
     "scripts/lint-glyphs.mjs",
     "scripts/lint-null-children.mjs",
     "scripts/lint-shared.mjs",
@@ -97,6 +109,8 @@
     "sitemap": "node scripts/generate-sitemap.mjs",
     "docs:components": "node scripts/generate-component-docs.mjs",
     "lint:component-docs": "node scripts/generate-component-docs.mjs --check",
+    "types:components": "node scripts/generate-component-types.mjs",
+    "lint:component-types": "node scripts/generate-component-types.mjs --check",
     "generate:ui-kits": "node scripts/generate-ui-kit-scaffolds.mjs",
     "generate:preview-index": "node scripts/generate-preview-index.mjs",
     "a11y": "node scripts/a11y-audit.mjs",

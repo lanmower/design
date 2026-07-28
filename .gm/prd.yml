@@ -1981,8 +1981,9 @@
   status: pending
 - id: console-debug-residue
   subject: src/markdown-cache.js ships a console.log/debug call in library code, which writes to a consumer application's console
-  witness: 'exec_js-300 scan: 1 console-debug match in src/markdown-cache.js'
-  status: pending
+  witness: 'Fixed. src/markdown-cache.js printed an unconditional console.debug on every init, so any application embedding the SDK received a timing line in its console it never asked for - the module already registers the same numbers via window.__debug[markdown-cache], a channel a consumer opts into rather than receives. Kept the data rather than deleting it: total wall-clock init is now on getCacheStats().initMs.total, which carries real information the two sibling fields do not, since markdown and prism run CONCURRENTLY under Promise.all so the total is not their sum. Added to resetCacheState too so the test-only reset stays complete. Verified: a walk over every .js in src/ now finds 0 console.log/console.debug calls; the only remaining matches in the file are my own explanatory comments. 15/15 lint, build and tests pass.'
+  status: completed
+  commit_comment: route library init timing to __debug instead of every consumer console
 - id: undemoed-public-api
   subject: '105 of 193 exported components have no direct specimen in any kit or preview - they are reachable only by being composed inside another component, so a consumer reading the kits cannot discover them, and no visual-regression baseline covers them in isolation. NOT dead code: a separate scan confirmed 0 truly orphaned exports, so this is a documentation/coverage gap, not unused code'
   witness: 'exec_js-350: 193 exported, 88 demoed directly, 105 indirect-only, 0 orphan'
@@ -2031,11 +2032,6 @@
   subject: 'P0: preview/motion-default.js:11 injects cdnjs.cloudflare.com animate.css into 25 of 29 preview pages, while src/motion.js:1-2 states the SDK deliberately removed animate.css. Three compounding failures: the specimens contradict the documented architecture, every page makes an uncontrolled third-party request (fatal under CSP or air-gapped review, and unlike the markdown/Prism CDNs this one is not overridable), and it applies inline style attributes which AGENTS.md bans. It is injected even under prefers-reduced-motion: reduce, when no animation plays'
   witness: preview/motion-default.js:11 vs src/motion.js:1-2
   status: pending
-- id: preview-outside-lint-perimeter
-  subject: 'P1 ROOT CAUSE: preview/ sits outside every lint gate. lint-inline-styles.mjs:21 scans [''ui_kits'',''site''] only, with a source comment promising to widen SCAN_DIRS ''once that sweep lands'' - it never landed. lint-tokens covers only src/css/app-shell. All 15 gates report green while a third of the shipped surface is unmeasured. This explains every other preview finding and the 164-vs-17 commit ratio between src/ and preview/: only src/ has a gate that can fail'
-  witness: 'Fixed, and the premise was understated - preview/ was one of FOUR independent coverage holes. lint-inline-styles went from [ui_kits,site] to also cover preview/slides/src (259 files). lint-tokens and its six siblings went 30 -> 34 sheets: app-surfaces.css, marketing.css and both spoint kit sheets, 479 lines of PUBLISHED css, had never been scanned by any token gate, and generate-theme-tokens-doc.mjs already listed all four so the lint list was the outlier. lint-classes used a flat readdirSync over a tree AGENTS.md documents as nesting, hiding 99 of 124 files - the gate got QUIETER with every module split. lint-glyphs carried an exemption for a directory its walk never entered, which read as coverage. Every widened gate proven to FAIL through npm run lint with exit 1 plus a negative control, including one injected into a subdirectory the old flat scan could never reach.'
-  status: completed
-  commit_comment: close four lint coverage holes; the board was green over a third of the shipped surface
 - id: preview-index-row-unstyled-classes
   subject: 'P1: preview/index-row.html uses .row-code, .row-title and .row-meta and NO css file in the repo defines any of them. Measured live: all three render identically at 16px system-ui rgb(244,241,233). The page''s own caption promises ''no dots. no colons. the hairline is the divider'' and there is no hairline - it advertises a design decision it does not execute. This is the defect shape AGENTS.md names as the single most-recurring in this repo'
   witness: grep for .row-code/.row-title/.row-meta across every .css including dist returns zero rules; Assessment A measured the computed styles live
@@ -2068,11 +2064,6 @@
   subject: 'P2: ui_kits/_template is served at a real URL, throws an uncaught exception at all three widths, loads ZERO stylesheets, and renders the literal strings {{THEME_COLOR_METAS}} {{SEO_METAS}} {{STYLESHEETS}} as visible body text. It is a build-time scaffold source, but it sits among the kits where a visitor reaches it'
   witness: Assessment B measured it live; CDP returned only the bare string Uncaught with no stack
   status: pending
-- id: detector-preview-findings
-  subject: 'preview/ returns exit 2 with 9 detector findings (6 single-font, 1 monotonous-spacing on spacing.html at 82% 12px, 1 bounce-easing, 1 em-dash-overuse). ui_kits returns exit 0 clean. Three of the nine are false positives against this repo''s stated design: single-font fires on deliberately mono-only specimen sheets while AGENTS.md pins all four font tokens to system stacks, and bounce-easing matches --ease-spring which AGENTS.md names as the intended physical-spring signature'
-  witness: 'Detector run and triaged. ui_kits exits 0 clean; preview exits 2 with 9 findings, all severity warning / category slop. Three are false positives against this repo''s own stated design: single-font (6) fires on deliberately mono-only specimen sheets while AGENTS.md pins all four font tokens to system stacks by policy, and bounce-easing matches --ease-spring which AGENTS.md names as the intended physical-spring signature. em-dash-overuse is self-marked advisory on a token-map page. The one substantive finding, monotonous-spacing on spacing.html at 82% 12px, is on the page whose subject IS the spacing scale.'
-  status: completed
-  commit_comment: triage detector output; 3 of 9 are false positives against documented design policy
 - id: theme-map-overflow
   subject: 'P2: preview/theme-map.html is the only page in the repo that breaks layout - at 420px clientWidth 405 vs scrollWidth 572, overflowing by 167px with 25 escaping elements. The worst is a span at right 561 inside an LI that is display:flex with overflow-x visible, so it is not inside a scroller and this is true breakage rather than an intended inner scroll'
   witness: Assessment B measured all 50 pages at 420/1024/1440; the other 49 have scrollWidth === clientWidth at every width
@@ -2080,4 +2071,8 @@
 - id: homepage-dead-cta
   subject: 'P1: 20 controls on ui_kits/homepage carry cursor:pointer and are completely inert - the nav (works, writing, manifesto, source ->), the primary open -> CTA, the source button, the 3 in flight button, and all 8 project rows plus the writing links. This is the SDK showcase page, so it is the surface most likely to be shown to someone evaluating the system, and nothing on it responds'
   witness: 'independently click-probed live: filtered to elements whose computed cursor is pointer (so genuinely non-interactive containers are excluded), clicked each, and diffed body.innerHTML length, defaultPrevented and location.hash - 20 of 20 produced no change. Confirms Assessment B independent finding of 15/16.'
+  status: pending
+- id: prd-resolve-reports-wrong-id
+  subject: 'prd-resolve returns a resolved id different from the one dispatched, twice this session - resolving signin-oauth-import-meta-env-throw reported focus-visible-coverage, and resolving console-debug-residue reported theme-parity-light-dark-ink. The underlying write is CORRECT (verified: console-debug-residue is status completed and carries the new witness text), so this is a response-formatting defect rather than data loss, but it makes a dispatch look like it hit the wrong row and would mislead any agent that trusts the response over the file'
+  witness: prd-resolve-100 and prd-resolve-120 responses vs a direct read of .gm/prd.yml confirming the intended row carries the new witness
   status: pending
