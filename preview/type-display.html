@@ -2,8 +2,14 @@
 <html lang="en" data-theme="auto" class="ds-247420"><head><meta charset="utf-8">
 <title>type display / 247420 preview</title><link rel="stylesheet" href="../colors_and_type.css">
 <link rel="stylesheet" href="../app-shell.css">
-<style>body{padding:20px;background:var(--panel-0);color:var(--panel-text);}
+<style>body{padding:var(--space-3-5);background:var(--panel-0);color:var(--panel-text);}
 .t-hero,.t-h1{overflow-wrap:anywhere;word-break:break-word;}
+/* 48px/32px are narrow-viewport CAPS on the fluid display tokens, and there is
+   no --fs-* rung they could use: every display tier (--fs-hero, --fs-h1) is a
+   clamp() whose own lower bound is what runs at this width, and the point of
+   this override is to come in BELOW that bound so the specimen's oversized
+   display type does not overflow a 640px screen. A fixed rung cannot express
+   "smaller than the token's own floor". Kept literal deliberately. */
 @media (max-width:640px){.t-hero{font-size:48px !important;}.t-h1{font-size:32px !important;}}</style><script defer src="./motion-default.js"></script>
 </head><body>
 <div class="dateline"><span>247420 · TYPE · DISPLAY</span><span class="spread"></span><span>SYSTEM SANS</span></div>

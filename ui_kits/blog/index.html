@@ -30,11 +30,19 @@
   <link rel="stylesheet" href="../../colors_and_type.css">
   <link rel="stylesheet" href="../../app-shell.css">
 <style>
-  .post-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;font-family:var(--ff-mono);font-size:14px;text-transform:uppercase;letter-spacing:0.08em;color:var(--panel-text-2);}
+  .post-meta{display:flex;gap:var(--space-2-5);flex-wrap:wrap;margin-bottom:var(--space-4);font-family:var(--ff-mono);font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:0.08em;color:var(--panel-text-2);}
   .post-meta .sep{color:var(--panel-text-3);}
-  blockquote{margin:20px 0;padding:12px 18px;background:var(--panel-1);border-radius:8px;font-size:15px;color:var(--panel-text);line-height:1.55;max-width:62ch;}
-  blockquote::before{content:'“';color:var(--panel-accent);font-family:var(--ff-display);font-size:28px;margin-right:6px;line-height:0;vertical-align:-4px;}
-  .post-body p{font-size:15px;line-height:1.7;max-width:62ch;color:var(--panel-text);}
+  /* padding right/left is 18px: off-scale between --space-3 (16px) and
+     --space-3-5 (20px), deliberately. A pull-quote's side inset is set against
+     the 62ch measure, not the 8pt rhythm — snapping to 16px lets the quote
+     text sit flush enough with body prose to stop reading as a quote, and 20px
+     over-indents it past the accent rule. Kept as a literal on purpose. */
+  blockquote{margin:var(--space-3-5) 0;padding:var(--space-2-75) 18px;background:var(--panel-1);border-radius:var(--r-1);font-size:var(--fs-sm);color:var(--panel-text);line-height:1.55;max-width:62ch;}
+  /* font-size is the GLYPH size of the decorative open-quote mark, matched to
+     the mark's optical weight beside 15px prose, not a type-ladder tier — the
+     same treatment lint-tokens.mjs gives icon sizes set via font-size. */
+  blockquote::before{content:'“';color:var(--panel-accent);font-family:var(--ff-display);font-size:28px;margin-right:var(--space-1-75);line-height:0;vertical-align:-4px;}
+  .post-body p{font-size:var(--fs-sm);line-height:1.7;max-width:62ch;color:var(--panel-text);}
   /* --panel-accent is the FILL lime (~1.07:1 on paper — invisible as text).
      Prose links must use the readable TEXT tone, which is exactly what
      base.css's `.ds-prose a` already sets, so this rule only needs to not

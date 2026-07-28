@@ -119,7 +119,7 @@ export function expandSheets() {
 const TOKEN_SOURCE = 'colors_and_type.css';
 
 // Color-literal matcher: #hex (3/4/6/8), rgb()/rgba(), hsl()/hsla(), oklch()/oklab().
-const COLOR_RE = /#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(|\bokl(?:ch|ab)\(/;
+export const COLOR_RE = /#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(|\bokl(?:ch|ab)\(/;
 
 // Spacing-literal matcher: a bare numeric length (px/em/rem) on a
 // margin/padding/gap (or row-gap/column-gap, or any -top/-right/-bottom/-left/
@@ -132,7 +132,7 @@ const COLOR_RE = /#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(|\bokl(?:ch|ab)\(/;
 // block's size, not a fixed rhythm value, so there is no --space-N it could
 // ever equal — flagging it would demand a token that structurally cannot
 // exist for that value, the same reasoning RADIUS_RE uses to exempt bare `0`.
-const SPACING_RE = /\b(?:margin|padding|gap|row-gap|column-gap)(?:-(?:top|right|bottom|left|inline|block|inline-start|inline-end|block-start|block-end))?\s*:\s*[^;}]*?\d[\d.]*(?:px|em|rem)\b/;
+export const SPACING_RE = /\b(?:margin|padding|gap|row-gap|column-gap)(?:-(?:top|right|bottom|left|inline|block|inline-start|inline-end|block-start|block-end))?\s*:\s*[^;}]*?\d[\d.]*(?:px|em|rem)\b/;
 
 // Radius-literal matcher: a bare numeric length/percentage (px/%/em/rem/vw/
 // vh/ch/vmin/vmax) on a border-radius (or -webkit-/-moz-prefixed)
@@ -150,7 +150,7 @@ const SPACING_RE = /\b(?:margin|padding|gap|row-gap|column-gap)(?:-(?:top|right|
 // value-preserving substitution. Same reasoning class as stripThemableLiterals
 // treating a var(...) fallback as non-literal: a structural non-bypass,
 // not a per-line ALLOW entry.
-const RADIUS_RE = /(?:-webkit-|-moz-)?border-radius\s*:\s*[^;}]*?\d[\d.]*(?:px|%|em|rem|vw|vh|vmin|vmax|ch)\b/;
+export const RADIUS_RE = /(?:-webkit-|-moz-)?border-radius\s*:\s*[^;}]*?\d[\d.]*(?:px|%|em|rem|vw|vh|vmin|vmax|ch)\b/;
 
 // Font-size-literal matcher: a bare numeric length (px/em/rem) on a font-size
 // declaration — the raw-literal bypass of the --fs-pico..--fs-mega type scale
@@ -170,7 +170,7 @@ const RADIUS_RE = /(?:-webkit-|-moz-)?border-radius\s*:\s*[^;}]*?\d[\d.]*(?:px|%
 // `%` and viewport units are excluded: a percentage/vw font-size is a
 // deliberately fluid relationship with no fixed rung it could ever equal, the
 // same reasoning SPACING_RE uses to exclude `%`.
-const FONTSIZE_RE = /\bfont-size\s*:\s*[^;}]*?\d[\d.]*(?:px|em|rem)\b/;
+export const FONTSIZE_RE = /\bfont-size\s*:\s*[^;}]*?\d[\d.]*(?:px|em|rem)\b/;
 
 // z-index-literal matcher: any bare integer on a z-index declaration — the
 // raw-literal bypass of the --z-below..--z-top stacking scale in
@@ -236,7 +236,7 @@ function isAllowed(rel, line) {
 // Blank out every /* ... */ comment (including multi-line) while preserving
 // line numbers, so a hex inside comment prose is never flagged. Each char of a
 // comment becomes a space; newlines inside the comment are kept.
-function stripComments(src) {
+export function stripComments(src) {
     return src.replace(/\/\*[^]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '));
 }
 
@@ -251,7 +251,7 @@ function stripComments(src) {
 //
 // We blank ONLY the literal characters (keeping length) so a BARE literal
 // elsewhere on the same line is still caught and line numbers stay exact.
-function stripThemableLiterals(code) {
+export function stripThemableLiterals(code) {
     const blank = (m) => m.replace(/[^\n]/g, ' ');
     return code
         // var(--token, <literal>) — neutralize the fallback literal only.
@@ -567,7 +567,7 @@ export function lintSpacingOrThrow() {
 // landed, which is precisely what this exists to catch. The only legitimate
 // upward re-freeze is a widened SCAN SET (more sheets now visible), and that
 // must be stated in the commit, not assumed.
-function ratchetOrThrow({ label, flag, baselineFile, violations, noun, fix }) {
+export function ratchetOrThrow({ label, flag, baselineFile, violations, noun, fix, scope }) {
     const count = violations.length;
 
     if (process.argv.includes(flag)) {
@@ -588,7 +588,13 @@ function ratchetOrThrow({ label, flag, baselineFile, violations, noun, fix }) {
             + violations.join('\n  ')
             + `\n[${label}] ${fix} Re-run with ${flag} ONLY if this growth is reviewed and intentional — the baseline is debt to drive down, not a budget to raise.`);
     }
-    console.log(`[${label}] PASS — ${count} <= baseline ${baseline.count} (${expandSheets().length} component sheets).`);
+    // `scope` describes WHAT was scanned. It defaults to the component-sheet
+    // count because every original caller scans expandSheets(), but the driver
+    // is also used by lint-inline-css.mjs, whose scan set is HTML files with
+    // inline <style> blocks — printing "N component sheets" there would be a
+    // false claim about coverage in the one message a reader trusts to tell
+    // them what the gate actually looked at.
+    console.log(`[${label}] PASS — ${count} <= baseline ${baseline.count} (${scope || `${expandSheets().length} component sheets`}).`);
 }
 
 // Ratchet baseline for raw font-size literals. Frozen at the post-migration
