@@ -180,7 +180,10 @@ export function Popover({ open, anchorEl, onClose, placement = 'bottom-start', c
     };
     el.addEventListener('keydown', onKey);
     document.addEventListener('mousedown', onDown, true);
-    queueMicrotask(() => { const f = el.querySelector(FOCUSABLE_SEL); (f || el).focus(); });
+    // setTimeout(0), not queueMicrotask — see _anchoredOverlayLifecycle's
+    // comment: the opening click's own default focus-on-click can otherwise
+    // win the race and leave focus outside el, breaking Escape/Tab-trap.
+    setTimeout(() => { const f = el.querySelector(FOCUSABLE_SEL); (f || el).focus(); }, 0);
     _popovers.set(anchorEl, { dispose() {
         document.removeEventListener('mousedown', onDown, true);
         floating.dispose();
@@ -399,7 +402,14 @@ function _anchoredOverlayLifecycle(el, { anchorX, anchorY, fallbackW, fallbackH,
         const { left, top } = _clampToViewport(anchorX, anchorY, r.width || fallbackW, r.height || fallbackH);
         el.style.left = left + 'px'; el.style.top = top + 'px';
     };
-    queueMicrotask(() => { place(); el.focus(); });
+    // setTimeout(0), not queueMicrotask: the triggering click's own default
+    // focus-on-click (moving focus to the clicked <button>) can run AFTER a
+    // same-tick microtask, so a queueMicrotask focus() call here was losing
+    // the race and leaving focus on the trigger button instead of the
+    // dialog -- breaking Escape-to-close (keydown only bubbles from the
+    // focused element) for any keyboard user. A macrotask reliably runs
+    // after the click's focus settles.
+    setTimeout(() => { place(); el.focus(); }, 0);
     const onDown = (e) => { if (!el.contains(e.target)) close(); };
     queueMicrotask(() => document.addEventListener('mousedown', onDown, true));
     return () => document.removeEventListener('mousedown', onDown, true);
@@ -837,7 +847,7 @@ export function VideoLightbox({ src, label = '', open = false, onClose } = {}) {
         class: 'ov-lightbox-backdrop', role: 'dialog', 'aria-modal': 'true', 'aria-label': label || 'Video',
         tabindex: '-1',
         onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } },
-        ref: (el) => { if (el && !el._ovLb) { el._ovLb = true; queueMicrotask(() => el.focus()); } },
+        ref: (el) => { if (el && !el._ovLb) { el._ovLb = true; setTimeout(() => el.focus(), 0); } },
         onmousedown: (e) => { if (e.target === e.currentTarget) close(); },
     },
         h('button', { type: 'button', class: 'ov-lightbox-x', 'aria-label': 'close', onclick: close }, Icon('x')),

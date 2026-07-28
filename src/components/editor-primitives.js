@@ -509,7 +509,10 @@ export function ContextMenu({ items = [], anchor = { x: 0, y: 0 }, onClose } = {
                 // Re-clamp on resize/orientation change for the menu's lifetime.
                 window.addEventListener('resize', clamp);
                 el._dsCtxClampOff = () => { window.removeEventListener('resize', clamp); el._dsCtxClampOff = null; };
-                queueMicrotask(() => { el.querySelector('button[data-ix]')?.focus(); });
+                // setTimeout(0), not queueMicrotask: the triggering contextmenu/click
+                // event's own default focus can otherwise win the race and leave focus
+                // outside the menu, breaking keyboard arrow-nav/Escape.
+                setTimeout(() => { el.querySelector('button[data-ix]')?.focus(); }, 0);
             }
         },
             ...items.map((it, i) => it.separator
@@ -581,10 +584,12 @@ export function Drawer({ side = 'left', open = false, onClose, children, ariaLab
                 if (!el || el._dsTrap) return;
                 el._dsTrap = true;
                 el.addEventListener('keydown', (e) => trapTabKey(el, e));
-                queueMicrotask(() => {
+                // setTimeout(0), not queueMicrotask — see Dialog's identical comment
+                // below: the opening click's own default focus can win a same-tick race.
+                setTimeout(() => {
                     const f = el.querySelector(FOCUSABLE_SEL);
                     (f || el).focus();
-                });
+                }, 0);
             },
         }, ...kids(children))
     );
@@ -616,10 +621,14 @@ export function Dialog({ title, open = false, onClose, children, actions = [], d
                 if (!el || el._dsTrap) return;
                 el._dsTrap = true;
                 el.addEventListener('keydown', (e) => trapTabKey(el, e));
-                queueMicrotask(() => {
+                // setTimeout(0), not queueMicrotask: the triggering click's own default
+                // focus-on-click can win a same-tick microtask race and leave focus on
+                // the trigger button instead of the dialog, breaking Escape/Tab-trap
+                // for keyboard users (keydown only bubbles from the focused element).
+                setTimeout(() => {
                     const f = el.querySelector(FOCUSABLE_SEL);
                     (f || el).focus();
-                });
+                }, 0);
             },
         },
             title != null ? h('div', { class: 'ds-ep-dialog-head' }, h('h2', { class: 'ds-ep-dialog-title' }, title)) : null,
