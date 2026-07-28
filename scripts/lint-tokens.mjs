@@ -33,6 +33,20 @@ const COMPONENT_SHEETS = [
     'src/kits/os/theme.css',
     'src/kits/os/freddie-dashboard.css',
     'src/kits/spoint/loading-screen.css',
+    // Shipped-but-unscanned sheets (added 2026-07-28). build.mjs's cssParts
+    // list concatenates TWELVE sheets into dist/247420.css; this list reached
+    // only eight of them, so 479 lines of published CSS had never been seen by
+    // any token scanner while the report said "30 component sheets ... OK".
+    // Same coverage-hole shape as the @import barrel and the inline-<style>
+    // hole: the rules were right, the scan set was smaller than the report
+    // implied. Cross-checked against generate-theme-tokens-doc.mjs's own SHEETS
+    // list, which already included all four — this list was the outlier.
+    // colors_and_type.css is deliberately still absent: it is the token SOURCE,
+    // so its literals are definitions, not bypasses.
+    'app-surfaces.css',
+    'marketing.css',
+    'src/kits/spoint/game-hud.css',
+    'src/kits/spoint/host-join-lobby.css',
     // Split app-shell sheets that build.mjs bundles into dist (see its
     // appShellSplitFiles list) but that the root app-shell.css barrel does NOT
     // @import — so the @import expansion cannot reach them. Listed directly so
@@ -226,7 +240,45 @@ const ALLOW = {
     'src/css/app-shell/plugins-config.css': [
         'border-radius: 11px',
     ],
+    // Print-media re-assertion of the paper-tuned signal palette. These are
+    // token DEFINITIONS, not consumption: under auto-dark the signal tokens
+    // resolve to dark-theme values, and a printed page is paper, so the block
+    // re-declares the light-theme values it must print with. There is no token
+    // to point at — these ARE the values colors_and_type.css defines for the
+    // light theme, restated in a @media print context that cannot reach them.
+    // Intentional and non-themable; keep.
+    'app-surfaces.css': [
+        '--flame:#C53E00', '--amber:#7C570F', '--warn:#E0241A', '--sky:#3A6EFF',
+    ],
 };
+
+// Radius-scale ALLOW, same per-line contract as ALLOW above.
+//
+// DEBT, not intentional (added 2026-07-28, when app-surfaces.css and the spoint
+// kit sheets were added to COMPONENT_SHEETS and became visible to this gate at
+// all — they ship in dist/247420.css and had never been scanned). Every entry
+// here has an obvious correct token and belongs to the CSS owner, not to this
+// script; they are listed only so widening the perimeter does not hard-fail the
+// build on pre-existing literals. This list is DEBT TO DRIVE DOWN: delete each
+// entry the moment its declaration moves onto the token. It must not become a
+// permanent exemption, and nothing may be added to it to make new code pass.
+const RADIUS_ALLOW = {
+    // 999px IS var(--r-pill) exactly — a pure find-and-replace.
+    'app-surfaces.css': [
+        'border-radius: 999px',
+    ],
+    // 4px IS var(--r-0) exactly. 6px is genuinely off-scale (between --r-0 4px
+    // and --r-1 10px) and needs a judgment call from the kit owner: snap to a
+    // rung, or keep and comment per the off-scale policy in AGENTS.md.
+    'src/kits/spoint/game-hud.css': [
+        'border-radius: 4px',
+        'border-radius: 6px',
+    ],
+};
+
+function isRadiusAllowed(rel, line) {
+    return (RADIUS_ALLOW[rel] || []).some((s) => line.includes(s));
+}
 
 function isAllowed(rel, line) {
     const list = ALLOW[rel] || [];
@@ -305,11 +357,14 @@ export function findRadiusViolations() {
             .split(/\r?\n/);
         const rawLines = src.split(/\r?\n/);
         codeLines.forEach((code, i) => {
-            // Honors the same audited ALLOW list as findTokenViolations /
-            // findSpacingViolations — previously this scanner ignored it, so a
-            // justified (or explicitly debt-tracked) radius literal had no way
-            // to be exempted short of weakening RADIUS_RE itself.
-            if (RADIUS_RE.test(code) && !isAllowed(rel, rawLines[i])) {
+            // Honors the audited ALLOW list (shared with findTokenViolations /
+            // findSpacingViolations) plus the radius-specific RADIUS_ALLOW.
+            // The two lists are kept SEPARATE on purpose: ALLOW entries are
+            // matched as substrings of the raw line, so a color entry like
+            // '--flame:#C53E00' and a radius entry like 'border-radius: 999px'
+            // sharing one list would let either rule's exemption silently
+            // exempt the other rule on any line that happened to contain both.
+            if (RADIUS_RE.test(code) && !isAllowed(rel, rawLines[i]) && !isRadiusAllowed(rel, rawLines[i])) {
                 violations.push(`${rel}:${i + 1}: ${rawLines[i].trim()}`);
             }
         });
@@ -493,9 +548,24 @@ export function findImportantViolations() {
 // statements and zero declarations — all ~5,500 lines of the 21 split sheets
 // were invisible to all three scanners. expandSheets() now follows the import
 // graph (plus a FULL_COVERAGE_DIRS guard for split files the barrel forgot),
-// so 649 is the first honest measurement of the corpus.
+// so 649 was the first honest measurement of that corpus. (649 was then driven
+// down to 227 by triage passes before the widening recorded below — the exact
+// DOWNWARD re-freeze this mechanism is for.)
 //
-// 649 is a DEBT FIGURE TO DRIVE DOWN, never a budget to spend. The ratchet only
+// BASELINE MOVED 227 -> 262 on 2026-07-28, for the SAME reason and by the same
+// mechanism: not 35 new literals, but 35 literals that were always shipping and
+// were never counted. COMPONENT_SHEETS listed 8 of the 12 sheets build.mjs
+// concatenates into dist/247420.css, so app-surfaces.css, marketing.css and the
+// two spoint kit sheets (479 lines of published CSS) had never been scanned
+// while the report read "30 component sheets ... OK". Adding them to the list
+// makes 262 the first honest measurement over the full shipped corpus.
+//
+// This is the one and only legitimate reason a ratchet number may rise: the
+// SCAN SET grew, so previously-uncounted pre-existing debt became visible. A
+// rise caused by new code is a regression and must be fixed, not re-frozen.
+// Both times the number moved, it moved because the perimeter widened.
+//
+// 262 is a DEBT FIGURE TO DRIVE DOWN, never a budget to spend. The ratchet only
 // enforces "no worse"; every triage pass that migrates declarations onto
 // --space-N should re-run with --write-spacing-baseline so the number falls and
 // the gate tightens behind it. Do not re-freeze upward to make a failing run
@@ -602,6 +672,11 @@ export function ratchetOrThrow({ label, flag, baselineFile, violations, noun, fi
 // via font-size, and deliberately em-relative inline elements) is a per-
 // declaration judgment call rather than a mechanical migration, and see
 // ratchetOrThrow for why this number must only ever go DOWN.
+//
+// BASELINE MOVED 55 -> 64 on 2026-07-28: the four shipped-but-unscanned sheets
+// added to COMPONENT_SHEETS (see the note on SPACING_BASELINE_FILE) contributed
+// 9 pre-existing literals — a perimeter widening, not a regression. 64 is debt
+// to drive down; re-freeze DOWNWARD after any triage pass.
 const FONTSIZE_BASELINE_FILE = path.join(root, 'scripts', 'lint-fontsize.baseline.json');
 
 export function lintFontSizeOrThrow() {
@@ -618,6 +693,12 @@ export function lintFontSizeOrThrow() {
 // Ratchet baseline for `!important`. See findImportantViolations for why the
 // standing corpus is load-bearing and a hard zero would be worse than the
 // ratchet, and ratchetOrThrow for why this number must only ever go DOWN.
+//
+// BASELINE MOVED 38 -> 43 on 2026-07-28: the four shipped-but-unscanned sheets
+// added to COMPONENT_SHEETS (see the note on SPACING_BASELINE_FILE) contributed
+// 5 pre-existing declarations, all in app-surfaces.css and all in @media print
+// or a focus reset — a perimeter widening, not a regression. 43 is debt to
+// drive down; re-freeze DOWNWARD after any triage pass.
 const IMPORTANT_BASELINE_FILE = path.join(root, 'scripts', 'lint-important.baseline.json');
 
 export function lintImportantOrThrow() {

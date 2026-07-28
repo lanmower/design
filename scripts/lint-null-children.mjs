@@ -22,7 +22,13 @@ import { walkFiles } from './lint-shared.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
-const SCAN_DIRS = ['src'];
+// `ui_kits`, `site`, `preview`, `slides` added 2026-07-28. The bug this gate
+// catches is a webjsx applyDiff crash on a children array holding a null/false
+// hole, so its true scope is "everywhere h() is called" — and h() is called in
+// 20 files outside src/ (every ui_kits/*/app.js, site/theme.mjs,
+// preview/data-density.js). Scanning only src/ meant the gate never looked at
+// the consumer code most likely to hand-roll a conditional child.
+const SCAN_DIRS = ['src', 'ui_kits', 'site', 'preview', 'slides'];
 const SCAN_EXT = new Set(['.js', '.mjs']);
 const SKIP_DIRS = new Set(['node_modules', 'vendor']);
 

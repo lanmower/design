@@ -1971,3 +1971,116 @@
   subject: Export SkillsConfig from src/components.js barrel
   status: completed
   witness: src/components.js exports SkillsConfig from ./components/skills-config.js; dist/247420.js grep -c SkillsConfig = 1 post-build
+- id: dead-handlers-community-app
+  subject: ui_kits/community-app/app.js passes 7 no-op handlers (openSettings, openVoiceSettings, goHome, openServers, channelContext, serverContext, memberMenu) so the settings gear, home button, server switcher and every context menu render as interactive and silently do nothing
+  witness: ui_kits/community-app/app.js:103-109
+  status: pending
+- id: dead-handler-policy
+  subject: there is no repo-wide rule or gate against shipping a rendered control with a no-op handler in a demo kit; 15 exist today across three kits and nothing would catch the 16th
+  witness: 'exec_js-300 scan: 15 noop-arrow matches across ui_kits/ and src/'
+  status: pending
+- id: console-debug-residue
+  subject: src/markdown-cache.js ships a console.log/debug call in library code, which writes to a consumer application's console
+  witness: 'exec_js-300 scan: 1 console-debug match in src/markdown-cache.js'
+  status: pending
+- id: undemoed-public-api
+  subject: '105 of 193 exported components have no direct specimen in any kit or preview - they are reachable only by being composed inside another component, so a consumer reading the kits cannot discover them, and no visual-regression baseline covers them in isolation. NOT dead code: a separate scan confirmed 0 truly orphaned exports, so this is a documentation/coverage gap, not unused code'
+  witness: 'exec_js-350: 193 exported, 88 demoed directly, 105 indirect-only, 0 orphan'
+  status: pending
+- id: preview-index-coverage
+  subject: preview/ has 28 specimen pages against 193 exported components; the index is the SDK's browsable catalogue and covers a minority of the surface
+  witness: ls preview/*.html vs exec_js-350 export count
+  status: pending
+- id: dead-handlers-workspace
+  subject: ui_kits/workspace/app.js passes onStop/onOpen/onView/onStopAll as no-op arrows to SessionDashboard, so the Stop control on a running agent session renders as interactive and does nothing when clicked
+  witness: ui_kits/workspace/app.js:75-78 read directly; the dashboard renders live sessions with stop/view affordances
+  status: pending
+- id: dead-handlers-community
+  subject: ui_kits/community/app.js passes onSettings as a no-op arrow so the settings control in the community shell is inert
+  witness: ui_kits/community/app.js:170
+  status: pending
+- id: no-sideeffects-declaration
+  subject: package.json omits sideEffects, so bundlers must assume every module in the package has side effects and cannot tree-shake unused components; a consumer importing one Button pulls the whole SDK
+  witness: 'node -e on package.json: sideEffects undefined'
+  status: pending
+- id: no-typescript-types
+  subject: package.json declares no types field and the repo contains zero .d.ts files, so a consumer installing this 193-component SDK gets no autocomplete, no prop checking and no signature discovery in any editor - for a design system whose whole value is a reusable component surface, that is the largest single consumer-facing gap
+  witness: 'node -e on package.json: types undefined; find for *.d.ts outside node_modules returns nothing'
+  status: pending
+- id: loading-vs-busy-prop-split
+  subject: 'the SDK exposes two spellings of the same in-progress concept: 8 components take a busy prop (AgentControls, ChatComposer, BulkBar, FileRow, FileGrid, ConfirmDialog, PromptDialog, AuthModal) and 13 take loading (ChannelSidebar, MemberList, ThreadPanel, ForumView, Spinner, Skeleton, EventList, FileGrid, ModelsConfig, PluginsConfig, ConversationList, SkillsConfig, SpreadsheetPreview). FileGrid takes BOTH in one signature, so a consumer cannot tell which one drives its state'
+  witness: src/components/files/grid.js:26-28 - FileGrid({... loading = false, ... busy, ...}); enumerated via exec_js-380 over every exported component signature
+  status: pending
+- id: empty-text-prop-split
+  subject: 'two spellings of the empty-state slot coexist across the public surface: emptyText (35 uses) and emptyState (29). A consumer has to check each component to know which it accepts'
+  witness: exec_js-370 scan across src/components
+  status: pending
+- id: web-component-lifecycle-verified
+  subject: 'web-component lifecycle audit: investigated and found CLEAN, recorded so a future pass does not re-investigate. Neither ds-chat nor freddie-chat declares disconnectedCallback, and ds-chat registers 2 listeners with 0 removals, which reads like a leak - it is not. The listeners are bound to INTERNAL child elements behind a _dsBound idempotency guard, so they are collected with the element and never rebound. freddie-chat declaring no observedAttributes is likewise fine: it extends DsChat and inherits the [messages, placeholder, title, sub, disabled] contract.'
+  witness: exec_js-390/400 plus direct read of src/web-components/ds-chat.js:80-94 and freddie-chat.js:9-19
+  status: pending
+- id: async-error-handling-verified
+  subject: 'async error-handling audit: investigated and found CLEAN, recorded so a future pass does not re-investigate. Zero empty catch blocks across all of src/. The 9 .then() calls with no adjacent .catch were each checked and none is a real unhandled-rejection risk: form-primitives.js:172 RETURNS the promise to its caller, runtime.js:91 is a Promise.resolve() microtask tick that cannot reject, and community/views.js:127 calls sanitizeHtml which fails CLOSED by design (src/markdown.js:134-146 catches internally, warns, resets the module state and returns escapeHtml) so it never rejects.'
+  witness: exec_js-410 scan plus direct reads of form-primitives.js:171-175, community/views.js:126-130, freddie/runtime.js:90-93, and src/markdown.js:134-146
+  status: pending
+- id: community-app-inert-controls
+  subject: 'ui_kits/community-app is the least-finished kit: 116 lines against a 172-line median, 7 no-op handlers, and the only full app-shell kit with no empty/loading/error states. Measured live: 6 of its 12 clickable controls are TRULY inert - clicking produces no DOM change, no preventDefault and no hash change. The dead ones include servers, home, the ZZellous server pill, and all three state-switcher links (state: empty / loading / ready), i.e. the very controls that exist to demonstrate the states are themselves broken'
+  witness: 'browser-530 clicked every control and diffed document.body.innerHTML length, defaultPrevented and location.hash: probed=12, trulyInert=6. An earlier naive probe reported 16 of 18 suspect by checking el.onclick alone, which over-counts because it cannot see delegated listeners - the click-and-observe probe is the accurate one.'
+  status: pending
+- id: signin-oauth-import-meta-env-throw
+  subject: 'P0: ui_kits/signin/app.js:49,53,57 read import.meta.env.VITE_* but there is no Vite in this repo, so import.meta.env is undefined in-browser and the property access THROWS. The config object is built BEFORE the try block, so the catch that would set ''oauth flow failed'' is unreachable dead code. Witnessed live: clicking github leaves the button reading ''redirecting...'' permanently with err null. All three providers fail. This is the highest-stakes screen in the SDK failing silently on its own reference implementation'
+  witness: 'Fixed and witnessed live. Root cause was import.meta.env being read in a repo with no Vite, so the property access threw while BUILDING the config object - before the try - making the catch that sets oauth flow failed unreachable dead code. Replaced with a plain globalThis.__DS_AUTH global so a host app can still inject real credentials. Also fixed the second half of the defect: a specimen must not leave the specimen, and even without the throw the code would have navigated to github.com with the literal client id demo-github-client-id and stranded the visitor on a provider error page. All three navigations now route through a go() guard that, in demo config, shows the exact authorize URL the component built instead of navigating. Verified in a real browser: clicking github gives stillOnPage true, stuckOnRedirecting FALSE, and the message demo mode - would open: https://github.com/login/oauth/authorize?client_id=demo-github-client-id... where the prior behaviour was a permanent redirecting... hang with err null.'
+  status: completed
+  commit_comment: fix signin OAuth throwing on import.meta.env in a repo with no Vite
+- id: preview-motion-cdn-contradiction
+  subject: 'P0: preview/motion-default.js:11 injects cdnjs.cloudflare.com animate.css into 25 of 29 preview pages, while src/motion.js:1-2 states the SDK deliberately removed animate.css. Three compounding failures: the specimens contradict the documented architecture, every page makes an uncontrolled third-party request (fatal under CSP or air-gapped review, and unlike the markdown/Prism CDNs this one is not overridable), and it applies inline style attributes which AGENTS.md bans. It is injected even under prefers-reduced-motion: reduce, when no animation plays'
+  witness: preview/motion-default.js:11 vs src/motion.js:1-2
+  status: pending
+- id: preview-outside-lint-perimeter
+  subject: 'P1 ROOT CAUSE: preview/ sits outside every lint gate. lint-inline-styles.mjs:21 scans [''ui_kits'',''site''] only, with a source comment promising to widen SCAN_DIRS ''once that sweep lands'' - it never landed. lint-tokens covers only src/css/app-shell. All 15 gates report green while a third of the shipped surface is unmeasured. This explains every other preview finding and the 164-vs-17 commit ratio between src/ and preview/: only src/ has a gate that can fail'
+  witness: scripts/lint-inline-styles.mjs:21 SCAN_DIRS; npm run lint reports 15/15 green with the CDN, unstyled classes and inline layout styles all shipping
+  status: pending
+- id: preview-index-row-unstyled-classes
+  subject: 'P1: preview/index-row.html uses .row-code, .row-title and .row-meta and NO css file in the repo defines any of them. Measured live: all three render identically at 16px system-ui rgb(244,241,233). The page''s own caption promises ''no dots. no colons. the hairline is the divider'' and there is no hairline - it advertises a design decision it does not execute. This is the defect shape AGENTS.md names as the single most-recurring in this repo'
+  witness: grep for .row-code/.row-title/.row-meta across every .css including dist returns zero rules; Assessment A measured the computed styles live
+  status: pending
+- id: blog-docs-pre-sdk-era
+  subject: 'P3: ui_kits/blog and ui_kits/docs have zero JS and hand-authored bodies with inline <style> blocks while the other 18 kits render through mountKit + AppShell. Both lack a skip link and docs has no h1. kits.config.mjs documents them as deliberate outliers, but they sit among the kits as apparent peer reference implementations while demonstrating the opposite of the documented architecture'
+  witness: kits.config.mjs header comment; exec_js-420 shows blog and docs at 0 app.js lines
+  status: pending
+- id: missing-h1-and-skip-links
+  subject: 'P2 accessibility: chat, community and community-app have no h1 so heading navigation starts nowhere; blog, docs, community and community-app have no skip link although AGENTS.md mandates an unconditional 44px .skip-link; terminal''s command input has no label'
+  witness: Assessment A audited all 20 kits
+  status: pending
+- id: preview-index-front-door
+  subject: 'P2: preview/index.html is the SDK''s front door and demonstrates none of its design language - 28 flat undifferentiated links each redundantly suffixed ''/ 247420 preview'', body copy naming the build script generate-preview-index.mjs, a dangling ''see D5'' internal reference, no h1, no grouping despite obvious colour/type/file families, no dateline or spine or asymmetry'
+  witness: Assessment A read and measured the page; headings array empty
+  status: pending
+- id: shell-classes-unstyled
+  subject: 'P1: .app-side-group is emitted by src/components/shell/app-shell.js:93 and .glyph-base by src/components/shell/atoms.js:136, each across 11 kits, and neither has a CSS rule anywhere. Also .accent on a blog chip and .centered on blog''s main (which computes margin-left/right 0 and text-align start - the class name promises centering that never happens)'
+  witness: Assessment B cross-checked emitted class names against every stylesheet
+  status: pending
+- id: dead-controls-repo-wide
+  subject: 'P1: click-tested every control on all 50 pages. Fully unresponsive: docs 17/17, blog 7/7, dashboard 6/6, homepage 15/16 (including the primary ''open ->'' CTA and ''source''), preview/buttons 10/10, file-toolbar 5/5 (two of which have NO href at all), plus dropzone, stamps-lore, data-density, file-viewer, theme-ink and header. Partial: gm_inspector 7/16 including a pager whose page numbers do not page, community-app 7/15, gallery 1/14. Every one carries cursor:pointer, so they promise interactivity and deliver none'
+  witness: Assessment B clicked each candidate and diffed body.innerHTML, location.hash, data-theme and activeElement. It first flagged 99 href=# anchors statically and DISPROVED most by click-testing - the state tabs in settings/terminal/aicat/chat do work via delegated listeners - so only empirically-confirmed dead controls are counted
+  status: pending
+- id: tone-dim-does-nothing
+  subject: 'P1: the .tone-dim chip modifier has NO css rule anywhere and is used across aicat, project_page, signin, system_primer and terminal. Measured: span.chip.tone-dim renders color rgb(234,230,218) on bg rgb(31,31,38), byte-identical to a plain .chip - the dim tone is a no-op that five kits believe in'
+  witness: Assessment B measured computed styles against an unstyled sibling at three widths; no rule in any .css
+  status: pending
+- id: template-kit-unsubstituted
+  subject: 'P2: ui_kits/_template is served at a real URL, throws an uncaught exception at all three widths, loads ZERO stylesheets, and renders the literal strings {{THEME_COLOR_METAS}} {{SEO_METAS}} {{STYLESHEETS}} as visible body text. It is a build-time scaffold source, but it sits among the kits where a visitor reaches it'
+  witness: Assessment B measured it live; CDP returned only the bare string Uncaught with no stack
+  status: pending
+- id: detector-preview-findings
+  subject: 'preview/ returns exit 2 with 9 detector findings (6 single-font, 1 monotonous-spacing on spacing.html at 82% 12px, 1 bounce-easing, 1 em-dash-overuse). ui_kits returns exit 0 clean. Three of the nine are false positives against this repo''s stated design: single-font fires on deliberately mono-only specimen sheets while AGENTS.md pins all four font tokens to system stacks, and bounce-easing matches --ease-spring which AGENTS.md names as the intended physical-spring signature'
+  witness: node detect.mjs --json on both directories
+  status: pending
+- id: theme-map-overflow
+  subject: 'P2: preview/theme-map.html is the only page in the repo that breaks layout - at 420px clientWidth 405 vs scrollWidth 572, overflowing by 167px with 25 escaping elements. The worst is a span at right 561 inside an LI that is display:flex with overflow-x visible, so it is not inside a scroller and this is true breakage rather than an intended inner scroll'
+  witness: Assessment B measured all 50 pages at 420/1024/1440; the other 49 have scrollWidth === clientWidth at every width
+  status: pending
+- id: homepage-dead-cta
+  subject: 'P1: 20 controls on ui_kits/homepage carry cursor:pointer and are completely inert - the nav (works, writing, manifesto, source ->), the primary open -> CTA, the source button, the 3 in flight button, and all 8 project rows plus the writing links. This is the SDK showcase page, so it is the surface most likely to be shown to someone evaluating the system, and nothing on it responds'
+  witness: 'independently click-probed live: filtered to elements whose computed cursor is pointer (so genuinely non-interactive containers are excluded), clicked each, and diffed body.innerHTML length, defaultPrevented and location.hash - 20 of 20 produced no change. Confirms Assessment B independent finding of 15/16.'
+  status: pending

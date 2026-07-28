@@ -51,7 +51,13 @@ check('scripts/lint-classes.mjs passes standalone', () => {
 
 check('scripts/lint-inline-styles.mjs passes standalone', () => {
     const out = run(process.execPath, ['scripts/lint-inline-styles.mjs']);
-    if (!/OK/.test(out)) throw new Error('lint-inline-styles did not report OK: ' + out);
+    // Accepts either report shape. The gate started as a hard zero ("OK") and
+    // became a ratchet ("PASS — n <= baseline n") when its scan widened from
+    // ui_kits/site to also cover preview, slides and src, which exposed real
+    // pre-existing debt that was frozen rather than hidden. Matching only /OK/
+    // failed on a gate that was passing correctly. FAIL still throws, so this
+    // does not weaken the check — the spacing test below uses the same shape.
+    if (!/\bOK\b|\bPASS\b/.test(out)) throw new Error('lint-inline-styles did not pass: ' + out);
 });
 
 check('scripts/lint-tokens.mjs spacing report does not exceed session baseline', () => {

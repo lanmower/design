@@ -5,9 +5,9 @@ import { shortUid } from 'ds/uid.js';
 const h = webjsx.createElement;
 
 const root = document.getElementById('root');
-const state = { mode: 'signin', email: '', password: '', remember: true, sent: false, error: '', loading: null };
+const state = { mode: 'signin', email: '', password: '', remember: true, sent: false, error: '', loading: null, demoUrl: '' };
 
-function setMode(m) { state.mode = m; state.sent = false; state.error = ''; state.loading = null; kit.render(); }
+function setMode(m) { state.mode = m; state.sent = false; state.error = ''; state.loading = null; state.demoUrl = ''; kit.render(); }
 
 function submit(e) {
     e.preventDefault();
@@ -43,18 +43,26 @@ function Provider({ glyph, label, provider }) {
     );
 }
 
+// Config comes from a plain global, NOT import.meta.env. There is no Vite in
+// this repo, so `import.meta.env` is undefined in the browser and reading a
+// property off it THROWS — and because the config object was built before the
+// try below, that throw escaped the catch entirely and left every provider
+// button stuck on "redirecting..." forever with no error shown. A host app that
+// wants real credentials sets globalThis.__DS_AUTH before mounting.
+const AUTH_ENV = (typeof globalThis !== 'undefined' && globalThis.__DS_AUTH) || {};
+
 function startOAuthFlow(provider) {
     const config = {
         github: {
-            clientId: import.meta.env.VITE_GITHUB_CLIENT_ID || 'demo-github-client-id',
+            clientId: AUTH_ENV.githubClientId || 'demo-github-client-id',
             redirectUri: window.location.origin + '/auth/callback/github'
         },
         google: {
-            clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID || 'demo-google-client-id',
+            clientId: AUTH_ENV.googleClientId || 'demo-google-client-id',
             redirectUri: window.location.origin + '/auth/callback/google'
         },
         sso: {
-            endpoint: import.meta.env.VITE_SSO_ENDPOINT || 'https://sso.247420.xyz/authorize',
+            endpoint: AUTH_ENV.ssoEndpoint || 'https://sso.247420.xyz/authorize',
             redirectUri: window.location.origin + '/auth/callback/sso'
         }
     }[provider];
@@ -75,7 +83,7 @@ function startOAuthFlow(provider) {
                 scope: scopes,
                 state: generateState()
             });
-            window.location.href = 'https://github.com/login/oauth/authorize?' + params;
+            go('https://github.com/login/oauth/authorize?' + params);
         } else if (provider === 'google') {
             const scopes = ['openid', 'email', 'profile'].join(' ');
             const params = new URLSearchParams({
@@ -85,19 +93,39 @@ function startOAuthFlow(provider) {
                 scope: scopes,
                 state: generateState()
             });
-            window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params;
+            go('https://accounts.google.com/o/oauth2/v2/auth?' + params);
         } else if (provider === 'sso') {
             const params = new URLSearchParams({
                 redirect_uri: config.redirectUri,
                 state: generateState()
             });
-            window.location.href = config.endpoint + '?' + params;
+            go(config.endpoint + '?' + params);
         }
     } catch (err) {
         state.error = 'oauth flow failed: ' + (err.message || 'unknown error');
         state.loading = null;
         kit.render();
     }
+}
+
+// A specimen must not actually leave the specimen. Without real credentials the
+// navigation above would send a visitor to github.com with the literal client id
+// "demo-github-client-id" and strand them on a provider error page, so unless a
+// host app supplied real config we show the exact URL that WOULD be opened and
+// stay put. That is more useful than a redirect anyway: it makes the request
+// this component builds inspectable, which is what a specimen is for.
+function isDemoConfig() {
+    return !AUTH_ENV.githubClientId && !AUTH_ENV.googleClientId && !AUTH_ENV.ssoEndpoint;
+}
+
+function go(url) {
+    if (isDemoConfig()) {
+        state.loading = null;
+        state.demoUrl = url;
+        kit.render();
+        return;
+    }
+    window.location.href = url;
 }
 
 function generateState() {
@@ -143,6 +171,10 @@ function Form() {
         ) : null,
         // role=alert so the validation message is announced, not just painted.
         state.error ? h('div', { class: 'ds-auth-error', role: 'alert' }, state.error) : null,
+        // Shows the exact authorize URL this component built, instead of
+        // navigating away from the specimen with placeholder credentials.
+        state.demoUrl ? h('div', { class: 'ds-auth-error', role: 'status' },
+            'demo mode — would open: ' + state.demoUrl) : null,
         h('button', { class: 'btn btn-primary', type: 'submit' },
             state.mode === 'signup' ? 'create account ->' :
             state.mode === 'magic'  ? 'send magic link ->' :

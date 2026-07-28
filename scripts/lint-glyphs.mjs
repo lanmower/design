@@ -18,7 +18,11 @@ const root = path.resolve(__dirname, '..');
 // Directories scanned recursively for source files. dist/ is generated,
 // node_modules/ is vendored, vendor/ is third-party (webjsx), .gm/ is the
 // plugkit spool — none are hand-authored design surfaces.
-const SCAN_DIRS = ['src', 'ui_kits', 'slides', 'site'];
+// `preview` added 2026-07-28. It had been missing while EXEMPT_FILES below
+// already carried a `preview/icons-unicode.html` entry — an exemption for a
+// directory the walk never entered, i.e. dead code that read as coverage. The
+// preview/ tree ships and is exactly where glyphs accumulate unnoticed.
+const SCAN_DIRS = ['src', 'ui_kits', 'slides', 'site', 'preview'];
 const SCAN_EXT = new Set(['.js', '.mjs', '.css', '.html']);
 // The bundled root CSS files (app-shell.css, chat.css, etc.) are the design
 // system's shipped styling but live at the repo root, outside SCAN_DIRS — they
