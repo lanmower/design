@@ -1983,20 +1983,10 @@
   subject: homepage/app.js is the only kit containing a gradient; confirm it is a deliberate art-directed moment not decorative glow
   witness: 'exec_js-11 survey: homepage gradient:true, all 20 other kits false'
   status: pending
-- id: a11y-audit-replacement
-  subject: AGENTS.md records the CI-blocking a11y audit was removed with no replacement; restore axe-core WCAG checking without a browser-automation dependency
-  witness: 'Restored as scripts/a11y-audit.mjs: real axe-core (pinned vendored copy alongside vendor/webjsx, no dependency added) against the live rendered DOM of all 20 kits, WCAG 2.1 A/AA, gating on serious/critical, report to docs/a11y-report.md, wired into ci.yml. scripts/cdp.mjs speaks DevTools Protocol over Node 22''s built-in WebSocket and CONNECTS to a running Chrome rather than spawning one - browser startup lives in the workflow step, so the AGENTS.md ban on a repo-owned browser-automation dependency holds. Found and recorded the REAL count of 22 blocking violations across 20 kits without weakening any check; the ratchet fails in BOTH directions because slack absorbs the next regression. Proven to fail: an injected alt-less image is caught as critical with exit 1, and a missing browser exits 1 with guidance rather than silently reporting zero findings.'
-  status: completed
-  commit_comment: restore CI-blocking axe-core a11y gate with no browser dependency
 - id: os-theme-css-audit
   subject: src/kits/os/theme.css holds 229 raw spacing, 70 raw font-size, 128 !important, 15 z-index, 7 pure black/white - the single worst-debt file in the repo
   witness: 'exec_js-15 and exec_js-16 scans both rank it #1 in every category'
   status: pending
-- id: visual-regression-replacement
-  subject: AGENTS.md records visual-baseline.mjs pixel-diff regression was removed with no replacement
-  witness: 'Restored as scripts/visual-baseline.mjs with a hand-written PNG decoder and differ over node:zlib (no image library): 78 captures across 26 preview pages x 3 themes, two-level tolerance so antialiasing does not flap. The first run failed 38 of 78 and was DIAGNOSED rather than blanket-refreshed - every --auto failure was an environment artefact, since data-theme=auto follows prefers-color-scheme and the committed baselines were captured under a light-reporting browser while headless Chrome reports dark, which would have flapped per-machine in CI. Fixing the cause (pinning the emulated preference) kept those baselines valid and took 38 to 20; the remaining 20 were verified genuinely stale (19 CSS commits landed after the July 17 capture, including the 44px touch floor and root scrollbar rule that explain the shifts) before refreshing. Two independent runs then passed identically, which also validates the tolerance calibration. Proven to fail: an altered baseline flags at exactly 40000 pixels with exit 1.'
-  status: completed
-  commit_comment: restore pixel-diff visual regression with a hand-written PNG differ
 - id: component-css-colocation-audit
   subject: SessionRow layout lived in chat.css while its sub-parts lived in data-density.css; audit every component for split-home defects of the same shape
   witness: fixed this session for SessionRow; same shape may exist for other components
