@@ -81,6 +81,13 @@ h4, .t-h4 { font-family: var(--ff-display); font-size: var(--fs-h4); line-height
 .t-mono    { font-family: var(--ff-mono); }
 .t-body    { font-family: var(--ff-body); }
 
+/* House small-label voice, in two sizes. Every declaration here is sourced
+   from a token, so a sheet that cannot join these selector lists (community.css
+   and gm-prose.css ship as separate <link>-able exports and must not depend on
+   app-shell.css being present) still composes the same voice by referencing the
+   same four tokens — --ff-mono / --fs-* / uppercase / --tr-label. That token
+   set, not this rule, is the single source of truth; a selector that restates a
+   literal instead of the token is the drift this pairing exists to prevent. */
 .t-label   { font-family: var(--ff-mono); font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: var(--tr-label); font-weight: 500; }
 .t-micro   { font-family: var(--ff-mono); font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: var(--tr-label); color: var(--fg-3); }
 .t-meta    { font-family: var(--ff-body); font-size: var(--fs-sm); color: var(--fg-3); }

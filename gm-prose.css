@@ -75,12 +75,25 @@
   background: var(--panel-text-3);
   background-clip: padding-box;
 }
-#ds-article-host .toc .toc-title {
+/* Small-label voice — the local composition of the house `.t-label` recipe
+   (src/css/app-shell/base.css). This sheet is a standalone published export
+   with its own <link>, so it cannot join the `.t-label` selector list; it
+   composes by referencing the identical token set. Both members are gm-
+   generated markup (injected into #ds-article-host), so the class list is not
+   reachable from src/ — the rule, not the markup, does the composing.
+   Deliberate override for both: --panel-text-2, because prose surfaces use the
+   panel text ramp rather than the app --fg ramp. Sized at --fs-nano: these
+   labels ride above dense article chrome, not UI text. */
+#ds-article-host .toc .toc-title,
+.ds-prose .gm-callout .who {
   font-family: var(--ff-mono);
-  font-size: 11px;
+  font-size: var(--fs-nano);
   text-transform: uppercase;
-  letter-spacing: .09em;
+  letter-spacing: var(--tr-label);
   color: var(--panel-text-2);
+}
+
+#ds-article-host .toc .toc-title {
   margin: 0 0 var(--space-3) 0;
 }
 #ds-article-host .toc ol { margin: 0; padding-left: var(--space-3-5); }
@@ -214,12 +227,8 @@
   width: var(--bw-chunk); background: var(--panel-accent);
   border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
 }
+/* Joins the small-label voice above; only its own box properties here. */
 .ds-prose .gm-callout .who {
   display: block;
-  font-family: var(--ff-mono);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: var(--panel-text-2);
   margin-bottom: var(--space-1);
 }

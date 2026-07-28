@@ -5,6 +5,25 @@
    ============================================================ */
 
 /* ============================================================
+   Small-label voice — the local composition of the house `.t-micro`
+   recipe (src/css/app-shell/base.css). This sheet is a standalone
+   published export consumed via its own <link>, so it cannot join the
+   `.t-micro` selector list; it composes by referencing the identical
+   token set instead. Every selector below that needs the label voice
+   JOINS this rule and declares only what it deliberately differs on —
+   never a second copy of these four declarations.
+   ============================================================ */
+.cm-vs-label,
+.vx-section-label,
+.vx-chip-tag {
+  font-family: var(--ff-mono);
+  font-size: var(--fs-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-label);
+  color: var(--fg-3);
+}
+
+/* ============================================================
    Shell — top-level flex container for the community layout
    ============================================================ */
 .cm-shell {
@@ -268,6 +287,10 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Deliberately NOT the small-label voice: this is the `+` affordance sitting
+   inside .cm-category-header, which IS uppercase + tracked. The zeroed
+   letter-spacing and text-transform are resets of that inherited voice, not a
+   copy of it — a bare glyph must not be tracked apart or case-folded. */
 .cm-cat-extra {
   font-family: var(--ff-mono);
   font-size: var(--fs-micro);
@@ -563,11 +586,10 @@
 }
 .cm-voice-strip.open { display: flex; }
 
+/* Joins the small-label voice above. Deliberate overrides: --green (this is a
+   live-recording indicator, not neutral chrome) and weight 700 (it sits next to
+   a pulsing dot and must read as the loudest thing in the strip). */
 .cm-vs-label {
-  font-family: var(--ff-mono);
-  font-size: var(--fs-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--tr-caps);
   color: var(--green);
   font-weight: 700;
   display: inline-flex;
@@ -698,6 +720,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Deliberately NOT the small-label voice: a user's handle/tag is content, not
+   chrome, so it stays sentence-case and untracked. Mono + micro + --fg-3 only. */
 .cm-user-tag {
   font-family: var(--ff-mono);
   font-size: var(--fs-micro);
@@ -1435,13 +1459,7 @@
   border-top: var(--bw-hair) solid var(--rule);
 }
 .vx-section { display: flex; flex-direction: column; gap: var(--space-2); }
-.vx-section-label {
-  font-family: var(--ff-mono);
-  font-size: var(--fs-micro);
-  letter-spacing: var(--tr-label);
-  text-transform: uppercase;
-  color: var(--fg-3);
-}
+/* Joins the small-label voice above with no overrides — it IS the plain voice. */
 .vx-segmented { display: flex; gap: var(--space-1); }
 .vx-seg {
   flex: 1;
@@ -1509,9 +1527,11 @@
 .vx-chip-dot { width: 8px; height: 8px; border-radius: var(--r-pill); background: var(--fg-3); flex-shrink: 0; }
 .vx-chip-name { font-weight: 600; }
 .vx-chip-dur { font-family: var(--ff-mono); color: var(--fg-3); }
+/* Joins the small-label voice above. Deliberate overrides: --green + weight 700
+   because this is the "LIVE" badge on a session chip, same signal role as
+   .cm-vs-label. */
 .vx-chip-tag {
-  font-family: var(--ff-mono); font-size: var(--fs-micro);
-  color: var(--green); font-weight: 700; letter-spacing: var(--tr-caps);
+  color: var(--green); font-weight: 700;
 }
 
 /* VoiceControls — vx-vc-* */

@@ -160,9 +160,28 @@
 @media (pointer: coarse) {
   .ds-deck-controls .btn { min-height: 44px; min-width: 44px; }
 }
+/* Kit small-label voice — one local composition of the house `.t-label` recipe
+   (base.css) for every eyebrow/label in the appended kit blocks below. These
+   previously each restated the four declarations with drifted tracking
+   (0.1em / 0.06em / --tr-label) and drifted size (11px / --fs-micro); they now
+   share --fs-nano + --tr-label. Members declare only their real differences.
+   --fs-nano because these are dense kit chrome, never body or UI text. */
+.ds-slide-eyebrow,
+.ds-field-eyebrow,
+.ds-auth-field-label,
+.ds-lightbox-tag {
+  font-family: var(--ff-mono);
+  font-size: var(--fs-nano);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--panel-text-3);
+}
+
+/* Deliberate overrides: the deck slide eyebrow sits on the app --fg ramp (it is
+   full-bleed slide chrome, not panel chrome) and owns its own bottom gutter. */
 .ds-slide-eyebrow {
-  font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--fg-3); margin-bottom: clamp(12px, 2.5cqw, 24px);
+  color: var(--fg-3);
+  margin-bottom: clamp(12px, 2.5cqw, 24px);
 }
 .ds-slide-col { display: flex; flex-direction: column; justify-content: center; gap: clamp(12px, 2.5cqw, 24px); min-width: 0; }
 .ds-slide-col--start { align-items: flex-start; }
@@ -397,10 +416,7 @@
    Textareas keep a wider cap since prose genuinely uses the room. */
 .ds-field-block > .input { max-width: 44ch; width: 100%; }
 .ds-field-block > textarea.input { max-width: 72ch; }
-.ds-field-eyebrow {
-  font-family: var(--ff-mono); font-size: var(--fs-micro); letter-spacing: var(--tr-label);
-  text-transform: uppercase; color: var(--panel-text-3);
-}
+/* .ds-field-eyebrow joins the kit small-label voice above with no overrides. */
 .ds-hint-sm { font-size: var(--fs-xs); color: var(--panel-text-2); }
 .ds-note-quiet { margin: 0; color: var(--panel-text-2); }
 .ds-btn-row { display: flex; gap: var(--space-2, 8px); flex-wrap: wrap; }
@@ -448,7 +464,7 @@
 .ds-auth-sent-title { margin: 0; font-weight: 600; }
 .ds-auth-sent-sub { margin: 0; color: var(--panel-text-2); overflow-wrap: anywhere; }
 .ds-auth-field { display: flex; flex-direction: column; gap: 4px; }
-.ds-auth-field-label { font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--panel-text-3); }
+/* .ds-auth-field-label joins the kit small-label voice above, no overrides. */
 .ds-auth-row-between { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .ds-auth-remember { display: flex; align-items: center; gap: 6px; cursor: pointer; }
 .ds-auth-remember-text { color: var(--panel-text-2); font-size: 13px; }
@@ -480,7 +496,7 @@
 .ds-gal-swatch-name { color: var(--panel-text); }
 .ds-gal-swatch-hint { color: var(--panel-text-3); overflow-wrap: anywhere; }
 .ds-lightbox-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-.ds-lightbox-tag { font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--panel-text-3); }
+/* .ds-lightbox-tag joins the kit small-label voice above, no overrides. */
 
 /* --- error_404 kit --- */
 .ds-err-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
@@ -582,3 +598,188 @@
 }
 .ds-sheet-preview-error-action:hover { background: var(--bg-2); }
 .ds-sheet-preview-error-action:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 2px; }
+
+/* == appended: community kit message list == */
+/* ui_kits/community mounts CommunityShell (the .cm-* family) but renders its
+   OWN message list in ds-* markup, and its index.html links app-shell.css
+   WITHOUT community.css. So these live here, not in community.css: the .cm-*
+   sheet never reaches this page, and .ds-community-* is ds-family markup by
+   the lint-classes taxonomy anyway. Every rule below deliberately mirrors the
+   .chat-msg / .chat-avatar / .chat-stack primitives in chat-polish.css so the
+   community thread and the chat kit read as one message language. */
+
+/* Page root — owns the full viewport column so CommunityShell's own 100dvh
+   flex shell has a height to resolve against, with the topbar/status chrome
+   stacked around it. */
+.ds-community-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-width: 0;
+}
+/* Main column inside the shell — .cm-main's ds-family counterpart: header
+   pinned, message list taking the remaining height and doing the scrolling. */
+.ds-community-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Thread scroller. Same rhythm as .chat-thread (column + --space-3 gap +
+   own overflow), so messages breathe on the same interval as the chat kit. */
+.ds-community-messages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-3);
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-3) transparent;
+}
+.ds-community-messages::-webkit-scrollbar { width: 8px; }
+.ds-community-messages::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: var(--r-0); }
+
+/* One message — avatar rail + body stack, matching .chat-msg's flex/gap and
+   its quiet tonal hover (no border, per the zero-border aesthetic). */
+.ds-community-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2-75);
+  padding: var(--space-1-75) var(--space-2);
+  margin: 0;
+  border-radius: var(--r-1);
+  min-width: 0;
+  transition: background var(--dur-base) var(--ease);
+}
+.ds-community-msg:hover { background: color-mix(in oklab, var(--fg) 4%, transparent); }
+
+/* Identity disc. The inline `background:` from app.js supplies the per-author
+   tone; this owns the SHAPE — a circle, which is the whole reason the avatar
+   was rendering as a coloured bar with no rule. Footprint + type match
+   .chat-avatar exactly. */
+.ds-community-avatar {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--ink);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  line-height: 1;
+  user-select: none;
+}
+
+/* Body stack — name + time on one baseline, text beneath. .chat-stack's
+   column/gap idiom, without the bubble max-width (this is a flat list row,
+   not a two-sided bubble thread). */
+.ds-community-msg-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+  flex: 1;
+  min-width: 0;
+}
+/* Author. The inline `color:` from app.js carries the per-author tone; weight
+   and size are what make it read as the row's title. */
+.ds-community-msg-name {
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  line-height: 1.3;
+}
+/* Timestamp — the quiet mono meta voice used by .cm-user-tag / row .meta. */
+.ds-community-msg-time {
+  font-family: var(--ff-mono);
+  font-size: var(--fs-micro);
+  color: var(--fg-3);
+  line-height: 1.3;
+}
+/* Message body claims the full second line of the wrapping body row. */
+.ds-community-msg-text {
+  flex: 1 0 100%;
+  margin: 0;
+  min-width: 0;
+  color: var(--fg-2);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-community-msg { transition: none; }
+}
+
+/* == appended: cross-kit note / swatch / chat-page / caret == */
+
+/* "about this kit" explanatory block — 8 kits render a run of <p> lines here
+   (often carrying inline Chip()/<code>) inside a .panel body. This is
+   SECONDARY copy annotating the demo above it, so it takes the quiet voice:
+   one step down from body, on the --fg-2 ramp, with a comfortable reading
+   line-height. It owns only the RHYTHM between its lines; the panel body still
+   owns the inset, so this must not re-pad. */
+.ds-pattern-notes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  color: var(--fg-2);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
+  max-width: var(--measure);
+  min-width: 0;
+}
+.ds-pattern-notes p { margin: 0; overflow-wrap: anywhere; }
+/* Inline literals inside a note read as quoted machinery, not as body copy —
+   same tonal chip treatment .chat-bubble code uses. */
+.ds-pattern-notes code {
+  font-family: var(--ff-mono);
+  font-size: 0.92em;
+  background: color-mix(in oklab, var(--fg) 8%, transparent);
+  padding: 0 var(--space-1);
+  border-radius: var(--r-hair);
+}
+.ds-pattern-notes strong { color: var(--fg); font-weight: 600; }
+
+/* Swatch cell wrapper (system_primer pairs it with .ds-swatch-col, which owns
+   the column/gap). This adds only what the wrapper itself needs: a minimum-zero
+   track so long token names ellipsize inside the grid instead of widening it. */
+.ds-swatch { min-width: 0; }
+.ds-swatch .ds-swatch-name { overflow-wrap: anywhere; }
+
+/* Chat kit page root — the thread must own the leftover column height rather
+   than growing the page, so the composer stays on screen. Pairs with
+   .ds-chat-layout (flex column, flex:1) which is already defined above. */
+.chat-kit-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Terminal caret — a solid block that sits on the last demo line. Sized in ch
+   so it tracks the mono column it follows. The blink is motion, so it is
+   declared ONLY inside prefers-reduced-motion: no-preference (the same
+   opt-in shape .cm-ch-spinner / .cm-vs-label::before use); with reduced
+   motion the caret is a steady block, still marking the cursor position. */
+.cursor-blink {
+  display: inline-block;
+  width: 1ch;
+  height: 1em;
+  margin-left: var(--space-1);
+  background: var(--accent);
+  vertical-align: text-bottom;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cursor-blink { animation: ds-cursor-blink 1s step-end infinite; }
+  @keyframes ds-cursor-blink { 50% { opacity: 0; } }
+}
