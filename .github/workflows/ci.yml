@@ -25,11 +25,19 @@ jobs:
       - name: Install deps
         run: npm install --no-audit --no-fund
 
-      - name: Lint (13 gates)
+      - name: Lint (15 gates)
         run: npm run lint
 
       - name: Component docs up to date
         run: npm run lint:component-docs
+
+      # The shipped TypeScript declarations are generated from the same
+      # component-surface extraction as the docs above. This fails the build
+      # when types/*.d.ts no longer matches the real signatures — without it a
+      # signature change would silently ship a `types` entry that lies about
+      # the runtime surface, which is worse for a consumer than no types.
+      - name: Component types up to date
+        run: npm run lint:component-types
 
       - name: Build
         run: npm run build

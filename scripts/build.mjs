@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
+import { spawnSync } from 'node:child_process';
 import { lintTokensOrThrow, lintRadiusOrThrow, lintSpacingOrThrow, lintFontSizeOrThrow, lintZIndexOrThrow, lintTransitionAllOrThrow, lintImportantOrThrow, lintTokensJsonInSyncOrThrow } from './lint-tokens.mjs';
 import { lintGlyphsOrThrow } from './lint-glyphs.mjs';
 import { lintNullChildrenOrThrow } from './lint-null-children.mjs';
@@ -314,3 +315,19 @@ try {
 
 const sz = fs.statSync(path.join(dist, '247420.js')).size;
 console.log('[247420] js minified bundle:', (sz / 1024).toFixed(1) + 'kb');
+
+// TypeScript declarations: regenerate types/*.d.ts from the same extraction
+// that produces docs/component-props.md, so a build can never publish a
+// bundle whose shipped `types` entry describes a stale component surface.
+// Generated (not merely checked) here because the .d.ts is a BUILD ARTIFACT
+// of the source signatures, exactly like dist/247420.js is — the CI staleness
+// gate is `npm run lint:component-types`, which fails when a committed
+// declaration no longer matches the source it claims to describe.
+const typesGen = spawnSync(process.execPath, [path.join(__dirname, 'generate-component-types.mjs')], {
+    cwd: root, encoding: 'utf8',
+});
+if (typesGen.status !== 0) {
+    console.error(typesGen.stdout || '', typesGen.stderr || '');
+    throw new Error('[247420] component type generation failed');
+}
+process.stdout.write(typesGen.stdout || '');
