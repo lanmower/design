@@ -283,10 +283,22 @@ check('Table striped/compact are opt-in and default false (existing contract byt
 });
 
 // -- Regression guards: dead/replaced markup must not creep back in --
-check('ui_kits/dashboard/app.js no longer applies the dead ds-panel-trio class (zero matching CSS existed)', () => {
+// ds-panel-trio was originally a dead class -- applied in markup with zero
+// matching CSS -- and this guard asserted its absence. It now has a real rule
+// (src/css/app-shell/kits-appended.css): three grid tracks stepping 3->2->1 on
+// CONTAINER width. So the guard inverts: the class is legitimate, and what must
+// not regress is the defect it replaced. The dashboard previously built that row
+// from GridItem md:8 spans on a 24-column system, which is 33.33% each; three of
+// those plus two gaps exceed 100%, so the third panel wrapped to its own row and
+// the "3-up" was really a 2+1. Percentage flex-basis cannot express an equal
+// N-up with gaps -- real grid tracks can.
+check('ds-panel-trio has a real CSS rule and the dashboard uses it instead of percentage flex-basis spans', () => {
     const src = fs.readFileSync(path.join(root, 'ui_kits/dashboard/app.js'), 'utf8');
-    if (/class:\s*['"]ds-panel-trio['"]/.test(src)) throw new Error('ds-panel-trio regressed back into dashboard app.js as an applied class');
-    if (!src.includes('Grid(') || !src.includes('GridItem(')) throw new Error('Grid/GridItem no longer used in dashboard app.js');
+    const css = fs.readFileSync(path.join(root, 'src/css/app-shell/kits-appended.css'), 'utf8');
+    if (!/\.ds-panel-trio\s*\{/.test(css)) throw new Error('ds-panel-trio is applied but has no CSS rule -- the original dead-class defect');
+    if (!/grid-template-columns:\s*repeat\(3/.test(css)) throw new Error('ds-panel-trio must declare three real grid tracks');
+    if (!/class:\s*['"]ds-panel-trio['"]/.test(src)) throw new Error('dashboard no longer uses ds-panel-trio for its 3-up row');
+    if (/GridItem\(\{[^}]*md:\s*8/.test(src)) throw new Error('dashboard regressed to md:8 percentage spans, which wrap the third panel onto its own row');
 });
 
 check('ui_kits/signin/app.js uses Divider component, not the hand-rolled ds-auth-divider markup', () => {
