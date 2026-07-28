@@ -1983,11 +1983,6 @@
   subject: homepage/app.js is the only kit containing a gradient; confirm it is a deliberate art-directed moment not decorative glow
   witness: 'exec_js-11 survey: homepage gradient:true, all 20 other kits false'
   status: pending
-- id: touch-target-full-sweep
-  subject: sweep every interactive control across all kits for the 44px pointer:coarse floor, not just pager/segmented/terminal already fixed
-  witness: 'Swept every interactive control (button, a[href], input, select, textarea, [role=button], [tabindex]) under REAL coarse-pointer emulation - CDP setDeviceMetricsOverride mobile:true plus setTouchEmulationEnabled plus setEmitTouchEventsForMouse, which is what actually flips the pointer:coarse media query - rather than reading CSS. Found two gaps that specific-case rules had missed: the base .input at 34px (specific inputs like ds-file-filter-input/ds-modal-input/ds-term-input already had floors, but the primitive every form uses did not) and .skip-link at 39px on every kit. Fixed both. Dashboard 15 controls and settings 17 controls now measure 0 under 44px; file_browser was already clean at 69 controls. The skip link is floored unconditionally rather than behind pointer:coarse, because switch and head-pointer users are not reported as coarse pointers and need the target just as much.'
-  status: completed
-  commit_comment: sweep all controls under real touch emulation; base input and skip link floored
 - id: display-type-ceiling-audit
   subject: verify no display type exceeds 6rem and tracking floor -0.04em holds
   witness: craft floor type rule; --fs-mega/--fs-hero clamp to 96px
@@ -2196,8 +2191,3 @@
   subject: community.css referenced var(--fs-0/--fs-1/--fs-3, Npx) - tokens that do not exist in colors_and_type.css - so the px fallback was what actually rendered
   witness: found during the font-size migration; repointed onto real tokens
   status: pending
-- id: ratchet-slack-absorbs-violations
-  subject: a ratchet baseline with slack silently absorbs new violations - while the count sat at 55 against a frozen 56, an injected raw font-size:17px still PASSED. The baseline must be re-frozen downward whenever the real count drops, or the gate stops catching the next regression
-  witness: 'Discovered while verifying the fontsize gate: with the real count at 55 and the baseline frozen at 56, an injected raw font-size:17px still PASSED because the ratchet had a unit of slack. Re-froze to 55 and re-ran - raw literal now FAILs, as do max()/clamp() with no token, while token-anchored max()/clamp() correctly pass. Recorded so the same slack is not left on lint-spacing or lint-important.'
-  status: completed
-  commit_comment: re-freeze ratchets downward when the count drops, or they absorb the next regression

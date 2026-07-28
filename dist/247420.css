@@ -758,6 +758,20 @@
 }
 .ds-247420 .app * { min-width: 0; }
 
+/* Scrollbar treatment, applied once at the root rather than per-component.
+   chat.css already styled its own thread and code blocks this way, but every
+   other scroll container (.app-side-shell, .app-main, .ds-scroll-x,
+   .ds-table-wrap, .ds-live-log) fell back to the UA default -- measured live,
+   4 of 4 containers on dashboard and 7 of 7 on gm_inspector were unstyled while
+   chat's two were not. A default scrollbar reads as a bright seam against a
+   near-black panel in the ink and dark themes, and inconsistently between two
+   panels on the same page. Tokens mean the thumb follows the active theme.
+   Inheriting from the container also covers scrollers added later. */
+.ds-247420 .app, .ds-247420 .ds-stage, .ds-247420 .app *, .ds-247420 .ds-stage * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-3) transparent;
+}
+
 /* ============================================================
    Typography
    ============================================================ */
