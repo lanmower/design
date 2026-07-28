@@ -2383,3 +2383,7 @@
   subject: 23 raw px literals live inside inline <style> blocks in 5 html files, invisible to every lint gate because the gates scan only .css files
   witness: 'exec_js-25: blog/index.html=10, preview/colors-core=7, preview/data-density=4, colors-lore=1, colors-semantic=1'
   status: pending
+- id: dist-tracked-but-gitignored
+  subject: dist/ is listed in .gitignore yet its files are tracked in git, so every build regenerates them into conflicts on any concurrent push - one already forced a rebase abort this session
+  witness: git ls-files dist/ returns dist/247420.css, dist/247420.js and others while .gitignore:13 says dist/; git_push-71 was rejected with CONFLICT (content) in dist/247420.js. .github/workflows/gh-pages.yml builds dist itself (copies assets in, uploads ./dist) so the tracked copy is not what CI consumes.
+  status: pending

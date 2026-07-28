@@ -7693,6 +7693,14 @@
      the glow's -4px bleed without overflowing the viewport edge. */
   .ds-247420 .vx-ptt-glow { inset: -4px 0; }
 }
+@media (max-height: 420px) {
+  /* Phone-in-landscape: topbar + chat-head + user-identity bar alone can
+     consume most of a ~320px-tall viewport, leaving no room for the fixed
+     120px .vx-ptt plus the voice grid above it -- shrink the PTT button so
+     both remain visible instead of the label clipping off-screen. */
+  .ds-247420 .vx-ptt { min-width: 88px; min-height: 64px; padding: var(--space-2); }
+  .ds-247420 .vx-ptt-icon { font-size: var(--fs-lg); }
+}
 .ds-247420 .vx-ptt-recording, .ds-247420 .vx-ptt-live {
   background: var(--accent);
   color: var(--accent-fg);
@@ -11286,6 +11294,29 @@
   text-transform: uppercase;
   color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
   padding: 10px 8px 4px;
+}
+.ds-247420.ds-247420 .ca-rail .group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: var(--space-1, 4px);
+}
+.ds-247420.ds-247420 .ca-rail .group-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--r-0);
+  background: transparent;
+  color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
+  cursor: pointer;
+}
+.ds-247420.ds-247420 .ca-rail .group-add-btn:hover {
+  background: var(--bg-3, color-mix(in oklab, var(--fg) 8%, transparent));
+  color: var(--fg-2, color-mix(in oklab, var(--fg) 78%, transparent));
 }
 .ds-247420.ds-247420 .ca-rail a {
   display: flex;
