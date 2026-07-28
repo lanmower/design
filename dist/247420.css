@@ -1855,6 +1855,16 @@
    Changelog
    ============================================================ */
 .ds-247420 .ds-changelog-row {
+  /* The !important is load-bearing and was empirically confirmed so -- do not
+     remove it on a specificity argument. A changelog row carries three tracks
+     (date, version, message) where a plain .row carries two, and the responsive
+     blocks in responsive.css legitimately rewrite .row's template at several
+     breakpoints. Those blocks are later in the cascade, so at tablet width the
+     two-track override wins on source order and collapses the version column:
+     measured live, removing this flag changes the computed template from
+     "120.75px 77.625px 70.125px" to "103.5px 0px 165px" -- a zero-width column
+     and the version silently gone. Scoping to .app does not help, because the
+     competing rules would need to be scoped in lockstep. */
   grid-template-columns: minmax(110px, 14ch) minmax(60px, 9ch) minmax(0, 1fr) !important;
 }
 .ds-247420 .ds-changelog-ver {
