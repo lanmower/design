@@ -12,7 +12,8 @@ import { getRecentPaths, saveRecentPath, skillLabel, renderChatMessages } from '
 import { home, agents, analytics } from './freddie/pages-overview.js';
 import { chat, voice } from './freddie/pages-chat.js';
 import { sessions, projects, git } from './freddie/pages-workspace.js';
-import { models, skills, plugins, config, env } from './freddie/pages-config.js';
+import { models, skills, plugins } from './freddie/pages-models.js';
+import { config, env } from './freddie/pages-config.js';
 import { cron, tools, batch } from './freddie/pages-runners.js';
 import { gateway, chains, machines, health } from './freddie/pages-infra.js';
 import { logs, debug } from './freddie/pages-telemetry.js';
