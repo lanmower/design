@@ -34,6 +34,26 @@ const BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:8899';
 const BLOCKING_IMPACTS = new Set(['serious', 'critical']);
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
+// DETERMINISM PINS — the same class of fix scripts/visual-baseline.mjs already
+// applies, for the same root cause.
+//
+// Every kit ships `data-theme="auto"`, which defers to `prefers-color-scheme`.
+// Chrome's default for that preference is NOT stable across environments: a
+// developer's headless Chrome commonly reports `dark`, while the ubuntu-latest
+// CI runner reports `light`. Unpinned, the audit therefore samples a different
+// THEME per machine — which is precisely how 4 real light-theme contrast
+// defects passed locally and failed only in CI. `light` matches the CI runner
+// and is the stricter of the two for this palette (the paper surfaces are
+// where the tier-3 text tones sit closest to the 4.5:1 floor).
+const EMULATED_COLOR_SCHEME = 'light';
+// The entry animation in src/motion.js fades panels in via opacity, and axe
+// composites a mid-fade element against its backdrop — sampling a blended
+// colour that matches no committed token and flapping purely on render timing
+// (measured: the same page alternating 0 and 30 violations across settle
+// delays). Pinning reduced-motion makes motion.js's `[data-motion]` path skip
+// the transition entirely, so axe always samples the settled, real colours.
+const EMULATED_REDUCED_MOTION = 'reduce';
+
 // _template is a scaffold stub, not a real page.
 function listKits() {
     return readdirSync(kitsDir, { withFileTypes: true })
@@ -73,7 +93,7 @@ async function auditKit(kit) {
                 }))
         `);
         return { kit, ...raw };
-    });
+    }, { emulate: { colorScheme: EMULATED_COLOR_SCHEME, reducedMotion: EMULATED_REDUCED_MOTION } });
 }
 
 /** Print every blocking rule + node to stdout. docs/a11y-report.md is not

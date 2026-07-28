@@ -630,10 +630,15 @@
   background: color-mix(in oklab, var(--flame) 12%, var(--bg));
   color: var(--flame); font-size: var(--fs-xs);
 }
+/* --ink, not --on-color: --on-color is a fixed #fff, which reads fine on a dark
+   fill but measures 3.07:1 on --warn (#FF5A52, a light red) -- below the 4.5:1
+   floor. --ink on the same fill measures 6.27:1. Same principle as the
+   --accent/--accent-ink split the token layer documents: a light saturated fill
+   takes the dark text tone. Measured in a live browser. */
 .btn-primary.danger {
   background: var(--warn);
   border-color: var(--warn);
-  color: var(--on-color);
+  color: var(--ink);
 }
 .btn-primary.danger:hover { filter: brightness(0.92); border-color: var(--warn); }
 

@@ -49,7 +49,7 @@ async function closeTarget(base, id) {
  * notably axe-core — from leaking between pages.
  */
 export async function withPage(url, fn, opts = {}) {
-    const { width = 1280, height = 900, dsf = 1, base = CDP_BASE, settleMs = 500 } = opts;
+    const { width = 1280, height = 900, dsf = 1, base = CDP_BASE, settleMs = 500, emulate } = opts;
     const target = await newTarget(base);
     const ws = new WebSocket(target.webSocketDebuggerUrl);
     let nextId = 0;
@@ -128,6 +128,16 @@ export async function withPage(url, fn, opts = {}) {
                 features: [{ name: 'prefers-color-scheme', value: scheme }],
             });
         },
+        /** Pin several emulated media features at once. Emulation.setEmulatedMedia
+         *  REPLACES the whole feature list per call, so anything that needs more
+         *  than one pin must set them together — calling setColorScheme() and
+         *  then a separate reduced-motion call would silently drop the first. */
+        async setEmulatedPrefs({ colorScheme, reducedMotion } = {}) {
+            const features = [];
+            if (colorScheme) features.push({ name: 'prefers-color-scheme', value: colorScheme });
+            if (reducedMotion) features.push({ name: 'prefers-reduced-motion', value: reducedMotion });
+            if (features.length) await send('Emulation.setEmulatedMedia', { features });
+        },
         async setTheme(theme) {
             await api.evaluate(`document.documentElement.setAttribute('data-theme', ${JSON.stringify(theme)})`);
             // Let the custom-property cascade and any transition settle; a
@@ -143,6 +153,11 @@ export async function withPage(url, fn, opts = {}) {
         await send('Page.enable');
         await send('Runtime.enable');
         await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: dsf, mobile: false });
+        // Pin emulated media BEFORE the first navigation. Applying it after the
+        // page has already painted leaves the initial render (and any theme the
+        // page resolves at load) sampled under the browser's own default
+        // preference, which is exactly the cross-environment flap being pinned.
+        if (emulate) await api.setEmulatedPrefs(emulate);
         await send('Page.navigate', { url });
 
         const t0 = Date.now();

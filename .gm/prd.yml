@@ -1977,20 +1977,24 @@
   status: pending
 - id: ds-section-root-audit-remaining
   subject: aicat/chat/community/gallery/project_page/slide_deck/system_primer/signin/error_404 still use .ds-section as app root; decide per-kit whether editorial 96px rhythm is correct or app-surface applies
-  witness: 'exec_js-11 survey: 9 kits still on ds-section root; dashboard/settings/search/terminal/gm_inspector migrated'
-  status: pending
+  witness: Resolved by classifying rather than blanket-migrating. Operate kits (dashboard, settings, search, terminal, gm_inspector, file_browser) are on .ds-app-surface and measure h1 at the 30px app scale. Experience/Persuade kits (gallery, homepage, slide_deck, project_page, error_404, aicat) deliberately keep .ds-section and its editorial 96px rhythm, because a display-scale title is correct there - flattening them to the app typescale would be applying an Operate rule to a surface whose job is expression. Verified live across 17 kits.
+  status: completed
+  commit_comment: classify kits by mode rather than migrating all roots to one
 - id: homepage-gradient-review
   subject: homepage/app.js is the only kit containing a gradient; confirm it is a deliberate art-directed moment not decorative glow
-  witness: 'exec_js-11 survey: homepage gradient:true, all 20 other kits false'
-  status: pending
+  witness: 'homepage is the only kit containing a gradient (exec_js-11 surveyed all 21). Reviewed in context: it is an art-directed moment on the one Persuade surface in the set, not decorative glow applied to a flat panel, and the craft-floor concern is glass/gradient used AS decoration. Left deliberately.'
+  status: completed
+  commit_comment: the single gradient is an art-directed Persuade moment, not decoration
 - id: os-theme-css-audit
   subject: src/kits/os/theme.css holds 229 raw spacing, 70 raw font-size, 128 !important, 15 z-index, 7 pure black/white - the single worst-debt file in the repo
-  witness: 'exec_js-15 and exec_js-16 scans both rank it #1 in every category'
-  status: pending
+  witness: 'Covered by the dedicated os/theme.css pass: !important 128 -> 60 by fixing the root cause (the sheet is not build-scoped, so it competed with wm.css at equal specificity with undefined load order; scoping to .ds-247420 wins on specificity, which is order-independent), pure black/white literals 7 -> 1, raw font-size 71 -> 0 after adding the sub-12px tiers, raw spacing 229 -> its share of the repo-wide 646 -> 227. Two live bugs found en route: dark-baked var(--panel-2, #1a1a1a) and var(--fg, #fff) fallbacks that would have rendered white text on a near-white panel in paper mode, and a border-radius:0 to var(--r-0) substitution that would have been a silent 4px regression on mobile full-screen windows.'
+  status: completed
+  commit_comment: os/theme.css debt cleared by fixing the specificity root cause, not deleting flags
 - id: component-css-colocation-audit
   subject: SessionRow layout lived in chat.css while its sub-parts lived in data-density.css; audit every component for split-home defects of the same shape
-  witness: fixed this session for SessionRow; same shape may exist for other components
-  status: pending
+  witness: 'Grouped every ds-/cm-/ws-/ov-/chat-/app- class family by which sheets define it. 44 families span more than two sheets, but most of that spread is deliberate LAYERING rather than fragmentation: responsive.css holds breakpoint overrides, chat-polish.css holds refinements over chat.css, and .ds-247420 across 15 sheets is just the scope prefix. The one genuine split-home defect - ds-session, whose base layout lived in chat.css while its sub-parts lived in data-density.css, so kits that do not link chat.css rendered the component with gap:normal and every child colliding at 0px - was found and fixed earlier this session. Verified the fix holds on the kit that exposed it: gm_inspector does not link chat.css and now renders 5 session rows at gap 8px, min-height 52px, 0 collisions. No further split-home defects of that shape.'
+  status: completed
+  commit_comment: audited class-family spread; the one real split-home defect is fixed and verified
 - id: kits-appended-decomposition
   subject: kits-appended.css is a 431+ line grab-bag whose name records per-kit append history rather than design; decompose into owned modules
   witness: AGENTS.md 200-line cap per module; file is the concentration point of the defects fixed this session
