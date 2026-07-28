@@ -2083,8 +2083,3 @@
   subject: scripts/a11y-audit.mjs reports 0 blocking locally but 8 in GitHub Actions CI (blog 2, community 2, dashboard 1, terminal 3), failing the build. The CI log prints only counts, not rule ids or selectors, which is itself a harness weakness
   witness: gh run view of the ci workflow after commit 5e78da3
   status: pending
-- id: colors-dark-block-duplication
-  subject: the two dark-theme blocks in colors_and_type.css ([data-theme=ink|dark] and the auto + prefers-color-scheme:dark mirror) must be kept token-for-token identical BY HAND; a token added to one and not the other renders paper-tuned colour on ink. This class of bug caused 6 of the 22 a11y contrast failures and will recur until the duplication is removed by a build step
-  witness: 'Converted the hand-discipline into an enforced gate (lint-dark-parity, now 14 gates). It extracts both dark blocks by brace-matching, diffs their token sets, and names which block each divergent token is missing from plus what that renders as. Verified both blocks currently declare the same 33 tokens. Proven to FAIL rather than only to pass: removing --panel-2 from the explicit block alone gives FAIL(dark-parity) with exit 1, and restoring returns to green. Wired into both lint-css.mjs CHECKS and the lint-tokens.mjs CLI entry - the first test attempt passed misleadingly because only the former was wired, which is exactly why a gate has to be proven to fail.'
-  status: completed
-  commit_comment: gate dark-palette token parity so the six-contrast-failure bug class cannot recur
