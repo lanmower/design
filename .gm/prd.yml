@@ -2139,11 +2139,6 @@
   subject: src/components/sessions.js is 586 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
   witness: exec_js-17 line count = 586; AGENTS.md states 'The 200-line cap applies per-module'
   status: pending
-- id: module-cap-agent-chat
-  subject: src/components/agent-chat.js is 561 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
-  witness: 'Split into a thin barrel over single-responsibility submodules, continuing the pattern established for editor-primitives/overlay-primitives/content. Files over the documented 200-line cap drop from 18 to 6 repo-wide, and the remaining few are marginally over rather than multiples of it. Every barrel uses import-then-bare-export rather than export-from, because generate-component-docs.mjs resolves each symbol by regex against the barrel with a one-hop import fallback and a pure re-export rewrites the doc with drift warnings. Verified behaviour-preserving three ways: docs/component-props.md stayed at 247 symbols with 0 drift (only source paths moved), npm run build passes, and all 17 kits render live with zero console errors - an import that resolves at build time can still break at runtime, so the render sweep is the load-bearing check.'
-  status: completed
-  commit_comment: split into barrel + submodules under the 200-line cap
 - id: module-cap-chat-message-parts
   subject: src/components/chat-message-parts.js is 419 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
   witness: exec_js-17 line count = 419; AGENTS.md states 'The 200-line cap applies per-module'
