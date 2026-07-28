@@ -11,8 +11,14 @@ function setMode(m) { state.mode = m; state.sent = false; state.error = ''; stat
 
 function submit(e) {
     e.preventDefault();
-    if (!state.email.includes('@')) { state.error = 'enter a real email.'; kit.render(); return; }
-    if (state.mode !== 'magic' && state.password.length < 6) { state.error = 'password must be at least 6 characters.'; kit.render(); return; }
+    // Name the problem and the fix, in the surface's terse lowercase voice.
+    // "enter a real email" told the user they were wrong without saying what
+    // would be right.
+    if (!state.email.trim()) { state.error = 'email is empty — enter the address on your account.'; kit.render(); return; }
+    if (!state.email.includes('@')) { state.error = 'that address has no @ — check for a typo.'; kit.render(); return; }
+    if (state.mode !== 'magic' && state.mode !== 'reset' && state.password.length < 6) {
+        state.error = 'password is too short — 6 characters minimum.'; kit.render(); return;
+    }
     state.error = '';
     state.sent = true;
     kit.render();
@@ -103,10 +109,20 @@ function generateState() {
 
 function Form() {
     if (state.sent) {
+        // A confirmation with no way back is a trap: mistype the address and
+        // the only recovery was a page reload. Every sent state that waits on
+        // an email now offers the correction path.
+        const waiting = state.mode === 'magic' || state.mode === 'reset';
         return h('div', { class: 'ds-auth-form ds-auth-sent' },
             h('div', { class: 'ds-auth-sent-glyph' }, '[x]'),
             h('p', { class: 'ds-auth-sent-title' }, state.mode === 'magic' ? 'check your email' : (state.mode === 'reset' ? 'reset link sent' : 'welcome back')),
-            h('p', { class: 'ds-auth-sent-sub' }, state.mode === 'magic' ? 'we sent a sign-in link to ' + state.email : (state.mode === 'reset' ? 'follow the link to set a new password.' : 'redirecting...'))
+            h('p', { class: 'ds-auth-sent-sub' }, state.mode === 'magic'
+                ? 'we sent a sign-in link to ' + state.email + '. it expires in 15 minutes.'
+                : (state.mode === 'reset' ? 'we sent a reset link to ' + state.email + '. follow it to set a new password.' : 'signed in. taking you to the index.')),
+            waiting ? h('button', {
+                class: 'btn',
+                onclick: (e) => { e.preventDefault(); state.sent = false; kit.render(); }
+            }, 'use a different email') : null
         );
     }
     return h('form', { onsubmit: submit, class: 'ds-auth-form' },
@@ -125,7 +141,8 @@ function Form() {
             ),
             h('a', { href: '#reset', onclick: (e) => { e.preventDefault(); setMode('reset'); }, class: 'ds-auth-forgot' }, 'forgot password?')
         ) : null,
-        state.error ? h('div', { class: 'ds-auth-error' }, state.error) : null,
+        // role=alert so the validation message is announced, not just painted.
+        state.error ? h('div', { class: 'ds-auth-error', role: 'alert' }, state.error) : null,
         h('button', { class: 'btn btn-primary', type: 'submit' },
             state.mode === 'signup' ? 'create account ->' :
             state.mode === 'magic'  ? 'send magic link ->' :
@@ -136,8 +153,12 @@ function Form() {
             Provider({ glyph: 'gh', label: 'github', provider: 'github' }),
             Provider({ glyph: 'g', label: 'google', provider: 'google' }),
             Provider({ glyph: '@', label: 'sso', provider: 'sso' })
-        ) : null,
-        state.mode !== 'reset' && state.mode !== 'magic' ? h('button', { class: 'btn', onclick: (e) => { e.preventDefault(); setMode('magic'); } }, 'use a magic link instead') : null
+        ) : null
+        // The "use a magic link instead" button was removed from here: it was
+        // a full-width default button sitting directly under the three OAuth
+        // buttons, so it read as a fourth provider, and it duplicated the
+        // magic-link entry already present in the mode row below the panel.
+        // One control per action.
     );
 }
 
@@ -158,12 +179,16 @@ function App() {
                     Heading({ level: 1, children: headings[0] }),
                     Lede({ children: headings[1] }),
                     Panel({ children: Form() }),
+                    // `reset` is a sub-flow of signin, not a fourth mode, so it
+                    // marks signin as its origin. Without this the mode row
+                    // showed nothing active during reset and offered no route
+                    // back — "forgot password?" was a one-way door.
                     h('div', { class: 'ds-auth-modes' },
                         ['signin', 'signup', 'magic'].map((m) =>
                             h('a', { key: m, href: '#' + m,
                                 onclick: (e) => { e.preventDefault(); setMode(m); },
-                                class: 'ds-auth-mode-link' + (state.mode === m ? ' ds-auth-mode-link--active' : '')
-                            }, m === 'signin' ? 'sign in' : m === 'signup' ? 'create account' : 'magic link')
+                                class: 'ds-auth-mode-link' + ((state.mode === m || (state.mode === 'reset' && m === 'signin')) ? ' ds-auth-mode-link--active' : '')
+                            }, m === 'signin' ? (state.mode === 'reset' ? '<- back to sign in' : 'sign in') : m === 'signup' ? 'create account' : 'magic link')
                         )
                     ),
                     h('p', { class: 'ds-auth-fineprint' },

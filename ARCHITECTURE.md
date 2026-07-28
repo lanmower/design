@@ -43,9 +43,15 @@ design  --publish to npm (always-latest)-->  thebird  (docs/vendor/ via refresh-
 for iteration (consumers hot-reload via their own dev flow after a `refresh-design.mjs` pull, or
 via `link-local-design.mjs`-style local linking during active cross-repo work).
 
-**Build** (`npm run build`, `scripts/build.mjs`): runs the lint gate block (9 gates —
-`scripts/lint-all.mjs`: tokens, radius, spacing, glyphs, null-children, classes, inline-styles,
-duplicate-selectors, swallow-comments), then bundles with esbuild + postcss into `dist/`.
+**Build** (`npm run build`, `scripts/build.mjs`): runs the lint gate block (13 gates via
+`scripts/lint.mjs`, whose `CHECKS` list and shared reporting live in `lint-css.mjs`: tokens,
+radius, zindex, transition-all, spacing, fontsize, important, glyphs, null-children, classes,
+inline-styles, duplicate-selectors), then bundles with esbuild + postcss into `dist/`. The gates
+scan 30 component sheets, expanded transitively from a smaller entry-point list through the
+`@import` graph — the root `app-shell.css` is a barrel over `src/css/app-shell/*.css` and lints
+nothing on its own, and every sheet in that directory must be reachable from it. `build.mjs`
+keeps its own `appShellSplitFiles` bundling list, so barrel completeness is what keeps the
+bundled `dist/` and a `<link>`ed `app-shell.css` from diverging.
 
 **Publish** (`.github/workflows/publish.yml`, on push to `main`): installs, syncs the local
 `package.json` version with whatever's on the npm registry (never goes backwards), builds, runs
@@ -53,5 +59,21 @@ duplicate-selectors, swallow-comments), then bundles with esbuild + postcss into
 "always-latest" mechanism thebird's and freddie's vendor-refresh scripts rely on — there is no
 manual version-bump step for consumers to coordinate.
 
-**CI** (`.github/workflows/ci.yml`): lint (9 gates) + build + `npm publish --dry-run` on every
-push/PR, as a side-effect-free correctness gate distinct from the real publish workflow.
+**CI** (`.github/workflows/ci.yml`): lint (13 gates) + build + `npm publish --dry-run` on every
+push/PR, as a side-effect-free correctness gate distinct from the real publish workflow. The
+generated component prop reference is gated too (`npm run lint:component-docs`), so any component
+split or signature change must be followed by `npm run docs:components`.
+
+## Module shape
+
+Components live under `src/components/`. `src/components.js` is the public re-export barrel; a
+200-line cap applies per module. A group that outgrows the cap becomes a thin barrel of its own
+over single-responsibility submodules in a sibling directory of the same name — e.g.
+`src/components/editor-primitives.js` over `src/components/editor-primitives/*.js`, and likewise
+for shell, content, chat, chat-message-parts, chat-minimap, agent-chat, sessions, files,
+files-modals, community, interaction-primitives, voice, freddie and page-html. The public export
+surface never moves across a split, so no consumer import changes. These group barrels must use
+import-then-bare-export (`import { X } from './sub.js'` … `export { X }`), never a pure
+`export { X } from './sub.js'`: `scripts/generate-component-docs.mjs` resolves each symbol by
+regex against the barrel with a one-hop re-export fallback, and a pure `export … from` makes it
+regenerate the docs with drift warnings.

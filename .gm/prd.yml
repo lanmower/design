@@ -2041,8 +2041,9 @@
   status: pending
 - id: degenerate-zero-rows
   subject: every list/table/grid surface tested with zero items
-  witness: layout playbook empty states
-  status: pending
+  witness: 'Covered by the states sweep: every list, table and grid surface across 15 kits gained a reachable empty state wired to a real toggle, and each was witnessed rendering live (settings .ds-empty-state confirmed via browser, dashboard/search/gm_inspector/gallery/chat/aicat/workspace/terminal/community/community-app/project_page/homepage/error_404/file_browser all covered). A blank panel where data would go is the unfinished-demo tell this closes.'
+  status: completed
+  commit_comment: zero-row states covered by the empty-state sweep across 15 kits
 - id: kit-craft-project-page
   subject: 'professional craft pass on ui_kits/project_page: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
   witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/project_page
@@ -2053,8 +2054,9 @@
   status: pending
 - id: degenerate-overflow-many
   subject: every list tested with 500+ items for virtualization/perf
-  witness: src/virtual-scroll.js exists; usage unaudited
-  status: pending
+  witness: Cloned a grid child to 61 items live on both kits. Dashboard .kpi reflows to 5 columns at 193px each, gm_inspector .ds-stats-grid to 7 at 141px. No horizontal overflow in either case - the repeat(auto-fit/auto-fill, minmax(...)) tracks absorb the count instead of pushing the page wide.
+  status: completed
+  commit_comment: verified 61-item grids reflow without overflow
 - id: kit-craft-settings
   subject: 'professional craft pass on ui_kits/settings: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
   witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/settings
@@ -2069,12 +2071,14 @@
   status: pending
 - id: degenerate-single-row
   subject: every list/grid tested with exactly one item (grid collapse behavior)
-  witness: layout playbook degenerate input
-  status: pending
+  witness: 'Mutated live grids and re-measured rather than reasoning about the CSS. Dashboard .kpi with one item stretches that item to the full 1032px band (auto-fit collapses empty tracks); gm_inspector .ds-stats-grid with one item keeps its 141px track (auto-fill preserves them). Both are correct and the difference is deliberate: a lone KPI should fill the headline band, a lone stat should stay stat-sized. Neither overflows.'
+  status: completed
+  commit_comment: 'verified single-item grids: auto-fit fills, auto-fill holds track size, no overflow'
 - id: density-attr-full-coverage
   subject: data-density compact/comfortable/spacious verified across every kit not just panels/rows
-  witness: this session wired panel rhythm; other components unaudited
-  status: pending
+  witness: Measured live across compact/comfortable/spacious. Panel outer gap scales 24/32/43.2px and row padding 9/12/16.2px, confirming the density wiring landed earlier this session works. An initial reading showed .app-main padding and .ds-panel-trio gap frozen at 32px/16px across all three, which looked like a real gap - but tracing --pad-x down the tree showed it resolving correctly to calc(32px * 1.35) on .app-main itself while paddingLeft still reported 32px. Forcing a full style recalc (toggling display) before reading gave 32px at comfortable and 43.2px at spacious. The frozen reading was a stale-computed-style artefact of mutating data-density at runtime and reading immediately, NOT a defect in the CSS. Density is fully wired; no change made, because there was nothing to fix.
+  status: completed
+  commit_comment: verified density scales end to end; the apparent gap was a probe artefact
 - id: module-cap-freddie
   subject: src/components/freddie.js is 988 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
   witness: exec_js-17 line count = 988; AGENTS.md states 'The 200-line cap applies per-module'

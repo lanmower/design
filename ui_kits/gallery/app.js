@@ -14,19 +14,32 @@ const swatchTokens = [
     { name: 'panel-select',hint: 'mint hover/select tone' }
 ];
 
+// Specimens, not captions. Each tile shows an actual piece of ascii art at
+// display size — the thing a gallery is for. The previous set was twelve
+// equal cards whose captions were design-system documentation ("panel-on-panel
+// rhythm", "1px panel-2 hairline"), so every tile read at one weight and the
+// grid was a lecture wearing a gallery's layout. One of them ("no svgs in
+// chrome") had also gone stale — chrome icons are Icon() line SVGs now.
+//
+// One tone across the whole set. The tiles previously alternated panel-1 /
+// panel-2 / panel-3, which produced a checkerboard the reader has to try to
+// decode — the tone changed but meant nothing, and because the grid reflows
+// to the container (5-up here, 3-up narrower) any index-based tone pattern
+// lands differently at every width. With the frame constant the specimen is
+// the only thing that varies, which is what a gallery is for.
 const items = [
-    { id: 'a', label: 'mascot · cat',      caption: '/\\_/\\\n( o.o )',         tone: 'panel-1', glyph: '(=)' },
-    { id: 'b', label: 'panel · stack',     caption: 'panel-on-panel rhythm',     tone: 'panel-2', glyph: '[#]' },
-    { id: 'c', label: 'rail · indicator',  caption: 'color-coded inset',         tone: 'panel-1', glyph: '|' },
-    { id: 'd', label: 'mono · label',      caption: 'all caps · letter-spaced',  tone: 'panel-2', glyph: 'Aa' },
-    { id: 'e', label: 'cli · prompt',      caption: '$ ship it',                 tone: 'panel-3', glyph: '$' },
-    { id: 'f', label: 'pill · radius 999', caption: 'sidebar fab tone',          tone: 'panel-1', glyph: '(o)' },
-    { id: 'g', label: 'badge · chip',      caption: 'meta pill, dim/accent',     tone: 'panel-2', glyph: '<>' },
-    { id: 'h', label: 'glyph · unicode',   caption: 'no svgs in chrome',         tone: 'panel-1', glyph: '*' },
-    { id: 'i', label: 'manifesto · prose', caption: 'long-form, max 64ch',       tone: 'panel-2', glyph: '¶' },
-    { id: 'j', label: 'fade · in',         caption: 'visibility-driven only',    tone: 'panel-3', glyph: '.' },
-    { id: 'k', label: 'rule · divider',    caption: '1px panel-2 hairline',      tone: 'panel-1', glyph: '—' },
-    { id: 'l', label: 'stamp · seal',      caption: 'editorial mark',            tone: 'panel-2', glyph: 'O' }
+    { id: 'a', label: 'the mascot',   caption: '/\\_/\\\n( o.o )\n > ^ <', tone: 'panel-2', glyph: '(=)' },
+    { id: 'b', label: 'the prompt',   caption: '$ _',                      tone: 'panel-2', glyph: '$' },
+    { id: 'c', label: 'the seal',     caption: '(( 247 ))\n(( 420 ))',     tone: 'panel-2', glyph: 'O' },
+    { id: 'd', label: 'the arrow',    caption: '-->',                      tone: 'panel-2', glyph: '->' },
+    { id: 'e', label: 'the rule',     caption: '---------',                tone: 'panel-2', glyph: '-' },
+    { id: 'f', label: 'the corner',   caption: '+------\n|\n|',            tone: 'panel-2', glyph: '[#]' },
+    { id: 'g', label: 'the stack',    caption: '[###]\n [##]\n  [#]',      tone: 'panel-2', glyph: '[]' },
+    { id: 'h', label: 'the wave',     caption: '~~~~~~~',                  tone: 'panel-2', glyph: '~' },
+    { id: 'i', label: 'the target',   caption: '(o)',                      tone: 'panel-2', glyph: '(o)' },
+    { id: 'j', label: 'the ladder',   caption: '|- - -|\n|- - -|',         tone: 'panel-2', glyph: '=' },
+    { id: 'k', label: 'the spark',    caption: '*',                        tone: 'panel-2', glyph: '*' },
+    { id: 'l', label: 'the terminus', caption: '[x]',                      tone: 'panel-2', glyph: '[x]' }
 ];
 
 // `phase` drives the tiles panel. A gallery is the surface where a blank grid
@@ -120,7 +133,9 @@ function Lightbox() {
             ),
             h('div', { class: 'ds-lightbox-preview', style: '--tile-tone:var(--' + it.tone + ')' }, it.caption),
             h('p', { class: 'ds-m0' }, h('strong', {}, it.label)),
-            h('p', { class: 'ds-m0 ds-text-2' }, 'this lightbox uses the same tonal panel — no extra components, no shadow. backdrop is fixed inset, click outside dismisses.')
+            // Tells the reader how to leave, which is the one thing they need
+            // from a lightbox. It previously described its own implementation.
+            h('p', { class: 'ds-m0 ds-text-2' }, 'esc, or click anywhere outside, to close.')
         )
     );
 }
@@ -150,15 +165,23 @@ function App() {
         main: [
             h('div', { class: 'ds-section ds-section-pad' },
                 Heading({ level: 1, children: 'gallery' }),
-                Lede({ children: 'visual grid of tonal cards. tiles use the same panel tokens the rest of the system does — no bespoke tile component, no shadows, no borders.' }),
+                // Says what the reader is looking at. The old lede described
+                // the implementation ("no bespoke tile component, no shadows,
+                // no borders") and was contradicted on screen — the tiles lift
+                // with a shadow on hover.
+                Lede({ children: 'twelve ascii specimens on one tonal frame. pick any tile to open it large.' }),
                 Panel({ title: 'tiles', count: state.phase === 'ready' ? items.length : 0, class: 'ds-panel-gap', children: TilesBody() }),
                 Panel({ title: 'swatches', count: swatchTokens.length, class: 'ds-panel-gap', children:
                     h('div', { class: 'ds-swatch-grid' }, ...swatchTokens.map(Swatch))
                 }),
+                // Two notes that say something the page does not already show.
+                // The third ("density toggle drops min tile size") described a
+                // control the reader can just press, and the second claimed the
+                // lightbox has "no transitions" while .ds-gallery-tile animates
+                // transform and box-shadow on hover.
                 Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
-                    h('p', {}, '· tiles are tonal panels stacked into a css grid — ', Chip({ tone: 'accent', children: 'auto-fill minmax' }), ' for the responsive default.'),
-                    h('p', {}, '· lightbox reuses the panel surface; no extra component, no transitions, no z-stack circus.'),
-                    h('p', {}, '· density toggle drops min tile size — same tokens, different rhythm.')
+                    h('p', {}, '· the grid is ', Chip({ tone: 'accent', children: 'auto-fill minmax' }), ' — tiles reflow to the container, never to a breakpoint list.'),
+                    h('p', {}, '· the lightbox is the same tonal panel at a larger size, so there is one surface to theme, not two.')
                 ) })
             ),
             Lightbox()

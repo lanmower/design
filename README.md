@@ -6,7 +6,7 @@ filename `dist/247420.js`/`dist/247420.css` and in a few package.json fields;
 the published npm package name is `anentrypoint-design`. Both names refer to
 the same single system.)
 
-friendly rounded sans body, monospace only on real code, tonal surfaces over borders, indicator rails for color-coded separation, generous negative space, terminal-flavoured rhythm.
+Acid Editorial: one electric lime lead on near-black ink or warm newsprint paper, system-font stack (no web-font request), monospace only on real code, tonal surfaces over borders, indicator rails for color-coded separation, asymmetric grid tension, print texture over glow.
 
 we fart in its general direction.
 
@@ -58,7 +58,7 @@ mount(document.getElementById('app'), () => C.AppShell({
 - **chat** — `Chat`, `ChatMessage`, `ChatComposer`, `AICat`, `AICatPortrait`
 - **multi-agent chat shell** — `WorkspaceShell`, `WorkspaceRail`, `ConversationList`, `AgentChat`, `SessionDashboard` — the flagship desktop-class chat-agent product surface (persistent rail + resizable columns + full turn/tool-call thread + live multi-session dashboard). See `COMPONENT_API.md` for the full prop contract; a runnable mock-data demo lives at `ui_kits/workspace/`; the canonical real-world wiring ships at [`agentgui`](https://github.com/AnEntrypoint/agentgui).
 - **file browser** — `FileRow`, `FileGrid`, `FileToolbar`, `FileIcon`, `DropZone`, `UploadProgress`, `EmptyState`, `BreadcrumbPath`, plus modal pieces `FileViewer`, `FilePreviewMedia`, `FilePreviewCode`, `FilePreviewText`, `ConfirmDialog`, `PromptDialog`
-- **ui_kits** — `homepage`, `project_page`, `docs`, `blog`, `chat`, `aicat`, `file_browser`. Each is a fully-working buildless example loading the SDK from this repo.
+- **ui_kits** — 21 fully-working buildless examples loading the SDK from this repo: `homepage`, `project_page`, `docs`, `blog`, `chat`, `aicat`, `file_browser`, `dashboard`, `settings`, `search`, `terminal`, `gm_inspector`, `workspace`, `community`, `community-app`, `gallery`, `signin`, `error_404`, `slide_deck`, `system_primer`, plus `_template`. Each kit's stylesheet `<link>` set is declared in `ui_kits/kits.config.mjs` and emitted by the scaffold generator (`npm run generate:ui-kits`) — never hand-edit a kit's generated `index.html`; `npm run lint:ui-kits` checks them against generated output.
 
 The file-browser surface (rails by file type, drop-zone upload, modal preview) ships its canonical real-world wiring at [`fsbrowse`](https://github.com/AnEntrypoint/fsbrowse) — Express + busboy backend, the SDK frontend.
 
@@ -162,7 +162,7 @@ Pages: `Hero`, `WorksList`, `WritingList`, `Manifesto`, `HomeView`, `ProjectView
 Chat: `Chat`, `ChatMessage`, `ChatComposer`, `AICat`, `AICatPortrait`. Helpers: `renderInline`, `fmtBytes`.
 Files: `FileIcon`, `FileRow`, `FileGrid`, `FileToolbar`, `DropZone`, `UploadProgress`, `EmptyState`, `BreadcrumbPath`, `FileViewer` (+ `ConfirmDialog` / `PromptDialog` / `FilePreviewMedia` / `FilePreviewCode` / `FilePreviewText`). Helpers: `fileGlyph`, `fmtFileSize`.
 
-All factories are pure: props in, WebJSX tree out. Component source is split per group under `src/components/<shell|content|chat>.js`; `src/components.js` is a re-export barrel. The 200-line cap applies per module.
+All factories are pure: props in, WebJSX tree out. Component source is split per group under `src/components/<group>.js`; `src/components.js` is a re-export barrel. A group that outgrows the 200-line-per-module cap becomes a thin barrel of its own over single-responsibility submodules in a sibling directory of the same name (`src/components/editor-primitives.js` over `src/components/editor-primitives/*.js`) — the public export surface never moves, so no consumer import changes. `COMPONENT_API.md` and `docs/component-props.md` (regenerate with `npm run docs:components`) are the generated prop reference.
 
 ## chat stack layering
 
@@ -245,7 +245,15 @@ The system runs entirely on CSS custom properties under `.ds-247420`. To rebrand
 </div>
 ```
 
-The full token list lives in `colors_and_type.css`. The voice rules and the storytelling pass live in `SKILL.md`.
+The full token list lives in `colors_and_type.css`; `THEME.md` documents the taxonomy and the `data-theme`/`data-accent`/`data-density`/`data-typescale` attribute contract. The voice rules and the storytelling pass live in `SKILL.md`.
+
+Layout primitives worth knowing: `.ds-app-surface` is the Operate-mode page root that switches a kit onto the app typescale (without it, page titles render at the marketing display ceiling), and `.ds-panel-trio` / `.ds-panel-duo` / `.ds-panel-flush` are panel-row grids that step down on container width.
+
+## lint gates
+
+`npm run lint` runs 13 gates over 30 component sheets. Four are hard zero-tolerance — no raw color literal (`lint-tokens`), no raw `border-radius` (`lint-radius`), no raw `z-index` (`lint-zindex`), no `transition: all` (`lint-transition-all`). Three are ratchets frozen against a baseline file that may only move down — `lint-spacing`, `lint-fontsize`, `lint-important`. The rest guard decorative glyphs, unfiltered conditional children, class prefixes, inline layout styles and duplicated selectors.
+
+The scanned set is computed, not listed: `COMPONENT_SHEETS` in `scripts/lint-tokens.mjs` names entry points and `expandSheets()` resolves each one's `@import` graph transitively, because the root `app-shell.css` is a barrel with no declarations of its own. A companion guard requires every `.css` file under `src/css/app-shell/` to appear in that expanded set, so a split sheet cannot be bundled into `dist/247420.css` while remaining invisible to both the linters and any consumer that `<link>`s `app-shell.css` directly.
 
 ## why scope-prefixed
 

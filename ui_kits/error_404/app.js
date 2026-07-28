@@ -1,5 +1,5 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status, AppShell, Panel, Heading, Lede, Chip, RowLink } from 'ds/components.js';
+import { Topbar, Crumb, Status, AppShell, Panel, Heading, Lede, RowLink } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
 
@@ -78,24 +78,25 @@ function App() {
                         h('span', { class: 'ds-text-3' }, 'requested'),
                         h('span', {}, path)
                     ) : null,
+                    // Three real recoveries only. The suggestions state-cycler
+                    // used to sit here as a fourth peer button, which put a
+                    // demo control in the row a lost user actually reads and
+                    // gave it a label ("suggestions: ready") that names no
+                    // action. It moved to the panel head it governs.
                     h('div', { class: 'ds-err-actions' },
                         h('a', { href: '../../', class: 'btn btn-primary' }, '<- back to index'),
                         h('a', { href: '../search/', class: 'btn' }, 'search instead'),
-                        h('button', { class: 'btn', onclick: () => history.back() }, 'go back'),
-                        // Cycles the suggestions panel below through its
-                        // states so each one is reachable on this page.
-                        h('button', { class: 'btn', onclick: () => {
-                            state.phase = PHASES[(PHASES.indexOf(state.phase) + 1) % PHASES.length];
-                            kit.render();
-                        } }, 'suggestions: ' + state.phase)
-                    ),
-                    h('div', { class: 'ds-err-chips' },
-                        Chip({ tone: 'dim', children: 'empty' }),
-                        Chip({ tone: 'dim', children: '· status 404' }),
-                        Chip({ tone: 'dim', children: '· no body' })
+                        h('button', { class: 'btn', onclick: () => history.back() }, 'go back')
                     )
                 ) }),
-                Panel({ title: 'try one of these', count: state.phase === 'ready' ? suggestions.length : 0, class: 'ds-panel-gap',
+                Panel({ title: 'try one of these', class: 'ds-panel-gap',
+                    // The cycler lives on the panel it drives, so it reads as
+                    // a demo affordance for this list rather than as a fourth
+                    // recovery action in the hero.
+                    right: h('button', { class: 'btn', onclick: () => {
+                        state.phase = PHASES[(PHASES.indexOf(state.phase) + 1) % PHASES.length];
+                        kit.render();
+                    } }, state.phase === 'ready' ? suggestions.length + ' routes' : state.phase),
                     children: SuggestBody()
                 })
             )

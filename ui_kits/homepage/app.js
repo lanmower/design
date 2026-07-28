@@ -120,34 +120,44 @@ function WritingBody() {
 
 function App() {
     return AppShell({
+        // The nav carries destinations only. The phase cycler used to ride
+        // here as a fifth item, which made a demo control a peer of works /
+        // writing / manifesto and let it take the `active` highlight away from
+        // the section the reader is actually in. It moved onto the first panel
+        // it governs.
         topbar: Topbar({
             brand: '247420', leaf: 'an entrypoint',
-            // The trailing item cycles the content lists through their states.
-            // This page has no sidebar, so the topbar is the only chrome that
-            // can carry the switcher and keep every state reachable.
-            items: [...navItems, ['state: ' + state.phase, '#state']],
+            items: navItems,
             active: state.route,
-            onNav: (label) => {
-                if (typeof label === 'string' && label.startsWith('state:')) {
-                    state.phase = PHASES[(PHASES.indexOf(state.phase) + 1) % PHASES.length];
-                    render(); return;
-                }
-                state.route = label; render();
-            }
+            onNav: (label) => { state.route = label; render(); }
         }),
         crumb: Crumb({ trail: ['247420'], leaf: state.route }),
         main: [
+            // badges fill the Hero's narrow right column — without them the
+            // asymmetric two-column grid renders with a dead right half at
+            // desktop width, which reads as a layout bug rather than tension.
+            // They are counts this page already knows, not invented metrics.
             Hero({
                 title: 'the creative department of the internet.',
                 body: '247420 is a collective of mercurials. we ship fast, break things on purpose, and document honestly.',
-                accent: 'humor is load-bearing.'
+                accent: 'humor is load-bearing.',
+                badges: state.phase === 'ready'
+                    ? [works.length + ' works', posts.length + ' posts', shipping.filter((s) => s.live).length + ' live']
+                    : null
             }),
             Panel({
-                title: 'currently shipping', count: state.phase === 'ready' ? shipping.length : 0,
+                title: 'currently shipping',
+                right: h('button', { class: 'btn', onclick: () => {
+                    state.phase = PHASES[(PHASES.indexOf(state.phase) + 1) % PHASES.length];
+                    render();
+                } }, state.phase === 'ready' ? shipping.length + ' in flight' : state.phase),
                 children: ShippingBody()
             }),
-            Section({ id: 'works', title: 'works', eyebrow: state.phase === 'ready' ? '08 of ~61' : state.phase,
-                children: WorksBody() }),
+            // No eyebrow: '08 of ~61' was a position indicator over a section
+            // that is not part of any sequence, and the ~61 contradicted the
+            // eight works actually listed. The count belongs in the status bar,
+            // which already carries it.
+            Section({ id: 'works', title: 'works', children: WorksBody() }),
             Section({ id: 'writing', title: 'recent writing',
                 children: WritingBody() }),
             Section({ id: 'manifesto', title: 'manifesto · rough draft',

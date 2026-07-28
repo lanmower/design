@@ -1,13 +1,23 @@
 # Theming the 247420 Design System
 
 Every visual decision in this system flows from one place: the token layer in
-`colors_and_type.css`. Component sheets (`app-shell.css`, `community.css`,
-`chat.css`, `editor-primitives.css`, `community-app.css`, `src/kits/os/*.css`)
-contain **zero raw color literals** — they consume `var(--token)` only. That is
-what makes the project perfectly themable: change the token layer (or flip one
-attribute on the root element) and the entire UI re-skins, with no component
-edit. A build-time guard (`scripts/lint-tokens.mjs`, run by `npm run build`)
-fails the build if any component sheet hard-codes a color, so this stays true.
+`colors_and_type.css`. Component sheets contain **zero raw color literals** —
+they consume `var(--token)` only. That is what makes the project perfectly
+themable: change the token layer (or flip one attribute on the root element) and
+the entire UI re-skins, with no component edit. Build-time guards
+(`scripts/lint-tokens.mjs`, run by `npm run build`) fail the build if any
+component sheet hard-codes a color, radius or `z-index`, so this stays true.
+
+The scanned set is 30 sheets, computed rather than listed: `COMPONENT_SHEETS`
+names entry points (`app-shell.css`, `community.css`, `chat.css`,
+`editor-primitives.css`, `community-app.css`, `gm-prose.css`,
+`src/kits/os/*.css`, …) and `expandSheets()` walks each one's `@import` graph,
+because the root `app-shell.css` is an `@import` barrel over
+`src/css/app-shell/*.css` and contains no declarations of its own. Every file in
+that directory must be reachable from the barrel — an unreachable sheet is a
+hard lint failure, because it would otherwise ship inside `dist/247420.css`
+while being invisible to both these gates and to any consumer that `<link>`s
+`app-shell.css` directly.
 
 ## Token taxonomy (three layers)
 
@@ -26,9 +36,23 @@ fails the build if any component sheet hard-codes a color, so this stays true.
    to semantic tokens. e.g. the OS shell's `--os-bg-0: var(--bg)`,
    `--os-accent: var(--accent)`. Never bound to a literal.
 
-Type, spacing, radius, motion, and z-index tokens follow the same shape:
+Type, spacing, radius, motion, and stacking tokens follow the same shape:
 `--ff-body`/`--ff-display`/`--ff-mono`, `--fs-*`, `--space-*`, `--r-1..4`/
 `--r-pill`, `--dur-*`/`--ease`, `--z-*`.
+
+**Type scale floor.** `--fs-nano` (11px) and `--fs-pico` (10px) sit below the
+12px body floor, for glanceable secondary non-prose material only — never prose,
+never a control label a user has to read carefully. `--fs-pico` is the floor;
+there is deliberately no tier below it.
+
+**Stacking is a scale, not a number.** `--z-*` is one 13-rung ladder, each rung
+carrying a stated meaning rather than an arbitrary value: `--z-below` (-1,
+decorative texture under its own content), `--z-base` (0, in-flow content),
+then at 100-step intervals `--z-raised`, `--z-sticky`, `--z-header`,
+`--z-drawer`, `--z-window`, `--z-dock`, `--z-dropdown`, `--z-modal`,
+`--z-toast`, `--z-tooltip`, and `--z-top` (1100, boot/loading veils only). Pick
+the rung whose meaning matches; if none does, add a rung rather than a literal.
+`lint-zindex` fails the build on any raw `z-index` number in a component sheet.
 
 ## The attribute contract
 

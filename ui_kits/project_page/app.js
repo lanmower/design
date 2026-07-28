@@ -12,23 +12,28 @@ const root = document.getElementById('root');
 // reachable here rather than only against a live registry.
 const state = { copied: false, tab: 'readme', phase: 'ready' };
 
+// `tab` items switch the readme/docs view; `anchor` items scroll to a section
+// on this page; `href` items leave. Every entry now goes somewhere — the
+// reference and links groups were previously seven inert rows styled exactly
+// like the four working ones.
 const sideSections = [
     { group: 'project', items: [
-        { glyph: '*', label: 'overview', tab: 'readme', active: true },
         { glyph: '//', label: 'readme', tab: 'readme' },
         { glyph: '//', label: 'docs', tab: 'docs' },
-        { glyph: '//', label: 'changelog', tab: 'readme' }
+        { glyph: '-', label: 'install', anchor: 'install' },
+        { glyph: '-', label: 'receipt', anchor: 'receipt' },
+        { glyph: '-', label: 'changelog', anchor: 'changelog' }
     ] },
     { group: 'reference', items: [
-        { glyph: '>', label: 'executenodejs' },
-        { glyph: '>', label: 'executedeno' },
-        { glyph: '>', label: 'astgrep_*' },
-        { glyph: '>', label: 'batch_execute' }
+        { glyph: '>', label: 'executenodejs', href: '#executenodejs' },
+        { glyph: '>', label: 'executedeno', href: '#executedeno' },
+        { glyph: '>', label: 'astgrep_*', href: '#astgrep' },
+        { glyph: '>', label: 'batch_execute', href: '#batch_execute' }
     ] },
     { group: 'links', items: [
-        { glyph: '->', label: 'source' },
-        { glyph: '->', label: 'npm' },
-        { glyph: '->', label: 'releases' }
+        { glyph: '->', label: 'source', href: 'https://github.com/AnEntrypoint' },
+        { glyph: '->', label: 'npm', href: 'https://www.npmjs.com/package/@anentrypoint/mcp-gm' },
+        { glyph: '->', label: 'releases', href: 'https://github.com/AnEntrypoint/releases' }
     ] }
 ];
 
@@ -118,19 +123,27 @@ function App() {
         }),
         side: Side({
             sections: [
+                // Only the `tab` items can be "here", so only they take the
+                // active highlight. Previously `overview` was hardcoded active
+                // forever AND the release-feed phase row took the same acid
+                // fill, so the page showed two "you are here" markers at once
+                // and neither meant anything.
                 ...sideSections.map((sec) => ({
                     group: sec.group,
                     items: sec.items.map((it, i) => ({
                         key: sec.group + i, glyph: it.glyph, label: it.label,
-                        active: !!it.active,
-                        href: '#' + (it.tab || it.label),
-                        onClick: it.tab ? (e) => { e.preventDefault(); state.tab = it.tab; kit.render(); } : null
+                        active: !!it.tab && state.tab === it.tab,
+                        href: it.href || '#' + (it.tab || it.anchor || it.label),
+                        onClick: it.tab
+                            ? (e) => { e.preventDefault(); state.tab = it.tab; kit.render(); }
+                            : null
                     }))
                 })),
-                // Reachable state switcher for the changelog section.
+                // Demo switcher for the changelog's states. Marked with a
+                // glyph, never the active fill — it is not a location.
                 { group: 'release feed', items: PHASES.map((p) => ({
                     glyph: p === state.phase ? '*' : '-',
-                    label: p, key: 'ph-' + p, active: state.phase === p, href: '#' + p,
+                    label: p, key: 'ph-' + p, href: '#feed-' + p,
                     onClick: (e) => { e.preventDefault(); state.phase = p; kit.render(); }
                 })) }
             ]
@@ -139,14 +152,17 @@ function App() {
             h('div', { class: 'ds-section ds-section-pad' },
                 Heading({ level: 1, children: 'gm' }),
                 Lede({ children: 'state machine for coding agents. it thinks, so you don\'t have to (as much).' }),
-                Section({ title: 'install',
+                Section({ id: 'install', title: 'install',
                     children: Install({ cmd: 'npx -y @anentrypoint/mcp-gm', copied: state.copied, onCopy: copyInstall }) }),
-                Section({ title: 'receipt', children: Receipt({ rows: receiptRows }) }),
-                Section({ title: 'changelog', children: ChangelogBody() })
+                Section({ id: 'receipt', title: 'receipt', children: Receipt({ rows: receiptRows }) }),
+                Section({ id: 'changelog', title: 'changelog', children: ChangelogBody() })
             )
         ],
+        // Describes this page, not a compiler. The previous left side read
+        // "typescript · 0 errors · 0 warnings" — an editor status bar borrowed
+        // onto a package readme, reporting on a build that is not running here.
         status: Status({
-            left: ['main', 'typescript', '0 errors', '0 warnings'],
+            left: ['gm', '- ' + state.tab, '- releases ' + state.phase],
             right: ['v0.4.1', 'MIT']
         })
     });

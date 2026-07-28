@@ -1,5 +1,5 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip, Btn, ThemeToggle } from 'ds/components.js';
+import { Topbar, Crumb, Status, Side, AppShell, Panel, PageHeader, Chip, Btn, ThemeToggle } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
 
@@ -56,7 +56,7 @@ function Swatch(name, v, big) {
 }
 
 function PaletteGrid() {
-    return Panel({ title: 'lore palette', class: 'ds-panel-gap', children:
+    return Panel({ id: 'palette', title: 'lore palette', count: PALETTE.length, class: 'ds-panel-gap', children:
         h('div', { class: 'ds-swatch-grid-sm' },
             ...PALETTE.map(p => Swatch(p.name, p.v, false))
         )
@@ -64,7 +64,9 @@ function PaletteGrid() {
 }
 
 function SemanticGrid() {
-    return Panel({ title: 'semantic tokens — invert with theme', count: '7', class: 'ds-panel-gap', children:
+    // count reads off the array — it was the hardcoded string '7', which would
+    // have silently gone stale the first time a token was added or removed.
+    return Panel({ id: 'semantic', title: 'semantic tokens — invert with theme', count: SEMANTIC.length, class: 'ds-panel-gap', children:
         h('div', { class: 'ds-swatch-grid-sm ds-swatch-grid-lg' },
             ...SEMANTIC.map(p => Swatch(p.name, p.v, true))
         )
@@ -72,7 +74,7 @@ function SemanticGrid() {
 }
 
 function TypeScalePanel() {
-    return Panel({ title: 'type scale', class: 'ds-panel-gap', children:
+    return Panel({ id: 'type-scale', title: 'type scale', count: TYPE_SCALE.length, class: 'ds-panel-gap', children:
         h('div', { class: 'ds-type-panel' },
             ...TYPE_SCALE.map(t =>
                 h('div', { class: 'ds-type-row' },
@@ -86,7 +88,7 @@ function TypeScalePanel() {
 }
 
 function PrimitivesPanel() {
-    return Panel({ title: 'primitives', class: 'ds-panel-gap', children:
+    return Panel({ id: 'primitives', title: 'primitives', class: 'ds-panel-gap', children:
         h('div', { class: 'ds-prim-panel' },
             h('div', { class: 'ds-prim-row' },
                 h('span', { class: 'ds-prim-label' }, 'chips'),
@@ -117,23 +119,31 @@ function App() {
             items: [['index', '../../'], ['terminal', '../terminal/']]
         }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'system primer' }),
+        // Every entry anchors to the panel it names. These were four inert
+        // rows styled exactly like working nav — the only sidebar on the page
+        // and none of it went anywhere.
         side: Side({
             sections: [
                 { group: 'sections', items: [
-                    { glyph: '-', label: 'palette',    key: 'p' },
-                    { glyph: '-', label: 'semantic',   key: 's' },
-                    { glyph: '-', label: 'type scale', key: 't' },
-                    { glyph: '-', label: 'primitives', key: 'r' }
+                    { glyph: '-', label: 'palette',    key: 'p', href: '#palette' },
+                    { glyph: '-', label: 'semantic',   key: 's', href: '#semantic' },
+                    { glyph: '-', label: 'type scale', key: 't', href: '#type-scale' },
+                    { glyph: '-', label: 'primitives', key: 'r', href: '#primitives' }
                 ] }
             ]
         }),
         main: [
+            // Dense header: this is a reference surface people scroll to look
+            // something up, not a landing page. The display H1 + wrapped lede
+            // spent most of the first fold on an intro, and the lede's narrow
+            // measure sat ragged against the full-width heading above it.
+            PageHeader({
+                dense: true,
+                title: 'system primer',
+                lede: 'palette, semantic tokens, type scale, primitives — flip the theme and the semantic tokens invert while the lore palette holds',
+                right: ThemeToggle({ compact: true })
+            }),
             h('div', { class: 'ds-section ds-section-pad' },
-                h('div', { class: 'ds-kit-head' },
-                    h('div', {}, Heading({ level: 1, children: 'system primer' })),
-                    ThemeToggle()
-                ),
-                Lede({ children: 'one page showing palette, semantic tokens, type scale, and primitives. flip the theme toggle — semantic tokens invert, lore palette stays put.' }),
                 PaletteGrid(),
                 SemanticGrid(),
                 TypeScalePanel(),

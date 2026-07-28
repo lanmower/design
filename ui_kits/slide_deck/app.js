@@ -1,10 +1,18 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status, Side, AppShell, Heading, Lede, Chip, ThemeToggle } from 'ds/components.js';
+import { Topbar, Crumb, Status, Side, AppShell, PageHeader, ThemeToggle } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
 
 const root = document.getElementById('root');
 
+// No slide sets `accent`. It fed `--slide-accent`, which the stylesheet reads
+// as a `color:` on .ds-slide-hero and .ds-slide-bullet-key — so passing a raw
+// lore fill ('green', 'mascot') put a background tone into a text slot, the
+// exact --accent vs --accent-ink split AGENTS.md warns about, and rendered the
+// title slides in a muted mid-green against near-black. Unset, both rules fall
+// through to their `var(--accent-ink)` default, which is the readable tone and
+// inverts correctly with the theme.
+//
 // Eyebrows here are reserved for the two slides that are a DIFFERENT KIND of
 // slide from the body of the deck: the opening masthead and the closing marker.
 // The interior slides deliberately carry none. Their eyebrows were the bare
@@ -17,13 +25,12 @@ const slides = [
         kind: 'title',
         eyebrow: '247420 · mmxxvi',
         title: 'the deck',
-        sub: 'a 16:9 slide template built from the SDK chrome.',
-        accent: 'green'
+        sub: 'a 16:9 slide template built from the SDK chrome.'
     },
     {
         kind: 'lede',
-        title: 'one tool, one font, one rhythm.',
-        body: 'space grotesk for prose, jetbrains mono for tokens. nothing else. the rhythm is 8pt all the way down.'
+        title: 'no fonts to load.',
+        body: 'display, narrow and body all resolve to system-ui; mono resolves to the platform ui-monospace. nothing is fetched, so nothing reflows. the rhythm is 8pt all the way down.'
     },
     {
         kind: 'bullets',
@@ -49,8 +56,7 @@ const slides = [
         kind: 'title',
         eyebrow: 'fin',
         title: 'two-four-seven · four-twenty',
-        sub: 'always open, always a little high.',
-        accent: 'mascot'
+        sub: 'always open, always a little high.'
     }
 ];
 
@@ -127,14 +133,19 @@ function Stage() {
 }
 
 function Controls() {
+    // Disabled at the ends rather than silently no-op: a button that looks
+    // live and does nothing when pressed reads as a broken deck, not as "you
+    // are on the last slide".
+    const atStart = state.i === 0;
+    const atEnd = state.i === slides.length - 1;
     return h('div', { class: 'ds-deck-controls' },
         h('button', {
-            class: 'btn',
+            class: 'btn', disabled: atStart, 'aria-disabled': atStart ? 'true' : null,
             onclick: () => { if (state.i > 0) { state.i--; kit.render(); } }
         }, '<- prev'),
         h('span', { class: 'ds-deck-count' }, (state.i + 1) + ' / ' + slides.length),
         h('button', {
-            class: 'btn',
+            class: 'btn', disabled: atEnd, 'aria-disabled': atEnd ? 'true' : null,
             onclick: () => { if (state.i < slides.length - 1) { state.i++; kit.render(); } }
         }, 'next ->')
     );
@@ -150,20 +161,30 @@ function App() {
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'slide deck' }),
         side: Side({
             sections: [
+                // The slide list IS this deck's navigation — every entry jumps
+                // to its slide. It was previously a static readout, which left
+                // the only way to reach slide 5 as four presses of `next`.
                 { group: 'slides', items: slides.map((s, i) => ({
                     glyph: i === state.i ? '*' : '-',
                     label: (i + 1) + ' · ' + (s.title || s.eyebrow || s.kind),
-                    key: 's' + i
+                    key: 's' + i,
+                    active: i === state.i,
+                    href: '#slide-' + (i + 1),
+                    onClick: (e) => { e.preventDefault(); state.i = i; kit.render(); }
                 })) }
             ]
         }),
         main: [
+            // Dense page header, not a display H1 over a lede: the stage below
+            // is the content, and a full-scale kit title above it made the
+            // page's chrome read heavier than the slide it frames.
+            PageHeader({
+                dense: true,
+                title: 'slide deck',
+                lede: '16:9 stage · arrow keys, space and home/end navigate · six slide kinds',
+                right: ThemeToggle({ compact: true })
+            }),
             h('div', { class: 'ds-section ds-section-pad' },
-                h('div', { class: 'ds-kit-head' },
-                    h('div', {}, Heading({ level: 1, children: 'slide deck' })),
-                    ThemeToggle()
-                ),
-                Lede({ children: '16:9 stage, keyboard arrow keys for nav, six slide kinds: title / lede / bullets / quote / split / fin.' }),
                 Stage(),
                 Controls()
             )
