@@ -1979,11 +1979,6 @@
   subject: there is no repo-wide rule or gate against shipping a rendered control with a no-op handler in a demo kit; 15 exist today across three kits and nothing would catch the 16th
   witness: 'exec_js-300 scan: 15 noop-arrow matches across ui_kits/ and src/'
   status: pending
-- id: console-debug-residue
-  subject: src/markdown-cache.js ships a console.log/debug call in library code, which writes to a consumer application's console
-  witness: 'Fixed. src/markdown-cache.js printed an unconditional console.debug on every init, so any application embedding the SDK received a timing line in its console it never asked for - the module already registers the same numbers via window.__debug[markdown-cache], a channel a consumer opts into rather than receives. Kept the data rather than deleting it: total wall-clock init is now on getCacheStats().initMs.total, which carries real information the two sibling fields do not, since markdown and prism run CONCURRENTLY under Promise.all so the total is not their sum. Added to resetCacheState too so the test-only reset stays complete. Verified: a walk over every .js in src/ now finds 0 console.log/console.debug calls; the only remaining matches in the file are my own explanatory comments. 15/15 lint, build and tests pass.'
-  status: completed
-  commit_comment: route library init timing to __debug instead of every consumer console
 - id: undemoed-public-api
   subject: '105 of 193 exported components have no direct specimen in any kit or preview - they are reachable only by being composed inside another component, so a consumer reading the kits cannot discover them, and no visual-regression baseline covers them in isolation. NOT dead code: a separate scan confirmed 0 truly orphaned exports, so this is a documentation/coverage gap, not unused code'
   witness: 'exec_js-350: 193 exported, 88 demoed directly, 105 indirect-only, 0 orphan'
@@ -2058,8 +2053,9 @@
   status: pending
 - id: tone-dim-does-nothing
   subject: 'P1: the .tone-dim chip modifier has NO css rule anywhere and is used across aicat, project_page, signin, system_primer and terminal. Measured: span.chip.tone-dim renders color rgb(234,230,218) on bg rgb(31,31,38), byte-identical to a plain .chip - the dim tone is a no-op that five kits believe in'
-  witness: Assessment B measured computed styles against an unstyled sibling at three widths; no rule in any .css
-  status: pending
+  witness: 'Fixed. Measured before: a .chip.tone-dim rendered rgb(234,230,218) on rgb(31,31,38) at opacity 1, byte-identical to a plain .chip beside it, so the modifier five kits apply was a genuine no-op. Added .chip.tone-dim to the existing tone-* family in primitives.css as the recede-into-the-row tone: tier-3 foreground on the same recessed surface tone-wip uses. Deliberately NOT an opacity fade, which would drag background and border down with the text. Measured after: rgb(180,180,188) on rgb(70,70,80) with identical=false, and contrast 4.53:1 so it clears WCAG AA while reading visibly quieter than the plain chip at 13.13:1.'
+  status: completed
+  commit_comment: define .chip.tone-dim; it rendered identically to a plain chip in five kits
 - id: template-kit-unsubstituted
   subject: 'P2: ui_kits/_template is served at a real URL, throws an uncaught exception at all three widths, loads ZERO stylesheets, and renders the literal strings {{THEME_COLOR_METAS}} {{SEO_METAS}} {{STYLESHEETS}} as visible body text. It is a build-time scaffold source, but it sits among the kits where a visitor reaches it'
   witness: Assessment B measured it live; CDP returned only the bare string Uncaught with no stack
