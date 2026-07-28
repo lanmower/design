@@ -15,6 +15,7 @@ import { lintNullChildrenOrThrow } from './lint-null-children.mjs';
 import { lintClassesOrThrow } from './lint-classes.mjs';
 import { lintInlineStylesOrThrow } from './lint-inline-styles.mjs';
 import { lintDuplicateSelectorsOrThrow } from './lint-duplicate-selectors.mjs';
+import { lintInlineCssOrThrow } from './lint-inline-css.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -69,6 +70,16 @@ lintFontSizeOrThrow();
 // load-bearing (utility resets, print/forced-colors/reduced-motion overrides);
 // what the ratchet stops is a NEW one landing silently.
 lintImportantOrThrow();
+
+// Inline-<style> gate (ratchet): the four token scanners above read .css files
+// only, so CSS inside an HTML <style> block was never scanned by any gate — a
+// coverage hole, not a rule failure, exactly like the @import barrel that made
+// ~5,500 lines of split sheets invisible while the gate said OK. This runs the
+// SAME color/radius/spacing/font-size matchers over those blocks. A ratchet
+// rather than a hard zero because several of these pages are SPECIMENS whose
+// job is demonstrating a value; the survivors each carry a comment at their own
+// site saying why they are off-scale. Drive the baseline DOWN.
+lintInlineCssOrThrow();
 
 // tokens.json sync gate: refuse to build if colors_and_type.css's :root
 // values or site.yaml's accent_from/accent_to have drifted from tokens.json

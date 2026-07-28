@@ -26,6 +26,7 @@ import { lintClassesOrThrow } from './lint-classes.mjs';
 import { lintInlineStylesOrThrow } from './lint-inline-styles.mjs';
 import { lintDuplicateSelectorsOrThrow } from './lint-duplicate-selectors.mjs';
 import { lintSwallowCommentsOrThrow } from './lint-swallow-comments.mjs';
+import { lintInlineCssOrThrow } from './lint-inline-css.mjs';
 
 // Each entry: a human label for the report, and the check function to run.
 // EVERY check here throws on violation and is counted in the pass/fail tally.
@@ -47,6 +48,12 @@ const CHECKS = [
     ['spacing', lintSpacingOrThrow],
     ['fontsize', lintFontSizeOrThrow],
     ['important', lintImportantOrThrow],
+    // Fourth ratchet, and the only one whose scan set is HTML rather than .css:
+    // the token scanners above are blind to CSS living inside a <style> block,
+    // so those declarations were never linted at all. Same coverage-hole shape
+    // as the @import barrel (a gate reporting green over ground it never
+    // scanned), same remedy: widen the scan set, do not loosen the rule.
+    ['inline-css', lintInlineCssOrThrow],
     ['glyphs', lintGlyphsOrThrow],
     ['null-children', lintNullChildrenOrThrow],
     ['classes', lintClassesOrThrow],

@@ -8,7 +8,14 @@
   .sw{padding:var(--space-3-5);min-height:140px;border-radius:var(--r-3);display:flex;flex-direction:column;justify-content:space-between;min-width:0;overflow:hidden;}
   .sw .name,.sw .hex,.sw .tok{overflow-wrap:anywhere;}
   @media (max-width:640px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
-  .sw .name{font-family:var(--ff-display);font-size:var(--fs-h4);font-weight:700;letter-spacing:-0.01em;}
+  /* 24px is the UPPER BOUND of --fs-h4's clamp(19px, 1.8cqi, 24px), pinned as
+     a fixed literal on purpose. The swatch names must all render at one
+     identical size so the four colour fields read as a set; --fs-h4 is
+     cqi-fluid, so each swatch would size its own name to its own container
+     width and a 4-up would show four different title sizes. Measured: the
+     token resolves to 23.04px here, not 24px. A specimen demonstrating the
+     palette must not wobble with container width. Kept literal deliberately. */
+  .sw .name{font-family:var(--ff-display);font-size:24px;font-weight:700;letter-spacing:-0.01em;}
   .sw .hex{font-family:var(--ff-mono);font-size:var(--fs-sm);font-weight:500;}
   .sw .tok{font-family:var(--ff-mono);font-size:var(--fs-tiny);text-transform:uppercase;letter-spacing:0.14em;opacity:0.7;}
 </style><script defer src="./motion-default.js"></script>
