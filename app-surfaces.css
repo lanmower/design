@@ -226,7 +226,15 @@
 
 /* Event-list row hover + search-result flash. */
 .ds-247420 .ds-event-list .row[role="button"]:hover { background: color-mix(in srgb, var(--fg) 5%, transparent); }
-.ds-247420 .ds-event-list .row.event-flash { animation: agentgui-event-flash 2s ease-out; }
+/* Opt-in like every other animation in the kit: the flash is declared only
+   under no-preference, so a reduced-motion user gets the row without a 2s
+   pulsing highlight. It animates background rather than transform, so the
+   vestibular risk is low, but a repeating attention pull is still exactly the
+   kind of thing the preference exists to suppress. The row is located by the
+   scroll-into-view that accompanies it, so nothing is lost when it is absent. */
+@media (prefers-reduced-motion: no-preference) {
+  .ds-247420 .ds-event-list .row.event-flash { animation: agentgui-event-flash 2s ease-out; }
+}
 
 
 /* Generic interactive focus ring for app-emitted controls. */

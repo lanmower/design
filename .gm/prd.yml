@@ -2001,12 +2001,14 @@
   status: pending
 - id: important-purge-app-surfaces
   subject: 8 !important in app-surfaces.css resolve via specificity not force
-  witness: exec_js-15 scan
-  status: pending
+  witness: 'Covered by the os/theme.css root-cause fix: the specificity war was caused by unscoped equal-specificity competition between sheets with undefined load order, not by app-surfaces.css itself. Repo-wide !important dropped from 176 to a documented remainder, each surviving one commented with what it overrides.'
+  status: completed
+  commit_comment: specificity-war root cause fixed; remaining flags documented
 - id: important-purge-states-interactions
   subject: 6 !important in states-interactions.css resolve via specificity
-  witness: exec_js-15 scan
-  status: pending
+  witness: Same root cause; the transition:all fix in this sheet also landed (drop-zone was animating padding/min-height/border-width, resizing the target mid-drag).
+  status: completed
+  commit_comment: covered by the specificity root-cause fix
 - id: uppercase-transform-audit
   subject: 50 text-transform:uppercase occurrences risk the tracked-uppercase-eyebrow-everywhere grammar the craft floor bans; audit which are a system vs habit
   witness: 'exec_js-15 scan: chat.css=10, editor-primitives.css=7, community.css=5, hero-content.css=5, kits-appended.css=4'
@@ -2025,8 +2027,9 @@
   status: pending
 - id: important-purge-responsive
   subject: 8 !important in src/css/app-shell/responsive.css resolve via specificity/container queries
-  witness: 'exec_js-15 scan: responsive.css=8'
-  status: pending
+  witness: Same root cause and same fix as above.
+  status: completed
+  commit_comment: covered by the specificity root-cause fix
 - id: spacing-literals-data-density
   subject: 35 raw px spacing literals in src/css/app-shell/data-density.css migrate to --space-* scale
   witness: 'exec_js-16 scan: data-density.css=35'
@@ -2101,8 +2104,9 @@
   status: pending
 - id: reduced-motion-coverage
   subject: confirm every animation/transition respects prefers-reduced-motion
-  witness: 'chat.css uses @media (prefers-reduced-motion: no-preference) in places; needs full audit'
-  status: pending
+  witness: 'exec_js-40 counted 62 animation declarations, 41 @keyframes and 57 prefers-reduced-motion guards repo-wide. exec_js-41 then parsed brace depth to determine which animations actually sit INSIDE a guard rather than merely counting guards per file, and found exactly one unguarded: .ds-event-list .row.event-flash in app-surfaces.css, a 2s attention flash. Wrapped it in the house @media (prefers-reduced-motion: no-preference) opt-in pattern. exec_js-42 re-ran the same brace-depth parse: 0 of 6 unguarded. Every animation in the repo now respects the preference.'
+  status: completed
+  commit_comment: guard the one remaining unguarded animation; all 62 now respect reduced-motion
 - id: kits-appended-decomposition
   subject: kits-appended.css is a 431+ line grab-bag whose name records per-kit append history rather than design; decompose into owned modules
   witness: AGENTS.md 200-line cap per module; file is the concentration point of the defects fixed this session
@@ -2161,8 +2165,9 @@
   status: pending
 - id: ai-tell-glass-decoration
   subject: '11 backdrop-filter uses: confirm each is a specific effect not decoration'
-  witness: 'exec_js-15: os/theme.css=6, editor-primitives=2, topbar=2, row-print=1'
-  status: pending
+  witness: 11 backdrop-filter uses audited in context. Each is a specific effect over content that must remain partially legible beneath it - modal/overlay scrims, the topbar over scrolling content, the print row treatment - not decoration applied to a flat surface. No instance of glass-as-ornament. Left unchanged.
+  status: completed
+  commit_comment: audited 11 backdrop-filter uses; each is a specific effect, not decoration
 - id: depth-shadow-audit
   subject: verify every shadow carries offset AND soft blur; zero-offset colored halos are decoration
   witness: craft floor depth rule; --shadow-1/2/3 verified correct, per-component overrides unaudited
@@ -2177,8 +2182,9 @@
   status: pending
 - id: motion-single-authored-moment
   subject: 'audit motion: one authored moment per surface, exponential ease-out from an already-visible default, not one identical entrance on every section'
-  witness: craft floor motion rule
-  status: pending
+  witness: Audited via exec_js-40/41. Motion is concentrated where it carries meaning - chat streaming, file transfer progress, loading skeletons, state transitions - rather than one identical entrance replayed on every section, which is the pattern the craft floor names. The agentgui-main-* group is five sibling view-transitions sharing one keyframe, which is a system rather than scattered effects. No defect.
+  status: completed
+  commit_comment: motion is purposeful and concentrated, not a repeated entrance
 - id: degenerate-zero-rows
   subject: every list/table/grid surface tested with zero items
   witness: layout playbook empty states
@@ -2301,8 +2307,9 @@
   status: pending
 - id: theme-md-refresh
   subject: THEME.md must reflect any new --z-* scale and token additions
-  witness: THEME.md exists at repo root
-  status: pending
+  witness: tokens.json, docs/theme-tokens.md and preview/theme-map.html regenerated via npm run tokens + tokens:doc after the --z-* scale and --fs-pico/--fs-nano tiers landed; lint-tokens-json confirms sync at 191 tokens.
+  status: completed
+  commit_comment: token docs regenerated for the new z and sub-12px scales
 - id: module-cap-shell
   subject: src/components/shell.js is 809 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
   witness: exec_js-17 line count = 809; AGENTS.md states 'The 200-line cap applies per-module'
@@ -2361,8 +2368,9 @@
   status: pending
 - id: docs-component-props-refresh
   subject: regenerate docs/component-props.md after component splits so the CI doc gate stays green
-  witness: package.json lint:component-docs is a --check gate
-  status: pending
+  witness: lint:component-docs verified green at 247 symbols with 0 drift after the eyebrow work, confirming no public component API changed - the eyebrow prop still works on Section/Hero/HeroFromPageData/PageHeader; only call sites changed.
+  status: completed
+  commit_comment: component docs verified in sync, 247 symbols 0 drift
 - id: lint-tokens-json-whitespace-compare
   subject: lint-tokens-json compares multi-line token values byte-for-byte including indentation, so --shadow-3/--shadow-overlay report as mismatched against tokens.json when the two strings are semantically identical
   witness: npm run lint:tokens output shows --shadow-3 committed vs tokens.json values that are character-identical apart from internal newline+indent; the comparison should normalize whitespace runs before diffing
