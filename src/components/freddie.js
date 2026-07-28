@@ -141,7 +141,7 @@ async function* parseSseStream(response) {
             }
         }
     } finally {
-        try { reader.releaseLock(); } catch { /* stream already closed/errored */ }
+        try { reader.releaseLock(); } catch { /* swallow: stream already closed/errored */ }
     }
 }
 
@@ -178,7 +178,7 @@ function partsFromMessages(assistantAndToolMessages) {
             const target = m.tool_call_id ? byId.get(m.tool_call_id) : null;
             let content = m.content;
             let isError = false;
-            try { const parsed = JSON.parse(content); if (parsed && parsed.error) { isError = true; } } catch { /* not JSON, leave as-is */ }
+            try { const parsed = JSON.parse(content); if (parsed && parsed.error) { isError = true; } } catch { /* swallow: not JSON, leave as-is */ }
             if (target) { target.result = content; target.status = isError ? 'error' : 'done'; target.error = isError || undefined; }
             else parts.push({ kind: 'tool_result', name: 'result', result: content, error: isError || undefined, status: isError ? 'error' : 'done' });
         }
@@ -276,7 +276,7 @@ export const chat = makePage((ctx) => {
     }
 
     function stop() {
-        if (ctx.state.abort) { try { ctx.state.abort.abort(); } catch { /* already settled */ } }
+        if (ctx.state.abort) { try { ctx.state.abort.abort(); } catch { /* swallow: already settled */ } }
     }
 
     return () => {

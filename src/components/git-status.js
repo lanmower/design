@@ -149,7 +149,7 @@ export function GitDiffView({ diff = '', filename } = {}) {
     const lang = langFromFilename(filename);
     const highlightRef = (el) => {
         if (!el) return;
-        try { highlightAllUnder(el); } catch { /* progressive enhancement only */ }
+        try { highlightAllUnder(el); } catch { /* swallow: progressive enhancement only */ }
     };
     if (!hunks.length) {
         return h('div', { class: 'ds-git-diff-empty', role: 'status' }, 'no diff to show');
