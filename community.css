@@ -42,8 +42,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 12px 0;
+  gap: var(--space-2);
+  padding: var(--space-2-75) 0;
   background: color-mix(in oklab, var(--bg) 70%, var(--ink));
   overflow-y: auto;
   overflow-x: hidden;
@@ -112,7 +112,7 @@
   right: -2px;
   min-width: 18px;
   height: 18px;
-  padding: 0 5px;
+  padding: 0 var(--space-1-5);
   background: var(--warn);
   color: var(--paper);
   font-family: var(--ff-mono);
@@ -157,7 +157,7 @@
   height: 2px;
   background: color-mix(in oklab, var(--fg) 12%, transparent);
   border-radius: var(--r-hair);
-  margin: 4px 0;
+  margin: var(--space-1) 0;
   flex-shrink: 0;
 }
 
@@ -178,8 +178,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 14px 16px;
+  gap: var(--space-2);
+  padding: var(--space-2-75) var(--space-3);
   background: var(--bg-2);
   box-shadow: 0 1px 0 color-mix(in oklab, var(--fg) 8%, transparent);
   font-weight: 600;
@@ -206,10 +206,10 @@
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 8px 0 16px;
+  padding: var(--space-2) 0 var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-hair);
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklab, var(--fg) 18%, transparent) transparent;
 }
@@ -226,15 +226,15 @@
 .cm-channel-category {
   display: flex;
   flex-direction: column;
-  margin-top: 12px;
+  margin-top: var(--space-2-75);
 }
-.cm-channel-category:first-child { margin-top: 4px; }
+.cm-channel-category:first-child { margin-top: var(--space-1); }
 
 .cm-category-header {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px 4px 8px;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
   font-family: var(--ff-body);
   font-size: var(--fs-micro);
   font-weight: 600;
@@ -282,7 +282,7 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  padding: 4px;
+  padding: var(--space-1);
   border: 0;
   background: transparent;
   color: var(--fg-3);
@@ -304,8 +304,11 @@
 .cm-cat-channels {
   display: flex;
   flex-direction: column;
+  /* gap:1px is OFF-SCALE ON PURPOSE — channel rows are meant to read as one
+     near-continuous stack with only a hairline seam between them. --space-hair
+     (2px) doubles the seam and breaks the rows into visibly separate pills. */
   gap: 1px;
-  padding: 2px 0;
+  padding: var(--space-hair) 0;
 }
 
 /* ============================================================
@@ -313,15 +316,15 @@
    ============================================================ */
 .cm-channel-item-wrap {
   position: relative;
-  padding: 0 8px;
+  padding: 0 var(--space-2);
 }
 
 .cm-channel-item {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
+  gap: var(--space-2);
+  padding: var(--space-1-75) var(--space-2);
   border-radius: var(--r-1);
   color: var(--fg-3);
   cursor: pointer;
@@ -437,7 +440,7 @@
   flex-shrink: 0;
   min-width: 16px;
   height: 16px;
-  padding: 0 5px;
+  padding: 0 var(--space-1-5);
   background: var(--warn);
   color: var(--paper);
   font-family: var(--ff-mono);
@@ -453,7 +456,7 @@
 .cm-ch-actions {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--space-hair);
   opacity: 0;
   transition: opacity var(--dur-snap) var(--ease);
   flex-shrink: 0;
@@ -463,7 +466,7 @@
 .cm-ch-action-btn {
   width: 28px;
   height: 28px;
-  padding: 4px;
+  padding: var(--space-1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -488,15 +491,16 @@
 .cm-ch-voice-users {
   display: flex;
   flex-direction: column;
+  /* gap:1px — same hairline-seam rationale as .cm-cat-channels above. */
   gap: 1px;
-  padding: 2px 8px 4px 32px;
+  padding: var(--space-hair) var(--space-2) var(--space-1) var(--space-5);
 }
 
 .cm-ch-voice-user {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 3px 6px;
+  gap: var(--space-2);
+  padding: var(--space-half) var(--space-1-75);
   border-radius: var(--r-1);
   color: var(--fg-2);
   font-size: var(--fs-xs);
@@ -550,8 +554,8 @@
 .cm-voice-strip {
   display: none;
   flex-direction: column;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: var(--space-2);
+  padding: var(--space-2-5) var(--space-2-75);
   background: color-mix(in oklab, var(--green) 18%, var(--bg-2));
   color: var(--fg);
   box-shadow: 0 -1px 0 color-mix(in oklab, var(--fg) 10%, transparent);
@@ -568,7 +572,7 @@
   font-weight: 700;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1-75);
 }
 .cm-vs-label::before {
   content: '';
@@ -602,7 +606,7 @@
   color: var(--fg-2);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1-75);
   flex-wrap: wrap;
 }
 
@@ -610,9 +614,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: var(--space-1-75);
   height: 28px;
-  padding: 0 10px;
+  padding: 0 var(--space-2-5);
   background: color-mix(in oklab, var(--fg) 10%, transparent);
   color: var(--fg);
   border: 0;
@@ -640,8 +644,8 @@
 .cm-user-panel {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 8px;
+  gap: var(--space-2);
+  padding: var(--space-2);
   background: color-mix(in oklab, var(--fg) 5%, var(--bg-2));
   flex-shrink: 0;
 }
@@ -706,7 +710,7 @@
 .cm-user-controls {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--space-hair);
 }
 
 .cm-user-btn {
@@ -741,8 +745,8 @@
 .cm-chat-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
+  gap: var(--space-2-5);
+  padding: var(--space-2-75) var(--space-3);
   background: var(--bg);
   box-shadow: 0 1px 0 color-mix(in oklab, var(--fg) 8%, transparent);
   flex-shrink: 0;
@@ -772,8 +776,8 @@
 .cm-chat-header-topic {
   flex: 1;
   min-width: 0;
-  padding-left: 12px;
-  margin-left: 4px;
+  padding-left: var(--space-2-75);
+  margin-left: var(--space-1);
   border-left: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
   color: var(--fg-3);
   font-size: var(--fs-xs);
@@ -785,7 +789,7 @@
 .cm-chat-header-toolbar {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   flex-shrink: 0;
 }
 
@@ -801,7 +805,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   background: var(--bg-2);
-  padding: 16px 0;
+  padding: var(--space-3) 0;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklab, var(--fg) 18%, transparent) transparent;
   transition: width var(--dur-base) var(--ease), flex-basis var(--dur-base) var(--ease);
@@ -823,7 +827,7 @@
 }
 
 .cm-member-category {
-  padding: 12px 16px 6px;
+  padding: var(--space-2-75) var(--space-3) var(--space-1-75);
   font-family: var(--ff-body);
   font-size: var(--fs-micro);
   font-weight: 600;
@@ -835,9 +839,9 @@
 .cm-member-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 12px;
-  margin: 0 8px;
+  gap: var(--space-2-5);
+  padding: var(--space-1-75) var(--space-2-75);
+  margin: 0 var(--space-2);
   border-radius: var(--r-1);
   color: var(--fg-2);
   cursor: pointer;
@@ -902,8 +906,8 @@
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 10px;
+  gap: var(--space-1-75);
+  padding: var(--space-2-5);
   border-radius: var(--r-2);
   background: var(--bg-2);
   transition: box-shadow var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease);
@@ -1002,7 +1006,7 @@
   .cm-server-back {
     width: 44px;
     height: 44px;
-    padding: 4px;
+    padding: var(--space-1);
   }
   .cm-channel-sidebar,
   .cm-channel-sidebar.open {
@@ -1201,7 +1205,7 @@
   color: inherit;
   font: inherit;
   font-weight: 600;
-  padding: 2px var(--space-2);
+  padding: var(--space-hair) var(--space-2);
   border-radius: var(--r-1);
   cursor: pointer;
 }
@@ -1486,7 +1490,7 @@
   display: flex; gap: var(--space-2);
   overflow-x: auto;
   flex: 1;
-  padding-bottom: 2px;
+  padding-bottom: var(--space-hair);
 }
 .vx-chip {
   display: inline-flex; align-items: center; gap: var(--space-1);
@@ -1563,7 +1567,7 @@
 .cm-tp-list { flex: 1; min-height: 0; overflow-y: auto; }
 .cm-tp-item {
   position: relative; /* anchors .cm-tp-dot to the row, not the panel */
-  display: flex; flex-direction: column; gap: 2px;
+  display: flex; flex-direction: column; gap: var(--space-hair);
   width: 100%; text-align: left; cursor: pointer;
   padding: var(--space-2); border: none; background: transparent;
   border-bottom: var(--bw-hair) solid var(--rule);
@@ -1588,7 +1592,7 @@
    list surface in the kit uses one shimmer language, never a bare spinner. */
 .cm-channel-item-skeleton, .cm-member-item-skeleton {
   display: flex; align-items: center; gap: var(--space-2);
-  padding: var(--space-2); margin: 2px var(--space-1);
+  padding: var(--space-2); margin: var(--space-hair) var(--space-1);
 }
 .cm-channel-item-skeleton .ds-skel-icon, .cm-member-item-skeleton .ds-skel-icon {
   width: 20px; height: 20px; border-radius: var(--r-round, 50%); flex: none; background: var(--bg-3);
@@ -1597,7 +1601,7 @@
   height: 12px; width: 60%; border-radius: var(--r-1); background: var(--bg-3);
 }
 .cm-list-item-skeleton {
-  display: flex; flex-direction: column; gap: 6px;
+  display: flex; flex-direction: column; gap: var(--space-1-75);
   padding: var(--space-2) var(--space-3); border-bottom: var(--bw-hair) solid var(--rule);
 }
 .cm-list-item-skeleton .ds-skel-title { height: 12px; width: 55%; border-radius: var(--r-1); background: var(--bg-3); }
@@ -1631,8 +1635,10 @@
 .cm-forum-item-replies { font-size: var(--fs-0, 12px); color: var(--fg-2, var(--fg)); opacity: .8; white-space: nowrap; }
 .cm-forum-item-snippet { font-size: var(--fs-0, 12px); color: var(--fg-2, var(--fg)); opacity: .85; }
 .cm-forum-item-meta { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; font-size: var(--fs-micro, 11px); color: var(--fg-2, var(--fg)); opacity: .7; }
-.cm-forum-item-tags { display: inline-flex; gap: 4px; }
-.cm-forum-tag { padding: 1px 6px; border-radius: var(--r-1); background: var(--bg-3); border: var(--bw-hair) solid var(--rule); }
+.cm-forum-item-tags { display: inline-flex; gap: var(--space-1); }
+/* 1px vertical is OFF-SCALE ON PURPOSE — the tag is an inline chip inside the
+   forum meta row; --space-hair (2px) tips it past the row height. */
+.cm-forum-tag { padding: 1px var(--space-1-75); border-radius: var(--r-1); background: var(--bg-3); border: var(--bw-hair) solid var(--rule); }
 
 /* PageView — cm-page / cm-page-* */
 .cm-page { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow-y: auto; background: var(--bg-1, var(--bg-2)); color: var(--fg); }
@@ -1659,6 +1665,9 @@
 .fd-chat-thread { flex: 1 1 auto; min-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-2, 10px); padding: var(--space-2, 10px); }
 .fd-page-error { white-space: pre-wrap; overflow-wrap: anywhere; }
 /* Visually-hidden polite live region — announces async busy/done to SR users. */
+/* margin:-1px is OFF-SCALE ON PURPOSE — the canonical visually-hidden idiom;
+   the negative margin cancels the 1px box so the live region contributes zero
+   layout. A --space-* rung would reintroduce a measurable gap. */
 .fd-sr-live { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 /* page-level responsive: tighten padding on narrow viewports */
 @media (max-width: 640px) {

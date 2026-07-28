@@ -30,8 +30,12 @@
 .agentchat-controls .ds-select { min-width: 130px; max-width: 240px; }
 /* One shared control metric for the most-seen chrome row (mirrors the
    .ds-dash-toolbar precedent): selects, buttons, export acts all 32px / r-1. */
-.agentchat-controls .ds-select { min-height: 32px; padding: 4px 28px 4px 10px; font-size: var(--fs-sm); border-radius: var(--r-1); }
-.agentchat-controls .btn, .agentchat-controls .btn-primary { padding: 5px 12px; min-height: 32px; border-radius: var(--r-1); font-weight: 500; }
+/* The 28px right pad is OFF-SCALE ON PURPOSE: it is not rhythm but clearance
+   for the native select's dropdown arrow, which the UA draws at a fixed inset.
+   Snapping to --space-5 (32px) or --space-4 (24px) either wastes a column of
+   text width or lets long option labels run under the arrow. */
+.agentchat-controls .ds-select { min-height: 32px; padding: var(--space-1) 28px var(--space-1) var(--space-2-5); font-size: var(--fs-sm); border-radius: var(--r-1); }
+.agentchat-controls .btn, .agentchat-controls .btn-primary { padding: var(--space-1-5) var(--space-2-75); min-height: 32px; border-radius: var(--r-1); font-weight: 500; }
 @media (pointer: coarse) {
   .agentchat-controls .ds-select, .agentchat-controls .btn, .agentchat-controls .btn-primary { min-height: 44px; }
 }
@@ -51,6 +55,12 @@
   .agentchat-controls [role="combobox"] { flex-basis: 100%; }
 }
 
+/* The .4em/.5em gaps on this status line, .agentchat-head below, and the
+   narrow-viewport .agentchat-controls override are em-based ON PURPOSE, not
+   un-migrated literals: each is the gap between a label and its own inline
+   text/disc, so it must track that element's font-size (these rows are scaled
+   by font-size alone at narrow widths). A --space-* px rung would hold the gap
+   fixed while the type around it shrank. */
 .agentchat-status {
   display: inline-flex;
   align-items: center;
@@ -101,7 +111,7 @@
   border: 1px solid var(--rule);
   color: inherit;
   border-radius: var(--r-1);
-  padding: 2px 8px;
+  padding: var(--space-hair) var(--space-2);
   cursor: pointer;
   font: inherit;
 }
@@ -114,7 +124,7 @@
   border: var(--bw-hair) solid var(--rule);
   color: var(--fg);
   border-radius: var(--r-1);
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   font: inherit;
 }
 .agentchat-cwd-input:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
@@ -127,12 +137,12 @@
 .agentchat-cwd-editing { flex-direction: column; align-items: stretch; }
 .agentchat-cwd-row { display: flex; align-items: center; gap: var(--space-2, 8px); flex-wrap: wrap; }
 .agentchat-cwd-roots, .agentchat-cwd-recent {
-  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  display: flex; align-items: center; gap: var(--space-1-75); flex-wrap: wrap;
 }
 .agentchat-cwd-recent-label { font-size: var(--fs-tiny); color: var(--fg-3); }
 .agentchat-cwd-chip {
   background: var(--bg-2); border: var(--bw-hair) solid var(--rule); color: var(--fg-2);
-  border-radius: var(--r-pill); padding: 3px 10px; font: inherit; font-size: var(--fs-tiny);
+  border-radius: var(--r-pill); padding: var(--space-half) var(--space-2-5); font: inherit; font-size: var(--fs-tiny);
   cursor: pointer;
 }
 .agentchat-cwd-chip:hover { border-color: var(--accent); color: var(--fg); }
@@ -140,17 +150,17 @@
 .agentchat-cwd-browse {
   border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1);
   padding: var(--space-2, 8px); background: var(--bg-2);
-  display: flex; flex-direction: column; gap: 6px;
+  display: flex; flex-direction: column; gap: var(--space-1-75);
   max-height: 220px;
 }
 .agentchat-cwd-browse-list { overflow-y: auto; display: flex; flex-direction: column; max-height: 160px; }
 .agentchat-cwd-browse-item {
   background: none; border: none; color: var(--fg-2); text-align: left;
-  padding: 6px 8px; border-radius: var(--r-1); font: inherit; font-size: var(--fs-tiny);
+  padding: var(--space-1-75) var(--space-2); border-radius: var(--r-1); font: inherit; font-size: var(--fs-tiny);
   cursor: pointer;
 }
 .agentchat-cwd-browse-item:hover, .agentchat-cwd-browse-item:focus-visible { background: var(--bg-3, var(--bg)); color: var(--fg); }
-.agentchat-cwd-browse-loading, .agentchat-cwd-browse-empty { padding: 6px 8px; font-size: var(--fs-tiny); color: var(--fg-3); }
+.agentchat-cwd-browse-loading, .agentchat-cwd-browse-empty { padding: var(--space-1-75) var(--space-2); font-size: var(--fs-tiny); color: var(--fg-3); }
 
 /* head + thread */
 .agentchat-head {
@@ -171,14 +181,14 @@
 .agentchat-side-panel { display: flex; flex-direction: column; height: 100%; min-height: 0; border-left: var(--bw-hair) solid var(--bg-3); }
 .agentchat-side-panel-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: var(--space-2, 8px) var(--space-3, 12px); border-bottom: var(--bw-hair) solid var(--bg-3);
+  padding: var(--space-2, 8px) var(--space-3, 16px); border-bottom: var(--bw-hair) solid var(--bg-3);
   flex: 0 0 auto;
 }
 .agentchat-side-panel-title { font-size: var(--fs-tiny); font-weight: 600; color: var(--fg-2); text-transform: uppercase; letter-spacing: var(--tr-label); }
 .agentchat-side-panel-close {
   display: inline-flex; align-items: center; justify-content: center;
   background: none; border: none; color: var(--fg-3); cursor: pointer;
-  padding: 4px; border-radius: var(--r-1);
+  padding: var(--space-1); border-radius: var(--r-1);
 }
 .agentchat-side-panel-close:hover { background: var(--bg-2); color: var(--fg); }
 .agentchat-side-panel-close:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
@@ -204,6 +214,9 @@
 .agentchat-jump {
   position: absolute; right: 16px; bottom: 12px; z-index: var(--z-raised);
   display: none; align-items: center; gap: .35em;
+  /* em, not --space-*: this pill must scale with its own --fs-tiny text so the
+     capsule stays proportional when a host overrides the chat font size. A px
+     rung would fix the padding while the label grew/shrank inside it. */
   padding: .4em .8em; font: inherit; font-size: var(--fs-tiny); cursor: pointer;
   border-radius: var(--r-pill); border: var(--bw-hair) solid var(--rule);
   background: var(--bg-2); color: var(--fg-2, var(--fg));
@@ -215,6 +228,9 @@
 
 /* Streaming caret: a thin blinking bar at the live edge of an assistant turn. */
 .chat-stream-caret {
+  /* margin-left:1px is OFF-SCALE ON PURPOSE — a hairline optical nudge that
+     separates the caret bar from the last glyph without reading as a space
+     character. --space-hair (2px) is already wide enough to look like one. */
   display: inline-block; width: 2px; height: 1.05em; margin-left: 1px;
   vertical-align: text-bottom; background: var(--accent, var(--fg));
   animation: chat-caret-blink 1s step-end infinite;
@@ -223,11 +239,11 @@
 @media (prefers-reduced-motion: reduce) { .chat-stream-caret { animation: none; opacity: .8; } }
 
 /* Per-message hover-revealed action row (copy / retry / edit). */
-.chat-msg-actions { display: flex; gap: 2px; margin-top: 3px; opacity: 0; transition: opacity var(--dur-snap, .12s) var(--ease, ease); }
+.chat-msg-actions { display: flex; gap: var(--space-hair); margin-top: var(--space-half); opacity: 0; transition: opacity var(--dur-snap, .12s) var(--ease, ease); }
 .chat-msg:hover .chat-msg-actions, .chat-msg:focus-within .chat-msg-actions { opacity: 1; }
 .chat-msg-action {
-  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
-  min-width: 26px; height: 26px; padding: 0 6px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-1);
+  min-width: 26px; height: 26px; padding: 0 var(--space-1-75); cursor: pointer;
   border: none; border-radius: var(--r-1, 4px); background: none; color: var(--fg-3);
   font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
@@ -236,7 +252,12 @@
 .chat-msg-action:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; opacity: 1; }
 .chat-msg-action.is-copied { color: var(--accent-ink); opacity: 1; }
 
-/* Empty state: a fresh thread is an invitation, not a void. */
+/* Empty state: a fresh thread is an invitation, not a void.
+   The em-based gap/padding through this block and the suggestion chips below
+   are OFF the --space-* px scale ON PURPOSE: the empty state is typeset copy
+   whose rhythm must track its own font-size (hosts scale this panel down on
+   narrow viewports via font-size alone). Fixed px rungs here would decouple
+   the chip padding from the label and break the capsule proportions. */
 .agentchat-empty {
   margin: auto;
   display: flex;
@@ -300,7 +321,7 @@
   font-family: var(--ff-mono); font-size: var(--fs-sm); color: var(--fg-2, var(--fg));
 }
 .agentchat-install-copy {
-  flex: 0 0 auto; cursor: pointer; padding: 2px 8px; min-height: 24px;
+  flex: 0 0 auto; cursor: pointer; padding: var(--space-hair) var(--space-2); min-height: 24px;
   border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 4px);
   background: none; color: var(--fg-3);
   font-family: var(--ff-body); font-size: var(--fs-tiny);
@@ -311,7 +332,7 @@
 
 /* Host-supplied transcript export actions riding the controls row. */
 .agentchat-export-act {
-  cursor: pointer; padding: 4px 10px; min-height: 32px;
+  cursor: pointer; padding: var(--space-1) var(--space-2-5); min-height: 32px;
   border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 4px);
   background: none; color: var(--fg-3);
   font-family: var(--ff-body); font-size: var(--fs-tiny);
@@ -319,7 +340,10 @@
 .agentchat-export-act:hover { background: var(--bg-2); color: var(--fg); }
 .agentchat-export-act:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; }
 
-/* "working" tail: a long silent tool call shouldn't read as frozen. */
+/* "working" tail: a long silent tool call shouldn't read as frozen.
+   em gap/padding here and on .chat-thinking below is deliberate — both tails
+   are inline status text sized off --fs-tiny, and their inset must shrink with
+   the type, not sit on a fixed px rung. */
 .agentchat-working {
   display: flex;
   align-items: center;
@@ -331,7 +355,7 @@
 .agentchat-working-text { color: var(--fg-3); }
 /* Self-contained dots (chat-thinking-dots lives in a kit sheet not bundled
    into this DS distribution, so the agentchat tail draws its own). */
-.agentchat-working .chat-thinking-dots { display: inline-flex; gap: 3px; }
+.agentchat-working .chat-thinking-dots { display: inline-flex; gap: var(--space-half); }
 .agentchat-working .chat-thinking-dots span {
   width: 5px; height: 5px; border-radius: 50%;
   background: var(--fg); opacity: .4;
@@ -352,7 +376,7 @@
    no muted tone. Reuse the agentchat-dot-bounce keyframe. */
 .chat-thinking { display: flex; align-items: center; gap: .5em; color: var(--fg-3); font-size: var(--fs-tiny); background: none; padding: .3em .2em; }
 .chat-thinking-text { color: var(--fg-3); }
-.chat-thinking-dots { display: inline-flex; gap: 3px; }
+.chat-thinking-dots { display: inline-flex; gap: var(--space-half); }
 .chat-thinking-dots span {
   width: 5px; height: 5px; border-radius: 50%;
   background: var(--fg); opacity: .4;
@@ -453,7 +477,7 @@
 .ds-session-new:hover { background: var(--bg-2); color: var(--fg); }
 /* Rail filter uses the shared .ds-search-input primitive (provides bg/border/
    radius/focus-ring); only the rail layout + touch floor live here. */
-.ds-session-head .ds-search-input { order: 1; flex: 1 1 auto; min-width: 0; min-height: 36px; padding: 0 10px; }
+.ds-session-head .ds-search-input { order: 1; flex: 1 1 auto; min-width: 0; min-height: 36px; padding: 0 var(--space-2-5); }
 .ds-session-new:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 /* Touch floor (must FOLLOW the base rules - same specificity, order decides). */
 @media (pointer: coarse) {
@@ -462,7 +486,7 @@
 }
 .ds-session-list, .ds-session-groups { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-2); }
 .ds-session-loadmore {
-  width: 100%; margin-top: var(--space-1); padding: 8px 12px;
+  width: 100%; margin-top: var(--space-1); padding: var(--space-2) var(--space-2-75);
   font-size: var(--fs-sm); font-family: inherit; color: var(--fg-3);
   background: none; border: var(--bw-hair) dashed var(--rule); border-radius: var(--r-1);
   cursor: pointer; text-align: center;
@@ -473,11 +497,11 @@
 /* Grouped rows (Today/Yesterday/...) lay out like the flat list; the section
    label sticks to the top of the scroll area for Claude-Desktop-style headers. */
 .ds-session-group { display: flex; flex-direction: column; }
-.ds-session-group-rows { display: flex; flex-direction: column; gap: 2px; }
+.ds-session-group-rows { display: flex; flex-direction: column; gap: var(--space-hair); }
 .ds-session-group-label { position: sticky; top: 0; z-index: var(--z-sticky); background: var(--bg-1, var(--bg)); font-size: var(--fs-tiny); font-weight: 600; color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-label); padding: var(--space-2) var(--space-2) var(--space-1); }
 .ds-session-row {
   position: relative; display: flex; align-items: center; gap: var(--space-2);
-  width: 100%; padding: var(--space-2); min-height: 52px; margin-bottom: 2px;
+  width: 100%; padding: var(--space-2); min-height: 52px; margin-bottom: var(--space-hair);
   background: transparent; border: none; border-radius: var(--r-1);
   cursor: pointer; text-align: left; color: var(--fg);
 }
@@ -492,7 +516,7 @@
 .ds-session-row.rail-green::before { background: var(--accent-ink); }
 .ds-session-row.rail-purple::before { background: var(--purple-2); }
 .ds-session-row.rail-flame::before { background: var(--flame); }
-.ds-session-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ds-session-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-hair); }
 .ds-session-title { font-size: var(--fs-sm); color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-session-sub { font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-session-meta { display: flex; align-items: center; gap: var(--space-2); flex: 0 0 auto; }
@@ -562,7 +586,7 @@
    it only goes loud while ARMED (the one-shot press-again confirm). */
 .ds-dash-header .btn, .ds-dash-header .btn-primary {
   margin-left: 0;
-  padding: 5px 12px; min-height: 32px; border-radius: var(--r-1); font-weight: 500;
+  padding: var(--space-1-5) var(--space-2-75); min-height: 32px; border-radius: var(--r-1); font-weight: 500;
 }
 .ds-dash-header .btn-primary.danger {
   background: transparent; color: var(--warn);
@@ -583,7 +607,7 @@
 .ds-dash-status.is-error { color: var(--flame); }
 .ds-dash-agent { font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
 .ds-dash-model { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); margin-left: auto; }
-.ds-dash-meta { display: flex; flex-direction: column; gap: 2px; }
+.ds-dash-meta { display: flex; flex-direction: column; gap: var(--space-hair); }
 .ds-dash-cwd { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-dash-stat { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-2); }
 .ds-dash-stat-cost { color: var(--fg); font-weight: 600; }
@@ -614,7 +638,7 @@
   letter-spacing: var(--tr-caps); text-transform: uppercase;
   padding: 0 0 var(--space-2);
 }
-.ds-context-group .row + .row { margin-top: 2px; }
+.ds-context-group .row + .row { margin-top: var(--space-hair); }
 
 /* ============================================================================
    Cohesion sweep (gui-cohesion.js): one-product polish across surfaces.
@@ -628,7 +652,7 @@
 .chat-code-copy {
   position: absolute; top: 6px; right: 6px;
   display: inline-flex; align-items: center; justify-content: center;
-  min-width: 48px; min-height: 24px; padding: 2px 8px;
+  min-width: 48px; min-height: 24px; padding: var(--space-hair) var(--space-2);
   border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 4px);
   background: var(--bg-2); color: var(--fg-2); cursor: pointer;
   font-family: var(--ff-body); font-size: var(--fs-tiny);
@@ -671,7 +695,7 @@
 
 /* --- A5: composer context line (agent / model / cwd at point of typing). --- */
 .chat-composer-context {
-  display: block; width: 100%; text-align: left; padding: 4px var(--space-3) 0;
+  display: block; width: 100%; text-align: left; padding: var(--space-1) var(--space-3) 0;
   background: none; border: none; cursor: default; color: var(--fg-3);
   font-family: var(--ff-mono); font-size: var(--fs-tiny);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -713,11 +737,11 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
    height, never a stacked full-width form column. */
 .ds-dash-toolbar { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
 .ds-dash-toolbar .ds-search-input {
-  width: 200px; min-height: 32px; padding: 5px 10px;
+  width: 200px; min-height: 32px; padding: var(--space-1-5) var(--space-2-5);
   font-size: var(--fs-sm); border-radius: var(--r-1);
 }
 .ds-dash-toolbar .ds-select, .ds-dash-toolbar select {
-  min-height: 32px; padding: 4px 10px; font-size: var(--fs-sm);
+  min-height: 32px; padding: var(--space-1) var(--space-2-5); font-size: var(--fs-sm);
   width: auto; border-radius: var(--r-1);
 }
 .ds-dash-stream { font-size: var(--fs-tiny); color: var(--fg-3); }
@@ -726,7 +750,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 .ds-dash-stream.is-connecting { color: var(--amber); }
 .ds-dash-header .spread { flex: 1; }
 .ds-dash-errors-toggle {
-  padding: 4px 10px; min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
+  padding: var(--space-1) var(--space-2-5); min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
   border-radius: var(--r-1); background: var(--bg-2); color: var(--fg-2);
   cursor: pointer; font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
@@ -769,14 +793,14 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 .ds-preview-code-wrap { display: flex; flex-direction: column; min-height: 0; }
 .ds-preview-code-head { flex: 0 0 auto; }
 /* --- E2: prev/next stepper in preview head. --- */
-.ds-preview-step { display: inline-flex; gap: 2px; }
-.ds-preview-step .ds-file-act { min-width: 40px; padding: 0 6px; font-family: var(--ff-body); font-size: var(--fs-tiny); }
+.ds-preview-step { display: inline-flex; gap: var(--space-hair); }
+.ds-preview-step .ds-file-act { min-width: 40px; padding: 0 var(--space-1-75); font-family: var(--ff-body); font-size: var(--fs-tiny); }
 
 /* --- D1: file grid "show more" row. --- */
 .ds-file-more { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); justify-content: center; }
 .ds-file-more-count { font-size: var(--fs-tiny); color: var(--fg-3); }
 .ds-file-more-btn {
-  padding: 4px 12px; min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
+  padding: var(--space-1) var(--space-2-75); min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
   border-radius: var(--r-1); background: var(--bg-2); color: var(--fg-2); cursor: pointer;
   font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
@@ -785,9 +809,9 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 .ds-file-row.is-locked { opacity: .6; }
 
 /* --- D4: roots picker segmented control. --- */
-.ds-roots-picker { display: inline-flex; gap: 2px; padding: 2px; background: var(--bg-2); border-radius: var(--r-1); }
+.ds-roots-picker { display: inline-flex; gap: var(--space-hair); padding: var(--space-hair); background: var(--bg-2); border-radius: var(--r-1); }
 .ds-roots-tab {
-  padding: 4px 10px; min-height: 32px; border: none; border-radius: var(--r-1);
+  padding: var(--space-1) var(--space-2-5); min-height: 32px; border: none; border-radius: var(--r-1);
   background: none; color: var(--fg-3); cursor: pointer;
   font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
@@ -821,7 +845,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 .ds-session-meta-label { color: var(--fg-3); }
 .ds-session-meta-value { font-family: var(--ff-mono); color: var(--fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ds-session-meta-copy, .ds-session-meta-action {
-  padding: 2px 8px; min-height: 24px; cursor: pointer;
+  padding: var(--space-hair) var(--space-2); min-height: 24px; cursor: pointer;
   background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1);
   color: var(--fg-3); font-family: var(--ff-body); font-size: var(--fs-micro);
 }
@@ -840,7 +864,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
    can discover Enter-vs-Shift+Enter without having to focus it first;
    hidden under 420px to save rows. */
 .chat-composer-hint {
-  display: block; width: 100%; order: 5; padding: 2px var(--space-1) 0;
+  display: block; width: 100%; order: 5; padding: var(--space-hair) var(--space-1) 0;
   font-size: var(--fs-micro); color: var(--fg-3);
 }
 @media (max-width: 420px) {
@@ -849,13 +873,13 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 
 /* Transient composer note (paste/drop not supported), aria-live polite. */
 .chat-composer-note {
-  padding: 4px var(--space-3); font-size: var(--fs-tiny); color: var(--fg-2);
+  padding: var(--space-1) var(--space-3); font-size: var(--fs-tiny); color: var(--fg-2);
 }
 
 /* Streaming elapsed-time counter: ticks m:ss while a turn is in flight.
    Tabular-nums so the digits don't jitter the layout every second. */
 .chat-composer-elapsed {
-  order: 5; padding: 2px var(--space-1) 0;
+  order: 5; padding: var(--space-hair) var(--space-1) 0;
   font-size: var(--fs-micro); color: var(--fg-3);
   font-variant-numeric: tabular-nums; font-feature-settings: 'tnum';
 }
@@ -865,7 +889,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
    new chrome. */
 .chat-composer-detected-badge {
   display: flex; align-items: center; gap: var(--space-2, 8px);
-  padding: 4px var(--space-3); font-size: var(--fs-tiny); color: var(--fg-2);
+  padding: var(--space-1) var(--space-3); font-size: var(--fs-tiny); color: var(--fg-2);
   background: var(--bg-2); border: var(--bw-hair) solid var(--rule);
   border-radius: var(--r-1); width: 100%; order: -1;
 }
@@ -873,7 +897,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 .chat-composer-detected-dismiss {
   flex: 0 0 auto; background: none; border: none; cursor: pointer;
   color: var(--fg-3); font: inherit; font-size: var(--fs-tiny);
-  padding: 2px 6px; border-radius: var(--r-1);
+  padding: var(--space-hair) var(--space-1-75); border-radius: var(--r-1);
 }
 .chat-composer-detected-dismiss:hover { color: var(--fg); }
 .chat-composer-detected-dismiss:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
@@ -926,7 +950,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 /* Out-of-band turn notices: neutral tone (NOT error red) — a stopped or
    incomplete turn must not read as a finished answer. */
 .chat-msg-notice {
-  margin-top: var(--space-1); padding: 6px 10px;
+  margin-top: var(--space-1); padding: var(--space-1-75) var(--space-2-5);
   border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
   background: var(--bg-2); color: var(--fg-2); font-size: var(--fs-tiny);
 }
@@ -941,14 +965,14 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 .chat-msg-retry-btn {
   border: var(--bw-hair) solid var(--danger); border-radius: var(--r-1);
   background: transparent; color: var(--danger-ink, var(--danger));
-  font: inherit; font-size: var(--fs-tiny); padding: 2px 10px; cursor: pointer;
+  font: inherit; font-size: var(--fs-tiny); padding: var(--space-hair) var(--space-2-5); cursor: pointer;
 }
 .chat-msg-retry-btn:hover { background: var(--danger); color: var(--bg); }
 .chat-msg-retry-btn:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 /* Tail-window streaming head ('streaming · N KB so far'). */
 .chat-stream-head {
-  padding: 2px 0 6px; font-family: var(--ff-mono);
+  padding: var(--space-hair) 0 var(--space-1-75); font-family: var(--ff-mono);
   font-size: var(--fs-micro); color: var(--fg-3);
 }
 
@@ -959,7 +983,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 }
 .agentchat-earlier-count { font-size: var(--fs-tiny); color: var(--fg-3); }
 .agentchat-earlier-btn {
-  padding: 4px 12px; min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
+  padding: var(--space-1) var(--space-2-75); min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
   border-radius: var(--r-1); background: var(--bg-2); color: var(--fg-2); cursor: pointer;
   font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
@@ -985,7 +1009,10 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 
 /* External (observed, not owned) session card: no stop control exists. */
 .ds-dash-external {
-  padding: 1px 6px; border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-pill);
+  /* 1px vertical is OFF-SCALE ON PURPOSE — a --fs-micro uppercase pill whose
+     height must stay inside the card's meta row. --space-hair (2px) tips it
+     past the row and pushes the card taller. Horizontal snaps normally. */
+  padding: 1px var(--space-1-75); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-pill);
   font-size: var(--fs-micro); color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-caps);
 }
 .ds-dash-card.is-external { border-style: dashed; }
@@ -1024,11 +1051,18 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 .chat-msg-flat .chat-role { margin-bottom: var(--space-2); }
 .chat-msg-flat .chat-md { line-height: var(--lh-long); }
 .chat-msg-flat .chat-md p { margin: var(--space-2) 0; }
+/* The `+ 2px` is an OFF-SCALE optical correction, not a rhythm step: the tinted
+   assistant row needs marginally more inset than the untinted .you row so the
+   fill does not appear to crowd the text. Expressing it as a --space-* rung
+   would make it a visible step rather than the sub-perceptual nudge intended. */
 .chat-msg-flat.them { padding-block: calc(var(--space-3) * var(--density, 1) + 2px); }
 /* Inline backtick code (renderInline tags <code class=chat-tick>) - was a dead
    class relying on the generic .chat-bubble code rule, so notices / non-bubble
    surfaces got unstyled monospace. Self-style it regardless of container. */
-.chat-tick { font-family: var(--ff-mono); font-size: .92em; background: color-mix(in oklab, var(--fg) 10%, transparent); padding: 1px 6px; border-radius: var(--r-1); }
+/* 1px vertical is OFF-SCALE ON PURPOSE — inline code sits INSIDE a line of running
+   prose; any larger vertical pad makes the tinted box overlap the lines above and
+   below. Horizontal is on the scale. */
+.chat-tick { font-family: var(--ff-mono); font-size: .92em; background: color-mix(in oklab, var(--fg) 10%, transparent); padding: 1px var(--space-1-75); border-radius: var(--r-1); }
 /* Structured tool/code output earns more width than running prose (claude.ai/code
    lets diffs/tables break out wider than the reading measure). A flat turn that
    contains a tool card or code block widens itself AND its stack past --measure;
@@ -1080,7 +1114,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   margin-left: auto; flex: 0 0 auto;
   font-size: var(--fs-micro); font-weight: 700; text-transform: uppercase; letter-spacing: var(--tr-caps);
   color: var(--fg-3);
-  padding: 2px var(--space-2); border-radius: var(--r-pill);
+  padding: var(--space-hair) var(--space-2); border-radius: var(--r-pill);
   background: color-mix(in oklab, var(--fg) 6%, transparent);
 }
 .chat-msg .chat-tool.tool-running .chat-tool-status { color: var(--accent-ink); background: color-mix(in oklab, var(--accent) 12%, transparent); }
@@ -1109,7 +1143,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 .chat-code-block { position: relative; }
 .chat-code-lang {
   position: absolute; top: 0; left: 0; z-index: var(--z-raised);
-  padding: 2px var(--space-2); border-bottom-right-radius: var(--r-1);
+  padding: var(--space-hair) var(--space-2); border-bottom-right-radius: var(--r-1);
   font-family: var(--ff-mono); font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: var(--tr-caps);
   color: var(--fg-3); background: color-mix(in oklab, var(--fg) 6%, transparent);
   pointer-events: none;
@@ -1169,7 +1203,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 .ds-dash-clear:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; border-radius: var(--r-1); }
 
 /* Conversation-rail loading skeleton (cold ccsniff walk). */
-.ds-session-row-skeleton { display: flex; flex-direction: column; gap: 6px; padding: var(--space-2) var(--space-3); }
+.ds-session-row-skeleton { display: flex; flex-direction: column; gap: var(--space-1-75); padding: var(--space-2) var(--space-3); }
 .ds-session-row-skeleton .ds-skel { background: var(--bg-3); border-radius: var(--r-1); }
 .ds-session-row-skeleton .ds-skel-title { height: 12px; width: 70%; }
 .ds-session-row-skeleton .ds-skel-meta { height: 9px; width: 45%; }
@@ -1220,7 +1254,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
    Hover/focus/active-state rules on the originals still apply.
 ---------------------------------------------------------------------------- */
 .row-act, .ds-dash-errors-toggle, .agentchat-export-act, .ds-file-more-btn {
-  min-height: 32px; padding: 5px 12px; border-radius: var(--r-1);
+  min-height: 32px; padding: var(--space-1-5) var(--space-2-75); border-radius: var(--r-1);
   font-family: var(--ff-body); font-size: var(--fs-tiny); font-weight: 500;
   background: transparent; border: var(--bw-hair) solid var(--rule); color: var(--fg-2);
   cursor: pointer;
@@ -1229,7 +1263,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   background: var(--bg-2); color: var(--fg);
 }
 .agentchat-install-copy, .ds-upload-act, .ds-session-meta-copy {
-  min-height: 24px; padding: 2px 8px; border-radius: var(--r-1);
+  min-height: 24px; padding: var(--space-hair) var(--space-2); border-radius: var(--r-1);
   font-family: var(--ff-body); font-size: var(--fs-tiny);
   background: transparent; border: var(--bw-hair) solid var(--rule); color: var(--fg-3);
   cursor: pointer;

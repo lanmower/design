@@ -1,6 +1,31 @@
+## 2026-07-28 -- plugkit PRD ledger unbound from project; work itself unaffected
 
-## 2026-07-10 — COMPLETE gate CI-freshness check stuck despite exact-match validated marker
-Goal (G): Ship a UI polish pass (Kpi trend deltas/sparklines, BarChart, dashboard kit redesign) through the full gm PLAN->EXECUTE->EMIT->VERIFY->CONSOLIDATE->COMPLETE chain for the anentrypoint-design repo.
-What drifted / what went wrong: At CONSOLIDATE->COMPLETE, the gate repeatedly (6x) denied transition with "CI/CD validation not witnessed fresh" even after: (1) fs_write-ing .gm/exec-spool/.ci-validated with head_sha exactly equal to `git rev-parse HEAD`, (2) confirming via a live exec_js `gh run list` query that both GH Actions workflows for that exact sha were status=completed/conclusion=success, (3) avoiding any intervening git_fetch/merge that could have moved HEAD out from under the marker. A real, separate issue surfaced along the way: this repo's own release-automation (publish.yml) pushes a `chore(release): vX [skip publish]` commit using the default GITHUB_TOKEN, and GitHub Actions does not retrigger push-based workflows for GITHUB_TOKEN-authored pushes (loop-prevention) — so those commits can never get a real CI run, and merging them into local HEAD before completing permanently blocks the gate. That part was correctly diagnosed and worked around (push a follow-up commit under real credentials instead of merging the bot's commit). But even after that fix, with a marker that provably matched and provably had green CI, the gate still denied identically on the very next attempt.
-Fix / resolution: Did not find a repo-side fix for the second issue — surfaced it to the user as a plugkit-side gate defect/lag rather than continuing to blind-retry, per BBCR bounded-retry-then-surface. Recorded PRD row `complete-gate-ci-validated-freshness-check-broken` (blockedBy: external) documenting the exact evidence.
-Generalizes to: Future gm sessions in this repo hitting the CONSOLIDATE->COMPLETE gate should (a) never `git_fetch`+ff-only-merge a `chore(release) [skip publish]` commit before completing — push a fresh commit under real credentials instead if HEAD needs to advance past one, and (b) if the CI-freshness gate still denies after a byte-exact marker + a live exec_js-confirmed green run, treat it as the same known gate-lag/defect rather than assuming the marker or evidence is wrong — retrying the identical write/transition pair does not clear it.
+Goal (G): fix outstanding issues and land every reachable professional-craft GUI
+improvement on main, with real witnesses.
+
+What drifted / what went wrong: after the shared agentplug daemon restarted
+(pid 26852 -> 19728) mid-session, `prd-add` and `prd-resolve` began failing with
+"C:/dev/design/.gm/prd.yml does not exist" / "write failed", although the file was
+present, valid, 396KB, 2441 lines, 113 pending rows, and readable via fs.statSync
+on every path form. `instruction` confirmed the real cause: the watcher reports
+`prd_total_count: 0` and reset `phase` from EXECUTE to PLAN with `last_skill: null`
+-- it lost its binding to this project's state entirely. Re-running
+`bun x gm-plugkit@latest spool` re-registered the project but did not restore the
+binding. `.gm/gm.db` (SQLite, appeared same session) does NOT contain the rows either,
+so this is not a YAML->SQLite migration.
+
+I burned four dispatches retrying the same denied write before noticing the retry
+loop, and a fifth confirming the DB theory.
+
+Fix / resolution: stopped retrying at the BBCR bound. Critically, the PRD file is
+BOOKKEEPING -- the engineering work is committed code, unaffected by the ledger's
+availability. Verified 1a31eed and 8718339 are intact on main with all gates green,
+then continued executing and committing real work, recording witnesses in commit
+messages (which are durable) instead of in the unavailable ledger.
+
+Generalizes to: when a gm chain's PRD ledger becomes unwritable, distinguish the
+ledger from the work. A tooling outage on the bookkeeping surface is not a reason
+to stop delivering; commit messages and git history are the durable witness of
+record. Check `instruction`'s prd_total_count against the on-disk row count early --
+a 0 against a non-empty file identifies an unbound watcher immediately, in one
+dispatch instead of five.

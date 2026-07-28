@@ -28,6 +28,11 @@
 #ds-article-host.has-toc {
   display: flex;
   align-items: flex-start;
+  /* 44px is OFF-SCALE ON PURPOSE — it is not a rhythm step but one term of the
+     three-term width equation on the next line (256px rail + 44px gutter +
+     measure). It sits between --space-6 (48) and --space-5 (32); snapping it
+     would silently change the host's computed max-width unless the calc were
+     re-derived, so the literal and the calc stay coupled and explicit. */
   column-gap: 44px;
   gap: 44px;
   max-width: calc(256px + 44px + var(--measure-narrow));
@@ -51,7 +56,7 @@
   overscroll-behavior: contain;
   margin: 0;
   max-width: 100%;
-  padding: 18px 18px 18px 20px;
+  padding: var(--space-3-5);
   background: var(--panel-1);
   border-radius: var(--r-1);
   box-shadow: var(--panel-shadow);
@@ -76,9 +81,9 @@
   text-transform: uppercase;
   letter-spacing: .09em;
   color: var(--panel-text-2);
-  margin: 0 0 14px 0;
+  margin: 0 0 var(--space-3) 0;
 }
-#ds-article-host .toc ol { margin: 0; padding-left: 18px; }
+#ds-article-host .toc ol { margin: 0; padding-left: var(--space-3-5); }
 #ds-article-host .toc li { font-size: 13px; line-height: 1.85; color: var(--panel-text); }
 #ds-article-host .toc li::marker { color: var(--panel-text-3); font-variant-numeric: tabular-nums; }
 #ds-article-host .toc a { color: var(--panel-text-2); text-decoration: none; transition: color .12s ease; }
@@ -91,7 +96,7 @@
     position: static;
     max-height: none;
     overflow: visible;
-    margin: 0 0 28px 0;
+    margin: 0 0 var(--space-5) 0;
   }
 }
 
@@ -107,8 +112,8 @@
   display: block;
   background: var(--panel-1);
   border-radius: var(--r-0);
-  padding: 16px 20px;
-  margin: 16px 0 28px 0;
+  padding: var(--space-3) var(--space-3-5);
+  margin: var(--space-3) 0 var(--space-5) 0;
   font-family: var(--ff-mono);
   font-size: 12.5px;
   line-height: 1.6;
@@ -123,14 +128,14 @@
   white-space: pre-wrap;
   word-break: break-word;
   min-height: 1.4em;
-  padding: 3px 0;
+  padding: var(--space-half) 0;
   line-height: 1.6;
 }
 .ds-cli-block .ds-cli-comment:empty::before { content: '\00a0'; }
 .ds-cli-block .ds-cli-row {
   display: flex;
-  gap: 10px;
-  padding: 3px 0;
+  gap: var(--space-2-5);
+  padding: var(--space-half) 0;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -146,14 +151,14 @@
   word-break: break-word;
 }
 
-.panel .row { align-items: flex-start; padding: 16px 20px; gap: 16px; }
+.panel .row { align-items: flex-start; padding: var(--space-3) var(--space-3-5); gap: var(--space-3); }
 .panel .row + .row { box-shadow: inset 0 1px 0 var(--rule); }
-.panel .row .code { padding-top: 2px; min-width: 28px; }
-.panel .row .meta { padding-top: 2px; opacity: 0.4; }
+.panel .row .code { padding-top: var(--space-hair); min-width: 28px; }
+.panel .row .meta { padding-top: var(--space-hair); opacity: 0.4; }
 .panel .row .title { display: block; line-height: 1.4; }
 .panel .row .title .sub {
   display: block;
-  margin-top: 6px;
+  margin-top: var(--space-1-75);
   font-weight: 400;
   color: var(--panel-text-2);
   font-size: 13px;
@@ -163,9 +168,9 @@
 .ds-prose .card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 14px 18px;
-  margin: 8px 0;
+  gap: var(--space-2);
+  padding: var(--space-2-75) var(--space-3-5);
+  margin: var(--space-2) 0;
   background: var(--panel-1);
   border-radius: var(--r-0);
   font-size: 13px;
@@ -173,16 +178,19 @@
   text-decoration: none;
 }
 .ds-prose .card:hover { background: var(--panel-hover); }
-.ds-prose .card .card-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.ds-prose .card .card-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2-75); }
 .ds-prose .card .repo-name { font-weight: 600; color: var(--panel-text); }
 .ds-prose .card .stars { color: var(--panel-text-3); font-family: var(--ff-mono); font-size: 12px; flex: 0 0 auto; }
 .ds-prose .card .desc { color: var(--panel-text-2); font-size: 12px; line-height: 1.5; margin: 0; }
-.ds-prose .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ds-prose .tags { display: flex; gap: var(--space-1-75); flex-wrap: wrap; }
 .ds-prose .tag {
   background: var(--panel-2);
   color: var(--panel-text-2);
   border: 1px solid var(--panel-3);
   font-size: 0.7rem;
+  /* rem, not --space-*: the chip's inset is deliberately tied to the root type
+     scale alongside its own 0.7rem size, so the capsule keeps its proportions
+     when a doc site scales root font-size. A px rung would decouple them. */
   padding: 0.15rem 0.5rem;
   border-radius: var(--r-hair);
   font-family: var(--ff-mono);
@@ -194,7 +202,7 @@
    scale and matches the spine primitive in panel-row.css. */
 .ds-prose .gm-callout {
   position: relative;
-  margin: 18px 0;
+  margin: var(--space-3-5) 0;
   padding: var(--space-2-75) var(--space-3-5);
   padding-left: calc(var(--space-3-5) + var(--bw-chunk));
   background: var(--panel-1);
@@ -213,5 +221,5 @@
   text-transform: uppercase;
   letter-spacing: .08em;
   color: var(--panel-text-2);
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
 }
