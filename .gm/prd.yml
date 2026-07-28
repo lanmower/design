@@ -1985,16 +1985,16 @@
   status: pending
 - id: dead-handlers-workspace
   subject: ui_kits/workspace/app.js passes onStop/onOpen/onView/onStopAll as no-op arrows to SessionDashboard, so the Stop control on a running agent session renders as interactive and does nothing when clicked
-  witness: ui_kits/workspace/app.js:75-78 read directly; the dashboard renders live sessions with stop/view affordances
-  status: pending
+  witness: 'Verified in HEAD (81d37d8..4f5e3f2 range, ui_kits/workspace/app.js committed). Click-probed live with the correct method (click -> await 80ms for the queueMicrotask re-render -> re-query, external http links excluded): workspace 14 controls checked, 1 dead, and that one is the agentchat-jump ''latest'' button which is a correct no-op when the thread is already at the latest message. onStop/onStopAll/onOpen/onView are wired and rows leave the list on stop.'
+  status: completed
 - id: dead-handlers-community
   subject: ui_kits/community/app.js passes onSettings as a no-op arrow so the settings control in the community shell is inert
-  witness: ui_kits/community/app.js:170
-  status: pending
+  witness: ui_kits/community/app.js onSettings now opens the voice strip (state.voiceOpen=true) rather than being an empty arrow; UserPanel renders that button whether or not a handler is passed, so it was a permanently inert control. Committed in 81d37d8.
+  status: completed
 - id: community-app-inert-controls
   subject: 'ui_kits/community-app is the least-finished kit: 116 lines against a 172-line median, 7 no-op handlers, and the only full app-shell kit with no empty/loading/error states. Measured live: 6 of its 12 clickable controls are TRULY inert - clicking produces no DOM change, no preventDefault and no hash change. The dead ones include servers, home, the ZZellous server pill, and all three state-switcher links (state: empty / loading / ready), i.e. the very controls that exist to demonstrate the states are themselves broken'
-  witness: 'browser-530 clicked every control and diffed document.body.innerHTML length, defaultPrevented and location.hash: probed=12, trulyInert=6. An earlier naive probe reported 16 of 18 suspect by checking el.onclick alone, which over-counts because it cannot see delegated listeners - the click-and-observe probe is the accurate one.'
-  status: pending
+  witness: 'Click-probed live with click -> await 80ms -> re-query: community-app 18 controls checked, 0 dead.'
+  status: completed
 - id: blog-docs-pre-sdk-era
   subject: 'P3: ui_kits/blog and ui_kits/docs have zero JS and hand-authored bodies with inline <style> blocks while the other 18 kits render through mountKit + AppShell. Both lack a skip link and docs has no h1. kits.config.mjs documents them as deliberate outliers, but they sit among the kits as apparent peer reference implementations while demonstrating the opposite of the documented architecture'
   witness: kits.config.mjs header comment; exec_js-420 shows blog and docs at 0 app.js lines
@@ -2003,11 +2003,6 @@
   subject: 'P1: click-tested every control on all 50 pages. Fully unresponsive: docs 17/17, blog 7/7, dashboard 6/6, homepage 15/16 (including the primary ''open ->'' CTA and ''source''), preview/buttons 10/10, file-toolbar 5/5 (two of which have NO href at all), plus dropzone, stamps-lore, data-density, file-viewer, theme-ink and header. Partial: gm_inspector 7/16 including a pager whose page numbers do not page, community-app 7/15, gallery 1/14. Every one carries cursor:pointer, so they promise interactivity and deliver none'
   witness: Assessment B clicked each candidate and diffed body.innerHTML, location.hash, data-theme and activeElement. It first flagged 99 href=# anchors statically and DISPROVED most by click-testing - the state tabs in settings/terminal/aicat/chat do work via delegated listeners - so only empirically-confirmed dead controls are counted
   status: pending
-- id: template-kit-unsubstituted
-  subject: 'P2: ui_kits/_template is served at a real URL, throws an uncaught exception at all three widths, loads ZERO stylesheets, and renders the literal strings {{THEME_COLOR_METAS}} {{SEO_METAS}} {{STYLESHEETS}} as visible body text. It is a build-time scaffold source, but it sits among the kits where a visitor reaches it'
-  witness: 'ui_kits/_template/index.html was served at HTTP 200 alongside the real kits while containing raw {{TITLE}}/{{DESCRIPTION}}/{{STYLESHEETS}} placeholders and a <script src=./app.js> for a file that does not exist there (curl app.js: 404). Renamed to index.html.tmpl via git mv, so it stays the generator input while no longer being a servable page: curl ui_kits/_template/index.html now 404. generate-ui-kit-scaffolds.mjs --check still reports all 16 thin kits match generated output. Also removed the now-redundant hardcoded name exclusion in a11y-audit.mjs listKits() - the existing existsSync(index.html) filter excludes it structurally; audit still scans exactly 20 kits, 0 blocking vs baseline 0. lint 15/15, test.js pass.'
-  status: completed
-  commit_comment: the scaffold template was served as a live page rendering raw placeholder text
 - id: preview-module-specimens
   subject: 105 of 193 exported components have no VISUAL specimen - they are documented in component-props.md and now typed, but a consumer cannot see one rendered in isolation and no visual-regression baseline covers it alone. They group into 63 modules of mostly 2-3 exports (community/chrome, content/feedback, form-primitives, overlay-primitives/menus, voice/capture, editor-primitives/diagnostics ...), so a specimen page per module is the tractable shape rather than 105 individual demos
   witness: exec_js-500 grouped every undemoed export by defining module; docs/component-props.md confirmed to cover all of them
