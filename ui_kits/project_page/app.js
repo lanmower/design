@@ -7,7 +7,10 @@ import {
 
 const h = webjsx.createElement;
 const root = document.getElementById('root');
-const state = { copied: false, tab: 'readme' };
+// `phase` drives the changelog — this page's one remote-fed data surface.
+// Toggled from the sidebar so its loading / empty / error readings are
+// reachable here rather than only against a live registry.
+const state = { copied: false, tab: 'readme', phase: 'ready' };
 
 const sideSections = [
     { group: 'project', items: [
@@ -47,6 +50,49 @@ const changelog = [
     { date: '2025.12.11', ver: 'v0.3.0', msg: 'first public release. gm, world.' }
 ];
 
+const PHASES = ['ready', 'loading', 'empty', 'error'];
+
+// Release-row shimmer. Reuses .ds-event-row-skeleton + .ds-skel*
+// (app-shell/files.css) — a Changelog entry is the same date / message /
+// version rhythm the primitive was cut for.
+function ChangelogSkeleton() {
+    return h('div', {},
+        ...Array.from({ length: 4 }, (_, i) => h('div', { key: 'sk' + i, class: 'ds-event-row-skeleton' },
+            h('span', { class: 'ds-skel ds-skel-rank' }),
+            h('span', { class: 'ds-skel ds-skel-title' }),
+            h('span', { class: 'ds-skel ds-skel-meta' })
+        ))
+    );
+}
+
+function ChangelogEmpty() {
+    return h('div', { class: 'ds-empty-state' },
+        h('div', { class: 'ds-empty-state-glyph' }, '[ ]'),
+        h('p', { class: 'ds-empty-state-msg' }, 'no releases tagged yet'),
+        h('p', { class: 'ds-empty-state-hint' }, 'every tagged build shows up here with its date and notes. tag a commit and the first entry appears on the next publish.')
+    );
+}
+
+function ChangelogError() {
+    return h('div', { class: 'ds-alert ds-alert-error' },
+        h('span', { class: 'ds-alert-icon' }, '!'),
+        h('div', { class: 'ds-alert-content' },
+            h('div', { class: 'ds-alert-title' }, 'release feed rate-limited'),
+            h('div', { class: 'ds-alert-message' }, 'the registry capped this page at 60 requests an hour and the window resets in about 4 minutes. the install command and receipt above are cached and still accurate.'),
+            h('div', { class: 'ds-alert-retry' },
+                h('button', { class: 'btn', onclick: () => { state.phase = 'ready'; kit.render(); } }, 'retry now')
+            )
+        )
+    );
+}
+
+function ChangelogBody() {
+    if (state.phase === 'loading') return ChangelogSkeleton();
+    if (state.phase === 'error') return ChangelogError();
+    if (state.phase === 'empty') return ChangelogEmpty();
+    return Changelog({ entries: changelog });
+}
+
 function copyInstall(cmd) {
     navigator.clipboard?.writeText(cmd);
     state.copied = true; kit.render();
@@ -71,15 +117,23 @@ function App() {
             right: [Chip({ tone: 'dim', children: 'shipping' }), Chip({ tone: 'dim', children: 'v0.4.1' })]
         }),
         side: Side({
-            sections: sideSections.map((sec) => ({
-                group: sec.group,
-                items: sec.items.map((it, i) => ({
-                    key: sec.group + i, glyph: it.glyph, label: it.label,
-                    active: !!it.active,
-                    href: '#' + (it.tab || it.label),
-                    onClick: it.tab ? (e) => { e.preventDefault(); state.tab = it.tab; kit.render(); } : null
-                }))
-            }))
+            sections: [
+                ...sideSections.map((sec) => ({
+                    group: sec.group,
+                    items: sec.items.map((it, i) => ({
+                        key: sec.group + i, glyph: it.glyph, label: it.label,
+                        active: !!it.active,
+                        href: '#' + (it.tab || it.label),
+                        onClick: it.tab ? (e) => { e.preventDefault(); state.tab = it.tab; kit.render(); } : null
+                    }))
+                })),
+                // Reachable state switcher for the changelog section.
+                { group: 'release feed', items: PHASES.map((p) => ({
+                    glyph: p === state.phase ? '*' : '-',
+                    label: p, key: 'ph-' + p, active: state.phase === p, href: '#' + p,
+                    onClick: (e) => { e.preventDefault(); state.phase = p; kit.render(); }
+                })) }
+            ]
         }),
         main: [
             h('div', { class: 'ds-section ds-section-pad' },
@@ -88,7 +142,7 @@ function App() {
                 Section({ title: 'install',
                     children: Install({ cmd: 'npx -y @anentrypoint/mcp-gm', copied: state.copied, onCopy: copyInstall }) }),
                 Section({ title: 'receipt', children: Receipt({ rows: receiptRows }) }),
-                Section({ title: 'changelog', children: Changelog({ entries: changelog }) })
+                Section({ title: 'changelog', children: ChangelogBody() })
             )
         ],
         status: Status({

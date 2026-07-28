@@ -55,7 +55,55 @@ const events = [
     { title: 'config reloaded',   sub: 'feature flags',          meta: '3h' }
 ];
 
+// Every data panel below reads its state from here rather than assuming the
+// happy path. The sidebar "feed state" group flips it, so each state is a real
+// reachable surface in the kit, not dead code behind a flag nobody sets.
+const state = { feed: 'ready' };
+const FEED_STATES = ['ready', 'loading', 'empty', 'error'];
+
+// Loading placeholder for the events feed. Reuses the .ds-event-row-skeleton
+// primitive (app-shell/files.css) — the row shape it was cut for is the same
+// icon/title/meta rhythm Row() renders, so no new skeleton CSS is needed.
+function EventsSkeleton() {
+    return h('div', {},
+        ...[0, 1, 2, 3, 4].map((i) => h('div', { key: 'sk' + i, class: 'ds-event-row-skeleton' },
+            h('span', { class: 'ds-skel ds-skel-icon' }),
+            h('span', { class: 'ds-skel ds-skel-title' }),
+            h('span', { class: 'ds-skel ds-skel-meta' })
+        ))
+    );
+}
+
+function EventsEmpty() {
+    return h('div', { class: 'ds-empty-state' },
+        h('div', { class: 'ds-empty-state-glyph' }, '[ ]'),
+        h('p', { class: 'ds-empty-state-msg' }, 'no events in the last 24h'),
+        h('p', { class: 'ds-empty-state-hint' }, 'deploys, cache flushes and cron runs land here as they happen. a quiet feed means production is quiet.')
+    );
+}
+
+function EventsError() {
+    return h('div', { class: 'ds-alert ds-alert-error' },
+        h('span', { class: 'ds-alert-icon' }, '!'),
+        h('div', { class: 'ds-alert-content' },
+            h('div', { class: 'ds-alert-title' }, 'event stream disconnected'),
+            h('div', { class: 'ds-alert-message' }, 'the eu-west-1 collector stopped answering 38s ago, so this feed is stale. metrics above still come from the edge and are current.'),
+            h('div', { class: 'ds-alert-retry' },
+                h('button', { class: 'btn', onclick: () => { state.feed = 'ready'; kit.render(); } }, 'reconnect')
+            )
+        )
+    );
+}
+
+function EventsPanel() {
+    if (state.feed === 'loading') return EventsSkeleton();
+    if (state.feed === 'error') return EventsError();
+    if (state.feed === 'empty') return EventsEmpty();
+    return h('div', {}, ...events.map((e, i) => Row({ key: 'ev' + i, title: e.title, sub: e.sub, meta: e.meta, rail: e.rail })));
+}
+
 function App() {
+    const feedCount = state.feed === 'ready' ? events.length : 0;
     return AppShell({
         topbar: Topbar({ brand: '247420', leaf: 'dashboard', items: [['index', '../../'], ['docs', '../docs/'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'dashboard' }),
@@ -70,7 +118,15 @@ function App() {
                 { group: 'env', items: [
                     { glyph: h('span', { class: 'ds-dot' }), label: 'production', count: 'eu', key: 'p', color: 'var(--panel-accent)' },
                     { glyph: h('span', { class: 'ds-dot' }), label: 'staging',    count: 'us', key: 's', color: 'var(--mascot)' }
-                ] }
+                ] },
+                // Reachable state switcher — the events panel is the kit's
+                // reference data surface, so every state it can be in is one
+                // click away rather than only existing on a real outage.
+                { group: 'feed state', items: FEED_STATES.map((s) => ({
+                    glyph: h('span', { class: state.feed === s ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }),
+                    label: s, key: 'fs-' + s, active: state.feed === s, href: '#' + s,
+                    onClick: (e) => { e.preventDefault(); state.feed = s; kit.render(); }
+                })) }
             ]
         }),
         main: [
@@ -93,9 +149,7 @@ function App() {
                 // grid gap is the single source of separation in the row.
                 h('div', { class: 'ds-panel-trio' },
                     Panel({ title: 'environment', class: 'ds-panel-flush', children: Receipt({ rows: receipt }) }),
-                    Panel({ title: 'recent events', count: events.length, class: 'ds-panel-flush', children: events.length
-                        ? events.map((e, i) => Row({ key: 'ev' + i, title: e.title, sub: e.sub, meta: e.meta, rail: e.rail }))
-                        : h('div', { class: 'empty' }, 'no events yet') }),
+                    Panel({ title: 'recent events', count: feedCount, class: 'ds-panel-flush', children: EventsPanel() }),
                     Panel({ title: 'changelog', count: changelog.length, class: 'ds-panel-flush', children: Changelog({ entries: changelog }) })
                 ),
                 Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
@@ -108,10 +162,10 @@ function App() {
             )
         ],
         status: Status({
-            left: ['dashboard', '- ' + kpis.length + ' kpis', '- ' + tableRows.length + ' endpoints'],
+            left: ['dashboard', '- ' + kpis.length + ' kpis', '- ' + tableRows.length + ' endpoints', '- feed ' + state.feed],
             right: ['247420 / mmxxvi', '- live']
         })
     });
 }
 
-mountKit({ root, view: App, screen: '08 Dashboard' });
+const kit = mountKit({ root, view: App, screen: '08 Dashboard' });

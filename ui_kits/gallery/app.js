@@ -29,7 +29,51 @@ const items = [
     { id: 'l', label: 'stamp · seal',      caption: 'editorial mark',            tone: 'panel-2', glyph: 'O' }
 ];
 
-const state = { open: null, density: 'comfy' };
+// `phase` drives the tiles panel. A gallery is the surface where a blank grid
+// is most ambiguous (still loading? nothing uploaded? request failed?), so all
+// three readings get distinct, reachable copy instead of one blank box.
+const state = { open: null, density: 'comfy', phase: 'ready' };
+const PHASES = ['ready', 'loading', 'empty', 'error'];
+
+// Tile-shaped shimmer. Reuses the .ds-skeleton primitive (app-shell/
+// loading-alerts.css) inside the existing .ds-tile-grid so the placeholders
+// occupy exactly the tracks the real tiles will.
+function TilesSkeleton() {
+    return h('div', { class: 'ds-tile-grid' + (state.density === 'tight' ? ' ds-tile-grid--tight' : '') },
+        ...Array.from({ length: 8 }, (_, i) => h('div', { key: 'sk' + i, class: 'ds-gallery-tile' },
+            h('div', { class: 'ds-skeleton ds-skel-title' }),
+            h('div', { class: 'ds-skeleton ds-skel-meta' })
+        ))
+    );
+}
+
+function TilesEmpty() {
+    return h('div', { class: 'ds-empty-state' },
+        h('div', { class: 'ds-empty-state-glyph' }, '[ ]'),
+        h('p', { class: 'ds-empty-state-msg' }, 'no tiles in this set'),
+        h('p', { class: 'ds-empty-state-hint' }, 'a tile is one tonal card plus a caption. add entries to the items array and they land in this grid at whichever density is selected.')
+    );
+}
+
+function TilesError() {
+    return h('div', { class: 'ds-alert ds-alert-error' },
+        h('span', { class: 'ds-alert-icon' }, '!'),
+        h('div', { class: 'ds-alert-content' },
+            h('div', { class: 'ds-alert-title' }, 'tile set failed to decode'),
+            h('div', { class: 'ds-alert-message' }, 'four of the twelve captions came back as malformed utf-8, so the whole set was rejected rather than rendered with holes in it. re-export the set as utf-8 and reload.'),
+            h('div', { class: 'ds-alert-retry' },
+                h('button', { class: 'btn', onclick: () => { state.phase = 'ready'; kit.render(); } }, 'reload set')
+            )
+        )
+    );
+}
+
+function TilesBody() {
+    if (state.phase === 'loading') return TilesSkeleton();
+    if (state.phase === 'error') return TilesError();
+    if (state.phase === 'empty') return TilesEmpty();
+    return h('div', { class: 'ds-tile-grid' + (state.density === 'tight' ? ' ds-tile-grid--tight' : '') }, ...items.map(Tile));
+}
 
 function Tile(it) {
     return h('button', {
@@ -84,13 +128,19 @@ function Lightbox() {
 function App() {
     return AppShell({
         topbar: Topbar({ brand: '247420', leaf: 'gallery', items: [['index', '../../'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
-        crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'gallery', right: items.length + ' tiles' }),
+        crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'gallery', right: state.phase === 'ready' ? items.length + ' tiles' : state.phase }),
         side: Side({
             sections: [
                 { group: 'density', items: [
                     { glyph: h('span', { class: state.density === 'comfy' ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }), label: 'comfy', key: 'd1', onClick: (e) => { e.preventDefault(); state.density = 'comfy'; kit.render(); } },
                     { glyph: h('span', { class: state.density === 'tight' ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }), label: 'tight', key: 'd2', onClick: (e) => { e.preventDefault(); state.density = 'tight'; kit.render(); } }
                 ] },
+                // Reachable state switcher for the tiles panel.
+                { group: 'tile state', items: PHASES.map((p) => ({
+                    glyph: h('span', { class: state.phase === p ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }),
+                    label: p, key: 'ph-' + p, active: state.phase === p, href: '#' + p,
+                    onClick: (e) => { e.preventDefault(); state.phase = p; kit.render(); }
+                })) },
                 { group: 'jump', items: [
                     { glyph: '·', label: 'tiles',    key: 'j1', href: '#tiles' },
                     { glyph: '·', label: 'swatches', key: 'j2', href: '#swatches' }
@@ -101,9 +151,7 @@ function App() {
             h('div', { class: 'ds-section ds-section-pad' },
                 Heading({ level: 1, children: 'gallery' }),
                 Lede({ children: 'visual grid of tonal cards. tiles use the same panel tokens the rest of the system does — no bespoke tile component, no shadows, no borders.' }),
-                Panel({ title: 'tiles', count: items.length, class: 'ds-panel-gap', children:
-                    h('div', { class: 'ds-tile-grid' + (state.density === 'tight' ? ' ds-tile-grid--tight' : '') }, ...items.map(Tile))
-                }),
+                Panel({ title: 'tiles', count: state.phase === 'ready' ? items.length : 0, class: 'ds-panel-gap', children: TilesBody() }),
                 Panel({ title: 'swatches', count: swatchTokens.length, class: 'ds-panel-gap', children:
                     h('div', { class: 'ds-swatch-grid' }, ...swatchTokens.map(Swatch))
                 }),
@@ -116,7 +164,7 @@ function App() {
             Lightbox()
         ],
         status: Status({
-            left: ['gallery', '- ' + items.length + ' tiles', '- density=' + state.density],
+            left: ['gallery', '- ' + (state.phase === 'ready' ? items.length : 0) + ' tiles', '- density=' + state.density, '- ' + state.phase],
             right: ['247420 / mmxxvi']
         })
     });

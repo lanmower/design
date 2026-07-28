@@ -29,7 +29,36 @@ const corpus = [
 
 const kinds = ['all', 'kit', 'preview', 'doc', 'api'];
 
-const state = { q: 'panel', kind: 'all' };
+// `phase` drives which state the results panel renders. It is a real toggle in
+// the sidebar rather than a flag only a live backend could set — an index kit
+// whose loading and error surfaces exist only in dead code has not shipped them.
+const state = { q: 'panel', kind: 'all', phase: 'ready' };
+const PHASES = ['ready', 'loading', 'error'];
+
+// Ranked-result loading placeholder. Reuses .ds-event-row-skeleton + .ds-skel*
+// (app-shell/files.css) because a RowLink is the same code/title/meta rhythm.
+function ResultsSkeleton() {
+    return h('div', {},
+        ...[0, 1, 2, 3, 4, 5].map((i) => h('div', { key: 'sk' + i, class: 'ds-event-row-skeleton' },
+            h('span', { class: 'ds-skel ds-skel-icon' }),
+            h('span', { class: 'ds-skel ds-skel-title' }),
+            h('span', { class: 'ds-skel ds-skel-meta' })
+        ))
+    );
+}
+
+function ResultsError() {
+    return h('div', { class: 'ds-alert ds-alert-error' },
+        h('span', { class: 'ds-alert-icon' }, '!'),
+        h('div', { class: 'ds-alert-content' },
+            h('div', { class: 'ds-alert-title' }, 'index out of date'),
+            h('div', { class: 'ds-alert-message' }, 'the search index last rebuilt 9 days ago and rejected this query. results would be wrong rather than missing, so nothing is shown. rebuilding takes about 20s.'),
+            h('div', { class: 'ds-alert-retry' },
+                h('button', { class: 'btn', onclick: () => { state.phase = 'ready'; kit.render(); } }, 'rebuild index')
+            )
+        )
+    );
+}
 
 function score(item, q) {
     const t = (item.title + ' ' + item.sub).toLowerCase();
@@ -61,7 +90,7 @@ function App() {
                 oninput: (e) => { state.q = e.target.value; kit.render(); }
             })
         }),
-        crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'search', right: rows.length + ' result' + (rows.length === 1 ? '' : 's') }),
+        crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'search', right: state.phase === 'ready' ? rows.length + ' result' + (rows.length === 1 ? '' : 's') : state.phase }),
         side: Side({
             sections: [
                 { group: 'kind', items: kinds.map((k) => ({
@@ -69,6 +98,13 @@ function App() {
                     count: k === 'all' ? corpus.length : corpus.filter((c) => c.kind === k).length,
                     href: '#' + k, active: state.kind === k, key: k,
                     onClick: (e) => { e.preventDefault(); state.kind = k; kit.render(); }
+                })) },
+                // Reachable state switcher — the results panel is this kit's
+                // data surface, so loading and error are one click away.
+                { group: 'index state', items: PHASES.map((p) => ({
+                    glyph: h('span', { class: state.phase === p ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }),
+                    label: p, key: 'ph-' + p, active: state.phase === p, href: '#' + p,
+                    onClick: (e) => { e.preventDefault(); state.phase = p; kit.render(); }
                 })) },
                 { group: 'recent', items: [
                     { glyph: '·', label: 'panel', key: 'q1', onClick: (e) => { e.preventDefault(); state.q = 'panel'; kit.render(); } },
@@ -82,7 +118,9 @@ function App() {
             h('div', { class: 'ds-app-surface ds-section-pad' },
                 Heading({ level: 1, children: 'search' }),
                 Lede({ children: 'query bar in the topbar, faceted filters in the sidebar, ranked results in panel rows. same row primitive every other surface uses.' }),
-                rows.length ? Panel({ title: 'results', count: rows.length, class: 'ds-panel-gap', children:
+                state.phase === 'loading' ? Panel({ title: 'searching', class: 'ds-panel-gap', children: ResultsSkeleton() })
+                : state.phase === 'error' ? Panel({ title: 'results unavailable', class: 'ds-panel-gap', children: ResultsError() })
+                : rows.length ? Panel({ title: 'results', count: rows.length, class: 'ds-panel-gap', children:
                     rows.map((r, i) => RowLink({ key: 'r' + r.code + i, code: r.code, title: r.title, sub: r.sub, meta: r.kind + ' ->', href: r.href }))
                 }) : Panel({ title: 'no results', class: 'ds-panel-gap', children: h('div', { class: 'ds-empty-state' },
                     h('div', { class: 'ds-empty-state-glyph' }, '( )'),
@@ -97,7 +135,7 @@ function App() {
             )
         ],
         status: Status({
-            left: ['search', '- kind=' + state.kind, '- ' + rows.length + ' rows'],
+            left: ['search', '- kind=' + state.kind, state.phase === 'ready' ? '- ' + rows.length + ' rows' : '- ' + state.phase],
             right: ['247420 / mmxxvi']
         })
     });

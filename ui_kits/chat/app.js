@@ -38,7 +38,36 @@ const seed = [
       parts: [] }
 ];
 
-const state = { draft: '', room: 'general', messages: seed.slice() };
+// `phase` drives the thread. Chat() already owns the empty state (its
+// .chat-empty block), so `empty` here just hands it zero messages plus the
+// room-specific copy; loading and error are rendered by this kit around it.
+const state = { draft: '', room: 'general', messages: seed.slice(), phase: 'ready' };
+const PHASES = ['ready', 'loading', 'empty', 'error'];
+
+// Message-shaped shimmer. Reuses .ds-event-row-skeleton + .ds-skel* from
+// app-shell/files.css — the avatar/body/timestamp rhythm is the same shape.
+function ThreadSkeleton() {
+    return Panel({ title: 'loading #' + state.room, children: h('div', {},
+        ...Array.from({ length: 6 }, (_, i) => h('div', { key: 'sk' + i, class: 'ds-event-row-skeleton' },
+            h('span', { class: 'ds-skel ds-skel-icon' }),
+            h('span', { class: 'ds-skel ds-skel-title' }),
+            h('span', { class: 'ds-skel ds-skel-meta' })
+        ))
+    ) });
+}
+
+function ThreadError() {
+    return Panel({ title: 'thread unavailable', children: h('div', { class: 'ds-alert ds-alert-error' },
+        h('span', { class: 'ds-alert-icon' }, '!'),
+        h('div', { class: 'ds-alert-content' },
+            h('div', { class: 'ds-alert-title' }, 'lost the socket to #' + state.room),
+            h('div', { class: 'ds-alert-message' }, 'the connection dropped mid-sync, so the last few messages may be missing and anything you send now would not leave this tab. reconnecting replays from the last message you saw.'),
+            h('div', { class: 'ds-alert-retry' },
+                h('button', { class: 'btn', onclick: () => { state.phase = 'ready'; kit.render(); } }, 'reconnect')
+            )
+        )
+    ) });
+}
 const rooms = [
     { glyph: '#', label: 'general', count: 12, key: 'general' },
     { glyph: '#', label: 'design', count: 4, key: 'design' },
@@ -78,14 +107,29 @@ function App() {
         side: Side({
             sections: [
                 { group: 'rooms', items: rooms.map(r => ({ ...r, active: state.room === r.key, onClick: (e) => { e.preventDefault(); state.room = r.key; kit.render(); } })) },
-                { group: 'direct', items: dms.map(r => ({ ...r, active: state.room === r.key, onClick: (e) => { e.preventDefault(); state.room = r.key; kit.render(); } })) }
+                { group: 'direct', items: dms.map(r => ({ ...r, active: state.room === r.key, onClick: (e) => { e.preventDefault(); state.room = r.key; kit.render(); } })) },
+                // Reachable state switcher for the thread.
+                { group: 'thread state', items: PHASES.map((p) => ({
+                    glyph: h('span', { class: state.phase === p ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }),
+                    label: p, key: 'ph-' + p, active: state.phase === p,
+                    onClick: (e) => { e.preventDefault(); state.phase = p; kit.render(); }
+                })) }
             ]
         }),
         main: [
             h('div', { class: 'ds-section chat-kit-page' },
                 h('div', { class: 'ds-chat-layout' },
-                    Chat({
-                        title: state.room, sub: 'public', messages: state.messages,
+                    state.phase === 'loading' ? ThreadSkeleton()
+                    : state.phase === 'error' ? ThreadError()
+                    : Chat({
+                        title: state.room,
+                        // Chat()'s own empty block uses `sub` as its body line,
+                        // so the empty phase gets copy that names what belongs
+                        // here and what puts it here — not a bare "no messages".
+                        sub: state.phase === 'empty'
+                            ? 'nobody has posted in #' + state.room + ' yet. say something and it becomes the first message everyone sees on join.'
+                            : 'public',
+                        messages: state.phase === 'empty' ? [] : state.messages,
                         composer: ChatComposer({
                             value: state.draft,
                             placeholder: 'message #' + state.room + '…',
@@ -120,7 +164,7 @@ function App() {
                 })
             )
         ],
-        status: Status({ left: ['main', '- ' + state.messages.length + ' messages', '- ' + rooms.length + ' rooms'], right: ['247420 / mmxxvi'] })
+        status: Status({ left: ['main', '- ' + (state.phase === 'ready' ? state.messages.length : 0) + ' messages', '- ' + rooms.length + ' rooms', '- ' + state.phase], right: ['247420 / mmxxvi'] })
     });
 }
 

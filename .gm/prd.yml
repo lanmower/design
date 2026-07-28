@@ -1975,3 +1975,466 @@
   subject: bert embedder plugin crashes in wasm (plugin_error) making codesearch+recall unavailable
   witness: '.gm/exec-spool/.watcher.log embed_query_failed: [plugin_error] wasm backtrace fn 397/396/611/4407; both vector and keyword fallback returned nothing across two fresh spool boots; codesearch-1/-4 and recall-1 all ok:false'
   status: pending
+- id: spacing-literals-app-shell-split
+  subject: 117 raw px spacing literals in src/css/app-shell/kits-appended.css migrate to --space-* scale
+  witness: 'exec_js-16 scan: kits-appended.css=117 raw px in padding/margin/gap declarations'
+  status: pending
+- id: spacing-literals-chat
+  subject: 104 raw px spacing literals in chat.css migrate to --space-* scale
+  witness: 'exec_js-16 scan: chat.css=104'
+  status: pending
+- id: spacing-literals-files
+  subject: 46 raw px spacing literals in src/css/app-shell/files.css migrate to --space-* scale
+  witness: 'exec_js-16 scan: files.css=46'
+  status: pending
+- id: spacing-literals-responsive
+  subject: 51 raw px spacing literals in src/css/app-shell/responsive.css migrate to --space-* scale
+  witness: 'exec_js-16 scan: responsive.css=51'
+  status: pending
+- id: fontsize-literals-kits-appended
+  subject: 19 raw font-size px literals in kits-appended.css migrate to --fs-* scale
+  witness: 'exec_js-16 scan: kits-appended.css=19 raw font-size px'
+  status: pending
+- id: fontsize-literals-community
+  subject: 8 raw font-size px in community.css migrate to --fs-* scale
+  witness: exec_js-16 scan
+  status: pending
+- id: fontsize-literals-gm-prose
+  subject: 7 raw font-size px in gm-prose.css migrate to --fs-* scale
+  witness: exec_js-16 scan
+  status: pending
+- id: important-purge-app-surfaces
+  subject: 8 !important in app-surfaces.css resolve via specificity not force
+  witness: exec_js-15 scan
+  status: pending
+- id: important-purge-states-interactions
+  subject: 6 !important in states-interactions.css resolve via specificity
+  witness: exec_js-15 scan
+  status: pending
+- id: uppercase-transform-audit
+  subject: 50 text-transform:uppercase occurrences risk the tracked-uppercase-eyebrow-everywhere grammar the craft floor bans; audit which are a system vs habit
+  witness: 'exec_js-15 scan: chat.css=10, editor-primitives.css=7, community.css=5, hero-content.css=5, kits-appended.css=4'
+  status: pending
+- id: spacing-literals-chat-polish
+  subject: 54 raw px spacing literals in src/css/app-shell/chat-polish.css migrate to --space-* scale
+  witness: 'exec_js-16 scan: chat-polish.css=54'
+  status: pending
+- id: spacing-literals-hero-content
+  subject: 23 raw px spacing literals in src/css/app-shell/hero-content.css migrate to --space-* scale
+  witness: 'exec_js-16 scan: hero-content.css=23'
+  status: pending
+- id: fontsize-literals-files
+  subject: 8 raw font-size px in src/css/app-shell/files.css migrate to --fs-* scale
+  witness: exec_js-16 scan
+  status: pending
+- id: important-purge-os-theme
+  subject: 128 !important declarations in src/kits/os/theme.css indicate specificity war, not intent
+  witness: 'exec_js-15 scan: os/theme.css=128 of 176 total !important'
+  status: pending
+- id: spacing-literals-editor-primitives
+  subject: 176 raw px spacing literals in editor-primitives.css migrate to --space-* scale
+  witness: 'exec_js-16 scan: editor-primitives.css=176'
+  status: pending
+- id: spacing-literals-community
+  subject: 87 raw px spacing literals in community.css migrate to --space-* scale
+  witness: 'exec_js-16 scan: community.css=87'
+  status: pending
+- id: important-purge-responsive
+  subject: 8 !important in src/css/app-shell/responsive.css resolve via specificity/container queries
+  witness: 'exec_js-15 scan: responsive.css=8'
+  status: pending
+- id: spacing-literals-data-density
+  subject: 35 raw px spacing literals in src/css/app-shell/data-density.css migrate to --space-* scale
+  witness: 'exec_js-16 scan: data-density.css=35'
+  status: pending
+- id: pure-black-white-literals
+  subject: '12 pure #000/#fff literals bypass the theme token system and break in the opposite theme'
+  witness: 'exec_js-15 scan: os/theme.css=7, colors_and_type.css=2, community-app.css=2, editor-primitives.css=1'
+  status: pending
+- id: fontsize-literals-chat-polish
+  subject: 7 raw font-size px in chat-polish.css migrate to --fs-* scale
+  witness: exec_js-16 scan
+  status: pending
+- id: ds-section-root-audit-remaining
+  subject: aicat/chat/community/gallery/project_page/slide_deck/system_primer/signin/error_404 still use .ds-section as app root; decide per-kit whether editorial 96px rhythm is correct or app-surface applies
+  witness: 'exec_js-11 survey: 9 kits still on ds-section root; dashboard/settings/search/terminal/gm_inspector migrated'
+  status: pending
+- id: homepage-gradient-review
+  subject: homepage/app.js is the only kit containing a gradient; confirm it is a deliberate art-directed moment not decorative glow
+  witness: 'exec_js-11 survey: homepage gradient:true, all 20 other kits false'
+  status: pending
+- id: kit-loading-states-sweep
+  subject: every data surface needs an authored loading state; skeleton primitives exist (.ds-session-row-skeleton) but are not used by most kits
+  witness: chat.css defines skeleton primitives; exec_js-11 shows no kit references them
+  status: pending
+- id: focus-visible-coverage
+  subject: audit every interactive element has a visible focus ring; keyboard order must match visual order
+  witness: 'craft floor + layout playbook: keyboard/touch/AT order agrees with visual order'
+  status: pending
+- id: contrast-audit-all-tokens
+  subject: verify body/placeholder >=4.5:1 and large text >=3:1 across light+dark+ink themes for every token pair
+  witness: craft floor contrast rule; ds-ep-pager-num.is-current uses accent-ink on accent (lime on lime in dark)
+  status: pending
+- id: touch-target-full-sweep
+  subject: sweep every interactive control across all kits for the 44px pointer:coarse floor, not just pager/segmented/terminal already fixed
+  witness: this session fixed 3 families; others unaudited
+  status: pending
+- id: display-type-ceiling-audit
+  subject: verify no display type exceeds 6rem and tracking floor -0.04em holds
+  witness: craft floor type rule; --fs-mega/--fs-hero clamp to 96px
+  status: pending
+- id: long-content-overflow-sweep
+  subject: test every kit with long unbroken strings/long labels/overflowing tables for structural failure
+  witness: layout playbook extremes check
+  status: pending
+- id: a11y-audit-replacement
+  subject: AGENTS.md records the CI-blocking a11y audit was removed with no replacement; restore axe-core WCAG checking without a browser-automation dependency
+  witness: 'AGENTS.md: ''CI-blocking a11y enforcement they provided has no current replacement, tracked as a residual gap'''
+  status: pending
+- id: dead-class-sweep
+  subject: sweep every preview page and kit for CSS classes referenced in markup but having zero rules (the 2026-07-10 defect class)
+  witness: AGENTS.md learning audit records dateline/inputs/rules/stamps/type-prose all had this; ds-panel-trio was another found this session
+  status: pending
+- id: scrollbar-styling-consistency
+  subject: audit scrollbar treatment across surfaces; inconsistent or default scrollbars read as unfinished
+  witness: app-main uses scrollbar-gutter:stable; other scroll containers unaudited
+  status: pending
+- id: icon-set-coverage
+  subject: ICON_PATHS out-of-set name renders an EMPTY span (silent bug); audit every Icon() call site resolves
+  witness: AGENTS.md names this explicitly as a silent bug class
+  status: pending
+- id: os-theme-css-audit
+  subject: src/kits/os/theme.css holds 229 raw spacing, 70 raw font-size, 128 !important, 15 z-index, 7 pure black/white - the single worst-debt file in the repo
+  witness: 'exec_js-15 and exec_js-16 scans both rank it #1 in every category'
+  status: pending
+- id: kit-error-states-sweep
+  subject: every kit needs an authored error state naming problem + recovery, per craft floor copy rule
+  witness: 'craft floor: errors name the problem and the recovery'
+  status: pending
+- id: pager-current-contrast-bug
+  subject: ds-ep-pager-num.is-current sets color:var(--accent-ink) on background:var(--accent); AGENTS.md says dark theme makes accent-ink the bright lime itself
+  witness: editor-primitives.css:439-443 read directly this session
+  status: pending
+- id: localization-width-sweep
+  subject: test kits with 1.5x-2x longer label text (German/Finnish proxy) for layout breakage
+  witness: 'layout playbook: localization must not break structure'
+  status: pending
+- id: visual-regression-replacement
+  subject: AGENTS.md records visual-baseline.mjs pixel-diff regression was removed with no replacement
+  witness: AGENTS.md same paragraph; visual-baselines/ dir still exists
+  status: pending
+- id: print-stylesheet-audit
+  subject: row-print.css exists; verify print output is deliberate across all kits not just rows
+  witness: src/css/app-shell/row-print.css is 75 lines covering rows only
+  status: pending
+- id: kit-empty-states-sweep
+  subject: every kit needs a real empty state (no rows/no results/no sessions), not a blank panel
+  witness: craft floor requires hover/disabled/loading/error/empty; dashboard has 'no events yet' only
+  status: pending
+- id: measure-cap-audit
+  subject: verify body text measure stays 65-75ch everywhere; --measure is 68ch but app surfaces may exceed
+  witness: craft floor type rule
+  status: pending
+- id: component-css-colocation-audit
+  subject: SessionRow layout lived in chat.css while its sub-parts lived in data-density.css; audit every component for split-home defects of the same shape
+  witness: fixed this session for SessionRow; same shape may exist for other components
+  status: pending
+- id: reduced-motion-coverage
+  subject: confirm every animation/transition respects prefers-reduced-motion
+  witness: 'chat.css uses @media (prefers-reduced-motion: no-preference) in places; needs full audit'
+  status: pending
+- id: kits-appended-decomposition
+  subject: kits-appended.css is a 431+ line grab-bag whose name records per-kit append history rather than design; decompose into owned modules
+  witness: AGENTS.md 200-line cap per module; file is the concentration point of the defects fixed this session
+  status: pending
+- id: zoom-200-sweep
+  subject: test every kit at 200% browser zoom for structural failure per WCAG 1.4.4
+  witness: layout playbook zoomed state
+  status: pending
+- id: kit-craft-aicat
+  subject: 'professional craft pass on ui_kits/aicat: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/aicat
+  status: pending
+- id: kit-craft-chat
+  subject: 'professional craft pass on ui_kits/chat: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/chat
+  status: pending
+- id: kit-craft-community
+  subject: 'professional craft pass on ui_kits/community: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/community
+  status: pending
+- id: kit-craft-error-404
+  subject: 'professional craft pass on ui_kits/error_404: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/error_404
+  status: pending
+- id: kit-craft-gallery
+  subject: 'professional craft pass on ui_kits/gallery: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/gallery
+  status: pending
+- id: kit-craft-homepage
+  subject: 'professional craft pass on ui_kits/homepage: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/homepage
+  status: pending
+- id: kit-craft-search
+  subject: 'professional craft pass on ui_kits/search: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/search
+  status: pending
+- id: kit-craft-signin
+  subject: 'professional craft pass on ui_kits/signin: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/signin
+  status: pending
+- id: kit-craft-system-primer
+  subject: 'professional craft pass on ui_kits/system_primer: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/system_primer
+  status: pending
+- id: kit-craft-workspace
+  subject: 'professional craft pass on ui_kits/workspace: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/workspace
+  status: pending
+- id: kit-craft-docs
+  subject: 'professional craft pass on ui_kits/docs: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/docs
+  status: pending
+- id: ai-tell-card-grid-scan
+  subject: scan every kit for the same-size-cards-of-icon+heading+text page scaffold, the single most recognizable AI layout tell
+  witness: exec_js-11 surveyed all 21 kits for the same-size-cards-of-icon+heading+text page scaffold. Panel counts vary widely by kit (0-12) and panels carry heterogeneous content types (Kpi bands, BarChart, Table, Receipt, Changelog, Row lists), not a uniform icon+heading+text triple. The dashboard trio fixed earlier this session is three DIFFERENT reference surfaces (environment manifest / event feed / release log) sharing a row, which is a deliberate set, not the lazy-container pattern. No instance of the banned scaffold found.
+  status: completed
+  commit_comment: verified no same-size icon+heading+text card-grid scaffold exists in any kit
+- id: ai-tell-hero-metric-template
+  subject: scan for the big-number/small-label/supporting-stats/accent hero-metric template
+  witness: craft floor Refuse list; dashboard Kpi and gm_inspector StatTile are candidates to review
+  status: pending
+- id: ai-tell-glass-decoration
+  subject: '11 backdrop-filter uses: confirm each is a specific effect not decoration'
+  witness: 'exec_js-15: os/theme.css=6, editor-primitives=2, topbar=2, row-print=1'
+  status: pending
+- id: depth-shadow-audit
+  subject: verify every shadow carries offset AND soft blur; zero-offset colored halos are decoration
+  witness: craft floor depth rule; --shadow-1/2/3 verified correct, per-component overrides unaudited
+  status: pending
+- id: heading-below-above-spacing
+  subject: verify more space above a heading than below it everywhere
+  witness: craft floor spacing rule
+  status: pending
+- id: degenerate-long-single-word
+  subject: unbreakable 200-char token in every text surface
+  witness: layout playbook extremes
+  status: pending
+- id: ai-tell-monospace-costume
+  subject: 'audit monospace usage: legitimate for code/data/measurement, a costume when used to signal ''technical'''
+  witness: 'exec_js-22 enumerated every --ff-mono font-family declaration with its selector context across all sheets. The craft-floor ban is mono used as a COSTUME to signal ''technical'' rather than for code, data, or measurement. Audited each: the overwhelming majority are genuinely code/paths/data/measurement - agentchat-cwd-text, agentchat-install-cmd, chat-code-lang, chat-tool-pre, chat-stream-pre, ds-ep-json, ds-dash-stat, ds-dash-model, vx-range-val, vx-vad-readout, chat-tick, cwd-bar-text. The remaining cluster (.toc-title, .vx-section-label, .cm-vs-label, .cm-cat-extra, .cm-user-tag, .vx-chip-tag) is not costume either: each is the repo''s deliberate .t-label convention (mono + uppercase + tracking), a consistent system defined in base.css. No costume misuse found. The real defect surfaced instead is that those six DUPLICATE the .t-label recipe rather than composing it - filed as t-label-duplication.'
+  status: completed
+  commit_comment: audited every mono use site; all are code/data/measurement or the deliberate .t-label system, not costume
+- id: motion-single-authored-moment
+  subject: 'audit motion: one authored moment per surface, exponential ease-out from an already-visible default, not one identical entrance on every section'
+  witness: craft floor motion rule
+  status: pending
+- id: degenerate-zero-rows
+  subject: every list/table/grid surface tested with zero items
+  witness: layout playbook empty states
+  status: pending
+- id: kit-craft-community-app
+  subject: 'professional craft pass on ui_kits/community-app: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/community-app
+  status: pending
+- id: kit-craft-file-browser
+  subject: 'professional craft pass on ui_kits/file_browser: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/file_browser
+  status: pending
+- id: kit-craft-project-page
+  subject: 'professional craft pass on ui_kits/project_page: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/project_page
+  status: pending
+- id: kit-craft-slide-deck
+  subject: 'professional craft pass on ui_kits/slide_deck: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/slide_deck
+  status: pending
+- id: kit-craft-blog
+  subject: 'professional craft pass on ui_kits/blog: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/blog
+  status: pending
+- id: degenerate-overflow-many
+  subject: every list tested with 500+ items for virtualization/perf
+  witness: src/virtual-scroll.js exists; usage unaudited
+  status: pending
+- id: container-query-vs-media-audit
+  subject: audit remaining max-width media queries that should be container queries inside the CQ shell
+  witness: fixed for ds-panel-duo/trio this session; responsive.css still has viewport media queries
+  status: pending
+- id: theme-parity-light-dark-ink
+  subject: every surface verified in light, dark, and ink themes
+  witness: colors_and_type.css defines all three
+  status: pending
+- id: kit-craft-settings
+  subject: 'professional craft pass on ui_kits/settings: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/settings
+  status: pending
+- id: kit-craft--template
+  subject: 'professional craft pass on ui_kits/_template: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/_template
+  status: pending
+- id: ai-tell-modal-overuse
+  subject: audit every modal for whether the task needs interruption or protected focus
+  witness: craft floor Refuse list; settings DiscardConfirmModal reviewed, others unaudited
+  status: pending
+- id: copy-voice-sweep
+  subject: 'audit all UI copy for product voice: controls name their action, errors name problem+recovery, no generic filler'
+  witness: craft floor copy rule
+  status: pending
+- id: kit-craft-gm-inspector
+  subject: 'professional craft pass on ui_kits/gm_inspector: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/gm_inspector
+  status: pending
+- id: ai-tell-sparkline-decor
+  subject: audit sparklines/progress-rings/soft-shadow-rounded-rects standing in for content
+  witness: 'Read src/components/content.js Kpi + Sparkline in full (exec_js-21). The craft-floor ban is on sparklines STANDING IN FOR content - decoration where data belongs. This is not that: Sparkline plots the caller''s real values array, min/max-normalised over the actual span, returns null on empty input, and its tone is bound to the same delta direction the numeric label reports. It is a genuine micro-chart carrying data the number alone cannot (trajectory vs point-in-time). Kpi likewise already ships an emptyText empty state. No defect; deliberately left unchanged rather than manufacturing a change to close a row.'
+  status: completed
+  commit_comment: verified Kpi/Sparkline plot real data, not decorative squiggles - no change needed
+- id: degenerate-single-row
+  subject: every list/grid tested with exactly one item (grid collapse behavior)
+  witness: layout playbook degenerate input
+  status: pending
+- id: density-attr-full-coverage
+  subject: data-density compact/comfortable/spacious verified across every kit not just panels/rows
+  witness: this session wired panel rhythm; other components unaudited
+  status: pending
+- id: kit-craft-terminal
+  subject: 'professional craft pass on ui_kits/terminal: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
+  witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/terminal
+  status: pending
+- id: module-cap-editor-primitives
+  subject: src/components/editor-primitives.js is 1046 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
+  witness: exec_js-17 line count = 1046; AGENTS.md states 'The 200-line cap applies per-module'
+  status: pending
+- id: module-cap-freddie
+  subject: src/components/freddie.js is 988 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
+  witness: exec_js-17 line count = 988; AGENTS.md states 'The 200-line cap applies per-module'
+  status: pending
+- id: module-cap-overlay-primitives
+  subject: src/components/overlay-primitives.js is 850 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
+  witness: exec_js-17 line count = 850; AGENTS.md states 'The 200-line cap applies per-module'
+  status: pending
+- id: module-cap-content
+  subject: src/components/content.js is 857 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
+  witness: exec_js-17 line count = 857; AGENTS.md states 'The 200-line cap applies per-module'
+  status: pending
+- id: agents-md-refresh
+  subject: AGENTS.md updated for new primitives (ds-app-surface, ds-panel-trio, ds-panel-flush) and the drained rows
+  witness: AGENTS.md documents ds-panel-trio which had no CSS rule until this session
+  status: pending
+- id: baseline-ratchet-spacing
+  subject: lint-spacing PASS is baseline-capped at 362 and never ratchets down as literals are removed; make the baseline auto-tighten
+  witness: scripts/lint-tokens.mjs prints 'PASS 362 <= baseline 362'
+  status: pending
+- id: component-api-md-refresh
+  subject: COMPONENT_API.md must document new layout primitives
+  witness: COMPONENT_API.md exists at repo root
+  status: pending
+- id: lint-add-split-sheet-coverage
+  subject: extend COMPONENT_SHEETS to follow @import barrels or enumerate src/css/app-shell/*.css so the 5322-line blind spot is gated
+  witness: scripts/lint-tokens.mjs COMPONENT_SHEETS array read directly
+  status: pending
+- id: lint-add-important-gate
+  subject: add a lint gate capping/forbidding new !important outside documented escape hatches
+  witness: 176 found in exec_js-15
+  status: pending
+- id: lint-add-transition-all-gate
+  subject: 'add a lint gate forbidding ''transition: all'''
+  witness: 2 found in exec_js-15
+  status: pending
+- id: preview-page-parity
+  subject: every new primitive needs a preview page entry so it is discoverable and visually regression-checkable
+  witness: preview/ has 30 pages; ds-app-surface/ds-panel-trio/ds-panel-flush have none
+  status: pending
+- id: module-cap-files-modals
+  subject: src/components/files-modals.js is 477 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
+  witness: exec_js-17 line count = 477; AGENTS.md states 'The 200-line cap applies per-module'
+  status: pending
+- id: changelog-entries
+  subject: CHANGELOG.md entry per commit landed this session
+  witness: gm update-docs discipline
+  status: pending
+- id: module-cap-os-shell
+  subject: src/kits/os/shell.js is 336 lines against the 200-line cap
+  witness: exec_js-17 line count
+  status: pending
+- id: theme-md-refresh
+  subject: THEME.md must reflect any new --z-* scale and token additions
+  witness: THEME.md exists at repo root
+  status: pending
+- id: module-cap-shell
+  subject: src/components/shell.js is 809 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
+  witness: exec_js-17 line count = 809; AGENTS.md states 'The 200-line cap applies per-module'
+  status: pending
+- id: module-cap-chat
+  subject: src/components/chat.js is 656 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
+  witness: exec_js-17 line count = 656; AGENTS.md states 'The 200-line cap applies per-module'
+  status: pending
+- id: module-cap-chat-minimap
+  subject: src/components/chat-minimap.js is 310 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
+  witness: exec_js-17 line count = 310; AGENTS.md states 'The 200-line cap applies per-module'
+  status: pending
+- id: module-cap-voice
+  subject: src/components/voice.js is 296 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
+  witness: exec_js-17 line count = 296; AGENTS.md states 'The 200-line cap applies per-module'
+  status: pending
+- id: lint-add-fontsize-gate
+  subject: add a lint gate for raw font-size px outside the token source
+  witness: 148 found in exec_js-16
+  status: pending
+- id: module-cap-page-html
+  subject: src/page-html.js is 392 lines against the 200-line cap
+  witness: exec_js-17 line count
+  status: pending
+- id: module-cap-freddie-pages-chat
+  subject: src/kits/os/freddie/pages-chat.js is 329 lines against the 200-line cap
+  witness: exec_js-17 line count
+  status: pending
+- id: module-cap-community
+  subject: src/components/community.js is 449 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
+  witness: exec_js-17 line count = 449; AGENTS.md states 'The 200-line cap applies per-module'
+  status: pending
+- id: module-cap-sessions
+  subject: src/components/sessions.js is 586 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
+  witness: exec_js-17 line count = 586; AGENTS.md states 'The 200-line cap applies per-module'
+  status: pending
+- id: lint-add-zindex-gate
+  subject: add a lint gate for z-index literals once a --z-* scale exists
+  witness: 52 literals found in exec_js-16
+  status: pending
+- id: module-cap-agent-chat
+  subject: src/components/agent-chat.js is 561 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
+  witness: exec_js-17 line count = 561; AGENTS.md states 'The 200-line cap applies per-module'
+  status: pending
+- id: module-cap-chat-message-parts
+  subject: src/components/chat-message-parts.js is 419 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
+  witness: exec_js-17 line count = 419; AGENTS.md states 'The 200-line cap applies per-module'
+  status: pending
+- id: module-cap-files
+  subject: src/components/files.js is 567 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
+  witness: exec_js-17 line count = 567; AGENTS.md states 'The 200-line cap applies per-module'
+  status: pending
+- id: module-cap-interaction-primitives
+  subject: src/components/interaction-primitives.js is 391 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
+  witness: exec_js-17 line count = 391; AGENTS.md states 'The 200-line cap applies per-module'
+  status: pending
+- id: docs-component-props-refresh
+  subject: regenerate docs/component-props.md after component splits so the CI doc gate stays green
+  witness: package.json lint:component-docs is a --check gate
+  status: pending
+- id: lint-tokens-json-whitespace-compare
+  subject: lint-tokens-json compares multi-line token values byte-for-byte including indentation, so --shadow-3/--shadow-overlay report as mismatched against tokens.json when the two strings are semantically identical
+  witness: npm run lint:tokens output shows --shadow-3 committed vs tokens.json values that are character-identical apart from internal newline+indent; the comparison should normalize whitespace runs before diffing
+  status: pending
+- id: browser-verb-page-undefined-urlmode
+  subject: 'browser verb url= prefix mode throws ReferenceError: page is not defined when the body uses page.evaluate; only the separate session-new + navigate + bare-eval sequence works'
+  witness: 'browser-1 dispatch with url= + await page.waitForTimeout returned exception ReferenceError: page is not defined; browser-2/3/5 (session new, bare URL navigate, bare return-statement eval) all succeeded. Matches the recurring plugkit-infra issue AGENTS.md records at 2026-07-10.'
+  status: pending
+- id: browser-verb-iife-result-null
+  subject: browser verb returns result:null for an IIFE expression body; only an explicit return-statement body captures the value
+  witness: browser-4 dispatch with (()=>{...})() body returned ok:true result:null; identical logic as a return-statement body (browser-5) returned the full JSON payload
+  status: pending
+- id: t-label-duplication
+  subject: at least 6 selectors hand-reimplement the .t-label recipe (--ff-mono + uppercase + letter-spacing + muted colour) instead of composing it, so the label voice can drift per-sheet
+  witness: 'exec_js-22 mono audit: .toc-title (gm-prose.css:73), .vx-section-label (community.css:1426), .cm-vs-label (community.css:562), .cm-cat-extra, .cm-user-tag, .vx-chip-tag all repeat the same four declarations that base.css .t-label already defines'
+  status: pending

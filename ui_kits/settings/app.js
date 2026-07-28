@@ -19,7 +19,11 @@ const state = {
     dirty: false,
     lastSaved: null,
     draft: null,
-    showConfirmDiscard: false
+    showConfirmDiscard: false,
+    // Which state the notifications surface renders in. Toggled from the
+    // sidebar so loading / empty / error are reachable here, not just on a
+    // real backend failure.
+    phase: 'ready'
 };
 
 const sections = [
@@ -139,7 +143,45 @@ function Theme() {
     ) });
 }
 
+const PHASES = ['ready', 'loading', 'empty', 'error'];
+
+// Row-shaped shimmer for preferences still being fetched. Reuses
+// .ds-event-row-skeleton + .ds-skel* (app-shell/files.css) — Row() renders the
+// same title / sub / trailing-control rhythm.
+function PrefsSkeleton() {
+    return h('div', {},
+        ...Array.from({ length: 3 }, (_, i) => h('div', { key: 'sk' + i, class: 'ds-event-row-skeleton' },
+            h('span', { class: 'ds-skel ds-skel-title' }),
+            h('span', { class: 'ds-skel ds-skel-meta' })
+        ))
+    );
+}
+
+function PrefsEmpty() {
+    return h('div', { class: 'ds-empty-state' },
+        h('div', { class: 'ds-empty-state-glyph' }, '[ ]'),
+        h('p', { class: 'ds-empty-state-msg' }, 'no notification channels connected'),
+        h('p', { class: 'ds-empty-state-hint' }, 'mentions, releases and product updates need somewhere to go. verify an email or add a webhook and the toggles for it appear here.')
+    );
+}
+
+function PrefsError() {
+    return h('div', { class: 'ds-alert ds-alert-error' },
+        h('span', { class: 'ds-alert-icon' }, '!'),
+        h('div', { class: 'ds-alert-content' },
+            h('div', { class: 'ds-alert-title' }, 'preferences did not save'),
+            h('div', { class: 'ds-alert-message' }, 'the server holds a newer copy of these toggles than this tab does, so saving would overwrite a change made elsewhere. reloading pulls the current values and keeps your draft alongside them.'),
+            h('div', { class: 'ds-alert-retry' },
+                h('button', { class: 'btn', onclick: () => { state.phase = 'ready'; kit.render(); } }, 'reload preferences')
+            )
+        )
+    );
+}
+
 function Notify() {
+    if (state.phase === 'loading') return Panel({ title: 'notifications', class: 'ds-panel-gap', children: PrefsSkeleton() });
+    if (state.phase === 'error') return Panel({ title: 'notifications', class: 'ds-panel-gap', children: PrefsError() });
+    if (state.phase === 'empty') return Panel({ title: 'notifications', class: 'ds-panel-gap', children: PrefsEmpty() });
     // No `code` — these are settings, not an indexed list. Carrying a one-glyph
     // code would reserve the row's 12ch leading gutter for a single character
     // and strand the label far right of its own panel edge.
@@ -182,6 +224,13 @@ function App() {
                     glyph: s.glyph, label: s.label,
                     href: '#' + s.id, active: state.section === s.id, key: s.id,
                     onClick: (e) => { e.preventDefault(); state.section = s.id; kit.render(); }
+                })) },
+                // Reachable state switcher — applies to the notifications
+                // section, this kit's list-shaped data surface.
+                { group: 'prefs state', items: PHASES.map((p) => ({
+                    glyph: h('span', { class: state.phase === p ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }),
+                    label: p, key: 'ph-' + p, active: state.phase === p,
+                    onClick: (e) => { e.preventDefault(); state.phase = p; state.section = 'notify'; kit.render(); }
                 })) }
             ]
         }),
@@ -202,7 +251,7 @@ function App() {
             )
         ],
         status: Status({
-            left: ['settings', '- ' + state.section, state.dirty ? '- dirty' : '- saved'],
+            left: ['settings', '- ' + state.section, state.dirty ? '- dirty' : '- saved', '- prefs ' + state.phase],
             right: ['247420 / mmxxvi']
         })
     });

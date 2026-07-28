@@ -6208,8 +6208,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 12px 0;
+  gap: var(--space-2);
+  padding: var(--space-2-75) 0;
   background: color-mix(in oklab, var(--bg) 70%, var(--ink));
   overflow-y: auto;
   overflow-x: hidden;
@@ -6278,7 +6278,7 @@
   right: -2px;
   min-width: 18px;
   height: 18px;
-  padding: 0 5px;
+  padding: 0 var(--space-1-5);
   background: var(--warn);
   color: var(--paper);
   font-family: var(--ff-mono);
@@ -6323,7 +6323,7 @@
   height: 2px;
   background: color-mix(in oklab, var(--fg) 12%, transparent);
   border-radius: var(--r-hair);
-  margin: 4px 0;
+  margin: var(--space-1) 0;
   flex-shrink: 0;
 }
 
@@ -6344,8 +6344,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 14px 16px;
+  gap: var(--space-2);
+  padding: var(--space-2-75) var(--space-3);
   background: var(--bg-2);
   box-shadow: 0 1px 0 color-mix(in oklab, var(--fg) 8%, transparent);
   font-weight: 600;
@@ -6372,10 +6372,10 @@
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 8px 0 16px;
+  padding: var(--space-2) 0 var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-hair);
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklab, var(--fg) 18%, transparent) transparent;
 }
@@ -6392,15 +6392,15 @@
 .ds-247420 .cm-channel-category {
   display: flex;
   flex-direction: column;
-  margin-top: 12px;
+  margin-top: var(--space-2-75);
 }
-.ds-247420 .cm-channel-category:first-child { margin-top: 4px; }
+.ds-247420 .cm-channel-category:first-child { margin-top: var(--space-1); }
 
 .ds-247420 .cm-category-header {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px 4px 8px;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
   font-family: var(--ff-body);
   font-size: var(--fs-micro);
   font-weight: 600;
@@ -6448,7 +6448,7 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  padding: 4px;
+  padding: var(--space-1);
   border: 0;
   background: transparent;
   color: var(--fg-3);
@@ -6470,8 +6470,11 @@
 .ds-247420 .cm-cat-channels {
   display: flex;
   flex-direction: column;
+  /* gap:1px is OFF-SCALE ON PURPOSE — channel rows are meant to read as one
+     near-continuous stack with only a hairline seam between them. --space-hair
+     (2px) doubles the seam and breaks the rows into visibly separate pills. */
   gap: 1px;
-  padding: 2px 0;
+  padding: var(--space-hair) 0;
 }
 
 /* ============================================================
@@ -6479,15 +6482,15 @@
    ============================================================ */
 .ds-247420 .cm-channel-item-wrap {
   position: relative;
-  padding: 0 8px;
+  padding: 0 var(--space-2);
 }
 
 .ds-247420 .cm-channel-item {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
+  gap: var(--space-2);
+  padding: var(--space-1-75) var(--space-2);
   border-radius: var(--r-1);
   color: var(--fg-3);
   cursor: pointer;
@@ -6603,7 +6606,7 @@
   flex-shrink: 0;
   min-width: 16px;
   height: 16px;
-  padding: 0 5px;
+  padding: 0 var(--space-1-5);
   background: var(--warn);
   color: var(--paper);
   font-family: var(--ff-mono);
@@ -6619,7 +6622,7 @@
 .ds-247420 .cm-ch-actions {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--space-hair);
   opacity: 0;
   transition: opacity var(--dur-snap) var(--ease);
   flex-shrink: 0;
@@ -6629,7 +6632,7 @@
 .ds-247420 .cm-ch-action-btn {
   width: 28px;
   height: 28px;
-  padding: 4px;
+  padding: var(--space-1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -6654,15 +6657,16 @@
 .ds-247420 .cm-ch-voice-users {
   display: flex;
   flex-direction: column;
+  /* gap:1px — same hairline-seam rationale as .cm-cat-channels above. */
   gap: 1px;
-  padding: 2px 8px 4px 32px;
+  padding: var(--space-hair) var(--space-2) var(--space-1) var(--space-5);
 }
 
 .ds-247420 .cm-ch-voice-user {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 3px 6px;
+  gap: var(--space-2);
+  padding: var(--space-half) var(--space-1-75);
   border-radius: var(--r-1);
   color: var(--fg-2);
   font-size: var(--fs-xs);
@@ -6716,8 +6720,8 @@
 .ds-247420 .cm-voice-strip {
   display: none;
   flex-direction: column;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: var(--space-2);
+  padding: var(--space-2-5) var(--space-2-75);
   background: color-mix(in oklab, var(--green) 18%, var(--bg-2));
   color: var(--fg);
   box-shadow: 0 -1px 0 color-mix(in oklab, var(--fg) 10%, transparent);
@@ -6734,7 +6738,7 @@
   font-weight: 700;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1-75);
 }
 .ds-247420 .cm-vs-label::before {
   content: '';
@@ -6768,7 +6772,7 @@
   color: var(--fg-2);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1-75);
   flex-wrap: wrap;
 }
 
@@ -6776,9 +6780,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: var(--space-1-75);
   height: 28px;
-  padding: 0 10px;
+  padding: 0 var(--space-2-5);
   background: color-mix(in oklab, var(--fg) 10%, transparent);
   color: var(--fg);
   border: 0;
@@ -6806,8 +6810,8 @@
 .ds-247420 .cm-user-panel {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 8px;
+  gap: var(--space-2);
+  padding: var(--space-2);
   background: color-mix(in oklab, var(--fg) 5%, var(--bg-2));
   flex-shrink: 0;
 }
@@ -6872,7 +6876,7 @@
 .ds-247420 .cm-user-controls {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--space-hair);
 }
 
 .ds-247420 .cm-user-btn {
@@ -6907,8 +6911,8 @@
 .ds-247420 .cm-chat-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
+  gap: var(--space-2-5);
+  padding: var(--space-2-75) var(--space-3);
   background: var(--bg);
   box-shadow: 0 1px 0 color-mix(in oklab, var(--fg) 8%, transparent);
   flex-shrink: 0;
@@ -6938,8 +6942,8 @@
 .ds-247420 .cm-chat-header-topic {
   flex: 1;
   min-width: 0;
-  padding-left: 12px;
-  margin-left: 4px;
+  padding-left: var(--space-2-75);
+  margin-left: var(--space-1);
   border-left: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
   color: var(--fg-3);
   font-size: var(--fs-xs);
@@ -6951,7 +6955,7 @@
 .ds-247420 .cm-chat-header-toolbar {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   flex-shrink: 0;
 }
 
@@ -6967,7 +6971,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   background: var(--bg-2);
-  padding: 16px 0;
+  padding: var(--space-3) 0;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklab, var(--fg) 18%, transparent) transparent;
   transition: width var(--dur-base) var(--ease), flex-basis var(--dur-base) var(--ease);
@@ -6989,7 +6993,7 @@
 }
 
 .ds-247420 .cm-member-category {
-  padding: 12px 16px 6px;
+  padding: var(--space-2-75) var(--space-3) var(--space-1-75);
   font-family: var(--ff-body);
   font-size: var(--fs-micro);
   font-weight: 600;
@@ -7001,9 +7005,9 @@
 .ds-247420 .cm-member-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 12px;
-  margin: 0 8px;
+  gap: var(--space-2-5);
+  padding: var(--space-1-75) var(--space-2-75);
+  margin: 0 var(--space-2);
   border-radius: var(--r-1);
   color: var(--fg-2);
   cursor: pointer;
@@ -7068,8 +7072,8 @@
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 10px;
+  gap: var(--space-1-75);
+  padding: var(--space-2-5);
   border-radius: var(--r-2);
   background: var(--bg-2);
   transition: box-shadow var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease);
@@ -7168,7 +7172,7 @@
   .ds-247420 .cm-server-back {
     width: 44px;
     height: 44px;
-    padding: 4px;
+    padding: var(--space-1);
   }
   .ds-247420 .cm-channel-sidebar,
   .ds-247420 .cm-channel-sidebar.open {
@@ -7367,7 +7371,7 @@
   color: inherit;
   font: inherit;
   font-weight: 600;
-  padding: 2px var(--space-2);
+  padding: var(--space-hair) var(--space-2);
   border-radius: var(--r-1);
   cursor: pointer;
 }
@@ -7449,14 +7453,6 @@
   /* .vx-ptt stretches full-width on narrow viewports, leaving no room for
      the glow's -4px bleed without overflowing the viewport edge. */
   .ds-247420 .vx-ptt-glow { inset: -4px 0; }
-}
-@media (max-height: 420px) {
-  /* Phone-in-landscape: topbar + chat-head + user-identity bar alone can
-     consume most of a ~320px-tall viewport, leaving no room for the fixed
-     120px .vx-ptt plus the voice grid above it -- shrink the PTT button so
-     both remain visible instead of the label clipping off-screen. */
-  .ds-247420 .vx-ptt { min-width: 88px; min-height: 64px; padding: var(--space-2); }
-  .ds-247420 .vx-ptt-icon { font-size: var(--fs-lg); }
 }
 .ds-247420 .vx-ptt-recording, .ds-247420 .vx-ptt-live {
   background: var(--accent);
@@ -7652,7 +7648,7 @@
   display: flex; gap: var(--space-2);
   overflow-x: auto;
   flex: 1;
-  padding-bottom: 2px;
+  padding-bottom: var(--space-hair);
 }
 .ds-247420 .vx-chip {
   display: inline-flex; align-items: center; gap: var(--space-1);
@@ -7729,7 +7725,7 @@
 .ds-247420 .cm-tp-list { flex: 1; min-height: 0; overflow-y: auto; }
 .ds-247420 .cm-tp-item {
   position: relative; /* anchors .cm-tp-dot to the row, not the panel */
-  display: flex; flex-direction: column; gap: 2px;
+  display: flex; flex-direction: column; gap: var(--space-hair);
   width: 100%; text-align: left; cursor: pointer;
   padding: var(--space-2); border: none; background: transparent;
   border-bottom: var(--bw-hair) solid var(--rule);
@@ -7754,7 +7750,7 @@
    list surface in the kit uses one shimmer language, never a bare spinner. */
 .ds-247420 .cm-channel-item-skeleton, .ds-247420 .cm-member-item-skeleton {
   display: flex; align-items: center; gap: var(--space-2);
-  padding: var(--space-2); margin: 2px var(--space-1);
+  padding: var(--space-2); margin: var(--space-hair) var(--space-1);
 }
 .ds-247420 .cm-channel-item-skeleton .ds-skel-icon, .ds-247420 .cm-member-item-skeleton .ds-skel-icon {
   width: 20px; height: 20px; border-radius: var(--r-round, 50%); flex: none; background: var(--bg-3);
@@ -7763,7 +7759,7 @@
   height: 12px; width: 60%; border-radius: var(--r-1); background: var(--bg-3);
 }
 .ds-247420 .cm-list-item-skeleton {
-  display: flex; flex-direction: column; gap: 6px;
+  display: flex; flex-direction: column; gap: var(--space-1-75);
   padding: var(--space-2) var(--space-3); border-bottom: var(--bw-hair) solid var(--rule);
 }
 .ds-247420 .cm-list-item-skeleton .ds-skel-title { height: 12px; width: 55%; border-radius: var(--r-1); background: var(--bg-3); }
@@ -7795,8 +7791,10 @@
 .ds-247420 .cm-forum-item-replies { font-size: var(--fs-0, 12px); color: var(--fg-2, var(--fg)); opacity: .8; white-space: nowrap; }
 .ds-247420 .cm-forum-item-snippet { font-size: var(--fs-0, 12px); color: var(--fg-2, var(--fg)); opacity: .85; }
 .ds-247420 .cm-forum-item-meta { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; font-size: var(--fs-micro, 11px); color: var(--fg-2, var(--fg)); opacity: .7; }
-.ds-247420 .cm-forum-item-tags { display: inline-flex; gap: 4px; }
-.ds-247420 .cm-forum-tag { padding: 1px 6px; border-radius: var(--r-1); background: var(--bg-3); border: var(--bw-hair) solid var(--rule); }
+.ds-247420 .cm-forum-item-tags { display: inline-flex; gap: var(--space-1); }
+/* 1px vertical is OFF-SCALE ON PURPOSE — the tag is an inline chip inside the
+   forum meta row; --space-hair (2px) tips it past the row height. */
+.ds-247420 .cm-forum-tag { padding: 1px var(--space-1-75); border-radius: var(--r-1); background: var(--bg-3); border: var(--bw-hair) solid var(--rule); }
 
 /* PageView — cm-page / cm-page-* */
 .ds-247420 .cm-page { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow-y: auto; background: var(--bg-1, var(--bg-2)); color: var(--fg); }
@@ -7823,6 +7821,9 @@
 .ds-247420 .fd-chat-thread { flex: 1 1 auto; min-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-2, 10px); padding: var(--space-2, 10px); }
 .ds-247420 .fd-page-error { white-space: pre-wrap; overflow-wrap: anywhere; }
 /* Visually-hidden polite live region — announces async busy/done to SR users. */
+/* margin:-1px is OFF-SCALE ON PURPOSE — the canonical visually-hidden idiom;
+   the negative margin cancels the 1px box so the live region contributes zero
+   layout. A --space-* rung would reintroduce a measurable gap. */
 .ds-247420 .fd-sr-live { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 /* page-level responsive: tighten padding on narrow viewports */
 @media (max-width: 640px) {
@@ -7862,8 +7863,12 @@
 .ds-247420 .agentchat-controls .ds-select { min-width: 130px; max-width: 240px; }
 /* One shared control metric for the most-seen chrome row (mirrors the
    .ds-dash-toolbar precedent): selects, buttons, export acts all 32px / r-1. */
-.ds-247420 .agentchat-controls .ds-select { min-height: 32px; padding: 4px 28px 4px 10px; font-size: var(--fs-sm); border-radius: var(--r-1); }
-.ds-247420 .agentchat-controls .btn, .ds-247420 .agentchat-controls .btn-primary { padding: 5px 12px; min-height: 32px; border-radius: var(--r-1); font-weight: 500; }
+/* The 28px right pad is OFF-SCALE ON PURPOSE: it is not rhythm but clearance
+   for the native select's dropdown arrow, which the UA draws at a fixed inset.
+   Snapping to --space-5 (32px) or --space-4 (24px) either wastes a column of
+   text width or lets long option labels run under the arrow. */
+.ds-247420 .agentchat-controls .ds-select { min-height: 32px; padding: var(--space-1) 28px var(--space-1) var(--space-2-5); font-size: var(--fs-sm); border-radius: var(--r-1); }
+.ds-247420 .agentchat-controls .btn, .ds-247420 .agentchat-controls .btn-primary { padding: var(--space-1-5) var(--space-2-75); min-height: 32px; border-radius: var(--r-1); font-weight: 500; }
 @media (pointer: coarse) {
   .ds-247420 .agentchat-controls .ds-select, .ds-247420 .agentchat-controls .btn, .ds-247420 .agentchat-controls .btn-primary { min-height: 44px; }
 }
@@ -7883,6 +7888,12 @@
   .ds-247420 .agentchat-controls [role="combobox"] { flex-basis: 100%; }
 }
 
+/* The .4em/.5em gaps on this status line, .agentchat-head below, and the
+   narrow-viewport .agentchat-controls override are em-based ON PURPOSE, not
+   un-migrated literals: each is the gap between a label and its own inline
+   text/disc, so it must track that element's font-size (these rows are scaled
+   by font-size alone at narrow widths). A --space-* px rung would hold the gap
+   fixed while the type around it shrank. */
 .ds-247420 .agentchat-status {
   display: inline-flex;
   align-items: center;
@@ -7933,7 +7944,7 @@
   border: 1px solid var(--rule);
   color: inherit;
   border-radius: var(--r-1);
-  padding: 2px 8px;
+  padding: var(--space-hair) var(--space-2);
   cursor: pointer;
   font: inherit;
 }
@@ -7946,7 +7957,7 @@
   border: var(--bw-hair) solid var(--rule);
   color: var(--fg);
   border-radius: var(--r-1);
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   font: inherit;
 }
 .ds-247420 .agentchat-cwd-input:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
@@ -7959,12 +7970,12 @@
 .ds-247420 .agentchat-cwd-editing { flex-direction: column; align-items: stretch; }
 .ds-247420 .agentchat-cwd-row { display: flex; align-items: center; gap: var(--space-2, 8px); flex-wrap: wrap; }
 .ds-247420 .agentchat-cwd-roots, .ds-247420 .agentchat-cwd-recent {
-  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  display: flex; align-items: center; gap: var(--space-1-75); flex-wrap: wrap;
 }
 .ds-247420 .agentchat-cwd-recent-label { font-size: var(--fs-tiny); color: var(--fg-3); }
 .ds-247420 .agentchat-cwd-chip {
   background: var(--bg-2); border: var(--bw-hair) solid var(--rule); color: var(--fg-2);
-  border-radius: var(--r-pill); padding: 3px 10px; font: inherit; font-size: var(--fs-tiny);
+  border-radius: var(--r-pill); padding: var(--space-half) var(--space-2-5); font: inherit; font-size: var(--fs-tiny);
   cursor: pointer;
 }
 .ds-247420 .agentchat-cwd-chip:hover { border-color: var(--accent); color: var(--fg); }
@@ -7972,17 +7983,17 @@
 .ds-247420 .agentchat-cwd-browse {
   border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1);
   padding: var(--space-2, 8px); background: var(--bg-2);
-  display: flex; flex-direction: column; gap: 6px;
+  display: flex; flex-direction: column; gap: var(--space-1-75);
   max-height: 220px;
 }
 .ds-247420 .agentchat-cwd-browse-list { overflow-y: auto; display: flex; flex-direction: column; max-height: 160px; }
 .ds-247420 .agentchat-cwd-browse-item {
   background: none; border: none; color: var(--fg-2); text-align: left;
-  padding: 6px 8px; border-radius: var(--r-1); font: inherit; font-size: var(--fs-tiny);
+  padding: var(--space-1-75) var(--space-2); border-radius: var(--r-1); font: inherit; font-size: var(--fs-tiny);
   cursor: pointer;
 }
 .ds-247420 .agentchat-cwd-browse-item:hover, .ds-247420 .agentchat-cwd-browse-item:focus-visible { background: var(--bg-3, var(--bg)); color: var(--fg); }
-.ds-247420 .agentchat-cwd-browse-loading, .ds-247420 .agentchat-cwd-browse-empty { padding: 6px 8px; font-size: var(--fs-tiny); color: var(--fg-3); }
+.ds-247420 .agentchat-cwd-browse-loading, .ds-247420 .agentchat-cwd-browse-empty { padding: var(--space-1-75) var(--space-2); font-size: var(--fs-tiny); color: var(--fg-3); }
 
 /* head + thread */
 .ds-247420 .agentchat-head {
@@ -8003,14 +8014,14 @@
 .ds-247420 .agentchat-side-panel { display: flex; flex-direction: column; height: 100%; min-height: 0; border-left: var(--bw-hair) solid var(--bg-3); }
 .ds-247420 .agentchat-side-panel-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: var(--space-2, 8px) var(--space-3, 12px); border-bottom: var(--bw-hair) solid var(--bg-3);
+  padding: var(--space-2, 8px) var(--space-3, 16px); border-bottom: var(--bw-hair) solid var(--bg-3);
   flex: 0 0 auto;
 }
 .ds-247420 .agentchat-side-panel-title { font-size: var(--fs-tiny); font-weight: 600; color: var(--fg-2); text-transform: uppercase; letter-spacing: var(--tr-label); }
 .ds-247420 .agentchat-side-panel-close {
   display: inline-flex; align-items: center; justify-content: center;
   background: none; border: none; color: var(--fg-3); cursor: pointer;
-  padding: 4px; border-radius: var(--r-1);
+  padding: var(--space-1); border-radius: var(--r-1);
 }
 .ds-247420 .agentchat-side-panel-close:hover { background: var(--bg-2); color: var(--fg); }
 .ds-247420 .agentchat-side-panel-close:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
@@ -8036,6 +8047,9 @@
 .ds-247420 .agentchat-jump {
   position: absolute; right: 16px; bottom: 12px; z-index: var(--z-raised);
   display: none; align-items: center; gap: .35em;
+  /* em, not --space-*: this pill must scale with its own --fs-tiny text so the
+     capsule stays proportional when a host overrides the chat font size. A px
+     rung would fix the padding while the label grew/shrank inside it. */
   padding: .4em .8em; font: inherit; font-size: var(--fs-tiny); cursor: pointer;
   border-radius: var(--r-pill); border: var(--bw-hair) solid var(--rule);
   background: var(--bg-2); color: var(--fg-2, var(--fg));
@@ -8047,6 +8061,9 @@
 
 /* Streaming caret: a thin blinking bar at the live edge of an assistant turn. */
 .ds-247420 .chat-stream-caret {
+  /* margin-left:1px is OFF-SCALE ON PURPOSE — a hairline optical nudge that
+     separates the caret bar from the last glyph without reading as a space
+     character. --space-hair (2px) is already wide enough to look like one. */
   display: inline-block; width: 2px; height: 1.05em; margin-left: 1px;
   vertical-align: text-bottom; background: var(--accent, var(--fg));
   animation: chat-caret-blink 1s step-end infinite;
@@ -8055,11 +8072,11 @@
 @media (prefers-reduced-motion: reduce) { .ds-247420 .chat-stream-caret { animation: none; opacity: .8; } }
 
 /* Per-message hover-revealed action row (copy / retry / edit). */
-.ds-247420 .chat-msg-actions { display: flex; gap: 2px; margin-top: 3px; opacity: 0; transition: opacity var(--dur-snap, .12s) var(--ease, ease); }
+.ds-247420 .chat-msg-actions { display: flex; gap: var(--space-hair); margin-top: var(--space-half); opacity: 0; transition: opacity var(--dur-snap, .12s) var(--ease, ease); }
 .ds-247420 .chat-msg:hover .chat-msg-actions, .ds-247420 .chat-msg:focus-within .chat-msg-actions { opacity: 1; }
 .ds-247420 .chat-msg-action {
-  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
-  min-width: 26px; height: 26px; padding: 0 6px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-1);
+  min-width: 26px; height: 26px; padding: 0 var(--space-1-75); cursor: pointer;
   border: none; border-radius: var(--r-1, 4px); background: none; color: var(--fg-3);
   font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
@@ -8068,7 +8085,12 @@
 .ds-247420 .chat-msg-action:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; opacity: 1; }
 .ds-247420 .chat-msg-action.is-copied { color: var(--accent-ink); opacity: 1; }
 
-/* Empty state: a fresh thread is an invitation, not a void. */
+/* Empty state: a fresh thread is an invitation, not a void.
+   The em-based gap/padding through this block and the suggestion chips below
+   are OFF the --space-* px scale ON PURPOSE: the empty state is typeset copy
+   whose rhythm must track its own font-size (hosts scale this panel down on
+   narrow viewports via font-size alone). Fixed px rungs here would decouple
+   the chip padding from the label and break the capsule proportions. */
 .ds-247420 .agentchat-empty {
   margin: auto;
   display: flex;
@@ -8132,7 +8154,7 @@
   font-family: var(--ff-mono); font-size: var(--fs-sm); color: var(--fg-2, var(--fg));
 }
 .ds-247420 .agentchat-install-copy {
-  flex: 0 0 auto; cursor: pointer; padding: 2px 8px; min-height: 24px;
+  flex: 0 0 auto; cursor: pointer; padding: var(--space-hair) var(--space-2); min-height: 24px;
   border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 4px);
   background: none; color: var(--fg-3);
   font-family: var(--ff-body); font-size: var(--fs-tiny);
@@ -8143,7 +8165,7 @@
 
 /* Host-supplied transcript export actions riding the controls row. */
 .ds-247420 .agentchat-export-act {
-  cursor: pointer; padding: 4px 10px; min-height: 32px;
+  cursor: pointer; padding: var(--space-1) var(--space-2-5); min-height: 32px;
   border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 4px);
   background: none; color: var(--fg-3);
   font-family: var(--ff-body); font-size: var(--fs-tiny);
@@ -8151,7 +8173,10 @@
 .ds-247420 .agentchat-export-act:hover { background: var(--bg-2); color: var(--fg); }
 .ds-247420 .agentchat-export-act:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; }
 
-/* "working" tail: a long silent tool call shouldn't read as frozen. */
+/* "working" tail: a long silent tool call shouldn't read as frozen.
+   em gap/padding here and on .chat-thinking below is deliberate — both tails
+   are inline status text sized off --fs-tiny, and their inset must shrink with
+   the type, not sit on a fixed px rung. */
 .ds-247420 .agentchat-working {
   display: flex;
   align-items: center;
@@ -8163,7 +8188,7 @@
 .ds-247420 .agentchat-working-text { color: var(--fg-3); }
 /* Self-contained dots (chat-thinking-dots lives in a kit sheet not bundled
    into this DS distribution, so the agentchat tail draws its own). */
-.ds-247420 .agentchat-working .chat-thinking-dots { display: inline-flex; gap: 3px; }
+.ds-247420 .agentchat-working .chat-thinking-dots { display: inline-flex; gap: var(--space-half); }
 .ds-247420 .agentchat-working .chat-thinking-dots span {
   width: 5px; height: 5px; border-radius: 50%;
   background: var(--fg); opacity: .4;
@@ -8184,7 +8209,7 @@
    no muted tone. Reuse the agentchat-dot-bounce keyframe. */
 .ds-247420 .chat-thinking { display: flex; align-items: center; gap: .5em; color: var(--fg-3); font-size: var(--fs-tiny); background: none; padding: .3em .2em; }
 .ds-247420 .chat-thinking-text { color: var(--fg-3); }
-.ds-247420 .chat-thinking-dots { display: inline-flex; gap: 3px; }
+.ds-247420 .chat-thinking-dots { display: inline-flex; gap: var(--space-half); }
 .ds-247420 .chat-thinking-dots span {
   width: 5px; height: 5px; border-radius: 50%;
   background: var(--fg); opacity: .4;
@@ -8284,7 +8309,7 @@
 .ds-247420 .ds-session-new:hover { background: var(--bg-2); color: var(--fg); }
 /* Rail filter uses the shared .ds-search-input primitive (provides bg/border/
    radius/focus-ring); only the rail layout + touch floor live here. */
-.ds-247420 .ds-session-head .ds-search-input { order: 1; flex: 1 1 auto; min-width: 0; min-height: 36px; padding: 0 10px; }
+.ds-247420 .ds-session-head .ds-search-input { order: 1; flex: 1 1 auto; min-width: 0; min-height: 36px; padding: 0 var(--space-2-5); }
 .ds-247420 .ds-session-new:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 /* Touch floor (must FOLLOW the base rules - same specificity, order decides). */
 @media (pointer: coarse) {
@@ -8293,7 +8318,7 @@
 }
 .ds-247420 .ds-session-list, .ds-247420 .ds-session-groups { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-2); }
 .ds-247420 .ds-session-loadmore {
-  width: 100%; margin-top: var(--space-1); padding: 8px 12px;
+  width: 100%; margin-top: var(--space-1); padding: var(--space-2) var(--space-2-75);
   font-size: var(--fs-sm); font-family: inherit; color: var(--fg-3);
   background: none; border: var(--bw-hair) dashed var(--rule); border-radius: var(--r-1);
   cursor: pointer; text-align: center;
@@ -8304,11 +8329,11 @@
 /* Grouped rows (Today/Yesterday/...) lay out like the flat list; the section
    label sticks to the top of the scroll area for Claude-Desktop-style headers. */
 .ds-247420 .ds-session-group { display: flex; flex-direction: column; }
-.ds-247420 .ds-session-group-rows { display: flex; flex-direction: column; gap: 2px; }
+.ds-247420 .ds-session-group-rows { display: flex; flex-direction: column; gap: var(--space-hair); }
 .ds-247420 .ds-session-group-label { position: sticky; top: 0; z-index: var(--z-sticky); background: var(--bg-1, var(--bg)); font-size: var(--fs-tiny); font-weight: 600; color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-label); padding: var(--space-2) var(--space-2) var(--space-1); }
 .ds-247420 .ds-session-row {
   position: relative; display: flex; align-items: center; gap: var(--space-2);
-  width: 100%; padding: var(--space-2); min-height: 52px; margin-bottom: 2px;
+  width: 100%; padding: var(--space-2); min-height: 52px; margin-bottom: var(--space-hair);
   background: transparent; border: none; border-radius: var(--r-1);
   cursor: pointer; text-align: left; color: var(--fg);
 }
@@ -8323,7 +8348,7 @@
 .ds-247420 .ds-session-row.rail-green::before { background: var(--accent-ink); }
 .ds-247420 .ds-session-row.rail-purple::before { background: var(--purple-2); }
 .ds-247420 .ds-session-row.rail-flame::before { background: var(--flame); }
-.ds-247420 .ds-session-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ds-247420 .ds-session-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-hair); }
 .ds-247420 .ds-session-title { font-size: var(--fs-sm); color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-247420 .ds-session-sub { font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-247420 .ds-session-meta { display: flex; align-items: center; gap: var(--space-2); flex: 0 0 auto; }
@@ -8393,7 +8418,7 @@
    it only goes loud while ARMED (the one-shot press-again confirm). */
 .ds-247420 .ds-dash-header .btn, .ds-247420 .ds-dash-header .btn-primary {
   margin-left: 0;
-  padding: 5px 12px; min-height: 32px; border-radius: var(--r-1); font-weight: 500;
+  padding: var(--space-1-5) var(--space-2-75); min-height: 32px; border-radius: var(--r-1); font-weight: 500;
 }
 .ds-247420 .ds-dash-header .btn-primary.danger {
   background: transparent; color: var(--warn);
@@ -8414,7 +8439,7 @@
 .ds-247420 .ds-dash-status.is-error { color: var(--flame); }
 .ds-247420 .ds-dash-agent { font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
 .ds-247420 .ds-dash-model { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); margin-left: auto; }
-.ds-247420 .ds-dash-meta { display: flex; flex-direction: column; gap: 2px; }
+.ds-247420 .ds-dash-meta { display: flex; flex-direction: column; gap: var(--space-hair); }
 .ds-247420 .ds-dash-cwd { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-247420 .ds-dash-stat { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-2); }
 .ds-247420 .ds-dash-stat-cost { color: var(--fg); font-weight: 600; }
@@ -8445,7 +8470,7 @@
   letter-spacing: var(--tr-caps); text-transform: uppercase;
   padding: 0 0 var(--space-2);
 }
-.ds-247420 .ds-context-group .row + .row { margin-top: 2px; }
+.ds-247420 .ds-context-group .row + .row { margin-top: var(--space-hair); }
 
 /* ============================================================================
    Cohesion sweep (gui-cohesion.js): one-product polish across surfaces.
@@ -8459,7 +8484,7 @@
 .ds-247420 .chat-code-copy {
   position: absolute; top: 6px; right: 6px;
   display: inline-flex; align-items: center; justify-content: center;
-  min-width: 48px; min-height: 24px; padding: 2px 8px;
+  min-width: 48px; min-height: 24px; padding: var(--space-hair) var(--space-2);
   border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 4px);
   background: var(--bg-2); color: var(--fg-2); cursor: pointer;
   font-family: var(--ff-body); font-size: var(--fs-tiny);
@@ -8502,7 +8527,7 @@
 
 /* --- A5: composer context line (agent / model / cwd at point of typing). --- */
 .ds-247420 .chat-composer-context {
-  display: block; width: 100%; text-align: left; padding: 4px var(--space-3) 0;
+  display: block; width: 100%; text-align: left; padding: var(--space-1) var(--space-3) 0;
   background: none; border: none; cursor: default; color: var(--fg-3);
   font-family: var(--ff-mono); font-size: var(--fs-tiny);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -8544,11 +8569,11 @@
    height, never a stacked full-width form column. */
 .ds-247420 .ds-dash-toolbar { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
 .ds-247420 .ds-dash-toolbar .ds-search-input {
-  width: 200px; min-height: 32px; padding: 5px 10px;
+  width: 200px; min-height: 32px; padding: var(--space-1-5) var(--space-2-5);
   font-size: var(--fs-sm); border-radius: var(--r-1);
 }
 .ds-247420 .ds-dash-toolbar .ds-select, .ds-247420 .ds-dash-toolbar select {
-  min-height: 32px; padding: 4px 10px; font-size: var(--fs-sm);
+  min-height: 32px; padding: var(--space-1) var(--space-2-5); font-size: var(--fs-sm);
   width: auto; border-radius: var(--r-1);
 }
 .ds-247420 .ds-dash-stream { font-size: var(--fs-tiny); color: var(--fg-3); }
@@ -8557,7 +8582,7 @@
 .ds-247420 .ds-dash-stream.is-connecting { color: var(--amber); }
 .ds-247420 .ds-dash-header .spread { flex: 1; }
 .ds-247420 .ds-dash-errors-toggle {
-  padding: 4px 10px; min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
+  padding: var(--space-1) var(--space-2-5); min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
   border-radius: var(--r-1); background: var(--bg-2); color: var(--fg-2);
   cursor: pointer; font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
@@ -8600,14 +8625,14 @@
 .ds-247420 .ds-preview-code-wrap { display: flex; flex-direction: column; min-height: 0; }
 .ds-247420 .ds-preview-code-head { flex: 0 0 auto; }
 /* --- E2: prev/next stepper in preview head. --- */
-.ds-247420 .ds-preview-step { display: inline-flex; gap: 2px; }
-.ds-247420 .ds-preview-step .ds-file-act { min-width: 40px; padding: 0 6px; font-family: var(--ff-body); font-size: var(--fs-tiny); }
+.ds-247420 .ds-preview-step { display: inline-flex; gap: var(--space-hair); }
+.ds-247420 .ds-preview-step .ds-file-act { min-width: 40px; padding: 0 var(--space-1-75); font-family: var(--ff-body); font-size: var(--fs-tiny); }
 
 /* --- D1: file grid "show more" row. --- */
 .ds-247420 .ds-file-more { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); justify-content: center; }
 .ds-247420 .ds-file-more-count { font-size: var(--fs-tiny); color: var(--fg-3); }
 .ds-247420 .ds-file-more-btn {
-  padding: 4px 12px; min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
+  padding: var(--space-1) var(--space-2-75); min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
   border-radius: var(--r-1); background: var(--bg-2); color: var(--fg-2); cursor: pointer;
   font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
@@ -8616,9 +8641,9 @@
 .ds-247420 .ds-file-row.is-locked { opacity: .6; }
 
 /* --- D4: roots picker segmented control. --- */
-.ds-247420 .ds-roots-picker { display: inline-flex; gap: 2px; padding: 2px; background: var(--bg-2); border-radius: var(--r-1); }
+.ds-247420 .ds-roots-picker { display: inline-flex; gap: var(--space-hair); padding: var(--space-hair); background: var(--bg-2); border-radius: var(--r-1); }
 .ds-247420 .ds-roots-tab {
-  padding: 4px 10px; min-height: 32px; border: none; border-radius: var(--r-1);
+  padding: var(--space-1) var(--space-2-5); min-height: 32px; border: none; border-radius: var(--r-1);
   background: none; color: var(--fg-3); cursor: pointer;
   font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
@@ -8652,7 +8677,7 @@
 .ds-247420 .ds-session-meta-label { color: var(--fg-3); }
 .ds-247420 .ds-session-meta-value { font-family: var(--ff-mono); color: var(--fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ds-247420 .ds-session-meta-copy, .ds-247420 .ds-session-meta-action {
-  padding: 2px 8px; min-height: 24px; cursor: pointer;
+  padding: var(--space-hair) var(--space-2); min-height: 24px; cursor: pointer;
   background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1);
   color: var(--fg-3); font-family: var(--ff-body); font-size: var(--fs-micro);
 }
@@ -8671,7 +8696,7 @@
    can discover Enter-vs-Shift+Enter without having to focus it first;
    hidden under 420px to save rows. */
 .ds-247420 .chat-composer-hint {
-  display: block; width: 100%; order: 5; padding: 2px var(--space-1) 0;
+  display: block; width: 100%; order: 5; padding: var(--space-hair) var(--space-1) 0;
   font-size: var(--fs-micro); color: var(--fg-3);
 }
 @media (max-width: 420px) {
@@ -8680,13 +8705,13 @@
 
 /* Transient composer note (paste/drop not supported), aria-live polite. */
 .ds-247420 .chat-composer-note {
-  padding: 4px var(--space-3); font-size: var(--fs-tiny); color: var(--fg-2);
+  padding: var(--space-1) var(--space-3); font-size: var(--fs-tiny); color: var(--fg-2);
 }
 
 /* Streaming elapsed-time counter: ticks m:ss while a turn is in flight.
    Tabular-nums so the digits don't jitter the layout every second. */
 .ds-247420 .chat-composer-elapsed {
-  order: 5; padding: 2px var(--space-1) 0;
+  order: 5; padding: var(--space-hair) var(--space-1) 0;
   font-size: var(--fs-micro); color: var(--fg-3);
   font-variant-numeric: tabular-nums; font-feature-settings: 'tnum';
 }
@@ -8696,7 +8721,7 @@
    new chrome. */
 .ds-247420 .chat-composer-detected-badge {
   display: flex; align-items: center; gap: var(--space-2, 8px);
-  padding: 4px var(--space-3); font-size: var(--fs-tiny); color: var(--fg-2);
+  padding: var(--space-1) var(--space-3); font-size: var(--fs-tiny); color: var(--fg-2);
   background: var(--bg-2); border: var(--bw-hair) solid var(--rule);
   border-radius: var(--r-1); width: 100%; order: -1;
 }
@@ -8704,7 +8729,7 @@
 .ds-247420 .chat-composer-detected-dismiss {
   flex: 0 0 auto; background: none; border: none; cursor: pointer;
   color: var(--fg-3); font: inherit; font-size: var(--fs-tiny);
-  padding: 2px 6px; border-radius: var(--r-1);
+  padding: var(--space-hair) var(--space-1-75); border-radius: var(--r-1);
 }
 .ds-247420 .chat-composer-detected-dismiss:hover { color: var(--fg); }
 .ds-247420 .chat-composer-detected-dismiss:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
@@ -8757,7 +8782,7 @@
 /* Out-of-band turn notices: neutral tone (NOT error red) — a stopped or
    incomplete turn must not read as a finished answer. */
 .ds-247420 .chat-msg-notice {
-  margin-top: var(--space-1); padding: 6px 10px;
+  margin-top: var(--space-1); padding: var(--space-1-75) var(--space-2-5);
   border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
   background: var(--bg-2); color: var(--fg-2); font-size: var(--fs-tiny);
 }
@@ -8772,14 +8797,14 @@
 .ds-247420 .chat-msg-retry-btn {
   border: var(--bw-hair) solid var(--danger); border-radius: var(--r-1);
   background: transparent; color: var(--danger-ink, var(--danger));
-  font: inherit; font-size: var(--fs-tiny); padding: 2px 10px; cursor: pointer;
+  font: inherit; font-size: var(--fs-tiny); padding: var(--space-hair) var(--space-2-5); cursor: pointer;
 }
 .ds-247420 .chat-msg-retry-btn:hover { background: var(--danger); color: var(--bg); }
 .ds-247420 .chat-msg-retry-btn:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 /* Tail-window streaming head ('streaming · N KB so far'). */
 .ds-247420 .chat-stream-head {
-  padding: 2px 0 6px; font-family: var(--ff-mono);
+  padding: var(--space-hair) 0 var(--space-1-75); font-family: var(--ff-mono);
   font-size: var(--fs-micro); color: var(--fg-3);
 }
 
@@ -8790,7 +8815,7 @@
 }
 .ds-247420 .agentchat-earlier-count { font-size: var(--fs-tiny); color: var(--fg-3); }
 .ds-247420 .agentchat-earlier-btn {
-  padding: 4px 12px; min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
+  padding: var(--space-1) var(--space-2-75); min-height: 32px; border: var(--bw-hair) solid var(--bg-3);
   border-radius: var(--r-1); background: var(--bg-2); color: var(--fg-2); cursor: pointer;
   font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
@@ -8816,7 +8841,10 @@
 
 /* External (observed, not owned) session card: no stop control exists. */
 .ds-247420 .ds-dash-external {
-  padding: 1px 6px; border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-pill);
+  /* 1px vertical is OFF-SCALE ON PURPOSE — a --fs-micro uppercase pill whose
+     height must stay inside the card's meta row. --space-hair (2px) tips it
+     past the row and pushes the card taller. Horizontal snaps normally. */
+  padding: 1px var(--space-1-75); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-pill);
   font-size: var(--fs-micro); color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-caps);
 }
 .ds-247420 .ds-dash-card.is-external { border-style: dashed; }
@@ -8855,11 +8883,18 @@
 .ds-247420 .chat-msg-flat .chat-role { margin-bottom: var(--space-2); }
 .ds-247420 .chat-msg-flat .chat-md { line-height: var(--lh-long); }
 .ds-247420 .chat-msg-flat .chat-md p { margin: var(--space-2) 0; }
+/* The `+ 2px` is an OFF-SCALE optical correction, not a rhythm step: the tinted
+   assistant row needs marginally more inset than the untinted .you row so the
+   fill does not appear to crowd the text. Expressing it as a --space-* rung
+   would make it a visible step rather than the sub-perceptual nudge intended. */
 .ds-247420 .chat-msg-flat.them { padding-block: calc(var(--space-3) * var(--density, 1) + 2px); }
 /* Inline backtick code (renderInline tags <code class=chat-tick>) - was a dead
    class relying on the generic .chat-bubble code rule, so notices / non-bubble
    surfaces got unstyled monospace. Self-style it regardless of container. */
-.ds-247420 .chat-tick { font-family: var(--ff-mono); font-size: .92em; background: color-mix(in oklab, var(--fg) 10%, transparent); padding: 1px 6px; border-radius: var(--r-1); }
+/* 1px vertical is OFF-SCALE ON PURPOSE — inline code sits INSIDE a line of running
+   prose; any larger vertical pad makes the tinted box overlap the lines above and
+   below. Horizontal is on the scale. */
+.ds-247420 .chat-tick { font-family: var(--ff-mono); font-size: .92em; background: color-mix(in oklab, var(--fg) 10%, transparent); padding: 1px var(--space-1-75); border-radius: var(--r-1); }
 /* Structured tool/code output earns more width than running prose (claude.ai/code
    lets diffs/tables break out wider than the reading measure). A flat turn that
    contains a tool card or code block widens itself AND its stack past --measure;
@@ -8911,7 +8946,7 @@
   margin-left: auto; flex: 0 0 auto;
   font-size: var(--fs-micro); font-weight: 700; text-transform: uppercase; letter-spacing: var(--tr-caps);
   color: var(--fg-3);
-  padding: 2px var(--space-2); border-radius: var(--r-pill);
+  padding: var(--space-hair) var(--space-2); border-radius: var(--r-pill);
   background: color-mix(in oklab, var(--fg) 6%, transparent);
 }
 .ds-247420 .chat-msg .chat-tool.tool-running .chat-tool-status { color: var(--accent-ink); background: color-mix(in oklab, var(--accent) 12%, transparent); }
@@ -8940,7 +8975,7 @@
 .ds-247420 .chat-code-block { position: relative; }
 .ds-247420 .chat-code-lang {
   position: absolute; top: 0; left: 0; z-index: var(--z-raised);
-  padding: 2px var(--space-2); border-bottom-right-radius: var(--r-1);
+  padding: var(--space-hair) var(--space-2); border-bottom-right-radius: var(--r-1);
   font-family: var(--ff-mono); font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: var(--tr-caps);
   color: var(--fg-3); background: color-mix(in oklab, var(--fg) 6%, transparent);
   pointer-events: none;
@@ -9000,7 +9035,7 @@
 .ds-247420 .ds-dash-clear:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; border-radius: var(--r-1); }
 
 /* Conversation-rail loading skeleton (cold ccsniff walk). */
-.ds-247420 .ds-session-row-skeleton { display: flex; flex-direction: column; gap: 6px; padding: var(--space-2) var(--space-3); }
+.ds-247420 .ds-session-row-skeleton { display: flex; flex-direction: column; gap: var(--space-1-75); padding: var(--space-2) var(--space-3); }
 .ds-247420 .ds-session-row-skeleton .ds-skel { background: var(--bg-3); border-radius: var(--r-1); }
 .ds-247420 .ds-session-row-skeleton .ds-skel-title { height: 12px; width: 70%; }
 .ds-247420 .ds-session-row-skeleton .ds-skel-meta { height: 9px; width: 45%; }
@@ -9051,7 +9086,7 @@
    Hover/focus/active-state rules on the originals still apply.
 ---------------------------------------------------------------------------- */
 .ds-247420 .row-act, .ds-247420 .ds-dash-errors-toggle, .ds-247420 .agentchat-export-act, .ds-247420 .ds-file-more-btn {
-  min-height: 32px; padding: 5px 12px; border-radius: var(--r-1);
+  min-height: 32px; padding: var(--space-1-5) var(--space-2-75); border-radius: var(--r-1);
   font-family: var(--ff-body); font-size: var(--fs-tiny); font-weight: 500;
   background: transparent; border: var(--bw-hair) solid var(--rule); color: var(--fg-2);
   cursor: pointer;
@@ -9060,7 +9095,7 @@
   background: var(--bg-2); color: var(--fg);
 }
 .ds-247420 .agentchat-install-copy, .ds-247420 .ds-upload-act, .ds-247420 .ds-session-meta-copy {
-  min-height: 24px; padding: 2px 8px; border-radius: var(--r-1);
+  min-height: 24px; padding: var(--space-hair) var(--space-2); border-radius: var(--r-1);
   font-family: var(--ff-body); font-size: var(--fs-tiny);
   background: transparent; border: var(--bw-hair) solid var(--rule); color: var(--fg-3);
   cursor: pointer;
@@ -9200,8 +9235,8 @@
 }
 .ds-247420 .ds-ep-panel-head {
     flex-shrink: 0;
-    display: flex; align-items: center; justify-content: space-between; gap: 8px;
-    padding: 6px 10px;
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+    padding: var(--space-1-75) var(--space-2-5);
     border-bottom: 1px solid var(--rule);
     font-size: var(--fs-micro, 11px); font-weight: 600;
     text-transform: uppercase; letter-spacing: 0.1em;
@@ -9215,7 +9250,7 @@
 }
 .ds-247420 .ds-ep-panel-body {
     flex: 1; min-height: 0; overflow: auto;
-    padding: 6px 8px;
+    padding: var(--space-1-75) var(--space-2);
 }
 .ds-247420 .ds-ep-panel-body.flush { padding: 0; }
 /* A sub-section divider inside a docked panel (e.g. app-prop mount). Only
@@ -9231,36 +9266,36 @@
 /* Dense status strip for editor chrome — thin, flush, bordered top. */
 .ds-247420 .ds-ep-statusbar {
     flex-shrink: 0;
-    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
     min-height: 0; height: 26px;
-    padding: 0 10px;
+    padding: 0 var(--space-2-5);
     border-top: 1px solid var(--rule);
     background: var(--panel-1);
     color: var(--panel-text-2);
     font: var(--fs-micro, 11px)/1 var(--ff-mono, monospace);
 }
-.ds-247420 .ds-ep-statusbar-left, .ds-247420 .ds-ep-statusbar-right { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.ds-247420 .ds-ep-statusbar-left, .ds-247420 .ds-ep-statusbar-right { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
 .ds-247420 .ds-ep-statusbar-left { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* Buttons inside the dense strip shrink to fit the 26px band. */
 .ds-247420 .ds-ep-statusbar button {
-    min-height: 0; height: 20px; padding: 0 8px;
+    min-height: 0; height: 20px; padding: 0 var(--space-2);
     border-radius: var(--r-1, 4px);
     font: var(--fs-micro, 11px)/1 var(--ff-mono, monospace);
 }
 
 /* Toolbar */
 .ds-247420 .ds-ep-toolbar {
-    display: flex; align-items: center; gap: 6px;
-    padding: 8px 10px;
+    display: flex; align-items: center; gap: var(--space-1-75);
+    padding: var(--space-2) var(--space-2-5);
     background: var(--panel-1);
     color: var(--panel-text);
     border-bottom: 1px solid var(--rule);
     font: var(--fs-tiny, 12px)/var(--lh-base, 1.55) var(--ff-mono, monospace);
 }
-.ds-247420 .ds-ep-toolbar.dense { padding: 2px 4px; gap: 2px; }
+.ds-247420 .ds-ep-toolbar.dense { padding: var(--space-hair) var(--space-1); gap: var(--space-hair); }
 .ds-247420 .ds-ep-toolbar-leading,
 .ds-247420 .ds-ep-toolbar-center,
-.ds-247420 .ds-ep-toolbar-trailing { display: flex; align-items: center; gap: 4px; }
+.ds-247420 .ds-ep-toolbar-trailing { display: flex; align-items: center; gap: var(--space-1); }
 .ds-247420 .ds-ep-toolbar-trailing { margin-left: auto; }
 .ds-247420 .ds-ep-toolbar-center { flex: 1; min-width: 0; }
 
@@ -9330,7 +9365,7 @@
     flex: 1; min-width: 0; appearance: none; background: transparent; border: 0;
     border-bottom: 2px solid transparent;
     color: var(--panel-text-3);
-    padding: 8px 10px;
+    padding: var(--space-2) var(--space-2-5);
     font: inherit; cursor: pointer;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     transition: color var(--dur-snap, 80ms) var(--ease, ease), border-color var(--dur-snap, 80ms) var(--ease, ease);
@@ -9369,8 +9404,8 @@
     color: var(--panel-text);
 }
 .ds-247420 .ds-ep-eventrow {
-    display: flex; align-items: baseline; gap: 8px;
-    padding: 3px 8px;
+    display: flex; align-items: baseline; gap: var(--space-2);
+    padding: var(--space-half) var(--space-2);
     border-bottom: 1px solid color-mix(in oklab, var(--rule) 50%, transparent);
 }
 .ds-247420 .ds-ep-eventrow:hover { background: color-mix(in oklab, var(--accent) 6%, transparent); }
@@ -9387,8 +9422,8 @@
 .ds-247420 .ds-ep-tree-item { display: flex; flex-direction: column; }
 .ds-247420 .ds-ep-tree-item:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 .ds-247420 .ds-ep-tree-row {
-    display: flex; align-items: center; gap: 6px;
-    padding: 4px 8px 4px 0;
+    display: flex; align-items: center; gap: var(--space-1-75);
+    padding: var(--space-1) var(--space-2) var(--space-1) 0;
     border-radius: var(--r-1, 10px);
     cursor: pointer;
     color: var(--panel-text-2);
@@ -9411,25 +9446,25 @@
 .ds-247420 .ds-ep-tree-glyph { flex-shrink: 0; color: var(--panel-text-3); }
 .ds-247420 .ds-ep-tree-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ds-247420 .ds-ep-tree-tag {
-    flex-shrink: 0; padding-left: 6px;
+    flex-shrink: 0; padding-left: var(--space-1-75);
     font-size: 0.85em; color: var(--panel-text-3);
 }
 .ds-247420 .ds-ep-tree-children { display: flex; flex-direction: column; }
 
 /* PropertyGrid / PropertyField */
 .ds-247420 .ds-ep-propgrid {
-    display: flex; flex-direction: column; gap: 6px;
-    padding: 8px;
+    display: flex; flex-direction: column; gap: var(--space-1-75);
+    padding: var(--space-2);
     color: var(--panel-text);
     font: var(--fs-tiny, 12px)/var(--lh-base, 1.55) var(--ff-mono, monospace);
 }
 .ds-247420 .ds-ep-propfield {
     display: grid;
     grid-template-columns: minmax(80px, 120px) 1fr;
-    gap: 4px 10px;
+    gap: var(--space-1) var(--space-2-5);
     align-items: center;
 }
-.ds-247420 .ds-ep-propfield.inline { display: flex; gap: 8px; }
+.ds-247420 .ds-ep-propfield.inline { display: flex; gap: var(--space-2); }
 .ds-247420 .ds-ep-propfield-label {
     color: var(--panel-text-3);
     font-size: 0.85em;
@@ -9438,7 +9473,7 @@
 }
 .ds-247420 .ds-ep-propfield-value {
     color: var(--panel-text);
-    display: flex; align-items: center; gap: 4px; min-width: 0;
+    display: flex; align-items: center; gap: var(--space-1); min-width: 0;
 }
 .ds-247420 .ds-ep-propfield-value input,
 .ds-247420 .ds-ep-propfield-value select,
@@ -9448,7 +9483,7 @@
     color: var(--panel-text);
     border: 1px solid var(--rule);
     border-radius: var(--r-1, 10px);
-    padding: 4px 8px;
+    padding: var(--space-1) var(--space-2);
     font: inherit;
     min-width: 0; width: 100%;
 }
@@ -9466,7 +9501,7 @@
 }
 /* x/y/z packed on one row, each field equal width, no horizontal overflow. */
 .ds-247420 .ds-ep-vec3 {
-    display: flex; gap: 4px; width: 100%; min-width: 0;
+    display: flex; gap: var(--space-1); width: 100%; min-width: 0;
 }
 .ds-247420 .ds-ep-vec3 > * { flex: 1 1 0; min-width: 0; }
 /* Each axis cell (axis letter + scrub input) must show its full 3-decimal value
@@ -9474,7 +9509,7 @@
    fill the rest with tight padding and centered text so 0.000 / -0.0 / 1.000 are
    always legible even in the narrow 3-up layout. */
 .ds-247420 .ds-ep-vec3 > * {
-    display: flex; align-items: center; gap: 2px;
+    display: flex; align-items: center; gap: var(--space-hair);
 }
 .ds-247420 .ds-ep-vec3 .ds-ep-propfield-hint {
     flex: 0 0 auto; width: 9px; text-align: center;
@@ -9482,12 +9517,12 @@
 }
 .ds-247420 .ds-ep-vec3 .ds-input-bare {
     flex: 1 1 auto; min-width: 0; width: auto;
-    padding: 2px 4px; text-align: center; text-overflow: clip;
+    padding: var(--space-hair) var(--space-1); text-align: center; text-overflow: clip;
 }
 /* Dense numeric inputs in the inspector — compact, tight radius, mono. */
 .ds-247420 .ds-ep-propfield-value input,
 .ds-247420 .ds-ep-propfield-value .ds-input-bare {
-    padding: 2px 6px;
+    padding: var(--space-hair) var(--space-1-75);
     border-radius: var(--r-1, 4px);
     font: var(--fs-tiny, 12px)/1.3 var(--ff-mono, monospace);
 }
@@ -9497,7 +9532,7 @@
     color: var(--panel-text);
     border: 1px solid var(--rule);
     border-radius: var(--r-1, 4px);
-    padding: 2px 6px;
+    padding: var(--space-hair) var(--space-1-75);
     font: var(--fs-tiny, 12px)/1.3 var(--ff-mono, monospace);
     min-width: 0;
 }
@@ -9506,7 +9541,7 @@
    control below) — used for wide segmented controls that would clip in the
    narrow value column. */
 .ds-247420 .ds-ep-propfield.block {
-    display: flex; flex-direction: column; align-items: stretch; gap: 4px;
+    display: flex; flex-direction: column; align-items: stretch; gap: var(--space-1);
 }
 .ds-247420 .ds-ep-propfield.block > .ds-ep-propfield-value { width: 100%; }
 .ds-247420 .ds-ep-propfield.block .ds-ep-btngrp { width: 100%; }
@@ -9555,8 +9590,8 @@
    Compact buttons, square-ish, bordered top — not big floating pills. */
 .ds-247420 .ds-ep-actionbar {
     flex-shrink: 0;
-    display: flex; align-items: center; gap: 6px;
-    padding: 6px 8px;
+    display: flex; align-items: center; gap: var(--space-1-75);
+    padding: var(--space-1-75) var(--space-2);
     border-top: 1px solid var(--rule);
     background: var(--panel-1);
 }
@@ -9574,7 +9609,7 @@
    IconButtonGroup which manages its own sizing. */
 .ds-247420 .ds-ep-tree-row button:not(.ds-ep-btngrp-btn),
 .ds-247420 .ds-ep-toolbar button:not(.ds-ep-btngrp-btn) {
-    min-height: 24px; height: 24px; padding: 0 8px;
+    min-height: 24px; height: 24px; padding: 0 var(--space-2);
     border-radius: var(--r-1, 4px);
     font: var(--fs-tiny, 12px)/1 var(--ff-mono, monospace);
 }
@@ -9610,7 +9645,7 @@
     border: 1px solid var(--rule);
     color: var(--panel-text, var(--fg));
     min-width: 1.75em;
-    padding: var(--space-half, 3px) var(--space-1, 5px);
+    padding: var(--space-half, 3px) var(--space-1, 4px);
     border-radius: var(--r-1, 4px);
     font: inherit;
     text-align: center;
@@ -9711,7 +9746,7 @@
 /* Collapsible tree mode — native details/summary, indent guides on children. */
 .ds-247420 .ds-ep-json-tree { white-space: normal; }
 .ds-247420 .ds-ep-json-kids {
-    padding-left: var(--space-3-5, 14px);
+    padding-left: var(--space-3-5, 20px);
     margin-left: var(--space-1, 4px);
     border-left: 1px solid var(--rule);
 }
@@ -9723,7 +9758,7 @@
 .ds-247420 .ds-ep-json-sum::-webkit-details-marker { display: none; }
 .ds-247420 .ds-ep-json-sum::before {
     content: '+';
-    display: inline-block; width: var(--space-3, 12px);
+    display: inline-block; width: var(--space-3, 16px);
     color: var(--panel-text-3, var(--fg-3));
 }
 .ds-247420 .ds-ep-json-node[open] > .ds-ep-json-sum::before { content: '-'; }
@@ -9737,7 +9772,7 @@
     font-size: var(--fs-micro, 11px);
     color: var(--panel-text-3, var(--fg-3));
 }
-.ds-247420 .ds-ep-json-leaf { padding-left: var(--space-3, 12px); word-break: break-all; }
+.ds-247420 .ds-ep-json-leaf { padding-left: var(--space-3, 16px); word-break: break-all; }
 /* Copy affordance (copyable:true) — floats over the viewer's top-right. */
 .ds-247420 .ds-ep-json-wrap { position: relative; }
 .ds-247420 .ds-ep-json-copy {
@@ -9799,12 +9834,12 @@
     overflow: hidden;
     background: var(--panel-2);
 }
-.ds-247420 .ds-ep-btngrp.dense .ds-ep-btngrp-btn { padding: 2px 6px; min-width: 22px; }
+.ds-247420 .ds-ep-btngrp.dense .ds-ep-btngrp-btn { padding: var(--space-hair) var(--space-1-75); min-width: 22px; }
 .ds-247420 .ds-ep-btngrp-btn {
     appearance: none; border: 0;
     background: transparent;
     color: var(--panel-text-2);
-    padding: 4px 10px;
+    padding: var(--space-1) var(--space-2-5);
     font: inherit; cursor: pointer;
     border-right: 1px solid var(--rule);
     transition: background var(--dur-snap, 80ms) var(--ease, ease), color var(--dur-snap, 80ms) var(--ease, ease);
@@ -9873,13 +9908,13 @@
     border: 1px solid var(--rule);
     border-radius: var(--r-2, 8px);
     box-shadow: var(--shadow-2);
-    padding: 4px;
+    padding: var(--space-1);
     display: flex; flex-direction: column;
     outline: none;
 }
 .ds-247420 .ds-ep-ctxmenu-item {
-    display: flex; align-items: center; gap: 8px;
-    padding: 8px 10px;
+    display: flex; align-items: center; gap: var(--space-2);
+    padding: var(--space-2) var(--space-2-5);
     background: transparent; border: 0;
     color: inherit; font: inherit; text-align: left;
     border-radius: var(--r-1, 4px);
@@ -9892,7 +9927,7 @@
 .ds-247420 .ds-ep-ctxmenu-item.danger { color: var(--danger); }
 .ds-247420 .ds-ep-ctxmenu-item.disabled { opacity: 0.45; cursor: not-allowed; }
 .ds-247420 .ds-ep-ctxmenu-icon { width: 16px; display: inline-flex; justify-content: center; }
-.ds-247420 .ds-ep-ctxmenu-sep { height: 1px; background: var(--rule); margin: 4px 6px; }
+.ds-247420 .ds-ep-ctxmenu-sep { height: 1px; background: var(--rule); margin: var(--space-1) var(--space-1-75); }
 
 /* ---------------------------------------------------------------
    Drawer
@@ -9908,11 +9943,11 @@
     box-shadow: var(--shadow-overlay);
     outline: none;
     transition: transform 180ms ease;
-    padding: 12px;
-    padding-top: max(12px, env(safe-area-inset-top));
-    padding-bottom: max(12px, env(safe-area-inset-bottom));
-    padding-left: max(12px, env(safe-area-inset-left));
-    padding-right: max(12px, env(safe-area-inset-right));
+    padding: var(--space-2-75);
+    padding-top: max(var(--space-2-75), env(safe-area-inset-top));
+    padding-bottom: max(var(--space-2-75), env(safe-area-inset-bottom));
+    padding-left: max(var(--space-2-75), env(safe-area-inset-left));
+    padding-right: max(var(--space-2-75), env(safe-area-inset-right));
 }
 .ds-247420 .ds-ep-drawer.side-left   { left: 0; top: 0; bottom: 0; width: 86vw; max-width: 320px; }
 .ds-247420 .ds-ep-drawer.side-right  { right: 0; top: 0; bottom: 0; width: 86vw; max-width: 320px; }
@@ -9928,7 +9963,7 @@
     position: fixed; inset: 0; z-index: var(--z-modal);
     background: var(--scrim-strong);
     display: flex; align-items: center; justify-content: center;
-    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    padding: max(var(--space-3), env(safe-area-inset-top)) max(var(--space-3), env(safe-area-inset-right)) max(var(--space-3), env(safe-area-inset-bottom)) max(var(--space-3), env(safe-area-inset-left));
 }
 .ds-247420 .ds-ep-dialog {
     background: var(--panel-1, var(--panel-bg));
@@ -9979,7 +10014,7 @@
     top: max(16px, env(safe-area-inset-top));
     right: max(16px, env(safe-area-inset-right));
     z-index: var(--z-toast);
-    display: flex; flex-direction: column; gap: 8px;
+    display: flex; flex-direction: column; gap: var(--space-2);
     pointer-events: none;
 }
 .ds-247420 .ds-ep-toast {
@@ -10052,8 +10087,8 @@
     .ds-247420 .ds-ep-tree-row,
     .ds-247420 .ds-ep-pager-btn {
         min-height: 44px;
-        padding-top: 10px;
-        padding-bottom: 10px;
+        padding-top: var(--space-2-5);
+        padding-bottom: var(--space-2-5);
     }
     .ds-247420 .ds-ep-resize.axis-h { width: 14px; }
     .ds-247420 .ds-ep-resize.axis-v { height: 14px; }
@@ -10198,6 +10233,10 @@
 
 .ds-247420 .sr-only {
     position: absolute; width: 1px; height: 1px;
+    /* margin:-1px is OFF-SCALE ON PURPOSE — it is not rhythm, it is the
+       canonical visually-hidden idiom: the negative margin cancels the 1px
+       box so the clipped element contributes zero layout. Snapping it to a
+       --space-* rung would reintroduce a measurable gap. */
     padding: 0; margin: -1px; overflow: hidden;
     clip: rect(0,0,0,0); white-space: nowrap; border: 0;
 }
@@ -10257,10 +10296,10 @@
 /* ---------------------------------------------------------------
    Dropdown
    --------------------------------------------------------------- */
-.ds-247420 .ds-dropdown-menu { padding: 4px; }
+.ds-247420 .ds-dropdown-menu { padding: var(--space-1); }
 .ds-247420 .ds-dropdown-list { display: flex; flex-direction: column; }
 .ds-247420 .ds-dropdown-item {
-    display: flex; align-items: center; gap: 8px;
+    display: flex; align-items: center; gap: var(--space-2);
     /* Dense desktop row (was an unconditional 44px touch target — a menu of
        these was very tall on desktop). ~30px here; the 44px tap target is
        restored under @media(pointer:coarse) below, matching the .ds-check-row
@@ -10292,7 +10331,7 @@
 .ds-247420 .ds-dropdown-item.is-danger { color: var(--danger); }
 .ds-247420 .ds-dropdown-glyph { width: 16px; display: inline-flex; justify-content: center; flex-shrink: 0; }
 .ds-247420 .ds-dropdown-label { flex: 1; min-width: 0; }
-.ds-247420 .ds-dropdown-separator { height: 1px; background: var(--rule); margin: 4px 6px; }
+.ds-247420 .ds-dropdown-separator { height: 1px; background: var(--rule); margin: var(--space-1) var(--space-1-75); }
 .ds-247420 .ds-dropdown-trigger {
     appearance: none;
     background: var(--panel-2, transparent);
@@ -10432,7 +10471,7 @@
     border-radius: var(--r-1, 10px);
     background: var(--panel-2, var(--panel-1)); color: var(--panel-text);
 }
-.ds-247420 .ds-kbd-group { margin: var(--space-3, 12px) 0; }
+.ds-247420 .ds-kbd-group { margin: var(--space-3, 16px) 0; }
 .ds-247420 .ds-kbd-group h3 { font-size: 0.9em; opacity: 0.7; margin: 0 0 var(--space-1, 4px); text-transform: capitalize; }
 /* One shortcut per row: the key chip on the left, its description on the right,
    so the dialog reads as "G  Translate gizmo" rather than a wall of bare keys. */
@@ -10716,7 +10755,7 @@
     border: 1px solid var(--rule); border-radius: var(--r-1, 4px);
     background: var(--panel-2); cursor: pointer; flex-shrink: 0;
 }
-.ds-247420 .ds-input-color::-webkit-color-swatch-wrapper { padding: 2px; }
+.ds-247420 .ds-input-color::-webkit-color-swatch-wrapper { padding: var(--space-hair); }
 .ds-247420 .ds-input-color::-webkit-color-swatch { border: none; border-radius: var(--r-hair); }
 .ds-247420 .ds-input-color:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 .ds-247420 .ds-input-check {
@@ -10779,8 +10818,8 @@
 /* Collapsed: shrink to just the header strip, freeing the viewport. */
 .ds-247420 .ds-ep-dock.collapsed { bottom: auto; height: auto; }
 .ds-247420 .ds-ep-dock-head {
-    display: flex; align-items: center; gap: 6px;
-    flex: 0 0 auto; padding: 4px 6px 4px 10px;
+    display: flex; align-items: center; gap: var(--space-1-75);
+    flex: 0 0 auto; padding: var(--space-1) var(--space-1-75) var(--space-1) var(--space-2-5);
     border-bottom: 1px solid var(--rule);
     background: color-mix(in oklab, var(--panel-1) 60%, transparent);
 }
@@ -10811,7 +10850,7 @@
     border-radius: var(--r-1, 4px);
     background: var(--panel-2, var(--bg-2));
 }
-.ds-247420 .ds-ep-collapse + .ds-ep-collapse { margin-top: var(--space-1, 5px); }
+.ds-247420 .ds-ep-collapse + .ds-ep-collapse { margin-top: var(--space-1, 4px); }
 .ds-247420 .ds-ep-collapse-head {
     appearance: none; cursor: pointer; width: 100%;
     display: flex; align-items: center; gap: var(--space-1-5, 5px);
@@ -10878,7 +10917,7 @@
 .ds-247420 .ov-perm-action {
     flex: 1; appearance: none; border: 1px solid var(--rule); background: transparent;
     color: var(--fg-2); font: inherit; font-size: var(--fs-tiny, 12px);
-    padding: 4px 8px; border-radius: var(--r-1, 10px); cursor: pointer;
+    padding: var(--space-1) var(--space-2); border-radius: var(--r-1, 10px); cursor: pointer;
 }
 .ds-247420 .ov-perm-action:hover { background: var(--panel-2, var(--rule)); }
 
@@ -11012,29 +11051,6 @@
   text-transform: uppercase;
   color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
   padding: 10px 8px 4px;
-}
-.ds-247420.ds-247420 .ca-rail .group-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-right: var(--space-1, 4px);
-}
-.ds-247420.ds-247420 .ca-rail .group-add-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: none;
-  border-radius: var(--r-0);
-  background: transparent;
-  color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
-  cursor: pointer;
-}
-.ds-247420.ds-247420 .ca-rail .group-add-btn:hover {
-  background: var(--bg-3, color-mix(in oklab, var(--fg) 8%, transparent));
-  color: var(--fg-2, color-mix(in oklab, var(--fg) 78%, transparent));
 }
 .ds-247420.ds-247420 .ca-rail a {
   display: flex;
@@ -11448,6 +11464,11 @@
 .ds-247420 #ds-article-host.has-toc {
   display: flex;
   align-items: flex-start;
+  /* 44px is OFF-SCALE ON PURPOSE — it is not a rhythm step but one term of the
+     three-term width equation on the next line (256px rail + 44px gutter +
+     measure). It sits between --space-6 (48) and --space-5 (32); snapping it
+     would silently change the host's computed max-width unless the calc were
+     re-derived, so the literal and the calc stay coupled and explicit. */
   column-gap: 44px;
   gap: 44px;
   max-width: calc(256px + 44px + var(--measure-narrow));
@@ -11471,7 +11492,7 @@
   overscroll-behavior: contain;
   margin: 0;
   max-width: 100%;
-  padding: 18px 18px 18px 20px;
+  padding: var(--space-3-5);
   background: var(--panel-1);
   border-radius: var(--r-1);
   box-shadow: var(--panel-shadow);
@@ -11496,9 +11517,9 @@
   text-transform: uppercase;
   letter-spacing: .09em;
   color: var(--panel-text-2);
-  margin: 0 0 14px 0;
+  margin: 0 0 var(--space-3) 0;
 }
-.ds-247420 #ds-article-host .toc ol { margin: 0; padding-left: 18px; }
+.ds-247420 #ds-article-host .toc ol { margin: 0; padding-left: var(--space-3-5); }
 .ds-247420 #ds-article-host .toc li { font-size: 13px; line-height: 1.85; color: var(--panel-text); }
 .ds-247420 #ds-article-host .toc li::marker { color: var(--panel-text-3); font-variant-numeric: tabular-nums; }
 .ds-247420 #ds-article-host .toc a { color: var(--panel-text-2); text-decoration: none; transition: color .12s ease; }
@@ -11511,7 +11532,7 @@
     position: static;
     max-height: none;
     overflow: visible;
-    margin: 0 0 28px 0;
+    margin: 0 0 var(--space-5) 0;
   }
 }
 
@@ -11527,8 +11548,8 @@
   display: block;
   background: var(--panel-1);
   border-radius: var(--r-0);
-  padding: 16px 20px;
-  margin: 16px 0 28px 0;
+  padding: var(--space-3) var(--space-3-5);
+  margin: var(--space-3) 0 var(--space-5) 0;
   font-family: var(--ff-mono);
   font-size: 12.5px;
   line-height: 1.6;
@@ -11543,14 +11564,14 @@
   white-space: pre-wrap;
   word-break: break-word;
   min-height: 1.4em;
-  padding: 3px 0;
+  padding: var(--space-half) 0;
   line-height: 1.6;
 }
 .ds-247420 .ds-cli-block .ds-cli-comment:empty::before { content: '\00a0'; }
 .ds-247420 .ds-cli-block .ds-cli-row {
   display: flex;
-  gap: 10px;
-  padding: 3px 0;
+  gap: var(--space-2-5);
+  padding: var(--space-half) 0;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -11566,14 +11587,14 @@
   word-break: break-word;
 }
 
-.ds-247420 .panel .row { align-items: flex-start; padding: 16px 20px; gap: 16px; }
+.ds-247420 .panel .row { align-items: flex-start; padding: var(--space-3) var(--space-3-5); gap: var(--space-3); }
 .ds-247420 .panel .row + .row { box-shadow: inset 0 1px 0 var(--rule); }
-.ds-247420 .panel .row .code { padding-top: 2px; min-width: 28px; }
-.ds-247420 .panel .row .meta { padding-top: 2px; opacity: 0.4; }
+.ds-247420 .panel .row .code { padding-top: var(--space-hair); min-width: 28px; }
+.ds-247420 .panel .row .meta { padding-top: var(--space-hair); opacity: 0.4; }
 .ds-247420 .panel .row .title { display: block; line-height: 1.4; }
 .ds-247420 .panel .row .title .sub {
   display: block;
-  margin-top: 6px;
+  margin-top: var(--space-1-75);
   font-weight: 400;
   color: var(--panel-text-2);
   font-size: 13px;
@@ -11583,9 +11604,9 @@
 .ds-247420 .ds-prose .card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 14px 18px;
-  margin: 8px 0;
+  gap: var(--space-2);
+  padding: var(--space-2-75) var(--space-3-5);
+  margin: var(--space-2) 0;
   background: var(--panel-1);
   border-radius: var(--r-0);
   font-size: 13px;
@@ -11593,16 +11614,19 @@
   text-decoration: none;
 }
 .ds-247420 .ds-prose .card:hover { background: var(--panel-hover); }
-.ds-247420 .ds-prose .card .card-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.ds-247420 .ds-prose .card .card-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2-75); }
 .ds-247420 .ds-prose .card .repo-name { font-weight: 600; color: var(--panel-text); }
 .ds-247420 .ds-prose .card .stars { color: var(--panel-text-3); font-family: var(--ff-mono); font-size: 12px; flex: 0 0 auto; }
 .ds-247420 .ds-prose .card .desc { color: var(--panel-text-2); font-size: 12px; line-height: 1.5; margin: 0; }
-.ds-247420 .ds-prose .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ds-247420 .ds-prose .tags { display: flex; gap: var(--space-1-75); flex-wrap: wrap; }
 .ds-247420 .ds-prose .tag {
   background: var(--panel-2);
   color: var(--panel-text-2);
   border: 1px solid var(--panel-3);
   font-size: 0.7rem;
+  /* rem, not --space-*: the chip's inset is deliberately tied to the root type
+     scale alongside its own 0.7rem size, so the capsule keeps its proportions
+     when a doc site scales root font-size. A px rung would decouple them. */
   padding: 0.15rem 0.5rem;
   border-radius: var(--r-hair);
   font-family: var(--ff-mono);
@@ -11614,7 +11638,7 @@
    scale and matches the spine primitive in panel-row.css. */
 .ds-247420 .ds-prose .gm-callout {
   position: relative;
-  margin: 18px 0;
+  margin: var(--space-3-5) 0;
   padding: var(--space-2-75) var(--space-3-5);
   padding-left: calc(var(--space-3-5) + var(--bw-chunk));
   background: var(--panel-1);
@@ -11633,7 +11657,7 @@
   text-transform: uppercase;
   letter-spacing: .08em;
   color: var(--panel-text-2);
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
 }
 
 /* marketing.css */

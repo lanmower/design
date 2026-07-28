@@ -66,11 +66,99 @@ const deviations = [
     { ts: '14:31:52', event: 'deviation.long-gap-retry-without-instruction', sess: 'sess-77b3d81a', operation: 'blind-verb-retry' }
 ];
 
+// Which state the three data surfaces (sessions / process tree / deviations)
+// render in. Driven by the sidebar "store state" group so each one is a real
+// reachable surface — an inspector that only ever draws a populated store has
+// not shown what it looks like when the store is cold or unreachable.
+const storeState = { phase: 'ready' };
+const STORE_PHASES = ['ready', 'loading', 'empty', 'error'];
+
+// Row-shaped shimmer. Reuses .ds-event-row-skeleton + .ds-skel* from
+// app-shell/files.css — SessionRow/TreeNode/DevRow all share the same
+// leading-mark / title / trailing-meta rhythm the primitive was cut for.
+function RowSkeleton(n, prefix) {
+    return h('div', {},
+        ...Array.from({ length: n }, (_, i) => h('div', { key: prefix + i, class: 'ds-event-row-skeleton' },
+            h('span', { class: 'ds-skel ds-skel-rank' }),
+            h('span', { class: 'ds-skel ds-skel-title' }),
+            h('span', { class: 'ds-skel ds-skel-meta' })
+        ))
+    );
+}
+
+function StoreError(what, detail, hint) {
+    return h('div', { class: 'ds-alert ds-alert-error' },
+        h('span', { class: 'ds-alert-icon' }, '!'),
+        h('div', { class: 'ds-alert-content' },
+            h('div', { class: 'ds-alert-title' }, what),
+            h('div', { class: 'ds-alert-message' }, detail),
+            h('div', { class: 'ds-alert-retry' },
+                h('button', { class: 'btn', onclick: () => { storeState.phase = 'ready'; render(); } }, hint)
+            )
+        )
+    );
+}
+
+function StoreEmpty(msg, hint) {
+    return h('div', { class: 'ds-empty-state' },
+        h('div', { class: 'ds-empty-state-glyph' }, '[ ]'),
+        h('p', { class: 'ds-empty-state-msg' }, msg),
+        h('p', { class: 'ds-empty-state-hint' }, hint)
+    );
+}
+
 const liveEntries = [
     { ts: '11:03:40', sub: 'plugkit', tone: 'var(--accent)', event: 'phase.transitioned', preview: 'phase=COMPLETE' },
     { ts: '11:03:41', sub: 'rs_learn', tone: 'var(--sun)', event: 'recall', preview: 'query="gm inspector kit" hit=true score=0.61' },
     { ts: '11:03:42', sub: 'hook', tone: 'var(--success)', event: 'dispatch.end', preview: 'verb=git_finalize ms=166' }
 ];
+
+const countFor = (arr) => (storeState.phase === 'ready' ? arr.length : 0);
+
+function SessionsBody() {
+    const p = storeState.phase;
+    if (p === 'loading') return RowSkeleton(5, 'sk-sess-');
+    if (p === 'error') return StoreError(
+        'session store unreachable',
+        'the plugkit event store at ~/.gm/events.jsonl could not be opened -- the file is held by another writer. no session can be listed until that lock clears.',
+        'retry read'
+    );
+    if (p === 'empty') return StoreEmpty(
+        'no sessions recorded yet',
+        'a session appears here the moment a gm chain dispatches its first verb. run `gm` in any repo on this machine and refresh.'
+    );
+    return h('div', { class: 'ds-scroll-x' }, ...sessions.map((s, i) => h('div', { key: 'sr' + i }, SessionRow(s))));
+}
+
+function TreeBody() {
+    const p = storeState.phase;
+    if (p === 'loading') return RowSkeleton(4, 'sk-tree-');
+    if (p === 'error') return StoreError(
+        'tree truncated mid-read',
+        'the event log ends in a partial record, so the walk after 09:44 cannot be trusted and is withheld. the earlier nodes parsed cleanly.',
+        'reparse log'
+    );
+    if (p === 'empty') return StoreEmpty(
+        'no nodes for this session',
+        'phase transitions, prd edits and deviations appear here in dispatch order. pick a session with events on the left.'
+    );
+    return h('div', { class: 'ds-scroll-x' }, ...treeNodes.map((n, i) => h('div', { key: 'tn' + i }, TreeNode(n))));
+}
+
+function DevBody() {
+    const p = storeState.phase;
+    if (p === 'loading') return RowSkeleton(2, 'sk-dev-');
+    if (p === 'error') return StoreError(
+        'deviation scan incomplete',
+        'the gate-decision index is a version behind the event log, so a deviation landed after the last scan would be missed. showing nothing beats showing a false all-clear.',
+        'rescan'
+    );
+    if (p === 'empty') return StoreEmpty(
+        'no deviations on this walk',
+        'this is the good outcome -- every dispatch cleared its admission gate. a denied gate or an unwitnessed edit would be listed here.'
+    );
+    return h('div', {}, ...deviations.map((d, i) => h('div', { key: 'dv' + i }, DevRow(d))));
+}
 
 function App() {
     return AppShell({
@@ -86,7 +174,13 @@ function App() {
                 ] },
                 { group: 'phase', items: [
                     { glyph: h('span', { class: 'ds-dot' }), label: 'COMPLETE', count: '5/5', key: 'p', color: 'var(--success)' }
-                ] }
+                ] },
+                // Reachable state switcher for the three data surfaces above.
+                { group: 'store state', items: STORE_PHASES.map((s) => ({
+                    glyph: h('span', { class: storeState.phase === s ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }),
+                    label: s, key: 'st-' + s, active: storeState.phase === s, href: '#' + s,
+                    onClick: (e) => { e.preventDefault(); storeState.phase = s; render(); }
+                })) }
             ]
         }),
         main: [
@@ -94,16 +188,10 @@ function App() {
                 Heading({ level: 1, children: 'gm inspector' }),
                 Lede({ children: 'session list, process tree, deviations, live stream -- the data-density component family (PhaseWalk, TreeNode, BarRow, StatsGrid, SessionRow, DevRow, LiveLog) composed into one observability surface.' }),
                 Panel({ title: 'overview', count: kpis.length, class: 'ds-panel-gap', children: StatsGrid({ items: kpis }) }),
-                Panel({ title: 'sessions', count: sessions.length, class: 'ds-panel-gap', children: sessions.length
-                    ? h('div', { class: 'ds-scroll-x' }, ...sessions.map((s, i) => h('div', { key: 'sr' + i }, SessionRow(s))))
-                    : h('div', { class: 'empty' }, 'no sessions recorded yet') }),
+                Panel({ title: 'sessions', count: countFor(sessions), class: 'ds-panel-gap', children: SessionsBody() }),
                 h('div', { class: 'ds-panel-duo' },
-                    Panel({ title: 'process tree', count: treeNodes.length, children: treeNodes.length
-                        ? h('div', { class: 'ds-scroll-x' }, ...treeNodes.map((n, i) => h('div', { key: 'tn' + i }, TreeNode(n))))
-                        : h('div', { class: 'ds-stat-lbl' }, 'no tree nodes yet') }),
-                    Panel({ title: 'deviations', count: deviations.length, children: deviations.length
-                        ? h('div', {}, ...deviations.map((d, i) => h('div', { key: 'dv' + i }, DevRow(d))))
-                        : h('div', { class: 'ds-stat-lbl' }, 'no deviations') })
+                    Panel({ title: 'process tree', count: countFor(treeNodes), children: TreeBody() }),
+                    Panel({ title: 'deviations', count: countFor(deviations), children: DevBody() })
                 ),
                 Panel({ title: 'recall score histogram', class: 'ds-panel-gap', children: h('div', {},
                     BarRow({ label: '0.5-0.6', value: '12', pct: 40, tone: 'var(--accent)' }),
@@ -182,7 +270,7 @@ function App() {
             )
         ],
         status: Status({
-            left: ['gm inspector', '- ' + sessions.length + ' sessions', '- ' + treeNodes.length + ' tree nodes'],
+            left: ['gm inspector', '- ' + countFor(sessions) + ' sessions', '- ' + countFor(treeNodes) + ' tree nodes', '- store ' + storeState.phase],
             right: ['247420 / mmxxvi', '- static sample data']
         })
     });

@@ -47,6 +47,8 @@ const state = {
     activeChannel: channels[2],
     collapsedCats: new Set(),
     memberListOpen: false,
+    // Which state the message list renders in; cycled from the channel header.
+    phase: 'ready',
     voiceOpen: false,
     muted: false,
     deafened: false,
@@ -59,6 +61,61 @@ const state = {
 
 const root = document.getElementById('root');
 
+const PHASES = ['ready', 'loading', 'empty', 'error'];
+
+// Message-shaped shimmer. Reuses .ds-event-row-skeleton + .ds-skel*
+// (app-shell/files.css) — avatar / body / timestamp is the same rhythm.
+function MessagesSkeleton() {
+    return h('div', { class: 'ds-community-messages' },
+        ...Array.from({ length: 6 }, (_, i) => h('div', { key: 'sk' + i, class: 'ds-event-row-skeleton' },
+            h('span', { class: 'ds-skel ds-skel-icon' }),
+            h('span', { class: 'ds-skel ds-skel-title' }),
+            h('span', { class: 'ds-skel ds-skel-meta' })
+        ))
+    );
+}
+
+function MessagesEmpty(name) {
+    return h('div', { class: 'ds-community-messages' },
+        h('div', { class: 'ds-empty-state' },
+            h('div', { class: 'ds-empty-state-glyph' }, '[ ]'),
+            h('p', { class: 'ds-empty-state-msg' }, 'nothing posted in #' + name + ' yet'),
+            h('p', { class: 'ds-empty-state-hint' }, 'this is the start of the channel. the first message here is what everyone sees when they join it.')
+        )
+    );
+}
+
+function MessagesError(name, onRetry) {
+    return h('div', { class: 'ds-community-messages' },
+        h('div', { class: 'ds-alert ds-alert-error' },
+            h('span', { class: 'ds-alert-icon' }, '!'),
+            h('div', { class: 'ds-alert-content' },
+                h('div', { class: 'ds-alert-title' }, 'cannot load #' + name),
+                h('div', { class: 'ds-alert-message' }, 'the gateway accepted the join but never sent history, so this channel is connected and blank rather than actually empty. rejoining requests the backlog again.'),
+                h('div', { class: 'ds-alert-retry' },
+                    h('button', { class: 'btn', onclick: onRetry }, 'rejoin channel')
+                )
+            )
+        )
+    );
+}
+
+function MessagesBody(name) {
+    if (state.phase === 'loading') return MessagesSkeleton();
+    if (state.phase === 'error') return MessagesError(name, () => { state.phase = 'ready'; kit.render(); });
+    if (state.phase === 'empty') return MessagesEmpty(name);
+    return h('div', { class: 'ds-community-messages' },
+        ...state.messages.map(m => h('div', { class: 'ds-community-msg', key: String(m.id) },
+            h('div', { class: 'ds-community-avatar', style: `background:${m.color || 'var(--panel-3)'}` }, m.author[0].toUpperCase()),
+            h('div', { class: 'ds-community-msg-body' },
+                h('span', { class: 'ds-community-msg-name', style: `color:${m.color || 'var(--fg)'}` }, m.author),
+                h('span', { class: 'ds-community-msg-time' }, m.time),
+                h('p', { class: 'ds-community-msg-text' }, m.text)
+            )
+        ))
+    );
+}
+
 function App() {
     const ch = state.activeChannel;
     const chatContent = h('div', { class: 'ds-community-main' },
@@ -67,20 +124,16 @@ function App() {
             name: ch.name,
             topic: ch.type === 'text' ? 'community shell demo — click channels to switch' : null,
             toolbar: [
-                h('button', { class: 'btn btn-ghost', onclick: () => { state.memberListOpen = !state.memberListOpen; kit.render(); } },
+                // Reachable state switcher for the message list.
+                h('button', { key: 'phase', class: 'btn btn-ghost', onclick: () => {
+                    state.phase = PHASES[(PHASES.indexOf(state.phase) + 1) % PHASES.length];
+                    kit.render();
+                } }, 'state: ' + state.phase),
+                h('button', { key: 'members', class: 'btn btn-ghost', onclick: () => { state.memberListOpen = !state.memberListOpen; kit.render(); } },
                     state.memberListOpen ? 'hide members' : 'show members')
             ]
         }),
-        h('div', { class: 'ds-community-messages' },
-            ...state.messages.map(m => h('div', { class: 'ds-community-msg', key: String(m.id) },
-                h('div', { class: 'ds-community-avatar', style: `background:${m.color || 'var(--panel-3)'}` }, m.author[0].toUpperCase()),
-                h('div', { class: 'ds-community-msg-body' },
-                    h('span', { class: 'ds-community-msg-name', style: `color:${m.color || 'var(--fg)'}` }, m.author),
-                    h('span', { class: 'ds-community-msg-time' }, m.time),
-                    h('p', { class: 'ds-community-msg-text' }, m.text)
-                )
-            ))
-        )
+        MessagesBody(ch.name)
     );
 
     return h('div', { class: 'ds-community-page' },
@@ -126,7 +179,7 @@ function App() {
                 open: true
             } : null
         }),
-        Status({ left: ['community', '- ' + channels.length + ' channels', '- ' + servers.length + ' servers'], right: ['247420 / mmxxvi'] })
+        Status({ left: ['community', '- ' + channels.length + ' channels', '- ' + servers.length + ' servers', '- ' + state.phase], right: ['247420 / mmxxvi'] })
     );
 }
 

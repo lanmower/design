@@ -145,6 +145,13 @@
   --ff-body:     system-ui, sans-serif;
   --ff-mono:     ui-monospace, Menlo, Consolas, monospace;
 
+  /* Sub-12px tiers exist ONLY for dense OS/data chrome — taskbar strips,
+     session chips, tool-call headers, file-row metadata, ID/stat columns.
+     Never use them for body copy or ordinary UI text: at these sizes the
+     system stack loses its readable x-height, so they are reserved for
+     glanceable, secondary, non-prose material. --fs-pico is the floor. */
+  --fs-pico:     10px;
+  --fs-nano:     11px;
   --fs-micro:    12px;
   --fs-tiny:     13px;
   --fs-xs:       14px;

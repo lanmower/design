@@ -41,8 +41,31 @@ const state = {
     viewer: null,
     confirm: null,
     prompt: null,
-    promptValue: ''
+    promptValue: '',
+    // Which state the listing renders in. FileGrid already owns `loading`
+    // (cold-load shimmer) and the empty copy; `error` is a directory-level
+    // failure that has to sit above the grid because there is no listing at
+    // all to decorate. Driven by the toolbar buttons below so every state is
+    // reachable rather than only reproducible against a real broken mount.
+    phase: 'ready'
 };
+
+const PHASES = ['ready', 'loading', 'empty', 'error'];
+
+// Directory-level failure. Names the problem AND the recovery: a bare "could
+// not load" tells the user nothing they can act on.
+function DirError() {
+    return h('div', { class: 'ds-alert ds-alert-error' },
+        h('span', { class: 'ds-alert-icon' }, '!'),
+        h('div', { class: 'ds-alert-content' },
+            h('div', { class: 'ds-alert-title' }, 'cannot read demo/tigers'),
+            h('div', { class: 'ds-alert-message' }, 'the mount answered but refused the listing -- your account has write access to this path and not read. ask an owner for read, or open a folder you created.'),
+            h('div', { class: 'ds-alert-retry' },
+                h('button', { class: 'btn', onclick: () => { state.phase = 'ready'; render(); } }, 'retry listing')
+            )
+        )
+    );
+}
 
 const root = document.getElementById('root');
 
@@ -167,8 +190,15 @@ function App() {
                 }, children: '+ folder' })
             ],
             right: [
+                // State switcher — keeps loading/empty/error one click away so
+                // they are living reference surfaces, not dead code.
+                ...PHASES.map((p) => h('button', {
+                    key: 'ph-' + p,
+                    class: state.phase === p ? 'btn btn-primary' : 'btn',
+                    onclick: () => { state.phase = p; render(); }
+                }, p)),
                 h('span', { class: 'meta ds-meta-mono' },
-                    String(state.files.length).padStart(2, '0') + ' items'
+                    String(state.phase === 'ready' ? state.files.length : 0).padStart(2, '0') + ' items'
                 )
             ]
         }),
@@ -181,11 +211,13 @@ function App() {
             onPick: pickFiles
         }),
         UploadProgress({ items: state.uploads }),
-        FileGrid({
-            files: state.files,
+        state.phase === 'error' ? DirError() : FileGrid({
+            files: state.phase === 'ready' ? state.files : [],
+            loading: state.phase === 'loading',
             onOpen: openViewer,
             onAction: rowAction,
-            emptyText: 'nothing to show — upload something or pick a folder.'
+            emptyText: 'this folder is empty — drop files on the zone above, or use + folder to start a tree here.',
+            emptyAction: Btn({ onClick: pickFiles, children: 'upload a file' })
         })
     );
 
@@ -203,7 +235,7 @@ function App() {
             }),
             crumb: Crumb({ trail: ['247420', 'ui kits'], leaf: 'file browser' }),
             main,
-            status: Status({ left: ['main', '- ' + state.files.length + ' items'], right: ['live', 'demo only'] })
+            status: Status({ left: ['main', '- ' + (state.phase === 'ready' ? state.files.length : 0) + ' items', '- ' + state.phase], right: ['live', 'demo only'] })
         }),
         state.viewer ? FileViewer({
             file: state.viewer,

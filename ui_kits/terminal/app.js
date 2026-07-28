@@ -13,7 +13,41 @@ const liveTranscript = [
     { kind: 'cmd', text: 'echo "ready"' },
     { kind: 'out', text: 'ready' }
 ];
-const live = { input: '', cwd: '~/dev/design' };
+const live = { input: '', cwd: '~/dev/design', phase: 'ready' };
+const PHASES = ['ready', 'loading', 'empty', 'error'];
+
+// Line-shaped shimmer for scrollback still being read off disk. Reuses
+// .ds-event-row-skeleton + .ds-skel* (app-shell/files.css); a cli row is the
+// same prompt-mark / text rhythm the primitive was cut for.
+function ScrollbackSkeleton() {
+    return h('div', {},
+        ...Array.from({ length: 5 }, (_, i) => h('div', { key: 'sk' + i, class: 'ds-event-row-skeleton' },
+            h('span', { class: 'ds-skel ds-skel-rank' }),
+            h('span', { class: 'ds-skel ds-skel-title' })
+        ))
+    );
+}
+
+function ScrollbackEmpty() {
+    return h('div', { class: 'ds-empty-state' },
+        h('div', { class: 'ds-empty-state-glyph' }, '$'),
+        h('p', { class: 'ds-empty-state-msg' }, 'nothing run in this shell yet'),
+        h('p', { class: 'ds-empty-state-hint' }, 'commands and their output land here in order. type one below and press enter — scrollback survives until you clear it.')
+    );
+}
+
+function ScrollbackError() {
+    return h('div', { class: 'ds-alert ds-alert-error' },
+        h('span', { class: 'ds-alert-icon' }, '!'),
+        h('div', { class: 'ds-alert-content' },
+            h('div', { class: 'ds-alert-title' }, 'shell exited (code 137)'),
+            h('div', { class: 'ds-alert-message' }, 'the pty was killed by the OOM reaper, so scrollback is frozen and nothing you type now would reach a shell. a new session starts in the same working directory.'),
+            h('div', { class: 'ds-alert-retry' },
+                h('button', { class: 'btn', onclick: () => { live.phase = 'ready'; kit.render(); } }, 'start new session')
+            )
+        )
+    );
+}
 
 // Demo loop — decorative showcase of the .cli row primitives playing back
 // a build-pipeline transcript. Clearly separated from the live terminal.
@@ -63,6 +97,12 @@ function App() {
                     { glyph: '*', label: 'live',     count: 'on', key: 'l' },
                     { glyph: '-', label: 'demo loop', count: demo.looping ? 'play' : 'still', key: 'd' }
                 ] },
+                // Reachable state switcher for the live shell panel.
+                { group: 'shell state', items: PHASES.map((p) => ({
+                    glyph: h('span', { class: live.phase === p ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }),
+                    label: p, key: 'ph-' + p, active: live.phase === p,
+                    onClick: (e) => { e.preventDefault(); live.phase = p; kit.render(); }
+                })) },
                 { group: 'shortcuts', items: [
                     { glyph: '·', label: 'clear (⌘k)',  key: 'c' },
                     { glyph: '·', label: 'history (up)', key: 'h' }
@@ -80,9 +120,12 @@ function App() {
                 // Live terminal — usable, no reveal delays.
                 Panel({
                     title: 'live · ' + live.cwd,
-                    count: liveTranscript.length,
+                    count: live.phase === 'ready' ? liveTranscript.length : 0,
                     class: 'ds-panel-gap',
-                    children: h('div', { class: 'ds-term-body' },
+                    children: live.phase === 'loading' ? ScrollbackSkeleton()
+                    : live.phase === 'error' ? ScrollbackError()
+                    : live.phase === 'empty' ? ScrollbackEmpty()
+                    : h('div', { class: 'ds-term-body' },
                         ...liveTranscript.map((l, i) => Line(l, i)),
                         h('div', { class: 'cli ds-term-input-row' },
                             h('span', { class: 'prompt' }, '$'),
@@ -122,7 +165,7 @@ function App() {
             )
         ],
         status: Status({
-            left: ['terminal', '- live ' + liveTranscript.length + ' lines', demo.looping ? '- demo playing' : '- demo still'],
+            left: ['terminal', '- live ' + (live.phase === 'ready' ? liveTranscript.length : 0) + ' lines', '- shell ' + live.phase, demo.looping ? '- demo playing' : '- demo still'],
             right: ['247420 / mmxxvi']
         })
     });

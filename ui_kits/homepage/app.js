@@ -46,14 +46,94 @@ const manifesto = [
     { text: 'we will not tolerate simpleton design patterns, trifectas, gradients, or anything silly. nothing lame. we\'re internet natives and not easily pleased.', dim: true }
 ];
 
-const state = { route: 'works', opened: 0 };
+// `phase` drives the three content lists (shipping / works / writing). Cycled
+// from the topbar so each reading is reachable in the kit — a portfolio page
+// that only ever renders a full grid has never shown what a cold or failed
+// fetch looks like.
+const state = { route: 'works', opened: 0, phase: 'ready' };
+const PHASES = ['ready', 'loading', 'empty', 'error'];
+
+// Row shimmer. Reuses .ds-event-row-skeleton + .ds-skel* (app-shell/files.css).
+function ListSkeleton(n, prefix) {
+    return h('div', {},
+        ...Array.from({ length: n }, (_, i) => h('div', { key: prefix + i, class: 'ds-event-row-skeleton' },
+            h('span', { class: 'ds-skel ds-skel-rank' }),
+            h('span', { class: 'ds-skel ds-skel-title' }),
+            h('span', { class: 'ds-skel ds-skel-meta' })
+        ))
+    );
+}
+
+function ListEmpty(msg, hint) {
+    return h('div', { class: 'ds-empty-state' },
+        h('div', { class: 'ds-empty-state-glyph' }, '[ ]'),
+        h('p', { class: 'ds-empty-state-msg' }, msg),
+        h('p', { class: 'ds-empty-state-hint' }, hint)
+    );
+}
+
+function ListError(title, msg) {
+    return h('div', { class: 'ds-alert ds-alert-error' },
+        h('span', { class: 'ds-alert-icon' }, '!'),
+        h('div', { class: 'ds-alert-content' },
+            h('div', { class: 'ds-alert-title' }, title),
+            h('div', { class: 'ds-alert-message' }, msg),
+            h('div', { class: 'ds-alert-retry' },
+                h('button', { class: 'btn', onclick: () => { state.phase = 'ready'; render(); } }, 'refetch')
+            )
+        )
+    );
+}
+
+function ShippingBody() {
+    const p = state.phase;
+    if (p === 'loading') return ListSkeleton(3, 'sk-ship-');
+    if (p === 'error') return ListError('build status unavailable',
+        'the status endpoint timed out, so live and wip cannot be told apart right now. the projects below are still real; only their badges are unknown.');
+    if (p === 'empty') return ListEmpty('nothing in flight this week',
+        'projects appear here while they are actively being worked on. everything currently shipped is in works below.');
+    return h('div', {}, ...shipping.map((s) => Row({
+        key: s.name, leading: Dot({ tone: s.live ? 'on' : 'off' }),
+        title: s.name, sub: s.sub, meta: s.live ? 'live' : 'wip'
+    })));
+}
+
+function WorksBody() {
+    const p = state.phase;
+    if (p === 'loading') return ListSkeleton(6, 'sk-work-');
+    if (p === 'error') return ListError('works index failed to load',
+        'the projects manifest returned malformed json at entry 4, so the list was rejected rather than shown with a hole in it. a refetch usually picks up the corrected file.');
+    if (p === 'empty') return ListEmpty('no works published yet',
+        'each entry is one shipped project with its year, size and a paragraph on what it does. the first one lands here as soon as it is tagged.');
+    return WorksList({ works, openedIndex: state.opened, onToggle: (i) => { state.opened = i; render(); } });
+}
+
+function WritingBody() {
+    const p = state.phase;
+    if (p === 'loading') return ListSkeleton(5, 'sk-post-');
+    if (p === 'error') return ListError('writing feed unreachable',
+        'the posts feed is served from a different origin and that origin is down. the works list above is local and unaffected.');
+    if (p === 'empty') return ListEmpty('nothing written lately',
+        'posts land here newest first, tagged by which project they belong to. quiet here usually means loud somewhere else.');
+    return WritingList({ posts });
+}
 
 function App() {
     return AppShell({
         topbar: Topbar({
             brand: '247420', leaf: 'an entrypoint',
-            items: navItems, active: state.route,
-            onNav: (label) => { state.route = label; render(); }
+            // The trailing item cycles the content lists through their states.
+            // This page has no sidebar, so the topbar is the only chrome that
+            // can carry the switcher and keep every state reachable.
+            items: [...navItems, ['state: ' + state.phase, '#state']],
+            active: state.route,
+            onNav: (label) => {
+                if (typeof label === 'string' && label.startsWith('state:')) {
+                    state.phase = PHASES[(PHASES.indexOf(state.phase) + 1) % PHASES.length];
+                    render(); return;
+                }
+                state.route = label; render();
+            }
         }),
         crumb: Crumb({ trail: ['247420'], leaf: state.route }),
         main: [
@@ -63,26 +143,18 @@ function App() {
                 accent: 'humor is load-bearing.'
             }),
             Panel({
-                title: 'currently shipping', count: shipping.length,
-                children: shipping.map((s) => Row({
-                    key: s.name,
-                    leading: Dot({ tone: s.live ? 'on' : 'off' }),
-                    title: s.name, sub: s.sub,
-                    meta: s.live ? 'live' : 'wip'
-                }))
+                title: 'currently shipping', count: state.phase === 'ready' ? shipping.length : 0,
+                children: ShippingBody()
             }),
-            Section({ id: 'works', title: 'works', eyebrow: '08 of ~61',
-                children: WorksList({
-                    works, openedIndex: state.opened,
-                    onToggle: (i) => { state.opened = i; render(); }
-                }) }),
+            Section({ id: 'works', title: 'works', eyebrow: state.phase === 'ready' ? '08 of ~61' : state.phase,
+                children: WorksBody() }),
             Section({ id: 'writing', title: 'recent writing',
-                children: WritingList({ posts }) }),
+                children: WritingBody() }),
             Section({ id: 'manifesto', title: 'manifesto · rough draft',
                 children: Manifesto({ paragraphs: manifesto }) })
         ],
         status: Status({
-            left: ['main', '8 works', '5 posts'],
+            left: ['main', state.phase === 'ready' ? '8 works' : '0 works', state.phase === 'ready' ? '5 posts' : '0 posts', state.phase],
             right: ['probably emerging', h('a', { href: 'https://github.com/AnEntrypoint' }, 'source ->')]
         })
     });
