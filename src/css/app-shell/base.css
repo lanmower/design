@@ -30,6 +30,15 @@ button, input, select, textarea { font: inherit; }
   border-radius: var(--r-pill);
   font-weight: 600;
   font-size: var(--fs-sm);
+  /* The skip link is the first thing a keyboard or switch user reaches, so it
+     is the last control that should be hard to hit. Its padding alone rendered
+     it 39px tall -- measured live under coarse-pointer emulation on every kit.
+     Floored unconditionally rather than under a pointer:coarse query, because
+     switch and head-pointer users are not detected as coarse pointers and need
+     the larger target just as much. */
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
 }
 .skip-link:focus {
   top: 10px;

@@ -395,6 +395,16 @@ hr.rule-dotted { border-top: 1px dotted var(--rule-strong); }
   padding: var(--space-2) var(--space-1);
   font: inherit; color: var(--fg);
 }
+/* Touch floor for the BASE input. Several specific inputs already carried this
+   (ds-file-filter-input, ds-modal-input, ds-term-input) but the primitive every
+   form actually uses did not, so a plain field measured 34px under a coarse
+   pointer -- measured live on the settings and gm_inspector kits. The 16px
+   font-size is not cosmetic: below 16px iOS auto-zooms the viewport on focus,
+   and max() keeps it from ever shrinking under a reduced typescale. */
+@media (pointer: coarse) {
+  .input { min-height: 44px; font-size: max(16px, var(--fs-body)); }
+  textarea.input { min-height: 88px; }
+}
 .input::placeholder { color: var(--fg-3); }
 .input:focus-visible {
   outline: none;

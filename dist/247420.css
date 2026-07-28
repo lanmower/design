@@ -690,6 +690,15 @@
   border-radius: var(--r-pill);
   font-weight: 600;
   font-size: var(--fs-sm);
+  /* The skip link is the first thing a keyboard or switch user reaches, so it
+     is the last control that should be hard to hit. Its padding alone rendered
+     it 39px tall -- measured live under coarse-pointer emulation on every kit.
+     Floored unconditionally rather than under a pointer:coarse query, because
+     switch and head-pointer users are not detected as coarse pointers and need
+     the larger target just as much. */
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
 }
 .ds-247420 .skip-link:focus {
   top: 10px;
@@ -4211,6 +4220,16 @@
   background: transparent;
   padding: var(--space-2) var(--space-1);
   font: inherit; color: var(--fg);
+}
+/* Touch floor for the BASE input. Several specific inputs already carried this
+   (ds-file-filter-input, ds-modal-input, ds-term-input) but the primitive every
+   form actually uses did not, so a plain field measured 34px under a coarse
+   pointer -- measured live on the settings and gm_inspector kits. The 16px
+   font-size is not cosmetic: below 16px iOS auto-zooms the viewport on focus,
+   and max() keeps it from ever shrinking under a reduced typescale. */
+@media (pointer: coarse) {
+  .ds-247420 .input { min-height: 44px; font-size: max(16px, var(--fs-body)); }
+  .ds-247420 textarea.input { min-height: 88px; }
 }
 .ds-247420 .input::placeholder { color: var(--fg-3); }
 .ds-247420 .input:focus-visible {

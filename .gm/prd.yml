@@ -1977,8 +1977,9 @@
   status: pending
 - id: uppercase-transform-audit
   subject: 50 text-transform:uppercase occurrences risk the tracked-uppercase-eyebrow-everywhere grammar the craft floor bans; audit which are a system vs habit
-  witness: 'exec_js-15 scan: chat.css=10, editor-primitives.css=7, community.css=5, hero-content.css=5, kits-appended.css=4'
-  status: pending
+  witness: Measured actual RENDERED uppercase text across four kits rather than counting text-transform declarations, since the declaration count says nothing about whether the treatment is applied to labels or to prose. Dashboard 43 elements (38 short <=14ch, 5 medium, 0 long), gm_inspector 48 (34/12/2), system_primer 13 (10/1/2), community 8 (7/1/0). Uppercase is overwhelmingly on SHORT labels, which is the legitimate .t-label system this repo deliberately maintains, not the tracked-uppercase-eyebrow-over-every-section grammar the craft floor bans - that concern was the separate eyebrow audit, which cut 34 rendered eyebrows to 4. The only long instances are two panel-head titles where a long panel name is set in caps (screen-real-estate primitives, semantic tokens - invert with theme); a mild readability cost on a title, not a defect in the treatment. No action taken.
+  status: completed
+  commit_comment: 'audited rendered uppercase: overwhelmingly short labels, the deliberate .t-label system'
 - id: ds-section-root-audit-remaining
   subject: aicat/chat/community/gallery/project_page/slide_deck/system_primer/signin/error_404 still use .ds-section as app root; decide per-kit whether editorial 96px rhythm is correct or app-surface applies
   witness: 'exec_js-11 survey: 9 kits still on ds-section root; dashboard/settings/search/terminal/gm_inspector migrated'
@@ -2025,8 +2026,9 @@
   status: pending
 - id: measure-cap-audit
   subject: verify body text measure stays 65-75ch everywhere; --measure is 68ch but app surfaces may exceed
-  witness: craft floor type rule
-  status: pending
+  witness: Measured RENDERED line length rather than reading max-width declarations, since a cap only matters if it actually binds at the width the text renders at. Across project_page, homepage and system_primer every prose block measures 41-65ch (lede 41, ds-hero-body 50, ds-work-body and ds-manifesto-para 65) and ZERO exceed 85ch. The --measure (68ch), --measure-wide and --measure-narrow caps are binding as intended, so the craft-floor 65-75ch body target holds. No action needed.
+  status: completed
+  commit_comment: verified rendered measure 41-65ch across prose surfaces, none over 85ch
 - id: component-css-colocation-audit
   subject: SessionRow layout lived in chat.css while its sub-parts lived in data-density.css; audit every component for split-home defects of the same shape
   witness: fixed this session for SessionRow; same shape may exist for other components

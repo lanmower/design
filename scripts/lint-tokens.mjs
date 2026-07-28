@@ -379,8 +379,14 @@ export function findFontSizeViolations() {
         // value, the literal only applies if the token is undefined.
         // calc(var(--fs-N) <op> <literal>) is exempt for the same derived-value
         // reason the radius and spacing scanners exempt their own calc() forms.
+        // max()/min()/clamp() anchored to an --fs-* token are exempt for the same
+        // derived-value reason as calc(). `font-size: max(16px, var(--fs-body))`
+        // is not a scale bypass -- it is the iOS auto-zoom guard, where 16px is a
+        // platform threshold rather than a type size, and the token still drives
+        // the value whenever it is the larger of the two. Flagging it would push
+        // authors toward a bare 16px literal, which is strictly worse.
         const codeLines = stripThemableLiterals(stripComments(src))
-            .replace(/calc\([^()]*var\(\s*--fs-[\w-]+\s*\)[^()]*\)/g, (m) => m.replace(/[^\n]/g, ' '))
+            .replace(/(?:calc|max|min|clamp)\([^()]*var\(\s*--fs-[\w-]+\s*\)[^()]*\)/g, (m) => m.replace(/[^\n]/g, ' '))
             .split(/\r?\n/);
         const rawLines = src.split(/\r?\n/);
         codeLines.forEach((code, i) => {
