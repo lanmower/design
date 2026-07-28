@@ -107,16 +107,28 @@ export function JsonViewer({ value, emptyText = 'no data', maxHeight, mode = 'pl
     else { try { text = JSON.stringify(value, null, 2); knownJson = text != null; parsed = value; } catch { text = String(value); } }
     if (!text) return h('div', { class: 'ds-ep-json ds-ep-json-empty' }, emptyText);
     const style = maxHeight ? ('max-height:' + maxHeight) : null;
+    // A maxHeight makes this an `overflow: auto` scroll container, so the
+    // clipped content is reachable by mouse wheel but by nothing a keyboard
+    // user has — WCAG 2.1.1 Keyboard, axe's `scrollable-region-focusable`.
+    // Same fix the Table wrapper carries: tabindex puts it in the tab order and
+    // arrow keys then scroll it natively, and a bare focusable region with no
+    // name is its own violation, so it is labelled. `group` rather than
+    // `region` so a page rendering several viewers does not gain a landmark
+    // each. Witnessed unreachable on a real page: 761px of content in a 250px
+    // box with no focusable descendant.
+    const scrollable = maxHeight
+        ? { tabindex: '0', role: 'group', 'aria-label': 'JSON, scrollable' }
+        : {};
     if (!knownJson && (mode === 'highlight' || mode === 'tree')) {
         try { parsed = JSON.parse(text); knownJson = true; } catch { /* swallow: not JSON — render plain */ }
     }
     let body;
     if (mode === 'tree' && knownJson && parsed !== null && typeof parsed === 'object') {
-        body = h('div', { class: 'ds-ep-json ds-ep-json-tree', style }, jsonTreeNode(null, parsed, 0, treeDepth));
+        body = h('div', { class: 'ds-ep-json ds-ep-json-tree', style, ...scrollable }, jsonTreeNode(null, parsed, 0, treeDepth));
     } else if ((mode === 'highlight' || mode === 'tree') && knownJson) {
-        body = h('pre', { class: 'ds-ep-json ds-ep-json-hl', style }, ...highlightJsonSpans(text));
+        body = h('pre', { class: 'ds-ep-json ds-ep-json-hl', style, ...scrollable }, ...highlightJsonSpans(text));
     } else {
-        body = h('pre', { class: 'ds-ep-json', style }, text);
+        body = h('pre', { class: 'ds-ep-json', style, ...scrollable }, text);
     }
     if (!copyable) return body;
     return h('div', { class: 'ds-ep-json-wrap' }, jsonCopyButton(text), body);
