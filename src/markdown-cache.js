@@ -23,6 +23,7 @@ let _initPromise = null;
 let _renderCache = new Map();
 let _stats = {
     markdownInitMs: 0,
+    totalInitMs: 0,
     prismInitMs: 0,
     renderCount: 0,
     renderTimes: [],
@@ -59,8 +60,13 @@ export async function initializeCachesEagerly() {
             })(),
         ]);
 
-        const totalMs = performance.now() - startTime;
-        console.debug(`[247420] markdown/prism caches initialized in ${totalMs.toFixed(1)}ms (markdown: ${_stats.markdownInitMs.toFixed(1)}ms, prism: ${_stats.prismInitMs.toFixed(1)}ms)`);
+        // Recorded, not printed. This is library code, so an unconditional
+        // console.debug writes into every consuming application's console on
+        // every init. The same numbers are already live-inspectable through
+        // window.__debug['markdown-cache'] (registered at the bottom of this
+        // file), which is the repo's own observability channel and the one a
+        // consumer can actually opt into.
+        _stats.totalInitMs = performance.now() - startTime;
 
         return { markdown: mdOk, prism: prismOk };
     })();
@@ -140,6 +146,11 @@ export function getCacheStats() {
         initMs: {
             markdown: _stats.markdownInitMs,
             prism: _stats.prismInitMs,
+            // Wall-clock for the whole init, which is not the sum of the two
+            // above: they run concurrently under Promise.all, so total is the
+            // slower of the pair plus overhead. Previously only ever printed
+            // to console.debug; exposed here so it is inspectable instead.
+            total: _stats.totalInitMs,
         },
         renderStats: {
             count: _stats.renderCount,
@@ -171,6 +182,7 @@ export function resetCacheState() {
     _renderCache.clear();
     _stats = {
         markdownInitMs: 0,
+        totalInitMs: 0,
         prismInitMs: 0,
         renderCount: 0,
         renderTimes: [],

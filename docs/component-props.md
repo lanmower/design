@@ -536,7 +536,7 @@ The Claude-Desktop "Chats" column. Sessions grouped by a caller-supplied group l
 
 **Kind:** component
 
-**Signature:** `session` = `{}`, `onStop`, `onOpen`, `onView`, `active` = `false`, `selectable` = `false`, `selected` = `false`, `onToggleSelect`
+**Signature:** `session` = `{}`, `onStop`, `onOpen`, `onView`, `active` = `false`, `selectable` = `false`, `selected` = `false`, `onToggleSelect`, `density` = `'comfortable'`
 
 ### SessionDashboard
 
@@ -544,7 +544,7 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 
 **Kind:** component
 
-**Signature:** `sessions` = `[]`, `onStop`, `onOpen`, `onView`, `onStopAll`, `onStopSelected`, `confirmingStopAll` = `false`, `confirmingStopSelected` = `false`, `onArmStopAll`, `onArmStopSelected`, `sort`, `filter`, `errorsOnly` = `false`, `onErrorsOnly`, `selectable` = `false`, `selected`, `onToggleSelect`, `onSelectAll`, `onClearSelection`, `activeSid`, `streamState`, `emptyText` = `'No live sessions'`, `emptyAction`, `offline` = `false`
+**Signature:** `sessions` = `[]`, `onStop`, `onOpen`, `onView`, `onStopAll`, `onStopSelected`, `confirmingStopAll` = `false`, `confirmingStopSelected` = `false`, `onArmStopAll`, `onArmStopSelected`, `sort`, `filter`, `errorsOnly` = `false`, `onErrorsOnly`, `selectable` = `false`, `selected`, `onToggleSelect`, `onSelectAll`, `onClearSelection`, `activeSid`, `streamState`, `emptyText` = `'No live sessions'`, `emptyAction`, `offline` = `false`, `density` = `'comfortable'`
 
 **Documented params:**
 
