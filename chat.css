@@ -428,8 +428,15 @@
    would otherwise share a hue. Mirrors the rail-tone shape differentiation. */
 /* One canonical stale tone (disc + word + rail share it) — a muted grey-warn,
    deliberately desaturated so it is NOT the saturated --amber used by
-   connecting/connecting-stream (which would re-collide hues). */
-:root { --stale: color-mix(in oklab, var(--warn) 70%, var(--fg-3)); }
+   connecting/connecting-stream (which would re-collide hues).
+
+   The mix is grey-dominant, NOT warn-dominant: at 70% --warn this measured
+   1.09:1 against --bg in dark theme (and 1.28:1 on a panel) as the `idle` word
+   in .ds-dash-status and .seg.is-idle — text that is present but effectively
+   unreadable. --fg-3 is the tier-3 TEXT tone and already carries a legible
+   contrast, so leading with it keeps the warn hue as a tint while restoring
+   readability. Measured after the change in a live browser. */
+:root { --stale: color-mix(in oklab, var(--fg-3) 78%, var(--warn)); }
 /* Live: a persistent faint concentric ring (resting shape channel, independent
    of motion) with the pulse layered on top — so even at the pulse trough the
    disc reads as solid-fill + ring, never a bare solid that aliases stale. */
@@ -595,7 +602,11 @@
 .ds-dash-header .btn-primary.danger:hover {
   background: color-mix(in oklab, var(--warn) 12%, transparent); color: var(--warn);
 }
-.ds-dash-header .btn-primary.danger.is-armed { background: var(--warn); color: var(--paper); border-color: var(--warn); }
+/* --ink, not --paper, on the armed fill: --warn (#FF5A52) is a light-ish red,
+   so paper-on-warn measures 2.72:1 (below the 4.5:1 floor) while ink-on-warn
+   measures 6.27:1. This is the same --accent/--accent-ink split the token layer
+   documents -- a saturated fill needs the dark text tone, not the light one. */
+.ds-dash-header .btn-primary.danger.is-armed { background: var(--warn); color: var(--ink); border-color: var(--warn); }
 .ds-dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-2); padding: var(--space-3); }
 @media (min-width: 1500px) { .ds-dash-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } }
 .ds-dash-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-2); }

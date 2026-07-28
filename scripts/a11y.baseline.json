@@ -1,0 +1,25 @@
+{
+  "total": 0,
+  "kits": {
+    "aicat": 0,
+    "blog": 0,
+    "chat": 0,
+    "community": 0,
+    "community-app": 0,
+    "dashboard": 0,
+    "docs": 0,
+    "error_404": 0,
+    "file_browser": 0,
+    "gallery": 0,
+    "gm_inspector": 0,
+    "homepage": 0,
+    "project_page": 0,
+    "search": 0,
+    "settings": 0,
+    "signin": 0,
+    "slide_deck": 0,
+    "system_primer": 0,
+    "terminal": 0,
+    "workspace": 0
+  }
+}

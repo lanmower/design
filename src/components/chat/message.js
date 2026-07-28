@@ -71,8 +71,16 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
         }, 'retry') : null)];
     const reactionRow = reactions && reactions.length
         ? h('div', { class: 'chat-reactions' },
-            ...reactions.map((r, i) => h('span', { class: 'rxn' + (r.you ? ' you' : ''), key: 'r' + i, 'aria-label': `${r.emoji} reaction (${String(r.count)} ${String(r.count) === '1' ? 'reaction' : 'reactions'})${r.you ? ' - you reacted' : ''}` },
-                h('span', { class: 'e', 'aria-hidden': 'true' }, r.emoji), h('span', { class: 'n', 'aria-hidden': 'true' }, String(r.count)))))
+            // A bare <span> has no role, so it can carry no accessible name —
+            // an aria-label here was silently DISCARDED and the whole reaction
+            // announced as nothing, while aria-hidden suppressed the only real
+            // text. So the visible label/count stay in the accessibility tree
+            // as content, and an .sr-only span supplies just the wording the
+            // visuals imply but do not spell out.
+            ...reactions.map((r, i) => h('span', { class: 'rxn' + (r.you ? ' you' : ''), key: 'r' + i },
+                h('span', { class: 'e' }, r.emoji),
+                h('span', { class: 'n' }, String(r.count)),
+                h('span', { class: 'sr-only' }, ` ${String(r.count) === '1' ? 'reaction' : 'reactions'}${r.you ? ', you reacted' : ''}`))))
         : null;
     const tickNode = resolvedWho === 'you' && receipt
         ? h('span', { class: 'tick' + (receipt === 'read' ? ' read' : ''), role: 'img', 'aria-label': receipt === 'read' ? 'message read' : 'message sent' }, Icon(receipt === 'read' ? 'check-check' : 'check', { size: 14 }))

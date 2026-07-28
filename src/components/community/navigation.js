@@ -46,7 +46,7 @@ export function ChannelItem({ id, name, type = 'text', active, voiceActive, voic
     const ICON_FOR = CHANNEL_ICON_FOR;
     const icon = Icon(ICON_FOR[type] || 'hash', { size: 15 });
     const handleActionClick = (a, e) => { e.stopPropagation(); a.onClick && a.onClick(id, e); };
-    return h('div', { class: 'cm-channel-item-wrap', 'data-channel-wrap': id },
+    return h('div', { class: 'cm-channel-item-wrap', 'data-channel-wrap': id, role: 'listitem' },
         h('div', {
             class: 'cm-channel-item' + (active ? ' active' : '') + (voiceActive ? ' voice-active' : '') + (voiceConnecting ? ' voice-connecting' : ''),
             'data-id': id,
@@ -72,7 +72,15 @@ export function ChannelItem({ id, name, type = 'text', active, voiceActive, voic
                 }
             },
             tabindex: '0',
-            role: 'option'
+            // NOT role="option": this is channel NAVIGATION, not a select-one
+            // listbox — activating a row changes the view, and each row also
+            // contains its own action buttons, which `option` forbids (its
+            // children must be presentational). A link inside a list is the
+            // structure a screen reader should announce, and the current
+            // channel is conveyed by aria-current="page", the navigation
+            // idiom, rather than aria-selected.
+            role: 'link',
+            'aria-current': active ? 'page' : null
         },
             h('span', { class: 'cm-ch-icon' + (voiceActive ? ' voice-active-badge' : ''), 'data-voice-active': voiceActive ? 'true' : null }, icon),
             voiceConnecting ? h('span', { class: 'cm-ch-spinner', title: 'Connecting…', 'aria-label': 'Connecting to voice channel…' }) : voiceActive ? h('span', { class: 'cm-ch-voice-badge', title: 'Voice active', 'aria-label': 'Voice channel active' }) : null,
@@ -108,7 +116,10 @@ export function ChannelCategory({ id, name, channels = [], collapsed, activeId, 
             extraButton ? h('button', { class: 'cm-cat-extra', onclick: (e) => { e.stopPropagation(); extraButton.onClick && extraButton.onClick(id, e); }, 'aria-label': extraButton.title || 'Category action' }, extraButton.icon || extraButton.label || '+') : null,
             onAddChannel ? h('button', { class: 'cm-cat-add', onclick: (e) => { e.stopPropagation(); onAddChannel(id); }, 'aria-label': 'Add channel to ' + name }, '+') : null
         ),
-        collapsed ? null : h('div', { class: 'cm-cat-channels' },
+        // role=list + role=listitem on each wrap: the channel rows are a real
+        // list of navigation targets, so a screen reader announces position
+        // and count ("3 of 7") instead of a flat run of links.
+        collapsed ? null : h('div', { class: 'cm-cat-channels', role: 'list', 'aria-label': name + ' channels' },
             ...channels.map(c => ChannelItem({
                 ...c,
                 draggable: channelDraggable,

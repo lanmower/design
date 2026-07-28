@@ -17,12 +17,15 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # >= 22 for the global WebSocket the CDP client in scripts/cdp.mjs
+          # uses — that is what lets the a11y and visual gates drive a browser
+          # with no puppeteer/playwright dependency (see AGENTS.md).
+          node-version: '22'
 
       - name: Install deps
         run: npm install --no-audit --no-fund
 
-      - name: Lint (9 gates)
+      - name: Lint (13 gates)
         run: npm run lint
 
       - name: Component docs up to date
@@ -30,6 +33,26 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      # The browser-driven gates below talk CDP to an ALREADY-RUNNING Chrome.
+      # Starting the browser and the static server is this workflow's job, not
+      # a script's — that is what keeps scripts/*.mjs free of any
+      # puppeteer/playwright dependency or in-script browser launch, per
+      # AGENTS.md. ubuntu-latest ships Chrome preinstalled, so nothing is
+      # installed here either.
+      - name: Start static server and headless Chrome
+        run: |
+          npx --yes http-server . -p 8899 -s &
+          google-chrome --headless=new --disable-gpu --no-sandbox \
+            --remote-debugging-port=9333 --remote-debugging-address=127.0.0.1 \
+            --hide-scrollbars --force-device-scale-factor=1 about:blank &
+          npx --yes wait-on http://127.0.0.1:8899/preview/index.html http-get://127.0.0.1:9333/json/version
+
+      - name: Accessibility audit (axe-core, WCAG 2.1 AA)
+        run: node scripts/a11y-audit.mjs
+
+      - name: Visual regression
+        run: node scripts/visual-baseline.mjs check
 
       - name: Publish dry-run
         run: npm publish --dry-run

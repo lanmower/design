@@ -424,6 +424,17 @@
      (#E0241A / #3A6EFF) are too dark on ink; these clear AA 4.5:1 on --ink. */
   --warn:      #FF5A52;
   --sky:       #6E9BFF;
+  /* Category/heritage dark-tuned pairs (same convention as flame/amber/warn/
+     sky above): the :root values are the PAPER tones and go dark-on-dark here.
+     Measured on --ink (#0E0E12) / --bg-2 (#1F1F26): mascot-deep #B81F63 was
+     3.13:1 / 2.66:1, purple-2 #7F18A4 2.36:1 / 2.00:1, green #247420 3.30:1 /
+     2.80:1 — all failing AA for the text roles they carry (aicat/community
+     author names, kpi deltas, stamps, rails). The replacements clear 4.5:1 on
+     BOTH ink surfaces: #FF5C9E 6.67/5.67, #C277FF 6.77/5.75, #5CBF52 8.28/7.04.
+     These are text-tone retunes only — the paper values are untouched. */
+  --mascot-deep: #FF5C9E;
+  --purple-2:  #C277FF;
+  --green:     #5CBF52;
   --code-string:  var(--green-2);
   --code-keyword: var(--sky);
   --code-fn:      var(--flame);
@@ -472,6 +483,11 @@
     --amber:     #D9A93A;
     --warn:      #FF5A52;
     --sky:       #6E9BFF;
+    /* Mirrors the [data-theme="ink"] category retune above token-for-token —
+       see that block for the measured before/after ratios. */
+    --mascot-deep: #FF5C9E;
+    --purple-2:  #C277FF;
+    --green:     #5CBF52;
     --code-string:  var(--green-2);
     --code-keyword: var(--sky);
     --code-fn:      var(--flame);
@@ -3762,10 +3778,19 @@
   display: inline-flex; align-items: center; justify-content: center;
   background: color-mix(in oklab, var(--mascot) 22%, var(--bg-2));
   border-radius: 50%; flex-shrink: 0;
+  /* Cancels the global `pre { overflow-x: auto }`. This is a fixed 32px
+     decorative chip, so the art overflowing its own box made it an
+     unreachable keyboard scroll container (WCAG scrollable-region-focusable)
+     rather than something a user could ever usefully scroll. */
+  overflow: hidden;
 }
 .ds-247420 .aicat-meta { display: flex; flex-direction: column; font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); }
+/* --mascot-deep is now theme-tuned at the token layer (paper #B81F63 /
+   ink #FF5C9E), so this needs no per-theme override. The previous
+   [data-theme="dark"],[data-theme="ink"] override missed data-theme="auto"
+   under OS-dark, which is how the kits actually render — the author name
+   fell back to the paper tone at 3.13:1 on ink. */
 .ds-247420 .aicat-meta .name { color: var(--mascot-deep, var(--mascot)); font-weight: 600; }
-.ds-247420[data-theme="dark"] .aicat-meta .name, .ds-247420[data-theme="ink"] .aicat-meta .name { color: var(--mascot); }
 
 /* ============================================================
    Sidebar polish: hide zero-count badges; tonal active state;
@@ -8781,8 +8806,15 @@
    would otherwise share a hue. Mirrors the rail-tone shape differentiation. */
 /* One canonical stale tone (disc + word + rail share it) — a muted grey-warn,
    deliberately desaturated so it is NOT the saturated --amber used by
-   connecting/connecting-stream (which would re-collide hues). */
-.ds-247420 { --stale: color-mix(in oklab, var(--warn) 70%, var(--fg-3)); }
+   connecting/connecting-stream (which would re-collide hues).
+
+   The mix is grey-dominant, NOT warn-dominant: at 70% --warn this measured
+   1.09:1 against --bg in dark theme (and 1.28:1 on a panel) as the `idle` word
+   in .ds-dash-status and .seg.is-idle — text that is present but effectively
+   unreadable. --fg-3 is the tier-3 TEXT tone and already carries a legible
+   contrast, so leading with it keeps the warn hue as a tint while restoring
+   readability. Measured after the change in a live browser. */
+.ds-247420 { --stale: color-mix(in oklab, var(--fg-3) 78%, var(--warn)); }
 /* Live: a persistent faint concentric ring (resting shape channel, independent
    of motion) with the pulse layered on top — so even at the pulse trough the
    disc reads as solid-fill + ring, never a bare solid that aliases stale. */
@@ -8948,7 +8980,11 @@
 .ds-247420 .ds-dash-header .btn-primary.danger:hover {
   background: color-mix(in oklab, var(--warn) 12%, transparent); color: var(--warn);
 }
-.ds-247420 .ds-dash-header .btn-primary.danger.is-armed { background: var(--warn); color: var(--paper); border-color: var(--warn); }
+/* --ink, not --paper, on the armed fill: --warn (#FF5A52) is a light-ish red,
+   so paper-on-warn measures 2.72:1 (below the 4.5:1 floor) while ink-on-warn
+   measures 6.27:1. This is the same --accent/--accent-ink split the token layer
+   documents -- a saturated fill needs the dark text tone, not the light one. */
+.ds-247420 .ds-dash-header .btn-primary.danger.is-armed { background: var(--warn); color: var(--ink); border-color: var(--warn); }
 .ds-247420 .ds-dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-2); padding: var(--space-3); }
 @media (min-width: 1500px) { .ds-247420 .ds-dash-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } }
 .ds-247420 .ds-dash-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-2); }

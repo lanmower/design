@@ -13,7 +13,13 @@ export function Topbar({ brand = '247420', leaf = '', items = [], active = '', o
     return h('header', { class: 'app-topbar', role: 'banner' },
         Brand({ name: brand, leaf }),
         search ? h('label', { class: 'app-search' },
-            h('span', { class: 'icon', 'aria-hidden': 'true' }, 'search'),
+            // Line-icon, not the literal word "search" as a pseudo-glyph: the
+            // text stand-in inherited .app-search .icon's 0.6 opacity, which
+            // dropped --fg-3 to 3.74:1 on --bg-2 and failed AA as real text.
+            // An SVG is decorative (aria-hidden) rather than text, so the
+            // contrast rule no longer applies to it and the affordance stops
+            // depending on a colour value at all.
+            h('span', { class: 'icon', 'aria-hidden': 'true' }, Icon('search', { size: 15 })),
             // `search` is either a plain placeholder string (renders the
             // default uncontrolled input) or a caller-built VElement (has
             // .type/.props — e.g. a controlled <input> wired to app state)
@@ -186,9 +192,15 @@ export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
         h('div', { class: 'app-body' + (hasSide ? '' : ' no-side') },
             h('div', { class: 'app-side-scrim', 'aria-hidden': 'true', onclick: (e) => toggleSide(false, e.currentTarget) }),
             h('div', { class: 'app-side-shell', id: 'app-side-shell', onclick: (e) => { if (e.target.closest('a')) toggleSide(false, e.currentTarget); } }, sideNode),
-            // tabindex=-1 so the skip-link (href="#app-main") actually moves
-            // keyboard focus into the main region, not just scroll to it.
-            h('main', { class: 'app-main' + (narrow ? ' narrow' : ''), id: 'app-main', tabindex: '-1' }, ...(Array.isArray(main) ? main : [main]))
+            // tabindex=0 (not -1): .app-main is a scroll container
+            // (overflow:auto), so it must be reachable by Tab for a
+            // keyboard-only user to scroll it with the arrow keys at all —
+            // tabindex=-1 made it focusable only programmatically, which
+            // satisfied the skip-link but left the region unscrollable
+            // without a pointer. 0 keeps the skip-link target working AND
+            // puts the region in the tab order. <main> is a landmark, so it
+            // is already named for assistive tech without an aria-label.
+            h('main', { class: 'app-main' + (narrow ? ' narrow' : ''), id: 'app-main', tabindex: '0' }, ...(Array.isArray(main) ? main : [main]))
         ),
         status || null
     );

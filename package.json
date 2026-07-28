@@ -98,7 +98,11 @@
     "docs:components": "node scripts/generate-component-docs.mjs",
     "lint:component-docs": "node scripts/generate-component-docs.mjs --check",
     "generate:ui-kits": "node scripts/generate-ui-kit-scaffolds.mjs",
-    "generate:preview-index": "node scripts/generate-preview-index.mjs"
+    "generate:preview-index": "node scripts/generate-preview-index.mjs",
+    "a11y": "node scripts/a11y-audit.mjs",
+    "a11y:baseline": "node scripts/a11y-audit.mjs --write-baseline",
+    "visual": "node scripts/visual-baseline.mjs check",
+    "visual:update": "node scripts/visual-baseline.mjs update"
   },
   "repository": {
     "type": "git",

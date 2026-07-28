@@ -71,7 +71,12 @@ export const AICAT_FACE = ` /\\_/\\\n( o.o )\n > ^ <`;
 
 export function AICatPortrait({ name = 'aicat', status = 'idle', face } = {}) {
     return h('div', { class: 'aicat-portrait' },
-        h('pre', { class: 'aicat-face', 'aria-label': `${name} portrait` }, face || AICAT_FACE),
+        // role="img" collapses the ASCII art into a single named image for a
+        // screen reader (otherwise the slashes and parens are read out
+        // character by character as text). It is also what makes the
+        // aria-label legal here: a bare <pre> has no role and so can carry no
+        // accessible name, exactly like the chat reaction spans.
+        h('pre', { class: 'aicat-face', role: 'img', 'aria-label': `${name} portrait` }, face || AICAT_FACE),
         h('div', { class: 'aicat-meta' },
             h('span', { class: 'name' }, name),
             h('span', { class: 'status', 'aria-label': `status: ${status}` }, h('span', { class: 'dot ds-dot ds-dot-on', 'aria-hidden': 'true' }), ' ', status)

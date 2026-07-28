@@ -101,16 +101,37 @@ export function WsResizer(col) {
         document.body.style.cursor = 'col-resize';
     };
     const [lo, hi] = WS_RESIZE_CLAMP[col] || [120, 600];
-    // Seed aria-valuenow from the rendered track width so AT announces real widths.
+    // Seed aria-valuenow from the rendered track width so AT announces real
+    // widths. Deferred a frame: the resizers are rendered as the LAST children
+    // of .ws-shell, so at ref time the .ws-<col> track is not in the DOM yet
+    // and this measured nothing — aria-valuenow was simply never set, which is
+    // what `aria-required-attr` (role=separator requires it) was reporting.
+    // The markup below now also ships a valid value up-front, so the attribute
+    // is present even if this correction never runs.
     const seedNow = (el) => {
         if (!el) return;
-        const track = el.closest('.ws-shell') && el.closest('.ws-shell').querySelector('.ws-' + col);
-        if (track) { const w = Math.round(track.getBoundingClientRect().width); el.setAttribute('aria-valuenow', String(w)); el.setAttribute('aria-valuetext', w + ' pixels'); }
+        const measure = () => {
+            const shell = el.closest('.ws-shell');
+            const track = shell && shell.querySelector('.ws-' + col);
+            if (!track) return;
+            const w = Math.round(track.getBoundingClientRect().width);
+            if (!w) return;
+            el.setAttribute('aria-valuenow', String(w));
+            el.setAttribute('aria-valuetext', w + ' pixels');
+        };
+        if (typeof requestAnimationFrame === 'function') requestAnimationFrame(measure);
+        else measure();
     };
     return h('div', {
         class: 'ws-resizer ws-resizer-' + col, role: 'separator', tabindex: '0',
         'aria-orientation': 'vertical', 'aria-label': 'resize ' + col + ' column (arrow keys)',
-        'aria-valuemin': String(lo), 'aria-valuemax': String(hi), 'aria-valuetext': String(hi) + ' pixels',
+        // valuenow/valuetext seeded at the clamp MINIMUM (and corrected to the
+        // measured width by seedNow on the next frame). The previous markup
+        // omitted aria-valuenow entirely — required by role=separator when it
+        // is focusable — and hardcoded valuetext to the clamp MAXIMUM, so the
+        // announced width contradicted the actual one.
+        'aria-valuemin': String(lo), 'aria-valuemax': String(hi),
+        'aria-valuenow': String(lo), 'aria-valuetext': String(lo) + ' pixels',
         onpointerdown: onDown, onkeydown: onKey, ref: seedNow,
     });
 }
