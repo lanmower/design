@@ -2037,8 +2037,9 @@
   status: pending
 - id: pager-current-contrast-bug
   subject: ds-ep-pager-num.is-current sets color:var(--accent-ink) on background:var(--accent); AGENTS.md says dark theme makes accent-ink the bright lime itself
-  witness: editor-primitives.css:439-443 read directly this session
-  status: pending
+  witness: 'Audited every color: declaration across all 24 nested sheets live (604 checked) for the documented --accent-vs---accent-ink rule. Found 4 bare-accent-as-text sites, of which 2 were real defects (.ds-ep-tab.active, .ds-ep-tree-item.selected > .ds-ep-tree-row) and 2 were correct (the sidebar count chip sits on an --accent-fg ink background so bare --accent is the inverted high-contrast pair; .ds-ep-json-k uses var(--sky, var(--accent)) and --sky is defined in all three themes so the fallback is unreachable). Measured the actual cost: bare --accent as text is 1.07:1 against --bg in light and 1.03:1 against --bg-2, versus 8.85:1 for --accent-ink. Both resolve identically at 15.88:1 in dark, which is why the bug hides until the light theme is opened. Fixed both real sites; documented the sidebar one so a later audit does not invert it wrongly. Re-audit confirms 0 real violations remain.'
+  status: completed
+  commit_comment: fix 2 accent-as-text sites measuring 1.07:1 on paper; document the 2 correct ones
 - id: localization-width-sweep
   subject: test kits with 1.5x-2x longer label text (German/Finnish proxy) for layout breakage
   witness: 'layout playbook: localization must not break structure'
@@ -2063,21 +2064,6 @@
   subject: kits-appended.css is a 431+ line grab-bag whose name records per-kit append history rather than design; decompose into owned modules
   witness: AGENTS.md 200-line cap per module; file is the concentration point of the defects fixed this session
   status: pending
-- id: kit-craft-aicat
-  subject: 'professional craft pass on ui_kits/aicat: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: Same two sheets linked (35 + 17 classes) via AICat -> chat-message-parts + ChatComposer. States added. Verified live.
-  status: completed
-  commit_comment: 'aicat: missing sheets linked, states added'
-- id: kit-craft-chat
-  subject: 'professional craft pass on ui_kits/chat: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: 'chat.css and editor-primitives.css linked (37 chat-only classes plus 17 .ov-* from the EmojiPicker/CommandPalette that ChatComposer mounts). chat-kit-page styled. States added via Chat()''s native empty support. Verified live: .chat-composer-toolbar display block -> flex.'
-  status: completed
-  commit_comment: 'chat: missing sheets linked, composer toolbar now styled'
-- id: kit-craft-community
-  subject: 'professional craft pass on ui_kits/community: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: community.css now delivered; 9 previously-unstyled ds-community-* classes given rules matching the existing .chat-msg/.chat-avatar/.chat-thread language rather than a second message idiom; avatar is a true circle. States added. Verified live.
-  status: completed
-  commit_comment: 'community: sheet delivered, message primitives styled, avatar circular'
 - id: kit-craft-error-404
   subject: 'professional craft pass on ui_kits/error_404: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
   witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/error_404
@@ -2098,11 +2084,6 @@
   subject: 'professional craft pass on ui_kits/system_primer: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
   witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/system_primer
   status: pending
-- id: kit-craft-workspace
-  subject: 'professional craft pass on ui_kits/workspace: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: 'editor-primitives.css linked for the AgentChat -> ChatComposer -> EmojiPicker/CommandPalette chain. Used ConversationList and SessionDashboard native loading/error/offline props rather than hand-rolled states. Fixed a real bug: the rail''s chat/live tabs had no onClick and were unclickable.'
-  status: completed
-  commit_comment: 'workspace: sheet linked, native state props, unclickable rail tabs fixed'
 - id: kit-craft-docs
   subject: 'professional craft pass on ui_kits/docs: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
   witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/docs
@@ -2123,11 +2104,6 @@
   subject: every list/table/grid surface tested with zero items
   witness: layout playbook empty states
   status: pending
-- id: kit-craft-community-app
-  subject: 'professional craft pass on ui_kits/community-app: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: chat.css linked - its .cm-composer-wrap and .cm-reply-preview* are, despite the cm- prefix, defined in chat.css. States driven through the adapter using system messages, the shape a real adapter uses.
-  status: completed
-  commit_comment: 'community-app: chat.css linked, adapter-driven states'
 - id: kit-craft-project-page
   subject: 'professional craft pass on ui_kits/project_page: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
   witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/project_page
@@ -2168,25 +2144,10 @@
   subject: data-density compact/comfortable/spacious verified across every kit not just panels/rows
   witness: this session wired panel rhythm; other components unaudited
   status: pending
-- id: module-cap-editor-primitives
-  subject: src/components/editor-primitives.js is 1046 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
-  witness: 1046 lines -> a 41-line barrel over 15 submodules, largest 146. Uses the import-then-bare-export pattern (matching the existing freddie.js precedent) rather than export-from, because generate-component-docs.mjs resolves symbols by regex against the barrel with a one-hop import fallback - a pure re-export would have produced 247 drift warnings. docs/component-props.md stayed byte-identical at 247 symbols, 0 drift, which is the proof no public shape changed.
-  status: completed
-  commit_comment: editor-primitives 1046 -> 41-line barrel over 15 modules
 - id: module-cap-freddie
   subject: src/components/freddie.js is 988 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
   witness: exec_js-17 line count = 988; AGENTS.md states 'The 200-line cap applies per-module'
   status: pending
-- id: module-cap-overlay-primitives
-  subject: src/components/overlay-primitives.js is 850 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
-  witness: 850 -> 37-line barrel over 11 submodules, largest 146.
-  status: completed
-  commit_comment: overlay-primitives 850 -> 37-line barrel over 11 modules
-- id: module-cap-content
-  subject: src/components/content.js is 857 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
-  witness: 857 -> 33-line barrel over 11 submodules, largest 146. All 37 new files under the 200-line cap.
-  status: completed
-  commit_comment: content 857 -> 33-line barrel over 11 modules
 - id: agents-md-refresh
   subject: AGENTS.md updated for new primitives (ds-app-surface, ds-panel-trio, ds-panel-flush) and the drained rows
   witness: AGENTS.md documents ds-panel-trio which had no CSS rule until this session
@@ -2291,11 +2252,6 @@
   subject: browser verb returns result:null for an IIFE expression body; only an explicit return-statement body captures the value
   witness: browser-4 dispatch with (()=>{...})() body returned ok:true result:null; identical logic as a return-statement body (browser-5) returned the full JSON payload
   status: pending
-- id: community-css-never-loaded-by-kit
-  subject: community.css is a published <link> export but ui_kits/community/index.html links only colors_and_type.css + app-shell.css, so the entire .cm-* shell chrome (server rail, sidebar, member list) is unstyled on its own kit page
-  witness: 'Fixed via kits.config.mjs + the scaffold generator (never hand-editing a generated file). Witnessed live by CDP: .cm-server-rail 1425px -> 72px (its authored width), .cm-channel-sidebar 1425px -> 240px, .cm-shell display block -> flex, .cm-server-icon transparent/0 radius -> rgb(182,255,27)/14px. A CONTROL kit (gallery, deliberately unchanged) still returns unstyled defaults for the same probes, proving the changed values come from the newly-linked sheet rather than app-shell.'
-  status: completed
-  commit_comment: community.css now reaches its kit; server rail 1425px -> 72px
 - id: inline-style-block-literals
   subject: 23 raw px literals live inside inline <style> blocks in 5 html files, invisible to every lint gate because the gates scan only .css files
   witness: 'exec_js-25: blog/index.html=10, preview/colors-core=7, preview/data-density=4, colors-lore=1, colors-semantic=1'
@@ -2316,8 +2272,3 @@
   subject: blog uses .post-body/.post-meta/.centered/.accent/.ds-prose-endnote, docs uses .panel-inline-wide, terminal uses a ds-cli- fragment - none have a rule in any sheet
   witness: symbol-graph audit across all kits
   status: pending
-- id: menubutton-dead-ternary
-  subject: 'MenuButton in overlay-primitives/menus.js has class: ''ov-menubutton-item'' + (it.disabled ? '''' : '''') - both branches yield the same string, so a disabled item gets no distinguishing class and only aria-disabled marks it'
-  witness: 'The ternary class: ov-menubutton-item + (it.disabled ? "" : "") had two branches returning the same empty string. Investigated rather than assuming a missing class was needed: editor-primitives.css:1160 already styles .ov-menubutton-item[aria-disabled=true] with opacity 0.5, pointer-events none and cursor not-allowed, and the component already emits that aria attribute. So the disabled state was never broken - the ternary was vestigial. Deleted it rather than inventing a modifier class, with a comment recording that the aria attribute is both the semantics and the styling hook. Build passes.'
-  status: completed
-  commit_comment: remove vestigial ternary; disabled state is already styled via aria-disabled

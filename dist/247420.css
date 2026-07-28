@@ -813,6 +813,30 @@
 .ds-247420 .ds-prose h1 { font-size: clamp(34px, 5.4cqi, 64px); margin-bottom: var(--space-3); }
 .ds-247420 .ds-prose h2 { margin: var(--space-6) 0 var(--space-3); }
 .ds-247420 .ds-prose h3 { margin: var(--space-5) 0 var(--space-2); font-size: var(--fs-lg); font-weight: 600; }
+/* Closing line of an article ("end. reply by opening a pr."), set off from the
+   body it terminates. Quieter and smaller than the prose around it: it takes
+   the mono face and the --fg-3 tone the house uses for ancillary voices
+   (.t-micro, .dim), so the endnote reads as chrome around the article rather
+   than a final paragraph of it. The --space-5 lead does the "set off" — it
+   breaks the paragraph rhythm so the eye registers the piece has ended before
+   reading the words; margin-bottom:0 overrides .ds-prose p's --space-4 so the
+   article does not end on dead space.
+   Lives here, beside the rest of the .ds-prose family, NOT in gm-prose.css:
+   the blog kit that uses this class links only colors_and_type.css +
+   app-shell.css, so a rule in that separately-<link>-ed export would be exactly
+   as undefined as the class was before. Sized at --fs-xs, not the --fs-micro
+   label rung: this is a readable sentence with a link in it, not a micro-label.
+   The link inherits .ds-prose a's --accent-ink treatment (a readable TEXT tone;
+   the bare --accent fill is ~1.07:1 on paper) — deliberately not re-stated. */
+.ds-247420 .ds-prose .ds-prose-endnote,
+.ds-247420 .ds-prose-endnote {
+  margin-top: var(--space-5);
+  margin-bottom: 0;
+  font-family: var(--ff-mono);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-base);
+  color: var(--fg-3);
+}
 
 .ds-247420 .dim { color: var(--fg-3); }
 
