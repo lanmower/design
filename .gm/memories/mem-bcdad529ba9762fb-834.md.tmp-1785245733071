@@ -1,0 +1,8 @@
+---
+key: mem-bcdad529ba9762fb-834
+ns: default
+created: 1785245730805
+updated: 1785245730805
+---
+
+A CSS lint gate that names a barrel sheet lints nothing. In AnEntrypoint/design, scripts/lint-tokens.mjs listed 'app-shell.css' in COMPONENT_SHEETS, but that file is a 24-line @import barrel over src/css/app-shell/*.css -- so ~5300 lines were never scanned and the reported 362 spacing literals was fiction (real: 647). Fix is expandSheets() resolving @import transitively plus a FULL_COVERAGE_DIRS guard that hard-fails if any .css in the directory is unreachable. That guard immediately exposed a second live defect: four split sheets were bundled into dist by build.mjs's own appShellSplitFiles list but never @imported by the barrel, so every <link rel=stylesheet href=app-shell.css> consumer rendered those components unstyled while dist styled them. Always check whether a lint entry point is a barrel before trusting its count.
