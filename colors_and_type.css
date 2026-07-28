@@ -125,6 +125,17 @@
   --cat-flame:   var(--flame);
   --cat-sky:     var(--sky);
 
+  /* Readable TEXT tones for the category hues — the same FILL/TEXT split the
+     lead accent already draws with --accent (fill) vs --accent-ink (text).
+     The bare --cat-* values are chroma-matched to sit behind ink on a swatch,
+     avatar, or tag; as `color:` on newsprint paper they land at ~3.1:1, under
+     the 4.5:1 floor. Any `color:` use of a category hue takes the -ink tone;
+     only background/border-color take the bare one. Each -deep source is
+     already remapped per-theme below, so these follow the theme too. */
+  --cat-green-ink:  var(--green-deep);
+  --cat-purple-ink: var(--purple-deep);
+  --cat-mascot-ink: var(--mascot-deep);
+
   --panel-bg:     var(--bg);
   --panel-bg-2:   var(--bg-2);
   --panel-accent: var(--accent);
@@ -433,6 +444,14 @@ select:focus-visible {
   --mascot-deep: #FF5C9E;
   --purple-2:  #C277FF;
   --green:     #5CBF52;
+  /* --cat-*-ink text tones for dark. The :root sources (--green-deep #133F10,
+     --purple-deep #220026) are near-black PAPER tones — on ink they land at
+     1.60:1 / 1.01:1, i.e. invisible. Repoint them at the dark-tuned values
+     already proven above: #5CBF52 8.28:1 on ink / 7.04:1 on --bg-2, #C277FF
+     6.77:1 / 5.75:1. --cat-mascot-ink needs no entry here: it tracks
+     --mascot-deep, which this same block already remaps to #FF5C9E. */
+  --cat-green-ink:  #5CBF52;
+  --cat-purple-ink: #C277FF;
   --code-string:  var(--green-2);
   --code-keyword: var(--sky);
   --code-fn:      var(--flame);
@@ -486,6 +505,8 @@ select:focus-visible {
     --mascot-deep: #FF5C9E;
     --purple-2:  #C277FF;
     --green:     #5CBF52;
+    --cat-green-ink:  #5CBF52;
+    --cat-purple-ink: #C277FF;
     --code-string:  var(--green-2);
     --code-keyword: var(--sky);
     --code-fn:      var(--flame);
@@ -531,6 +552,9 @@ select:focus-visible {
   --cat-green: inherit;
   --cat-purple: inherit;
   --cat-mascot: inherit;
+  --cat-green-ink: inherit;
+  --cat-purple-ink: inherit;
+  --cat-mascot-ink: inherit;
   --cat-sun: inherit;
   --cat-flame: inherit;
   --cat-sky: inherit;

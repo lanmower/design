@@ -651,6 +651,61 @@ export function lintTransitionAllOrThrow() {
     console.log('[lint-transition-all] OK — ' + expandSheets().length + ' component sheets animate named properties, never `all`.');
 }
 
+// The dark palette is declared TWICE in the token source: once for the explicit
+// [data-theme="ink"], [data-theme="dark"] opt-in, and once inside
+// @media (prefers-color-scheme: dark) for data-theme="auto". They must define
+// the same token set or a token added to one renders its paper-tuned value in
+// the other mode. That is not hypothetical: --mascot-deep, --purple-2 and
+// --green existed only in the root paper block, so three components rendered
+// dark-on-dark and axe-core caught six contrast failures across four kits.
+// A comment in the file asks for hand-parity; this makes it a gate instead.
+function findDarkBlockParityViolations() {
+    const src = fs.readFileSync(path.join(root, TOKEN_SOURCE), 'utf8');
+    const bodyAfter = (idx) => {
+        if (idx < 0) return null;
+        const open = src.indexOf('{', idx);
+        if (open < 0) return null;
+        let i = open + 1, depth = 1;
+        while (i < src.length && depth > 0) {
+            if (src[i] === '{') depth++;
+            else if (src[i] === '}') depth--;
+            i++;
+        }
+        return src.slice(open + 1, i - 1);
+    };
+    const explicit = bodyAfter(src.indexOf('[data-theme="ink"],'));
+    const auto = bodyAfter(src.indexOf('@media (prefers-color-scheme: dark)'));
+    if (explicit == null || auto == null) {
+        return ['could not locate both dark blocks in ' + TOKEN_SOURCE + ' — the parity gate needs the [data-theme="ink"], selector and the @media (prefers-color-scheme: dark) block'];
+    }
+    const names = (body) => new Set([...body.matchAll(/(--[\w-]+)\s*:/g)].map((m) => m[1]));
+    const a = names(explicit), b = names(auto);
+    const onlyExplicit = [...a].filter((t) => !b.has(t));
+    const onlyAuto = [...b].filter((t) => !a.has(t));
+    const out = [];
+    for (const t of onlyExplicit) out.push(t + ': in [data-theme=ink|dark] but NOT in @media (prefers-color-scheme: dark) — renders its paper value under data-theme="auto" on a dark OS');
+    for (const t of onlyAuto) out.push(t + ': in @media (prefers-color-scheme: dark) but NOT in [data-theme=ink|dark] — renders its paper value when the theme is set explicitly');
+    return out;
+}
+
+export function lintDarkParityOrThrow() {
+    const violations = findDarkBlockParityViolations();
+    if (violations.length) {
+        throw new Error('[lint-dark-parity] FAIL — the two dark palette blocks in ' + TOKEN_SOURCE + ' declare different token sets:\n  '
+            + violations.join('\n  ')
+            + `\n[lint-dark-parity] ${violations.length} token(s) out of parity. Add the missing declaration to the other block. Both blocks must stay token-for-token identical: one serves the explicit ink/dark opt-in and one serves data-theme="auto" on a dark OS, and a token present in only one renders its paper-tuned value in the other mode — which is invisible until someone opens that specific combination.`);
+    }
+    console.log('[lint-dark-parity] OK — both dark palette blocks declare the same ' + names0() + ' tokens.');
+}
+function names0() {
+    const src = fs.readFileSync(path.join(root, TOKEN_SOURCE), 'utf8');
+    const i = src.indexOf('[data-theme="ink"],');
+    const open = src.indexOf('{', i);
+    let j = open + 1, depth = 1;
+    while (j < src.length && depth > 0) { if (src[j] === '{') depth++; else if (src[j] === '}') depth--; j++; }
+    return new Set([...src.slice(open + 1, j - 1).matchAll(/(--[\w-]+)\s*:/g)].map((m) => m[1])).size;
+}
+
 // Throws on violation, mirroring lintTokensOrThrow's shape exactly. Called
 // from build.mjs (hard gate) and the CLI entry below.
 export function lintRadiusOrThrow() {
@@ -705,6 +760,8 @@ if (process.argv[1] && process.argv[1].endsWith('lint-tokens.mjs')) {
     catch (e) { console.error(e.message); process.exit(1); }
     try { lintZIndexOrThrow(); }
     catch (e) { console.error(e.message); process.exit(1); }
+    try { lintDarkParityOrThrow(); }
+    catch (e) { console.error(String(e.message || e)); failed = true; }
     try { lintTransitionAllOrThrow(); }
     catch (e) { console.error(e.message); process.exit(1); }
     try { lintSpacingOrThrow(); }

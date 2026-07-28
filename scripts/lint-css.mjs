@@ -17,6 +17,7 @@ import {
     lintFontSizeOrThrow,
     lintZIndexOrThrow,
     lintTransitionAllOrThrow,
+    lintDarkParityOrThrow,
     lintImportantOrThrow,
 } from './lint-tokens.mjs';
 import { lintGlyphsOrThrow } from './lint-glyphs.mjs';
@@ -42,6 +43,7 @@ const CHECKS = [
     ['radius', lintRadiusOrThrow],
     ['zindex', lintZIndexOrThrow],
     ['transition-all', lintTransitionAllOrThrow],
+    ['dark-parity', lintDarkParityOrThrow],
     ['spacing', lintSpacingOrThrow],
     ['fontsize', lintFontSizeOrThrow],
     ['important', lintImportantOrThrow],

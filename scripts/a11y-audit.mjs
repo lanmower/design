@@ -59,12 +59,40 @@ async function auditKit(kit) {
                         help: v.help,
                         helpUrl: v.helpUrl,
                         nodes: v.nodes.length,
-                        sample: v.nodes.slice(0, 3).map((n) => String(n.target)),
+                        sample: v.nodes.slice(0, 5).map((n) => ({
+                            target: String(n.target),
+                            // failureSummary carries axe's per-node "why" —
+                            // for color-contrast that includes the exact
+                            // sampled fg/bg colours and the computed ratio,
+                            // which is the only way to tell a real defect
+                            // from an environment-dependent sample.
+                            why: String(n.failureSummary || '').replace(/\\s+/g, ' ').trim(),
+                            html: String(n.html || '').slice(0, 200),
+                        })),
                     })),
                 }))
         `);
         return { kit, ...raw };
     });
+}
+
+/** Print every blocking rule + node to stdout. docs/a11y-report.md is not
+ *  uploaded as a CI artifact, so a failure that only lands there is a failure
+ *  nobody can diagnose from the log. */
+function printBlockingDetail(results) {
+    for (const r of results) {
+        const blocking = r.violations.filter((v) => BLOCKING_IMPACTS.has(v.impact));
+        if (!blocking.length) continue;
+        console.error(`[a11y-audit] --- ${r.kit} ---`);
+        for (const v of blocking) {
+            console.error(`  rule=${v.id} impact=${v.impact} nodes=${v.nodes} :: ${v.help}`);
+            for (const s of v.sample) {
+                console.error(`    node: ${s.target}`);
+                if (s.why) console.error(`      why: ${s.why}`);
+                if (s.html) console.error(`      html: ${s.html}`);
+            }
+        }
+    }
 }
 
 function blockingCount(result) {
@@ -91,7 +119,10 @@ function writeReport(results) {
         for (const v of r.violations) {
             lines.push(`- **${v.id}** (${v.impact}): ${v.help} — ${v.nodes} node(s)`);
             lines.push(`  - ${v.helpUrl}`);
-            for (const s of v.sample) lines.push(`  - \`${s}\``);
+            for (const s of v.sample) {
+                lines.push(`  - \`${s.target}\``);
+                if (s.why) lines.push(`    - ${s.why}`);
+            }
         }
         lines.push('');
     }
@@ -157,6 +188,7 @@ async function main() {
     if (regressed.length) {
         console.error('[a11y-audit] FAIL — a11y regression:');
         for (const r of regressed) console.error(`  - ${r}`);
+        printBlockingDetail(results);
         console.error('[a11y-audit] Fix the violation. Never raise the baseline to make it pass.');
         process.exit(1);
     }

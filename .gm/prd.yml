@@ -1997,8 +1997,9 @@
   status: pending
 - id: ai-tell-hero-metric-template
   subject: scan for the big-number/small-label/supporting-stats/accent hero-metric template
-  witness: craft floor Refuse list; dashboard Kpi and gm_inspector StatTile are candidates to review
-  status: pending
+  witness: 'Audited across every kit. The dashboard Kpi band and gm_inspector StatTile grid were the candidates, and both were judged in context rather than by shape: each plots real values from its data array with a delta tied to the actual direction, and Kpi ships an emptyText state. The craft-floor ban is on the TEMPLATE - big number, small label, supporting stats, accent - standing in for content, not on displaying a metric. The one literal hero metric found is the 404 numeral, where the numeral IS the content on an Experience surface. project_page''s stars 3,124 is package-receipt context. No instance of the banned template.'
+  status: completed
+  commit_comment: audited hero-metric shape across kits; every instance carries real data
 - id: kit-craft-settings
   subject: 'professional craft pass on ui_kits/settings: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
   witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/settings
@@ -2082,4 +2083,12 @@
 - id: dist-tracked-but-gitignored
   subject: dist/ is listed in .gitignore yet its files are tracked in git, so every build regenerates them into conflicts on any concurrent push - one already forced a rebase abort this session
   witness: git ls-files dist/ returns dist/247420.css, dist/247420.js and others while .gitignore:13 says dist/; git_push-71 was rejected with CONFLICT (content) in dist/247420.js. .github/workflows/gh-pages.yml builds dist itself (copies assets in, uploads ./dist) so the tracked copy is not what CI consumes.
+  status: pending
+- id: a11y-ci-env-divergence
+  subject: scripts/a11y-audit.mjs reports 0 blocking locally but 8 in GitHub Actions CI (blog 2, community 2, dashboard 1, terminal 3), failing the build. The CI log prints only counts, not rule ids or selectors, which is itself a harness weakness
+  witness: gh run view of the ci workflow after commit 5e78da3
+  status: pending
+- id: colors-dark-block-duplication
+  subject: the two dark-theme blocks in colors_and_type.css ([data-theme=ink|dark] and the auto + prefers-color-scheme:dark mirror) must be kept token-for-token identical BY HAND; a token added to one and not the other renders paper-tuned colour on ink. This class of bug caused 6 of the 22 a11y contrast failures and will recur until the duplication is removed by a build step
+  witness: found while fixing --mascot-deep/--purple-2/--green, which existed in the root paper block but had no dark counterpart
   status: pending

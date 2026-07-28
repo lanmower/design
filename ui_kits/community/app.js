@@ -53,9 +53,13 @@ const state = {
     muted: false,
     deafened: false,
     messages: [
-        { id: 1, author: 'jordan', color: 'var(--cat-green)', time: '14:02', text: 'shipped the community shell component. check it out.' },
-        { id: 2, author: 'mai', color: 'var(--cat-purple)', time: '14:03', text: 'looks clean. does it handle collapsed cats?' },
-        { id: 3, author: 'aicat', color: 'var(--cat-mascot)', time: '14:04', text: 'yes — click any category header.' },
+        // `color` is the FILL (avatar disc, ink text on top); `ink` is the
+        // readable TEXT tone for the author name. Same --accent/--accent-ink
+        // split the lead accent draws — the bare hue as `color:` on paper is
+        // ~3.1:1 and fails AA.
+        { id: 1, author: 'jordan', color: 'var(--cat-green)', ink: 'var(--cat-green-ink)', time: '14:02', text: 'shipped the community shell component. check it out.' },
+        { id: 2, author: 'mai', color: 'var(--cat-purple)', ink: 'var(--cat-purple-ink)', time: '14:03', text: 'looks clean. does it handle collapsed cats?' },
+        { id: 3, author: 'aicat', color: 'var(--cat-mascot)', ink: 'var(--cat-mascot-ink)', time: '14:04', text: 'yes — click any category header.' },
     ]
 };
 
@@ -108,7 +112,7 @@ function MessagesBody(name) {
         ...state.messages.map(m => h('div', { class: 'ds-community-msg', key: String(m.id) },
             h('div', { class: 'ds-community-avatar', style: `background:${m.color || 'var(--panel-3)'}` }, m.author[0].toUpperCase()),
             h('div', { class: 'ds-community-msg-body' },
-                h('span', { class: 'ds-community-msg-name', style: `color:${m.color || 'var(--fg)'}` }, m.author),
+                h('span', { class: 'ds-community-msg-name', style: `color:${m.ink || m.color || 'var(--fg)'}` }, m.author),
                 h('span', { class: 'ds-community-msg-time' }, m.time),
                 h('p', { class: 'ds-community-msg-text' }, m.text)
             )
