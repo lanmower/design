@@ -202,6 +202,10 @@ export function mountCommunityApp(root, adapter = {}) {
             : chatView(s);
         const showVoiceBanner = s.voiceConnected && s.voiceChannelName && !(inVoiceChannel && s.voiceChannelName === ch.name);
         return h('div', { class: 'ca-app' },
+            // Same skip-link contract AppShell() provides. This app builds its
+            // own chrome, so without this a keyboard user had to tab through
+            // the whole topbar nav and channel rail to reach the messages.
+            h('a', { href: '#app-main', class: 'skip-link' }, 'skip to main content'),
             // top bar (sole app chrome above the chat-head)
             h('header', { class: 'app-topbar' },
                 h('span', { class: 'brand' }, 'zellous', h('span', { class: 'slash' }, ' / '), h('span', {}, ch.name || 'general')),
@@ -217,7 +221,15 @@ export function mountCommunityApp(root, adapter = {}) {
             Banner({ tone: 'success', visible: !!showVoiceBanner, message: showVoiceBanner ? ('In voice: ' + (s.voiceChannelName || '') + ' — click to return') : '', actionLabel: 'Leave', onAction: (e) => { if (e && e.stopPropagation) e.stopPropagation(); A.leaveVoice && A.leaveVoice(); }, onClick: () => A.returnToVoice && A.returnToVoice() }),
             h('div', { class: 'app-body' + (s.mobileMenuOpen ? ' ca-rail-open' : '') },
                 h('aside', { class: 'app-side ca-rail' + (s.mobileMenuOpen ? ' open' : '') }, railView(s)),
-                h('main', { class: 'app-main', onclick: () => { if (s.mobileMenuOpen && A.closeMobileMenu) A.closeMobileMenu(); } },
+                // id + tabindex match AppShell()'s contract so the skip link
+                // above actually lands somewhere; this app builds its own shell
+                // and so inherited neither.
+                h('main', { class: 'app-main', id: 'app-main', tabindex: '0', onclick: () => { if (s.mobileMenuOpen && A.closeMobileMenu) A.closeMobileMenu(); } },
+                    // The channel name is the page title, but it lived only in
+                    // the topbar brand span, leaving the document with no
+                    // heading at all. sr-only because the topbar and chat-head
+                    // already show it — this adds the semantics, not a visual.
+                    h('h1', { class: 'sr-only' }, ch.name || 'general'),
                     !inVoiceChannel && s.voiceConnected ? VoiceStrip({ channelName: s.voiceChannelName, status: s.voiceConnectionState || 'connected', muted: !!s.micMuted, deafened: !!s.voiceDeafened, onMute: () => A.toggleMic && A.toggleMic(), onDeafen: () => A.toggleDeafen && A.toggleDeafen(), onLeave: () => A.leaveVoice && A.leaveVoice(), open: true }) : null,
                     UserPanel({ name: (s.currentUser && (s.currentUser.displayName || s.currentUser.username || s.currentUser.name)) || 'You', tag: s.currentUser && s.currentUser.tag, color: avatarColor(s.userId), muted: !!s.micMuted, deafened: !!s.voiceDeafened, onMute: () => A.toggleMic && A.toggleMic(), onDeafen: () => A.toggleDeafen && A.toggleDeafen(), onSettings: () => A.openSettings && A.openSettings() }),
                     bodyMain,

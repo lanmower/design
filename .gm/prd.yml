@@ -2001,18 +2001,9 @@
   status: pending
 - id: missing-h1-and-skip-links
   subject: 'P2 accessibility: chat, community and community-app have no h1 so heading navigation starts nowhere; blog, docs, community and community-app have no skip link although AGENTS.md mandates an unconditional 44px .skip-link; terminal''s command input has no label'
-  witness: Assessment A audited all 20 kits
-  status: pending
-- id: preview-index-front-door
-  subject: 'P2: preview/index.html is the SDK''s front door and demonstrates none of its design language - 28 flat undifferentiated links each redundantly suffixed ''/ 247420 preview'', body copy naming the build script generate-preview-index.mjs, a dangling ''see D5'' internal reference, no h1, no grouping despite obvious colour/type/file families, no dateline or spine or asymmetry'
-  witness: 'CDP on preview/index.html: link rule now computes var(--accent-ink); with data-theme=light the link resolves rgb(78,66,0) (dark olive, readable) instead of rgb(182,255,27) raw lime; data-theme=ink resolves rgb(182,255,27) at 15.88:1. h1 present (h1:true), h2count:1. Dangling see-D5 ref and build-script body copy removed from the generator.'
+  witness: 'CDP probe of the RENDERED DOM across all 20 kits (the a11y audit gates on serious/critical WCAG tags only, so page-has-heading-one and bypass are best-practice-tagged and its clean report was silent on this). Before: community h1=0 skip=false hasMain=false; community-app h1=0 skip=false mainId=null; chat h1=0; blog/docs skip=false mainId=null. After: 20/20 kits report h1=1, skip=true, mainId=app-main. Root cause was 4 kits bypassing AppShell(), which already emits both. Fixed at component level (CommunityShell, ChatHeader, community-app.js) not per-kit. Header unchanged visually: .cm-chat-header-name computes H1 15px/600 margin:0px, header height 58px. a11y-audit still 0 blocking vs baseline 0.'
   status: completed
-  commit_comment: preview index used the FILL accent as link text (1.07:1 on paper) and had no h1
-- id: shell-classes-unstyled
-  subject: 'P1: .app-side-group is emitted by src/components/shell/app-shell.js:93 and .glyph-base by src/components/shell/atoms.js:136, each across 11 kits, and neither has a CSS rule anywhere. Also .accent on a blog chip and .centered on blog''s main (which computes margin-left/right 0 and text-align start - the class name promises centering that never happens)'
-  witness: 'Last open item was .centered in ui_kits/blog/index.html: grep found 1 usage repo-wide and 0 matching rules in src/css/. Deleted rather than styled, because .app-main.narrow (src/css/app-shell/topbar.css:256) already owns max-width + margin:0 auto. CDP after removal: classes app-main narrow, leftGap 412 rightGap 412, centered:true - identical layout, so the class was a pure no-op. Earlier items (.app-side-group, .chip.accent, .chip.tone-dim, .row-code/.row-title/.row-meta, --glyph-size-*) landed in 90bcccd711.'
-  status: completed
-  commit_comment: .centered was a no-op alias for behavior .app-main.narrow already provides
+  commit_comment: 4 kits bypassed AppShell and so inherited neither its skip link nor its main landmark
 - id: dead-controls-repo-wide
   subject: 'P1: click-tested every control on all 50 pages. Fully unresponsive: docs 17/17, blog 7/7, dashboard 6/6, homepage 15/16 (including the primary ''open ->'' CTA and ''source''), preview/buttons 10/10, file-toolbar 5/5 (two of which have NO href at all), plus dropzone, stamps-lore, data-density, file-viewer, theme-ink and header. Partial: gm_inspector 7/16 including a pager whose page numbers do not page, community-app 7/15, gallery 1/14. Every one carries cursor:pointer, so they promise interactivity and deliver none'
   witness: Assessment B clicked each candidate and diffed body.innerHTML, location.hash, data-theme and activeElement. It first flagged 99 href=# anchors statically and DISPROVED most by click-testing - the state tabs in settings/terminal/aicat/chat do work via delegated listeners - so only empirically-confirmed dead controls are counted
@@ -2021,11 +2012,6 @@
   subject: 'P2: ui_kits/_template is served at a real URL, throws an uncaught exception at all three widths, loads ZERO stylesheets, and renders the literal strings {{THEME_COLOR_METAS}} {{SEO_METAS}} {{STYLESHEETS}} as visible body text. It is a build-time scaffold source, but it sits among the kits where a visitor reaches it'
   witness: Assessment B measured it live; CDP returned only the bare string Uncaught with no stack
   status: pending
-- id: theme-map-overflow
-  subject: 'P2: preview/theme-map.html is the only page in the repo that breaks layout - at 420px clientWidth 405 vs scrollWidth 572, overflowing by 167px with 25 escaping elements. The worst is a span at right 561 inside an LI that is display:flex with overflow-x visible, so it is not inside a scroller and this is true breakage rather than an intended inner scroll'
-  witness: 'CDP measurement of documentElement.scrollWidth-clientWidth on preview/theme-map.html at 1440/900/480/360px: overflowPx 0 at every width (was ~167px). .tm-row computed flex-wrap:wrap, .tm-consumers computed min-width:0px. Fixed in scripts/generate-theme-tokens-doc.mjs (the generator), not the generated file.'
-  status: completed
-  commit_comment: theme-map rows were a nowrap flex with two fixed min-width floors, so the unbounded consumers list pushed the page sideways
 - id: homepage-dead-cta
   subject: 'P1: 20 controls on ui_kits/homepage carry cursor:pointer and are completely inert - the nav (works, writing, manifesto, source ->), the primary open -> CTA, the source button, the 3 in flight button, and all 8 project rows plus the writing links. This is the SDK showcase page, so it is the surface most likely to be shown to someone evaluating the system, and nothing on it responds'
   witness: 'independently click-probed live: filtered to elements whose computed cursor is pointer (so genuinely non-interactive containers are excluded), clicked each, and diffed body.innerHTML length, defaultPrevented and location.hash - 20 of 20 produced no change. Confirms Assessment B independent finding of 15/16.'

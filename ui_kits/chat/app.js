@@ -117,6 +117,12 @@ function App() {
             ]
         }),
         main: [
+            // Every other AppShell kit names its page with an h1; this one had
+            // none, so the document went straight from <main> to the thread and
+            // a screen reader's heading list came back empty. Visually hidden
+            // rather than drawn, because Chat() already renders the room name as
+            // its own visible title — a second visible copy would be redundant.
+            h('h1', { class: 'sr-only' }, 'chat — #' + state.room),
             h('div', { class: 'ds-section chat-kit-page' },
                 h('div', { class: 'ds-chat-layout' },
                     state.phase === 'loading' ? ThreadSkeleton()

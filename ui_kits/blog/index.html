@@ -53,6 +53,10 @@
 </head>
 <body data-screen-label="04 Blog">
 <div class="app">
+  <!-- Matches what AppShell() emits for the JS-rendered kits. This page hand-
+       rolls the shell markup statically, so it does not inherit the skip link
+       and had no way past the header nav for a keyboard user. -->
+  <a href="#app-main" class="skip-link">skip to main content</a>
   <header class="app-topbar">
     <span class="brand">247420<span class="slash"> / </span>writing</span>
     <nav>
@@ -70,7 +74,7 @@
     <span class="leaf">we-were-here-first.md</span>
   </div>
   <div class="app-body no-side">
-    <main class="app-main narrow">
+    <main class="app-main narrow" id="app-main" tabindex="0">
       <div class="post-meta">
         <span>lore</span><span class="sep">·</span>
         <span>apr 14 2026</span><span class="sep">·</span>

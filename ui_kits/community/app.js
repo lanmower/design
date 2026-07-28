@@ -167,7 +167,12 @@ function App() {
                     deafened: state.deafened,
                     onMute: () => { state.muted = !state.muted; kit.render(); },
                     onDeafen: () => { state.deafened = !state.deafened; kit.render(); },
-                    onSettings: () => {}
+                    // 'Audio settings' opens the voice strip, which is this
+                    // kit's actual audio surface (mute/deafen/leave). UserPanel
+                    // renders this button whether or not a handler is passed,
+                    // so leaving it unwired was a permanently inert control
+                    // rather than an absent one.
+                    onSettings: () => { state.voiceOpen = true; kit.render(); }
                 }
             },
             children: chatContent,

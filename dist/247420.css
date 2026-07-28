@@ -7579,6 +7579,11 @@
 }
 
 .ds-247420 .cm-chat-header-name {
+  /* This is an <h1> (it is the visible title of the content column, and the
+     community kits otherwise rendered no heading at all). The rule already
+     pinned weight/size/colour, but a bare h1 also brings a UA block margin
+     that would break this flex row — so the margin is zeroed explicitly. */
+  margin: 0;
   font-weight: 600;
   font-size: var(--fs-sm);
   color: var(--fg);

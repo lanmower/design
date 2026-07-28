@@ -87,6 +87,13 @@ function TypeScalePanel() {
     });
 }
 
+// The three button specimens are the only controls on this reference page that
+// look pressable, so pressing one has to do something. Each reports which
+// variant was last pressed, which is the one fact a primer's button row can
+// truthfully demonstrate — the alternative was three buttons that swallow every
+// click, on the page whose whole job is showing how controls behave.
+const primState = { pressed: null };
+
 function PrimitivesPanel() {
     return Panel({ id: 'primitives', title: 'primitives', class: 'ds-panel-gap', children:
         h('div', { class: 'ds-prim-panel' },
@@ -98,9 +105,11 @@ function PrimitivesPanel() {
             ),
             h('div', { class: 'ds-prim-row' },
                 h('span', { class: 'ds-prim-label' }, 'buttons'),
-                Btn({ primary: true, children: 'primary' }),
-                Btn({ children: 'default' }),
-                Btn({ ghost: true, children: 'ghost' })
+                Btn({ primary: true, children: 'primary', onClick: () => { primState.pressed = 'primary'; kit.render(); } }),
+                Btn({ children: 'default', onClick: () => { primState.pressed = 'default'; kit.render(); } }),
+                Btn({ ghost: true, children: 'ghost', onClick: () => { primState.pressed = 'ghost'; kit.render(); } }),
+                h('span', { class: 'ds-prim-label' },
+                    primState.pressed ? 'last pressed: ' + primState.pressed : 'none pressed yet')
             ),
             h('div', { class: 'ds-prim-row' },
                 h('span', { class: 'ds-prim-label' }, 'theme'),
@@ -157,4 +166,4 @@ function App() {
     });
 }
 
-mountKit({ root, view: App, screen: '16 System Primer' });
+const kit = mountKit({ root, view: App, screen: '16 System Primer' });
