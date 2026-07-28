@@ -261,7 +261,7 @@
 }
 .ds-err-path {
   display: inline-flex; gap: var(--space-1-75); align-items: baseline; flex-wrap: wrap; max-width: 100%;
-  font-family: var(--ff-mono); font-size: 13px; color: var(--panel-text-2);
+  font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--panel-text-2);
   background: var(--panel-1); padding: var(--space-1-75) var(--space-2-75); border-radius: var(--r-0);
   overflow-wrap: anywhere; word-break: break-all;
 }
@@ -319,6 +319,9 @@
   .ds-topbar-search { flex-basis: 100%; }
 }
 .ds-empty-state { padding: clamp(var(--space-3), 5vw, var(--space-4)); text-align: center; color: var(--panel-text-3); }
+/* Fluid ICON size (empty-state mark), not a type tier: it scales with the
+   viewport between 24 and 32px. Every fluid --fs-* tier is a heading clamp
+   tuned to cqi + heading weight, so none of them substitutes here. */
 .ds-empty-state-glyph { font-size: clamp(24px, 6vw, 32px); }
 .ds-empty-state-msg { margin: var(--space-1-75) 0; }
 .ds-empty-state-hint { margin: 0; font-size: var(--fs-sm); }
@@ -338,20 +341,20 @@
 .ds-swatch-col { display: flex; flex-direction: column; gap: var(--space-1-75); }
 .ds-swatch-chip { height: 48px; border-radius: var(--r-1); border: 1px solid var(--rule); background: var(--swatch, var(--panel-1)); }
 .ds-swatch-chip--big { height: 64px; }
-.ds-swatch-name { font-family: var(--ff-mono); font-size: 11px; color: var(--fg-3); }
+.ds-swatch-name { font-family: var(--ff-mono); font-size: var(--fs-nano); color: var(--fg-3); }
 .ds-type-panel { padding: clamp(10px, 2.5vw, 14px) clamp(10px, 3vw, 18px); display: flex; flex-direction: column; gap: 14px; }
 .ds-type-row {
   display: flex; align-items: baseline; gap: 14px;
   border-bottom: 1px solid var(--rule); padding-bottom: var(--space-2); flex-wrap: wrap;
 }
-.ds-type-row-label { flex: 0 0 64px; font-family: var(--ff-mono); font-size: 11px; color: var(--fg-3); }
+.ds-type-row-label { flex: 0 0 64px; font-family: var(--ff-mono); font-size: var(--fs-nano); color: var(--fg-3); }
 .ds-type-sample {
   min-width: 0; overflow-wrap: anywhere; line-height: var(--lh-tight); color: var(--fg);
   font-size: var(--sample-size, var(--fs-body));
 }
 .ds-prim-panel { padding: clamp(10px, 2.5vw, 14px) clamp(10px, 3vw, 18px); display: flex; flex-direction: column; gap: 18px; }
 .ds-prim-row { display: flex; gap: var(--space-2-5); flex-wrap: wrap; align-items: center; }
-.ds-prim-label { flex: 0 0 64px; font-family: var(--ff-mono); font-size: 11px; color: var(--fg-3); }
+.ds-prim-label { flex: 0 0 64px; font-family: var(--ff-mono); font-size: var(--fs-nano); color: var(--fg-3); }
 
 /* == appended: content-site == */
 /* Home landing wrappers (site/theme.mjs) — replace banned inline styles. */
@@ -483,6 +486,10 @@
 /* 18px ceiling: no tier between --space-3 (16) and --space-3-5 (20). */
 .ds-auth-form { padding: clamp(var(--space-2-75), 3vw, 18px); display: flex; flex-direction: column; gap: var(--space-2-5); }
 .ds-auth-sent { align-items: center; text-align: center; }
+/* 32px is an ICON size, not a type size: this is the confirmation mark above
+   the "check your mail" copy, sized to the 440px auth column, and the --fs-*
+   scale tops out at --fs-xl (21px) before jumping to fluid clamp() heading
+   tiers. Snapping it to either would visibly resize the mark. */
 .ds-auth-sent-glyph { font-size: 32px; color: var(--panel-accent); }
 .ds-auth-sent-title { margin: 0; font-weight: 600; }
 .ds-auth-sent-sub { margin: 0; color: var(--panel-text-2); overflow-wrap: anywhere; }
@@ -490,17 +497,17 @@
 /* .ds-auth-field-label joins the kit small-label voice above, no overrides. */
 .ds-auth-row-between { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
 .ds-auth-remember { display: flex; align-items: center; gap: var(--space-1-75); cursor: pointer; }
-.ds-auth-remember-text { color: var(--panel-text-2); font-size: 13px; }
-.ds-auth-forgot { font-size: 13px; }
-.ds-auth-error { padding: var(--space-2) var(--space-2-5); background: var(--panel-1); border-radius: var(--r-0); color: var(--danger); font-size: 13px; overflow-wrap: anywhere; }
+.ds-auth-remember-text { color: var(--panel-text-2); font-size: var(--fs-tiny); }
+.ds-auth-forgot { font-size: var(--fs-tiny); }
+.ds-auth-error { padding: var(--space-2) var(--space-2-5); background: var(--panel-1); border-radius: var(--r-0); color: var(--danger); font-size: var(--fs-tiny); overflow-wrap: anywhere; }
 .ds-auth-providers { display: flex; gap: var(--space-2); flex-wrap: wrap; }
 .ds-auth-provider-btn { flex: 1 1 100px; min-width: 0; display: flex; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-2-5); }
 .ds-auth-provider-btn--loading { opacity: 0.7; pointer-events: none; }
 .ds-auth-provider-glyph { font-family: var(--ff-mono); color: var(--panel-text-3); display: inline-flex; }
-.ds-auth-modes { display: flex; justify-content: center; gap: 14px; /* off-scale, matches the auth form inset */ margin-top: var(--space-2); font-size: 13px; flex-wrap: wrap; }
+.ds-auth-modes { display: flex; justify-content: center; gap: 14px; /* off-scale, matches the auth form inset */ margin-top: var(--space-2); font-size: var(--fs-tiny); flex-wrap: wrap; }
 .ds-auth-mode-link { color: var(--panel-text-3); text-decoration: none; }
 .ds-auth-mode-link--active { color: var(--panel-text); text-decoration: underline; }
-.ds-auth-fineprint { text-align: center; font-size: 12px; color: var(--panel-text-3); margin: var(--space-1-75) 0; }
+.ds-auth-fineprint { text-align: center; font-size: var(--fs-micro); color: var(--panel-text-3); margin: var(--space-1-75) 0; }
 
 /* == appended: gallery-misc kit cleanup == */
 /* --- shared helpers (converted from inline styles) --- */
@@ -510,12 +517,12 @@
 .ds-kit-head { display: flex; align-items: center; justify-content: space-between; gap: clamp(var(--space-2), 2vw, var(--space-3)); flex-wrap: wrap; }
 
 /* --- gallery kit --- */
-.ds-tile-cap { flex: 1; display: flex; align-items: center; justify-content: center; font-family: var(--ff-mono); white-space: pre-line; color: var(--panel-text-2); font-size: 18px; min-width: 0; text-align: center; }
-.ds-tile-meta { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1-75); font-size: 12px; flex-wrap: wrap; min-width: 0; }
+.ds-tile-cap { flex: 1; display: flex; align-items: center; justify-content: center; font-family: var(--ff-mono); white-space: pre-line; color: var(--panel-text-2); font-size: var(--fs-lg); min-width: 0; text-align: center; }
+.ds-tile-meta { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1-75); font-size: var(--fs-micro); flex-wrap: wrap; min-width: 0; }
 .ds-tile-glyph { font-family: var(--ff-mono); color: var(--panel-text-3); }
 .ds-tile-label { color: var(--panel-text); overflow-wrap: anywhere; }
 .ds-gal-swatch { height: 64px; border-radius: var(--r-0); background: var(--swatch, var(--panel-1)); }
-.ds-gal-swatch-meta { display: flex; justify-content: space-between; gap: var(--space-1-75); flex-wrap: wrap; font-family: var(--ff-mono); font-size: 11px; min-width: 0; }
+.ds-gal-swatch-meta { display: flex; justify-content: space-between; gap: var(--space-1-75); flex-wrap: wrap; font-family: var(--ff-mono); font-size: var(--fs-nano); min-width: 0; }
 .ds-gal-swatch-name { color: var(--panel-text); }
 .ds-gal-swatch-hint { color: var(--panel-text-3); overflow-wrap: anywhere; }
 .ds-lightbox-head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
@@ -574,9 +581,9 @@
   font-family: var(--ff-mono); font-weight: 600; text-transform: lowercase;
   letter-spacing: 0.02em; user-select: none; flex-shrink: 0; object-fit: cover;
 }
-.ds-avatar-sm { width: 24px; height: 24px; font-size: 10px; }
-.ds-avatar-md { width: 36px; height: 36px; font-size: 12px; }
-.ds-avatar-lg { width: 48px; height: 48px; font-size: 15px; }
+.ds-avatar-sm { width: 24px; height: 24px; font-size: var(--fs-pico); }
+.ds-avatar-md { width: 36px; height: 36px; font-size: var(--fs-micro); }
+.ds-avatar-lg { width: 48px; height: 48px; font-size: var(--fs-sm); }
 .ds-avatar-square { border-radius: var(--r-2, 6px); }
 
 /* SpreadsheetPreview — tabbed inline spreadsheet/CSV viewer (docstudio
@@ -765,6 +772,10 @@
    same tonal chip treatment .chat-bubble code uses. */
 .ds-pattern-notes code {
   font-family: var(--ff-mono);
+  /* em-relative on purpose: inline code must track whatever size the
+     surrounding prose is set at (the mono face runs optically large next to
+     the system stack, hence 0.92). An absolute --fs-* tier would decouple it
+     from its own paragraph and break at every containing type size. */
   font-size: 0.92em;
   background: color-mix(in oklab, var(--fg) 8%, transparent);
   padding: 0 var(--space-1);

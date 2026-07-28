@@ -97,7 +97,7 @@
   margin: 0 0 var(--space-3) 0;
 }
 #ds-article-host .toc ol { margin: 0; padding-left: var(--space-3-5); }
-#ds-article-host .toc li { font-size: 13px; line-height: 1.85; color: var(--panel-text); }
+#ds-article-host .toc li { font-size: var(--fs-tiny); line-height: 1.85; color: var(--panel-text); }
 #ds-article-host .toc li::marker { color: var(--panel-text-3); font-variant-numeric: tabular-nums; }
 #ds-article-host .toc a { color: var(--panel-text-2); text-decoration: none; transition: color .12s ease; }
 #ds-article-host .toc a:hover { color: var(--panel-accent); }
@@ -128,6 +128,12 @@
   padding: var(--space-3) var(--space-3-5);
   margin: var(--space-3) 0 var(--space-5) 0;
   font-family: var(--ff-mono);
+  /* Deliberate half-step, NOT un-migrated drift: this is a transcript block set
+     in the mono face, which runs optically ~1 rung larger than the system
+     stack at the same px. --fs-micro (12) reads thin against the surrounding
+     prose and --fs-tiny (13) reads heavy; 12.5 is the tuned midpoint. There is
+     no half-rung on the --fs-* ladder and one must not be invented for a
+     single block, so this literal stays. */
   font-size: 12.5px;
   line-height: 1.6;
   color: var(--panel-text);
@@ -174,7 +180,7 @@
   margin-top: var(--space-1-75);
   font-weight: 400;
   color: var(--panel-text-2);
-  font-size: 13px;
+  font-size: var(--fs-tiny);
   line-height: 1.6;
 }
 
@@ -186,15 +192,15 @@
   margin: var(--space-2) 0;
   background: var(--panel-1);
   border-radius: var(--r-0);
-  font-size: 13px;
+  font-size: var(--fs-tiny);
   box-shadow: var(--panel-shadow);
   text-decoration: none;
 }
 .ds-prose .card:hover { background: var(--panel-hover); }
 .ds-prose .card .card-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2-75); }
 .ds-prose .card .repo-name { font-weight: 600; color: var(--panel-text); }
-.ds-prose .card .stars { color: var(--panel-text-3); font-family: var(--ff-mono); font-size: 12px; flex: 0 0 auto; }
-.ds-prose .card .desc { color: var(--panel-text-2); font-size: 12px; line-height: 1.5; margin: 0; }
+.ds-prose .card .stars { color: var(--panel-text-3); font-family: var(--ff-mono); font-size: var(--fs-micro); flex: 0 0 auto; }
+.ds-prose .card .desc { color: var(--panel-text-2); font-size: var(--fs-micro); line-height: 1.5; margin: 0; }
 .ds-prose .tags { display: flex; gap: var(--space-1-75); flex-wrap: wrap; }
 .ds-prose .tag {
   background: var(--panel-2);

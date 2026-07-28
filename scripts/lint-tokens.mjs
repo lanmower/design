@@ -152,6 +152,56 @@ const SPACING_RE = /\b(?:margin|padding|gap|row-gap|column-gap)(?:-(?:top|right|
 // not a per-line ALLOW entry.
 const RADIUS_RE = /(?:-webkit-|-moz-)?border-radius\s*:\s*[^;}]*?\d[\d.]*(?:px|%|em|rem|vw|vh|vmin|vmax|ch)\b/;
 
+// Font-size-literal matcher: a bare numeric length (px/em/rem) on a font-size
+// declaration — the raw-literal bypass of the --fs-pico..--fs-mega type scale
+// in colors_and_type.css. Same digit-then-unit shape as SPACING_RE/RADIUS_RE so
+// it never matches a digit inside a --fs-h3/--fs-h1-app token NAME referenced
+// via var(...) on the same declaration.
+//
+// Units deliberately included:
+//   px   the common case; every non-fluid --fs-* rung is a px value
+//   em   an em font-size is relative to the PARENT's size, which is a real
+//        pattern (inline <code> tracking its paragraph) but also the common
+//        shape of un-migrated drift. It is counted, not exempted, so the
+//        ratchet forces each one to be justified in a comment rather than
+//        silently multiplying — the same treatment SPACING_RE gives `em`.
+//   rem  relative to root, i.e. an absolute size in disguise; a --fs-* rung
+//        almost always exists for it.
+// `%` and viewport units are excluded: a percentage/vw font-size is a
+// deliberately fluid relationship with no fixed rung it could ever equal, the
+// same reasoning SPACING_RE uses to exclude `%`.
+const FONTSIZE_RE = /\bfont-size\s*:\s*[^;}]*?\d[\d.]*(?:px|em|rem)\b/;
+
+// z-index-literal matcher: any bare integer on a z-index declaration — the
+// raw-literal bypass of the --z-below..--z-top stacking scale in
+// colors_and_type.css. Unlike every other scanner here there is no unit to
+// anchor on (z-index is unitless), so the pattern matches a digit run directly;
+// `var(--z-modal)` contains no digit after the colon outside the token name,
+// and the token name is inside var(...) which the digit-run cannot reach
+// because `-` and letters break the match before any digit in `--z-...` — the
+// scale names are all alphabetic, deliberately, so this stays unambiguous.
+const ZINDEX_RE = /\bz-index\s*:\s*-?\d/;
+
+// `transition: all` matcher (also `transition-property: all`). This is not a
+// token bypass like the others — it is a defect class in its own right: `all`
+// makes the browser animate EVERY animatable property that changes, including
+// layout-affecting ones (width/height/top/padding), which forces layout+paint
+// per frame instead of a compositor-only transform/opacity animation. It also
+// silently animates properties a later edit adds to the same rule, so the jank
+// appears with no change to the transition itself. The fix is always to name
+// the properties actually being animated.
+const TRANSITION_ALL_RE = /\btransition(?:-property)?\s*:\s*[^;}]*\ball\b/;
+
+// `!important` matcher. Also not a token bypass: an `!important` wins over the
+// cascade regardless of specificity, so a consumer theming or overriding the
+// SDK cannot beat it without another `!important`, and the next one after that
+// escalates again. Each one is a small permanent loss of themability — the
+// exact property this whole lint file exists to protect. A handful are genuinely
+// load-bearing (utility resets, print rules, forced-colors/reduced-motion
+// overrides that MUST beat component rules), which is why this is a ratchet and
+// not a hard zero.
+const IMPORTANT_RE = /!\s*important/;
+
 // Per-file allowlist of intentional, justified literals. A line is exempt if it
 // contains the substring AND the file matches. Keep this list tiny and audited —
 // every entry is a deliberate non-themable value (true-black media frames, etc).
@@ -307,6 +357,119 @@ export function findSpacingViolations() {
     return violations;
 }
 
+// Same collection pattern, scanning COMPONENT_SHEETS for a raw font-size
+// px/em/rem literal bypassing the --fs-pico..--fs-mega type scale in
+// colors_and_type.css. RATCHET-gated (see lintFontSizeOrThrow) rather than a
+// hard zero: the residual corpus is dominated by ICON sizes set via font-size
+// (a 24px mark inside a 34px chip is matched to its box, not to the type
+// ladder, which tops out at --fs-xl/21px before every remaining rung becomes a
+// fluid heading clamp) and by deliberately em-relative inline elements
+// (<code>/<table> inside a chat bubble must track the bubble's own size, not an
+// absolute tier). Both are real judgment calls per declaration, so they carry a
+// justifying comment in the sheet instead of a blanket regex exemption.
+export function findFontSizeViolations() {
+    const violations = [];
+    for (const rel of expandSheets()) {
+        const file = path.join(root, rel);
+        if (!fs.existsSync(file)) continue;
+        const src = fs.readFileSync(file, 'utf8');
+        // var(--fs-N, <fallback>px) fallback literals are exempt — same
+        // reasoning as stripThemableLiterals for colors, lintRadiusOrThrow for
+        // --r-N and lintSpacingOrThrow for --space-N: the token drives the live
+        // value, the literal only applies if the token is undefined.
+        // calc(var(--fs-N) <op> <literal>) is exempt for the same derived-value
+        // reason the radius and spacing scanners exempt their own calc() forms.
+        const codeLines = stripThemableLiterals(stripComments(src))
+            .replace(/calc\([^()]*var\(\s*--fs-[\w-]+\s*\)[^()]*\)/g, (m) => m.replace(/[^\n]/g, ' '))
+            .split(/\r?\n/);
+        const rawLines = src.split(/\r?\n/);
+        codeLines.forEach((code, i) => {
+            if (FONTSIZE_RE.test(code) && !isAllowed(rel, rawLines[i])) {
+                violations.push(`${rel}:${i + 1}: ${rawLines[i].trim()}`);
+            }
+        });
+    }
+    return violations;
+}
+
+// Same collection pattern, scanning COMPONENT_SHEETS for a raw z-index integer
+// bypassing the --z-below..--z-top stacking scale in colors_and_type.css.
+// HEAD is clean (0 violations) — every literal was migrated in the pass that
+// introduced the scale — so unlike font-size/spacing/!important this one is a
+// HARD ZERO gate (lintZIndexOrThrow throws on the first violation), matching
+// lintRadiusOrThrow. A raw z-index is exactly the failure mode the scale
+// exists to prevent: two unrelated components each picking `9999` and then
+// racing on source order, with no way to reason about which layer wins.
+export function findZIndexViolations() {
+    const violations = [];
+    for (const rel of expandSheets()) {
+        const file = path.join(root, rel);
+        if (!fs.existsSync(file)) continue;
+        const src = fs.readFileSync(file, 'utf8');
+        // var(--z-N, <fallback>) fallbacks exempt, same reasoning as every
+        // other scanner here. calc(var(--z-N) + 1) is exempt too: a derived
+        // stacking value still anchored to a rung, not a free-floating number.
+        const codeLines = stripThemableLiterals(stripComments(src))
+            .replace(/calc\([^()]*var\(\s*--z-[\w-]+\s*\)[^()]*\)/g, (m) => m.replace(/[^\n]/g, ' '))
+            .split(/\r?\n/);
+        const rawLines = src.split(/\r?\n/);
+        codeLines.forEach((code, i) => {
+            if (ZINDEX_RE.test(code) && !isAllowed(rel, rawLines[i])) {
+                violations.push(`${rel}:${i + 1}: ${rawLines[i].trim()}`);
+            }
+        });
+    }
+    return violations;
+}
+
+// Scans COMPONENT_SHEETS for `transition: all` / `transition-property: all`.
+// HEAD is clean (0 violations), so this is a HARD ZERO gate — and unlike the
+// token scanners it can stay one permanently, because there is no legitimate
+// use of `all` that a named property list does not express better. See
+// TRANSITION_ALL_RE for why it is a defect rather than a style preference.
+export function findTransitionAllViolations() {
+    const violations = [];
+    for (const rel of expandSheets()) {
+        const file = path.join(root, rel);
+        if (!fs.existsSync(file)) continue;
+        const src = fs.readFileSync(file, 'utf8');
+        const codeLines = stripComments(src).split(/\r?\n/);
+        const rawLines = src.split(/\r?\n/);
+        codeLines.forEach((code, i) => {
+            if (TRANSITION_ALL_RE.test(code) && !isAllowed(rel, rawLines[i])) {
+                violations.push(`${rel}:${i + 1}: ${rawLines[i].trim()}`);
+            }
+        });
+    }
+    return violations;
+}
+
+// Scans COMPONENT_SHEETS for `!important`. RATCHET-gated: the standing corpus
+// is small and most of it is genuinely load-bearing (utility resets that must
+// beat component rules, print/forced-colors/prefers-reduced-motion overrides,
+// third-party-embed neutralizers), and each surviving one carries its own
+// justifying comment. A hard zero would demand rewriting those into
+// specificity wars, which is strictly worse. What the ratchet buys is that a
+// NEW `!important` — the "I could not work out why my rule lost, so I hammered
+// it" case, which is the one that actually erodes themability — cannot land
+// silently.
+export function findImportantViolations() {
+    const violations = [];
+    for (const rel of expandSheets()) {
+        const file = path.join(root, rel);
+        if (!fs.existsSync(file)) continue;
+        const src = fs.readFileSync(file, 'utf8');
+        const codeLines = stripComments(src).split(/\r?\n/);
+        const rawLines = src.split(/\r?\n/);
+        codeLines.forEach((code, i) => {
+            if (IMPORTANT_RE.test(code) && !isAllowed(rel, rawLines[i])) {
+                violations.push(`${rel}:${i + 1}: ${rawLines[i].trim()}`);
+            }
+        });
+    }
+    return violations;
+}
+
 // Ratchet baseline file — same pattern as thebird's scripts/lint-i18n-ratchet.mjs:
 // freeze the CURRENT violation count as a snapshot; the gate only fails if a
 // future run's count exceeds that snapshot. This lets the corpus (356 hits as
@@ -382,6 +545,106 @@ export function lintSpacingOrThrow() {
     console.log('[lint-spacing] PASS — ' + count + ' <= baseline ' + baseline.count + ' (' + expandSheets().length + ' component sheets).');
 }
 
+// Shared ratchet driver, factored out of the three ratchet gates so they cannot
+// drift apart in behaviour. Semantics are exactly lintSpacingOrThrow's, which
+// was hand-rolled first and is left as-is to avoid churning a working gate:
+//
+//   - `--write-<flag>-baseline` on argv freezes the current count and returns.
+//   - a missing baseline file writes an initial one and returns (bootstrap).
+//   - count > baseline.count throws; count <= baseline.count passes.
+//
+// IMPORTANT: a baseline is a DEBT FIGURE TO DRIVE DOWN, never a budget to
+// spend. `count <= baseline` passing is a floor, not a target — every triage
+// pass that removes violations should re-freeze with the flag so the number
+// falls and the gate tightens behind it. Re-freezing UPWARD to make a failing
+// run pass defeats the gate entirely: a risen count means new violations
+// landed, which is precisely what this exists to catch. The only legitimate
+// upward re-freeze is a widened SCAN SET (more sheets now visible), and that
+// must be stated in the commit, not assumed.
+function ratchetOrThrow({ label, flag, baselineFile, violations, noun, fix }) {
+    const count = violations.length;
+
+    if (process.argv.includes(flag)) {
+        fs.writeFileSync(baselineFile, JSON.stringify({ count, updated: new Date().toISOString() }, null, 2) + '\n');
+        console.log(`[${label}] wrote baseline count=${count} to ${path.relative(root, baselineFile)}`);
+        return;
+    }
+
+    if (!fs.existsSync(baselineFile)) {
+        fs.writeFileSync(baselineFile, JSON.stringify({ count, updated: new Date().toISOString() }, null, 2) + '\n');
+        console.log(`[${label}] no baseline found, wrote initial baseline count=${count}`);
+        return;
+    }
+
+    const baseline = JSON.parse(fs.readFileSync(baselineFile, 'utf8'));
+    if (count > baseline.count) {
+        throw new Error(`[${label}] FAIL — ${count} ${noun} exceeds frozen baseline ${baseline.count}:\n  `
+            + violations.join('\n  ')
+            + `\n[${label}] ${fix} Re-run with ${flag} ONLY if this growth is reviewed and intentional — the baseline is debt to drive down, not a budget to raise.`);
+    }
+    console.log(`[${label}] PASS — ${count} <= baseline ${baseline.count} (${expandSheets().length} component sheets).`);
+}
+
+// Ratchet baseline for raw font-size literals. Frozen at the post-migration
+// count; see findFontSizeViolations for why the residual corpus (icon sizes set
+// via font-size, and deliberately em-relative inline elements) is a per-
+// declaration judgment call rather than a mechanical migration, and see
+// ratchetOrThrow for why this number must only ever go DOWN.
+const FONTSIZE_BASELINE_FILE = path.join(root, 'scripts', 'lint-fontsize.baseline.json');
+
+export function lintFontSizeOrThrow() {
+    ratchetOrThrow({
+        label: 'lint-fontsize',
+        flag: '--write-fontsize-baseline',
+        baselineFile: FONTSIZE_BASELINE_FILE,
+        violations: findFontSizeViolations(),
+        noun: `raw font-size literal(s) bypassing the --fs-* type scale from ${TOKEN_SOURCE}`,
+        fix: 'Use a --fs-pico/--fs-nano/--fs-micro/--fs-tiny/--fs-xs/--fs-sm/--fs-body/--fs-lg/--fs-xl (or --fs-h*/--fs-hero/--fs-mega) token. If the value is genuinely off-scale — an ICON size matched to its chip box, or an em-relative inline size that must track its parent — leave the literal and add a comment in the sheet saying which, so the next reader does not "fix" it.',
+    });
+}
+
+// Ratchet baseline for `!important`. See findImportantViolations for why the
+// standing corpus is load-bearing and a hard zero would be worse than the
+// ratchet, and ratchetOrThrow for why this number must only ever go DOWN.
+const IMPORTANT_BASELINE_FILE = path.join(root, 'scripts', 'lint-important.baseline.json');
+
+export function lintImportantOrThrow() {
+    ratchetOrThrow({
+        label: 'lint-important',
+        flag: '--write-important-baseline',
+        baselineFile: IMPORTANT_BASELINE_FILE,
+        violations: findImportantViolations(),
+        noun: '`!important` declaration(s)',
+        fix: 'Beat the losing rule on specificity or source order instead — an `!important` cannot be overridden by a consumer theming the SDK without another `!important`, so each one is a permanent hole in the themability this lint file exists to protect. If it is genuinely load-bearing (a utility reset, a print/forced-colors/reduced-motion override that must win), say so in a comment on the line.',
+    });
+}
+
+// HARD ZERO gate — the --z-* scale migration left the corpus clean, so any
+// violation is a genuine regression, not inherited debt. Mirrors
+// lintRadiusOrThrow's shape exactly.
+export function lintZIndexOrThrow() {
+    const violations = findZIndexViolations();
+    if (violations.length) {
+        throw new Error('[lint-zindex] FAIL — raw z-index literals in component sheets (use var(--z-below/--z-base/--z-raised/--z-sticky/--z-header/--z-drawer/--z-window/--z-dock/--z-dropdown/--z-modal/--z-toast/--z-tooltip/--z-top) from '
+            + TOKEN_SOURCE + '):\n  ' + violations.join('\n  ')
+            + `\n[lint-zindex] ${violations.length} violation(s). Pick the rung that names what the element IS (a dropdown is --z-dropdown, not "800-ish"); a bare number races on source order against every other bare number in the SDK. If a layer genuinely has no rung, add one to ${TOKEN_SOURCE} rather than a literal here.`);
+    }
+    console.log('[lint-zindex] OK — ' + expandSheets().length + ' component sheets use only the --z-* stacking scale.');
+}
+
+// HARD ZERO gate — the corpus is clean and there is no legitimate `all` that a
+// named property list does not express better, so this one never needs a
+// ratchet phase.
+export function lintTransitionAllOrThrow() {
+    const violations = findTransitionAllViolations();
+    if (violations.length) {
+        throw new Error('[lint-transition-all] FAIL — `transition: all` in component sheets:\n  '
+            + violations.join('\n  ')
+            + `\n[lint-transition-all] ${violations.length} violation(s). Name the properties you are actually animating (e.g. \`transition: background var(--dur-base) var(--ease), color var(--dur-base) var(--ease)\`). \`all\` animates every changed property including layout ones (width/height/padding/top), forcing layout+paint per frame instead of a compositor-only transform/opacity animation — and it silently starts animating whatever property the NEXT edit adds to the same rule.`);
+    }
+    console.log('[lint-transition-all] OK — ' + expandSheets().length + ' component sheets animate named properties, never `all`.');
+}
+
 // Throws on violation, mirroring lintTokensOrThrow's shape exactly. Called
 // from build.mjs (hard gate) and the CLI entry below.
 export function lintRadiusOrThrow() {
@@ -434,7 +697,16 @@ if (process.argv[1] && process.argv[1].endsWith('lint-tokens.mjs')) {
     catch (e) { console.error(e.message); process.exit(1); }
     try { lintRadiusOrThrow(); }
     catch (e) { console.error(e.message); process.exit(1); }
-    lintSpacingOrThrow();
+    try { lintZIndexOrThrow(); }
+    catch (e) { console.error(e.message); process.exit(1); }
+    try { lintTransitionAllOrThrow(); }
+    catch (e) { console.error(e.message); process.exit(1); }
+    try { lintSpacingOrThrow(); }
+    catch (e) { console.error(e.message); process.exit(1); }
+    try { lintFontSizeOrThrow(); }
+    catch (e) { console.error(e.message); process.exit(1); }
+    try { lintImportantOrThrow(); }
+    catch (e) { console.error(e.message); process.exit(1); }
     try { lintTokensJsonInSyncOrThrow(); }
     catch (e) { console.error(e.message); process.exit(1); }
 }

@@ -10,7 +10,15 @@
 // around runLintCss() below.
 //
 // Run: `node scripts/lint-css.mjs` (also wired as `npm run lint`, via lint.mjs).
-import { lintTokensOrThrow, lintRadiusOrThrow, lintSpacingOrThrow } from './lint-tokens.mjs';
+import {
+    lintTokensOrThrow,
+    lintRadiusOrThrow,
+    lintSpacingOrThrow,
+    lintFontSizeOrThrow,
+    lintZIndexOrThrow,
+    lintTransitionAllOrThrow,
+    lintImportantOrThrow,
+} from './lint-tokens.mjs';
 import { lintGlyphsOrThrow } from './lint-glyphs.mjs';
 import { lintNullChildrenOrThrow } from './lint-null-children.mjs';
 import { lintClassesOrThrow } from './lint-classes.mjs';
@@ -19,12 +27,24 @@ import { lintDuplicateSelectorsOrThrow } from './lint-duplicate-selectors.mjs';
 import { lintSwallowCommentsOrThrow } from './lint-swallow-comments.mjs';
 
 // Each entry: a human label for the report, and the check function to run.
-// lintSpacingOrThrow is report-only (never throws — see lint-tokens.mjs), so
-// it is run but never counted as a failure; its own console.warn/log already
-// carries the detail. Every other check throws on violation.
+// EVERY check here throws on violation and is counted in the pass/fail tally.
+//
+// The three token RATCHET gates (spacing, fontsize, important) throw only when
+// the count EXCEEDS their frozen baseline — they carry inherited debt that a
+// hard zero would demand fixing in one pass. They are otherwise ordinary
+// members of this list: a ratchet that never throws is not a gate, and
+// `spacing` was previously called outside the loop under a stale "report-only,
+// never throws" comment, which meant a real spacing regression escaped as an
+// unhandled exception out of runLintCss() instead of being reported as a
+// failed check. Anything that can fail belongs in CHECKS.
 const CHECKS = [
     ['tokens', lintTokensOrThrow],
     ['radius', lintRadiusOrThrow],
+    ['zindex', lintZIndexOrThrow],
+    ['transition-all', lintTransitionAllOrThrow],
+    ['spacing', lintSpacingOrThrow],
+    ['fontsize', lintFontSizeOrThrow],
+    ['important', lintImportantOrThrow],
     ['glyphs', lintGlyphsOrThrow],
     ['null-children', lintNullChildrenOrThrow],
     ['classes', lintClassesOrThrow],
@@ -47,12 +67,6 @@ export function runLintCss() {
             results.push({ name, ok: false, error: e.message });
         }
     }
-
-    // Spacing is report-only (logs its own [lint-spacing] REPORT/OK line
-    // above, via console.warn/console.log inside lintSpacingOrThrow) — never
-    // throws, so it is not part of the pass/fail tally, matching build.mjs's
-    // existing non-fatal treatment of it.
-    lintSpacingOrThrow();
 
     const failed = results.filter((r) => !r.ok);
     const passed = results.filter((r) => r.ok);

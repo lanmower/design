@@ -2085,12 +2085,14 @@
   status: pending
 - id: depth-shadow-audit
   subject: verify every shadow carries offset AND soft blur; zero-offset colored halos are decoration
-  witness: craft floor depth rule; --shadow-1/2/3 verified correct, per-component overrides unaudited
-  status: pending
+  witness: Walked all 24 nested sheets in a live browser and parsed every box-shadow layer, stripping function calls first so commas inside color-mix() do not split layers falsely. 52 shadow declarations checked, 0 zero-offset halos. Every shadow carries a real offset plus blur, satisfying the craft-floor depth rule; --shadow-1/2/3 are 0 1px 2px, 0 4px 12px + 0 2px 4px, and 0 12px 32px + 0 4px 8px respectively.
+  status: completed
+  commit_comment: 52 shadows checked, 0 zero-offset halos
 - id: heading-below-above-spacing
   subject: verify more space above a heading than below it everywhere
-  witness: craft floor spacing rule
-  status: pending
+  witness: 'Measured real rendered gaps rather than reading margins. The app-shell rule is correct where it applies (.app-main > h1/h2/h3 at 36px above vs 12px below, a 3:1 ratio). Every other heading measured is its section''s FIRST child, so its container owns the lead: .ds-section > h3 has margin-top 0 but .ds-section itself carries --space-8 (96px), giving an effective 96px above against 32px below. A naive margin-only check flags this as inverted; measuring the rendered box shows it holds. Commented in place so the next audit does not ''fix'' working code by doubling the lead.'
+  status: completed
+  commit_comment: verified heading rhythm by rendered gap, not margin; container owns the lead
 - id: degenerate-zero-rows
   subject: every list/table/grid surface tested with zero items
   witness: layout playbook empty states

@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
-import { lintTokensOrThrow, lintRadiusOrThrow, lintSpacingOrThrow, lintTokensJsonInSyncOrThrow } from './lint-tokens.mjs';
+import { lintTokensOrThrow, lintRadiusOrThrow, lintSpacingOrThrow, lintFontSizeOrThrow, lintZIndexOrThrow, lintTransitionAllOrThrow, lintImportantOrThrow, lintTokensJsonInSyncOrThrow } from './lint-tokens.mjs';
 import { lintGlyphsOrThrow } from './lint-glyphs.mjs';
 import { lintNullChildrenOrThrow } from './lint-null-children.mjs';
 import { lintClassesOrThrow } from './lint-classes.mjs';
@@ -31,6 +31,19 @@ lintTokensOrThrow();
 // --r-4/--r-pill scale. Same unconditional placement as the other lints.
 lintRadiusOrThrow();
 
+// z-index gate: refuse to build if any component sheet hard-codes a raw
+// z-index integer bypassing the --z-below..--z-top stacking scale. A HARD zero
+// (not a ratchet) — the migration that introduced the scale left the corpus
+// clean, so any hit is a fresh regression. Same unconditional placement.
+lintZIndexOrThrow();
+
+// `transition: all` gate: refuse to build on `transition: all` /
+// `transition-property: all`, which animates every changed property including
+// layout ones (forcing layout+paint per frame) and silently picks up whatever
+// property the next edit adds to the same rule. HARD zero; the corpus is clean
+// and a named property list always expresses the intent better.
+lintTransitionAllOrThrow();
+
 // Spacing gate (ratchet): fails the build only if raw margin/padding/gap
 // literals bypassing the --space-0..--space-10 8pt scale INCREASE beyond the
 // frozen baseline in scripts/lint-spacing.baseline.json (356 hits across 9
@@ -40,6 +53,22 @@ lintRadiusOrThrow();
 // triaged in one sitting; promote to a hard zero (matching
 // lintRadiusOrThrow's own trajectory) once it is.
 lintSpacingOrThrow();
+
+// Font-size gate (ratchet): fails the build only if raw font-size literals
+// bypassing the --fs-pico..--fs-mega type scale INCREASE beyond the frozen
+// baseline in scripts/lint-fontsize.baseline.json. Ratchet rather than hard
+// zero because the residual corpus is icon sizes set via font-size and
+// deliberately em-relative inline elements — per-declaration judgment calls,
+// each carrying a justifying comment in its sheet. Drive the baseline DOWN.
+lintFontSizeOrThrow();
+
+// `!important` gate (ratchet): fails the build only if the count INCREASES
+// beyond the frozen baseline in scripts/lint-important.baseline.json. Each
+// `!important` is a permanent hole in the themability the token gates above
+// protect — a consumer cannot beat one without another. The standing corpus is
+// load-bearing (utility resets, print/forced-colors/reduced-motion overrides);
+// what the ratchet stops is a NEW one landing silently.
+lintImportantOrThrow();
 
 // tokens.json sync gate: refuse to build if colors_and_type.css's :root
 // values or site.yaml's accent_from/accent_to have drifted from tokens.json

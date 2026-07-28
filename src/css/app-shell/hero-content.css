@@ -41,6 +41,11 @@
 .ds-hero-stat:last-child { border-bottom: 0; padding-bottom: 0; }
 .ds-hero-title {
   font-family: var(--ff-display); font-weight: 700;
+  /* Bespoke display clamp, deliberately off the --fs-* ladder: --fs-hero is
+     clamp(42px,7cqi,96px) and --fs-mega is clamp(56px,11cqi,168px). This lead
+     runs a steeper 9cqi slope with a LOWER 40px floor so a two-line 16ch title
+     still fits a narrow column, and a 116px ceiling between the two tiers.
+     Snapping to either changes the hero's whole optical weight. */
   font-size: clamp(40px, 9cqi, 116px);
   line-height: 0.96; letter-spacing: var(--tr-tighter);
   margin: 0; max-width: 16ch; text-wrap: balance;
@@ -84,6 +89,12 @@
 .ds-section-compact { margin-top: 0; margin-bottom: var(--space-4); }
 .ds-section > h3 {
   font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-h3);
+  /* Zero top margin looks like it inverts the more-space-above-than-below rule,
+     but it does not: this h3 is always the section's first child and .ds-section
+     itself carries the --space-8 (96px) lead, so the effective space above is
+     96px against 32px below. Adding a top margin here would double the lead.
+     Measured live on project_page: gapAboveInSection 0 with the section margin
+     supplying the separation, gapBelow 32. */
   margin: 0 0 var(--space-5);
   letter-spacing: -0.01em;
 }
@@ -175,7 +186,7 @@
 }
 .ds-cli-row {
   display: flex; gap: 10px;
-  font-family: var(--ff-mono); font-size: 13px; line-height: 1.6;
+  font-family: var(--ff-mono); font-size: var(--fs-tiny); line-height: 1.6;
   padding: 3px 0;
 }
 .ds-cli-row .prompt { color: var(--green-2); flex: 0 0 auto; user-select: none; }
@@ -319,6 +330,10 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 }
 .kpi-card .num {
   font-family: var(--ff-body); font-weight: 600;
+  /* Numeric display size, not a heading tier: --fs-h4 is clamp(19px,1.8cqi,
+     24px) — too small and too flat a slope for a KPI figure that must read as
+     the loudest thing in its card, and --fs-h3 (22/30) tops out short of 32.
+     Deliberate off-scale value tuned to the .kpi-card box. */
   font-size: clamp(22px, 3cqi, 32px); line-height: 1;
   letter-spacing: var(--tr-tight);
 }

@@ -273,7 +273,7 @@
   justify-content: center;
   width: 12px;
   height: 12px;
-  font-size: 10px;
+  font-size: var(--fs-pico);
   transform: rotate(90deg);
   transition: transform var(--dur-base) var(--ease);
   flex-shrink: 0;
@@ -551,7 +551,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: var(--fs-pico);
   font-weight: 600;
   overflow: hidden;
   transition: box-shadow var(--dur-snap) var(--ease);
@@ -1151,7 +1151,7 @@
   border: none;
   background: transparent;
   color: var(--fg);
-  font-size: 18px;
+  font-size: var(--fs-lg);
   line-height: 1;
   cursor: pointer;
   border-radius: var(--r-1);
@@ -1182,7 +1182,7 @@
      bar here was the generic accent-stripe tell; the real accent still lands
      on .cm-rb-author. */
   border-left: var(--bw-hair) solid var(--rule-strong);
-  font-size: 0.85rem;
+  font-size: var(--fs-xs);
 }
 .cm-rb-label { flex: none; color: var(--fg-2); }
 .cm-rb-author { color: var(--accent); font-weight: 600; }
@@ -1201,7 +1201,7 @@
   border: none;
   background: transparent;
   color: var(--fg-2);
-  font-size: 13px;
+  font-size: var(--fs-tiny);
   line-height: 1;
   cursor: pointer;
   border-radius: var(--r-1);
@@ -1216,7 +1216,7 @@
   gap: var(--space-2);
   width: 100%;
   padding: var(--space-2) var(--space-3);
-  font-size: 0.875rem;
+  font-size: var(--fs-xs);
   font-weight: 500;
 }
 .cm-banner.clickable { cursor: pointer; }
@@ -1547,7 +1547,7 @@
   border: var(--bw-hair) solid var(--rule-strong);
   border-radius: var(--r-1);
   background: var(--bg-3); color: var(--fg);
-  cursor: pointer; font-size: 16px; line-height: 1;
+  cursor: pointer; font-size: var(--fs-body); line-height: 1;
 }
 .vx-vc-btn:hover { background: var(--bg-4, var(--bg-3)); }
 .vx-vc-on { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
@@ -1577,11 +1577,11 @@
   display: flex; align-items: center; justify-content: space-between;
   padding: var(--space-2); border-bottom: var(--bw-hair) solid var(--rule);
 }
-.cm-tp-title { font-weight: 700; font-size: var(--fs-1, 14px); }
+.cm-tp-title { font-weight: 700; font-size: var(--fs-xs); }
 .cm-tp-head-actions { display: flex; gap: var(--space-1); }
 .cm-tp-new, .cm-tp-close {
   border: none; background: transparent; color: var(--fg-2, var(--fg));
-  cursor: pointer; font-size: 16px; width: 24px; height: 24px; border-radius: var(--r-1);
+  cursor: pointer; font-size: var(--fs-body); width: 24px; height: 24px; border-radius: var(--r-1);
 }
 .cm-tp-new:hover, .cm-tp-close:hover { background: var(--bg-3); color: var(--fg); }
 .cm-tp-list { flex: 1; min-height: 0; overflow-y: auto; }
@@ -1597,9 +1597,9 @@
 .cm-tp-item.is-active { background: var(--bg-3); box-shadow: inset 3px 0 0 var(--accent); }
 .cm-tp-item.is-unread .cm-tp-item-title { font-weight: 700; }
 .cm-tp-dot { position: absolute; left: 4px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
-.cm-tp-item-title { font-size: var(--fs-1, 14px); }
-.cm-tp-item-snippet { font-size: var(--fs-0, 12px); color: var(--fg-2, var(--fg)); opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cm-tp-item-meta { display: flex; gap: var(--space-2); font-size: var(--fs-micro, 11px); color: var(--fg-2, var(--fg)); opacity: .7; }
+.cm-tp-item-title { font-size: var(--fs-xs); }
+.cm-tp-item-snippet { font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cm-tp-item-meta { display: flex; gap: var(--space-2); font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .7; }
 .cm-tp-empty, .cm-forum-empty, .cm-channel-empty, .cm-member-empty {
   display: flex; flex-direction: column; align-items: center; gap: var(--space-2);
   padding: var(--space-4) var(--space-3); text-align: center;
@@ -1651,10 +1651,10 @@
 .cm-forum-item { display: flex; flex-direction: column; gap: var(--space-1); width: 100%; text-align: left; cursor: pointer; padding: var(--space-2) var(--space-3); border: none; background: transparent; border-bottom: var(--bw-hair) solid var(--rule); color: var(--fg); }
 .cm-forum-item:hover { background: var(--bg-3); }
 .cm-forum-item-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
-.cm-forum-item-title { font-weight: 700; font-size: var(--fs-1, 14px); }
-.cm-forum-item-replies { font-size: var(--fs-0, 12px); color: var(--fg-2, var(--fg)); opacity: .8; white-space: nowrap; }
-.cm-forum-item-snippet { font-size: var(--fs-0, 12px); color: var(--fg-2, var(--fg)); opacity: .85; }
-.cm-forum-item-meta { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; font-size: var(--fs-micro, 11px); color: var(--fg-2, var(--fg)); opacity: .7; }
+.cm-forum-item-title { font-weight: 700; font-size: var(--fs-xs); }
+.cm-forum-item-replies { font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .8; white-space: nowrap; }
+.cm-forum-item-snippet { font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .85; }
+.cm-forum-item-meta { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .7; }
 .cm-forum-item-tags { display: inline-flex; gap: var(--space-1); }
 /* 1px vertical is OFF-SCALE ON PURPOSE — the tag is an inline chip inside the
    forum meta row; --space-hair (2px) tips it past the row height. */
@@ -1663,7 +1663,7 @@
 /* PageView — cm-page / cm-page-* */
 .cm-page { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow-y: auto; background: var(--bg-1, var(--bg-2)); color: var(--fg); }
 .cm-page-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: var(--space-3); border-bottom: var(--bw-hair) solid var(--rule); }
-.cm-page-title { margin: 0; font-size: var(--fs-3, 20px); font-weight: 700; }
+.cm-page-title { margin: 0; font-size: var(--fs-xl); font-weight: 700; }
 .cm-page-edit { padding: var(--space-1) var(--space-2); border: var(--bw-hair) solid var(--rule-strong); border-radius: var(--r-1); background: var(--bg-3); color: var(--fg); cursor: pointer; }
 .cm-page-body { padding: var(--space-3); line-height: 1.6; }
 .cm-page-empty { color: var(--fg-2, var(--fg)); opacity: .7; }
@@ -1677,8 +1677,11 @@
 .fd-page-inner > * { min-width: 0; }
 .fd-loading { display: flex; align-items: center; gap: var(--space-2, 10px); padding: var(--space-4, 24px); color: var(--fg-2, var(--fg)); }
 .fd-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2, 10px); padding: var(--space-5, 32px) var(--space-3, 16px); color: var(--fg-2, var(--fg)); text-align: center; }
+/* 28px is an ICON size (empty-state mark), not a type tier — the --fs-* ladder
+   tops out at --fs-xl (21px) before every remaining rung becomes a fluid
+   heading clamp, so neither substitutes without visibly resizing the mark. */
 .fd-empty-glyph { font-size: 28px; opacity: .55; line-height: 1; }
-.fd-pre { margin: 0; padding: var(--space-2, 10px); background: var(--bg-3, var(--panel-bg-2)); border: var(--bw-hair, 1px) solid var(--rule, var(--panel-accent)); border-radius: var(--r-1, 6px); overflow: auto; max-height: 460px; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; font-family: var(--font-mono, ui-monospace, monospace); font-size: 12px; line-height: 1.5; }
+.fd-pre { margin: 0; padding: var(--space-2, 10px); background: var(--bg-3, var(--panel-bg-2)); border: var(--bw-hair, 1px) solid var(--rule, var(--panel-accent)); border-radius: var(--r-1, 6px); overflow: auto; max-height: 460px; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; font-family: var(--font-mono, ui-monospace, monospace); font-size: var(--fs-micro); line-height: 1.5; }
 .fd-skill-body { max-height: 320px; }
 .fd-row-actions { display: inline-flex; gap: var(--space-1, 6px); align-items: center; }
 .fd-chat { display: flex; flex-direction: column; gap: var(--space-2, 10px); height: 100%; min-height: 0; }
