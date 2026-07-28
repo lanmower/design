@@ -1975,21 +1975,6 @@
   subject: bert embedder plugin crashes in wasm (plugin_error) making codesearch+recall unavailable
   witness: '.gm/exec-spool/.watcher.log embed_query_failed: [plugin_error] wasm backtrace fn 397/396/611/4407; both vector and keyword fallback returned nothing across two fresh spool boots; codesearch-1/-4 and recall-1 all ok:false'
   status: pending
-- id: spacing-literals-app-shell-split
-  subject: 117 raw px spacing literals in src/css/app-shell/kits-appended.css migrate to --space-* scale
-  witness: 'kits-appended 52->13, chat-polish 33->5, responsive 30->7, files 28->2, data-density 22->1, freddie-dashboard 2->0. Repo lint metric 366->227, baseline ratcheted. Equivalence proved mechanically, not by eye: resolving every --space-* token back to px and diffing the multiset of all 413 spacing declarations across the six files against HEAD returns an identical set, so no computed value changed. 28 left off-scale with per-site reasons (a phasewalk pad that must equal its paired negative top; an 11px file-row inset landing the row over the 44px floor without the 52px a 12px pad gives; a 22px marker hang matched to mono digit width; values in the 12-16 and 16-20 tier gaps). Every 44px touch floor untouched.'
-  status: completed
-  commit_comment: spacing 366->227 with mechanical proof no computed value changed
-- id: spacing-literals-files
-  subject: 46 raw px spacing literals in src/css/app-shell/files.css migrate to --space-* scale
-  witness: 28 -> 2.
-  status: completed
-  commit_comment: spacing migrated to scale
-- id: spacing-literals-responsive
-  subject: 51 raw px spacing literals in src/css/app-shell/responsive.css migrate to --space-* scale
-  witness: 30 -> 7; every 44px touch floor deliberately preserved.
-  status: completed
-  commit_comment: spacing migrated, touch floors preserved
 - id: fontsize-literals-kits-appended
   subject: 19 raw font-size px literals in kits-appended.css migrate to --fs-* scale
   witness: 'exec_js-16 scan: kits-appended.css=19 raw font-size px'
@@ -2006,11 +1991,6 @@
   subject: 50 text-transform:uppercase occurrences risk the tracked-uppercase-eyebrow-everywhere grammar the craft floor bans; audit which are a system vs habit
   witness: 'exec_js-15 scan: chat.css=10, editor-primitives.css=7, community.css=5, hero-content.css=5, kits-appended.css=4'
   status: pending
-- id: spacing-literals-chat-polish
-  subject: 54 raw px spacing literals in src/css/app-shell/chat-polish.css migrate to --space-* scale
-  witness: 33 -> 5; part of the same wave.
-  status: completed
-  commit_comment: spacing migrated to scale
 - id: spacing-literals-hero-content
   subject: 23 raw px spacing literals in src/css/app-shell/hero-content.css migrate to --space-* scale
   witness: 'exec_js-16 scan: hero-content.css=23'
@@ -2019,11 +1999,6 @@
   subject: 8 raw font-size px in src/css/app-shell/files.css migrate to --fs-* scale
   witness: exec_js-16 scan
   status: pending
-- id: spacing-literals-data-density
-  subject: 35 raw px spacing literals in src/css/app-shell/data-density.css migrate to --space-* scale
-  witness: 22 -> 1.
-  status: completed
-  commit_comment: spacing migrated to scale
 - id: fontsize-literals-chat-polish
   subject: 7 raw font-size px in chat-polish.css migrate to --fs-* scale
   witness: exec_js-16 scan
@@ -2112,11 +2087,6 @@
   subject: 'professional craft pass on ui_kits/homepage: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
   witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/homepage
   status: pending
-- id: kit-craft-search
-  subject: 'professional craft pass on ui_kits/search: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: 'App-surface root, app typescale at 30px, error state added naming problem and recovery. Verified live: renders, no overflow.'
-  status: completed
-  commit_comment: 'search: app surface, error state'
 - id: kit-craft-signin
   subject: 'professional craft pass on ui_kits/signin: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
   witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/signin
@@ -2153,11 +2123,6 @@
   subject: 'professional craft pass on ui_kits/community-app: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
   witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/community-app
   status: pending
-- id: kit-craft-file-browser
-  subject: 'professional craft pass on ui_kits/file_browser: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: 'h1 corrected to the app scale via ds-app-surface alongside ds-files-stack; states use FileGrid native loading/emptyAction props rather than hand-rolled markup. Verified live: renders, no overflow, no console errors.'
-  status: completed
-  commit_comment: 'file_browser: app typescale, native state props'
 - id: kit-craft-project-page
   subject: 'professional craft pass on ui_kits/project_page: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
   witness: craft-floor Refuse list + exec_js-11 survey of ui_kits/project_page
@@ -2190,11 +2155,6 @@
   subject: 'audit all UI copy for product voice: controls name their action, errors name problem+recovery, no generic filler'
   witness: craft floor copy rule
   status: pending
-- id: kit-craft-gm-inspector
-  subject: 'professional craft pass on ui_kits/gm_inspector: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: SessionRow layout floor restored (was rendering with gap:normal, all row children colliding at 0px - now 0 collisions across 5 rows); ds-pattern-notes styled (was unstyled); pager floored to 44x44 under coarse pointer; app typescale live at 30px. Verified live.
-  status: completed
-  commit_comment: 'gm_inspector: row layout floor, styled notes, touch floors'
 - id: degenerate-single-row
   subject: every list/grid tested with exactly one item (grid collapse behavior)
   witness: layout playbook degenerate input
@@ -2203,11 +2163,6 @@
   subject: data-density compact/comfortable/spacious verified across every kit not just panels/rows
   witness: this session wired panel rhythm; other components unaudited
   status: pending
-- id: kit-craft-terminal
-  subject: 'professional craft pass on ui_kits/terminal: squint-test hierarchy, real states (hover/disabled/loading/error/empty), copy in product voice, no AI-tell scaffolds (same-size icon+heading+text card grids, hero-metric template, eyebrow-everywhere, 01/02/03 section numbers)'
-  witness: 'h1 corrected from the 64px display ceiling to the 30px app scale; states added and reachable; seg-btn and prompt row floored to 44px under pointer:coarse; term-input font raised to 16px on coarse pointers so focusing it does not trigger iOS zoom. Verified live: renders, no overflow, no console errors.'
-  status: completed
-  commit_comment: 'terminal: app typescale, touch floors, iOS-zoom-safe input'
 - id: module-cap-editor-primitives
   subject: src/components/editor-primitives.js is 1046 lines against the documented 200-line vertical-slice cap; split into single-responsibility modules re-exported from the barrel
   witness: exec_js-17 line count = 1046; AGENTS.md states 'The 200-line cap applies per-module'
@@ -2340,8 +2295,3 @@
   subject: dist/ is listed in .gitignore yet its files are tracked in git, so every build regenerates them into conflicts on any concurrent push - one already forced a rebase abort this session
   witness: git ls-files dist/ returns dist/247420.css, dist/247420.js and others while .gitignore:13 says dist/; git_push-71 was rejected with CONFLICT (content) in dist/247420.js. .github/workflows/gh-pages.yml builds dist itself (copies assets in, uploads ./dist) so the tracked copy is not what CI consumes.
   status: pending
-- id: app-typescale-direct-child-gap
-  subject: the .ds-app-surface heading rule used a direct-child selector, so a kit wrapping its h1 in a head row opted into the surface but never received the app typescale
-  witness: 'Changed .ds-app-surface > h1/h2/h3 to a descendant selector and gave file_browser the app-surface root alongside its ds-files-stack scroll geometry. Verified live across 10 kits: terminal and file_browser now measure h1 30px (were 64px), matching dashboard/settings/search/gm_inspector. gallery and aicat remain at 64px deliberately - they are Experience/conversational surfaces where a display title is a legitimate choice, not a defect.'
-  status: completed
-  commit_comment: app typescale now reaches nested titles; terminal and file_browser 64px->30px
