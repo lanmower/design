@@ -1975,11 +1975,6 @@
   subject: ui_kits/community-app/app.js passes 7 no-op handlers (openSettings, openVoiceSettings, goHome, openServers, channelContext, serverContext, memberMenu) so the settings gear, home button, server switcher and every context menu render as interactive and silently do nothing
   witness: 'Click-probed live: community-app 18 controls checked, 0 dead, using click -> await 80ms -> re-query. Its main landmark and skip link were also added this session (81d37d8).'
   status: completed
-- id: dead-handler-policy
-  subject: there is no repo-wide rule or gate against shipping a rendered control with a no-op handler in a demo kit; 15 exist today across three kits and nothing would catch the 16th
-  witness: 'Added scripts/lint-dead-controls.mjs, a ratchet gate (BASELINE=0) wired into the lint runner CHECKS list and package.json as lint:dead-controls. It catches both shapes found live this session: an EMPTY handler body on any of 23 action props (onClick/onSelect/onToggle/onStop/...) and a bare href=# in kit HTML. Deliberately narrow - a real handler and a real in-page anchor (href=#install) both pass. Escape hatches require stating why: a comment in the handler body, or a lint-dead-controls:allow line marker (used on preview/header, buttons, type-prose, whose whole job is showing what an anchor looks like in isolation). PROVEN NOT BLIND: injecting onClick:()=>{} into ui_kits/settings/app.js and href=# into ui_kits/docs/index.html made it report both with exact file:line, and through the runner npm run lint dropped to 15/16 FAILED: dead-controls; reverting restored 16/16 and 0 hits. It also immediately found 6 real placeholder hrefs in preview pages I had not spotted by hand. lint 16/16, test.js pass, build clean.'
-  status: completed
-  commit_comment: nothing checked for controls that render but cannot act, so 30 shipped
 - id: preview-index-coverage
   subject: preview/ has 28 specimen pages against 193 exported components; the index is the SDK's browsable catalogue and covers a minority of the surface
   witness: ls preview/*.html vs exec_js-350 export count
