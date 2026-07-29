@@ -292,3 +292,19 @@
   .ds-247420 .cm-mobile-header, .ds-247420 .cm-voice-strip { display: none !important; }
   .ds-247420 .cm-main, .ds-247420 .cm-channel-list { overflow: visible; height: auto; }
 }
+/* Freddie dashboard surface utilities — freddie src/web/index.html inline
+   styles migrated here so NO design content lives in the consumer app. */
+/* Cap raw-JSON/code dumps so unbounded payloads scroll instead of blowing
+   the page layout. */
+.ds-247420 .fd-pre { max-height: 60vh; overflow: auto; }
+/* Topbar leaf layout (sampler pill + theme toggle). */
+.ds-247420 .fd-topbar-leaf { display: inline-flex; gap: var(--space-2, 8px); align-items: center; }
+/* Ctrl+K search hint in the topbar. */
+.ds-247420 .fd-search-hint {
+  font-size: var(--fs-pico, 11px); opacity: 0.5;
+  padding: var(--space-1, 4px) var(--space-2, 8px);
+  border: 1px solid var(--rule, currentColor); border-radius: var(--r-0, 4px);
+  pointer-events: none;
+}
+/* Status bar items — inline flex with gap. */
+.ds-247420 .fd-status-item { display: inline-flex; align-items: center; gap: var(--space-1, 4px); }
