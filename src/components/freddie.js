@@ -17,6 +17,7 @@ import { config, env } from './freddie/pages-config.js';
 import { cron, tools, batch } from './freddie/pages-runners.js';
 import { gateway, chains, machines, health } from './freddie/pages-infra.js';
 import { logs, debug } from './freddie/pages-telemetry.js';
+import { terminal, files, auth, settings, themePage as theme, worktree, sessionTree, notifications } from './freddie/pages-missing.js';
 
 // ---- registry --------------------------------------------------------------
 
@@ -24,6 +25,9 @@ export const FREDDIE_PAGES = {
     home, chat, voice, sessions, projects, agents, analytics,
     models, cron, skills, plugins, config, env, tools, batch, gateway, chains,
     machines, health, debug, logs, git,
+    terminal, files, auth, settings, theme, worktree,
+    'session-tree': sessionTree,
+    notifications,
 };
 
 export {

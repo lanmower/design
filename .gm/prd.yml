@@ -2012,3 +2012,260 @@
   notes: 'Scanned every deployed Pages site for references to retired surfaces (gm-runner, gm-runner-bin, rs-learn, rs-exec, plugkit-wasm-wrapper). Two hits, both checked in context rather than counted and flagged. gm''s page mentions rs-exec and rs-learn twice but the surrounding copy reads ''rs-exec and rs-learn are retired -- their surfaces were folded into rs-plugkit'', which is correct and current. freddie''s single hit describes ''gm rs-learn (in-process semantic vector recall)'' as the memory FEATURE, which still exists inside rs-plugkit, not the retired standalone repo. Decisive check: grepping both pages for href attributes pointing at any retired repo returned nothing at all, so there are no dead links to archived repositories. No action needed; recorded so a future scan does not re-flag accurate prose as staleness.'
   session_id: win-sync-2026-07-28
   status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: thatcher-bump-from-tags-not-registry
+  subject: thatcher bumps from highest git tag, never consulting the npm registry, so a version published out-of-band or a lost tag desyncs it. Reconcile against npm view like the reference repos do.
+  notes: Witnessed publish.yml lines 43-48 use git tag -l only; reference design/wireweave use npm view.
+  status: completed
+  witness: Replaced git-tag-derived bump with the reference registry reconcile (npm view, higher of remote/local, then npm version patch). Witnessed run 30461254805 step Sync version with npm registry = success; published 1.0.44.
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: ci-workflow-vs-local-runner-gate-asymmetry
+  subject: A gate can also be reachable only from a CI workflow step and never from any local entry point, which is the same reporting hole one layer up
+  notes: 'Expansion of SHAPE 1: .github/workflows/*.yml may run a script directly (node scripts/foo.mjs) that neither npm run build nor npm run lint invokes, or conversely CI may skip a local gate entirely. The design failure had this exact shape at the workflow layer -- the Build step failed both ci and Publish while lint reported green. Enumerate workflow-invoked scripts per repo and diff against the local runner sets.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: thatcher-test-gate-node-testjs
+  subject: thatcher test script is node test.js. Decide whether the publish workflow runs it as a gate; if it runs, confirm it passes in CI rather than assuming.
+  notes: Witnessed thatcher package.json scripts.test = node test.js.
+  status: completed
+  witness: 'Ran node test.js locally: 44 passed 0 failed exit 0. Wired npm test as a publish gate before the bump. Witnessed CI run 30461254805 step Test = success.'
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: verify-npm-version-advanced
+  subject: 'Final witness per repo: npm view <pkg> version must advance past the pre-change published version, proving publish reached the registry not just a green job.'
+  notes: Baseline busybase 1.0.3, thatcher 1.0.43.
+  status: completed
+  witness: npm view thatcher version = 1.0.44 (baseline 1.0.43); npm view busybase version = 1.0.4 (baseline 1.0.3). Both advanced, proving publish reached the registry not merely a green job. Tags v1.0.44 and v1.0.4 on remotes; locals pulled and match exactly; both worktrees clean.
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: prove-each-fix-fails-on-injected-divergence
+  subject: 'Every wired-in gate must be proven in both directions: clean pass, injected real divergence fails and names the drifted value, restore, green again'
+  notes: 'Hard requirement carried from the recall hit mem-ba01b5b3aaae6e2e-646: a gate only ever seen green is unverified, and the injection must be run through the SAME entry point CI uses -- that memory records a gate that passed a CLI-level test while genuinely broken because it was wired into the CHECKS list but not the CLI. So per fix: run the repo''s real npm run lint (or its real CI-invoked command), not the individual script.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: busybase-build-gate-must-pass
+  subject: busybase build is a long bun build chain with --external @libsql/client; verify it runs green in CI, since a broken build gate is the exact silent-failure shape flagged.
+  notes: Witnessed busybase package.json build script.
+  status: completed
+  witness: bun run build passes locally exit 0. CI run 30461388694 step Build bundle = success. Published tarball busybase-1.0.4.tgz verified to contain all six built src/*.js files, proving the build output actually shipped.
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: concurrent-writer-on-design-spool
+  subject: A second session is writing this repo's spool concurrently (9002/9003/9010/9020 inflight files not written by this session)
+  notes: 'Witnessed: ls of .gm/exec-spool/in/recall and in/exec_js shows 9002.txt.inflight, 9003.txt.inflight, 9010.txt.inflight, 9020.txt.inflight alongside my own 702/703/705. Single-writer discipline applies per-repo: defer committing into C:/dev/design until its worktree goes quiet, and do the ecosystem sweep''s writes in the OTHER repos meanwhile. design''s own tokens-json fix is already landed by the user and must not be redone.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: thatcher-local-behind-origin
+  subject: thatcher local clone is 1 commit behind origin/main; origin already carries 1.0.43 matching npm. The reported 1.0.42-vs-1.0.43 delta is a stale local clone, not a CI bump failure. Pull before editing.
+  notes: Witnessed git rev-list --left-right --count HEAD...origin/main = 0 1; origin/main package.json version 1.0.43.
+  status: completed
+  witness: git pull --ff-only origin main fast-forwarded 7a6615f -> 5fd7c5d bringing local package.json to 1.0.43 matching npm. The reported 1.0.42-vs-1.0.43 delta was a stale local clone, not a CI bump failure.
+- id: tokens-json-gate-unreachable-from-lint
+  subject: The gate that would have caught the whole incident was invoked only from build.mjs and was unreachable from the lint runner
+  notes: 'Root cause of the session''s publishing failure, now fixed at source. Witnessed by reading the call sites: lintTokensJsonInSyncOrThrow() appeared exactly once, at scripts/build.mjs:88, and grep for tokens-json across scripts/lint.mjs and scripts/lint-css.mjs returned 0 occurrences in both. So npm run lint could report a fully green 16/16 while the build was broken, and because that same Build step gates the publish workflow, a user-visible layout fix sat on main unpublished for an hour. Fixed by adding [''tokens-json'', lintTokensJsonInSyncOrThrow] to the CHECKS table in lint-css.mjs, which the file''s own comment already demanded -- ''a ratchet that never throws is not a gate ... Anything that can fail belongs in CHECKS''. Verified in BOTH directions rather than only seeing it green: clean run reports 17/17 with ''[lint-tokens-json] OK'', then injecting a divergent --stage-wide value into tokens.json produces ''[lint] summary: 16/17 checks passed -- FAILED: tokens-json'' naming the exact drifted value and both sides of the mismatch, then restoring returns 17/17. Pushed as 0d24a2c.'
+  session_id: win-sync-2026-07-28
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: thatcher-publish-swallows-failure
+  subject: thatcher publish.yml Publish to npm step swallows npm publish failure with || echo, so a broken publish still reports green. Make it fail hard and guard a missing secret explicitly.
+  notes: Witnessed C:/dev/thatcher/.github/workflows/publish.yml lines 57-65.
+  status: completed
+  witness: 'Rewrote thatcher publish.yml Publish to npm step: empty NODE_AUTH_TOKEN now exits 1 and npm publish runs unguarded so a failure fails the job. Witnessed run 30461254805 step Publish to npm = success and npm view thatcher version advanced 1.0.43 -> 1.0.44.'
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: npm-token-present-both-repos
+  subject: Confirm NPM_TOKEN secret exists in both repos so no missing-secret report is needed.
+  notes: 'Witnessed gh api repos/AnEntrypoint/{busybase,thatcher}/actions/secrets: NPM_TOKEN present in both.'
+  status: completed
+  witness: gh api actions/secrets lists NPM_TOKEN in both repos. Both publish steps ran green and reached the registry, proving the token is valid not merely present. No missing secret to report.
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: skip-publish-loop-guard
+  subject: Both new workflows must guard against the bot commit re-triggering publish (infinite loop). Use the head_commit message marker plus bot-author check as the reference repos do.
+  notes: 'design uses [skip publish] + chore(release): prefix; wireweave uses [skip-publish] + bot author name.'
+  status: completed
+  witness: 'Both workflows carry if: !contains(head_commit.message, [skip publish]) && !startsWith(head_commit.message, chore(release):). Witnessed live: bot commits 2c7e627 chore(release): v1.0.44 and 517abed chore(release): v1.0.4 pushed back to their remotes and gh run list shows NO new publish run for either sha. Loop guard holds.'
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: busybase-no-autobump-tag-triggered-only
+  subject: busybase publish.yml triggers only on tag push v*, has no version bump at all, so publishing requires a human to bump and tag. Add push-to-master auto-bump-then-publish matching the reference shape.
+  notes: Witnessed C:/dev/busybase/.github/workflows/publish.yml on.push.tags only; local 1.0.3 == npm 1.0.3, no drift because nothing ever auto-publishes.
+  status: completed
+  witness: busybase publish.yml now triggers on push to master with registry reconcile, build, publish, commit-bump-back. Witnessed run 30461388694 all steps success; npm busybase 1.0.3 -> 1.0.4 with no human bump; tag v1.0.4 pushed to remote.
+- id: spoint-publish-skips-silently-green
+  subject: 'spoint publish.yml reports success while never publishing: bump step exits 0 on pre-existing tag, skipping Install+Publish'
+  notes: 'Witnessed via GitHub Actions API run 30454309245 on AnEntrypoint/spoint main: job publish => success, but step 6 Bump version => success while step 7 Install dependencies => skipped and step 8 Publish to npm => skipped. Cause: publish.yml computes NEXT as local patch+1 (local package.json 0.1.463 -> NEXT 0.1.464), finds tag v0.1.464 exists, writes skip=true and exit 0. Registry serves spoint 0.1.464 while local says 0.1.463, so a local-only bump can never pass the registry. Exactly the silent-green class the request names. Fix: registry-sync bump max(remote,local) then patch, modeled on design/wireweave publish.yml.'
+  SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: shape2-config-value-in-yaml-and-js
+  subject: A config value duplicated between a YAML/JSON config and a JS/MJS module that must agree at runtime
+  notes: 'SHAPE 2 candidate class. Examples to look for: a file list or glob restated in both a workflow yml and a build script (design''s own appShellSplitFiles vs the barrel is the in-repo precedent), a port/host in both a compose file and a client module, a route table in both a config and a router. Report only unguarded ones where drift changes behavior silently.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: verify-real-run-conclusion-api
+  subject: After each push read the actual Actions run conclusion via gh API and confirm success; on failure pull the failing step log and fix.
+  notes: Task requirement; a well-formed workflow file is not evidence.
+  status: completed
+  witness: Read real conclusions via gh API not the workflow file. thatcher run 30461254805 completed/success sha c5174aa; busybase run 30461388694 completed/success sha c34ca25. Per-step conclusions enumerated for both, every step success.
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: busybase-default-branch-is-master
+  subject: busybase default branch is master per GitHub API; wire the workflow trigger to master and push to HEAD:master. Do not rename the branch.
+  notes: Witnessed gh api repos/AnEntrypoint/busybase default_branch=master.
+  status: completed
+  witness: 'Workflow wired to branches: [master], pushes HEAD:master. Branch not renamed; gh api still reports default_branch=master. git_push gate denied non-main push, cleared by passing branch master explicitly.'
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: shape2-token-or-list-in-stylesheet-and-generator
+  subject: A token or enumerated list stated in both a stylesheet and a generator/manifest, the direct sibling of design's colors_and_type.css vs tokens.json
+  notes: SHAPE 2 candidate class, the closest analogue to the known case. Look in consumers that carry their own theme (wireweave site/theme.mjs, zellous, spoint, thebird, flatspace themes) for a palette/token/name list duplicated between a CSS file and a JS object or JSON manifest. A vendored copy of an upstream file is a DIFFERENT problem (staleness, already tracked) and is not this shape unless something regenerates it.
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: enumerate-build-vs-lint-gate-sets-per-repo
+  subject: For every repo with a scripts/ dir, enumerate the exact gate set reachable from the build entry point versus the lint entry point
+  notes: 'SHAPE 1 detection primitive. For each of design, gm, freddie, thebird, spoint, zellous, gmsniff, agentgui, wireweave, busybase, thatcher, flatspace, 247420: read package.json scripts.build and scripts.lint, resolve each to its script file, and extract every check/gate the file actually invokes. The asymmetric difference in either direction is the reporting hole. Witness by reading the real files, never by assuming a naming convention.'
+  status: completed
+  witness: 'Completed across all 13 repos by reading each package.json scripts block and each .github/workflows/*.yml run step. Repos with a real asymmetry: gmsniff (lint-gui-ds.mjs and lint-undefined-renders.mjs in scripts/ referenced by nothing; sync:ds:check in package.json only), freddie (lint-swallow-comments, validate-prd, validate-llm-providers, detect-dead-states, audit-concerns all unreferenced by lint.mjs, and no workflow runs npm run lint at all), thebird (lint-swallow-comments and lint-i18n-ratchet referenced by nothing; no lint script exists), spoint (check:sdk-types and prep-edge-collider-assets:check in package.json, in no workflow). Repos with no asymmetry and why: 247420 both scripts wired (ci.yml, deploy.yml), gm check-prose-bundle.mjs wired into publish.yml:32, zellous only a vendor fetch tool, wireweave/busybase/thatcher/flatspace have no scripts/ dir, agentgui scripts all need a live server on localhost:3000.'
+  commit_comment: Enumerated build-vs-lint gate sets across all 13 repos
+- id: agentgui-is-npm-plus-docker-not-docker-only
+  subject: agentgui IS an npm package with correct registry-sync auto-bump already; premise that it may be docker/release-only is disproven
+  notes: 'Witnessed: npm view agentgui version => 1.0.1112, package.json local 1.0.1050, private undefined. .github/workflows/publish-release.yml already queries npm view for PUBLISHED_VERSION, takes sort -V tail -n1 of local vs published as BASE_VERSION, patch-bumps, commits the bump back, and npm publishes; its GitHub Release body advertises npm install -g agentgui and bun x agentgui@latest. So agentgui npm channel exists AND already implements the requested behaviour. Do NOT add a second npm publish workflow. Remaining real question is whether publish-release.yml on push to ALL branches plus docker-publish.yml is the intended shape.'
+  SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: busybase-dirty-worktree-triage
+  subject: 'busybase worktree dirty pre-existing: .gitignore, bun.lock, package.json modified; .codeinsight, package-lock.json, tests/plugkit-backend.ts untracked. Triage each before push.'
+  notes: Witnessed git status --porcelain in C:/dev/busybase.
+  status: completed
+  witness: 'Triaged residuals as legitimate pre-existing work: gm-managed .gitignore block, package.json libsql-plugkit-client dep, matching bun.lock, tests/plugkit-backend.ts, .codeinsight, package-lock.json. Committed only .github/workflows/publish.yml via explicit git_add paths. After CI pull git status --porcelain is empty.'
+- id: publish-verification-and-drift-watch
+  subject: Publishing had no post-publish confirmation and no drift detection, so a stale registry was invisible until a human curled unpkg
+  notes: 'Two structural gaps closed in design and pushed as 74212e9. First, publish.yml runs npm run build BETWEEN the version bump and npm publish, so any build failure blocks publishing while nothing states that main and the registry have diverged -- exactly how the layout fix went unnoticed for an hour. Added a step that polls the registry after publishing and fails loudly if it never serves the new version, so a publish that reports success but does not land is now a red run. Second, nothing watched for drift between pushes at all. Added publish-drift.yml on an hourly schedule plus workflow_dispatch: it builds main, fetches the bundle the registry actually serves, and compares a probe token across both, so ''main and npm disagree'' becomes a red run rather than something someone has to notice manually. Verified before landing rather than trusting well-formed YAML: both workflows parse (js-yaml via npx, drift job resolves to 3 steps with schedule + workflow_dispatch triggers), and the drift comparison logic was dry-run against the live registry, reporting main and anentrypoint-design@0.0.410 both at min(96%, 1600px), MATCH. Also caught and fixed my own bug pre-push: the drift job initially referenced env.SERVED which was never exported, so it would have compared against an empty version and passed vacuously.'
+  session_id: win-sync-2026-07-28
+  status: completed
+  witness: 'Landed and proven by the pipeline itself rather than by inspecting YAML. The design repo''s three workflows all went green on the lint-gate commit -- ci success, Publish 247420 to npm success, Deploy GH Pages success -- which are the exact three that had failed on b3eedb4 and caused the incident. Registry advanced through the change (0.0.408 at session start to 0.0.411 now), and the published bundle still carries --stage-wide min(96%, 1600px) and --stage-ultra min(96%, 2100px), so the new post-publish registry-confirmation step did not break the publish path. Both new workflow files verified present on origin''s real tip c665eb7 via git show, after an earlier read against a stale fetched ref wrongly appeared to show them missing -- re-checked rather than trusting the first negative. Drift comparison logic dry-run against the live registry before landing (main and 0.0.410 both min(96%, 1600px), MATCH), and a self-inflicted bug caught pre-push: the drift job first referenced env.SERVED which was never exported, which would have compared against an empty version and passed vacuously.'
+  commit_comment: Publish now confirms the registry served it, and hourly drift watch makes a stale registry a red run
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: concurrent-writer-contends-design-spool
+  subject: A second session win-sync-2026-07-28 is actively driving C:/dev/design's spool, so this session's recall/codesearch/exec_js dispatches go unclaimed
+  notes: 'Witnessed directly: .gm/exec-spool/in/recall/{702,703,9010}.txt.inflight and in/codesearch/{704,9012}.txt.inflight are files this session never wrote, out/recall-9011.json landed for the other writer while recall-9002/9003 and codesearch-9004 never did, and .watcher.log shows transition + prd.added events tagged sess win-sync-2026-07-28 at ts 1785335329958/1785335352021 interleaved with this session''s unserved dispatches. exec_js-9020 additionally returned dispatch_orphaned (daemon died mid-call, pid churned 5844 -> 12728 -> 23228). Separately .watcher.log records git_commit_embed_failed kind plugin-not-found for the bert embed plugin at ts 1785335032738, which is why the semantic verbs specifically stall. Per single-writer discipline this session defers the shared .gm surface to that writer and performs its own cross-repo audit read-only over sibling repos by known path, which is the sanctioned retrieval surface and touches no contended state.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: freddie-lint-runner-omits-five-standalone-gates
+  subject: freddie scripts/lint.mjs invokes none of the five real gate scripts sitting beside it, and no CI workflow runs npm run lint either
+  notes: 'Witnessed by reading C:/dev/freddie/scripts/lint.mjs in full plus grepping the four workflows. lint.mjs does exactly: node --check syntax over src/plugins/bin/scripts, a package.json type+exports shape check, a 200-line over-cap WARNING (not a failure), a naming-debt METRIC (not a failure), and a conventional-commit check on HEAD only. Sitting unreferenced in the same directory: lint-swallow-comments.mjs (with its own .allow.json baseline, the same ratchet shape as design''s), validate-prd.mjs, validate-llm-providers.js, detect-dead-states.mjs, audit-concerns.mjs. Separately test.yml/publish.yml/pages.yml/browser-bundle.yml never call npm run lint, so even the gates lint.mjs DOES run are absent from CI. This is SHAPE 1 in its strongest form: gates that can fail, reachable from no entry point at all.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: reject-non-instances-explicitly-with-reason
+  subject: Repos and candidate pairs that are NOT this class must be reported as deliberately-left-alone with the reason, not silently omitted
+  notes: 'Witnessed inventory: wireweave, busybase, thatcher and flatspace have NO scripts/ directory at all, and 247420 has no package.json. A repo with a single entry point that runs everything has no asymmetry to close, which is itself a real finding. The report must distinguish checked-no-hole from not-checked, otherwise the sweep''s own coverage is unwitnessed.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: thebird-two-lint-gates-unreachable
+  subject: thebird lint-swallow-comments.mjs and lint-i18n-ratchet.mjs are referenced by no package.json script and no CI workflow
+  notes: 'Witnessed: grep for both names across scripts/, .github/ and package.json returns only the files themselves plus a mention in sync-upstream.mjs. thebird package.json has no lint script at all. witness-ci.yml runs node scripts/doctor.mjs then witness-all.mjs; witness-core.yml runs witness-manifest.mjs; neither touches the two lint gates. Both carry .allow.json ratchet baselines (swallow-comments count 11) so they are real gates that can fail, reachable from nowhere. Same class as freddie.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: thebird-flatspace-pin-vs-flatspace-package-version
+  subject: thebird gh-pages.yml pins flatspace@1.0.18 while C:/dev/flatspace package.json declares 1.0.17
+  notes: 'Witnessed: gh-pages.yml line 60 runs npx --yes flatspace@1.0.18 build; C:/dev/flatspace/package.json version is 1.0.17. Check whether 1.0.18 is published (local repo may simply trail npm, which the publish-posture inventory row already recorded as a known pattern for wireweave and thatcher). If the pin names a version that exists on npm this is not drift; if it names one that does not, the build breaks. Also compare against AGENTS.md which mandates npx --yes flatspace@latest for portfolio repos, making a hard pin a deliberate deviation to confirm rather than assume.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: gmsniff-two-lint-scripts-referenced-by-nothing
+  subject: gmsniff lint-gui-ds.mjs and lint-undefined-renders.mjs are in scripts/ but appear in no package.json script and no workflow
+  notes: 'Witnessed: gmsniff package.json scripts are exactly start, test, sync:ds, sync:ds:check -- the two lint scripts are absent. Its single workflow publish-npm.yml runs only node test.js before bumping and publishing. Read both scripts to determine whether they are hard gates worth wiring into test.js or the workflow, and whether they can run without a sibling checkout (unlike sync-ds).'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: spoint-check-sdk-types-in-no-workflow
+  subject: spoint check:sdk-types is a hard gate exiting 1 on in-scope drift, declared in package.json and invoked by no CI workflow
+  notes: 'Witnessed: grep across .github/ returns only the package.json line. check.yml runs ONLY node scripts/check.mjs (a syntax/NUL-byte parse check). e2e-perf.yml runs perf-gate, bundle-size-gate, cold-load-gate, terrain-camera-stress-gate, e2e-ci. cross-repo-ci.yml runs check.mjs plus test.js. Nothing runs check-sdk-types.mjs, which spawns tsc against tsconfig.sdk-check.json and exits 1 on any diagnostic inside src/sdk or src/apps/AppContext.js. Strongest SHAPE 1 candidate for a fix: wiring it into check.yml is additive and matches the surrounding convention. MUST first confirm typescript is a real devDependency and that npm ci installs it in that workflow, since the script hard-exits 1 when tsc is absent -- wiring it blind would turn every CI run red.'
+  status: pending
+- id: local-behind-published-is-healthy-not-a-gap
+  subject: Every repo whose local version trails npm is the auto-bump working correctly, not a publishing failure
+  notes: 'Checked because local-behind-published superficially looks like the incident''s shape and would be easy to mis-flag. gm 2.0.2234 is exactly in sync. gmsniff 1.0.126 vs 1.0.127, freddie 0.0.238 vs 0.0.239, flatspace 1.0.17 vs 1.0.18 and design 0.0.410 vs 0.0.411 are each exactly one release behind, which is the CI release commit the local clone has not pulled -- the bump happens in CI by design. wireweave looked worse at 0.3.47 local vs 0.3.50 published, so it was checked directly rather than assumed: origin/main is b77b3b7 ''chore: release v0.3.50 [skip-publish]'' and its package.json on origin reads 0.3.50, matching npm exactly, with v0.3.49 and v0.3.50 release commits interleaved among real changes. The 3-version gap is purely this machine''s clone being 3 commits stale. Conclusion: no publishing gap exists in gm, gmsniff, freddie, wireweave, flatspace or design; the genuine gaps were only the four repos that had a publish workflow with no auto-bump at all.'
+  session_id: win-sync-2026-07-28
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: spoint-check-sdk-types-currently-red-do-not-wire-blind
+  subject: spoint check:sdk-types is genuinely RED right now with 125 in-scope diagnostics, so wiring it into check.yml as-is would turn every CI run red
+  notes: 'Witnessed by running node scripts/check-sdk-types.mjs in C:/dev/spoint: EXIT=1, ''[check-sdk-types] FAIL: 125 in-scope diagnostic(s) (46 out-of-scope suppressed)''. Real errors include src/sdk/authCompare.js TS2345 Buffer vs ArrayBufferView and many src/sdk/server.js TS2339 property-does-not-exist. typescript ^7.0.2 IS a real devDependency and npm ci in check.yml would install it, so the gate would RUN -- it would simply fail. This is the correct-diagnosis-wrong-fix trap: the instruction says wire an existing gate into the runner that misses it, but wiring a red gate is a different act from closing a reporting hole. Report it as a found hole with the blocker named; do NOT wire it, and do NOT silence it with a ratchet baseline invented for this purpose since that is a new mechanism.'
+  status: pending
+- id: cdn-latest-uniform-across-deployed-sites
+  subject: Every deployed site already resolves the design kit at the latest CDN tag, with zero pinned versions live
+  notes: 'Verified live rather than from source, by fetching each deployed page and extracting every anentrypoint-design@<tag> reference. Ten of ten sites return exactly anentrypoint-design@latest and nothing else: design, gm, rs-plugkit, thebird, zellous, spoint, freddie, agentgui, acptoapi, plus the 247420.xyz portfolio hub. assets carries no kit reference at all, correct for a 3D model corpus. Notably this includes thebird and agentgui, the two repos that also keep a vendored copy -- their PAGES still resolve the CDN at latest, so the vendored trees are a supplementary offline path rather than a pinned-version trap. This means the ''use latest from cdn across the board'' half of the request was already structurally true and is now witnessed; the real exposure was never a pinned CDN reference but the publish side, where a fix could fail to reach the CDN at all.'
+  session_id: win-sync-2026-07-28
+  status: pending
+- id: spoint-publish-reported-success-while-skipping-publish
+  subject: spoint's publish job reported success while silently skipping the actual npm publish step, a worse variant of the same class as the design incident
+  notes: 'Found by a delegated audit and confirmed here. The old publish.yml computed the next version from local package.json alone via standard-version patch+1. With local at 0.1.463 while the registry already served 0.1.464, the computed tag v0.1.464 already existed, so the bump step set skip=true and exited 0 -- both ''Install dependencies'' and ''Publish to npm'' were SKIPPED while the job still reported success. Run 30454309245 on main shows exactly that: publish => success, step 8 Publish to npm => skipped. This is strictly more dangerous than the design incident, where at least the failure was red: here a merged fix could sit on main indefinitely with a green checkmark and no signal at all. Fixed by replacing the local-only computation with the same registry reconcile the reference workflows use (npm view for REMOTE, take the higher of remote and local, patch-bump from there). Verified end to end rather than by reading YAML: Publish to npm reported success on the fix commit 26ad905, the release bot then landed c4648a3d ''chore(release): v0.1.465 [skip publish]'', and npm now serves spoint 0.1.465 where it served 0.1.464 before. Note a green run is not evidence a publish happened -- only a version advance on the registry is.'
+  session_id: win-sync-2026-07-28
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: repos-with-no-shape1-asymmetry-confirmed-clean
+  subject: Six repos confirmed to have no build-vs-lint gate asymmetry, each for a witnessed structural reason
+  notes: '247420: both scripts/ files ARE wired -- lint-glyphs.mjs in ci.yml as the Decorative-glyph guard step, fetch-showcase.mjs in deploy.yml. gm: its single scripts/check-prose-bundle.mjs is wired into publish.yml line 32. zellous: only scripts/fetch-vendor.js, a vendor fetch tool not a gate; ci.yml inlines its own parse-check and static-serve smoke. wireweave, busybase, thatcher, flatspace: NO scripts/ directory at all, so there is no second entry point to diverge from. agentgui: scripts are validate-mutations.mjs, smoke-ws-chat.mjs and capture-screenshots.mjs, all requiring a LIVE running server with BASE defaulting to localhost:3000, so they are operator tools rather than static gates and are correctly unreferenced.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: freddie-ci-never-runs-npm-run-lint-at-all
+  subject: Even freddie's own lint.mjs, the gate that does exist and does pass, is invoked by no CI workflow
+  notes: 'Witnessed by grepping run: steps across all four freddie workflows. test.yml runs npm install then an inline node -e block. publish.yml runs prepare-publish.cjs, npm install, npm publish, restore-package.cjs. pages.yml runs rewrite-file-deps.cjs, npm install, flatspace build, npm run build:browser. browser-bundle.yml runs npm install and npm run build:browser. None calls npm run lint. So freddie''s syntax check over src/plugins/bin/scripts, its package.json shape check and its conventional-commit check never run in CI. Unlike the two red gates above, lint.mjs is GREEN and therefore genuinely wireable -- verify it passes first, then add a step to test.yml.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: freddie-both-hard-gates-are-red-proving-the-cost-of-unreachability
+  subject: freddie's two hard gates are both currently failing, which is the direct measurable consequence of their being reachable from no entry point
+  notes: 'Witnessed by running each directly in C:/dev/freddie. lint-swallow-comments.mjs: EXIT=1, ''[lint-swallow-comments] FAIL: 64 violations exceeds baseline 40'' -- 24 new undocumented empty catch blocks accumulated since the baseline was frozen 2026-07-16, precisely because nothing ran the gate. validate-prd.mjs: EXIT=1 with SyntaxError ''The requested module js-yaml does not provide an export named default'' -- the gate is itself broken and has clearly not been executed since a js-yaml major bump changed its export shape. Neither can be wired as-is without turning CI red on landing. The three remaining scripts (detect-dead-states, audit-concerns, validate-llm-providers) are advisory-by-design: the first two print warnings with no process.exit and their own headers call them a WARNING surface and a coarse heuristic not a hard verdict, and validate-llm-providers makes real paid LLM calls needing .env credentials. Report the hole; do not wire a red or broken gate.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: thebird-i18n-ratchet-red-at-13-over-baseline-12
+  subject: thebird lint-i18n-ratchet is currently red, one over its frozen baseline, so it cannot be wired without first resolving the overage
+  notes: 'Witnessed: node scripts/lint-i18n-ratchet.mjs in C:/dev/thebird exits 1 with ''[lint-i18n-ratchet] FAIL: 13 violations exceeds baseline 12'', naming unwrapped UI text literals in docs/todo-app.js lines 96, 102, 111, 116. Same pattern as freddie''s swallow-comments at 64 over baseline 40: a ratchet drifts upward precisely because nothing runs it. Report as a found hole with the blocker named.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: thebird-swallow-comments-scans-zero-files-silently-green
+  subject: thebird lint-swallow-comments passes by scanning ZERO files, the same green-over-unscanned-ground shape as design's barrel hole
+  notes: 'Witnessed: node scripts/lint-swallow-comments.mjs in C:/dev/thebird prints ''[lint-swallow-comments] scanned 0 files, found 0 undocumented empty catch block(s)'' then ''PASS: 0 <= baseline 11'', EXIT=0. Root cause read at scripts/lint-swallow-comments.mjs:29 -- SCAN_DIRS defaults to ''src'' unless LINT_SWALLOW_SCAN_DIRS is set, and thebird has NO src/ directory (ls shows only docs/). The env var is set nowhere because nothing invokes the gate at all. Its own .allow.json baseline of 11 is evidence it once scanned real files. Pointing it at docs/ was tried and yields 437 violations because docs/vendor/xterm-bundle.js and other vendored bundles are swept in -- SKIP_PATH_PARTS includes /vendor/ but the walk still matched, so a correct scope needs real work, not a one-line wiring. This is a genuine hole but NOT the wire-an-existing-gate fix class; leave alone and report.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: publish-autobump-cover-complete-busybase-thatcher
+  subject: busybase and thatcher auto-bump-then-publish cover is complete and CI-witnessed; the design repo CONSOLIDATE gate is blocked only by 28 pending rows owned by other concurrent sessions, not by this cover.
+  notes: All 12 rows of this cover completed with live witnesses. Target repos busybase (c34ca25 + bot 517abed, npm 1.0.3->1.0.4) and thatcher (c5174aa + bot 2c7e627, npm 1.0.43->1.0.44) are pushed, green, clean and version-synced. No design-repo source file was modified by this cover, so it carries no residual of its own.
+  status: completed
+  witness: 'exec_js-996002 live witness: npm_thatcher=1.0.44 local_thatcher=1.0.44 match=true; npm_busybase=1.0.4 local_busybase=1.0.4 match=true; clean_thatcher=true clean_busybase=true; guard_blocks_bot=[true,true]; guard_allows_normal=true. gh API run 30461254805 (thatcher) and 30461388694 (busybase) both completed/success with every step success.'
+- id: flatspace-local-only-bump-was-about-to-collide
+  subject: flatspace computed its version from local package.json alone and was already drifted, so its next push would have collided and failed to publish
+  notes: 'Found by auditing every real publisher for the spoint silent-skip shape rather than stopping at the one instance. Correcting a mid-audit error worth noting: my first grep matched design/ci.yml (a publish --dry-run, not the publisher) and reported design as having no registry reconcile, which is false -- re-ran selecting only workflows that actually run a bare npm publish and excluding dry-run files. Real result: design, wireweave, busybase, thatcher, spoint and agentgui reconcile against the registry; gmsniff, freddie and flatspace bump from local package.json alone. Of those three only flatspace was actually drifted, and it was drifted RIGHT NOW -- origin/main package.json at 1.0.17 while npm served 1.0.18 -- so its next push would have computed 1.0.18, hit a version that already exists, and failed. gmsniff (1.0.127) and freddie (0.0.239) are currently in sync so their local-only logic has not bitten yet, but it is the same latent shape. Second independent defect in the same flatspace workflow: it committed AND pushed the version bump BEFORE npm publish, so a failed publish still advanced the version and widened the gap on every subsequent attempt. Both fixed in fff4377: registry reconcile added, and publish moved ahead of the bump commit. Reconcile math dry-run against the live registry before landing -- remote 1.0.18, local 1.0.17, higher 1.0.18, next publish 1.0.19.'
+  session_id: win-sync-2026-07-28
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: page-html-version-param-is-opt-in-pin-generator
+  subject: renderPageHtml carries a version param that emits a hard-pinned CDN URL into both the CSS link and the importmap, defaulting to latest only when omitted
+  notes: 'Witnessed in the design repo itself: src/page-html.js:53 const pkgVersion = version || ''latest'', consumed by src/page-html/head-tags.js:58 renderCssLink emitting https://unpkg.com/anentrypoint-design@${pkgVersion}/dist/247420.css and by src/page-html.js:99 emitting the same interpolation into the importmap JSON. The param is documented at src/page-html.js:50 as pinning BOTH surfaces to an exact version instead of @latest. This is the single highest-leverage pin surface in the ecosystem because one caller passing version would silently pin every page it generates. Checked every call site: design/site/theme.mjs:76, freddie/website/theme.mjs:32 and casey/vendor/freddie/website/theme.mjs:32 are the only renderPageHtml callers found and none passes version, so all generated pages fall through to latest. No change made; recorded so a future caller adding version is recognised as introducing a fleet-wide pin rather than a local choice.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: casey-vendor-freddie-caret-pin-is-untracked-scratch
+  subject: The only real caret pin on anentrypoint-design in the whole sweep is in casey/vendor/freddie/package.json, an untracked local clone that ships nothing
+  notes: 'Witnessed: grep restricted to package.json across casey freddie zellous spoint thebird agentgui gmsniff 247420 design returned exactly one hit, casey/vendor/freddie/package.json:31 anentrypoint-design ^0.0.340, against npm latest 0.0.411. Per the caret-on-0.0.x rule that is a hard pin 71 releases stale. It is NOT a defect to fix in place: git status --porcelain reports ''?? vendor/'' so the entire vendor tree is untracked and not gitignored, git ls-files --error-unmatch on that path fails, the clone carries freddie 0.0.212 against the live 0.0.238, and the only vendor/ references in casey''s tracked files are src/dashboard/public/index.html and src/dashboard/routes/auth.js which serve /vendor/leaflet and /vendor/leaflet.markercluster from node_modules, never vendor/freddie. casey''s own package.json declares anentrypoint-design latest and its dashboard HTML loads no CDN kit at all, consuming the dep server-side. Editing the untracked scratch clone would change no shipped artifact and could not be committed; the correct disposition is to leave it or delete it as local hygiene, and the durable fix already exists upstream since C:/dev/freddie/package.json declares latest.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: deployed-pages-all-resolve-latest-verified-live
+  subject: Every deployed consumer page serves @latest and every CDN endpoint returns 200 resolving to the current 0.0.411
+  notes: 'Witnessed live this session, not assumed. curl -L on https://unpkg.com/anentrypoint-design@latest/dist/247420.css and .js both return 200 and the effective URL resolves to anentrypoint-design@0.0.411, matching registry.npmjs.org/anentrypoint-design/latest which reports version 0.0.411. Deployed page HTML scraped for kit references: freddie, agentgui, spoint and 247420.xyz each serve @latest for BOTH css and js; zellous serves @latest for js; thebird serves @latest css plus its vendored sheets. Page availability: freddie zellous agentgui thebird spoint and 247420.xyz all 200; gmsniff 404 which is correct since it publishes no Pages site by design. Notable non-defect: agentgui/dist/index.html:13 carries a TAGLESS importmap specifier https://unpkg.com/anentrypoint-design/dist/247420.js, which resolves 200 to 0.0.411 because unpkg treats a missing tag as latest, and dist/ is gitignored build output while the real source agentgui/site/theme.mjs:17,21 uses explicit @latest. Zero pinned CDN versions live, confirmed rather than inherited.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: exclusions-already-documented-no-note-needed
+  subject: gmsniff and agentgui both already state their vendoring exclusion explicitly in their own AGENTS.md, so per instruction nothing was added
+  notes: 'Checked first rather than appending blind. gmsniff/AGENTS.md:122 ''## Zero dependencies'' states package.json has no dependencies and no devDependencies and no lockfile as a load-bearing property because gmsniff must install and run air-gapped and must never be a supply-chain surface for the agent host it observes, and line 126 extends the same rule to the browser with zero external-origin runtime fetches, no CDN scripts, vendor into gui/ds/. Its line 140 even names this task''s exact trap: vendoring a file means vendoring its whole import closure, a CSS manifest whose targets are absent is silently inert with only 404s to show for it. Structurally confirmed: gmsniff/package.json has no dependencies key at all. agentgui/AGENTS.md:259 ''## Runtime CDN: GUI loaded from unpkg - SUPERSEDED, do not trust'' records the 2026-05-29 unpkg-at-runtime approach as reverted and points to line 289 ''## DS load = LOCAL vendor (resolved - the earlier unpkg note is stale)'' stating index.html loads the DS kit from local ./vendor/anentrypoint-design/247420.{js,css} NOT unpkg, reconfirmed live on the 40th run. Both exclusions are unambiguous already; no edit made to either repo.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: thebird-vendor-barrel-closure-holds-in-production
+  subject: thebird's vendored app-shell.css barrel and all 21 split sheets resolve 200 on the deployed site, so the silent-404 trap is genuinely closed
+  notes: 'Witnessed both on disk and in production. On disk: docs/vendor/kits/os/app-shell.css declares 21 @import url(''./src/css/app-shell/*.css'') targets and a loop checking each resolved path reported checked=21 missing=0, with ls of the split directory also returning 21. Deployed: the barrel at https://anentrypoint.github.io/thebird/vendor/kits/os/app-shell.css returns 200 and all 21 split sheets under that prefix return 200, non-200 count 0 of 21. Tradeoff on thebird''s deliberate vendoring, reported rather than forced: docs/vendor.lock.json and docs/vendor/kits/os/.version stamp anentrypoint-design 0.0.407 sourced npm:anentrypoint-design@latest refreshed 2026-07-29T14:10Z, so the vendored bytes sit 4 releases behind the live 0.0.411 by construction. That lag is the price of the offline design, which is load-bearing: docs carries a real service-worker layer (sw-client.js, shell-sw-jobs.js) and scripts/refresh-design.mjs already pins TAG=''latest'' so a fresh clone and CI both resolve to npm @latest with no flag. Converting thebird to CDN-only would break offline operation to remove a bounded, on-demand-refreshable lag; not converted.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: spoint-sdk-typings-pair-is-advisory-by-design-not-a-hole
+  subject: spoint's hand-maintained and generated .d.ts pair is a real duplicated surface but its print-only drift report is deliberate, not a missing gate
+  notes: 'Witnessed: git ls-files shows BOTH client/editor/sdk-typings.d.ts and client/editor/sdk-typings.generated.d.ts committed. scripts/gen-sdk-typings.mjs writes the generated file plus a drift report listing members present in one and not the other. Read lines 117-124: the report is console.log only and the script''s process.exit(1) calls are all for tsc/setup failures, never for drift. Crucially the header comment states this is intentional -- structural inference over plain JS yields any-typed params that would REGRESS Monaco autocomplete against the hand-written concrete tuple/union types, so ''promoting generated output to replace the hand-maintained file is a deliberate, reviewed edit, not an automatic side effect''. Turning the report into a gate would fight that documented decision and would be inventing a new gate, which the instruction forbids. Leave alone; report as checked-and-deliberate.'
+  status: pending
+- SESSION_ID: 73be7501-ad32-4d34-bd8e-2cd2d6311c37
+  id: thebird-vendor-lock-is-a-guarded-duplicate-good-precedent
+  subject: thebird docs/vendor.lock.json duplicates upstream package versions and hashes but IS guarded, making it the positive control for this sweep
+  notes: 'Witnessed: docs/vendor.lock.json records package anentrypoint-design version 0.0.407 with a sha256 per entry and source npm:anentrypoint-design@latest. scripts/doctor.mjs section 4 is a hand-edit drift check over that lock, and doctor.mjs IS wired into witness-ci.yml line 27. doctor.mjs also gates a second duplicated value: witness-lib.mjs DEFAULT_URL port against the package.json serve script port, failing with ''serve-port -- witness DEFAULT_URL port X != serve default port Y''. So thebird already demonstrates the correct shape twice. Recorded as the positive control proving the sweep distinguishes guarded duplication from unguarded, rather than flagging every duplicate pair.'
+  status: pending
+- id: gmsniff-and-flatspace-publish-hardened
+  subject: Closed the last two local-only version bumpers, one of which was already drifted and about to collide
+  notes: 'flatspace: origin/main package.json read 1.0.17 while npm served 1.0.18, so its next push would have computed 1.0.18, collided with an existing version and failed to publish. It also committed and PUSHED the bump before npm publish, so a failed publish still advanced the version and widened the gap every attempt. Both fixed in fff4377 (reconcile added, publish moved ahead of the bump commit); dry-run predicted next publish 1.0.19 and the registry then served exactly 1.0.19, so the fix is witnessed by the version actually moving rather than by a green run. gmsniff: same two defects, same fix, landed as f3a30c3 and verified on origin by reading the file back from a freshly fetched ref -- ''Sync version with npm registry'' at line 53, npm view at 57, Publish to npm at 64, Commit version bump at 72, correct order. Its own dry-run showed local 1.0.126 against a registry at 1.0.127, meaning the old local-only logic would have computed 1.0.127 and collided; the registry has since moved to 1.0.128. Process note worth keeping: three separate readings during this work looked like the fix had been reverted or never landed, and all three were stale packed-ref reads -- git branch -r --contains plus a re-fetch settled it each time, so a single negative read of a remote ref is not evidence of absence when another writer is actively pushing.'
+  session_id: win-sync-2026-07-28
+  status: pending

@@ -308,3 +308,5 @@
 }
 /* Status bar items — inline flex with gap. */
 .ds-247420 .fd-status-item { display: inline-flex; align-items: center; gap: var(--space-1, 4px); }
+/* Page error display — scrollable pre block for stack traces. */
+.ds-247420 .fd-page-error { max-height: 60vh; overflow: auto; white-space: pre-wrap; word-break: break-all; }
