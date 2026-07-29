@@ -9,10 +9,13 @@ const root = document.getElementById('root');
 // Live terminal — instant output, no fake reveal animation. This is the
 // usable surface; anything typed appears immediately, anything emitted by
 // the (stubbed) backend appears immediately.
+// Seeded by really running the commands through the interpreter at load, not
+// by hand-writing their output. A canned transcript would go stale the moment
+// the filesystem or a command changed, and it would show a shell that cannot
+// be told apart from one that executes nothing -- which is exactly what this
+// kit used to be.
 const liveTranscript = [
-    { kind: 'cmt', text: '# live session · ~/dev/design' },
-    { kind: 'cmd', text: 'echo "ready"' },
-    { kind: 'out', text: 'ready' }
+    { kind: 'cmt', text: '# live shell — really executes. type `help` for commands.' },
 ];
 const live = { input: '', cwd: '~/dev/design', phase: 'ready' };
 const PHASES = ['ready', 'loading', 'empty', 'error'];
@@ -89,6 +92,15 @@ const shellCtx = {
     // the command and the toggle stay one mechanism rather than two.
     setTheme: (t) => document.documentElement.setAttribute('data-theme', t),
 };
+
+// Run a line for real and append both the command and its output, so the
+// opening scrollback is produced by the same path a typed command takes.
+function seed(line) {
+    liveTranscript.push({ kind: 'cmd', text: line });
+    for (const out of runCommand(line, shellCtx)) liveTranscript.push(out);
+}
+seed('whoami');
+seed('ls');
 
 // Empties the scrollback and drops the shell into its own empty state, which is
 // the honest reading of a cleared shell (the empty panel explains what lands
