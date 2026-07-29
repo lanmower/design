@@ -49,7 +49,17 @@ export function renderPageHtml({
     clientScriptExtra = '',   // raw JS appended after the mount() call in the client <script type="module">
     version = null,           // pin BOTH the CSS href and the JS importmap to this exact version
                                // instead of @latest (e.g. '0.0.320'); omitted -> default @latest behavior.
+                               // Fleet policy is @latest everywhere so a published fix reaches every
+                               // consumer without redeploying it: passing this pins EVERY page this
+                               // call generates, and a pinned page silently stops receiving fixes.
 } = {}) {
+    if (version != null && process.env.ANENTRYPOINT_ALLOW_PIN !== '1') {
+        throw new Error(
+            `renderPageHtml({version: '${version}'}) pins every generated page to one release, ` +
+            'which opts the whole surface out of published fixes. Fleet policy is @latest. ' +
+            'Set ANENTRYPOINT_ALLOW_PIN=1 to override deliberately.'
+        );
+    }
     const pkgVersion = version || 'latest';
     const cssLink = renderCssLink({ cssHref, pkgVersion });
 
