@@ -19,6 +19,7 @@ import {
     lintTransitionAllOrThrow,
     lintDarkParityOrThrow,
     lintImportantOrThrow,
+    lintTokensJsonInSyncOrThrow,
 } from './lint-tokens.mjs';
 import { lintGlyphsOrThrow } from './lint-glyphs.mjs';
 import { lintNullChildrenOrThrow } from './lint-null-children.mjs';
@@ -42,6 +43,13 @@ import { lintDeadControlsOrThrow } from './lint-dead-controls.mjs';
 // failed check. Anything that can fail belongs in CHECKS.
 const CHECKS = [
     ['tokens', lintTokensOrThrow],
+    // colors_and_type.css and tokens.json are two sources of truth for the same
+    // custom properties, so changing one alone is a half-change. This ran only
+    // from build.mjs, which let `npm run lint` report every check green while
+    // the build was broken -- a layout fix sat on main unpublished for an hour
+    // because the failing Build step also failed the publish workflow. Same
+    // coverage-hole shape as the rest of this list: a gate nothing invokes.
+    ['tokens-json', lintTokensJsonInSyncOrThrow],
     ['radius', lintRadiusOrThrow],
     ['zindex', lintZIndexOrThrow],
     ['transition-all', lintTransitionAllOrThrow],
