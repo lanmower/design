@@ -10,7 +10,7 @@
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   grid-template-areas: 'title title' 'body aside';
   align-items: start;
-  max-width: var(--measure-wide);
+  max-width: var(--stage-wide);
   position: relative; isolation: isolate;
 }
 .ds-hero-head { grid-area: title; display: grid; gap: var(--space-3); }

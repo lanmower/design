@@ -24,7 +24,7 @@
   color: var(--fg-2); text-decoration: none;
 }
 .ds-catalog-side nav a:hover { color: var(--accent-ink); }
-.ds-catalog-main { flex: 1; padding: var(--space-5); max-width: var(--measure-wide); min-width: 0; }
+.ds-catalog-main { flex: 1; padding: var(--space-5); max-width: var(--stage-wide); min-width: 0; }
 .ds-catalog-section { margin-bottom: var(--space-5); padding-top: var(--space-3); border-top: var(--bw-hair) solid var(--rule); }
 .ds-catalog-section > h2 { font-size: var(--fs-h3-app); margin: 0 0 var(--space-3); }
 

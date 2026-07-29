@@ -330,8 +330,15 @@
   --measure-narrow: 760px;
   /* Page-stage ceiling — independent of --measure-wide (which stays the
      narrower editorial hero/prose measure). Fluid so ultra-wide viewports
-     actually gain real estate instead of flat-lining at a fixed px cap. */
-  --stage-wide:  min(96vw, 1440px);
+     actually gain real estate instead of flat-lining at a fixed px cap.
+     Percentage, not vw: a stage nested in a sidebar shell or an embedded
+     window has no useful viewport of its own, and a vw term there resolves
+     against the browser instead of the container it actually sits in. */
+  --stage-wide:  min(96%, 1600px);
+  /* Ultra-wide tier — past this the eye loses the line more than the layout
+     gains, so multi-column content takes the extra width instead of one
+     column growing without bound. */
+  --stage-ultra: min(96%, 2100px);
 
   --sidebar-width:           220px;
   --sidebar-width-collapsed: 64px;
