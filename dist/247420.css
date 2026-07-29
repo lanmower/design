@@ -332,8 +332,15 @@
   --measure-narrow: 760px;
   /* Page-stage ceiling — independent of --measure-wide (which stays the
      narrower editorial hero/prose measure). Fluid so ultra-wide viewports
-     actually gain real estate instead of flat-lining at a fixed px cap. */
-  --stage-wide:  min(96vw, 1440px);
+     actually gain real estate instead of flat-lining at a fixed px cap.
+     Percentage, not vw: a stage nested in a sidebar shell or an embedded
+     window has no useful viewport of its own, and a vw term there resolves
+     against the browser instead of the container it actually sits in. */
+  --stage-wide:  min(96%, 1600px);
+  /* Ultra-wide tier — past this the eye loses the line more than the layout
+     gains, so multi-column content takes the extra width instead of one
+     column growing without bound. */
+  --stage-ultra: min(96%, 2100px);
 
   --sidebar-width:           220px;
   --sidebar-width-collapsed: 64px;
@@ -605,6 +612,53 @@
   --bg: var(--paper); --bg-2: var(--paper-2); --bg-3: var(--paper-3);
   --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
   --accent: var(--green); --accent-fg: var(--paper); --accent-ink: var(--green);
+}
+
+/* github-dark — pi-web's GitHub-dark theme. Cool dark palette with blue accent,
+   ported from pi-web (https://github.com/jmfederico/pi-web). */
+.ds-247420[data-theme="github-dark"] {
+  color-scheme: dark;
+  --bg:        #0d1117;
+  --bg-2:      #161b22;
+  --bg-3:      #21262d;
+  --fg:        #e6edf3;
+  --fg-2:      #c9d1d9;
+  --fg-3:      #8b949e;
+  --panel-bg:  var(--bg);
+  --panel-bg-2: var(--bg-2);
+  --panel-0:   var(--bg);
+  --panel-1:   var(--bg-2);
+  --panel-2:   var(--bg-3);
+  --panel-3:   color-mix(in oklab, var(--fg) 20%, transparent);
+  --panel-text:   var(--fg);
+  --panel-text-2: var(--fg-2);
+  --panel-text-3: var(--fg-3);
+  --accent:    #58a6ff;
+  --accent-fg: #ffffff;
+  --accent-ink: #58a6ff;
+  --accent-bright: #79c0ff;
+  --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
+  --danger:    #ff7b72;
+  --flame:     #ff7b72;
+  --amber:     #d29922;
+  --warn:      #ff7b72;
+  --sky:       #58a6ff;
+  --mascot-deep: #ff7b72;
+  --purple-2:  #d2a8ff;
+  --green:     #3fb950;
+  --green-2:   #3fb950;
+  --cat-green-ink:  #3fb950;
+  --cat-purple-ink: #d2a8ff;
+  --code-string:  var(--green-2);
+  --code-keyword: var(--sky);
+  --code-fn:      var(--flame);
+  --code-str-alt: var(--mascot-deep);
+  --code-num:     var(--amber);
+}
+
+.ds-247420[data-theme="github-dark"] ::selection {
+  background: #0d2847;
+  color: var(--fg);
 }
 
 .ds-247420[data-density="compact"]     { --density: 0.75; }
@@ -1755,7 +1809,7 @@
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   grid-template-areas: 'title title' 'body aside';
   align-items: start;
-  max-width: var(--measure-wide);
+  max-width: var(--stage-wide);
   position: relative; isolation: isolate;
 }
 .ds-247420 .ds-hero-head { grid-area: title; display: grid; gap: var(--space-3); }
@@ -2816,7 +2870,7 @@
 /* Stage — the scrollable content column. */
 .ds-247420 .ds-file-stage {
   display: flex; flex-direction: column; gap: var(--space-3);
-  width: 100%; max-width: var(--measure-wide); margin: 0 auto;
+  width: 100%; max-width: var(--stage-wide); margin: 0 auto;
   padding: var(--space-2) var(--space-3) var(--space-4);
 }
 /* When the stage is the app-main child, the shell already supplies top
@@ -3265,7 +3319,7 @@
   color: var(--fg-2); text-decoration: none;
 }
 .ds-247420 .ds-catalog-side nav a:hover { color: var(--accent-ink); }
-.ds-247420 .ds-catalog-main { flex: 1; padding: var(--space-5); max-width: var(--measure-wide); min-width: 0; }
+.ds-247420 .ds-catalog-main { flex: 1; padding: var(--space-5); max-width: var(--stage-wide); min-width: 0; }
 .ds-247420 .ds-catalog-section { margin-bottom: var(--space-5); padding-top: var(--space-3); border-top: var(--bw-hair) solid var(--rule); }
 .ds-247420 .ds-catalog-section > h2 { font-size: var(--fs-h3-app); margin: 0 0 var(--space-3); }
 
