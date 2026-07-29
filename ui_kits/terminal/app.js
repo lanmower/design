@@ -15,7 +15,9 @@ const root = document.getElementById('root');
 // be told apart from one that executes nothing -- which is exactly what this
 // kit used to be.
 const liveTranscript = [
-    { kind: 'cmt', text: '# live shell — really executes. type `help` for commands.' },
+    // No leading '#' in the text: Line() renders the cmt prompt mark itself,
+    // so writing one here produces a doubled '# #' on screen.
+    { kind: 'cmt', text: 'live shell — really executes. type `help` for commands.' },
 ];
 const live = { input: '', cwd: '~/dev/design', phase: 'ready' };
 const PHASES = ['ready', 'loading', 'empty', 'error'];
@@ -175,7 +177,10 @@ function App() {
                 // rather than documenting a keystroke and doing nothing when
                 // clicked. Both are also bound to the keys they advertise.
                 { group: 'shortcuts', items: [
-                    { glyph: '·', label: 'clear (⌘k)', key: 'c',
+                    // The handler binds metaKey OR ctrlKey, so the label names
+                    // both. The Command symbol is also the one glyph the mono
+                    // stack has no coverage for -- it rendered as tofu here.
+                    { glyph: '·', label: 'clear (ctrl/cmd k)', key: 'c',
                       onClick: (e) => { e.preventDefault(); clearScrollback(); } },
                     { glyph: '·', label: 'history (up)', key: 'h',
                       onClick: (e) => { e.preventDefault(); recallHistory(); } }
