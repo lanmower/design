@@ -1,6 +1,7 @@
 import * as webjsx from 'webjsx';
 import { Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip, ThemeToggle } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
+import { run as runCommand, complete as completeLine } from 'ds/shell.js';
 const h = webjsx.createElement;
 
 const root = document.getElementById('root');
@@ -75,6 +76,19 @@ const demo = { visible: reduced ? demoScript.slice() : [], looping: !reduced };
 // Commands the live shell has run, newest last — what `history (up)` walks.
 const history = [];
 let historyIdx = -1;
+
+// The interpreter's session state. cwd is an array of path segments owned here
+// and mutated in place by `cd`, so the prompt and the shell never disagree
+// about where the session is.
+const shellCwd = [];
+const shellPath = () => '~/' + shellCwd.join('/');
+const shellCtx = {
+    cwd: shellCwd,
+    clear: () => clearScrollback(),
+    // `theme dark` drives the same data-theme attribute ThemeToggle writes, so
+    // the command and the toggle stay one mechanism rather than two.
+    setTheme: (t) => document.documentElement.setAttribute('data-theme', t),
+};
 
 // Empties the scrollback and drops the shell into its own empty state, which is
 // the honest reading of a cleared shell (the empty panel explains what lands
@@ -162,7 +176,7 @@ function App() {
                     h('div', {}, Heading({ level: 1, children: 'terminal' })),
                     ThemeToggle()
                 ),
-                Lede({ children: 'two surfaces — a live shell (instant, no fake reveal) and a decorative demo loop that plays the .cli row primitives. respects prefers-reduced-motion.' }),
+                Lede({ children: 'a working shell — ls, cd, cat, echo, theme and more run against a real in-memory tree, with tab completion and history. below it, a decorative demo loop plays the .cli row primitives. respects prefers-reduced-motion.' }),
 
                 // Live terminal — usable, no reveal delays.
                 Panel({
@@ -179,16 +193,30 @@ function App() {
                             h('span', { class: 'prompt' }, '$'),
                             h('input', {
                                 value: live.input,
-                                placeholder: 'type a command and press enter…',
+                                placeholder: 'try `help`, `ls`, `cat readme.md`…',
                                 class: 'ds-term-input',
                                 oninput: (e) => { live.input = e.target.value; },
                                 onkeydown: (e) => {
                                     if (e.key === 'Enter' && live.input.trim()) {
-                                        liveTranscript.push({ kind: 'cmd', text: live.input });
-                                        liveTranscript.push({ kind: 'out', text: '(stub) ran: ' + live.input });
-                                        history.push(live.input);
+                                        const line = live.input;
+                                        liveTranscript.push({ kind: 'cmd', text: line });
+                                        // Real execution: the interpreter in
+                                        // ds/shell.js owns the filesystem and the
+                                        // command table, so an unknown command
+                                        // reports a genuine error instead of the
+                                        // old '(stub) ran: ...' echo that claimed
+                                        // success for anything typed.
+                                        for (const out of runCommand(line, shellCtx)) liveTranscript.push(out);
+                                        live.cwd = shellPath();
+                                        history.push(line);
                                         historyIdx = -1;
                                         live.input = '';
+                                        kit.render();
+                                    } else if (e.key === 'Tab') {
+                                        // Completion has to pre-empt the browser's
+                                        // focus move, so preventDefault comes first.
+                                        e.preventDefault();
+                                        live.input = completeLine(live.input, shellCwd);
                                         kit.render();
                                     } else if (e.key === 'ArrowUp') {
                                         // The sidebar advertises 'history (up)';
@@ -216,7 +244,8 @@ function App() {
                 Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
                     h('p', {}, '· ', Chip({ tone: 'accent', children: '.cli' }), ' rows pair ', h('code', {}, '.prompt'), ' + ', h('code', {}, '.cmd'), '.'),
                     h('p', {}, '· six line kinds: ', Chip({ tone: 'dim', children: 'cmt' }), ' ', Chip({ tone: 'dim', children: 'cmd' }), ' ', Chip({ tone: 'dim', children: 'out' }), ' ', Chip({ tone: 'accent', children: 'ok' }), ' ', Chip({ tone: '', children: 'warn' }), ' ', Chip({ tone: 'dim', children: 'log' }), '.'),
-                    h('p', {}, '· live panel is instant; demo panel reveals lines on a loop for the showcase only — never fake-animate output a user is waiting on.')
+                    h('p', {}, '· live panel is instant and really executes — ', h('code', {}, 'help'), ' lists the commands, tab completes, up walks history.'),
+                    h('p', {}, '· demo panel reveals lines on a loop for the showcase only — never fake-animate output a user is waiting on.')
                 ) })
             )
         ],
