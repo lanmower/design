@@ -48,6 +48,19 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public
 
+      - name: Confirm the published version actually serves this commit
+        run: |
+          PKG_NAME=$(node -p "require('./package.json').name")
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            SERVED=$(npm view "$PKG_NAME" version 2>/dev/null || echo "")
+            [ "$SERVED" = "$NEW_VERSION" ] && echo "registry serves $SERVED" && exit 0
+            echo "registry still on ${SERVED:-unknown}, waiting for $NEW_VERSION"
+            sleep 12
+          done
+          echo "publish reported success but the registry never served $NEW_VERSION" >&2
+          exit 1
+
       - name: Commit version bump and tag
         run: |
           NEW_VERSION=$(node -p "require('./package.json').version")

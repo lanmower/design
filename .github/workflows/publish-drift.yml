@@ -1,0 +1,57 @@
+name: Publish drift watch
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fail if the registry is not serving what main builds
+        run: |
+          PKG_NAME=$(node -p "require('./package.json').name")
+          SERVED=$(npm view "$PKG_NAME" version 2>/dev/null || echo "")
+          if [ -z "$SERVED" ]; then
+            echo "registry returned no version for $PKG_NAME" >&2
+            exit 1
+          fi
+          echo "registry serves $SERVED"
+          export SERVED_VERSION="$SERVED"
+          npm install --no-audit --no-fund
+          npm run build
+          node -e "
+            const https = require('https');
+            const fs = require('fs');
+            const pkg = require('./package.json');
+            const served = process.env.SERVED_VERSION;
+            const url = 'https://unpkg.com/' + pkg.name + '@' + served + '/dist/247420.css';
+            https.get(url, res => {
+              let body = '';
+              res.on('data', c => body += c);
+              res.on('end', () => {
+                const local = fs.readFileSync('dist/247420.css', 'utf8');
+                const tok = /--stage-wide:\s*([^;]+);/;
+                const a = (local.match(tok) || [])[1];
+                const b = (body.match(tok) || [])[1];
+                if (!a || !b) { console.error('could not read the probe token from both sides'); process.exit(1); }
+                if (a.trim() !== b.trim()) {
+                  console.error('published bundle does not match what main builds');
+                  console.error('  main      : ' + a.trim());
+                  console.error('  registry  : ' + b.trim());
+                  process.exit(1);
+                }
+                console.log('registry bundle matches main');
+              });
+            }).on('error', e => { console.error(String(e)); process.exit(1); });
+          "
