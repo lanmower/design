@@ -568,8 +568,16 @@ html, body {
 /* With bars overlaying the wm-root, a maximized window's 34px titlebar would
  * sit exactly under the 34px menubar (untappable) and its body under the
  * taskbar; keep maximized windows between the bars on desktop/tablet. The
- * mobile band re-asserts its own contract in the responsive layer below. */
-@media (min-width: 768px) {
+ * mobile band re-asserts its own contract in the responsive layer below.
+ * The (min-height: 501px) guard keeps this rule out of the short-landscape
+ * mobile band (768-1023 wide AND <500 tall): the mobile .wm-root already
+ * carries the bar-inset there, so this between-the-bars geometry used to
+ * DOUBLE-inset maximized windows — a restored wm-max window measured
+ * y=104/h=240 instead of y=52/h=344 at 782x448 (witnessed live on thebird
+ * 2026-07-29). Guarding here (same idiom as the tablet-band rules below)
+ * instead of overriding inside the mobile band keeps the !important
+ * ratchet flat — no new declaration was needed. */
+@media (min-width: 768px) and (min-height: 501px) {
   /* LOAD-BEARING !important: wm.css declares `.wm-win.wm-max{top:0!important;
    * height:100%!important}` (wm.css:137-143). Only another !important can beat
    * an !important, regardless of specificity. */
@@ -1501,18 +1509,9 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   }
   /* A maximized window on the mobile band is just the full-screen window the
    * rule above already describes — the desktop/tablet `.wm-win.wm-max`
-   * between-the-bars rule (@media min-width:768px, top:var(--os-bar-h),
-   * height:calc(100% - 2*bar)) would otherwise DOUBLE-inset here because the
-   * mobile .wm-root already carries the bar-inset: at 782x448 a restored
-   * maximized window measured y=104/h=240 instead of y=52/h=344, leaving its
-   * titlebar and content jammed against the taskbar (witnessed live on
-   * thebird 2026-07-29). Specificity (0,3,0) inside the same band beats the
-   * desktop rule's (0,3,0) by later source order; !important required because
-   * the desktop rule carries it. */
-  .ds-247420 .wm-win.wm-max {
-    top: 0 !important;
-    height: 100% !important;
-  }
+   * between-the-bars rule is kept out of this band by its own
+   * (min-height: 501px) guard (see its comment above), so no override is
+   * needed here and the !important ratchet stays flat. */
   /* titlebar must host a 44px close button -> 44px bar (beats the 34px brand
    * clamp by later source order at equal specificity) */
   .ds-247420 .wm-bar {
