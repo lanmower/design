@@ -605,6 +605,53 @@ select:focus-visible {
   --accent: var(--green); --accent-fg: var(--paper); --accent-ink: var(--green);
 }
 
+/* github-dark — pi-web's GitHub-dark theme. Cool dark palette with blue accent,
+   ported from pi-web (https://github.com/jmfederico/pi-web). */
+[data-theme="github-dark"] {
+  color-scheme: dark;
+  --bg:        #0d1117;
+  --bg-2:      #161b22;
+  --bg-3:      #21262d;
+  --fg:        #e6edf3;
+  --fg-2:      #c9d1d9;
+  --fg-3:      #8b949e;
+  --panel-bg:  var(--bg);
+  --panel-bg-2: var(--bg-2);
+  --panel-0:   var(--bg);
+  --panel-1:   var(--bg-2);
+  --panel-2:   var(--bg-3);
+  --panel-3:   color-mix(in oklab, var(--fg) 20%, transparent);
+  --panel-text:   var(--fg);
+  --panel-text-2: var(--fg-2);
+  --panel-text-3: var(--fg-3);
+  --accent:    #58a6ff;
+  --accent-fg: #ffffff;
+  --accent-ink: #58a6ff;
+  --accent-bright: #79c0ff;
+  --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
+  --danger:    #ff7b72;
+  --flame:     #ff7b72;
+  --amber:     #d29922;
+  --warn:      #ff7b72;
+  --sky:       #58a6ff;
+  --mascot-deep: #ff7b72;
+  --purple-2:  #d2a8ff;
+  --green:     #3fb950;
+  --green-2:   #3fb950;
+  --cat-green-ink:  #3fb950;
+  --cat-purple-ink: #d2a8ff;
+  --code-string:  var(--green-2);
+  --code-keyword: var(--sky);
+  --code-fn:      var(--flame);
+  --code-str-alt: var(--mascot-deep);
+  --code-num:     var(--amber);
+}
+
+[data-theme="github-dark"] ::selection {
+  background: #0d2847;
+  color: var(--fg);
+}
+
 [data-density="compact"]     { --density: 0.75; }
 [data-density="comfortable"] { --density: 1; }
 [data-density="spacious"]    { --density: 1.35; }

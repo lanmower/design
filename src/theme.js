@@ -19,7 +19,7 @@ const DENSITY_KEY = '247420:density';
 const LOCALE_KEY = '247420:locale';
 // 'auto' is a mode, not a [data-theme] preset block — it stays in VALID for the
 // controller but is the OS-follow path. The named presets are the rest.
-const VALID = new Set(['auto', 'paper', 'ink', 'thebird']);
+const VALID = new Set(['auto', 'paper', 'ink', 'thebird', 'github-dark']);
 const VALID_ACCENT = new Set(['green', 'purple', 'mascot']);
 const VALID_DENSITY = new Set(['compact', 'comfortable', 'spacious']);
 const listeners = new Set();
