@@ -1089,11 +1089,14 @@
 .ds-247420 .app-topbar nav a {
   color: var(--fg-2);
   /* Dense desktop chrome (was a 44px pill with 12px 14px pad — marketing-scale
-     touch target in the top bar). Matches the .app-side a treatment: ~34px,
-     --r-1 rounded rect, tighter padding. The 44px tap target is restored under
-     @media(pointer:coarse) (the existing .app-topbar nav a rule further down). */
+     touch target in the top bar): --r-1 rounded rect, tighter padding. The 44px
+     floor is UNCONDITIONAL, not behind @media(pointer:coarse) — switch and
+     head-pointer users drive a fine pointer and are never reported as coarse,
+     so a coarse-gated floor leaves them a 39px target. Measured live at 1920:
+     the gated form rendered 39px with pointer:coarse false. Padding stays dense;
+     only the floor moves, so the compact chrome reads unchanged. */
   padding: var(--space-2) var(--space-2-5);
-  min-height: 34px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   border-radius: var(--r-1);
@@ -1185,10 +1188,13 @@
   display: grid; grid-template-columns: 18px 1fr auto;
   gap: var(--space-2-5); align-items: center;
   /* Dense rounded-rect nav row (was a 44px pill with 12px 14px padding — tall
-     and consumer-shaped). A --r-1 rounded rect at ~34px reads as compact app
-     chrome; the full 44px touch target is restored under pointer:coarse below. */
+     and consumer-shaped). A --r-1 rounded rect reads as compact app chrome.
+     The 44px floor is UNCONDITIONAL for the same reason as .skip-link's: a
+     pointer:coarse gate misses switch and head-pointer users, who report a fine
+     pointer. Measured live at 1920 the gated form rendered 39px. Padding is
+     unchanged, so the row stays dense — only the floor moves. */
   padding: var(--space-2) var(--space-2-5);
-  min-height: 34px;
+  min-height: 44px;
   border-radius: var(--r-1);
   color: var(--fg-2);
   margin-bottom: 2px;
