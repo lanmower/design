@@ -1271,6 +1271,13 @@
 .ds-247420 .app-main > .ds-files-stack,
 .ds-247420 .app-main > .grow { flex: 1 1 auto; min-height: 0; }
 .ds-247420 .app-main.narrow { max-width: var(--measure-narrow); margin: 0 auto; }
+/* A shell with no sidebar has no competing column, so the prose clamp there was
+   leaving the whole sidebar's worth of width empty -- 760px of content inside a
+   1413px shell on a real page. Widen the clamp by the space the absent sidebar
+   would have taken so the measure still reads as prose, just not starved. */
+.ds-247420 .app-body.no-side .app-main.narrow {
+  max-width: calc(var(--measure-narrow) + var(--sidebar-width));
+}
 /* Article-body heading rhythm and lede spacing, consumed by flatspace-rendered
    long-form pages (docs, papers) that drop headings/panels directly into .app-main. */
 .ds-247420 .app-main > h1,

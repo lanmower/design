@@ -160,7 +160,7 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-section' },
+            h('div', { class: 'ds-app-surface ds-section-pad' },
                 Heading({ level: 1, children: 'aicat' }),
                 Lede({ children: 'an ai assistant with a cat persona. she replies in text, code (highlighted), markdown, images, pdfs, file attachments, or link cards — depending on what you ask.' }),
                 AICatPortrait({

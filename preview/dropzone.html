@@ -5,7 +5,9 @@
 <style>body{padding:var(--space-3-5);background:var(--panel-0);color:var(--panel-text);} .row-2{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);max-width:880px}</style><script defer src="./motion-default.js"></script>
 </head><body>
 <div class="dateline"><span>247420 · FILE-BROWSER · DROPZONE</span><span class="spread"></span><span>TONAL TARGET · NO DASHED BORDERS</span></div>
-<div class="row-2" style="margin-top:14px">
+
+<h1 class="sr-only">Dropzone</h1>
+<main aria-label="Dropzone specimens"><div class="row-2" style="margin-top:14px">
   <div>
     <div class="t-meta" style="margin-bottom:6px">idle</div>
     <div class="ds-dropzone">
@@ -28,4 +30,5 @@
   </div>
 </div>
 <div class="t-meta" style="margin-top:12px">dropzone is a tonal panel that swaps to <code>--panel-select</code> on dragover. <strong>preventDefault must run on document, not just the zone</strong> or the browser will navigate to the dropped file.</div>
+</main>
 </body></html>

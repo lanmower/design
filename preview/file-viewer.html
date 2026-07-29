@@ -2,8 +2,13 @@
 <html lang="en" data-theme="auto" class="ds-247420"><head><meta charset="utf-8">
 <title>file viewer / 247420 preview</title><link rel="stylesheet" href="../colors_and_type.css">
 <link rel="stylesheet" href="../app-shell.css">
-<style>body{padding:0;background:var(--panel-0);color:var(--panel-text);min-height:100vh;display:flex;align-items:center;justify-content:center}</style>
+<style>body{padding:0;background:var(--panel-0);color:var(--panel-text);min-height:100vh;display:flex;align-items:center;justify-content:center}
+/* The specimen is a full-bleed modal over a backdrop, so the landmark that
+   wraps it has to stay a full-size flex item rather than shrink to content. */
+body > main{flex:1;align-self:stretch;min-width:0}</style>
 </head><body>
+<h1 class="sr-only">File viewer</h1>
+<main aria-label="File viewer specimens">
 <div class="ds-modal-backdrop" style="position:relative;width:100%;height:100vh">
   <div class="ds-modal ds-modal-preview">
     <div class="ds-modal-head ds-preview-head" data-file-type="code">
@@ -29,4 +34,5 @@
     </div>
   </div>
 </div>
+</main>
 </body></html>
