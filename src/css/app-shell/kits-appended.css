@@ -553,10 +553,37 @@
 .ds-cli-warn .prompt, .ds-cli-warn .cmd { color: var(--mascot-on-ink); }
 .ds-cli-log .prompt { color: var(--paper-3-dark); }
 .ds-cli-log .cmd { color: var(--paper-2); font-family: var(--ff-mono); }
-.ds-term-body { padding: var(--space-2-75) var(--space-3-5); display: flex; flex-direction: column; gap: var(--space-1); background: var(--bg-2); border-radius: var(--r-1); }
+/* The terminal surface is theme-INDEPENDENT ink, like .cli itself: a shell
+   that turns white in light mode does not read as a terminal, and the
+   .ds-cli-* line tones above are all measured on --ink, so a light surface
+   would also break their contrast. */
+.ds-term-body {
+  padding: var(--space-3) var(--space-3-5);
+  display: flex; flex-direction: column; gap: 0;
+  background: var(--ink); border-radius: var(--r-1);
+  font-family: var(--ff-mono); font-size: var(--fs-micro); line-height: 1.65;
+}
+/* .cli is authored in hero-content.css as a STANDALONE hero code block --
+   20px/24px padding, --fs-lg type, --r-3 radius and its own --ink background
+   per row. Stacked as scrollback those become a column of fat rounded cards
+   instead of terminal lines, which is why this kit did not read as a
+   terminal. Inside the terminal body a .cli is a LINE: no box of its own,
+   no radius, no padding, inheriting the body's mono scale. */
+.ds-term-body .cli {
+  display: flex; align-items: flex-start; gap: var(--space-1-5);
+  padding: 0; background: none; border-radius: 0;
+  font-size: inherit; font-family: inherit; line-height: inherit;
+  overflow-x: visible;
+}
+/* Prompt marks are a fixed gutter so every line's text starts on one column;
+   ragged prompts are the tell of a fake terminal. ch units track the mono
+   glyph width, so the gutter holds at any type size. */
+.ds-term-body .cli .prompt { flex: 0 0 auto; width: 1ch; text-align: center; opacity: 0.75; }
+.ds-term-body .cli .cmd { flex: 1; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; overflow-x: visible; }
 .ds-term-body--tall { min-height: 280px; }
 .ds-term-input-row { margin-top: var(--space-1-75); }
-.ds-term-input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; font-family: var(--ff-mono); font-size: var(--fs-micro); color: var(--fg); }
+.ds-term-input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; font-family: var(--ff-mono); font-size: var(--fs-micro); color: var(--paper); caret-color: var(--acid); }
+.ds-term-input::placeholder { color: var(--paper-3-dark); }
 /* The input itself is a prompt line, not a form control, so it is NOT floored
    to 44px (that would break the terminal's line rhythm). Instead the whole
    prompt ROW becomes the tap target, and the font goes to 16px so focusing it
