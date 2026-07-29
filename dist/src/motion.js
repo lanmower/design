@@ -11,12 +11,28 @@ export function installMotion() {
     style.textContent = `
 @media (prefers-reduced-motion: no-preference) {
   .ds-247420 [data-anim="in"] {
-    opacity: 0; transform: translateY(8px);
-    transition: opacity 320ms cubic-bezier(.2,0,0,1), transform 320ms cubic-bezier(.2,0,0,1);
+    opacity: 0; transform: translateY(14px);
+    /* Physical signature reveal — a slight spring landing, not a flat fade. */
+    transition: opacity var(--dur-reveal, 560ms) var(--ease, cubic-bezier(.2,0,0,1)),
+                transform var(--dur-reveal, 560ms) var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1));
   }
   .ds-247420 [data-anim="ready"] {
     opacity: 1; transform: translateY(0);
   }
+}
+/* [data-motion="reduced"] is the in-app user override (motion-toggle.js) —
+   applies the exact same reduced-motion treatment as the OS-level
+   prefers-reduced-motion media query above, independent of the OS setting.
+   Selector applies regardless of the media query's own match state, so it
+   correctly overrides the animated block above on any OS. */
+:root[data-motion="reduced"] .ds-247420 [data-anim="in"],
+.ds-247420[data-motion="reduced"] [data-anim="in"] {
+  opacity: 1 !important; transform: translateY(0) !important;
+  transition: none !important;
+}
+:root[data-motion="reduced"] .ds-247420 [data-anim="ready"],
+.ds-247420[data-motion="reduced"] [data-anim="ready"] {
+  transition: none !important;
 }`.trim();
     document.head.appendChild(style);
 }

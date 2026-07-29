@@ -1,84 +1,105 @@
+// Preview entrance motion — SDK-native, zero network.
+//
+// WHY THIS DOES NOT LOAD animate.css: it used to inject
+// https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css at
+// runtime and apply `animate__*` classes. That contradicted the SDK's own
+// documented position (src/motion.js:1-2: "the SDK historically wired
+// animate.css for entry flourishes. We tone this down: no animate.css"), made
+// every preview page depend on a third-party CDN for decoration, and was the
+// sole cause of a cross-origin SecurityError when reading document.styleSheets
+// (the CDN sheet is opaque to same-origin cssRules access). Worse, the link was
+// injected even under `prefers-reduced-motion: reduce`, where no animation
+// would ever play — pure privacy and latency cost for zero benefit.
+//
+// The replacement uses the SAME mechanism as the real SDK: a `data-anim`
+// in -> ready transition driven by --dur-reveal / --ease / --ease-spring,
+// wrapped in `prefers-reduced-motion: no-preference` so the animated block
+// simply does not exist for users who asked for less motion.
 (function () {
   function reduced() {
     return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
 
-  function loadAnimateCss() {
-    if (document.getElementById('animate-style-cdn')) return;
-    var link = document.createElement('link');
-    link.id = 'animate-style-cdn';
-    link.rel = 'stylesheet';
-    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
-    document.head.appendChild(link);
-  }
-
-  function installTokens() {
+  // The entrance rule. Mirrors src/motion.js's [data-anim] contract rather than
+  // inventing a second one, so a preview animates exactly like a real SDK
+  // surface. --anim-delay is a per-element custom property (the stagger), which
+  // is why this is a stylesheet and not an inline transition string.
+  function installMotionStyle() {
     if (document.getElementById('preview-motion-vars')) return;
     var style = document.createElement('style');
     style.id = 'preview-motion-vars';
     style.textContent = [
-      ':root{--motion-fast:220ms;--motion-base:420ms;--motion-slow:720ms;--motion-step:70ms;}',
-      '@media (prefers-reduced-motion: reduce){.animate__animated{animation-duration:1ms !important;animation-iteration-count:1 !important;transition-duration:1ms !important;}}'
+      '@media (prefers-reduced-motion: no-preference){',
+      '[data-anim="in"]{opacity:0;transform:translateY(10px);',
+      'transition:opacity var(--dur-reveal,560ms) var(--ease,cubic-bezier(.2,0,0,1)) var(--anim-delay,0ms),',
+      'transform var(--dur-reveal,560ms) var(--ease-spring,cubic-bezier(.34,1.56,.64,1)) var(--anim-delay,0ms);}',
+      '[data-anim="ready"]{opacity:1;transform:translateY(0);}',
+      '}'
     ].join('');
     document.head.appendChild(style);
   }
 
+  // Stagger ceiling: past a handful of elements a per-index delay stops reading
+  // as rhythm and starts reading as lag, so it clamps (same shape as
+  // src/motion.js's Math.min(i, 6)).
+  var STAGGER_MS = 40;
+  var STAGGER_MAX = 8;
+
   function animateEntry(el, cfg, i) {
-    if (!el || !el.classList) return;
-    var effect = cfg.effect || 'fadeInUp';
-    var duration = cfg.duration || 'var(--motion-base)';
-    var delay = cfg.stagger ? ('calc(' + i + ' * var(--motion-step))') : (cfg.delay || '0ms');
-
-    el.classList.add('animate__animated', 'animate__' + effect);
-    el.style.setProperty('--animate-duration', duration);
-    if (delay && delay !== '0ms') el.style.setProperty('--animate-delay', delay);
-  }
-
-  function runList(selector, cfg) {
-    var nodes = Array.prototype.slice.call(document.querySelectorAll(selector));
-    nodes.forEach(function (el, i) {
-      animateEntry(el, cfg, i);
+    if (!el || !el.dataset) return;
+    if (el.dataset.anim) return;
+    if (cfg.stagger) {
+      el.style.setProperty('--anim-delay', (Math.min(i, STAGGER_MAX) * STAGGER_MS) + 'ms');
+    }
+    el.dataset.anim = 'in';
+    // Flip on the next frame so the browser paints the `in` state first;
+    // setting both in one frame yields no transition at all.
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { el.dataset.anim = 'ready'; });
     });
   }
 
+  function runList(selector, cfg) {
+    Array.prototype.slice.call(document.querySelectorAll(selector))
+      .forEach(function (el, i) { animateEntry(el, cfg, i); });
+  }
+
   function runAllChildren(cfg) {
-    var nodes = Array.prototype.slice.call(document.body.children || []);
     var n = 0;
-    nodes.forEach(function (el) {
-      if (!el || !el.classList) return;
-      if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE') return;
+    Array.prototype.slice.call(document.body.children || []).forEach(function (el) {
+      if (!el || !el.tagName) return;
+      if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE' || el.tagName === 'LINK') return;
       animateEntry(el, cfg, n);
       n += 1;
     });
   }
 
+  // Per-page entrance targets. The effect vocabulary is gone: every entrance is
+  // now the one house reveal (fade + spring rise), because a preview page's job
+  // is to demonstrate the design system's motion, not a CDN library's presets.
   function presetForPage(file) {
     var presets = {
-      'buttons.html': [{ selector: 'button, .btn, .btn-primary, .btn-ghost', effect: 'fadeInUp', duration: 'var(--motion-fast)', stagger: true }],
-      'colors-core.html': [{ selector: '.sw', effect: 'fadeIn', duration: 'var(--motion-base)', stagger: true }],
-      'colors-lore.html': [{ selector: 'body > div:nth-of-type(2) > div', effect: 'zoomIn', duration: 'var(--motion-base)', stagger: true }],
-      'colors-semantic.html': [{ selector: 'body > div:nth-of-type(2) > div', effect: 'fadeInUp', duration: 'var(--motion-fast)', stagger: true }],
-      'dateline.html': [{ selector: '.dateline', effect: 'fadeInDown', duration: 'var(--motion-fast)', stagger: true }],
-      'header.html': [
-        { selector: '.app-topbar', effect: 'fadeInDown', duration: 'var(--motion-fast)' },
-        { selector: '.app-crumb', effect: 'fadeIn', duration: 'var(--motion-base)', delay: '120ms' }
-      ],
-      'icons-unicode.html': [{ selector: 'body > div:nth-of-type(2) > div', effect: 'fadeIn', duration: 'var(--motion-fast)', stagger: true }],
-      'index-row.html': [{ selector: '.row', effect: 'fadeInLeft', duration: 'var(--motion-fast)', stagger: true }],
-      'inputs.html': [{ selector: '.input, .t-label', effect: 'fadeInUp', duration: 'var(--motion-fast)', stagger: true }],
-      'manifesto.html': [{ selector: '.prin', effect: 'fadeInUp', duration: 'var(--motion-base)', stagger: true }],
-      'rules.html': [{ selector: '.rule, .rule-double, .rule-dotted', effect: 'fadeIn', duration: 'var(--motion-fast)', stagger: true }],
-      'spacing.html': [{ selector: 'body > div:nth-of-type(2) > div', effect: 'fadeInRight', duration: 'var(--motion-fast)', stagger: true }],
-      'stamps-lore.html': [{ selector: '.stamp, .btn-stamp', effect: 'jackInTheBox', duration: 'var(--motion-base)', stagger: true }],
-      'stamps.html': [{ selector: '.stamp', effect: 'jackInTheBox', duration: 'var(--motion-base)', stagger: true }],
-      'theme-ink.html': [{ selector: 'body > *', effect: 'fadeIn', duration: 'var(--motion-base)', stagger: true }],
-      'type-display.html': [{ selector: '.t-hero, .t-h1', effect: 'fadeInUp', duration: 'var(--motion-base)', stagger: true }],
-      'type-mono.html': [{ selector: 'body > div:nth-of-type(2) > div', effect: 'fadeIn', duration: 'var(--motion-fast)', stagger: true }],
-      'type-prose.html': [{ selector: '.prose p', effect: 'fadeIn', duration: 'var(--motion-base)', stagger: true }],
-      'type-scale.html': [{ selector: 'body > div:nth-of-type(2) > div', effect: 'fadeIn', duration: 'var(--motion-fast)', stagger: true }],
-      'wordmarks.html': [{ selector: 'body > div:nth-of-type(2) > div', effect: 'fadeInUp', duration: 'var(--motion-fast)', stagger: true }]
+      'buttons.html': ['button, .btn, .btn-primary, .btn-ghost'],
+      'colors-core.html': ['.sw'],
+      'colors-lore.html': ['body > div:nth-of-type(2) > div'],
+      'colors-semantic.html': ['body > div:nth-of-type(2) > div'],
+      'dateline.html': ['.dateline'],
+      'header.html': ['.app-topbar', '.app-crumb'],
+      'icons-unicode.html': ['body > div:nth-of-type(2) > div'],
+      'index-row.html': ['.row'],
+      'inputs.html': ['.input, .t-label'],
+      'manifesto.html': ['.prin'],
+      'rules.html': ['.rule, .rule-double, .rule-dotted'],
+      'spacing.html': ['body > div:nth-of-type(2) > div'],
+      'stamps-lore.html': ['.stamp, .btn-stamp'],
+      'stamps.html': ['.stamp'],
+      'theme-ink.html': ['body > *'],
+      'type-display.html': ['.t-hero, .t-h1'],
+      'type-mono.html': ['body > div:nth-of-type(2) > div'],
+      'type-prose.html': ['.prose p'],
+      'type-scale.html': ['body > div:nth-of-type(2) > div'],
+      'wordmarks.html': ['body > div:nth-of-type(2) > div']
     };
-
     return presets[file] || null;
   }
 
@@ -89,18 +110,17 @@
     var preset = presetForPage(file);
 
     if (!preset) {
-      runAllChildren({ effect: 'fadeInUp', duration: 'var(--motion-base)', stagger: true });
+      runAllChildren({ stagger: true });
       return;
     }
 
-    preset.forEach(function (cfg) {
-      runList(cfg.selector, cfg);
+    preset.forEach(function (selector) {
+      runList(selector, { stagger: true });
     });
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    loadAnimateCss();
-    installTokens();
+    installMotionStyle();
     applyDefaults();
   }, { once: true });
 })();

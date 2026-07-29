@@ -1,33 +1,43 @@
-// Freddie page registry. Matches upstream shape:
-//   FREDDIE_PAGES is an OBJECT mapping id → page-renderer fn (not an array).
-//   Per-page renderer functions are stubs by default — consumers (gm-cc,
-//   foph, hermes-fork, etc.) provide their own page bodies or import the
-//   richer upstream renderers.
+// Freddie page registry — REAL renderers (not stubs). Each page is a
+// self-contained micro-app (see ./freddie/runtime.js) wired to freddie's
+// gui-* plugin HTTP endpoints (/api/*). Consumers mount FREDDIE_PAGES[id]
+// through their thin router; no per-page wiring needed downstream. This is
+// the single maintenance point for freddie GUI per the dynamic-stack contract.
+//
+// This module is a barrel: every page lives in a single-responsibility
+// submodule under ./freddie/, grouped by the surface it drives, and the
+// public export surface here is unchanged — no consumer import needs to move.
 
-import { renderPageStub, getRecentPaths, saveRecentPath, skillLabel, renderChatMessages } from './freddie/helpers.js';
+import { getRecentPaths, saveRecentPath, skillLabel, renderChatMessages } from './freddie/helpers.js';
+import { home, agents, analytics } from './freddie/pages-overview.js';
+import { chat, voice } from './freddie/pages-chat.js';
+import { sessions, projects, git } from './freddie/pages-workspace.js';
+import { models, skills, plugins } from './freddie/pages-models.js';
+import { config, env } from './freddie/pages-config.js';
+import { cron, tools, batch } from './freddie/pages-runners.js';
+import { gateway, chains, machines, health } from './freddie/pages-infra.js';
+import { logs, debug } from './freddie/pages-telemetry.js';
+import { terminal, files, auth, settings, themePage as theme, worktree, sessionTree, notifications } from './freddie/pages-missing.js';
 
-const make = (label) => (props) => renderPageStub({ id: label, ...props });
-
-export const home      = make('home');
-export const chat      = make('chat');
-export const voice     = make('voice');
-export const sessions  = make('sessions');
-export const projects  = make('projects');
-export const agents    = make('agents');
-export const analytics = make('analytics');
-export const models    = make('models');
-export const cron      = make('cron');
-export const skills    = make('skills');
-export const config    = make('config');
-export const env       = make('env');
-export const tools     = make('tools');
-export const batch     = make('batch');
-export const gateway   = make('gateway');
-export const chains    = make('chains');
+// ---- registry --------------------------------------------------------------
 
 export const FREDDIE_PAGES = {
     home, chat, voice, sessions, projects, agents, analytics,
-    models, cron, skills, config, env, tools, batch, gateway, chains
+    models, cron, skills, plugins, config, env, tools, batch, gateway, chains,
+    machines, health, debug, logs, git,
+    terminal, files, auth, settings, theme, worktree,
+    'session-tree': sessionTree,
+    notifications,
+};
+
+export {
+    home, agents, analytics,
+    chat, voice,
+    sessions, projects, git,
+    models, skills, plugins, config, env,
+    cron, tools, batch,
+    gateway, chains, machines, health,
+    logs, debug,
 };
 
 export { skillLabel, getRecentPaths, saveRecentPath, renderChatMessages };

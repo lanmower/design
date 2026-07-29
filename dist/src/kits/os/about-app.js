@@ -13,10 +13,9 @@ export function renderAboutApp(opts = {}) {
             'libsql via sql.js · freddie host',
             'responsive: phone / tablet / desktop',
         ],
-        footer = 'open <code>validator</code> to run isolation harness · click apps menu for more.',
+        footer = 'click apps menu for more.',
         links = [
             { href: 'https://github.com/AnEntrypoint/thebird', text: 'source' },
-            { href: './validate.html', text: 'validate' },
         ],
     } = opts;
 
@@ -35,7 +34,7 @@ export function renderAboutApp(opts = {}) {
         ul.appendChild(li);
     }
     const foot = document.createElement('p');
-    foot.innerHTML = footer;
+    foot.textContent = footer;
     const meta = document.createElement('p');
     meta.className = 'meta';
     links.forEach((l, i) => {

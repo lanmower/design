@@ -34,13 +34,17 @@
 </head>
 <body data-screen-label="03 Docs">
 <div class="app">
+  <!-- Matches what AppShell() emits for the JS-rendered kits. This page hand-
+       rolls the shell markup statically, so it does not inherit the skip link
+       and had no way past the sidebar nav for a keyboard user. -->
+  <a href="#app-main" class="skip-link">skip to main content</a>
   <header class="app-topbar">
     <span class="brand">247420<span class="slash"> / </span>gm<span class="slash"> / </span>docs</span>
     <nav>
-      <a href="../homepage/">← all projects</a>
-      <a href="#">readme</a>
-      <a href="#" class="active">docs</a>
-      <a href="#">source ↗</a>
+      <a href="../homepage/"><- all projects</a>
+      <a href="https://github.com/AnEntrypoint/gm#readme">readme</a>
+      <a class="active" aria-current="page">docs</a>
+      <a href="https://github.com/AnEntrypoint/gm">source -></a>
     </nav>
   </header>
   <div class="app-crumb">
@@ -50,36 +54,42 @@
     <span class="leaf">introduction</span>
     <span class="crumb-right"><span class="chip dim">v0.4.1</span></span>
   </div>
+  <button class="app-side-toggle" type="button" aria-label="toggle navigation" aria-expanded="false" aria-controls="app-side-shell" onclick="document.querySelector('.app-body').classList.toggle('side-open')">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
   <div class="app-body">
+    <div class="app-side-scrim" aria-hidden="true" onclick="document.querySelector('.app-body').classList.remove('side-open')"></div>
+    <div class="app-side-shell" id="app-side-shell">
     <aside class="app-side">
       <div class="group">start</div>
-      <a href="#" class="active"><span class="glyph">§</span><span>introduction</span></a>
-      <a href="#"><span class="glyph">§</span><span>install</span></a>
-      <a href="#"><span class="glyph">§</span><span>quickstart</span></a>
+      <a href="#introduction" class="active"><span class="glyph">//</span><span>introduction</span></a>
+      <a href="#install"><span class="glyph">//</span><span>install</span></a>
+      <a href="#quickstart"><span class="glyph">//</span><span>quickstart</span></a>
       <div class="group">concepts</div>
-      <a href="#"><span class="glyph">›</span><span>states & transitions</span></a>
-      <a href="#"><span class="glyph">›</span><span>the loop</span></a>
-      <a href="#"><span class="glyph">›</span><span>tools</span></a>
+      <a class="is-unwritten" title="not written yet"><span class="glyph">&gt;</span><span>states & transitions</span></a>
+      <a class="is-unwritten" title="not written yet"><span class="glyph">&gt;</span><span>the loop</span></a>
+      <a class="is-unwritten" title="not written yet"><span class="glyph">&gt;</span><span>tools</span></a>
       <div class="group">reference</div>
-      <a href="#"><span class="glyph">›</span><span>executenodejs</span></a>
-      <a href="#"><span class="glyph">›</span><span>executedeno</span></a>
-      <a href="#"><span class="glyph">›</span><span>astgrep_*</span></a>
-      <a href="#"><span class="glyph">›</span><span>batch_execute</span></a>
+      <a class="is-unwritten" title="not written yet"><span class="glyph">&gt;</span><span>executenodejs</span></a>
+      <a class="is-unwritten" title="not written yet"><span class="glyph">&gt;</span><span>executedeno</span></a>
+      <a class="is-unwritten" title="not written yet"><span class="glyph">&gt;</span><span>astgrep_*</span></a>
+      <a class="is-unwritten" title="not written yet"><span class="glyph">&gt;</span><span>batch_execute</span></a>
       <div class="group">misc</div>
-      <a href="#"><span class="glyph">§</span><span>philosophy</span></a>
-      <a href="#"><span class="glyph">↗</span><span>changelog</span></a>
-      <a href="#"><span class="glyph">↗</span><span>source</span></a>
+      <a href="#philosophy"><span class="glyph">//</span><span>philosophy</span></a>
+      <a href="https://github.com/AnEntrypoint/gm/blob/main/CHANGELOG.md"><span class="glyph">-&gt;</span><span>changelog</span></a>
+      <a href="https://github.com/AnEntrypoint/gm"><span class="glyph">-&gt;</span><span>source</span></a>
     </aside>
-    <main class="app-main narrow">
+    </div>
+    <main class="app-main narrow" id="app-main" tabindex="0">
       <div class="ds-prose">
-        <h1>introduction</h1>
+        <h1 id="introduction">introduction</h1>
         <p class="lede">a state machine for coding agents. it thinks, so you don't have to (as much).</p>
 
         <p>gm is what happens when you stop trying to make an llm "smart" and start giving it a scaffolding to be useful inside of. it's a small, deterministic runtime that says: <em>here is where you are, here are the transitions available, pick one.</em> that's the whole idea.</p>
 
         <p>the rest of this document explains how to install it, how to wire it up, and how to stay out of its way.</p>
 
-        <h2>install</h2>
+        <h2 id="install">install</h2>
         <p>one command. you've probably seen this kind of thing before.</p>
         <pre><span class="c"># via claude code plugin marketplace</span>
 <span class="k">claude</span> plugin marketplace add AnEntrypoint/gm-cc
@@ -87,37 +97,37 @@
       </div>
 
       <div class="panel panel-inline-wide">
-        <div class="panel-head"><span>※ note</span></div>
+        <div class="panel-head"><span>[!] note</span></div>
         <div class="ds-pattern-notes">
-          if you're running <code>gm</code> without claude code, see <a href="#">reference / executenodejs</a>. you'll want bun 1.1+.
+          if you're running <code>gm</code> without claude code, see the <code>executenodejs</code> reference (not written yet). you'll want bun 1.1+.
         </div>
       </div>
 
       <div class="ds-prose">
-        <h2>quickstart</h2>
+        <h2 id="quickstart">quickstart</h2>
         <h3>the 30-second version</h3>
         <p>start the repl, ask it to do something, watch it work. press <code>Ctrl</code>+<code>C</code> if it goes somewhere you didn't mean.</p>
         <pre><span class="k">gm</span> start
-<span class="c">→ state: idle</span>
-<span class="c">→ tools available: 19</span>
+<span class="c">-> state: idle</span>
+<span class="c">-> tools available: 19</span>
 &gt; fix the failing test in src/router.ts
-<span class="c">→ state: reading</span>
-<span class="c">→ state: editing</span>
-<span class="c">→ state: verifying</span>
-<span class="c">→ state: done</span></pre>
+<span class="c">-> state: reading</span>
+<span class="c">-> state: editing</span>
+<span class="c">-> state: verifying</span>
+<span class="c">-> state: done</span></pre>
 
-        <h2>philosophy</h2>
+        <h2 id="philosophy">philosophy</h2>
         <p>there is no philosophy. read the source.</p>
       </div>
     </main>
   </div>
   <footer class="app-status">
     <span class="item">main</span>
-    <span class="item">• markdown</span>
-    <span class="item">• ln 1</span>
+    <span class="item">- markdown</span>
+    <span class="item">- ln 1</span>
     <span class="spread"></span>
     <span class="item">gm · v0.4.1</span>
-    <span class="item">• docs</span>
+    <span class="item">- docs</span>
   </footer>
 </div>
 </body></html>

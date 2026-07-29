@@ -14,44 +14,103 @@ const swatchTokens = [
     { name: 'panel-select',hint: 'mint hover/select tone' }
 ];
 
+// Specimens, not captions. Each tile shows an actual piece of ascii art at
+// display size — the thing a gallery is for. The previous set was twelve
+// equal cards whose captions were design-system documentation ("panel-on-panel
+// rhythm", "1px panel-2 hairline"), so every tile read at one weight and the
+// grid was a lecture wearing a gallery's layout. One of them ("no svgs in
+// chrome") had also gone stale — chrome icons are Icon() line SVGs now.
+//
+// One tone across the whole set. The tiles previously alternated panel-1 /
+// panel-2 / panel-3, which produced a checkerboard the reader has to try to
+// decode — the tone changed but meant nothing, and because the grid reflows
+// to the container (5-up here, 3-up narrower) any index-based tone pattern
+// lands differently at every width. With the frame constant the specimen is
+// the only thing that varies, which is what a gallery is for.
 const items = [
-    { id: 'a', label: 'mascot · cat',      caption: '/\\_/\\\n( o.o )',         tone: 'panel-1', glyph: '◐' },
-    { id: 'b', label: 'panel · stack',     caption: 'panel-on-panel rhythm',     tone: 'panel-2', glyph: '▣' },
-    { id: 'c', label: 'rail · indicator',  caption: 'color-coded inset',         tone: 'panel-1', glyph: '▰' },
-    { id: 'd', label: 'mono · label',      caption: 'all caps · letter-spaced',  tone: 'panel-2', glyph: '§' },
-    { id: 'e', label: 'cli · prompt',      caption: '$ ship it',                 tone: 'panel-3', glyph: '◆' },
-    { id: 'f', label: 'pill · radius 999', caption: 'sidebar fab tone',          tone: 'panel-1', glyph: '●' },
-    { id: 'g', label: 'badge · chip',      caption: 'meta pill, dim/accent',     tone: 'panel-2', glyph: '◇' },
-    { id: 'h', label: 'glyph · unicode',   caption: 'no svgs in chrome',         tone: 'panel-1', glyph: '✦' },
-    { id: 'i', label: 'manifesto · prose', caption: 'long-form, max 64ch',       tone: 'panel-2', glyph: '¶' },
-    { id: 'j', label: 'fade · in',         caption: 'visibility-driven only',    tone: 'panel-3', glyph: '◌' },
-    { id: 'k', label: 'rule · divider',    caption: '1px panel-2 hairline',      tone: 'panel-1', glyph: '—' },
-    { id: 'l', label: 'stamp · seal',      caption: 'editorial mark',            tone: 'panel-2', glyph: '◯' }
+    { id: 'a', label: 'the mascot',   caption: '/\\_/\\\n( o.o )\n > ^ <', tone: 'panel-2', glyph: '(=)' },
+    { id: 'b', label: 'the prompt',   caption: '$ _',                      tone: 'panel-2', glyph: '$' },
+    { id: 'c', label: 'the seal',     caption: '(( 247 ))\n(( 420 ))',     tone: 'panel-2', glyph: 'O' },
+    { id: 'd', label: 'the arrow',    caption: '-->',                      tone: 'panel-2', glyph: '->' },
+    { id: 'e', label: 'the rule',     caption: '---------',                tone: 'panel-2', glyph: '-' },
+    { id: 'f', label: 'the corner',   caption: '+------\n|\n|',            tone: 'panel-2', glyph: '[#]' },
+    { id: 'g', label: 'the stack',    caption: '[###]\n [##]\n  [#]',      tone: 'panel-2', glyph: '[]' },
+    { id: 'h', label: 'the wave',     caption: '~~~~~~~',                  tone: 'panel-2', glyph: '~' },
+    { id: 'i', label: 'the target',   caption: '(o)',                      tone: 'panel-2', glyph: '(o)' },
+    { id: 'j', label: 'the ladder',   caption: '|- - -|\n|- - -|',         tone: 'panel-2', glyph: '=' },
+    { id: 'k', label: 'the spark',    caption: '*',                        tone: 'panel-2', glyph: '*' },
+    { id: 'l', label: 'the terminus', caption: '[x]',                      tone: 'panel-2', glyph: '[x]' }
 ];
 
-const state = { open: null, density: 'comfy' };
+// `phase` drives the tiles panel. A gallery is the surface where a blank grid
+// is most ambiguous (still loading? nothing uploaded? request failed?), so all
+// three readings get distinct, reachable copy instead of one blank box.
+const state = { open: null, density: 'comfy', phase: 'ready' };
+const PHASES = ['ready', 'loading', 'empty', 'error'];
+
+// Tile-shaped shimmer. Reuses the .ds-skeleton primitive (app-shell/
+// loading-alerts.css) inside the existing .ds-tile-grid so the placeholders
+// occupy exactly the tracks the real tiles will.
+function TilesSkeleton() {
+    return h('div', { class: 'ds-tile-grid' + (state.density === 'tight' ? ' ds-tile-grid--tight' : '') },
+        ...Array.from({ length: 8 }, (_, i) => h('div', { key: 'sk' + i, class: 'ds-gallery-tile' },
+            h('div', { class: 'ds-skeleton ds-skel-title' }),
+            h('div', { class: 'ds-skeleton ds-skel-meta' })
+        ))
+    );
+}
+
+function TilesEmpty() {
+    return h('div', { class: 'ds-empty-state' },
+        h('div', { class: 'ds-empty-state-glyph' }, '[ ]'),
+        h('p', { class: 'ds-empty-state-msg' }, 'no tiles in this set'),
+        h('p', { class: 'ds-empty-state-hint' }, 'a tile is one tonal card plus a caption. add entries to the items array and they land in this grid at whichever density is selected.')
+    );
+}
+
+function TilesError() {
+    return h('div', { class: 'ds-alert ds-alert-error' },
+        h('span', { class: 'ds-alert-icon' }, '!'),
+        h('div', { class: 'ds-alert-content' },
+            h('div', { class: 'ds-alert-title' }, 'tile set failed to decode'),
+            h('div', { class: 'ds-alert-message' }, 'four of the twelve captions came back as malformed utf-8, so the whole set was rejected rather than rendered with holes in it. re-export the set as utf-8 and reload.'),
+            h('div', { class: 'ds-alert-retry' },
+                h('button', { class: 'btn', onclick: () => { state.phase = 'ready'; kit.render(); } }, 'reload set')
+            )
+        )
+    );
+}
+
+function TilesBody() {
+    if (state.phase === 'loading') return TilesSkeleton();
+    if (state.phase === 'error') return TilesError();
+    if (state.phase === 'empty') return TilesEmpty();
+    return h('div', { class: 'ds-tile-grid' + (state.density === 'tight' ? ' ds-tile-grid--tight' : '') }, ...items.map(Tile));
+}
 
 function Tile(it) {
-    const size = state.density === 'tight' ? '120px' : '160px';
     return h('button', {
         key: it.id,
         onclick: () => { state.open = it.id; kit.render(); },
-        style: 'all:unset;cursor:pointer;display:flex;flex-direction:column;gap:6px;background:var(--' + it.tone + ');padding:12px;border-radius:10px;min-height:' + size
+        class: 'ds-gallery-tile' + (state.density === 'tight' ? ' ds-gallery-tile--tight' : ''),
+        // custom-property-only inline: carries the per-tile tone, no layout
+        style: '--tile-tone:var(--' + it.tone + ')'
     },
-        h('div', { style: 'flex:1;display:flex;align-items:center;justify-content:center;font-family:var(--ff-mono);white-space:pre-line;color:var(--panel-text-2);font-size:18px' }, it.caption),
-        h('div', { style: 'display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:12px' },
-            h('span', { style: 'font-family:var(--ff-mono);color:var(--panel-text-3)' }, it.glyph),
-            h('span', { style: 'color:var(--panel-text)' }, it.label)
+        h('div', { class: 'ds-tile-cap' }, it.caption),
+        h('div', { class: 'ds-tile-meta' },
+            h('span', { class: 'ds-tile-glyph' }, it.glyph),
+            h('span', { class: 'ds-tile-label' }, it.label)
         )
     );
 }
 
 function Swatch(t) {
-    return h('div', { key: t.name, style: 'display:flex;flex-direction:column;gap:6px' },
-        h('div', { style: 'height:64px;border-radius:8px;background:var(--' + t.name + ')' }),
-        h('div', { style: 'display:flex;justify-content:space-between;font-family:var(--ff-mono);font-size:11px' },
-            h('span', { style: 'color:var(--panel-text)' }, t.name),
-            h('span', { style: 'color:var(--panel-text-3)' }, t.hint)
+    return h('div', { key: t.name, class: 'ds-swatch-col' },
+        // custom-property-only inline: carries the per-swatch tone, no layout
+        h('div', { class: 'ds-gal-swatch', style: '--swatch:var(--' + t.name + ')' }),
+        h('div', { class: 'ds-gal-swatch-meta' },
+            h('span', { class: 'ds-gal-swatch-name' }, t.name),
+            h('span', { class: 'ds-gal-swatch-hint' }, t.hint)
         )
     );
 }
@@ -59,34 +118,44 @@ function Swatch(t) {
 function Lightbox() {
     if (!state.open) return null;
     const it = items.find((i) => i.id === state.open);
+    const close = () => { state.open = null; kit.render(); };
     return h('div', {
-        onclick: () => { state.open = null; kit.render(); },
-        style: 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;padding:32px;z-index:50'
+        onclick: close,
+        onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } },
+        tabindex: '-1',
+        ref: (el) => { if (el && !el._dsLbFocused) { el._dsLbFocused = true; el.focus(); } },
+        class: 'ds-lightbox'
     },
-        h('div', { onclick: (e) => e.stopPropagation(),
-            style: 'background:var(--panel-0);border-radius:14px;padding:28px;min-width:320px;max-width:520px;display:flex;flex-direction:column;gap:14px' },
-            h('div', { style: 'display:flex;justify-content:space-between;align-items:center' },
-                h('span', { style: 'font-family:var(--ff-mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--panel-text-3)' }, 'tile · ' + it.id),
-                h('button', { class: 'btn', onclick: () => { state.open = null; kit.render(); } }, 'close')
+        h('div', { onclick: (e) => e.stopPropagation(), class: 'ds-lightbox-card' },
+            h('div', { class: 'ds-lightbox-head' },
+                h('span', { class: 'ds-lightbox-tag' }, 'tile · ' + it.id),
+                h('button', { class: 'btn', onclick: close }, 'close')
             ),
-            h('div', { style: 'background:var(--' + it.tone + ');padding:36px;border-radius:10px;text-align:center;font-family:var(--ff-mono);white-space:pre-line;font-size:24px' }, it.caption),
-            h('p', { style: 'margin:0' }, h('strong', {}, it.label)),
-            h('p', { style: 'margin:0;color:var(--panel-text-2)' }, 'this lightbox uses the same tonal panel — no extra components, no shadow. backdrop is fixed inset, click outside dismisses.')
+            h('div', { class: 'ds-lightbox-preview', style: '--tile-tone:var(--' + it.tone + ')' }, it.caption),
+            h('p', { class: 'ds-m0' }, h('strong', {}, it.label)),
+            // Tells the reader how to leave, which is the one thing they need
+            // from a lightbox. It previously described its own implementation.
+            h('p', { class: 'ds-m0 ds-text-2' }, 'esc, or click anywhere outside, to close.')
         )
     );
 }
 
 function App() {
-    const cols = state.density === 'tight' ? 'repeat(auto-fill, minmax(140px, 1fr))' : 'repeat(auto-fill, minmax(180px, 1fr))';
     return AppShell({
-        topbar: Topbar({ brand: '247420', leaf: 'gallery', items: [['index', '../../'], ['source ↗', 'https://github.com/AnEntrypoint/design']] }),
-        crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'gallery', right: items.length + ' tiles' }),
+        topbar: Topbar({ brand: '247420', leaf: 'gallery', items: [['index', '../../'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
+        crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'gallery', right: state.phase === 'ready' ? items.length + ' tiles' : state.phase }),
         side: Side({
             sections: [
                 { group: 'density', items: [
-                    { glyph: state.density === 'comfy' ? '●' : '○', label: 'comfy', key: 'd1', onClick: (e) => { e.preventDefault(); state.density = 'comfy'; kit.render(); } },
-                    { glyph: state.density === 'tight' ? '●' : '○', label: 'tight', key: 'd2', onClick: (e) => { e.preventDefault(); state.density = 'tight'; kit.render(); } }
+                    { glyph: h('span', { class: state.density === 'comfy' ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }), label: 'comfy', key: 'd1', onClick: (e) => { e.preventDefault(); state.density = 'comfy'; kit.render(); } },
+                    { glyph: h('span', { class: state.density === 'tight' ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }), label: 'tight', key: 'd2', onClick: (e) => { e.preventDefault(); state.density = 'tight'; kit.render(); } }
                 ] },
+                // Reachable state switcher for the tiles panel.
+                { group: 'tile state', items: PHASES.map((p) => ({
+                    glyph: h('span', { class: state.phase === p ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }),
+                    label: p, key: 'ph-' + p, active: state.phase === p, href: '#' + p,
+                    onClick: (e) => { e.preventDefault(); state.phase = p; kit.render(); }
+                })) },
                 { group: 'jump', items: [
                     { glyph: '·', label: 'tiles',    key: 'j1', href: '#tiles' },
                     { glyph: '·', label: 'swatches', key: 'j2', href: '#swatches' }
@@ -94,28 +163,38 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-section', style: 'padding:8px' },
+            h('div', { class: 'ds-section ds-section-pad' },
                 Heading({ level: 1, children: 'gallery' }),
-                Lede({ children: 'visual grid of tonal cards. tiles use the same panel tokens the rest of the system does — no bespoke tile component, no shadows, no borders.' }),
-                Panel({ title: 'tiles', count: items.length, style: 'margin:8px 0', children:
-                    h('div', { style: 'padding:16px;display:grid;grid-template-columns:' + cols + ';gap:8px' }, ...items.map(Tile))
+                // Says what the reader is looking at. The old lede described
+                // the implementation ("no bespoke tile component, no shadows,
+                // no borders") and was contradicted on screen — the tiles lift
+                // with a shadow on hover.
+                Lede({ children: 'twelve ascii specimens on one tonal frame. pick any tile to open it large.' }),
+                Panel({ title: 'tiles', count: state.phase === 'ready' ? items.length : 0, class: 'ds-panel-gap', children: TilesBody() }),
+                Panel({ title: 'swatches', count: swatchTokens.length, class: 'ds-panel-gap', children:
+                    h('div', { class: 'ds-swatch-grid' }, ...swatchTokens.map(Swatch))
                 }),
-                Panel({ title: 'swatches', count: swatchTokens.length, style: 'margin:8px 0', children:
-                    h('div', { style: 'padding:16px;display:grid;grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));gap:12px' }, ...swatchTokens.map(Swatch))
-                }),
-                Panel({ title: 'about this kit', style: 'margin:8px 0', children: h('div', { class: 'ds-pattern-notes' },
-                    h('p', {}, '· tiles are tonal panels stacked into a css grid — ', Chip({ tone: 'accent', children: 'auto-fill minmax' }), ' for the responsive default.'),
-                    h('p', {}, '· lightbox reuses the panel surface; no extra component, no transitions, no z-stack circus.'),
-                    h('p', {}, '· density toggle drops min tile size — same tokens, different rhythm.')
+                // Two notes that say something the page does not already show.
+                // The third ("density toggle drops min tile size") described a
+                // control the reader can just press, and the second claimed the
+                // lightbox has "no transitions" while .ds-gallery-tile animates
+                // transform and box-shadow on hover.
+                Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
+                    h('p', {}, '· the grid is ', Chip({ tone: 'accent', children: 'auto-fill minmax' }), ' — tiles reflow to the container, never to a breakpoint list.'),
+                    h('p', {}, '· the lightbox is the same tonal panel at a larger size, so there is one surface to theme, not two.')
                 ) })
             ),
             Lightbox()
         ],
         status: Status({
-            left: ['gallery', '• ' + items.length + ' tiles', '• density=' + state.density],
+            left: ['gallery', '- ' + (state.phase === 'ready' ? items.length : 0) + ' tiles', '- density=' + state.density, '- ' + state.phase],
             right: ['247420 / mmxxvi']
         })
     });
 }
 
 const kit = mountKit({ root, view: App, screen: '14 Gallery' });
+
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && state.open) { state.open = null; kit.render(); }
+});

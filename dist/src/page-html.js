@@ -15,57 +15,53 @@
 //     theme: 'auto' | 'light' | 'ink',
 //     cssHref, headExtra,
 //   })
+//
+// This module is a barrel over ./page-html/: the server-side markdown+href
+// helpers, the <head> tag builders, the inline <style> block, and the client
+// mount script string. The public export surface here is unchanged — no
+// consumer import needs to move.
 
-export function escape(s) {
-    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
+import { escape, inlineMd, slugify, renderMarkdown, joinHref } from './page-html/markdown.js';
+import { renderSeoTags, renderFaviconTags, renderCssLink } from './page-html/head-tags.js';
+import { PAGE_INLINE_STYLES } from './page-html/page-styles.js';
+import { CLIENT_SCRIPT } from './page-html/client-script.js';
 
-export function inlineMd(s) {
-    return s
-        .replace(/`([^`]+)`/g, '<code>$1</code>')
-        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-}
-
-export function renderMarkdown(md) {
-    const lines = String(md || '').split('\n');
-    const out = [];
-    let inCode = false, inList = false;
-    for (const line of lines) {
-        if (line.startsWith('```')) { if (inCode) { out.push('</pre>'); inCode = false; } else { out.push('<pre>'); inCode = true; } continue; }
-        if (inCode) { out.push(escape(line)); continue; }
-        if (line.startsWith('# ')) out.push(`<h1>${escape(line.slice(2))}</h1>`);
-        else if (line.startsWith('## ')) out.push(`<h2>${escape(line.slice(3))}</h2>`);
-        else if (line.startsWith('### ')) out.push(`<h3>${escape(line.slice(4))}</h3>`);
-        else if (line.startsWith('- ')) { if (!inList) { out.push('<ul>'); inList = true; } out.push(`<li>${inlineMd(escape(line.slice(2)))}</li>`); }
-        else { if (inList) { out.push('</ul>'); inList = false; } if (line.trim()) out.push(`<p>${inlineMd(escape(line))}</p>`); }
-    }
-    if (inList) out.push('</ul>');
-    if (inCode) out.push('</pre>');
-    return out.join('\n');
-}
-
-// Join a basePath prefix to a nav href. Absolute URLs and hash links pass
-// through unchanged; leading-slash paths get the prefix.
-function joinHref(basePath, href) {
-    if (!href) return '#';
-    const h = String(href);
-    if (/^([a-z]+:|#|\/\/)/i.test(h)) return h;
-    if (!basePath) return h;
-    const base = basePath.replace(/\/+$/, '');
-    if (h.startsWith('/')) return base + h;
-    return base + '/' + h.replace(/^\.?\//, '');
-}
+export { escape, inlineMd, slugify, renderMarkdown };
 
 export function renderPageHtml({
     title = '247420', slug = 'index', siteName = '247420',
     navItems = [], basePath = '',
     hero, sections, examples, body,
-    theme = 'auto', cssHref, headExtra = ''
+    theme = 'auto', cssHref, headExtra = '',
+    // Extended affordances (all optional, all backward compatible — a call
+    // site that omits them gets byte-identical output to before these were
+    // added). See design/site/theme.mjs and thebird/site/theme.mjs for
+    // consumers of the full surface.
+    seo = null,               // { description, keywords, author, twitter, locale, lang, image, url, glyph, ldJson:boolean }
+    sidebar = null,           // { sections: [{ group, items: [{glyph,label,href}] }] } -> C.Side
+    marquee = null,           // { items: [...strings], sep }
+    panels = null,            // [{ id, title, count, items: [{code,title,sub,meta,href}] }] -> C.Panel + RowLink rows
+    quickstart = null,        // { heading, lines: [{ kind, text }] } -> cli block panel
+    statusLeft = null,        // override the default [siteName.toLowerCase(), slug] status-bar left cluster
+    statusRight = null,       // override the default ['live'] status-bar right cluster
+    faviconHref = null,       // static favicon URL (e.g. './favicon.svg'); takes precedence over faviconGlyph
+    faviconGlyph = null,      // single-character/emoji favicon rendered as an inline data: SVG
+    clientScriptExtra = '',   // raw JS appended after the mount() call in the client <script type="module">
+    version = null,           // pin BOTH the CSS href and the JS importmap to this exact version
+                               // instead of @latest (e.g. '0.0.320'); omitted -> default @latest behavior.
+                               // Fleet policy is @latest everywhere so a published fix reaches every
+                               // consumer without redeploying it: passing this pins EVERY page this
+                               // call generates, and a pinned page silently stops receiving fixes.
 } = {}) {
-    const cssLink = cssHref
-        ? `<link rel="stylesheet" href="${cssHref}">`
-        : `<link rel="stylesheet" href="https://unpkg.com/anentrypoint-design@latest/dist/247420.css">`;
+    if (version != null && process.env.ANENTRYPOINT_ALLOW_PIN !== '1') {
+        throw new Error(
+            `renderPageHtml({version: '${version}'}) pins every generated page to one release, ` +
+            'which opts the whole surface out of published fixes. Fleet policy is @latest. ' +
+            'Set ANENTRYPOINT_ALLOW_PIN=1 to override deliberately.'
+        );
+    }
+    const pkgVersion = version || 'latest';
+    const cssLink = renderCssLink({ cssHref, pkgVersion });
 
     // Resolve nav hrefs server-side against basePath. Client receives final URLs.
     const navResolved = (Array.isArray(navItems) ? navItems : []).map(([label, href]) =>
@@ -80,22 +76,40 @@ export function renderPageHtml({
         sections: Array.isArray(sections) ? sections : [],
         examples: Array.isArray(examples) ? examples : [],
         bodyHtml: body ? renderMarkdown(body) : '',
+        sidebar: sidebar || null,
+        marquee: marquee || null,
+        panels: Array.isArray(panels) ? panels : [],
+        quickstart: quickstart || null,
+        statusLeft: Array.isArray(statusLeft) ? statusLeft : null,
+        statusRight: Array.isArray(statusRight) ? statusRight : null,
     };
 
+    const seoTags = seo ? renderSeoTags({ title, siteName, seo }) : '';
+    const faviconTags = renderFaviconTags({ faviconHref, faviconGlyph });
+
+    // Theme attribute co-location is CORRECT here: dist/247420.css keys every
+    // theme block off the COMPOUND selector `.ds-247420[data-theme="X"]`
+    // (verified in dist/247420.css ~L229). That selector requires BOTH the class
+    // and the data-theme on the SAME node, so `<html class="ds-247420"
+    // data-theme=...>` is what the CSS expects for SSR. The AGENTS.md
+    // "descendant-selector" warning is about the dashboard's RUNTIME controller,
+    // which splits them (.ds-247420 on <html>, data-theme on <body>) and relies
+    // on inheritance — a different mechanism. Do NOT move data-theme to <body>
+    // here or the theme blocks stop matching.
     return `<!doctype html>
 <html lang="en" class="ds-247420" data-theme="${theme}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escape(title)} — ${escape(siteName)}</title>
+${seoTags}
+${faviconTags}
 ${cssLink}
 <script type="importmap">
-{ "imports": { "anentrypoint-design": "https://unpkg.com/anentrypoint-design@latest/dist/247420.js" } }
+{ "imports": { "anentrypoint-design": "https://unpkg.com/anentrypoint-design@${pkgVersion}/dist/247420.js" } }
 </script>
 <style>
-.app-stage { max-width: 1100px; margin: 0 auto; padding: 24px; display: grid; gap: 24px }
-.page-body h1 { margin-top: 0 } .page-body h2 { margin-top: 32px } .page-body h3 { margin-top: 24px }
-.page-body pre { margin: 12px 0; background: var(--panel-2); padding: 12px; border-radius: 8px; overflow-x: auto }
+${PAGE_INLINE_STYLES}
 </style>
 <script id="__site__" type="application/json">${JSON.stringify(pageData).replace(/</g, '\\u003c')}</script>
 ${headExtra}
@@ -103,93 +117,7 @@ ${headExtra}
 <body>
 <div id="app"></div>
 <script type="module">
-import { mount, components as C, h } from 'anentrypoint-design';
-const data = JSON.parse(document.getElementById('__site__').textContent);
-const RAILS = ['rail-green', 'rail-purple', 'rail-mascot', 'rail-sun', 'rail-flame', 'rail-sky'];
-
-function heroNode(hero) {
-  if (!hero) return null;
-  return C.Hero({
-    eyebrow: hero.eyebrow,
-    title: hero.heading || hero.title || data.title,
-    body: hero.body || hero.subheading || '',
-    accent: hero.accent,
-    badge: Array.isArray(hero.badges) && hero.badges[0] ? hero.badges[0].label : undefined,
-    actions: Array.isArray(hero.ctas) ? hero.ctas.map((c, i) => h('a', { key: i, class: i === 0 ? 'btn btn-accent' : 'btn btn-ghost', href: c.href || '#' }, c.label || c.cta || 'go')) : null,
-  });
-}
-
-function sectionNode(sec, idx) {
-  const rail = RAILS[idx % RAILS.length];
-  const features = sec.features || sec.items || [];
-  const rows = features.map((f, i) => {
-    const kids = [h('span', { key: 't', class: 'title' }, String(f.name || ''))];
-    if (f.desc) kids.push(h('div', { key: 'd', class: 'sub', innerHTML: String(f.desc).replace(/\`([^\`]+)\`/g, '<code>$1</code>') }));
-    if (f.benefit) kids.push(h('div', { key: 'b', class: 'row-benefit' }, String(f.benefit)));
-    return h('div', { key: i, class: 'row ' + rail }, ...kids);
-  });
-  return C.Section({
-    title: sec.name || sec.title || sec.id,
-    children: [
-      sec.lede ? h('p', { class: 'ds-lede' }, sec.lede) : null,
-      ...rows,
-      sec.body && sec.body.length >= 240 ? h('div', { class: 'page-body', innerHTML: __md(sec.body) }) : null,
-    ].filter(Boolean),
-  });
-}
-
-function examplesNode(examples) {
-  if (!examples || !examples.length) return null;
-  return C.Section({
-    title: 'explore',
-    children: examples.map((e, i) => {
-      const rail = RAILS[(i + 1) % RAILS.length];
-      const kids = [
-        h('span', { key: 'c', class: 'code' }, String(i + 1).padStart(2, '0')),
-        h('span', { key: 't', class: 'title' }, String(e.label || e.name || e.href || '')),
-      ];
-      if (e.desc) kids.push(h('span', { key: 'm', class: 'meta dim' }, ' — ' + e.desc));
-      kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, '↗'));
-      return h('a', { key: i, class: 'row ' + rail, href: e.href || '#' }, ...kids);
-    }),
-  });
-}
-
-// minimal client-side markdown renderer matching server-side renderer (idempotent for already-html bodies)
-function __md(md) {
-  const lines = String(md || '').split('\\n');
-  const out = []; let inCode = false, inList = false;
-  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const inl = (s) => s.replace(/\`([^\`]+)\`/g, '<code>$1</code>').replace(/\\*\\*([^*]+)\\*\\*/g, '<strong>$1</strong>').replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, '<a href="$2">$1</a>');
-  for (const line of lines) {
-    if (line.startsWith('\`\`\`')) { if (inCode) { out.push('</pre>'); inCode = false; } else { out.push('<pre>'); inCode = true; } continue; }
-    if (inCode) { out.push(esc(line)); continue; }
-    if (line.startsWith('# ')) out.push('<h1>' + esc(line.slice(2)) + '</h1>');
-    else if (line.startsWith('## ')) out.push('<h2>' + esc(line.slice(3)) + '</h2>');
-    else if (line.startsWith('### ')) out.push('<h3>' + esc(line.slice(4)) + '</h3>');
-    else if (line.startsWith('- ')) { if (!inList) { out.push('<ul>'); inList = true; } out.push('<li>' + inl(esc(line.slice(2))) + '</li>'); }
-    else { if (inList) { out.push('</ul>'); inList = false; } if (line.trim()) out.push('<p>' + inl(esc(line)) + '</p>'); }
-  }
-  if (inList) out.push('</ul>');
-  if (inCode) out.push('</pre>');
-  return out.join('\\n');
-}
-
-const bodyNode = data.bodyHtml ? C.Section({ children: h('div', { class: 'page-body', innerHTML: data.bodyHtml }) }) : null;
-
-const mainChildren = [
-  heroNode(data.hero),
-  ...data.sections.map(sectionNode),
-  examplesNode(data.examples),
-  bodyNode,
-].filter(Boolean);
-
-mount(document.getElementById('app'), () => C.AppShell({
-  topbar: C.Topbar({ brand: data.siteName, items: data.navItems, active: data.title }),
-  crumb: C.Crumb({ leaf: data.title }),
-  main: h('div', { class: 'app-stage' }, ...mainChildren),
-  status: C.Status({ left: [data.siteName.toLowerCase(), data.slug], right: ['live'] }),
-}));
+${CLIENT_SCRIPT}${clientScriptExtra}
 </script>
 </body>
 </html>`;

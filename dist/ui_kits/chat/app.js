@@ -7,7 +7,7 @@ const h = webjsx.createElement;
 const seed = [
     { who: 'them', avatar: 'jr', name: 'jordan', time: '14:02',
       parts: [{ kind: 'text', text: 'pushed v0.0.27, theme cleanup looks clean now. see the **release notes** in [the changelog](https://github.com/AnEntrypoint/design/releases).' }],
-      reactions: [{ emoji: '🎉', count: 3, you: true }, { emoji: '👀', count: 1 }] },
+      reactions: [{ emoji: 'yay', count: 3, you: true }, { emoji: 'eyes', count: 1 }] },
     { who: 'them', avatar: 'mk', name: 'mai', time: '14:03',
       parts: [{ kind: 'text', text: 'nice. body-hide trick on first paint? share the diff?' }] },
     { who: 'you', avatar: 'me', time: '14:04', receipt: 'read',
@@ -18,9 +18,9 @@ const seed = [
       ] },
     { who: 'them', avatar: 'jr', name: 'jordan', time: '14:05',
       parts: [{ kind: 'md', text: '## review notes\n\nlooks solid. couple things:\n\n- short timeout fallback in case fonts hang\n- announce the `ready` class via `requestIdleCallback`\n- keep no-js fallback to `visibility: visible`\n\n> "ship the rough draft" — but not the broken one.\n\nwill review the rest tonight.' }],
-      reactions: [{ emoji: '✅', count: 2, you: true }] },
+      reactions: [{ emoji: 'done', count: 2, you: true }] },
     { who: 'them', avatar: 'mk', name: 'mai', time: '14:08',
-      parts: [{ kind: 'image', src: './sample-svg.svg', alt: 'design system mascot', caption: 'spot the new mascot — final ✨' }] },
+      parts: [{ kind: 'image', src: './sample-svg.svg', alt: 'design system mascot', caption: 'spot the new mascot — final' }] },
     { who: 'you', avatar: 'me', time: '14:10', receipt: 'read',
       parts: [
         { kind: 'text', text: 'attaching the v0.0.27 token sheet for review:' },
@@ -33,10 +33,41 @@ const seed = [
                 thumb: './sample-square.png' }] },
     { who: 'them', avatar: 'mk', name: 'mai', time: '14:14',
       parts: [{ kind: 'file', src: './sample.pdf', name: 'meeting-notes-2026-05-01.pdf', size: 782 }],
-      reactions: [{ emoji: '📌', count: 1 }] }
+      reactions: [{ emoji: 'pin', count: 1 }] },
+    { who: 'them', avatar: 'jr', name: 'jordan', time: '14:15', typing: true,
+      parts: [] }
 ];
 
-const state = { draft: '', room: 'general', messages: seed.slice() };
+// `phase` drives the thread. Chat() already owns the empty state (its
+// .chat-empty block), so `empty` here just hands it zero messages plus the
+// room-specific copy; loading and error are rendered by this kit around it.
+const state = { draft: '', room: 'general', messages: seed.slice(), phase: 'ready' };
+const PHASES = ['ready', 'loading', 'empty', 'error'];
+
+// Message-shaped shimmer. Reuses .ds-event-row-skeleton + .ds-skel* from
+// app-shell/files.css — the avatar/body/timestamp rhythm is the same shape.
+function ThreadSkeleton() {
+    return Panel({ title: 'loading #' + state.room, children: h('div', {},
+        ...Array.from({ length: 6 }, (_, i) => h('div', { key: 'sk' + i, class: 'ds-event-row-skeleton' },
+            h('span', { class: 'ds-skel ds-skel-icon' }),
+            h('span', { class: 'ds-skel ds-skel-title' }),
+            h('span', { class: 'ds-skel ds-skel-meta' })
+        ))
+    ) });
+}
+
+function ThreadError() {
+    return Panel({ title: 'thread unavailable', children: h('div', { class: 'ds-alert ds-alert-error' },
+        h('span', { class: 'ds-alert-icon' }, '!'),
+        h('div', { class: 'ds-alert-content' },
+            h('div', { class: 'ds-alert-title' }, 'lost the socket to #' + state.room),
+            h('div', { class: 'ds-alert-message' }, 'the connection dropped mid-sync, so the last few messages may be missing and anything you send now would not leave this tab. reconnecting replays from the last message you saw.'),
+            h('div', { class: 'ds-alert-retry' },
+                h('button', { class: 'btn', onclick: () => { state.phase = 'ready'; kit.render(); } }, 'reconnect')
+            )
+        )
+    ) });
+}
 const rooms = [
     { glyph: '#', label: 'general', count: 12, key: 'general' },
     { glyph: '#', label: 'design', count: 4, key: 'design' },
@@ -71,38 +102,75 @@ function send(text) {
 
 function App() {
     return AppShell({
-        topbar: Topbar({ brand: '247420', leaf: 'chat', items: [['index', '../../'], ['aicat', '../aicat/'], ['source ↗', 'https://github.com/AnEntrypoint/design']] }),
+        topbar: Topbar({ brand: '247420', leaf: 'chat', items: [['index', '../../'], ['aicat', '../aicat/'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'chat' }),
         side: Side({
             sections: [
                 { group: 'rooms', items: rooms.map(r => ({ ...r, active: state.room === r.key, onClick: (e) => { e.preventDefault(); state.room = r.key; kit.render(); } })) },
-                { group: 'direct', items: dms.map(r => ({ ...r, active: state.room === r.key, onClick: (e) => { e.preventDefault(); state.room = r.key; kit.render(); } })) }
+                { group: 'direct', items: dms.map(r => ({ ...r, active: state.room === r.key, onClick: (e) => { e.preventDefault(); state.room = r.key; kit.render(); } })) },
+                // Reachable state switcher for the thread.
+                { group: 'thread state', items: PHASES.map((p) => ({
+                    glyph: h('span', { class: state.phase === p ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }),
+                    label: p, key: 'ph-' + p, active: state.phase === p,
+                    onClick: (e) => { e.preventDefault(); state.phase = p; kit.render(); }
+                })) }
             ]
         }),
         main: [
-            h('div', { class: 'ds-section' },
-                h('h1', {}, '# ' + state.room),
-                h('p', { class: 'lede' }, 'thread of messages with rich attachments — text, code (prism-highlighted), image, pdf, file, link, markdown (marked + DOMPurify), reactions, read-receipts.'),
-                Chat({
-                    title: state.room, sub: 'public', messages: state.messages,
-                    composer: ChatComposer({
-                        value: state.draft,
-                        placeholder: 'message #' + state.room + '…',
-                        onInput: (v) => { state.draft = v; kit.render(); },
-                        onSend: send
-                    })
-                }),
+            // Every other AppShell kit names its page with an h1; this one had
+            // none, so the document went straight from <main> to the thread and
+            // a screen reader's heading list came back empty. Visually hidden
+            // rather than drawn, because Chat() already renders the room name as
+            // its own visible title — a second visible copy would be redundant.
+            h('h1', { class: 'sr-only' }, 'chat — #' + state.room),
+            h('div', { class: 'ds-section chat-kit-page' },
+                h('div', { class: 'ds-chat-layout' },
+                    state.phase === 'loading' ? ThreadSkeleton()
+                    : state.phase === 'error' ? ThreadError()
+                    : Chat({
+                        title: state.room,
+                        // Chat()'s own empty block uses `sub` as its body line,
+                        // so the empty phase gets copy that names what belongs
+                        // here and what puts it here — not a bare "no messages".
+                        sub: state.phase === 'empty'
+                            ? 'nobody has posted in #' + state.room + ' yet. say something and it becomes the first message everyone sees on join.'
+                            : 'public',
+                        messages: state.phase === 'empty' ? [] : state.messages,
+                        composer: ChatComposer({
+                            value: state.draft,
+                            placeholder: 'message #' + state.room + '…',
+                            onInput: (v) => { state.draft = v; kit.render(); },
+                            onSend: send
+                        })
+                    }),
+                    // Persistent detail rail — only revealed once .ds-chat-layout has
+                    // room to spare (>=1100px, see app-shell.css). On mobile/tablet
+                    // this is display:none rather than reflowed below the thread, so
+                    // the composer stays the last on-screen element there.
+                    h('div', { class: 'ds-chat-detail' },
+                        Panel({ title: 'this room', children: h('div', { class: 'ds-pattern-notes' },
+                            h('p', {}, h('strong', {}, '#' + state.room)),
+                            h('p', {}, rooms.find(r => r.key === state.room)?.count ?? dms.find(r => r.key === state.room)?.count ?? 0, ' members')
+                        ) }),
+                        Panel({ title: 'participants', children:
+                            [{ glyph: '·', label: 'jordan' }, { glyph: '·', label: 'mai' }].map((p, i) =>
+                                h('div', { key: 'p' + i, class: 'ds-pattern-notes' }, h('p', {}, p.glyph + ' ' + p.label))
+                            )
+                        })
+                    )
+                ),
                 Panel({
                     title: 'pattern notes',
                     children: h('div', { class: 'ds-pattern-notes' },
                         h('p', {}, '· bubble corner-cut on the originating side (4–6px) gives directional read without arrows.'),
-                        h('p', {}, '· own messages take the accent fill so the eye lands on what you said last; ✓ delivered, ✓✓ read.'),
-                        h('p', {}, '· markdown is parsed by ', h('code', {}, 'marked'), ' and sanitized by ', h('code', {}, 'DOMPurify'), '; code blocks lit by ', h('code', {}, 'prism.js'), '.')
+                        h('p', {}, '· own messages take the accent fill so the eye lands on what you said last; [x] delivered, [x][x] read.'),
+                        h('p', {}, '· markdown is parsed by ', h('code', {}, 'marked'), ' and sanitized by ', h('code', {}, 'DOMPurify'), '; code blocks lit by ', h('code', {}, 'prism.js'), '.'),
+                        h('p', {}, '· >=1100px viewport reveals a persistent "this room" + participants rail beside the thread instead of just widening the message column.')
                     )
                 })
             )
         ],
-        status: Status({ left: ['main', '• ' + state.messages.length + ' messages', '• ' + rooms.length + ' rooms'], right: ['247420 / mmxxvi'] })
+        status: Status({ left: ['main', '- ' + (state.phase === 'ready' ? state.messages.length : 0) + ' messages', '- ' + rooms.length + ' rooms', '- ' + state.phase], right: ['247420 / mmxxvi'] })
     });
 }
 

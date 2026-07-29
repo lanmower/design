@@ -5,9 +5,18 @@ import * as webjsx from '../vendor/webjsx/index.js';
 import * as motion from './motion.js';
 import { register } from './debug.js';
 
+// Tracks nodes already mounted via mountKit() so a second mountKit() call
+// onto the same root fails loud instead of silently layering a second
+// applyDiff/motion loop on one DOM node.
+const _mountedKitRoots = new WeakSet();
+
 export function mountKit({ root, view, screen, animateOnMount = true } = {}) {
-    if (!root) throw new Error('mountKit: root required');
+    if (!root) throw new Error('mountKit: root required (received ' + (root === null ? 'null' : typeof root) + ')');
     if (typeof view !== 'function') throw new Error('mountKit: view fn required');
+    if (_mountedKitRoots.has(root)) {
+        throw new Error('mountKit: this root is already mounted — call the returned render()/schedule() to re-render, do not mountKit() the same root twice');
+    }
+    _mountedKitRoots.add(root);
     if (screen && typeof document !== 'undefined') document.body.dataset.screenLabel = screen;
     motion.installMotion();
     let scheduled = false;

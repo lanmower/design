@@ -70,8 +70,47 @@ function classifyAndReply(text) {
     return REPLIES.text();
 }
 
+// `phase` drives the transcript. AICat renders the happy path; `empty` is a
+// fresh session, `error` is a model-side failure, `loading` is history being
+// rehydrated. All three are reachable from the sidebar so they stay live
+// reference surfaces rather than paths only a real outage would reveal.
+const PHASES = ['ready', 'loading', 'empty', 'error'];
+
+// Turn-shaped shimmer for history rehydration. Reuses .ds-event-row-skeleton +
+// .ds-skel* (app-shell/files.css) — avatar / body / timestamp, same rhythm.
+function TranscriptSkeleton() {
+    return h('div', {},
+        ...Array.from({ length: 5 }, (_, i) => h('div', { key: 'sk' + i, class: 'ds-event-row-skeleton' },
+            h('span', { class: 'ds-skel ds-skel-icon' }),
+            h('span', { class: 'ds-skel ds-skel-title' }),
+            h('span', { class: 'ds-skel ds-skel-meta' })
+        ))
+    );
+}
+
+function TranscriptEmpty() {
+    return h('div', { class: 'ds-empty-state' },
+        h('div', { class: 'ds-empty-state-glyph' }, '( )'),
+        h('p', { class: 'ds-empty-state-msg' }, 'fresh session, nothing said yet'),
+        h('p', { class: 'ds-empty-state-hint' }, 'ask for code, markdown, an image, a pdf or a file attachment — or pick one of the prompts under "try" on the left and aicat answers in that shape.')
+    );
+}
+
+function TranscriptError() {
+    return h('div', { class: 'ds-alert ds-alert-error' },
+        h('span', { class: 'ds-alert-icon' }, '!'),
+        h('div', { class: 'ds-alert-content' },
+            h('div', { class: 'ds-alert-title' }, 'aicat stopped mid-reply'),
+            h('div', { class: 'ds-alert-message' }, 'the model returned a truncated response, so the last turn is incomplete rather than wrong-but-whole. your prompt is still in the box — resending replays it against a fresh context.'),
+            h('div', { class: 'ds-alert-retry' },
+                h('button', { class: 'btn', onclick: () => { state.phase = 'ready'; kit.render(); } }, 'resend last turn')
+            )
+        )
+    );
+}
+
 const state = {
-    draft: '', thinking: false, mood: 'idle',
+    draft: '', thinking: false, mood: 'idle', phase: 'ready',
     messages: [
         { who: 'them', name: 'aicat', text: 'hi. I am **aicat**. I read fast and I knock things off shelves.', time: '·' },
         { who: 'them', name: 'aicat', parts: [{ kind: 'md', text: 'try one of these:\n\n- ask for `code` (react/python — pick a flavour)\n- ask for the **token pdf** or the **mascot image**\n- ask me to attach a *config file*\n- or just chat — I respond in markdown.' }], time: '·' }
@@ -100,14 +139,20 @@ function send(text) {
 
 function App() {
     return AppShell({
-        topbar: Topbar({ brand: '247420', leaf: 'aicat', items: [['index', '../../'], ['chat', '../chat/'], ['source ↗', 'https://github.com/AnEntrypoint/design']] }),
+        topbar: Topbar({ brand: '247420', leaf: 'aicat', items: [['index', '../../'], ['chat', '../chat/'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'aicat' }),
         side: Side({
             sections: [
                 { group: 'session', items: [
-                    { glyph: '◆', label: 'new chat', key: 'new', onClick: (e) => { e.preventDefault(); state.messages = state.messages.slice(0, 2); kit.render(); } },
-                    { glyph: '◇', label: 'history', count: 7, key: 'h' }
+                    { glyph: '+', label: 'new chat', key: 'new', onClick: (e) => { e.preventDefault(); state.messages = state.messages.slice(0, 2); kit.render(); } },
+                    { glyph: '~', label: 'history', count: 7, key: 'h' }
                 ] },
+                // Reachable state switcher for the transcript.
+                { group: 'session state', items: PHASES.map((p) => ({
+                    glyph: h('span', { class: state.phase === p ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }),
+                    label: p, key: 'ph-' + p, active: state.phase === p,
+                    onClick: (e) => { e.preventDefault(); state.phase = p; kit.render(); }
+                })) },
                 { group: 'try', items: PRESETS.map((p, i) => ({
                     glyph: '·', label: p.q.length > 22 ? p.q.slice(0, 22) + '…' : p.q, key: 'p' + i,
                     onClick: (e) => { e.preventDefault(); send(p.q); }
@@ -123,7 +168,10 @@ function App() {
                     status: state.thinking ? 'thinking…' : (state.mood === 'happy' ? 'online · purring' : 'online · idle'),
                     face: FACES[state.mood] || FACES.idle
                 }),
-                AICat({
+                state.phase === 'loading' ? Panel({ title: 'restoring session', children: TranscriptSkeleton() })
+                : state.phase === 'error' ? Panel({ title: 'reply failed', children: TranscriptError() })
+                : state.phase === 'empty' ? Panel({ title: 'new session', children: TranscriptEmpty() })
+                : AICat({
                     name: 'aicat',
                     status: state.thinking ? 'thinking…' : 'online · purring',
                     messages: state.messages, thinking: state.thinking,
@@ -146,7 +194,7 @@ function App() {
             )
         ],
         status: Status({
-            left: ['aicat', '• ' + state.messages.length + ' turns', state.thinking ? '• thinking' : '• idle'],
+            left: ['aicat', '- ' + (state.phase === 'ready' ? state.messages.length : 0) + ' turns', state.thinking ? '- thinking' : '- idle', '- ' + state.phase],
             right: ['247420 / mmxxvi']
         })
     });

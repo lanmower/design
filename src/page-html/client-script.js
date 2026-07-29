@@ -60,10 +60,10 @@ function examplesNode(examples) {
   return C.Section({
     title: 'explore',
     children: examples.map((e, i) => {
-      const kids = [
-        h('span', { key: 'c', class: 'code' }, String(i + 1).padStart(2, '0')),
-        h('span', { key: 't', class: 'title' }, String(e.label || e.name || e.href || '')),
-      ];
+      const code = e.code == null ? '' : String(e.code).trim();
+      const kids = [];
+      if (code) kids.push(h('span', { key: 'c', class: 'code' }, code));
+      kids.push(h('span', { key: 't', class: 'title' }, String(e.label || e.name || e.href || '')));
       if (e.desc) kids.push(h('span', { key: 'm', class: 'meta dim' }, ' — ' + e.desc));
       kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, '->'));
       return h('a', { key: i, class: 'row', href: e.href || '#' }, ...kids);
@@ -75,10 +75,10 @@ function panelNode(panel, idx) {
   const items = Array.isArray(panel.items) ? panel.items : [];
   if (!items.length) return null;
   const rows = items.map((it, i) => {
-    const kids = [
-      h('span', { key: 'c', class: 'code' }, String(it.code || String(i + 1).padStart(2, '0'))),
-      h('span', { key: 't', class: 'title' }, String(it.title || it.name || '')),
-    ];
+    const code = it.code == null ? '' : String(it.code).trim();
+    const kids = [];
+    if (code) kids.push(h('span', { key: 'c', class: 'code' }, code));
+    kids.push(h('span', { key: 't', class: 'title' }, String(it.title || it.name || '')));
     if (it.sub || it.desc) kids.push(h('span', { key: 'm', class: 'meta dim' }, ' — ' + (it.sub || it.desc)));
     kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, it.meta || '->'));
     return h('a', { key: i, class: 'row', href: it.href || '#' }, ...kids);
@@ -128,13 +128,42 @@ function __md(md) {
 
 const bodyNode = data.bodyHtml ? C.Section({ children: h('div', { class: 'page-body', innerHTML: data.bodyHtml }) }) : null;
 
+function tierNode(tier, children) {
+  const kids = children.filter(Boolean);
+  if (!kids.length) return null;
+  const labelId = 'tier-' + tier.key + '-label';
+  const head = h('div', { key: 'h', class: 'ds-tier-head' },
+    h('h2', { class: 'eyebrow', id: labelId }, tier.label),
+    tier.lede ? h('p', { class: 'ds-tier-lede' }, tier.lede) : null,
+  );
+  return h('section', { key: tier.key, class: 'ds-tier ds-tier-' + tier.key, id: tier.key, 'aria-labelledby': labelId }, head, ...kids);
+}
+
+const panelsById = new Map((data.panels || []).map((p) => [p.id || p.title || p.name || '', p]));
+const takePanel = (id) => { const p = panelsById.get(id); if (p) panelsById.delete(id); return p ? panelNode(p) : null; };
+
+const TIERS = [
+  { key: 'open', label: 'open', lede: 'browse and try the system running.', ids: ['kits', 'previews', 'decks'], extra: () => [examplesNode(data.examples)] },
+  { key: 'ships', label: 'ships', lede: 'what the package contains.', ids: ['file_browser', 'desktop_os', 'web_components', 'api_exports'], extra: () => [] },
+  { key: 'read', label: 'read', lede: 'understand the rules behind it.', ids: ['docs', 'features'], extra: () => [quickstartNode(data.quickstart)] },
+];
+
+const tierNodes = TIERS.map((t) => {
+  const kids = [...t.ids.map(takePanel), ...t.extra()].filter(Boolean);
+  if (t.key === 'open' && kids.length) {
+    const lead = kids[0];
+    if (lead.props) lead.props.class = (lead.props.class || '') + ' ds-tier-lead';
+  }
+  return tierNode(t, kids);
+});
+const leftoverPanels = [...panelsById.values()].map(panelNode);
+
 const mainChildren = [
   heroNode(data.hero),
   marqueeNode(data.marquee),
   ...data.sections.map(sectionNode),
-  ...(data.panels || []).map(panelNode),
-  quickstartNode(data.quickstart),
-  examplesNode(data.examples),
+  ...tierNodes,
+  ...leftoverPanels,
   bodyNode,
 ].filter(Boolean);
 

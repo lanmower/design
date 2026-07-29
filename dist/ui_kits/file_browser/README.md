@@ -22,7 +22,7 @@ each FileRow takes `{ name, type, size, modified, onOpen, onAction }`. `type` is
 
 | type      | rail color | glyph |
 | --------- | ---------- | ----- |
-| dir       | green      | ▣     |
+| dir       | green      | ◫     |
 | image     | sky        | ◰     |
 | video     | purple     | ▰     |
 | audio     | mascot     | ◎     |

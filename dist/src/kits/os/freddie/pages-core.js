@@ -1,10 +1,10 @@
 // Core freddie pages: projects, home, sessions, agents, logs.
 import * as webjsx from '../../../../vendor/webjsx/index.js';
 import * as components from '../../../components.js';
-import { pre, form, skillLabel } from './helpers.js';
+import { pre, form, skillLabel } from '../../../components/freddie/helpers.js';
 
 const h = webjsx.createElement;
-const { Panel, Row, Hero, Receipt, Kpi, Table, EmptyState } = components;
+const { Panel, Row, Hero, Receipt, Kpi, Table, EmptyState, Icon } = components;
 
 export function makeCorePages(ctx) {
     return {
@@ -13,7 +13,7 @@ export function makeCorePages(ctx) {
             const activeProj = (typeof h0.pi.projects.active === 'function') ? h0.pi.projects.active() : null;
             const rows = list.map(p => Row({
                 key: p.name,
-                code: p.name === activeProj?.name ? '●' : '○',
+                code: p.name === activeProj?.name ? Icon('circle-dot') : Icon('circle'),
                 title: p.name + (p.name === activeProj?.name ? '  (active)' : ''),
                 meta: p.path,
                 onClick: () => { if (p.name !== activeProj?.name) try { h0.pi.projects.setActive(p.name); ctx.rerender(); } catch (e) { alert(e.message); } },
@@ -26,7 +26,7 @@ export function makeCorePages(ctx) {
                     submit: 'add',
                     onSubmit: (ev) => { try { h0.pi.projects.create({ name: ev.target.elements.name.value, path: ev.target.elements.path.value }); ctx.rerender(); } catch (e) { alert(e.message); } },
                 }) }),
-                Panel({ title: 'all projects', count: list.length, children: rows.length ? rows : EmptyState({ text: 'no projects', glyph: '◆' }) }),
+                Panel({ title: 'all projects', count: list.length, children: rows.length ? rows : EmptyState({ text: 'no projects', glyph: Icon('square') }) }),
                 Panel({ title: 'how encapsulation works', children: Receipt({ rows: [
                     ['sessions db', '<project>/sessions.db'],
                     ['config', '<project>/config.json'],
@@ -45,15 +45,15 @@ export function makeCorePages(ctx) {
             const skills = h0.pi.skills.size;
             const health = (typeof h0.pi.health === 'function') ? h0.pi.health() : { ok: true };
             return [
-                Hero({ title: 'freddie', body: 'open js agent harness — pi-mono · xstate · floosie · anentrypoint-design.', accent: h0.version || 'web' }),
+                Hero({ title: 'assistant', body: 'open js agent harness — in-page agent runtime.', accent: h0.version || 'web' }),
                 Kpi({ items: [[sessions.length, 'sessions'], [tools, 'tools'], [skills, 'skills']] }),
                 Panel({ title: 'quick start', children: Receipt({ rows: [
                     ['open chat',   "click 'chat' in sidebar — set a working directory and pick a skill"],
                     ['pick skill',  "software dev, research, planning — shown with descriptions"],
                     ['pick model',  "select a configured provider + model in the chat bar"],
-                    ['list tools',  '/tools in chat → tools tab'],
-                    ['set api key', 'keys tab → click chip to set value'],
-                    ['add cron',    'cron tab → form'],
+                    ['list tools',  '/tools in chat -> tools tab'],
+                    ['set api key', 'keys tab -> click chip to set value'],
+                    ['add cron',    'cron tab -> form'],
                 ] }) }),
                 Panel({ title: 'host', children: Receipt({ rows: Object.entries(health).map(([k, v]) => [k, String(v)]) }) }),
             ];
@@ -78,7 +78,7 @@ export function makeCorePages(ctx) {
             return [
                 Kpi({ items: [[list.length, 'sessions']] }),
                 Panel({ title: 'recent sessions', count: list.length, children: list.length === 0
-                    ? EmptyState({ text: 'no sessions yet — open chat and send a message', glyph: '✉' })
+                    ? EmptyState({ text: 'no sessions yet — open chat and send a message', glyph: Icon('thread') })
                     : Table({ headers: ['id', 'title', 'platform', 'model', 'cwd', 'skill', ''], rows }) }),
             ];
         },

@@ -6,24 +6,26 @@
 .launcher-dock {
     position: fixed;
     left: 0; top: 0; bottom: 0;
-    width: 56px;
+    width: calc(var(--os-rail-w, 56px) + env(safe-area-inset-left, 0px));
     background: var(--os-bg-2);
     border: none;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 8px 0;
-    gap: 8px;
-    z-index: 10000;
+    padding: var(--space-2, 8px) 0;
+    padding-left: env(safe-area-inset-left, 0px);
+    gap: var(--space-2, 8px);
+    z-index: var(--z-dock);
     pointer-events: auto;
     font: 11px var(--os-mono);
     color: var(--os-fg);
+    overflow: hidden;
 }
 
 .launcher-btn {
     width: 40px; height: 40px;
     background: transparent;
-    color: inherit;
+    color: var(--os-fg-2);
     cursor: pointer;
     border-radius: var(--os-radius-sm);
     display: flex;
@@ -31,31 +33,45 @@
     justify-content: center;
     padding: 0;
     font: inherit;
+    text-transform: lowercase;
     transition: background 80ms ease, color 80ms ease, box-shadow 80ms ease;
 }
 .launcher-btn:hover { background: var(--panel-hover, var(--os-bg-1)); color: var(--os-fg); }
+.launcher-btn:active { background: var(--panel-select, var(--os-accent-soft)); }
 .launcher-btn.active {
     background: var(--panel-select, var(--os-accent-soft));
     color: var(--os-fg);
     box-shadow: inset 4px 0 0 var(--os-accent);
 }
-.launcher-add { font-size: 20px; }
+.launcher-add { font-size: 20px; color: var(--os-fg-2); }
+.launcher-add:hover { color: var(--os-accent); }
 
 .launcher-instances {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 8px;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
 }
 
 .launcher-row {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: var(--space-1, 4px);
 }
 
-.launcher-close { font-size: 11px; opacity: 0.7; width: 20px; height: 20px; }
-.launcher-close:hover { opacity: 1; }
+.launcher-close { font-size: 11px; opacity: 0.7; width: 20px; height: 20px; color: var(--os-fg-3); }
+.launcher-close:hover { opacity: 1; color: var(--os-red); }
 
-.launcher-dock + .wm-root { left: 56px !important; }
+.launcher-dock + .wm-root { left: calc(var(--os-rail-w, 56px) + env(safe-area-inset-left, 0px)) !important; }
+
+/* Touch tap-target floor for dock controls. */
+@media (pointer: coarse) {
+    .launcher-btn { width: 44px; height: 44px; }
+    .launcher-close { width: 44px; height: 44px; font-size: 13px; }
+}

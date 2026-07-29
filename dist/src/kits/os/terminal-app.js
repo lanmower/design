@@ -30,7 +30,7 @@ export function renderTerminal(opts = {}) {
         term.open(slot);
         if (term._addonManager) {
             const addons = term._addonManager._addons || [];
-            for (const a of addons) { try { a.instance && a.instance.fit && a.instance.fit(); } catch (_) {} }
+            for (const a of addons) { try { a.instance && a.instance.fit && a.instance.fit(); } catch (_) { /* swallow: an addon's fit() failing must not block mounting the terminal */ } }
         }
     }
 

@@ -7,9 +7,14 @@
 
 import { renderPageHtml } from '../src/page-html.js';
 
+// A row `code` is a type tag (md, css, fb, os, wc, api), never a position.
+// Bare ordinals carry no information the row order does not already show, so
+// a numeric code is dropped rather than rendered as decoration.
+const isOrdinal = (c) => /^\d+$/.test(String(c).trim());
+
 function rows(items) {
-  return (items || []).map((it, i) => ({
-    code: it.code || String(i + 1).padStart(2, '0'),
+  return (items || []).map((it) => ({
+    code: it.code && !isOrdinal(it.code) ? it.code : '',
     title: it.title || it.name,
     sub: it.sub || it.desc || '',
     meta: it.cta || it.meta || 'open ->',
@@ -17,10 +22,10 @@ function rows(items) {
   }));
 }
 
-function panel(section, itemsKey = 'items') {
+function panel(section, id, itemsKey = 'items') {
   if (!section || !section[itemsKey] || !section[itemsKey].length) return null;
   return {
-    id: section.id,
+    id: section.id || id,
     title: section.heading,
     count: section.count || section[itemsKey].length,
     items: rows(section[itemsKey]),
@@ -47,14 +52,14 @@ export default {
     const hero = home.hero || null;
 
     const panels = [
-      panel(home.kits),
-      panel(home.file_browser),
-      panel(home.desktop_os),
-      panel(home.web_components),
-      panel(home.api_exports),
-      panel(home.decks),
-      panel(home.docs),
-      panel(home.features),
+      panel(home.kits, 'kits'),
+      panel(home.file_browser, 'file_browser'),
+      panel(home.desktop_os, 'desktop_os'),
+      panel(home.web_components, 'web_components'),
+      panel(home.api_exports, 'api_exports'),
+      panel(home.decks, 'decks'),
+      panel(home.docs, 'docs'),
+      panel(home.features, 'features'),
     ].filter(Boolean);
 
     if (home.previews && home.previews.items && home.previews.items.length) {
@@ -63,8 +68,8 @@ export default {
         id: 'previews',
         title: home.previews.heading || 'previews',
         count: home.previews.items.length,
-        items: home.previews.items.map((name, i) => ({
-          code: String(i + 1).padStart(2, '0'),
+        items: home.previews.items.map((name) => ({
+          code: '',
           title: String(name).replace(/-/g, ' '),
           sub: 'preview · ' + name + '.html',
           meta: 'open ->',
@@ -84,8 +89,8 @@ export default {
         ctas: hero.ctas,
       } : null,
       panels,
-      examples: home.examples && home.examples.items ? home.examples.items.map((e, i) => ({
-        label: e.name || e.title, desc: e.desc, href: e.href, code: String(i + 1).padStart(2, '0'),
+      examples: home.examples && home.examples.items ? home.examples.items.map((e) => ({
+        label: e.name || e.title, desc: e.desc, href: e.href,
       })) : null,
       marquee: { items: ['open source', 'design tokens', 'buildless components', 'zero raw color literals'], sep: '/' },
       quickstart: home.quickstart && home.quickstart.lines ? { heading: home.quickstart.heading, lines: home.quickstart.lines } : null,

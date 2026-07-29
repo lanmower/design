@@ -20,14 +20,40 @@ export function renderWindow(opts = {}) {
         callbacks = {},
     } = opts;
 
+    // Keep at least MIN px of the window horizontally inside the container and
+    // the titlebar (BAR px) vertically reachable, so a window can always be
+    // grabbed by pointer (persisted bounds from a larger viewport included).
+    const MIN_VISIBLE = 60;
+    const BAR_H = 36;
+    function clampBounds(b, p) {
+        const pw = p ? p.clientWidth : window.innerWidth;
+        const ph = p ? p.clientHeight : window.innerHeight;
+        const out = { ...b };
+        if (typeof out.w === 'number') out.w = Math.min(out.w, pw);
+        if (typeof out.h === 'number') out.h = Math.min(out.h, ph);
+        if (typeof out.x === 'number') {
+            const w = typeof out.w === 'number' ? out.w : MIN_VISIBLE;
+            out.x = Math.max(MIN_VISIBLE - w, Math.min(out.x, pw - MIN_VISIBLE));
+        }
+        if (typeof out.y === 'number') out.y = Math.max(0, Math.min(out.y, ph - BAR_H));
+        return out;
+    }
+
     const el = document.createElement('div');
     el.className = 'wm-win';
     el.dataset.kind = kind;
     if (instanceId) el.dataset.instanceId = instanceId;
-    el.style.left = bounds.x + 'px';
-    el.style.top = bounds.y + 'px';
-    el.style.width = bounds.w + 'px';
-    el.style.height = bounds.h + 'px';
+    // Floating window chrome is a dialog surface: role="dialog" (not
+    // aria-modal, since sibling windows stay operable — this is a
+    // non-modal multi-window desktop, not a blocking modal) + aria-label
+    // from the titlebar text so AT announces which window has focus.
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-label', title);
+    const b0 = clampBounds(bounds, null);
+    el.style.left = b0.x + 'px';
+    el.style.top = b0.y + 'px';
+    el.style.width = b0.w + 'px';
+    el.style.height = b0.h + 'px';
 
     const bar = document.createElement('div');
     bar.className = 'wm-bar';
@@ -46,27 +72,72 @@ export function renderWindow(opts = {}) {
     bodyEl.className = 'wm-body';
     setBodyContent(bodyEl, body);
 
-    const resize = document.createElement('div');
-    resize.className = 'wm-resize';
+    // Resize affordances: one grip per edge + corner. `data-dir` carries the
+    // direction (n/s/e/w/ne/nw/se/sw) to the consumer's resize math. The SE
+    // corner keeps the visible diagonal grip glyph (.wm-resize); the other
+    // seven are invisible hit-zones (.wm-edge) styled in wm.css.
+    // NOT KEYBOARD ACCESSIBLE: these grips only wire pointerdown (see below);
+    // resize math is owned entirely by the consumer's pointermove handler
+    // (module comment at top of file), so there is no keydown-driven delta to
+    // wire without reaching into consumer-owned drag state. role="separator"
+    // + aria-orientation give a screen reader a name for the affordance even
+    // though it cannot be operated without a pointer -- an honest partial
+    // label, not a claim of full keyboard support.
+    const ORIENT = { n: 'horizontal', s: 'horizontal', ne: 'horizontal', nw: 'horizontal', se: 'horizontal', sw: 'horizontal', e: 'vertical', w: 'vertical' };
+    const DIRS = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
+    const grips = DIRS.map(dir => {
+        const g = document.createElement('div');
+        g.className = dir === 'se' ? 'wm-resize' : 'wm-edge';
+        g.dataset.dir = dir;
+        g.setAttribute('role', 'separator');
+        g.setAttribute('aria-orientation', ORIENT[dir] || 'horizontal');
+        g.setAttribute('aria-label', 'resize ' + dir + ' (pointer only)');
+        return g;
+    });
 
-    el.append(bar, bodyEl, resize);
+    el.append(bar, bodyEl, ...grips);
 
     minBtn.addEventListener('click', e => { e.stopPropagation(); callbacks.onMinimize && callbacks.onMinimize(); });
     maxBtn.addEventListener('click', e => { e.stopPropagation(); callbacks.onMaximize && callbacks.onMaximize(); });
     closeBtn.addEventListener('click', e => { e.stopPropagation(); callbacks.onClose && callbacks.onClose(); });
 
-    el.addEventListener('pointerdown', () => callbacks.onFocus && callbacks.onFocus());
+    const focus = () => callbacks.onFocus && callbacks.onFocus();
+
+    el.addEventListener('pointerdown', () => focus());
+
+    // Basic focus trap: while this window carries .wm-focused, Tab/Shift+Tab
+    // cycles only within its own focusable set instead of escaping to a
+    // sibling window or the page behind it. Scoped to keydown on `el` itself
+    // (additive listener, no DOM structure change) and gated on the class the
+    // consumer already toggles via setFocused/applyFocused below, so an
+    // unfocused window is completely untouched by this handler.
+    el.addEventListener('keydown', e => {
+        if (e.key !== 'Tab' || !el.classList.contains('wm-focused')) return;
+        const focusable = el.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+        }
+    });
 
     bar.addEventListener('pointerdown', e => {
         if (e.target.closest('.wm-btn')) return;
-        callbacks.onFocus && callbacks.onFocus();
+        e.stopPropagation();
+        focus();
         if (callbacks.onDragStart) callbacks.onDragStart(e, { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight });
     });
 
-    resize.addEventListener('pointerdown', e => {
-        callbacks.onFocus && callbacks.onFocus();
-        if (callbacks.onResizeStart) callbacks.onResizeStart(e, { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight });
-    });
+    grips.forEach(g => g.addEventListener('pointerdown', e => {
+        e.stopPropagation();
+        focus();
+        if (callbacks.onResizeStart) callbacks.onResizeStart(e, { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight, dir: g.dataset.dir });
+    }));
 
     applyFocused(el, focused);
     applyMaximized(el, maximized);
@@ -77,10 +148,14 @@ export function renderWindow(opts = {}) {
         setTitle(t) { titleEl.textContent = t; },
         setBody(b) { setBodyContent(bodyEl, b); },
         setBounds(b) {
-            if (typeof b.x === 'number') el.style.left = b.x + 'px';
-            if (typeof b.y === 'number') el.style.top = b.y + 'px';
-            if (typeof b.w === 'number') el.style.width = b.w + 'px';
-            if (typeof b.h === 'number') el.style.height = b.h + 'px';
+            const c = clampBounds({
+                ...b,
+                w: typeof b.w === 'number' ? b.w : el.offsetWidth,
+            }, el.offsetParent);
+            if (typeof c.x === 'number') el.style.left = c.x + 'px';
+            if (typeof c.y === 'number') el.style.top = c.y + 'px';
+            if (typeof b.w === 'number') el.style.width = c.w + 'px';
+            if (typeof b.h === 'number') el.style.height = c.h + 'px';
         },
         setFocused(v) { applyFocused(el, v); },
         setMaximized(v) { applyMaximized(el, v); },
@@ -97,6 +172,7 @@ function mkBtn(label, ttl) {
     b.className = 'wm-btn';
     b.textContent = label;
     b.title = ttl;
+    b.setAttribute('aria-label', ttl);
     return b;
 }
 

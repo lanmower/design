@@ -1,32 +1,14 @@
-import { icons } from './icons.js';
+// createDesktopShell — the desktop OS shell: assembles the menubar / apps
+// menu / side rail / drawer / taskbar chrome (built by ./shell-chrome.js),
+// owns the shared mutable state those surfaces read (active context, active
+// instance, taskbar signature, drawer focus return), and drives window
+// spawning through ./shell-geometry.js.
 
-const THEME_CSS_URL = new URL('./theme.css', import.meta.url).href;
-
-function ensureCss(href) {
-    if (document.querySelector('link[data-os-theme]')) return;
-    const l = document.createElement('link');
-    l.rel = 'stylesheet';
-    l.href = href || THEME_CSS_URL;
-    l.dataset.osTheme = '1';
-    document.head.appendChild(l);
-}
-
-function ic(svg) {
-    const s = document.createElement('span');
-    s.className = 'ic';
-    s.innerHTML = svg;
-    return s;
-}
-
-function makeBtn(svg, label, role) {
-    const b = document.createElement('button');
-    b.className = 'os-btn';
-    b.type = 'button';
-    if (role) b.dataset.role = role;
-    if (svg) b.append(ic(svg));
-    if (label) b.append(Object.assign(document.createElement('span'), { textContent: label }));
-    return b;
-}
+import {
+    ensureCss, buildMenubar, buildAppsMenu, buildSideRail, buildDrawer,
+    buildTaskbar, buildAppEntries,
+} from './shell-chrome.js';
+import { computeSpawnRect, reflowWindows } from './shell-geometry.js';
 
 export function createDesktopShell({ root = document.body, wm, registry, brand = 'desktop', themeUrl, onNewInstance, autoBoot = false } = {}) {
     if (!wm) throw new Error('createDesktopShell: wm is required');
@@ -37,94 +19,51 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
     osRoot.className = 'os-root';
     root.appendChild(osRoot);
 
-    const menubar = document.createElement('div');
-    menubar.className = 'os-menubar';
-
-    const homeBtn = makeBtn(icons.home, '', 'home');
-    homeBtn.title = 'apps';
-
-    const brandEl = document.createElement('span');
-    brandEl.className = 'os-brand';
-    brandEl.textContent = brand;
-
-    const appsBtn = makeBtn(icons.apps, 'apps', 'apps');
-    const newInstBtn = onNewInstance ? makeBtn(icons.plus, 'instance', 'add') : null;
-
-    const instSwitch = document.createElement('div');
-    instSwitch.className = 'os-instances';
-
-    const spacer = document.createElement('div');
-    spacer.className = 'os-spacer';
-
-    const tray = document.createElement('div');
-    tray.className = 'os-tray';
-    const clock = document.createElement('span');
-    clock.className = 'os-clock';
-    tray.appendChild(clock);
-
-    menubar.append(homeBtn, brandEl, appsBtn);
-    if (newInstBtn) menubar.append(newInstBtn);
-    menubar.append(instSwitch, spacer, tray);
-
-    const appsMenu = document.createElement('div');
-    appsMenu.className = 'os-menu';
-
-    const sideRail = document.createElement('div');
-    sideRail.className = 'os-side-rail';
-
-    const drawer = document.createElement('div');
-    drawer.className = 'os-drawer';
-    drawer.setAttribute('aria-hidden', 'true');
-    const drawerHeader = document.createElement('div');
-    drawerHeader.className = 'os-drawer-head';
-    const drawerTitle = document.createElement('span');
-    drawerTitle.className = 'os-drawer-title';
-    drawerTitle.textContent = 'apps';
-    const drawerClose = document.createElement('button');
-    drawerClose.className = 'os-drawer-close';
-    drawerClose.type = 'button';
-    drawerClose.append(ic(icons.close));
-    drawerHeader.append(drawerTitle, drawerClose);
-    const drawerGrid = document.createElement('div');
-    drawerGrid.className = 'os-drawer-grid';
-    drawer.append(drawerHeader, drawerGrid);
+    const { menubar, homeBtn, appsBtn, newInstBtn, instSwitch, clock } =
+        buildMenubar({ brand, withNewInstance: !!onNewInstance });
+    const appsMenu = buildAppsMenu();
+    const sideRail = buildSideRail();
+    const { drawer, drawerClose, drawerGrid } = buildDrawer();
+    const taskbar = buildTaskbar();
 
     const apps = typeof registry.list === 'function' ? registry.list() : [...registry.values()];
 
     for (const app of apps) {
-        const iconSvg = app.icon || icons[app.id] || '';
-        const menuBtn = makeBtn(iconSvg, app.name);
-        menuBtn.addEventListener('click', () => { closeMenu(); openApp(app.id); });
+        const { menuBtn, railBtn, tile } = buildAppEntries(app, {
+            onMenuClick: () => { closeMenu(); openApp(app.id); },
+            onRailClick: () => openApp(app.id),
+            onTileClick: () => { closeDrawer(); openApp(app.id); },
+        });
         appsMenu.appendChild(menuBtn);
-
-        const railBtn = document.createElement('button');
-        railBtn.className = 'os-rail-btn';
-        railBtn.type = 'button';
-        railBtn.title = app.name;
-        railBtn.append(ic(iconSvg));
-        railBtn.addEventListener('click', () => openApp(app.id));
         sideRail.appendChild(railBtn);
-
-        const tile = document.createElement('button');
-        tile.className = 'os-drawer-tile';
-        tile.type = 'button';
-        tile.append(ic(iconSvg), Object.assign(document.createElement('span'), { className: 'lbl', textContent: app.name }));
-        tile.addEventListener('click', () => { closeDrawer(); openApp(app.id); });
         drawerGrid.appendChild(tile);
     }
-
-    const taskbar = document.createElement('div');
-    taskbar.className = 'os-taskbar';
 
     osRoot.append(menubar, appsMenu, taskbar);
     document.body.append(sideRail, drawer);
 
-    function openMenu() { appsMenu.classList.add('open'); }
-    function closeMenu() { appsMenu.classList.remove('open'); }
-    function openDrawer() { drawer.classList.add('open'); drawer.setAttribute('aria-hidden', 'false'); }
-    function closeDrawer() { drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); }
+    function openMenu() { appsMenu.classList.add('open'); appsBtn.setAttribute('aria-expanded', 'true'); }
+    function closeMenu() { appsMenu.classList.remove('open'); appsBtn.setAttribute('aria-expanded', 'false'); }
+    // Focus management: opening the drawer moves keyboard focus onto its
+    // close button (the first reachable control inside the now-visible
+    // dialog) so Tab starts inside it, not lost on a now-hidden ancestor;
+    // closing restores focus to whichever element opened it (homeBtn is the
+    // only trigger today) so the user's keyboard position isn't lost.
+    let drawerReturnFocus = null;
+    function openDrawer() {
+        drawerReturnFocus = document.activeElement;
+        drawer.classList.add('open');
+        drawer.setAttribute('aria-hidden', 'false');
+        drawerClose.focus();
+    }
+    function closeDrawer() {
+        drawer.classList.remove('open');
+        drawer.setAttribute('aria-hidden', 'true');
+        if (drawerReturnFocus && typeof drawerReturnFocus.focus === 'function') drawerReturnFocus.focus();
+        drawerReturnFocus = null;
+    }
 
-    appsBtn.addEventListener('click', e => { e.stopPropagation(); appsMenu.classList.toggle('open'); });
+    appsBtn.addEventListener('click', e => { e.stopPropagation(); appsMenu.classList.contains('open') ? closeMenu() : openMenu(); });
     homeBtn.addEventListener('click', e => { e.stopPropagation(); drawer.classList.contains('open') ? closeDrawer() : openDrawer(); });
     drawerClose.addEventListener('click', closeDrawer);
     drawer.addEventListener('click', e => { if (e.target === drawer) closeDrawer(); });
@@ -147,24 +86,45 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
         if (!activeInstanceId) return;
         for (const wEl of document.querySelectorAll('.wm-win[data-instance-id]')) {
             const wInst = wEl.dataset.instanceId;
-            wEl.style.display = (wInst === activeInstanceId) ? '' : 'none';
+            wEl.classList.toggle('wm-inst-hidden', wInst !== activeInstanceId);
         }
     }
 
+    let taskbarSig = null;
     function refreshTaskbar() {
-        taskbar.innerHTML = '';
+        const items = [];
         for (const w of wm.list()) {
             const wEl = document.querySelector('.wm-win[data-id="' + w.id + '"]');
             const wInst = wEl && wEl.dataset.instanceId;
             if (activeInstanceId && wInst && wInst !== activeInstanceId) continue;
+            items.push(w);
+        }
+        // Diff-aware rebuild: the 500ms poll must not reset the taskbar's
+        // horizontal scroll (mobile scroll-snap) or button focus every tick.
+        const sig = items.map(w => w.id + ' ' + w.title + ' ' + (w.focused ? 1 : 0)).join('');
+        if (sig === taskbarSig) return;
+        taskbarSig = sig;
+        const sl = taskbar.scrollLeft;
+        taskbar.innerHTML = '';
+        if (!items.length) {
+            const empty = document.createElement('span');
+            empty.className = 'os-task-empty';
+            empty.textContent = 'no windows';
+            taskbar.appendChild(empty);
+        }
+        for (const w of items) {
             const t = document.createElement('button');
             t.className = 'os-task' + (w.focused ? ' focused' : '');
             t.type = 'button';
             t.textContent = w.title;
             t.dataset.winId = w.id;
+            // aria-current announces which window is the active one; a
+            // sighted user reads this from the .focused visual state alone.
+            if (w.focused) t.setAttribute('aria-current', 'true');
             t.addEventListener('click', () => wm.focus(w.id));
             taskbar.appendChild(t);
         }
+        taskbar.scrollLeft = sl;
     }
 
     function setActiveInstance(id) {
@@ -183,8 +143,9 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
         const result = app.factory(ctx);
         const finish = (r) => {
             const sz = app.defaultSize || { w: 520, h: 360 };
+            const { w, h, x, y, maximized } = computeSpawnRect(sz, wm.count);
             const titlePrefix = (activeContext && activeContext.titlePrefix) ? activeContext.titlePrefix + ' · ' : '';
-            const win = wm.open({ title: titlePrefix + app.name, body: r.node, kind: appId, width: sz.w, height: sz.h, x: 100 + (wm.count * 28) % 240, y: 80 + (wm.count * 22) % 180 });
+            const win = wm.open({ title: titlePrefix + app.name, body: r.node, kind: appId, width: w, height: h, x, y, maximized });
             win._app = { id: appId, dispose: r.dispose };
             if (activeInstanceId && win.el) {
                 win.el.dataset.instanceId = activeInstanceId;
@@ -201,12 +162,15 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
 
     const taskTimer = setInterval(refreshTaskbar, 500);
 
+    const onViewportResize = () => reflowWindows(wm);
+    window.addEventListener('resize', onViewportResize);
+
     const api = {
         wm, registry, openApp, setContext, refreshTaskbar, setActiveInstance,
         openDrawer, closeDrawer, openMenu, closeMenu,
         get activeInstanceId() { return activeInstanceId; },
         elements: { osRoot, menubar, taskbar, appsMenu, sideRail, drawer, instSwitch, homeBtn, appsBtn },
-        dispose() { clearInterval(clockTimer); clearInterval(taskTimer); osRoot.remove(); sideRail.remove(); drawer.remove(); },
+        dispose() { clearInterval(clockTimer); clearInterval(taskTimer); window.removeEventListener('resize', onViewportResize); osRoot.remove(); sideRail.remove(); drawer.remove(); },
     };
 
     if (autoBoot && typeof autoBoot === 'string') openApp(autoBoot);

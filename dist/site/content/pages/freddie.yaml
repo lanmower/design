@@ -4,7 +4,7 @@ template: home
 hero:
   heading: freddie dashboard
   subheading: full agent dashboard UI as SDK components
-  body: "all 14 freddie dashboard pages — sessions, tools, chat, models, cron, config, env, skills, projects, agents, analytics, batch, gateway — exported from anentrypoint-design and composable in any webjsx app."
+  body: "all 14 freddie dashboard pages, from sessions and tools to chat, models, cron, config, env, skills, projects, agents, analytics, batch, and gateway, exported from anentrypoint-design and composable in any webjsx app."
   badges:
     - label: 14 page components
     - label: webjsx
@@ -79,7 +79,7 @@ examples:
       cta: object map of all 14 page functions
     - name: skillLabel
       href: "#helpers"
-      cta: format gm:skill-name → readable label
+      cta: format gm:skill-name to readable label
     - name: renderChatMessages
       href: "#helpers"
       cta: render message array into DOM element

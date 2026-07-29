@@ -1,5 +1,5 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip, Btn, ThemeToggle } from 'ds/components.js';
+import { Topbar, Crumb, Status, Side, AppShell, Panel, PageHeader, Chip, Btn, ThemeToggle } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
 
@@ -48,62 +48,71 @@ const TYPE_SCALE = [
 ];
 
 function Swatch(name, v, big) {
-    return h('div', { class: 'ds-swatch', style: 'display:flex;flex-direction:column;gap:6px' },
-        h('div', {
-            style: 'height:' + (big ? '64px' : '48px') +
-                ';background:' + v +
-                ';border-radius:10px;border:1px solid var(--rule)'
-        }),
-        h('div', { style: 'font-family:var(--ff-mono);font-size:11px;color:var(--fg-3)' }, name)
+    return h('div', { class: 'ds-swatch ds-swatch-col' },
+        // custom-property-only inline: carries the swatch tone, no layout
+        h('div', { class: 'ds-swatch-chip' + (big ? ' ds-swatch-chip--big' : ''), style: '--swatch:' + v }),
+        h('div', { class: 'ds-swatch-name' }, name)
     );
 }
 
 function PaletteGrid() {
-    return Panel({ title: 'lore palette', style: 'margin:8px 0', children:
-        h('div', { style: 'display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;padding:14px 18px' },
+    return Panel({ id: 'palette', title: 'lore palette', count: PALETTE.length, class: 'ds-panel-gap', children:
+        h('div', { class: 'ds-swatch-grid-sm' },
             ...PALETTE.map(p => Swatch(p.name, p.v, false))
         )
     });
 }
 
 function SemanticGrid() {
-    return Panel({ title: 'semantic tokens — invert with theme', count: '7', style: 'margin:8px 0', children:
-        h('div', { style: 'display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;padding:14px 18px' },
+    // count reads off the array — it was the hardcoded string '7', which would
+    // have silently gone stale the first time a token was added or removed.
+    return Panel({ id: 'semantic', title: 'semantic tokens — invert with theme', count: SEMANTIC.length, class: 'ds-panel-gap', children:
+        h('div', { class: 'ds-swatch-grid-sm ds-swatch-grid-lg' },
             ...SEMANTIC.map(p => Swatch(p.name, p.v, true))
         )
     });
 }
 
 function TypeScalePanel() {
-    return Panel({ title: 'type scale', style: 'margin:8px 0', children:
-        h('div', { style: 'padding:14px 18px;display:flex;flex-direction:column;gap:14px' },
+    return Panel({ id: 'type-scale', title: 'type scale', count: TYPE_SCALE.length, class: 'ds-panel-gap', children:
+        h('div', { class: 'ds-type-panel' },
             ...TYPE_SCALE.map(t =>
-                h('div', { style: 'display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--rule);padding-bottom:8px' },
-                    h('span', { style: 'flex:0 0 64px;font-family:var(--ff-mono);font-size:11px;color:var(--fg-3)' }, t.name),
-                    h('div', { class: t.cls, style: 'font-size:' + t.size + ';line-height:var(--lh-tight);color:var(--fg)' }, 'two-four-seven four-twenty')
+                h('div', { class: 'ds-type-row' },
+                    h('span', { class: 'ds-type-row-label' }, t.name),
+                    // custom-property-only inline: picks the sampled size token
+                    h('div', { class: (t.cls ? t.cls + ' ' : '') + 'ds-type-sample', style: '--sample-size:' + t.size }, 'two-four-seven four-twenty')
                 )
             )
         )
     });
 }
 
+// The three button specimens are the only controls on this reference page that
+// look pressable, so pressing one has to do something. Each reports which
+// variant was last pressed, which is the one fact a primer's button row can
+// truthfully demonstrate — the alternative was three buttons that swallow every
+// click, on the page whose whole job is showing how controls behave.
+const primState = { pressed: null };
+
 function PrimitivesPanel() {
-    return Panel({ title: 'primitives', style: 'margin:8px 0', children:
-        h('div', { style: 'padding:14px 18px;display:flex;flex-direction:column;gap:18px' },
-            h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;align-items:center' },
-                h('span', { style: 'font-family:var(--ff-mono);font-size:11px;color:var(--fg-3);flex:0 0 64px' }, 'chips'),
+    return Panel({ id: 'primitives', title: 'primitives', class: 'ds-panel-gap', children:
+        h('div', { class: 'ds-prim-panel' },
+            h('div', { class: 'ds-prim-row' },
+                h('span', { class: 'ds-prim-label' }, 'chips'),
                 Chip({ tone: 'accent', children: 'accent' }),
                 Chip({ tone: 'dim',    children: 'dim' }),
                 Chip({ tone: '',       children: 'plain' })
             ),
-            h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;align-items:center' },
-                h('span', { style: 'font-family:var(--ff-mono);font-size:11px;color:var(--fg-3);flex:0 0 64px' }, 'buttons'),
-                Btn({ primary: true, children: 'primary' }),
-                Btn({ children: 'default' }),
-                Btn({ ghost: true, children: 'ghost' })
+            h('div', { class: 'ds-prim-row' },
+                h('span', { class: 'ds-prim-label' }, 'buttons'),
+                Btn({ primary: true, children: 'primary', onClick: () => { primState.pressed = 'primary'; kit.render(); } }),
+                Btn({ children: 'default', onClick: () => { primState.pressed = 'default'; kit.render(); } }),
+                Btn({ ghost: true, children: 'ghost', onClick: () => { primState.pressed = 'ghost'; kit.render(); } }),
+                h('span', { class: 'ds-prim-label' },
+                    primState.pressed ? 'last pressed: ' + primState.pressed : 'none pressed yet')
             ),
-            h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;align-items:center' },
-                h('span', { style: 'font-family:var(--ff-mono);font-size:11px;color:var(--fg-3);flex:0 0 64px' }, 'theme'),
+            h('div', { class: 'ds-prim-row' },
+                h('span', { class: 'ds-prim-label' }, 'theme'),
                 ThemeToggle(),
                 ThemeToggle({ compact: true })
             )
@@ -119,23 +128,31 @@ function App() {
             items: [['index', '../../'], ['terminal', '../terminal/']]
         }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'system primer' }),
+        // Every entry anchors to the panel it names. These were four inert
+        // rows styled exactly like working nav — the only sidebar on the page
+        // and none of it went anywhere.
         side: Side({
             sections: [
                 { group: 'sections', items: [
-                    { glyph: '◐', label: 'palette',    key: 'p' },
-                    { glyph: '◑', label: 'semantic',   key: 's' },
-                    { glyph: '◒', label: 'type scale', key: 't' },
-                    { glyph: '◓', label: 'primitives', key: 'r' }
+                    { glyph: '-', label: 'palette',    key: 'p', href: '#palette' },
+                    { glyph: '-', label: 'semantic',   key: 's', href: '#semantic' },
+                    { glyph: '-', label: 'type scale', key: 't', href: '#type-scale' },
+                    { glyph: '-', label: 'primitives', key: 'r', href: '#primitives' }
                 ] }
             ]
         }),
         main: [
-            h('div', { class: 'ds-section', style: 'padding:8px' },
-                h('div', { style: 'display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap' },
-                    h('div', {}, Heading({ level: 1, children: 'system primer' })),
-                    ThemeToggle()
-                ),
-                Lede({ children: 'one page showing palette, semantic tokens, type scale, and primitives. flip the theme toggle — semantic tokens invert, lore palette stays put.' }),
+            // Dense header: this is a reference surface people scroll to look
+            // something up, not a landing page. The display H1 + wrapped lede
+            // spent most of the first fold on an intro, and the lede's narrow
+            // measure sat ragged against the full-width heading above it.
+            PageHeader({
+                dense: true,
+                title: 'system primer',
+                lede: 'palette, semantic tokens, type scale, primitives — flip the theme and the semantic tokens invert while the lore palette holds',
+                right: ThemeToggle({ compact: true })
+            }),
+            h('div', { class: 'ds-section ds-section-pad' },
                 PaletteGrid(),
                 SemanticGrid(),
                 TypeScalePanel(),
@@ -143,10 +160,10 @@ function App() {
             )
         ],
         status: Status({
-            left: ['system primer', '• ' + PALETTE.length + ' lore colors', '• ' + SEMANTIC.length + ' semantic'],
+            left: ['system primer', '- ' + PALETTE.length + ' lore colors', '- ' + SEMANTIC.length + ' semantic'],
             right: ['247420 / mmxxvi']
         })
     });
 }
 
-mountKit({ root, view: App, screen: '16 System Primer' });
+const kit = mountKit({ root, view: App, screen: '16 System Primer' });

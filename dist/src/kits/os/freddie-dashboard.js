@@ -6,13 +6,13 @@ import { makeChatPage } from './freddie/pages-chat.js';
 import { makeToolsPages } from './freddie/pages-tools.js';
 import { makeOsPages } from './freddie/pages-os.js';
 
-const { AppShell, Topbar, Side, Crumb, Status, Panel, Chip, EmptyState } = components;
+const { AppShell, Topbar, Side, Crumb, Status, Panel, Chip, EmptyState, Icon } = components;
 
 function pre(obj) {
     return webjsx.createElement('pre', { class: 'fd-pre' }, typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2));
 }
 
-export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
+export function createFreddieDashboard({ instance, bootHost, osSurfaces, loadingText }) {
     const root = document.createElement('div');
     root.className = 'app-fd ds-247420 fd-root';
 
@@ -42,7 +42,7 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
 
     function buildSide() {
         const sections = [{
-            group: 'FREDDIE',
+            group: 'ASSISTANT',
             items: ROUTES.map(r => ({
                 glyph: r.glyph, label: r.label, href: '#fd-' + r.path,
                 active: state.active === r.path,
@@ -63,10 +63,10 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces }) {
     function view() {
         const route = allRoutes.find(r => r.path === state.active) || ROUTES[1];
         return AppShell({
-            topbar: Topbar({ brand: 'freddie', leaf: 'dashboard', items: [], active: '' }),
-            crumb: Crumb({ trail: ['freddie', instance.id], leaf: route.path, right: state.error ? Chip({ tone: 'miss', children: 'error' }) : Chip({ tone: 'ok', children: 'live' }) }),
+            topbar: Topbar({ brand: 'assistant', leaf: 'dashboard', items: [], active: '' }),
+            crumb: Crumb({ trail: ['assistant', instance.id], leaf: route.path, right: state.error ? Chip({ tone: 'miss', children: 'error' }) : Chip({ tone: 'ok', children: 'live' }) }),
             side: buildSide(),
-            main: state.body || EmptyState({ text: 'loading…', glyph: '◌' }),
+            main: state.body || EmptyState({ text: loadingText || 'loading…', glyph: Icon('circle') }),
             status: Status({ left: ['ds-247420 · webjsx · ' + allRoutes.length + ' routes', 'instance=' + instance.id], right: [state.ts] }),
         });
     }
