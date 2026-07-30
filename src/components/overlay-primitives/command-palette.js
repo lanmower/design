@@ -92,7 +92,7 @@ export function CommandPalette({ open, items = [], onSelect, onClose } = {}) {
                 'aria-controls': 'ov-cmd-list',
                 'aria-activedescendant': '',
                 oninput: (e) => { filterText = e.target.value; active = 0; renderInner(); },
-                ref: (el) => { if (!el || el._ovCmdIn) return; el._ovCmdIn = true; inputEl = el; queueMicrotask(() => el.focus()); },
+                ref: (el) => { if (!el || el._ovCmdIn) return; el._ovCmdIn = true; inputEl = el; setTimeout(() => el.focus(), 0); },
             }),
             h('div', { class: 'ov-cmd-list', id: 'ov-cmd-list', role: 'listbox',
                 ref: (el) => { if (!el) return; listEl = el; queueMicrotask(renderInner); } })

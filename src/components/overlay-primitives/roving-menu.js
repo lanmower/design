@@ -58,7 +58,7 @@ export function useRovingMenu({ itemSelector, items = [], getLabel = (it) => it.
         floating = useFloating(triggerEl, menuEl, { placement, offset: FLOAT_OFFSET_DROPDOWN });
         document.addEventListener('mousedown', onDown, true);
         triggerEl.setAttribute('aria-expanded', 'true');
-        if (focusFirst && liveItems().length) queueMicrotask(() => focusItem(0));
+        if (focusFirst && liveItems().length) setTimeout(() => focusItem(0), 0);
         if (onOpenChange) onOpenChange(true);
     };
     const onTrigClick = (buildMenuEl) => { if (open) close(false); else openMenu(buildMenuEl, true); };

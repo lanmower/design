@@ -17,7 +17,7 @@ export function ApprovalPrompt({ toolName, categoryLabel, argsPreview, onDecisio
     const noteRef = (el) => {
         if (!el || noteEl === el) return;
         noteEl = el;
-        if (autoFocusNote) queueMicrotask(() => noteEl && noteEl.focus());
+        if (autoFocusNote) setTimeout(() => noteEl && noteEl.focus(), 0);
     };
     const decide = (kind) => { if (onDecision) onDecision(kind, (noteEl && noteEl.value || '').trim()); };
     return h('div', { class: 'ov-approval', role: 'group', 'aria-label': toolName ? `Permission requested: ${toolName}` : 'Permission requested' },

@@ -15,12 +15,14 @@ export function FocusTrap({ children } = {}) {
             if (!el || el._dsTrap) return;
             el._dsTrap = true;
             el.addEventListener('keydown', (e) => trapTabKey(el, e));
-            // Auto-focus first focusable
-            queueMicrotask(() => {
+            // Auto-focus first focusable. setTimeout(0), not queueMicrotask: the
+            // triggering click's own default focus-on-click runs in the same tick,
+            // which can race a same-tick microtask and leave focus on the trigger.
+            setTimeout(() => {
                 const first = el.querySelector(FOCUSABLE_SEL);
                 if (first) first.focus();
                 else el.focus();
-            });
+            }, 0);
         }
     }, ...kids(children));
 }
