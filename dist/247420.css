@@ -12906,6 +12906,8 @@
    ============================================================ */
 
 .ds-247420 .ds-prose { line-height: 1.65; }
+.ds-247420 .ds-prose a { color: var(--panel-accent); }
+.ds-247420 .ds-prose a:hover { background: none; color: var(--panel-accent); text-decoration-color: transparent; }
 .ds-247420 .ds-prose pre, .ds-247420 .ds-prose table { overflow-x: auto; max-width: 100%; }
 .ds-247420 .ds-prose canvas {
   display: block;

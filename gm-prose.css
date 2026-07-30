@@ -9,6 +9,8 @@
    ============================================================ */
 
 .ds-prose { line-height: 1.65; }
+.ds-prose a { color: var(--panel-accent); }
+.ds-prose a:hover { background: none; color: var(--panel-accent); text-decoration-color: transparent; }
 .ds-prose pre, .ds-prose table { overflow-x: auto; max-width: 100%; }
 .ds-prose canvas {
   display: block;
