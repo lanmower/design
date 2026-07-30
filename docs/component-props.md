@@ -446,7 +446,7 @@ Segmented one-time-code / PIN entry.
 
 **Kind:** component
 
-**Signature:** `role`, `who` = `'them'`, `avatar`, `text`, `parts`, `time`, `typing`, `key`, `aicat`, `reactions`, `receipt`, `name`, `streaming`, `actions`, `incomplete`, `stopped`, `flat`, `error`, `onRetry`
+**Signature:** `role`, `who` = `'them'`, `avatar`, `text`, `parts`, `time`, `typing`, `key`, `aicat`, `reactions`, `receipt`, `name`, `streaming`, `actions`, `incomplete`, `stopped`, `flat`, `error`, `onRetry`, `onToggleReaction`
 
 ### ChatComposer
 
