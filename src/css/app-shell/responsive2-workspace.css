@@ -126,7 +126,11 @@
   /* Embedded shell (freddie WM window) fills its container, not the viewport. */
   .fd-root .app { height: 100%; overflow: visible; }
   .app-body { min-height: 0; flex: 1 1 auto; }
-  .app-side-shell { overflow-y: auto; min-height: 0; }
+  /* scrollbar-gutter mirrors .app-main's own (topbar.css) — without it the
+     thumb draws flush against the sidebar's nav text with zero breathing
+     room, reading as a mark stuck to the content rather than a scrollbar
+     anchored to the shell's own edge. */
+  .app-side-shell { overflow-y: auto; overflow-x: hidden; min-height: 0; scrollbar-gutter: stable; }
   .app-main { overflow-y: auto; min-height: 0; }
 }
 

@@ -164,7 +164,7 @@ body.canvas-host { background: transparent !important; }
 
 .app-side {
   display: flex; flex-direction: column; gap: var(--space-4);
-  padding: var(--space-5) var(--space-3);
+  padding: var(--space-5) var(--space-2) var(--space-5) var(--space-3);
   font-size: var(--fs-sm);
 }
 /* Sidebar section wrapper emitted by Side() (src/components/shell/app-shell.js).
