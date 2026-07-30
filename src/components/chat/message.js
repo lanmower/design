@@ -13,7 +13,7 @@ import { countMessage, renderPart } from './stats.js';
 
 const h = webjsx.createElement;
 
-export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name, streaming, actions, incomplete, stopped, flat, error, onRetry }) {
+export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name, streaming, actions, incomplete, stopped, flat, error, onRetry, onToggleReaction }) {
     countMessage();
     // Support legacy 'who' prop, prefer 'role' with mapping:
     //   'user'      -> 'you'   (right-aligned, accent bubble)
@@ -77,7 +77,12 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
             // text. So the visible label/count stay in the accessibility tree
             // as content, and an .sr-only span supplies just the wording the
             // visuals imply but do not spell out.
-            ...reactions.map((r, i) => h('span', { class: 'rxn' + (r.you ? ' you' : ''), key: 'r' + i },
+            ...reactions.map((r, i) => h('button', {
+                type: 'button', class: 'rxn' + (r.you ? ' you' : ''), key: 'r' + i,
+                'aria-pressed': String(!!r.you),
+                title: (r.you ? 'remove your ' : 'add ') + r.emoji + ' reaction',
+                onclick: onToggleReaction ? (e) => { e.preventDefault(); onToggleReaction(r.emoji); } : undefined,
+            },
                 h('span', { class: 'e' }, r.emoji),
                 h('span', { class: 'n' }, String(r.count)),
                 h('span', { class: 'sr-only' }, ` ${String(r.count) === '1' ? 'reaction' : 'reactions'}${r.you ? ', you reacted' : ''}`))))

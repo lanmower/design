@@ -838,6 +838,7 @@ export interface ChatMessageProps {
     flat?: any;
     error?: any;
     onRetry?: (...args: any[]) => any;
+    onToggleReaction?: (...args: any[]) => any;
 }
 export declare function ChatMessage(props?: ChatMessageProps): VNode;
 

@@ -357,12 +357,13 @@
   display: inline-flex; align-items: center; gap: var(--space-1);
   padding: var(--space-hair) var(--space-2); background: var(--bg-2);
   border: 1px solid color-mix(in oklab, var(--fg) 10%, transparent);
-  border-radius: var(--r-pill); font-size: var(--fs-xs);
-  cursor: pointer; user-select: none;
+  border-radius: var(--r-pill); font-size: var(--fs-xs); font-family: inherit;
+  cursor: pointer; user-select: none; appearance: none;
   transition: background var(--dur-snap, .12s) var(--ease, ease), border-color var(--dur-snap, .12s) var(--ease, ease), transform 0.12s ease;
   position: relative;
 }
 .chat-reactions .rxn:hover { background: var(--bg-3); transform: scale(1.06); }
+.chat-reactions .rxn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .chat-reactions .rxn.you {
   background: color-mix(in oklab, var(--accent) 18%, var(--bg-2));
   border-color: color-mix(in oklab, var(--accent) 55%, transparent);

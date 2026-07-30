@@ -8,7 +8,8 @@
 // Adapter contract (all fields optional; the app degrades when one is absent):
 //   adapter.get() -> snapshot {
 //     channels, categories, servers, currentChannel, currentServerId, homeMode,
-//     messages, chatInputValue, currentUser, userId,
+//     messages,  // each message may carry reactions: [{emoji, count, users?, you?}]
+//     chatInputValue, currentUser, userId,
 //     isConnected, voiceConnected, voiceChannelName, voiceConnectionState,
 //     voiceParticipants, micMuted, voiceDeafened,
 //     audioQueueItems, audioQueueCurrentId, audioQueuePaused,
@@ -24,6 +25,7 @@
 //     goHome(), openServers(), memberMenu(id, name, x, y),
 //     replaySegment(id), skipSegment(), pauseQueue(), resumeQueue(),
 //     setInput(v), startReply(msg), cancelReply(), deleteMessage(id),
+//     reactToMessage(id, authorUserId, emoji)  // optional; emoji defaults ('+') when omitted from the trigger
 //     createChannel()  // optional; when present + canManage, rail shows a "+" next to "rooms"
 //   }
 //   adapter.helpers = { avatarColor(id), initial(name), formatTime(ts) }
@@ -152,10 +154,11 @@ export function mountCommunityApp(root, adapter = {}) {
             const isYou = selfId && String(m.userId) === String(selfId);
             const reactions = Array.isArray(m.reactions) ? m.reactions.map(r => ({ emoji: r.emoji, count: r.count != null ? r.count : (r.users ? r.users.length : 1), you: !!(r.you || (r.users && selfId && r.users.includes(selfId))) })) : null;
             const msgActions = [
+                { label: 'react', title: 'react to ' + username + '\'s message', icon: 'smile', onClick: () => A.reactToMessage && A.reactToMessage(m.id, m.userId) },
                 { label: 'reply', title: 'reply to ' + username, icon: 'corner-up-left', onClick: () => A.startReply && A.startReply({ id: m.id, userId: m.userId, username, content: m.content }) },
                 isYou ? { label: 'delete', title: 'delete message', icon: 'trash', onClick: () => A.deleteMessage && A.deleteMessage(m.id) } : null,
             ].filter(Boolean);
-            return { key: m.id || ('m' + i), who: isYou ? 'you' : 'them', name: isYou ? null : username, avatar: initial(username), time: formatTime(m.timestamp), parts: partsFromMessage(m), reactions, actions: msgActions, receipt: isYou && m.read ? 'read' : (isYou && m.delivered ? 'delivered' : null) };
+            return { key: m.id || ('m' + i), who: isYou ? 'you' : 'them', name: isYou ? null : username, avatar: initial(username), time: formatTime(m.timestamp), parts: partsFromMessage(m), reactions, onToggleReaction: A.reactToMessage ? (emoji) => A.reactToMessage(m.id, m.userId, emoji) : null, actions: msgActions, receipt: isYou && m.read ? 'read' : (isYou && m.delivered ? 'delivered' : null) };
         });
     };
 
