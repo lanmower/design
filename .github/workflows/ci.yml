@@ -74,7 +74,14 @@ jobs:
       # the 40000-pixel injected block and the data-density layout shift during
       # development), and here it reports. Making it blocking cross-platform
       # would mean re-freezing on every run, which is a gate that cannot fail.
-      # Committing Linux-captured baselines from a container is the real fix.
+      #
+      # The real fix is committing baselines captured on THIS platform, and that
+      # now exists: run the `refresh visual baselines` workflow
+      # (.github/workflows/visual-baselines.yml, manual dispatch) to recapture on
+      # ubuntu-latest and commit the result. Once the committed PNGs are
+      # Linux-native, this step can drop continue-on-error and become blocking.
+      # Do NOT recapture on a developer machine to make this green — that is the
+      # 78-of-81 case above, and it makes the check strictly less informative.
       - name: Visual regression (report-only across platforms — see comment)
         continue-on-error: true
         run: node scripts/visual-baseline.mjs check

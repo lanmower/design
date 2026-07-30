@@ -87,3 +87,31 @@ validator's own invariant (every state reachable from the initial state) locally
 dispatching, because these validators discard the ENTIRE file on one violation and fall
 back silently rather than partially applying it. And treat an inherited blockedBy:external
 row as a hypothesis to re-test, not a fact: verify where the file actually lives first.
+
+## 2026-07-30 -- a locally-green pixel baseline can be strictly worse than a stale one
+Goal (G): close a PRD row asking for visual baselines to be re-captured after the
+token restyle.
+What drifted / what went wrong: I followed the row's literal instruction (run
+`visual-baseline.mjs update`, commit, push) and verified it the obvious way -- a
+local re-check passed 87/87, so the set was self-consistent. It was still a
+regression: CI reported ALL 87 pages drifted, versus the ~15 genuinely-stale ones
+before. The baselines are platform-specific and I captured on Windows through a
+software rasterizer (Page.captureScreenshot times out under --disable-gpu, so
+--use-gl=swiftshader is required), while the check runs on ubuntu-latest;
+antialiasing and font rasterization differ, so every page mismatches regardless
+of palette. The answer was already written in the repo: ci.yml marks the step
+continue-on-error with the comment "Committing Linux-captured baselines from a
+container is the real fix" -- I read the workflow only after CI contradicted me.
+Fix / resolution: reverted the capture, verified the restoration was byte-exact
+(`git diff f548203^ HEAD -- visual-baselines` empty, count back to the original
+81 -- my run had also silently ADDED 6 PNGs for pages that never had a baseline),
+confirmed 81 on origin, and closed the row as an honest negative result rather
+than claiming the refresh was done. Filed the real work (Linux-captured baselines
+via a container or a CI job that commits its artifacts) as its own row.
+Generalizes to: for any artifact compared byte-for-byte in CI (screenshots,
+snapshots, lockfiles, generated binaries), "it passes locally" proves only
+self-consistency, never agreement with the checking platform -- so read the CI
+step's own config and comments BEFORE regenerating it, because a report-only gate
+usually carries the reason it is report-only. And a gate expected to fail is a
+gate that cannot detect anything: ambient failure hides real regressions, which
+is itself a finding worth filing rather than stepping around.
