@@ -16,7 +16,7 @@ CLAUDE.md
 .gm-stop-verified
 
 # >>> plugkit managed
-.gm/exec-spool/
+.gm/
 .gm/gm-fired-*
 .gm/needs-gm
 .gm/lastskill
