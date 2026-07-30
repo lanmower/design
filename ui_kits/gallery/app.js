@@ -1,5 +1,5 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip, Carousel } from 'ds/components.js';
+import { Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip, Carousel, Dialog } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
 
@@ -93,12 +93,16 @@ function Tile(it) {
         key: it.id,
         onclick: () => { state.open = it.id; kit.render(); },
         class: 'ds-gallery-tile' + (state.density === 'tight' ? ' ds-gallery-tile--tight' : ''),
+        // Names the tile by its human label first — without this the accessible
+        // name falls back to the button's text content, which reads the raw
+        // ascii caption before the label a non-visual user actually needs.
+        'aria-label': it.label,
         // custom-property-only inline: carries the per-tile tone, no layout
         style: '--tile-tone:var(--' + it.tone + ')'
     },
-        h('div', { class: 'ds-tile-cap' }, it.caption),
+        h('div', { class: 'ds-tile-cap', 'aria-hidden': 'true' }, it.caption),
         h('div', { class: 'ds-tile-meta' },
-            h('span', { class: 'ds-tile-glyph' }, it.glyph),
+            h('span', { class: 'ds-tile-glyph', 'aria-hidden': 'true' }, it.glyph),
             h('span', { class: 'ds-tile-label' }, it.label)
         )
     );
@@ -127,37 +131,41 @@ function LightboxTile(it) {
     );
 }
 
+// Lightbox is `Dialog` (editor-primitives/modals.js), not a hand-rolled
+// overlay: the previous version had its own scrim/keydown/ref plumbing and
+// none of Dialog's role="dialog"/aria-modal, Tab-trap (trapTabKey), or
+// focus-restore-to-opener on close, so a keyboard user could Tab out of the
+// open lightbox into the topbar/sidebar behind the scrim, and closing it
+// dropped focus to <body> instead of back to the tile that opened it.
 function Lightbox() {
     if (!state.open) return null;
     const openIndex = items.findIndex((i) => i.id === state.open);
     const close = () => { state.open = null; kit.render(); };
-    return h('div', {
-        onclick: close,
-        onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } },
-        tabindex: '-1',
-        ref: (el) => { if (el && !el._dsLbFocused) { el._dsLbFocused = true; el.focus(); } },
-        class: 'ds-lightbox'
-    },
-        h('div', {
-            onclick: (e) => e.stopPropagation(), class: 'ds-lightbox-card ds-lightbox-card--carousel',
-            ref: (el) => {
-                if (!el || el._dsLbScrolled === state.open) return;
-                el._dsLbScrolled = state.open;
-                const track = el.querySelector('.ds-carousel-track');
-                const item = track && track.children[openIndex];
-                if (item) item.scrollIntoView({ inline: 'start', behavior: 'instant' });
-            }
-        },
+    return Dialog({
+        open: true,
+        onClose: close,
+        dismissible: true,
+        ariaLabel: 'tile ' + (openIndex + 1) + ' of ' + items.length,
+        children: [
             h('div', { class: 'ds-lightbox-head' },
                 h('span', { class: 'ds-lightbox-tag' }, 'tile · ' + (openIndex + 1) + ' of ' + items.length),
                 h('button', { class: 'btn', onclick: close }, 'close')
             ),
-            Carousel({ items, renderItem: LightboxTile, label: 'gallery tiles' }),
+            h('div', {
+                class: 'ds-lightbox-card--carousel',
+                ref: (el) => {
+                    if (!el || el._dsLbScrolled === state.open) return;
+                    el._dsLbScrolled = state.open;
+                    const track = el.querySelector('.ds-carousel-track');
+                    const item = track && track.children[openIndex];
+                    if (item) item.scrollIntoView({ inline: 'start', behavior: 'instant' });
+                }
+            }, Carousel({ items, renderItem: LightboxTile, label: 'gallery tiles' })),
             // Tells the reader how to leave, which is the one thing they need
             // from a lightbox. It previously described its own implementation.
             h('p', { class: 'ds-m0 ds-text-2' }, 'use the carousel arrows to browse tiles, esc or click outside to close.')
-        )
-    );
+        ]
+    });
 }
 
 function App() {
@@ -214,7 +222,3 @@ function App() {
 }
 
 const kit = mountKit({ root, view: App, screen: '14 Gallery' });
-
-window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && state.open) { state.open = null; kit.render(); }
-});

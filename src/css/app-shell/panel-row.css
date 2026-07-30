@@ -53,8 +53,22 @@
   font-weight: 500; color: var(--fg-3);
   font-family: var(--ff-mono); letter-spacing: 0;
 }
+/* Panel titles render as a real heading (h2 by default) for AT heading-jump
+   navigation, but must read identically to the old plain span — reset the
+   UA heading margin/size/weight so it inherits .panel-head's own type rules
+   instead of the browser's h2 stylesheet. */
+.panel-title {
+  margin: 0; font: inherit; font-size: inherit; font-weight: inherit;
+  letter-spacing: inherit; text-transform: inherit; color: inherit;
+}
 .panel-body { padding: var(--space-2) var(--space-3) var(--space-3); }
 .panel-body > * { margin: 0; }
+/* One-line explanatory caption under a panel's title — e.g. distinguishing
+   two visually-similar panels (lore palette vs semantic tokens) in words
+   instead of leaving the reader to infer it from the title alone. */
+.ds-panel-caption {
+  font-size: var(--fs-sm); color: var(--fg-3); margin: 0 0 var(--space-2);
+}
 /* Inner sibling rhythm scales with density like the outer panel rhythm, so a
    compact/spacious surface stays proportional instead of only its outer
    intervals moving while the panel interiors hold still. Kept strictly below

@@ -89,7 +89,10 @@ export const ICON_PATHS = {
     clipboard: '<rect x="8" y="4" width="8" height="4" rx="1"/><path d="M8 6H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2"/>',
     // Live-cursor pointer arrow — collab.js's LiveCursorOverlay renders one
     // per remote collaborator, filled with that collaborator's color.
-    cursor: '<path d="M5 3l14 8-6.5 1.5L11 20z"/>'
+    cursor: '<path d="M5 3l14 8-6.5 1.5L11 20z"/>',
+    // Password-visibility toggle — eye / eye-off pair.
+    eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+    'eye-off': '<path d="M2 12s3.5-7 10-7c1.7 0 3.2.4 4.5 1.1M22 12s-3.5 7-10 7c-1.7 0-3.2-.4-4.5-1.1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="m4 4 16 16"/>'
 };
 
 // The single SVG attribute contract (viewBox/stroke/linecap…) shared by both

@@ -5,13 +5,19 @@
 
 import * as webjsx from '../../../vendor/webjsx/index.js';
 import { Panel } from './panel.js';
+import { Btn } from '../shell.js';
 const h = webjsx.createElement;
 
 export function Install({ cmd, copied, onCopy }) {
     return h('div', { class: 'cli' },
         h('span', { class: 'prompt' }, '$'),
         h('span', { class: 'cmd' }, cmd),
-        h('span', { class: 'copy', onclick: () => onCopy && onCopy(cmd) }, copied ? 'copied' : 'copy')
+        Btn({
+            class: 'copy', size: 'sm',
+            onClick: () => onCopy && onCopy(cmd),
+            'aria-label': copied ? 'copied to clipboard' : 'copy install command',
+            children: h('span', { 'aria-live': 'polite' }, copied ? 'copied' : 'copy')
+        })
     );
 }
 

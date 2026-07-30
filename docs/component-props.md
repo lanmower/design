@@ -188,7 +188,7 @@ A Claude-Desktop / cowork three-(or four-)column app shell.  Pure stateless chro
 
 **Kind:** component
 
-**Signature:** `title`, `count`, `right`, `style` = `''`, `class` _(local: className)_ = `''`, `children`, `kind`, `id`
+**Signature:** `title`, `count`, `right`, `style` = `''`, `class` _(local: className)_ = `''`, `children`, `kind`, `id`, `headingLevel` = `2`
 
 ### Card
 

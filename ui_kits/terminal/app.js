@@ -130,6 +130,22 @@ function recallHistory() {
     kit.render();
 }
 
+// Walks forward from a recalled entry back toward the newest, then to a blank
+// line once past it — the down-arrow counterpart `recallHistory` never had.
+// A no-op outside an active recall (historyIdx < 0): there is nothing to walk
+// forward from, matching a real shell's behavior at a fresh prompt.
+function recallHistoryForward() {
+    if (historyIdx < 0) return;
+    if (historyIdx >= history.length - 1) {
+        historyIdx = -1;
+        live.input = '';
+    } else {
+        historyIdx += 1;
+        live.input = history[historyIdx];
+    }
+    kit.render();
+}
+
 const LINE_PROMPTS = { cmt: '#', cmd: '$', out: '·', ok: '+', warn: '!', log: '·' };
 function Line(l, i, opts = {}) {
     const prompt = LINE_PROMPTS[l.kind];
@@ -167,11 +183,23 @@ function App() {
                           kit.render();
                       } }
                 ] },
-                // Reachable state switcher for the live shell panel.
-                { group: 'shell state', items: PHASES.map((p) => ({
+                // Reachable state switcher for the live shell panel — previews
+                // rendering states only, so the group name says so up front
+                // rather than reading as real shell status a first-timer
+                // could mistake for their own session crashing.
+                { group: 'shell state (preview only)', items: PHASES.map((p) => ({
                     glyph: h('span', { class: live.phase === p ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }),
                     label: p, key: 'ph-' + p, active: live.phase === p,
-                    onClick: (e) => { e.preventDefault(); live.phase = p; kit.render(); }
+                    ariaLabel: 'preview ' + p + ' state (does not affect your session)',
+                    onClick: (e) => {
+                        e.preventDefault();
+                        // Switching away from 'ready' hides the input row
+                        // entirely, so anything typed there would otherwise
+                        // vanish with no way back. Leaving it in place lets it
+                        // survive the round trip back to 'ready'.
+                        live.phase = p;
+                        kit.render();
+                    }
                 })) },
                 // These name real shell affordances, so they perform them
                 // rather than documenting a keystroke and doing nothing when
@@ -204,13 +232,15 @@ function App() {
                     children: live.phase === 'loading' ? ScrollbackSkeleton()
                     : live.phase === 'error' ? ScrollbackError()
                     : live.phase === 'empty' ? ScrollbackEmpty()
-                    : h('div', { class: 'ds-term-body' },
+                    : h('div', { class: 'ds-term-body', role: 'log', 'aria-live': 'polite' },
                         ...liveTranscript.map((l, i) => Line(l, i)),
                         h('div', { class: 'cli ds-term-input-row' },
                             h('span', { class: 'prompt' }, '$'),
                             h('input', {
+                                type: 'text',
                                 value: live.input,
                                 placeholder: 'try `help`, `ls`, `cat readme.md`…',
+                                'aria-label': 'shell command input',
                                 class: 'ds-term-input',
                                 oninput: (e) => { live.input = e.target.value; },
                                 onkeydown: (e) => {
@@ -240,6 +270,13 @@ function App() {
                                         // the key it names has to do it too.
                                         e.preventDefault();
                                         recallHistory();
+                                    } else if (e.key === 'ArrowDown') {
+                                        // Symmetric counterpart to ArrowUp: walk
+                                        // back toward the newest entry, then to a
+                                        // blank line once past it — a real shell's
+                                        // down-arrow behavior.
+                                        e.preventDefault();
+                                        recallHistoryForward();
                                     }
                                 }
                             })

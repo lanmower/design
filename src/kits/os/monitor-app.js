@@ -8,8 +8,14 @@ export function renderMonitorApp(opts = {}) {
     node.className = 'app-pane mono';
     node.dataset.component = 'monitor-app';
 
+    function renderError(err) {
+        node.textContent = 'could not read stats: ' + (err && err.message ? err.message : String(err));
+        node.classList.add('is-error');
+    }
+
     async function tick() {
         const s = (await Promise.resolve(getStats())) || {};
+        node.classList.remove('is-error');
         const heap = (s.jsHeapMb != null && s.jsHeapLimitMb != null)
             ? `js heap: ${Number(s.jsHeapMb).toFixed(1)} MB / ${Number(s.jsHeapLimitMb).toFixed(0)} MB`
             : 'js heap: n/a';
@@ -24,8 +30,8 @@ export function renderMonitorApp(opts = {}) {
         ].join('\n');
     }
 
-    tick().catch(() => {});
-    const timer = setInterval(() => tick().catch(() => {}), pollMs);
+    tick().catch(renderError);
+    const timer = setInterval(() => tick().catch(renderError), pollMs);
     return {
         node,
         tick,

@@ -184,7 +184,10 @@ html, body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    text-transform: lowercase;
+    /* No text-transform here: .os-task carries the app/window's own dynamic
+     * title (shell.js refreshTaskbar -> t.textContent = w.title), and a
+     * user- or app-supplied string (filename, acronym, URL) must render
+     * as-authored rather than get silently lowercased by brand-voice CSS. */
 }
 .os-task { min-height: 28px; }
 .os-task:hover { background: var(--panel-hover, var(--os-bg-2)); color: var(--os-fg); }
@@ -229,7 +232,9 @@ html, body {
     letter-spacing: 0.005em;
     text-align: center;
     font-weight: 600;
-    text-transform: lowercase;
+    /* No text-transform here: the titlebar renders the window's own dynamic
+     * title (renderWindow({title}) / setTitle(t) in wm.js) — a user- or
+     * app-supplied filename/acronym/URL must not be silently lowercased. */
 }
 .ds-247420 .wm-btns { gap: var(--space-1-75); order: -1; }
 .ds-247420 .wm-btn {
@@ -249,6 +254,11 @@ html, body {
     transition: background 100ms ease, color 100ms ease;
 }
 .ds-247420 .wm-btn:hover { background: var(--panel-hover, var(--os-bg-2)); color: var(--os-fg); }
+.ds-247420 .wm-btn svg { width: 12px; height: 12px; display: block; fill: none; stroke: currentColor; }
+/* Armed (first-click) confirm state for the window close button's
+ * second-click-to-confirm idiom — an unrecoverable close gets a visible cue
+ * before it commits, matching the launcher dock's instance-close treatment. */
+.ds-247420 .wm-btn.confirm { background: var(--os-red); color: var(--paper); }
 
 .ds-247420 .wm-resize {
     background: transparent;
@@ -402,6 +412,14 @@ html, body {
 .app-pane.mono .row:hover { background: var(--panel-hover, var(--os-bg-2)); }
 .app-pane.mono .row.selected { background: var(--panel-select, var(--os-accent-soft)); box-shadow: inset 4px 0 0 var(--os-accent); }
 .app-pane.mono .head { color: var(--os-accent); margin-bottom: var(--space-2); padding-bottom: var(--space-2); font-weight: 600; letter-spacing: 0.02em; border-bottom: 1px solid var(--os-bg-3); }
+/* Visible fetch-error surface for polling app panes (files/monitor): a swallowed
+ * rejection must not leave the pane silently frozen with no user-facing signal. */
+.app-pane.mono .row-error { color: var(--danger, #c0392b); padding: var(--space-2); }
+.app-pane.mono[data-component="monitor-app"].is-error { color: var(--danger, #c0392b); }
+/* Placeholder body shown immediately for a window spawned by an async app
+ * factory, swapped for the real content on resolve — see openApp() in
+ * shell.js. Prevents a slow factory from reading as a dead click. */
+.os-app-loading { display: flex; align-items: center; justify-content: center; color: var(--os-fg-3); font-style: italic; }
 .app-pane.mono pre { background: var(--os-bg-2); padding: var(--space-2-5) var(--space-2-75); margin: var(--space-2) 0 0 0; max-height: 220px; overflow: auto; white-space: pre-wrap; font: var(--fs-nano) var(--os-mono); border-radius: var(--r-1, 6px); color: var(--os-fg); border: none; }
 .app-shell-pane { margin: 0; padding: var(--space-2); font: var(--fs-micro) var(--os-mono); color: var(--os-fg); background: var(--os-bg-0); height: 100%; overflow: auto; white-space: pre-wrap; box-sizing: border-box; }
 .app-canvas { width: 100%; height: 100%; background: var(--os-bg-0); display: block; cursor: default; }

@@ -24,6 +24,11 @@ const OS_PATHS = {
     chat: ICON_PATHS.forum,
     tools: '<path d="M14 7l3-3 3 3-3 3-3-3zM7 14l3 3-7 7-3-3 7-7zM5 7l3-3M14 14l6 6"/>',
     freddie: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M8 12a4 4 0 008 0"/>',
+    // Titlebar window controls: mirrors ICON_PATHS's minus/plus/x visual weight
+    // so wm.js's chip buttons render through the same SVG contract as every
+    // other icon in this kit instead of raw ASCII glyph text (-/+/x).
+    minimize: '<path d="M5 12h14"/>',
+    maximize: '<rect x="5" y="5" width="14" height="14" rx="1"/>',
 };
 
 // iconMarkup() only resolves names already registered in the shared

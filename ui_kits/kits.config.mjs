@@ -60,7 +60,10 @@ export const kits = [
     screenLabel: '14 Gallery',
     htmlTheme: true,
     themeColorMetas: true,
-    stylesheets: [],
+    // Lightbox is Dialog (editor-primitives/modals.js), whose .ds-ep-dialog*
+    // chrome (backdrop, card, head/body/actions) lives only in
+    // editor-primitives.css.
+    stylesheets: ['editor-primitives.css'],
     importExtra: ['ds/'],
   },
   {

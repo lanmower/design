@@ -2,10 +2,14 @@
 // Consumer (thebird) owns z-order, focus stack, alt-tab, drag/resize math.
 // renderWindow returns a handle whose setBounds is called from pointermove.
 //
-// Visuals are bible-aligned: mac-less chip buttons (-+x in mono),
-// inset 4px rail for focus, low-opacity \25E2 glyph for resize affordance,
-// pointer-events:none on .wm-bar with auto on title+close so phone @media
-// auto-maximize can suppress drag without a JS branch.
+// Visuals are bible-aligned: mac-less chip buttons (SVG minimize/maximize/
+// close icons via ./icons.js, not raw ASCII glyphs — matches every other
+// icon surface in this kit), inset 4px rail for focus, CSS-gradient resize
+// affordance (no glyph), pointer-events:none on .wm-bar with auto on
+// title+close so phone @media auto-maximize can suppress drag without a JS
+// branch.
+
+import { icons } from './icons.js';
 
 export function renderWindow(opts = {}) {
     const {
@@ -62,9 +66,9 @@ export function renderWindow(opts = {}) {
     titleEl.textContent = title;
     const btns = document.createElement('div');
     btns.className = 'wm-btns';
-    const minBtn = mkBtn('-', 'minimize');
-    const maxBtn = mkBtn('+', 'maximize');
-    const closeBtn = mkBtn('x', 'close');
+    const minBtn = mkBtn(icons.minimize, 'minimize');
+    const maxBtn = mkBtn(icons.maximize, 'maximize');
+    const closeBtn = mkBtn(icons.close, 'close');
     btns.append(minBtn, maxBtn, closeBtn);
     bar.append(titleEl, btns);
 
@@ -99,7 +103,33 @@ export function renderWindow(opts = {}) {
 
     minBtn.addEventListener('click', e => { e.stopPropagation(); callbacks.onMinimize && callbacks.onMinimize(); });
     maxBtn.addEventListener('click', e => { e.stopPropagation(); callbacks.onMaximize && callbacks.onMaximize(); });
-    closeBtn.addEventListener('click', e => { e.stopPropagation(); callbacks.onClose && callbacks.onClose(); });
+
+    // Closing a window is destructive and unrecoverable (no undo), so it goes
+    // through the same second-click-to-confirm arm/commit idiom as the
+    // launcher dock's instance-close button: first click arms (visual +
+    // aria-label cue), a second click within the window commits; losing
+    // focus or the timeout elapsing disarms silently.
+    let closeArmed = false;
+    let closeArmTimer = null;
+    function disarmClose() {
+        closeArmed = false;
+        if (closeArmTimer) { clearTimeout(closeArmTimer); closeArmTimer = null; }
+        closeBtn.classList.remove('confirm');
+        closeBtn.setAttribute('aria-label', 'close');
+    }
+    closeBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        if (!closeArmed) {
+            closeArmed = true;
+            closeBtn.classList.add('confirm');
+            closeBtn.setAttribute('aria-label', 'confirm close');
+            closeArmTimer = setTimeout(disarmClose, 3000);
+            return;
+        }
+        disarmClose();
+        callbacks.onClose && callbacks.onClose();
+    });
+    closeBtn.addEventListener('blur', disarmClose);
 
     const focus = () => callbacks.onFocus && callbacks.onFocus();
 
@@ -163,14 +193,14 @@ export function renderWindow(opts = {}) {
         setInstanceId(id) { if (id) el.dataset.instanceId = id; else delete el.dataset.instanceId; },
         setZIndex(z) { el.style.zIndex = String(z); },
         getBounds() { return { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight }; },
-        dispose() { el.remove(); },
+        dispose() { if (closeArmTimer) clearTimeout(closeArmTimer); el.remove(); },
     };
 }
 
-function mkBtn(label, ttl) {
+function mkBtn(svg, ttl) {
     const b = document.createElement('button');
     b.className = 'wm-btn';
-    b.textContent = label;
+    b.innerHTML = svg;
     b.title = ttl;
     b.setAttribute('aria-label', ttl);
     return b;

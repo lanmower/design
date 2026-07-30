@@ -56,25 +56,27 @@ function Swatch(name, v, big) {
 }
 
 function PaletteGrid() {
-    return Panel({ id: 'palette', title: 'lore palette', count: PALETTE.length, class: 'ds-panel-gap', children:
+    return Panel({ id: 'palette', title: 'lore palette', count: PALETTE.length + ' colors', class: 'ds-panel-gap', children: [
+        h('p', { class: 'ds-panel-caption' }, 'fixed brand colors — the same hex in light and dark theme.'),
         h('div', { class: 'ds-swatch-grid-sm' },
             ...PALETTE.map(p => Swatch(p.name, p.v, false))
         )
-    });
+    ] });
 }
 
 function SemanticGrid() {
     // count reads off the array — it was the hardcoded string '7', which would
     // have silently gone stale the first time a token was added or removed.
-    return Panel({ id: 'semantic', title: 'semantic tokens — invert with theme', count: SEMANTIC.length, class: 'ds-panel-gap', children:
+    return Panel({ id: 'semantic', title: 'semantic tokens', count: SEMANTIC.length + ' tokens', class: 'ds-panel-gap', children: [
+        h('p', { class: 'ds-panel-caption' }, 'contextual roles — same name, different color per theme; these invert on toggle while the lore palette above holds.'),
         h('div', { class: 'ds-swatch-grid-sm ds-swatch-grid-lg' },
             ...SEMANTIC.map(p => Swatch(p.name, p.v, true))
         )
-    });
+    ] });
 }
 
 function TypeScalePanel() {
-    return Panel({ id: 'type-scale', title: 'type scale', count: TYPE_SCALE.length, class: 'ds-panel-gap', children:
+    return Panel({ id: 'type-scale', title: 'type scale', count: TYPE_SCALE.length + ' steps', class: 'ds-panel-gap', children:
         h('div', { class: 'ds-type-panel' },
             ...TYPE_SCALE.map(t =>
                 h('div', { class: 'ds-type-row' },
@@ -121,6 +123,33 @@ const moreState = {
     menuPicked: null,
     xrayOpenId: null,
 };
+
+// Scroll-spy: the sidebar is the only nav on this single-continuous-scroll
+// page, so it must reflect which of the 6 sections is actually in view —
+// otherwise every row looks equally (in)active no matter how far you've
+// scrolled. IntersectionObserver over each panel id, re-render on change.
+const NAV_SECTION_IDS = ['palette', 'semantic', 'type-scale', 'primitives', 'restyle', 'backfill'];
+const navState = { activeId: NAV_SECTION_IDS[0] };
+
+function observeSections() {
+    const observer = new IntersectionObserver((entries) => {
+        // Pick the entry closest to the top of the viewport among those
+        // currently intersecting, so scrolling past a short section doesn't
+        // leave the sidebar pointing at a section no longer on screen.
+        const visible = entries.filter(e => e.isIntersecting);
+        if (!visible.length) return;
+        visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        const nextId = visible[0].target.id;
+        if (nextId !== navState.activeId) {
+            navState.activeId = nextId;
+            kit.render();
+        }
+    }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+    NAV_SECTION_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) observer.observe(el);
+    });
+}
 
 const COLLAB_USERS = [
     { userId: 'u1', label: 'ana',    color: 'var(--purple)', status: 'active' },
@@ -218,6 +247,14 @@ function RestylePanel() {
     });
 }
 
+// Distinguishes rows a visitor can actually operate (input-driven — pick a
+// range, open a menu, drag a carousel) from rows that only render supplied
+// fixture data (collab cursors, context accounting) — both are legitimate
+// specimens, but they look identical otherwise inside the same row shell.
+function RowTag(kind) {
+    return Chip({ tone: kind === 'live' ? 'accent' : 'dim', size: 'sm', children: kind });
+}
+
 // The rest of the backfilled surface: range picking, the two overlay
 // compositions, the aspect-ratio wrapper, the collab-ui overlays and the
 // context-pane trio. Split from RestylePanel rather than appended to it to keep
@@ -227,7 +264,7 @@ function BackfillPanel() {
     return Panel({ id: 'backfill', title: 'backfill — range, overlays, collab, context', class: 'ds-panel-gap', children:
         h('div', { class: 'ds-prim-panel' },
             h('div', { class: 'ds-prim-row' },
-                h('span', { class: 'ds-prim-label' }, 'date range'),
+                h('span', { class: 'ds-prim-label' }, 'date range'), RowTag('live'),
                 DateRangePicker({
                     value: moreState.rangeValue,
                     onChange: (v) => { moreState.rangeValue = v; kit.render(); },
@@ -242,7 +279,7 @@ function BackfillPanel() {
                         : 'none selected')
             ),
             h('div', { class: 'ds-prim-row' },
-                h('span', { class: 'ds-prim-label' }, 'menubar'),
+                h('span', { class: 'ds-prim-label' }, 'menubar'), RowTag('live'),
                 Menubar({
                     openIndex: moreState.menuOpenIndex,
                     onOpenIndexChange: (i) => { moreState.menuOpenIndex = i; kit.render(); },
@@ -256,7 +293,7 @@ function BackfillPanel() {
                     moreState.menuPicked ? 'chose: ' + moreState.menuPicked : 'nothing chosen yet')
             ),
             h('div', { class: 'ds-prim-row' },
-                h('span', { class: 'ds-prim-label' }, 'carousel'),
+                h('span', { class: 'ds-prim-label' }, 'carousel'), RowTag('live'),
                 Carousel({
                     label: 'primer demo carousel',
                     items: ['one', 'two', 'three', 'four'],
@@ -264,16 +301,16 @@ function BackfillPanel() {
                 })
             ),
             h('div', { class: 'ds-prim-row' },
-                h('span', { class: 'ds-prim-label' }, 'aspect ratio'),
+                h('span', { class: 'ds-prim-label' }, 'aspect ratio'), RowTag('fixture'),
                 AspectRatio({ ratio: '16 / 9', children: h('div', { class: 'ds-prim-label' }, '16 / 9') })
             ),
             h('div', { class: 'ds-prim-row' },
-                h('span', { class: 'ds-prim-label' }, 'presence'),
+                h('span', { class: 'ds-prim-label' }, 'presence'), RowTag('fixture'),
                 PresenceBar({ users: COLLAB_USERS }),
                 AgentPresenceChip({ userId: 'u9', label: 'solo agent', color: 'var(--purple-2)', status: 'active' })
             ),
             h('div', { class: 'ds-prim-row' },
-                h('span', { class: 'ds-prim-label' }, 'collab overlays'),
+                h('span', { class: 'ds-prim-label' }, 'collab overlays'), RowTag('fixture'),
                 // LiveCursorOverlay takes flat x/y, but the ring and flash
                 // overlays read a NESTED `rect` ({top,left,width,height}) --
                 // passing flat coords there throws on `s.rect.left`, taking the
@@ -283,15 +320,15 @@ function BackfillPanel() {
                 RecentEditHighlightFlash({ edits: [{ timestamp: 1, color: 'var(--purple)', rect: { left: 12, top: 60, width: 70, height: 16 } }] })
             ),
             h('div', { class: 'ds-prim-row' },
-                h('span', { class: 'ds-prim-label' }, 'context meter'),
+                h('span', { class: 'ds-prim-label' }, 'context meter'), RowTag('fixture'),
                 ContextMeter({ used: totalTokens, total: 32000, segments: CONTEXT_SEGMENTS })
             ),
             h('div', { class: 'ds-prim-row' },
-                h('span', { class: 'ds-prim-label' }, 'context treemap'),
+                h('span', { class: 'ds-prim-label' }, 'context treemap'), RowTag('fixture'),
                 ContextTreemap({ items: CONTEXT_SEGMENTS, width: 280, height: 160 })
             ),
             h('div', { class: 'ds-prim-row' },
-                h('span', { class: 'ds-prim-label' }, 'context x-ray'),
+                h('span', { class: 'ds-prim-label' }, 'context x-ray'), RowTag('fixture'),
                 ContextXRayPanel({
                     segments: CONTEXT_SEGMENTS,
                     openId: moreState.xrayOpenId,
@@ -316,12 +353,12 @@ function App() {
         side: Side({
             sections: [
                 { group: 'sections', items: [
-                    { glyph: '-', label: 'palette',    key: 'p', href: '#palette' },
-                    { glyph: '-', label: 'semantic',   key: 's', href: '#semantic' },
-                    { glyph: '-', label: 'type scale', key: 't', href: '#type-scale' },
-                    { glyph: '-', label: 'primitives', key: 'r', href: '#primitives' },
-                    { glyph: '-', label: 'restyle 2026', key: 'x', href: '#restyle' },
-                    { glyph: '-', label: 'backfill', key: 'b', href: '#backfill' }
+                    { glyph: '-', label: 'palette',    key: 'p', href: '#palette',    active: navState.activeId === 'palette' },
+                    { glyph: '-', label: 'semantic',   key: 's', href: '#semantic',   active: navState.activeId === 'semantic' },
+                    { glyph: '-', label: 'type scale', key: 't', href: '#type-scale', active: navState.activeId === 'type-scale' },
+                    { glyph: '-', label: 'primitives', key: 'r', href: '#primitives', active: navState.activeId === 'primitives' },
+                    { glyph: '-', label: 'restyle 2026', key: 'x', href: '#restyle',  active: navState.activeId === 'restyle' },
+                    { glyph: '-', label: 'backfill', key: 'b', href: '#backfill',     active: navState.activeId === 'backfill' }
                 ] }
             ]
         }),
@@ -333,7 +370,7 @@ function App() {
             PageHeader({
                 dense: true,
                 title: 'system primer',
-                lede: 'palette, semantic tokens, type scale, primitives — flip the theme and the semantic tokens invert while the lore palette holds',
+                lede: 'palette, semantic tokens, type scale, primitives',
                 right: ThemeToggle({ compact: true })
             }),
             h('div', { class: 'ds-section ds-section-pad' },
@@ -353,3 +390,6 @@ function App() {
 }
 
 const kit = mountKit({ root, view: App, screen: '16 System Primer' });
+// One-time observer setup after the first real DOM paint — the panel ids
+// don't exist until mountKit's initial applyDiff has run.
+queueMicrotask(observeSections);

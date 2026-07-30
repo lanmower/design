@@ -1,5 +1,5 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip, Kpi, BarChart, Table, Receipt, Changelog, Row } from 'ds/components.js';
+import { Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip, Kpi, BarChart, Table, Receipt, Changelog, Row, Btn } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
 
@@ -8,7 +8,13 @@ const root = document.getElementById('root');
 const kpis = [
     ['24,891', 'requests · 24h', { delta: '+12.4%', tone: 'up',   spark: [8, 11, 9, 14, 16, 15, 19, 22, 20, 24] }],
     ['184ms',  'avg latency · p50', { delta: '-6.1%', tone: 'up',  spark: [220, 210, 205, 198, 190, 188, 184, 186, 182, 184] }],
-    ['0.42%',  'error rate · 5xx+4xx', { delta: '+0.08%', tone: 'down', spark: [0.2, 0.25, 0.3, 0.28, 0.35, 0.3, 0.38, 0.4, 0.36, 0.42] }],
+    // tone here follows delta's own arithmetic sign (Kpi's contract: the arrow
+    // and kpi-delta-* color both derive from tone alone), not from whether the
+    // change is good or bad news for this particular metric. Error rate rose
+    // (+0.08%), so tone is 'up' even though a rising error rate is the
+    // worse-news direction — flipping tone to 'down' would draw a down-arrow
+    // next to a positive number, contradicting the figure right beside it.
+    ['0.42%',  'error rate · 5xx+4xx', { delta: '+0.08%', tone: 'up', spark: [0.2, 0.25, 0.3, 0.28, 0.35, 0.3, 0.38, 0.4, 0.36, 0.42] }],
     ['94.7%',  'cache hit · edge', { delta: '+1.2%', tone: 'up', spark: [90, 91, 92, 91, 93, 92, 94, 93, 95, 94.7] }]
 ];
 
@@ -56,8 +62,9 @@ const events = [
 ];
 
 // Every data panel below reads its state from here rather than assuming the
-// happy path. The sidebar "feed state" group flips it, so each state is a real
-// reachable surface in the kit, not dead code behind a flag nobody sets.
+// happy path. FeedStateSwitcher (in the events panel itself) flips it, so
+// each state is a real reachable surface in the kit, not dead code behind a
+// flag nobody sets.
 const state = { feed: 'ready' };
 const FEED_STATES = ['ready', 'loading', 'empty', 'error'];
 
@@ -104,6 +111,25 @@ function EventsPanel() {
 
 const feedCountOf = () => (state.feed === 'ready' ? events.length : 0);
 
+// Labelled kit-demo control, not navigation: lets a viewer step through every
+// reachable state of the events panel (ready/loading/empty/error) without it
+// masquerading as a real sidebar nav row. Small ghost buttons + an explicit
+// "demo:" label so the affordance reads as "this changes the panel below",
+// never as a destination.
+function FeedStateSwitcher() {
+    return h('div', { class: 'ds-btn-row', 'aria-label': 'events panel demo state' },
+        h('span', { class: 'eyebrow' }, 'demo:'),
+        ...FEED_STATES.map((s) => Btn({
+            key: 'fs-' + s,
+            size: 'sm',
+            variant: state.feed === s ? 'primary' : 'ghost',
+            'aria-label': 'show events panel ' + s + ' state',
+            onClick: () => { state.feed = s; kit.render(); },
+            children: s
+        }))
+    );
+}
+
 function App() {
     const feedCount = feedCountOf();
     return AppShell({
@@ -128,15 +154,16 @@ function App() {
                 { group: 'env', items: [
                     { glyph: h('span', { class: 'ds-dot ds-dot-on' }), label: 'production', count: 'eu', key: 'p', color: 'var(--panel-accent)', href: '#p-environment' },
                     { glyph: h('span', { class: 'ds-dot ds-dot-off' }), label: 'staging',   count: 'us', key: 's', color: 'var(--mascot)', href: '#p-environment' }
-                ] },
-                // Reachable state switcher — the events panel is the kit's
-                // reference data surface, so every state it can be in is one
-                // click away rather than only existing on a real outage.
-                { group: 'feed state', items: FEED_STATES.map((s) => ({
-                    glyph: h('span', { class: state.feed === s ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }),
-                    label: s, key: 'fs-' + s, active: state.feed === s, href: '#' + s,
-                    onClick: (e) => { e.preventDefault(); state.feed = s; kit.render(); }
-                })) }
+                ] }
+                // The feed-state switcher used to live here as its own sidebar
+                // group, styled identically to every real nav row above it —
+                // a first-time viewer has no way to tell "reachable panel
+                // anchor" from "kit-demo control that reassigns local state"
+                // when both render as the same .app-side link. It now lives
+                // as a labelled control strip inside the "recent events"
+                // panel it actually affects (see FeedStateSwitcher below),
+                // where its only plausible reading is "this changes what's
+                // below it", not "this navigates the app".
             ]
         }),
         main: [
@@ -150,7 +177,11 @@ function App() {
                 Panel({ id: 'p-metrics', title: 'live metrics', count: kpis.length, class: 'ds-panel-gap', children: Kpi({ items: kpis }) }),
                 h('div', { class: 'ds-panel-duo' },
                     Panel({ title: 'traffic by channel', count: channelBreakdown.length, class: 'ds-panel-flush', children: BarChart({ items: channelBreakdown }) }),
-                    Panel({ id: 'p-endpoints', title: 'top endpoints', count: tableRows.length, class: 'ds-panel-flush', children: h('div', { class: 'ds-scroll-x' }, Table({ headers: tableHeaders, rows: tableRows })) })
+                    // Table() already wraps itself in .ds-table-wrap, its own
+                    // overflow-x:auto + tabindex/role="group" scroll container
+                    // (table.js) — an outer .ds-scroll-x here nested a second,
+                    // redundant scroll region with no purpose of its own.
+                    Panel({ id: 'p-endpoints', title: 'top endpoints', count: tableRows.length, class: 'ds-panel-flush', children: Table({ headers: tableHeaders, rows: tableRows }) })
                 ),
                 // Three equal reference panels. A real 3-track grid, not
                 // percentage flex-basis: with basis+gap the three tracks
@@ -159,7 +190,12 @@ function App() {
                 // grid gap is the single source of separation in the row.
                 h('div', { class: 'ds-panel-trio' },
                     Panel({ id: 'p-environment', title: 'environment', class: 'ds-panel-flush', children: Receipt({ rows: receipt }) }),
-                    Panel({ id: 'p-events', title: 'recent events', count: feedCount, class: 'ds-panel-flush', children: EventsPanel() }),
+                    // The demo-state switcher renders as the first child of the
+                    // panel body (above the feed content it controls), not in
+                    // the sidebar and not competing with the panel-head count
+                    // slot — its only plausible reading is "this changes what's
+                    // directly below it", never "this is app navigation".
+                    Panel({ id: 'p-events', title: 'recent events', count: feedCount, class: 'ds-panel-flush', children: [FeedStateSwitcher(), EventsPanel()] }),
                     Panel({ id: 'p-changelog', title: 'changelog', count: changelog.length, class: 'ds-panel-flush', children: Changelog({ entries: changelog }) })
                 ),
                 Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },

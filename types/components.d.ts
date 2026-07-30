@@ -294,6 +294,8 @@ export interface PanelProps {
     children?: any;
     kind?: any;
     id?: any;
+    /** @default 2 */
+    headingLevel?: number;
 }
 export declare function Panel(props?: PanelProps): VNode;
 

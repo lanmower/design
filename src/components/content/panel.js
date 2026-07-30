@@ -7,11 +7,16 @@ import * as webjsx from '../../../vendor/webjsx/index.js';
 import { RowLink } from './row.js';
 const h = webjsx.createElement;
 
-export function Panel({ title, count, right, style = '', class: className = '', children, kind, id }) {
+export function Panel({ title, count, right, style = '', class: className = '', children, kind, id, headingLevel = 2 }) {
     const cls = 'panel' + (kind ? ' panel-' + kind : '') + (className ? ' ' + className : '');
+    // title renders as a real heading (h2 by default; `headingLevel` lets a
+    // caller nest a Panel under an existing h2/h3 without skipping a level) so
+    // a screen-reader heading-jump can actually find each section, not just
+    // the page's single top-level h1.
+    const headingTag = 'h' + headingLevel;
     return h('div', { class: cls, style, ...(id ? { id } : {}) },
         title != null ? h('div', { class: 'panel-head' },
-            h('span', {}, title),
+            h(headingTag, { class: 'panel-title' }, title),
             right != null ? right : (count != null ? h('span', {}, String(count)) : null)
         ) : null,
         h('div', { class: 'panel-body' }, ...(Array.isArray(children) ? children : [children]))

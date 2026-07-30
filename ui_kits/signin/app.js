@@ -5,9 +5,21 @@ import { shortUid } from 'ds/uid.js';
 const h = webjsx.createElement;
 
 const root = document.getElementById('root');
-const state = { mode: 'signin', email: '', password: '', remember: true, sent: false, error: '', loading: null, demoUrl: '', otp: '', otpVerified: false, otpError: '' };
+const state = { mode: 'signin', email: '', password: '', remember: true, sent: false, error: '', loading: null, demoUrl: '', otp: '', otpVerified: false, otpError: '', emailError: '', passwordError: '', showPassword: false };
 
-function setMode(m) { state.mode = m; state.sent = false; state.error = ''; state.loading = null; state.demoUrl = ''; state.otp = ''; state.otpVerified = false; state.otpError = ''; kit.render(); }
+function setMode(m) { state.mode = m; state.sent = false; state.error = ''; state.emailError = ''; state.passwordError = ''; state.loading = null; state.demoUrl = ''; state.otp = ''; state.otpVerified = false; state.otpError = ''; state.showPassword = false; kit.render(); }
+
+// Same copy submit() uses, run early so a mistake surfaces on blur/input
+// instead of only after the whole form is filled out and submitted.
+function validateEmail() {
+    if (!state.email.trim()) { state.emailError = ''; return; }
+    state.emailError = state.email.includes('@') ? '' : 'that address has no @ — check for a typo.';
+}
+function validatePassword() {
+    if (state.mode === 'magic' || state.mode === 'reset') { state.passwordError = ''; return; }
+    if (!state.password) { state.passwordError = ''; return; }
+    state.passwordError = state.password.length < 6 ? 'password is too short — 6 characters minimum.' : '';
+}
 
 // A specimen page cannot actually deliver an email, so the interactive
 // stand-in for "click the link in your inbox" is a fixed demo code the
@@ -34,9 +46,11 @@ function submit(e) {
     // "enter a real email" told the user they were wrong without saying what
     // would be right.
     if (!state.email.trim()) { state.error = 'email is empty — enter the address on your account.'; kit.render(); return; }
-    if (!state.email.includes('@')) { state.error = 'that address has no @ — check for a typo.'; kit.render(); return; }
-    if (state.mode !== 'magic' && state.mode !== 'reset' && state.password.length < 6) {
-        state.error = 'password is too short — 6 characters minimum.'; kit.render(); return;
+    validateEmail();
+    if (state.emailError) { state.error = state.emailError; kit.render(); return; }
+    if (state.mode !== 'magic' && state.mode !== 'reset') {
+        validatePassword();
+        if (state.passwordError) { state.error = state.passwordError; kit.render(); return; }
     }
     state.error = '';
     state.sent = true;
@@ -167,10 +181,14 @@ function Form() {
                 state.otpVerified ? 'verified' :
                 state.mode === 'magic' ? 'check your email' : (state.mode === 'reset' ? 'reset link sent' : 'welcome back')),
             h('p', { class: 'ds-auth-sent-sub' },
-                state.otpVerified ? 'signed in. taking you to the index.' :
+                // This is a specimen page, not a live host app — there is no
+                // real index route to send anyone to, so the copy says what
+                // actually happens (nothing further) instead of promising a
+                // redirect that this file never wires up.
+                state.otpVerified ? '(demo) signed in — this specimen stops here.' :
                 state.mode === 'magic'
                 ? 'we sent a sign-in link to ' + state.email + '. it expires in 15 minutes — or enter the ' + DEMO_CODE.length + '-digit code from the email below (demo code: ' + DEMO_CODE + ').'
-                : (state.mode === 'reset' ? 'we sent a reset link to ' + state.email + '. follow it to set a new password.' : 'signed in. taking you to the index.')),
+                : (state.mode === 'reset' ? 'we sent a reset link to ' + state.email + '. follow it to set a new password.' : '(demo) signed in — this specimen stops here.')),
             magicVerify ? h('div', { class: 'ds-auth-otp-wrap' },
                 InputOTP({
                     length: DEMO_CODE.length, value: state.otp,
@@ -190,11 +208,33 @@ function Form() {
     return h('form', { onsubmit: submit, class: 'ds-auth-form' },
         h('label', { class: 'ds-auth-field' },
             h('span', { class: 'ds-auth-field-label' }, 'email'),
-            h('input', { class: 'input', type: 'email', placeholder: 'you@247420.xyz', value: state.email, autocomplete: 'email', oninput: (e) => { state.email = e.target.value; } })
+            h('input', {
+                class: 'input', type: 'email', placeholder: 'you@247420.xyz', value: state.email,
+                autocomplete: 'email', required: true, 'aria-required': 'true',
+                'aria-invalid': state.emailError ? 'true' : 'false',
+                oninput: (e) => { state.email = e.target.value; if (state.emailError) validateEmail(); kit.render(); },
+                onblur: () => { validateEmail(); kit.render(); }
+            }),
+            state.emailError ? h('div', { class: 'ds-auth-error', role: 'alert' }, state.emailError) : null
         ),
         state.mode !== 'magic' && state.mode !== 'reset' ? h('label', { class: 'ds-auth-field' },
             h('span', { class: 'ds-auth-field-label' }, 'password'),
-            h('input', { class: 'input', type: 'password', placeholder: '********', value: state.password, autocomplete: state.mode === 'signup' ? 'new-password' : 'current-password', oninput: (e) => { state.password = e.target.value; } })
+            h('div', { class: 'ds-auth-field-input-row' },
+                h('input', {
+                    class: 'input', type: state.showPassword ? 'text' : 'password', placeholder: '********',
+                    value: state.password, autocomplete: state.mode === 'signup' ? 'new-password' : 'current-password',
+                    required: true, 'aria-required': 'true',
+                    'aria-invalid': state.passwordError ? 'true' : 'false',
+                    oninput: (e) => { state.password = e.target.value; validatePassword(); kit.render(); }
+                }),
+                h('button', {
+                    type: 'button', class: 'ds-icon-btn ds-icon-btn-sm ds-icon-btn-ghost ds-auth-pw-toggle',
+                    'aria-pressed': state.showPassword ? 'true' : 'false',
+                    'aria-label': state.showPassword ? 'hide password' : 'show password',
+                    onclick: (e) => { e.preventDefault(); state.showPassword = !state.showPassword; kit.render(); }
+                }, Icon(state.showPassword ? 'eye-off' : 'eye'))
+            ),
+            state.passwordError ? h('div', { class: 'ds-auth-error', role: 'alert' }, state.passwordError) : null
         ) : null,
         state.mode === 'signin' ? h('div', { class: 'ds-auth-row-between' },
             h('label', { class: 'ds-auth-remember' },
@@ -204,10 +244,17 @@ function Form() {
             h('a', { href: '#reset', onclick: (e) => { e.preventDefault(); setMode('reset'); }, class: 'ds-auth-forgot' }, 'forgot password?')
         ) : null,
         // role=alert so the validation message is announced, not just painted.
-        state.error ? h('div', { class: 'ds-auth-error', role: 'alert' }, state.error) : null,
+        // Suppressed when it duplicates a field-level error already shown
+        // inline above (email/password), which is the common submit() path
+        // now that both of those validate before submit runs.
+        state.error && state.error !== state.emailError && state.error !== state.passwordError
+            ? h('div', { class: 'ds-auth-error', role: 'alert' }, state.error) : null,
         // Shows the exact authorize URL this component built, instead of
         // navigating away from the specimen with placeholder credentials.
-        state.demoUrl ? h('div', { class: 'ds-auth-error', role: 'status' },
+        // .ds-auth-status, not .ds-auth-error: this is informational, not a
+        // failure, and needs a visually distinct channel from a real error —
+        // color alone was the only signal before (WCAG 1.4.1).
+        state.demoUrl ? h('div', { class: 'ds-auth-status', role: 'status' },
             'demo mode — would open: ' + state.demoUrl) : null,
         h('button', { class: 'btn btn-primary', type: 'submit' },
             state.mode === 'signup' ? 'create account ->' :

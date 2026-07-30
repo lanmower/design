@@ -93,7 +93,7 @@ export function Side({ sections = [] } = {}) {
         return h('div', { class: 'app-side-group', key: sec.group, role: 'group', 'aria-labelledby': groupId },
             h('h2', { class: 'group', id: groupId }, sec.group),
             ...sec.items.map((item, i) => {
-                const { glyph, label, href, active, count, color, onClick } = item;
+                const { glyph, label, href, active, count, color, onClick, ariaLabel } = item;
                 const countLabel = (count != null && count !== 0 && count !== '0') ? ` (${count})` : '';
                 // An item with neither href nor onClick is not a control, and
                 // must not look like one. href used to default to '#', so a
@@ -118,7 +118,12 @@ export function Side({ sections = [] } = {}) {
                     ...(isControl ? { href: href != null ? href : '#' } : {}),
                     class: active ? 'active' : '',
                     'aria-current': active ? 'page' : null,
-                    'aria-label': label + countLabel,
+                    // ariaLabel lets a caller pass the untruncated source string
+                    // as the accessible name when `label` itself is a shortened
+                    // display string (e.g. a preset prompt cut to fit the row) —
+                    // otherwise screen-reader users lose the exact same
+                    // distinguishing text sighted users lose to the ellipsis.
+                    'aria-label': (ariaLabel != null ? ariaLabel : label) + countLabel,
                     onclick: onClick,
                     onkeydown: isControl ? onSideLinkKeyDown : null
                 },

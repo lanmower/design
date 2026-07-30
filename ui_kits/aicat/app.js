@@ -1,5 +1,5 @@
 import * as webjsx from 'webjsx';
-import { AICat, AICatPortrait, ChatComposer, Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip } from 'ds/components.js';
+import { AICat, AICatPortrait, ChatComposer, Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip, flashComposerNote } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 import 'ds/index.js';
 const h = webjsx.createElement;
@@ -55,6 +55,18 @@ const REPLIES = {
     text: () => ({ parts: [{ kind: 'text', text: 'a generational gc walks into a bar. the bartender says, *you again?* gc says, **don\'t worry, I\'ll be young forever.**' }] })
 };
 
+// Truncate at a word boundary near `max` rather than a raw character cut, so
+// the visible label keeps the last whole word instead of splitting mid-word
+// (e.g. "send the v0.0.27 token…" instead of "send the v0.0.27 tok…"). The
+// untruncated string is still passed separately as `ariaLabel` (app-shell.js)
+// so screen-reader users get the full text regardless of where this cuts.
+function truncateAtWord(text, max) {
+    if (text.length <= max) return text;
+    const cut = text.slice(0, max);
+    const lastSpace = cut.lastIndexOf(' ');
+    return (lastSpace > max * 0.5 ? cut.slice(0, lastSpace) : cut) + '…';
+}
+
 function classifyAndReply(text) {
     const t = text.toLowerCase();
     const map = [
@@ -103,14 +115,23 @@ function TranscriptError() {
             h('div', { class: 'ds-alert-title' }, 'aicat stopped mid-reply'),
             h('div', { class: 'ds-alert-message' }, 'the model returned a truncated response, so the last turn is incomplete rather than wrong-but-whole. your prompt is still in the box — resending replays it against a fresh context.'),
             h('div', { class: 'ds-alert-retry' },
-                h('button', { class: 'btn', onclick: () => { state.phase = 'ready'; kit.render(); } }, 'resend last turn')
+                h('button', {
+                    class: 'btn',
+                    onclick: () => {
+                        state.phase = 'ready';
+                        const text = state.lastFailedText;
+                        state.lastFailedText = null;
+                        kit.render();
+                        if (text) send(text);
+                    }
+                }, 'resend last turn')
             )
         )
     );
 }
 
 const state = {
-    draft: '', thinking: false, mood: 'idle', phase: 'ready',
+    draft: '', thinking: false, mood: 'idle', phase: 'ready', lastFailedText: null,
     messages: [
         { who: 'them', name: 'aicat', text: 'hi. I am **aicat**. I read fast and I knock things off shelves.', time: '·' },
         { who: 'them', name: 'aicat', parts: [{ kind: 'md', text: 'try one of these:\n\n- ask for `code` (react/python — pick a flavour)\n- ask for the **token pdf** or the **mascot image**\n- ask me to attach a *config file*\n- or just chat — I respond in markdown.' }], time: '·' }
@@ -121,6 +142,13 @@ const root = document.getElementById('root');
 function timeNow() { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
 
 function send(text) {
+    // Guard against overlapping sends (rapid preset clicks / composer submits
+    // while a reply is already in flight): without this, two concurrent
+    // setTimeout chains both stamp receipt:'read' across every prior 'you'
+    // message and both append a reply, corrupting the transcript's state
+    // model even though every control involved is reachable and labelled.
+    if (state.thinking) return;
+    const sentIdx = state.messages.length;
     state.messages = [...state.messages, { who: 'you', avatar: 'u', time: timeNow(), receipt: 'delivered', parts: [{ kind: 'text', text }] }];
     state.draft = '';
     state.thinking = true;
@@ -130,7 +158,7 @@ function send(text) {
         state.thinking = false;
         state.mood = 'happy';
         const reply = classifyAndReply(text);
-        state.messages = state.messages.map((m) => m.who === 'you' ? { ...m, receipt: 'read' } : m);
+        state.messages = state.messages.map((m, i) => (m.who === 'you' && i === sentIdx) ? { ...m, receipt: 'read' } : m);
         state.messages = [...state.messages, { who: 'them', name: 'aicat', time: timeNow(), ...reply }];
         kit.render();
         setTimeout(() => { state.mood = 'idle'; kit.render(); }, 1400);
@@ -144,18 +172,30 @@ function App() {
         side: Side({
             sections: [
                 { group: 'session', items: [
-                    { glyph: '+', label: 'new chat', key: 'new', onClick: (e) => { e.preventDefault(); state.messages = state.messages.slice(0, 2); kit.render(); } },
+                    { glyph: '+', label: 'new chat', key: 'new', onClick: (e) => {
+                        e.preventDefault();
+                        state.messages = state.messages.slice(0, 2);
+                        kit.render();
+                        // Transient, non-blocking confirmation that the clear
+                        // happened — "history" in the same sidebar group implies
+                        // persistence, so a silent truncate reads as data loss
+                        // rather than an intentional action taking effect.
+                        const composerEl = root.querySelector('.chat-composer');
+                        if (composerEl) flashComposerNote(composerEl, 'chat cleared');
+                    } },
                     { glyph: '~', label: 'history', count: 7, key: 'h' }
                 ] },
-                // Reachable state switcher for the transcript.
-                { group: 'session state', items: PHASES.map((p) => ({
-                    glyph: h('span', { class: state.phase === p ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }),
-                    label: p, key: 'ph-' + p, active: state.phase === p,
-                    onClick: (e) => { e.preventDefault(); state.phase = p; kit.render(); }
-                })) },
                 { group: 'try', items: PRESETS.map((p, i) => ({
-                    glyph: '·', label: p.q.length > 22 ? p.q.slice(0, 22) + '…' : p.q, key: 'p' + i,
-                    onClick: (e) => { e.preventDefault(); send(p.q); }
+                    glyph: '·',
+                    label: truncateAtWord(p.q, 28),
+                    ariaLabel: p.q,
+                    key: 'p' + i,
+                    // Same guard send() itself now enforces (state.thinking),
+                    // applied at the click site too so a rapid double-click
+                    // never queues a second send() call while the first is
+                    // still resolving — mirrors the composer's own
+                    // disabled: state.thinking gating.
+                    onClick: (e) => { e.preventDefault(); if (!state.thinking) send(p.q); }
                 })) }
             ]
         }),
@@ -188,13 +228,44 @@ function App() {
                     children: h('div', { class: 'ds-pattern-notes' },
                         h('p', {}, '· portrait swaps with mood — ', Chip({ tone: 'dim', children: 'idle' }), ' ', Chip({ tone: 'dim', children: 'think' }), ' ', Chip({ tone: 'accent', children: 'happy' }), '.'),
                         h('p', {}, '· thinking-state appends a typing bubble, disables the composer, blocks pre-emptive multi-sends.'),
-                        h('p', {}, '· classifier in ', h('code', {}, 'classifyAndReply()'), ' is deterministic — wire it to your model, replies stay shaped as ', h('code', {}, '{parts:[…]}'), '.')
+                        h('p', {}, '· classifier in ', h('code', {}, 'classifyAndReply()'), ' is deterministic — wire it to your model, replies stay shaped as ', h('code', {}, '{parts:[…]}'), '.'),
+                        // Reference-surface toggle for the transcript's other
+                        // phases (loading/empty/error). Lives here, inline in a
+                        // labelled caption, rather than as a peer row inside the
+                        // sidebar's `role="navigation"` landmark — a first-time
+                        // visitor scanning real nav rows next to a debug "error"
+                        // row can mistake it for a live system alert.
+                        Lede({ children: 'reference: switch the transcript panel above between its states —' }),
+                        h('div', { class: 'ds-filter-pills', role: 'group', 'aria-label': 'transcript reference state' },
+                            ...PHASES.map((p) => h('button', {
+                                key: 'ph-' + p,
+                                type: 'button',
+                                class: 'ds-filter-pill' + (state.phase === p ? ' active' : ''),
+                                'aria-pressed': state.phase === p ? 'true' : 'false',
+                                onclick: () => {
+                                    state.phase = p;
+                                    if (p === 'error') {
+                                        // Wire the reachable reference "error"
+                                        // state to the same resend path a real
+                                        // failure would take: fall back to the
+                                        // last thing the user sent, or the
+                                        // current draft, so "resend last turn"
+                                        // has real text to replay.
+                                        const lastYou = [...state.messages].reverse().find((m) => m.who === 'you');
+                                        state.lastFailedText = (lastYou && lastYou.parts && lastYou.parts[0] && lastYou.parts[0].text) || state.draft || null;
+                                    }
+                                    kit.render();
+                                }
+                            }, p))
+                        )
                     )
                 })
             )
         ],
         status: Status({
-            left: ['aicat', '- ' + (state.phase === 'ready' ? state.messages.length : 0) + ' turns', state.thinking ? '- thinking' : '- idle', '- ' + state.phase],
+            left: state.phase === 'ready'
+                ? ['aicat', '- ' + state.messages.length + ' turns', state.thinking ? '- thinking' : '- idle']
+                : ['aicat', '- ' + state.phase],
             right: ['247420 / mmxxvi']
         })
     });

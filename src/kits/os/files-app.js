@@ -11,6 +11,13 @@ export function renderFilesApp(opts = {}) {
 
     let preview = null;
     let selected = null;
+    function renderError(err) {
+        node.innerHTML = '';
+        const errRow = document.createElement('div');
+        errRow.className = 'row-error';
+        errRow.textContent = 'could not load files: ' + (err && err.message ? err.message : String(err));
+        node.appendChild(errRow);
+    }
     async function refresh() {
         const items = await list();
         preview = null;
@@ -40,8 +47,8 @@ export function renderFilesApp(opts = {}) {
     }
 
     let timer = null;
-    refresh().catch(() => {});
-    if (pollMs > 0) timer = setInterval(() => refresh().catch(() => {}), pollMs);
+    refresh().catch(renderError);
+    if (pollMs > 0) timer = setInterval(() => refresh().catch(renderError), pollMs);
 
     return {
         node,

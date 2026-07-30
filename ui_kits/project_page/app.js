@@ -10,25 +10,19 @@ const root = document.getElementById('root');
 // `phase` drives the changelog — this page's one remote-fed data surface.
 // Toggled from the sidebar so its loading / empty / error readings are
 // reachable here rather than only against a live registry.
-const state = { copied: false, tab: 'readme', phase: 'ready' };
+const state = { copied: false, phase: 'ready' };
 
-// `tab` items switch the readme/docs view; `anchor` items scroll to a section
-// on this page; `href` items leave. Every entry now goes somewhere — the
-// reference and links groups were previously seven inert rows styled exactly
-// like the four working ones.
+// Every entry goes somewhere: `anchor` items scroll to a real section on this
+// page, `href` items leave. There used to be a `readme`/`docs` tab pair here
+// switching a `state.tab` that nothing downstream branched on — a fake IA
+// node — plus a `reference` group pointing at ids that were never rendered.
+// Both were removed rather than stubbed with placeholder content; the single
+// `main` render below is the only "tab" this page has.
 const sideSections = [
     { group: 'project', items: [
-        { glyph: '//', label: 'readme', tab: 'readme' },
-        { glyph: '//', label: 'docs', tab: 'docs' },
         { glyph: '-', label: 'install', anchor: 'install' },
         { glyph: '-', label: 'receipt', anchor: 'receipt' },
         { glyph: '-', label: 'changelog', anchor: 'changelog' }
-    ] },
-    { group: 'reference', items: [
-        { glyph: '>', label: 'executenodejs', href: '#executenodejs' },
-        { glyph: '>', label: 'executedeno', href: '#executedeno' },
-        { glyph: '>', label: 'astgrep_*', href: '#astgrep' },
-        { glyph: '>', label: 'batch_execute', href: '#batch_execute' }
     ] },
     { group: 'links', items: [
         { glyph: '->', label: 'source', href: 'https://github.com/AnEntrypoint' },
@@ -104,39 +98,33 @@ function copyInstall(cmd) {
     setTimeout(() => { state.copied = false; kit.render(); }, 1200);
 }
 
+// Topbar's nav items are derived from the `project` sideSections group —
+// previously this was a second, hand-written `readme`/`docs` list with its
+// own `onNav` wiring that could (and did) drift from the sidebar's actual
+// entries. One list, one source of truth.
+const projectNavItems = sideSections[0].items.map((it) => [it.label, '#' + it.anchor]);
+
 function App() {
     return AppShell({
         topbar: Topbar({
             brand: '247420', leaf: 'gm',
             items: [
                 ['<- all projects', '../homepage/'],
-                ['readme', '#readme'],
-                ['docs', '#docs'],
+                ...projectNavItems,
                 ['source ->', 'https://github.com/AnEntrypoint']
-            ],
-            active: state.tab,
-            onNav: (label) => { if (label === 'readme' || label === 'docs') { state.tab = label; kit.render(); } }
+            ]
         }),
         crumb: Crumb({
-            trail: ['247420', 'gm'], leaf: state.tab,
+            trail: ['247420', 'gm'], leaf: 'readme',
             right: [Chip({ tone: 'dim', children: 'shipping' }), Chip({ tone: 'dim', children: 'v0.4.1' })]
         }),
         side: Side({
             sections: [
-                // Only the `tab` items can be "here", so only they take the
-                // active highlight. Previously `overview` was hardcoded active
-                // forever AND the release-feed phase row took the same acid
-                // fill, so the page showed two "you are here" markers at once
-                // and neither meant anything.
                 ...sideSections.map((sec) => ({
                     group: sec.group,
                     items: sec.items.map((it, i) => ({
                         key: sec.group + i, glyph: it.glyph, label: it.label,
-                        active: !!it.tab && state.tab === it.tab,
-                        href: it.href || '#' + (it.tab || it.anchor || it.label),
-                        onClick: it.tab
-                            ? (e) => { e.preventDefault(); state.tab = it.tab; kit.render(); }
-                            : null
+                        href: it.href || '#' + it.anchor
                     }))
                 })),
                 // Demo switcher for the changelog's states. Marked with a
@@ -162,7 +150,7 @@ function App() {
         // "typescript · 0 errors · 0 warnings" — an editor status bar borrowed
         // onto a package readme, reporting on a build that is not running here.
         status: Status({
-            left: ['gm', '- ' + state.tab, '- releases ' + state.phase],
+            left: ['gm', '- releases ' + state.phase],
             right: ['v0.4.1', 'MIT']
         })
     });

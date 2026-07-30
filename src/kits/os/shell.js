@@ -42,8 +42,37 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
     osRoot.append(menubar, appsMenu, taskbar);
     document.body.append(sideRail, drawer);
 
-    function openMenu() { appsMenu.classList.add('open'); appsBtn.setAttribute('aria-expanded', 'true'); }
-    function closeMenu() { appsMenu.classList.remove('open'); appsBtn.setAttribute('aria-expanded', 'false'); }
+    // Apps menu keyboard operability (APG menu-button pattern), mirroring the
+    // drawer's capture/restore-focus treatment below: opening moves focus onto
+    // the first menuitem so Tab/arrow-keys start inside the now-visible menu
+    // instead of on a hidden ancestor; closing restores focus to appsBtn (the
+    // only trigger) so keyboard position isn't lost. Arrow keys roam the
+    // role="menuitem" set (roving focus) per the declared role="menu".
+    let menuReturnFocus = null;
+    function menuItems() { return [...appsMenu.querySelectorAll('[role="menuitem"]')]; }
+    function openMenu() {
+        menuReturnFocus = document.activeElement;
+        appsMenu.classList.add('open');
+        appsBtn.setAttribute('aria-expanded', 'true');
+        const items = menuItems();
+        if (items.length) items[0].focus();
+    }
+    function closeMenu() {
+        if (!appsMenu.classList.contains('open')) return;
+        appsMenu.classList.remove('open');
+        appsBtn.setAttribute('aria-expanded', 'false');
+        if (menuReturnFocus && typeof menuReturnFocus.focus === 'function') menuReturnFocus.focus();
+        menuReturnFocus = null;
+    }
+    appsMenu.addEventListener('keydown', e => {
+        const items = menuItems();
+        if (!items.length) return;
+        const i = items.indexOf(document.activeElement);
+        if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1 + items.length) % items.length].focus(); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+        else if (e.key === 'Home') { e.preventDefault(); items[0].focus(); }
+        else if (e.key === 'End') { e.preventDefault(); items[items.length - 1].focus(); }
+    });
     // Focus management: opening the drawer moves keyboard focus onto its
     // close button (the first reachable control inside the now-visible
     // dialog) so Tab starts inside it, not lost on a now-hidden ancestor;
@@ -136,26 +165,40 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
         refreshTaskbar();
     }
 
+    function makeLoadingNode() {
+        const n = document.createElement('div');
+        n.className = 'app-pane os-app-loading';
+        n.textContent = 'loading…';
+        return n;
+    }
+
     function openApp(appId) {
         const app = (typeof registry.get === 'function') ? registry.get(appId) : registry[appId];
         if (!app) throw new Error('unknown app: ' + appId);
         const ctx = { ...(activeContext || {}), registry, openApp, wm };
         const result = app.factory(ctx);
+        const isAsync = result && typeof result.then === 'function';
+        const sz = app.defaultSize || { w: 520, h: 360 };
+        const { w, h, x, y, maximized } = computeSpawnRect(sz, wm.count);
+        const titlePrefix = (activeContext && activeContext.titlePrefix) ? activeContext.titlePrefix + ' · ' : '';
+        // A slow async factory (network/worker-backed app) must not read as a
+        // dead click: spawn the window immediately with a loading placeholder
+        // body, then swap in the real content once the factory resolves.
+        const win = wm.open({ title: titlePrefix + app.name, body: isAsync ? makeLoadingNode() : result.node, kind: appId, width: w, height: h, x, y, maximized });
+        if (activeInstanceId && win.el) {
+            win.el.dataset.instanceId = activeInstanceId;
+            win.instanceId = activeInstanceId;
+        }
+        win.appId = appId;
+        refreshTaskbar();
         const finish = (r) => {
-            const sz = app.defaultSize || { w: 520, h: 360 };
-            const { w, h, x, y, maximized } = computeSpawnRect(sz, wm.count);
-            const titlePrefix = (activeContext && activeContext.titlePrefix) ? activeContext.titlePrefix + ' · ' : '';
-            const win = wm.open({ title: titlePrefix + app.name, body: r.node, kind: appId, width: w, height: h, x, y, maximized });
+            if (isAsync && typeof win.setBody === 'function') win.setBody(r.node);
             win._app = { id: appId, dispose: r.dispose };
-            if (activeInstanceId && win.el) {
-                win.el.dataset.instanceId = activeInstanceId;
-                win.instanceId = activeInstanceId;
-            }
-            win.appId = appId;
             refreshTaskbar();
             return win;
         };
-        return (result && typeof result.then === 'function') ? result.then(finish) : finish(result);
+        if (isAsync) return result.then(finish);
+        return finish(result);
     }
 
     if (newInstBtn) newInstBtn.addEventListener('click', () => onNewInstance && onNewInstance({ instSwitch, setContext, openApp }));
