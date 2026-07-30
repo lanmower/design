@@ -152,6 +152,17 @@ export async function withPage(url, fn, opts = {}) {
     try {
         await send('Page.enable');
         await send('Runtime.enable');
+        await send('Network.enable');
+        // Disabled BEFORE the first navigation, same reasoning as the emulated-
+        // media pin below: a stylesheet/script served with a real cache-control
+        // header (e.g. any local http-server's default max-age) is otherwise
+        // read from this Chrome profile's disk cache on a repeat navigation to
+        // the same URL, silently returning the PRE-edit bytes even though the
+        // file on disk (and a fresh fetch() from inside the page) already has
+        // the new content -- caught live via colors_and_type.css appearing
+        // correct to curl and to an in-page fetch() but stale via the <link>
+        // tag's resolved computed style, until this call was added.
+        await send('Network.setCacheDisabled', { cacheDisabled: true });
         await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: dsf, mobile: false });
         // Pin emulated media BEFORE the first navigation. Applying it after the
         // page has already painted leaves the initial render (and any theme the

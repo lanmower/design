@@ -37,6 +37,28 @@ design  --publish to npm (always-latest)-->  thebird  (docs/vendor/ via refresh-
 - Any new visual rule for either downstream consumer is authored HERE, never as inline styles or
   ad hoc CSS in thebird/freddie.
 
+## Relationship to webjsx-toolkit
+
+`webjsx-toolkit` (a sibling project, `C:/dev/agent-jsx/webjsx-toolkit`) is a separate, independent
+port of a shadcn/ui-style component set onto the `webjsx` runtime — Button/Dialog/Tabs/Select/etc.
+with a Tailwind+`class-variance-authority` styling approach and Radix-derived behavior, reimplemented
+by hand since webjsx has no React-hooks/component-tag model for Radix itself to run on. It is **not**
+a dependency of this repo and this repo is not a dependency of it — no publish/consume relationship
+in either direction, unlike the thebird/freddie chain above.
+
+design predates it and has an independent, hand-authored, token-driven component/CSS architecture
+(see "Design System" in AGENTS.md) that already covered most of the same ground (Dialog, Popover,
+Tooltip, DropdownMenu, Accordion, Tabs, etc. — see `src/components/editor-primitives/`,
+`overlay-primitives/`) before webjsx-toolkit existed. A 2026 cross-project pass did two things: (1)
+backfilled the handful of primitives design genuinely lacked (Calendar, DatePicker, Slider, InputOTP,
+Carousel, HoverCard, Menubar, a standalone Progress bar, plus a new real-time-collaboration group)
+using design's OWN conventions, not webjsx-toolkit's Tailwind/cva ones; (2) restyled design's token
+system (`colors_and_type.css` — palette, radius scale, motion easing) to match webjsx-toolkit's
+shadcn-neutral visual identity, replacing the prior "Acid Editorial" look (see CHANGELOG "Unreleased"
+for the full token-by-token rationale and the WCAG re-verification that followed). The two projects
+remain architecturally independent; the restyle only moved design's own token VALUES, not its
+component API surface or its underlying webjsx-native (not Tailwind) implementation.
+
 ## Boot / build sequence
 
 **Dev:** `npm install`, then edit `src/*` — components are plain JS/webjsx, no dev server required

@@ -2,7 +2,7 @@
 
 Generated from `src/components.js`'s real export barrel + each symbol's real definition in `src/components/*.js`, via `node scripts/generate-component-docs.mjs`. Do not hand-edit -- re-run after any component signature or JSDoc change.
 
-247 exported symbols across 26 source files.
+269 exported symbols across 30 source files.
 
 ---
 
@@ -364,6 +364,28 @@ A Claude-Desktop / cowork three-(or four-)column app shell.  Pure stateless chro
 
 **Signature:** `fields` = `[]`, `submit` = `'submit'`, `onSubmit`, `columns` = `1`
 
+### InputOTP
+
+Segmented one-time-code / PIN entry.
+
+**Kind:** component
+
+**Signature:** `length` = `6`, `value` = `''`, `onChange`, `onComplete`, `disabled`, `error`, `label` = `'code'`, `key`
+
+**Documented params:**
+
+- `props` _(Object)_
+- `props.length` _(number)_ -- number of boxes.
+- `props.value` _(string)_ -- the full code so far (controlled).
+- `props.onChange` _(Function)_ -- called with (nextValue:string, event) on every edit.
+- `props.onComplete` _(Function)_ -- called with (code:string) once all boxes are filled.
+- `props.disabled` _(boolean)_
+- `props.error` _(boolean)_
+- `props.label` _(string)_ -- accessible name for the group.
+- `props.key` _(*)_
+
+**Returns:** {*} webjsx vnode
+
 ### Spinner
 
 **Kind:** component
@@ -599,6 +621,24 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 
 **Signature:** `agent`, `model`, `cwd`, `toolCount` = `0`, `usage`, `session`, `recentFiles`, `onSetCwd`, `onOpenFile`
 
+### ContextMeter
+
+**Kind:** component
+
+**Signature:** `used` = `0`, `total` = `0`, `segments` = `[]`
+
+### ContextTreemap
+
+**Kind:** component
+
+**Signature:** `items` = `[]`, `width` = `280`, `height` = `160`
+
+### ContextXRayPanel
+
+**Kind:** component
+
+**Signature:** `segments` = `[]`, `openId`, `onOpenIdChange`
+
 ## `src/components/spreadsheet-preview.js`
 
 ### SpreadsheetPreview
@@ -726,6 +766,12 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 **Kind:** component
 
 **Signature:** `entries` = `[]`, `autoScroll` = `true`
+
+### Progress
+
+**Kind:** component
+
+**Signature:** `value` = `0`, `max` = `100`, `label`
 
 ## `src/components/files.js`
 
@@ -1027,6 +1073,38 @@ The directory listing.  `loading` and `busy` are NOT two spellings of one state 
 
 **Signature:** _(no props)_
 
+## `src/components/collab.js`
+
+### LiveCursorOverlay
+
+**Kind:** component
+
+**Signature:** `cursors` = `[]`
+
+### RemoteSelectionRings
+
+**Kind:** component
+
+**Signature:** `selections` = `[]`
+
+### RecentEditHighlightFlash
+
+**Kind:** component
+
+**Signature:** `edits` = `[]`
+
+### AgentPresenceChip
+
+**Kind:** component
+
+**Signature:** `userId`, `label`, `color`, `status` = `'active'`, `key`
+
+### PresenceBar
+
+**Kind:** component
+
+**Signature:** `users` = `[]`
+
 ## `src/components/theme-toggle.js`
 
 ### ThemeToggle
@@ -1078,6 +1156,52 @@ The directory listing.  `loading` and `busy` are NOT two spellings of one state 
 **Kind:** component
 
 **Signature:** `errors, order, getEl` _(positional arg)_
+
+## `src/components/slider.js`
+
+### Slider
+
+A single-value range slider (track + fill + thumb) built on a real, invisible native `<input type="range">` for keyboard/pointer/a11y semantics, matching the overlay approach voice/capture.js's VadMeter pioneered for its threshold handle.
+
+**Kind:** component
+
+**Signature:** `value` = `0`, `min` = `0`, `max` = `100`, `step` = `1`, `onChange`, `label`, `disabled`, `hint`, `key`
+
+**Documented params:**
+
+- `props` _(Object)_
+- `props.value` _(number)_
+- `props.min` _(number)_
+- `props.max` _(number)_
+- `props.step` _(number)_
+- `props.onChange` _(Function)_ -- called with (value:number, event) on input.
+- `props.label` _(string)_ -- accessible name; also rendered visibly when given.
+- `props.disabled` _(boolean)_
+- `props.hint` _(string)_
+- `props.key` _(*)_
+
+**Returns:** {*} webjsx vnode
+
+## `src/components/carousel.js`
+
+### Carousel
+
+A scroll-snap content carousel with prev/next controls.
+
+**Kind:** component
+
+**Signature:** `items` = `[]`, `renderItem`, `orientation` = `'horizontal'`, `label` = `'carousel'`, `key`
+
+**Documented params:**
+
+- `props` _(Object)_
+- `props.items` _(Array)_
+- `props.renderItem` _(Function)_ -- (item, index) => vnode.
+- `props.orientation` _('horizontal'|'vertical')_
+- `props.label` _(string)_ -- accessible name for the region.
+- `props.key` _(*)_
+
+**Returns:** {*} webjsx vnode
 
 ## `src/components/interaction-primitives.js`
 
@@ -1323,6 +1447,12 @@ The directory listing.  `loading` and `busy` are NOT two spellings of one state 
 
 **Signature:** `label`, `vertical` = `false`, `key`
 
+### AspectRatio
+
+**Kind:** component
+
+**Signature:** `ratio`, `children`, `key`
+
 ### useMediaQuery
 
 **Kind:** component
@@ -1480,6 +1610,18 @@ The directory listing.  `loading` and `busy` are NOT two spellings of one state 
 **Kind:** component
 
 **Signature:** `trigger`, `items` = `[]`, `selected`, `onSelect`, `onRetry`, `placement` = `'bottom-start'`, `ariaLabel` = `'Menu'`, `emptyText` = `'No options available'`
+
+### HoverCard
+
+**Kind:** component
+
+**Signature:** `trigger`, `content`, `open`, `onOpenChange`, `openDelay` = `700`, `closeDelay` = `300`, `placement` = `'top'`, `ariaLabel`
+
+### Menubar
+
+**Kind:** component
+
+**Signature:** `menus` = `[]`, `openIndex` = `null`, `onOpenIndexChange`, `ariaLabel` = `'Menu bar'`
 
 ## `src/components/freddie.js`
 
@@ -1654,4 +1796,102 @@ The directory listing.  `loading` and `busy` are NOT two spellings of one state 
 **Kind:** component
 
 **Signature:** `root, adapter = {}` _(positional arg)_
+
+## `src/components/calendar.js`
+
+### Calendar
+
+A month date-grid. Fully controlled: `selected`/`month` are owned by the caller, this component holds no selection state of its own.
+
+**Kind:** component
+
+**Signature:** `mode` = `'single'`, `selected`, `onSelect`, `month`, `onMonthChange`, `minDate`, `maxDate`, `locale` = `getLocale()`
+
+**Documented params:**
+
+- `props` _(Object)_
+- `props.mode` _('single'|'range')_
+- `props.selected` _(Date|{from:?Date,to:?Date})_ -- a Date in single mode, `{from,to}` in range mode.
+- `props.onSelect` _(Function)_ -- single mode: `onSelect(date)`. range mode: `onSelect({from,to})`.
+- `props.month` _(Date)_ -- the currently-displayed month (any date within it).
+- `props.onMonthChange` _(Function)_ -- `onMonthChange(newMonthDate)`, fired by the prev/next nav.
+- `props.minDate` _(Date)_
+- `props.maxDate` _(Date)_
+- `props.locale` _(string)_ -- BCP-47 locale for weekday/month labels; defaults to the SDK's active locale.
+
+**Returns:** {*} webjsx vnode
+
+### DatePicker
+
+Trigger button that opens a Popover hosting a single-mode Calendar.
+
+**Kind:** component
+
+**Signature:** `value`, `onChange`, `open` = `false`, `onOpenChange`, `month`, `onMonthChange`, `placeholder` = `'Select date'`, `minDate`, `maxDate`, `name` = `'dp'`, `locale` = `getLocale()`
+
+**Documented params:**
+
+- `props` _(Object)_
+- `props.value` _(Date)_ -- the selected date.
+- `props.onChange` _(Function)_ -- `onChange(date)`, fired on day select.
+- `props.open` _(boolean)_ -- popover open state, owned by the caller.
+- `props.onOpenChange` _(Function)_ -- `onOpenChange(nextOpen)`, fired by the trigger click and on close (Escape/outside-click/selection).
+- `props.month` _(Date)_ -- displayed month; defaults to `value` or today when omitted.
+- `props.onMonthChange` _(Function)_ -- `onMonthChange(newMonthDate)`, fired by the prev/next nav.
+- `props.placeholder` _(string)_ -- trigger label when `value` is unset.
+- `props.minDate` _(Date)_
+- `props.maxDate` _(Date)_
+- `props.name` _(string)_ -- stable id distinguishing multiple pickers' anchor lookup; set explicitly when rendering more than one DatePicker on a page.
+- `props.locale` _(string)_
+
+**Returns:** {*} webjsx vnode
+
+### DateRangePicker
+
+Trigger button that opens a Popover hosting a range-mode Calendar.
+
+**Kind:** component
+
+**Signature:** `value`, `onChange`, `open` = `false`, `onOpenChange`, `month`, `onMonthChange`, `placeholder` = `'Select dates'`, `minDate`, `maxDate`, `name` = `'drp'`, `locale` = `getLocale()`
+
+**Documented params:**
+
+- `props` _(Object)_
+- `props.value` _({from:?Date,to:?Date})_
+- `props.onChange` _(Function)_ -- `onChange({from,to})`, fired on each click.
+- `props.open` _(boolean)_ -- popover open state, owned by the caller.
+- `props.onOpenChange` _(Function)_ -- `onOpenChange(nextOpen)`; also fired with `false` once both ends of the range are picked.
+- `props.month` _(Date)_
+- `props.onMonthChange` _(Function)_
+- `props.placeholder` _(string)_
+- `props.minDate` _(Date)_
+- `props.maxDate` _(Date)_
+- `props.name` _(string)_ -- stable id distinguishing multiple pickers' anchor lookup.
+- `props.locale` _(string)_
+
+**Returns:** {*} webjsx vnode
+
+### WEEKDAY_LABELS
+
+**Kind:** const
+
+**Signature:** `['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']`
+
+### buildMonthGrid
+
+**Kind:** component
+
+**Signature:** `monthDate` _(positional arg)_
+
+### formatDate
+
+**Kind:** component
+
+**Signature:** `d, locale` _(positional arg)_
+
+### monthLabel
+
+**Kind:** component
+
+**Signature:** `monthDate, locale` _(positional arg)_
 

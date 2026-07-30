@@ -21,6 +21,8 @@ import { EmojiPicker } from './overlay-primitives/emoji-picker.js';
 import { SettingsPopover } from './overlay-primitives/settings-popover.js';
 import { AuthModal } from './overlay-primitives/auth-modal.js';
 import { BootOverlay, VideoLightbox } from './overlay-primitives/full-screen.js';
+import { HoverCard } from './overlay-primitives/hover-card.js';
+import { Menubar } from './overlay-primitives/menubar.js';
 
 export {
     useFloating, useLongPress, withBusy, trapTab,
@@ -34,4 +36,6 @@ export {
     SettingsPopover,
     AuthModal,
     BootOverlay, VideoLightbox,
+    HoverCard,
+    Menubar,
 };

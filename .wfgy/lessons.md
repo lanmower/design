@@ -55,3 +55,35 @@ silently here. When a value is duplicated across a CSS file and a JSON manifest,
 changing one is a half-change; find the sync gate before pushing. And when a
 consumer vendors instead of resolving @latest, publishing is necessary but never
 sufficient.
+
+## 2026-07-30 -- a rejected config file reported itself as null, not as rejected
+Goal (G): execute 22 pending PRD rows (component backfill); the FSM transition was
+only the vehicle.
+What drifted / what went wrong: gm phase was pinned at PLAN, a state absent from the
+active FSM graph, so every `transition {to:"SPECIFY"}` was denied. I wrote the
+sanctioned LocalOverride at .gm/instructions/fsm/graph.json adding a PLAN state and a
+PLAN->SPECIFY edge. Denial unchanged and the response's `fsm_graph_rejected` field read
+null, which I misread as "the file was never read." I then spent an attempt on a wrong
+hypothesis (that the runner resolves tiers once at load) and killed/rebooted the runner
+to test it -- denial identical, hypothesis disproven, four denials burned and the
+stuck-loop escalation firing. The real signal was never in the response body: it was in
+.gm/fsm-graph-rejected.json, whose mtime was AFTER my write, reading `state PLAN is
+unreachable -- no edge leads to it` and `the built-in default graph is serving; every
+customisation in this file is being IGNORED`. My override HAD been read and HAD been
+validated; it failed a reachability check because I gave PLAN an outgoing edge but no
+incoming one, so the validator discarded the whole file and silently fell back to the
+default. An inherited PRD row had also mis-diagnosed this as blockedBy:external
+("user-wide config outside this repo"), which was wrong twice over -- the graph is a
+file inside this repo, and the fix needed no operator.
+Fix / resolution: added a SPECIFY->PLAN incoming edge, then PROVED reachability of all
+states from initial_phase with a graph walk before dispatching (zero unreachable),
+deleted the stale rejection marker so its reappearance would be a clean signal,
+restarted the runner, confirmed the marker stayed ABSENT, and transitioned ok:true to
+SPECIFY.
+Generalizes to: a null field in a tool response is not evidence a config was ignored --
+look for a sibling rejection/diagnostic FILE and compare its mtime to your write before
+theorizing about caching or process lifetime. When hand-editing a state graph, run the
+validator's own invariant (every state reachable from the initial state) locally before
+dispatching, because these validators discard the ENTIRE file on one violation and fall
+back silently rather than partially applying it. And treat an inherited blockedBy:external
+row as a hypothesis to re-test, not a fact: verify where the file actually lives first.

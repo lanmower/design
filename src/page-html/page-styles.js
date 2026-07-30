@@ -6,7 +6,13 @@
 
 export const PAGE_INLINE_STYLES = `
 .app-stage { width: 100%; max-width: var(--stage-wide, min(96%, 1600px)); margin-inline: auto; padding: var(--space-6, 48px) var(--space-4, 24px) var(--space-8, 96px); display: grid; gap: var(--space-6, 48px); box-sizing: border-box }
-@media (max-width: 768px) { .app-stage { padding: var(--space-4, 24px) var(--space-3, 16px) var(--space-6, 48px); gap: var(--space-5, 32px) } }
+/* Container-coupled, not viewport-coupled: .app-stage is a descendant of the
+   .app root, which declares container-type: inline-size (src/css/app-shell/base.css)
+   with nothing resetting containment in between (.app-body/.app-main are plain
+   blocks) — so @container here resolves against .app's real rendered width,
+   correct for embedded shells that have no useful viewport of their own. This
+   matches the hero and .app-body collapse rules, which were already @container. */
+@container (max-width: 768px) { .app-stage { padding: var(--space-4, 24px) var(--space-3, 16px) var(--space-6, 48px); gap: var(--space-5, 32px) } }
 /* Tier movements — the stage's uniform gap is deliberately overridden here.
    Panels inside one tier sit tight (--space-3, 16px) because they are peers;
    between tiers that reopens to --space-5 on top of the stage's own --space-6,

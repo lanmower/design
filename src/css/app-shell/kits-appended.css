@@ -549,7 +549,7 @@
    draws, applied to a surface that never follows the theme. */
 .ds-cli-cmt .cmd { color: var(--paper-3-dark); }
 .ds-cli-out .cmd { color: var(--paper-2); }
-.ds-cli-ok .prompt, .ds-cli-ok .cmd { color: var(--acid); }
+.ds-cli-ok .prompt, .ds-cli-ok .cmd { color: var(--success-on-ink); } /* WCAG-verified 2026 restyle: --acid alone is now a dark neutral and fails on this always-dark .cli surface (npm run a11y) */
 .ds-cli-warn .prompt, .ds-cli-warn .cmd { color: var(--mascot-on-ink); }
 .ds-cli-log .prompt { color: var(--paper-3-dark); }
 .ds-cli-log .cmd { color: var(--paper-2); font-family: var(--ff-mono); }

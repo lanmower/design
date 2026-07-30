@@ -157,6 +157,11 @@ const appShellSplitFiles = [
     'plugins-config.css',
     'models-config.css',
     'skills-config.css',
+    'slider.css',
+    'otp-input.css',
+    'carousel.css',
+    'calendar.css',
+    'collab.css',
 ];
 let appShellContent = '';
 for (const name of appShellSplitFiles) {

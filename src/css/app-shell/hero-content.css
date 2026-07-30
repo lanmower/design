@@ -1,36 +1,42 @@
 /* ============================================================
    Hero
    ============================================================ */
-/* Signature hero — asymmetric editorial header. Title spans wide; the body +
-   actions sit offset in a narrower right column on desktop, stacked on mobile.
-   No centered stack. */
+/* RESTYLED 2026 (webjsx-toolkit look): centered-stack hero, replacing the
+   prior asymmetric two-column editorial grid (title-wide / body+aside-offset)
+   per a deliberate house-rule reversal -- shadcn/webjsx-toolkit itself has no
+   asymmetric-grid opinion, and the prior "no centered stack, ever" rule was
+   specific to the retired Acid Editorial identity. All child classes/markup
+   are UNCHANGED (no JS component edit needed) -- only the grid arrangement
+   and each part's own layout (aside becomes a full-width card below the body
+   instead of a right-column card) changed. Centered text, capped measure. */
 .ds-hero {
   padding: var(--space-9) 0 var(--space-8);
-  display: grid; gap: var(--space-5) var(--space-5);
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-  grid-template-areas: 'title title' 'body aside';
-  align-items: start;
+  display: flex; flex-direction: column; align-items: center;
+  gap: var(--space-5);
   max-width: var(--stage-wide);
+  text-align: center;
   position: relative; isolation: isolate;
 }
-.ds-hero-head { grid-area: title; display: grid; gap: var(--space-3); }
-.ds-hero-body  { grid-area: body; }
-/* The right column carries its own visual weight — a spined, halftone-
-   textured card holding the badge/stat cluster and the CTAs — so the
-   asymmetric grid reads as a deliberate composition, not leftover space
-   beside the narrow body copy. Stretches to the body column's height. */
+.ds-hero-head { display: grid; gap: var(--space-3); justify-items: center; }
+.ds-hero-body  { margin-inline: auto; }
+/* The stat/badge/CTA cluster now sits as a full-width card BELOW the body
+   copy, centered, rather than a right-offset column -- still carries its own
+   visual weight via the top accent bar (rotated from the former left spine)
+   so it still reads as a deliberate block, not an afterthought. */
 .ds-hero-aside {
-  grid-area: aside; position: relative; isolation: isolate;
-  align-self: stretch; display: flex; flex-direction: column;
+  position: relative; isolation: isolate;
+  width: 100%; max-width: 46ch;
+  display: flex; flex-direction: column;
   justify-content: space-between; gap: var(--space-5);
   background: var(--bg-2);
-  border-radius: 0 var(--r-2) var(--r-2) 0;
-  padding: var(--space-5) var(--space-5) var(--space-5) calc(var(--space-4) + var(--bw-chunk));
+  border-radius: var(--r-2);
+  padding: calc(var(--space-4) + var(--bw-chunk)) var(--space-5) var(--space-5);
+  text-align: left;
 }
 .ds-hero-aside::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-  width: var(--bw-chunk); background: var(--accent);
-  border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
+  content: ''; position: absolute; left: 0; right: 0; top: 0;
+  height: var(--bw-chunk); background: var(--accent);
+  border-radius: var(--bw-chunk) var(--bw-chunk) 0 0;
 }
 .ds-hero-stats { display: flex; flex-direction: column; gap: var(--space-2); }
 .ds-hero-stat {
@@ -48,35 +54,25 @@
      Snapping to either changes the hero's whole optical weight. */
   font-size: clamp(40px, 9cqi, 116px);
   line-height: 0.96; letter-spacing: var(--tr-tighter);
-  margin: 0; max-width: 16ch; text-wrap: balance;
+  margin: 0 auto; max-width: 20ch; text-wrap: balance;
 }
 .ds-hero-body {
   font-family: var(--ff-body); font-size: var(--fs-xl);
-  line-height: 1.45; margin: 0; max-width: 46ch;
+  line-height: 1.45; margin: 0 auto; max-width: 46ch;
   color: var(--fg-2);
 }
 /* The lead phrase in the title — printed in the electric lead, not glowing. */
 .ds-hero-accent { color: var(--accent-ink); font-weight: 700; }
 .ds-hero-actions {
   display: flex; gap: var(--space-2, 10px); flex-wrap: wrap;
-  align-self: start; margin-top: var(--space-hair, 4px);
+  justify-content: center; margin-top: var(--space-hair, 4px);
 }
-/* Container-queried (the whole shell is; a 500px pane on a wide viewport
-   would keep the two-column grid under a width @media). Left-aligned stack —
-   no centering — preserving the asymmetric intent. */
+/* Below this width the aside card's own internal rhythm (stat rows still
+   stacked vertically at full width) is already correct for a narrow column —
+   no separate breakpoint override needed now that .ds-hero is always a
+   single-column centered stack at every width. */
 @container (max-width: 900px) {
-  .ds-hero {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: 'title' 'body' 'aside';
-    align-items: start;
-    padding: var(--space-7) 0 var(--space-6);
-  }
-  .ds-hero-aside {
-    border-radius: var(--r-2); flex-direction: row; flex-wrap: wrap;
-    justify-content: flex-start; align-items: center;
-  }
-  .ds-hero-stats { flex-direction: row; flex-wrap: wrap; }
-  .ds-hero-stat { border-bottom: 0; padding-bottom: 0; }
+  .ds-hero { padding: var(--space-7) 0 var(--space-6); }
 }
 .ds-chat-title { margin: 0; font-size: inherit; }
 

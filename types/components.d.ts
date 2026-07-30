@@ -6,7 +6,7 @@
 // signature change; `npm run lint:component-types` fails CI when this
 // file is stale.
 //
-// 247 exported symbols across 26 source files.
+// 269 exported symbols across 30 source files.
 
 /** A webjsx virtual node, as returned by every component in this SDK. */
 export type VNode = any;
@@ -710,6 +710,28 @@ export interface FormProps {
 export declare function Form(props?: FormProps): VNode;
 
 /**
+ * Segmented one-time-code / PIN entry.
+ *
+ * Props for {@link InputOTP} (src/components/content.js).
+ */
+export interface InputOTPProps {
+    /** number of boxes. @default 6 */
+    length?: number;
+    /** the full code so far (controlled). @default '' */
+    value?: string;
+    /** called with (nextValue:string, event) on every edit. */
+    onChange?: (...args: any[]) => any;
+    /** called with (code:string) once all boxes are filled. */
+    onComplete?: (...args: any[]) => any;
+    disabled?: boolean;
+    error?: boolean;
+    /** accessible name for the group. @default 'code' */
+    label?: string;
+    key?: any;
+}
+export declare function InputOTP(props?: InputOTPProps): VNode;
+
+/**
  * Props for {@link Spinner} (src/components/content.js).
  */
 export interface SpinnerProps {
@@ -1097,6 +1119,43 @@ export interface ContextPaneProps {
 }
 export declare function ContextPane(props?: ContextPaneProps): VNode;
 
+/**
+ * Props for {@link ContextMeter} (src/components/context-pane.js).
+ */
+export interface ContextMeterProps {
+    /** @default 0 */
+    used?: number;
+    /** @default 0 */
+    total?: number;
+    /** @default [] */
+    segments?: any[];
+}
+export declare function ContextMeter(props?: ContextMeterProps): VNode;
+
+/**
+ * Props for {@link ContextTreemap} (src/components/context-pane.js).
+ */
+export interface ContextTreemapProps {
+    /** @default [] */
+    items?: any[];
+    /** @default 280 */
+    width?: number;
+    /** @default 160 */
+    height?: number;
+}
+export declare function ContextTreemap(props?: ContextTreemapProps): VNode;
+
+/**
+ * Props for {@link ContextXRayPanel} (src/components/context-pane.js).
+ */
+export interface ContextXRayPanelProps {
+    /** @default [] */
+    segments?: any[];
+    openId?: any;
+    onOpenIdChange?: (...args: any[]) => any;
+}
+export declare function ContextXRayPanel(props?: ContextXRayPanelProps): VNode;
+
 // ---- src/components/spreadsheet-preview.js ---------------------------
 
 /**
@@ -1366,6 +1425,18 @@ export interface LiveLogProps {
     autoScroll?: boolean;
 }
 export declare function LiveLog(props?: LiveLogProps): VNode;
+
+/**
+ * Props for {@link Progress} (src/components/data-density.js).
+ */
+export interface ProgressProps {
+    /** @default 0 */
+    value?: number;
+    /** @default 100 */
+    max?: number;
+    label?: any;
+}
+export declare function Progress(props?: ProgressProps): VNode;
 
 // ---- src/components/files.js -----------------------------------------
 
@@ -2072,6 +2143,57 @@ export interface playCompletionCueProps {}
 
 export declare function playCompletionCue(props?: playCompletionCueProps): VNode;
 
+// ---- src/components/collab.js ----------------------------------------
+
+/**
+ * Props for {@link LiveCursorOverlay} (src/components/collab.js).
+ */
+export interface LiveCursorOverlayProps {
+    /** @default [] */
+    cursors?: any[];
+}
+export declare function LiveCursorOverlay(props?: LiveCursorOverlayProps): VNode;
+
+/**
+ * Props for {@link RemoteSelectionRings} (src/components/collab.js).
+ */
+export interface RemoteSelectionRingsProps {
+    /** @default [] */
+    selections?: any[];
+}
+export declare function RemoteSelectionRings(props?: RemoteSelectionRingsProps): VNode;
+
+/**
+ * Props for {@link RecentEditHighlightFlash} (src/components/collab.js).
+ */
+export interface RecentEditHighlightFlashProps {
+    /** @default [] */
+    edits?: any[];
+}
+export declare function RecentEditHighlightFlash(props?: RecentEditHighlightFlashProps): VNode;
+
+/**
+ * Props for {@link AgentPresenceChip} (src/components/collab.js).
+ */
+export interface AgentPresenceChipProps {
+    userId?: any;
+    label?: any;
+    color?: any;
+    /** @default 'active' */
+    status?: string;
+    key?: string | number;
+}
+export declare function AgentPresenceChip(props?: AgentPresenceChipProps): VNode;
+
+/**
+ * Props for {@link PresenceBar} (src/components/collab.js).
+ */
+export interface PresenceBarProps {
+    /** @default [] */
+    users?: any[];
+}
+export declare function PresenceBar(props?: PresenceBarProps): VNode;
+
 // ---- src/components/theme-toggle.js ----------------------------------
 
 /**
@@ -2172,6 +2294,52 @@ export declare function Field(props?: FieldProps): VNode;
 export declare function useFormValidation(schema?: any): VNode;
 
 export declare function focusFirstInvalidField(errors?: any, order?: any, getEl?: any): VNode;
+
+// ---- src/components/slider.js ----------------------------------------
+
+/**
+ * A single-value range slider (track + fill + thumb) built on a real, invisible native `<input type="range">` for keyboard/pointer/a11y semantics, matching the overlay approach voice/capture.js's VadMeter pioneered for its threshold handle.
+ *
+ * Props for {@link Slider} (src/components/slider.js).
+ */
+export interface SliderProps {
+    /** @default 0 */
+    value?: number;
+    /** @default 0 */
+    min?: number;
+    /** @default 100 */
+    max?: number;
+    /** @default 1 */
+    step?: number;
+    /** called with (value:number, event) on input. */
+    onChange?: (...args: any[]) => any;
+    /** accessible name; also rendered visibly when given. */
+    label?: string;
+    disabled?: boolean;
+    hint?: string;
+    key?: any;
+}
+export declare function Slider(props?: SliderProps): VNode;
+
+// ---- src/components/carousel.js --------------------------------------
+
+/**
+ * A scroll-snap content carousel with prev/next controls.
+ *
+ * Props for {@link Carousel} (src/components/carousel.js).
+ */
+export interface CarouselProps {
+    /** @default [] */
+    items?: any[];
+    /** (item, index) => vnode. */
+    renderItem?: (...args: any[]) => any;
+    /** @default 'horizontal' */
+    orientation?: 'horizontal' | 'vertical';
+    /** accessible name for the region. @default 'carousel' */
+    label?: string;
+    key?: any;
+}
+export declare function Carousel(props?: CarouselProps): VNode;
 
 // ---- src/components/interaction-primitives.js ------------------------
 
@@ -2592,6 +2760,16 @@ export interface DividerProps {
 }
 export declare function Divider(props?: DividerProps): VNode;
 
+/**
+ * Props for {@link AspectRatio} (src/components/editor-primitives.js).
+ */
+export interface AspectRatioProps {
+    ratio?: any;
+    children?: any;
+    key?: string | number;
+}
+export declare function AspectRatio(props?: AspectRatioProps): VNode;
+
 export declare function useMediaQuery(query?: any): VNode;
 
 export declare const BP_SM: number;
@@ -2862,6 +3040,38 @@ export interface MenuButtonProps {
 }
 export declare function MenuButton(props?: MenuButtonProps): VNode;
 
+/**
+ * Props for {@link HoverCard} (src/components/overlay-primitives.js).
+ */
+export interface HoverCardProps {
+    trigger?: any;
+    content?: any;
+    open?: any;
+    onOpenChange?: (...args: any[]) => any;
+    /** @default 700 */
+    openDelay?: number;
+    /** @default 300 */
+    closeDelay?: number;
+    /** @default 'top' */
+    placement?: string;
+    ariaLabel?: any;
+}
+export declare function HoverCard(props?: HoverCardProps): VNode;
+
+/**
+ * Props for {@link Menubar} (src/components/overlay-primitives.js).
+ */
+export interface MenubarProps {
+    /** @default [] */
+    menus?: any[];
+    /** @default null */
+    openIndex?: any;
+    onOpenIndexChange?: (...args: any[]) => any;
+    /** @default 'Menu bar' */
+    ariaLabel?: string;
+}
+export declare function Menubar(props?: MenubarProps): VNode;
+
 // ---- src/components/freddie.js ---------------------------------------
 
 export declare const FREDDIE_PAGES: Record<string, any>;
@@ -2928,4 +3138,92 @@ export declare function refreshError(err?: any): VNode;
 // ---- src/community-app.js --------------------------------------------
 
 export declare function mountCommunityApp(root?: any, adapter?: any): VNode;
+
+// ---- src/components/calendar.js --------------------------------------
+
+/**
+ * A month date-grid. Fully controlled: `selected`/`month` are owned by the caller, this component holds no selection state of its own.
+ *
+ * Props for {@link Calendar} (src/components/calendar.js).
+ */
+export interface CalendarProps {
+    /** @default 'single' */
+    mode?: 'single' | 'range';
+    /** a Date in single mode, `{from,to}` in range mode. */
+    selected?: any;
+    /** single mode: `onSelect(date)`. range mode: `onSelect({from,to})`. */
+    onSelect?: (...args: any[]) => any;
+    /** the currently-displayed month (any date within it). */
+    month?: any;
+    /** `onMonthChange(newMonthDate)`, fired by the prev/next nav. */
+    onMonthChange?: (...args: any[]) => any;
+    minDate?: any;
+    maxDate?: any;
+    /** BCP-47 locale for weekday/month labels; defaults to the SDK's active locale. @default getLocale() */
+    locale?: string;
+}
+export declare function Calendar(props?: CalendarProps): VNode;
+
+/**
+ * Trigger button that opens a Popover hosting a single-mode Calendar.
+ *
+ * Props for {@link DatePicker} (src/components/calendar.js).
+ */
+export interface DatePickerProps {
+    /** the selected date. */
+    value?: any;
+    /** `onChange(date)`, fired on day select. */
+    onChange?: (...args: any[]) => any;
+    /** popover open state, owned by the caller. @default false */
+    open?: boolean;
+    /** `onOpenChange(nextOpen)`, fired by the trigger click and on close (Escape/outside-click/selection). */
+    onOpenChange?: (...args: any[]) => any;
+    /** displayed month; defaults to `value` or today when omitted. */
+    month?: any;
+    /** `onMonthChange(newMonthDate)`, fired by the prev/next nav. */
+    onMonthChange?: (...args: any[]) => any;
+    /** trigger label when `value` is unset. @default 'Select date' */
+    placeholder?: string;
+    minDate?: any;
+    maxDate?: any;
+    /** stable id distinguishing multiple pickers' anchor lookup; set explicitly when rendering more than one DatePicker on a page. @default 'dp' */
+    name?: string;
+    /** @default getLocale() */
+    locale?: string;
+}
+export declare function DatePicker(props?: DatePickerProps): VNode;
+
+/**
+ * Trigger button that opens a Popover hosting a range-mode Calendar.
+ *
+ * Props for {@link DateRangePicker} (src/components/calendar.js).
+ */
+export interface DateRangePickerProps {
+    value?: { from: any; to: any };
+    /** `onChange({from,to})`, fired on each click. */
+    onChange?: (...args: any[]) => any;
+    /** popover open state, owned by the caller. @default false */
+    open?: boolean;
+    /** `onOpenChange(nextOpen)`; also fired with `false` once both ends of the range are picked. */
+    onOpenChange?: (...args: any[]) => any;
+    month?: any;
+    onMonthChange?: (...args: any[]) => any;
+    /** @default 'Select dates' */
+    placeholder?: string;
+    minDate?: any;
+    maxDate?: any;
+    /** stable id distinguishing multiple pickers' anchor lookup. @default 'drp' */
+    name?: string;
+    /** @default getLocale() */
+    locale?: string;
+}
+export declare function DateRangePicker(props?: DateRangePickerProps): VNode;
+
+export declare const WEEKDAY_LABELS: any[];
+
+export declare function buildMonthGrid(monthDate?: any): VNode;
+
+export declare function formatDate(d?: any, locale?: any): VNode;
+
+export declare function monthLabel(monthDate?: any, locale?: any): VNode;
 

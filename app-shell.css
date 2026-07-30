@@ -38,3 +38,8 @@
 @import url('./src/css/app-shell/plugins-config.css');
 @import url('./src/css/app-shell/models-config.css');
 @import url('./src/css/app-shell/skills-config.css');
+@import url('./src/css/app-shell/slider.css');
+@import url('./src/css/app-shell/otp-input.css');
+@import url('./src/css/app-shell/carousel.css');
+@import url('./src/css/app-shell/calendar.css');
+@import url('./src/css/app-shell/collab.css');

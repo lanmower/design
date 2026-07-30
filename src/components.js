@@ -15,7 +15,7 @@ export {
     Hero, HeroFromPageData, Marquee, Install, CliBlock, Receipt, Changelog,
     WorksList, WritingList, Manifesto, Section, PageHeader,
     Kpi, Sparkline, BarChart, Table, HealthTable, ProcessRegistryTable, SearchInput, TextField, Select, EventList,
-    HomeView, ProjectView, Form,
+    HomeView, ProjectView, Form, InputOTP,
     Spinner, Skeleton, Alert, FilterPills, Avatar, avatarInitial
 } from './components/content.js';
 
@@ -33,7 +33,7 @@ export {
     ConversationList, SessionCard, SessionDashboard, SessionMeta, fmtDuration, fmtTime, fmtAgo, AgentListSkeleton
 } from './components/sessions.js';
 
-export { ContextPane } from './components/context-pane.js';
+export { ContextPane, ContextMeter, ContextTreemap, ContextXRayPanel } from './components/context-pane.js';
 
 export { SpreadsheetPreview } from './components/spreadsheet-preview.js';
 
@@ -49,7 +49,8 @@ export { ModelsConfig } from './components/models-config.js';
 
 export {
     DEFAULT_PHASES, PhaseWalk, TreeNode, BarRow, RateCell,
-    StatTile, StatsGrid, SubGrid, SessionRow, DevRow, LiveLogEntry, LiveLog
+    StatTile, StatsGrid, SubGrid, SessionRow, DevRow, LiveLogEntry, LiveLog,
+    Progress
 } from './components/data-density.js';
 
 export {
@@ -78,11 +79,20 @@ export {
     playCompletionCue
 } from './components/voice.js';
 
+export {
+    LiveCursorOverlay, RemoteSelectionRings, RecentEditHighlightFlash,
+    AgentPresenceChip, PresenceBar
+} from './components/collab.js';
+
 export { ThemeToggle } from './components/theme-toggle.js';
 
 export {
     Checkbox, Radio, RadioGroup, Toggle, Field, useFormValidation, focusFirstInvalidField
 } from './components/form-primitives.js';
+
+export { Slider } from './components/slider.js';
+
+export { Carousel } from './components/carousel.js';
 
 export {
     useDraggable, useDropTarget, useNumberScrub, usePointerDrag, Reorderable,
@@ -103,7 +113,7 @@ export {
     Pager, JsonViewer,
     Grid, GridItem,
     Collapse, CollapseGroup,
-    Divider,
+    Divider, AspectRatio,
     useMediaQuery,
     BP_SM, BP_MD, BP_LG, BP_XL,
     InfoRow, InfoSection, DiagnosticsPanel,
@@ -114,7 +124,8 @@ export {
     Tooltip, Popover, Dropdown, useLongPress, useFloating,
     CommandPalette, EmojiPicker, BootOverlay, SettingsPopover,
     AuthModal, VideoLightbox, PermissionMenu, ApprovalPrompt, withBusy,
-    MenuButton
+    MenuButton,
+    HoverCard, Menubar
 } from './components/overlay-primitives.js';
 
 export {
@@ -129,3 +140,8 @@ export {
 } from './components/freddie/runtime.js';
 
 export { mountCommunityApp } from './community-app.js';
+
+export {
+    Calendar, DatePicker, DateRangePicker,
+    WEEKDAY_LABELS, buildMonthGrid, formatDate, monthLabel
+} from './components/calendar.js';

@@ -74,6 +74,22 @@ button, input, select, textarea { font: inherit; }
   white-space: nowrap;
   border: 0;
 }
+
+/* .ds-aspect — generic aspect-ratio utility. Native `aspect-ratio` property
+   (broadly supported for years) rather than the padding-bottom hack: no
+   extra wrapper markup, no absolutely-positioned inner layer needed just to
+   fill the box. `--aspect` defaults to 16/9; a caller overrides it inline
+   (e.g. style="--aspect:1/1") or via a ratio-named modifier class below. */
+.ds-aspect {
+  aspect-ratio: var(--aspect, 16 / 9);
+  width: 100%;
+  overflow: hidden;
+}
+.ds-aspect > * { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ds-aspect-square { --aspect: 1 / 1; }
+.ds-aspect-video { --aspect: 16 / 9; }
+.ds-aspect-portrait { --aspect: 3 / 4; }
+
 body {
   background: var(--bg);
   color: var(--fg);

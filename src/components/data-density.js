@@ -8,7 +8,10 @@
 
 import * as webjsx from '../../vendor/webjsx/index.js';
 import { Pill } from './shell.js';
+import { Progress } from './data-density/progress.js';
 const h = webjsx.createElement;
+
+export { Progress };
 
 // ---------------------------------------------------------------------------
 // PhaseWalk — compact horizontal phase-progress indicator.

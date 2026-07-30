@@ -87,3 +87,15 @@ export function Divider({ label, vertical = false, key } = {}) {
     return h('div', { key, class: 'ds-ep-divider ds-ep-divider-labeled', role: 'separator' },
         h('span', { class: 'ds-ep-divider-label' }, label));
 }
+
+// ---------------------------------------------------------------------------
+// AspectRatio — thin wrapper over the `.ds-aspect` CSS utility (app-shell's
+// base.css), matching Divider's own trivial-CSS-only-primitive-still-gets-a-
+// factory convention. `ratio` accepts a CSS ratio string ('1/1', '16/9') or
+// a number (interpreted as width/height); falls back to the utility's own
+// 16/9 default when omitted.
+// ---------------------------------------------------------------------------
+export function AspectRatio({ ratio, children, key } = {}) {
+    const cssRatio = typeof ratio === 'number' ? `${ratio} / 1` : ratio;
+    return h('div', { key, class: 'ds-aspect', style: cssRatio ? `--aspect:${cssRatio}` : null }, children);
+}
