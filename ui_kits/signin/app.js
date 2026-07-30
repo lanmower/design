@@ -1,13 +1,33 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status, AppShell, Panel, Heading, Lede, Chip, Icon, Divider } from 'ds/components.js';
+import { Topbar, Crumb, Status, AppShell, Panel, Heading, Lede, Chip, Icon, Divider, InputOTP } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 import { shortUid } from 'ds/uid.js';
 const h = webjsx.createElement;
 
 const root = document.getElementById('root');
-const state = { mode: 'signin', email: '', password: '', remember: true, sent: false, error: '', loading: null, demoUrl: '' };
+const state = { mode: 'signin', email: '', password: '', remember: true, sent: false, error: '', loading: null, demoUrl: '', otp: '', otpVerified: false, otpError: '' };
 
-function setMode(m) { state.mode = m; state.sent = false; state.error = ''; state.loading = null; state.demoUrl = ''; kit.render(); }
+function setMode(m) { state.mode = m; state.sent = false; state.error = ''; state.loading = null; state.demoUrl = ''; state.otp = ''; state.otpVerified = false; state.otpError = ''; kit.render(); }
+
+// A specimen page cannot actually deliver an email, so the interactive
+// stand-in for "click the link in your inbox" is a code the demo itself
+// echoes into the sent-state copy, and typing it back verifies the flow.
+// Any 6-digit code is accepted (demo mode — no server round trip); the
+// point is exercising real InputOTP wiring (auto-advance, backspace-retreat,
+// paste-split, onComplete), not real verification.
+const DEMO_CODE = '247420'.length === 6 ? String(shortUid(6)).replace(/[^0-9]/g, '5').padEnd(6, '9').slice(0, 6) : '000000';
+
+function verifyOtp(code) {
+    state.otp = code;
+    if (code.length < 6) { state.otpError = ''; kit.render(); return; }
+    if (code === DEMO_CODE) {
+        state.otpVerified = true;
+        state.otpError = '';
+    } else {
+        state.otpError = 'that code doesn\'t match — demo code is ' + DEMO_CODE + '.';
+    }
+    kit.render();
+}
 
 function submit(e) {
     e.preventDefault();
@@ -206,7 +226,14 @@ function App() {
         topbar: Topbar({ brand: '247420', leaf: 'auth', items: [['index', '../../']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: state.mode === 'signin' ? 'signin' : 'signin · ' + state.mode }),
         main: [
-            h('div', { class: 'ds-section ds-auth-wrap' },
+            // .ds-app-surface, not .ds-section: an auth screen is an Operate
+            // surface, so its h1 belongs on the app typescale. Under .ds-section
+            // the title rendered at the 64px marketing display ceiling (77px
+            // measured) and the root carried a 96px editorial margin, which
+            // together pushed a 430px card to a 946px scroll height inside a
+            // ~514px pane and gave .app-main its own inner scrollbar at every
+            // real window height.
+            h('div', { class: 'ds-app-surface ds-auth-wrap' },
                 h('div', { class: 'ds-auth-col' },
                     Heading({ level: 1, children: headings[0] }),
                     Lede({ children: headings[1] }),

@@ -481,8 +481,18 @@
 
 /* == appended: signin kit cleanup == */
 /* -- signin kit (ui_kits/signin) -- */
-.ds-auth-wrap { padding: var(--space-2, 8px); display: flex; flex-direction: column; align-items: center; }
-.ds-auth-col { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: var(--space-2); margin: clamp(var(--space-2-75), 4vw, var(--space-4)) 0; min-width: 0; }
+/* Centres one short card in the pane. `display:flex` is repeated after
+   .ds-app-surface's `flow-root` because this class is used TOGETHER with that
+   root and must win the centring; `min-height:100%` lets justify-content
+   actually have room to centre against. No block margin: an auth screen is one
+   card, not a run of editorial sections, and inheriting .ds-section's 96px
+   rhythm is what pushed a 430px card to a 946px scroll height inside a ~514px
+   pane and gave .app-main its own scrollbar at every real window height. */
+.ds-auth-wrap { padding: var(--space-2, 8px); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; margin-block: 0; }
+/* `auto` block margin, not a fixed clamp: the wrap centres the column, and a
+   fixed top/bottom margin both fights that centring and re-adds height the pane
+   then has to scroll. `auto` collapses when the pane is short, centres when tall. */
+.ds-auth-col { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: var(--space-2); margin: auto 0; min-width: 0; }
 /* 18px ceiling: no tier between --space-3 (16) and --space-3-5 (20). */
 .ds-auth-form { padding: clamp(var(--space-2-75), 3vw, 18px); display: flex; flex-direction: column; gap: var(--space-2-5); }
 .ds-auth-sent { align-items: center; text-align: center; }
