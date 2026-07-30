@@ -68,6 +68,9 @@
    here under a distinct prefix since this is a different feature. */
 .ds-collab-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
 .ds-collab-bar-empty { color: var(--fg-3); font-size: var(--fs-sm); padding: var(--space-2) 0; }
+/* workspace kit's live tab: PresenceBar summary strip stacked above
+   SessionDashboard, filling the .ws-main flex column it renders inside. */
+.ds-workspace-live { display: flex; flex-direction: column; gap: var(--space-3); flex: 1; min-height: 0; }
 .ds-collab-chip {
   display: inline-flex;
   align-items: center;

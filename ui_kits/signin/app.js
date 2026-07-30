@@ -10,12 +10,11 @@ const state = { mode: 'signin', email: '', password: '', remember: true, sent: f
 function setMode(m) { state.mode = m; state.sent = false; state.error = ''; state.loading = null; state.demoUrl = ''; state.otp = ''; state.otpVerified = false; state.otpError = ''; kit.render(); }
 
 // A specimen page cannot actually deliver an email, so the interactive
-// stand-in for "click the link in your inbox" is a code the demo itself
-// echoes into the sent-state copy, and typing it back verifies the flow.
-// Any 6-digit code is accepted (demo mode — no server round trip); the
-// point is exercising real InputOTP wiring (auto-advance, backspace-retreat,
-// paste-split, onComplete), not real verification.
-const DEMO_CODE = '247420'.length === 6 ? String(shortUid(6)).replace(/[^0-9]/g, '5').padEnd(6, '9').slice(0, 6) : '000000';
+// stand-in for "click the link in your inbox" is a fixed demo code the
+// sent-state copy tells the visitor to type back — exercises real InputOTP
+// wiring (auto-advance, backspace-retreat, paste-split, onComplete) without
+// pretending to be a real server round trip.
+const DEMO_CODE = '247420';
 
 function verifyOtp(code) {
     state.otp = code;
@@ -161,15 +160,30 @@ function Form() {
         // the only recovery was a page reload. Every sent state that waits on
         // an email now offers the correction path.
         const waiting = state.mode === 'magic' || state.mode === 'reset';
+        const magicVerify = state.mode === 'magic' && !state.otpVerified;
         return h('div', { class: 'ds-auth-form ds-auth-sent' },
-            h('div', { class: 'ds-auth-sent-glyph' }, '[x]'),
-            h('p', { class: 'ds-auth-sent-title' }, state.mode === 'magic' ? 'check your email' : (state.mode === 'reset' ? 'reset link sent' : 'welcome back')),
-            h('p', { class: 'ds-auth-sent-sub' }, state.mode === 'magic'
-                ? 'we sent a sign-in link to ' + state.email + '. it expires in 15 minutes.'
+            h('div', { class: 'ds-auth-sent-glyph' }, state.otpVerified ? '[ok]' : '[x]'),
+            h('p', { class: 'ds-auth-sent-title' },
+                state.otpVerified ? 'verified' :
+                state.mode === 'magic' ? 'check your email' : (state.mode === 'reset' ? 'reset link sent' : 'welcome back')),
+            h('p', { class: 'ds-auth-sent-sub' },
+                state.otpVerified ? 'signed in. taking you to the index.' :
+                state.mode === 'magic'
+                ? 'we sent a sign-in link to ' + state.email + '. it expires in 15 minutes — or enter the ' + DEMO_CODE.length + '-digit code from the email below (demo code: ' + DEMO_CODE + ').'
                 : (state.mode === 'reset' ? 'we sent a reset link to ' + state.email + '. follow it to set a new password.' : 'signed in. taking you to the index.')),
-            waiting ? h('button', {
+            magicVerify ? h('div', { class: 'ds-auth-otp-wrap' },
+                InputOTP({
+                    length: DEMO_CODE.length, value: state.otp,
+                    onChange: (code) => verifyOtp(code),
+                    onComplete: (code) => verifyOtp(code),
+                    error: Boolean(state.otpError),
+                    label: 'sign-in code',
+                }),
+                state.otpError ? h('div', { class: 'ds-auth-error', role: 'alert' }, state.otpError) : null
+            ) : null,
+            waiting && !state.otpVerified ? h('button', {
                 class: 'btn',
-                onclick: (e) => { e.preventDefault(); state.sent = false; kit.render(); }
+                onclick: (e) => { e.preventDefault(); state.sent = false; state.otp = ''; state.otpVerified = false; state.otpError = ''; kit.render(); }
             }, 'use a different email') : null
         );
     }

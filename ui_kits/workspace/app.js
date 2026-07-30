@@ -3,7 +3,7 @@
 // ConversationList + AgentChat + SessionDashboard, wired together with mock
 // state so the combo has a runnable reference alongside the other kits.
 import * as webjsx from 'webjsx';
-import { WorkspaceShell, WorkspaceRail, ConversationList, AgentChat, SessionDashboard, Status } from 'ds/components.js';
+import { WorkspaceShell, WorkspaceRail, ConversationList, AgentChat, SessionDashboard, Status, PresenceBar } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 import 'ds/index.js';
 const h = webjsx.createElement;
@@ -110,35 +110,50 @@ function ChatTab() {
     });
 }
 
+// Real collab-ui adoption: liveSessions already carries agentName/status per
+// concurrently-running agent, but until now nothing on this surface showed
+// who/what is actually active at a glance — SessionDashboard's own rows are
+// the detail view, PresenceBar is the summary strip above them.
+function liveSessionsAsPresence() {
+    return liveSessions.map((s) => ({
+        userId: s.sid,
+        label: s.agentName + ' · ' + s.model,
+        status: s.status === 'running' ? 'active' : (s.status === 'error' ? 'offline' : 'idle'),
+    }));
+}
+
 function LiveTab() {
     const p = state.railPhase;
-    return SessionDashboard({
-        sessions: p === 'ready' ? liveSessions : [],
-        // `offline` is SessionDashboard's own error surface — it replaces the
-        // whole dashboard, which is right: a dashboard that cannot reach the
-        // backend has nothing truthful to draw.
-        offline: p === 'error',
-        streamState: p === 'loading' ? 'connecting' : (p === 'error' ? 'offline' : 'connected'),
-        emptyText: 'nothing running right now — start an agent from the chat tab and it shows up here while it works.',
-        activeSid: state.selectedSid,
-        // Stop really stops: the row leaves the dashboard and the rail count
-        // drops with it. Nothing here reports success it did not have.
-        onStop: (s) => {
-            liveSessions = liveSessions.filter((x) => x.sid !== s.sid);
-            render();
-        },
-        onStopAll: () => { liveSessions = []; render(); },
-        // Open selects the session and returns to the chat surface, which is
-        // where an opened session is actually read.
-        onOpen: (s) => {
-            state.selectedSid = s.sid;
-            state.tab = 'chat';
-            render();
-        },
-        // View marks the row active in place — the dashboard's own selected
-        // treatment is the visible result, not a dialog this kit has no backend for.
-        onView: (s) => { state.selectedSid = s.sid; render(); },
-    });
+    return h('div', { class: 'ds-workspace-live' },
+        PresenceBar({ users: p === 'ready' ? liveSessionsAsPresence() : [] }),
+        SessionDashboard({
+            sessions: p === 'ready' ? liveSessions : [],
+            // `offline` is SessionDashboard's own error surface — it replaces the
+            // whole dashboard, which is right: a dashboard that cannot reach the
+            // backend has nothing truthful to draw.
+            offline: p === 'error',
+            streamState: p === 'loading' ? 'connecting' : (p === 'error' ? 'offline' : 'connected'),
+            emptyText: 'nothing running right now — start an agent from the chat tab and it shows up here while it works.',
+            activeSid: state.selectedSid,
+            // Stop really stops: the row leaves the dashboard and the rail count
+            // drops with it. Nothing here reports success it did not have.
+            onStop: (s) => {
+                liveSessions = liveSessions.filter((x) => x.sid !== s.sid);
+                render();
+            },
+            onStopAll: () => { liveSessions = []; render(); },
+            // Open selects the session and returns to the chat surface, which is
+            // where an opened session is actually read.
+            onOpen: (s) => {
+                state.selectedSid = s.sid;
+                state.tab = 'chat';
+                render();
+            },
+            // View marks the row active in place — the dashboard's own selected
+            // treatment is the visible result, not a dialog this kit has no backend for.
+            onView: (s) => { state.selectedSid = s.sid; render(); },
+        })
+    );
 }
 
 function App() {

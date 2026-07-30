@@ -2,7 +2,8 @@ import * as webjsx from 'webjsx';
 import {
     Topbar, Crumb, Side, Status, AppShell, Panel, Heading, Lede, Chip, Pill,
     Pager, JsonViewer, ToolbarRow, PropertyGrid, PropertyGridRow, PropertyField, InlineEditableField,
-    Grid, GridItem, Collapse, CollapseGroup, Divider
+    Grid, GridItem, Collapse, CollapseGroup, Divider,
+    ContextMeter, ContextTreemap, ContextXRayPanel
 } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 import {
@@ -107,6 +108,29 @@ function StoreEmpty(msg, hint) {
     );
 }
 
+// Context-window budget for the currently-inspected session (sess-de201aa3,
+// the one with the most events/verbs of the sample set) -- gm_inspector's
+// whole purpose is inspecting a system whose core resource is context window
+// usage, but until now it rendered no context/token-budget view at all.
+const CONTEXT_TOTAL = 200000;
+const contextSegments = [
+    { id: 'system', label: 'system prompt + tools', value: 18400, tone: 'system' },
+    { id: 'history', label: 'conversation history',  value: 96200, tone: 'user' },
+    { id: 'output',  label: 'assistant output',       value: 41300, tone: 'assistant' },
+    { id: 'other',   label: 'tool results + misc',    value: 12700, tone: 'other' }
+];
+const contextUsed = contextSegments.reduce((sum, s) => sum + s.value, 0);
+const contextXrayState = { openId: 'history' };
+const contextXraySegments = contextSegments.map((s) => ({
+    ...s,
+    items: {
+        system:    [{ label: 'AGENTS.md / SKILL.md', value: 11200 }, { label: 'component API tool schemas', value: 7200 }],
+        history:   [{ label: 'earlier turns (compacted)', value: 71000 }, { label: 'recent turns (full)', value: 25200 }],
+        assistant: [{ label: 'code edits', value: 28900 }, { label: 'prose responses', value: 12400 }],
+        other:     [{ label: 'browser/exec_js output', value: 9100 }, { label: 'file reads', value: 3600 }]
+    }[s.id]
+}));
+
 const liveEntries = [
     { ts: '11:03:40', sub: 'plugkit', tone: 'var(--accent)', event: 'phase.transitioned', preview: 'phase=COMPLETE' },
     { ts: '11:03:41', sub: 'rs_learn', tone: 'var(--sun)', event: 'recall', preview: 'query="gm inspector kit" hit=true score=0.61' },
@@ -174,7 +198,8 @@ function App() {
                     { glyph: '*', label: 'overview',     count: kpis.length,          key: 'o', href: '#p-overview' },
                     { glyph: '-', label: 'sessions',     count: countFor(sessions),   key: 's', href: '#p-sessions' },
                     { glyph: '-', label: 'process tree', count: countFor(treeNodes),  key: 't', href: '#p-tree' },
-                    { glyph: '-', label: 'deviations',   count: countFor(deviations), key: 'd', href: '#p-deviations' }
+                    { glyph: '-', label: 'deviations',   count: countFor(deviations), key: 'd', href: '#p-deviations' },
+                    { glyph: '-', label: 'context budget', count: contextSegments.length, key: 'x', href: '#p-context' }
                 ] },
                 // Phase is a READOUT of where the inspected walk ended, not a
                 // control — there is no other phase to switch to. It anchors to
@@ -206,6 +231,23 @@ function App() {
                     BarRow({ label: '0.6-0.7', value: '31', pct: 100, tone: 'var(--accent)' }),
                     BarRow({ label: '0.7-0.8', value: '18', pct: 58, tone: 'var(--accent)' }),
                     BarRow({ label: '0.8-0.9', value: '6',  pct: 19, tone: 'var(--accent)' })
+                ) }),
+                Panel({ id: 'p-context', title: 'context budget · sess-de201aa3', class: 'ds-panel-gap', children: h('div', {},
+                    ContextMeter({ used: contextUsed, total: CONTEXT_TOTAL, segments: contextSegments }),
+                    h('div', { class: 'ds-panel-duo' },
+                        h('div', {},
+                            h('p', { class: 'ds-stat-lbl' }, 'breakdown (treemap, area = token share):'),
+                            ContextTreemap({ items: contextSegments, width: 320, height: 180 })
+                        ),
+                        h('div', {},
+                            h('p', { class: 'ds-stat-lbl' }, 'x-ray (live, click a segment to expand):'),
+                            ContextXRayPanel({
+                                segments: contextXraySegments,
+                                openId: contextXrayState.openId,
+                                onOpenIdChange: (id) => { contextXrayState.openId = id; render(); },
+                            })
+                        )
+                    )
                 ) }),
                 Panel({ title: 'live stream', class: 'ds-panel-gap', children: h('div', { class: 'ds-scroll-x' }, LiveLog({ entries: liveEntries })) }),
                 Panel({ title: 'editor primitives', count: '6', class: 'ds-panel-gap', children: h('div', {},

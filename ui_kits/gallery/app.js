@@ -1,5 +1,5 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip } from 'ds/components.js';
+import { Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip, Carousel } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
 
@@ -115,9 +115,21 @@ function Swatch(t) {
     );
 }
 
+// Real Carousel adoption: browsing between tiles inside the lightbox without
+// closing and reopening. All 12 items go into the track; the carousel scrolls
+// the opened tile into view on open via a ref (Carousel exposes no imperative
+// scroll-to-index API, so this reaches its own rendered track element the
+// same way editor-primitives/split-panel.js reaches its own root).
+function LightboxTile(it) {
+    return h('div', { class: 'ds-lightbox-preview', style: '--tile-tone:var(--' + it.tone + ')' },
+        h('div', {}, it.caption),
+        h('p', { class: 'ds-m0' }, h('strong', {}, it.label))
+    );
+}
+
 function Lightbox() {
     if (!state.open) return null;
-    const it = items.find((i) => i.id === state.open);
+    const openIndex = items.findIndex((i) => i.id === state.open);
     const close = () => { state.open = null; kit.render(); };
     return h('div', {
         onclick: close,
@@ -126,16 +138,24 @@ function Lightbox() {
         ref: (el) => { if (el && !el._dsLbFocused) { el._dsLbFocused = true; el.focus(); } },
         class: 'ds-lightbox'
     },
-        h('div', { onclick: (e) => e.stopPropagation(), class: 'ds-lightbox-card' },
+        h('div', {
+            onclick: (e) => e.stopPropagation(), class: 'ds-lightbox-card ds-lightbox-card--carousel',
+            ref: (el) => {
+                if (!el || el._dsLbScrolled === state.open) return;
+                el._dsLbScrolled = state.open;
+                const track = el.querySelector('.ds-carousel-track');
+                const item = track && track.children[openIndex];
+                if (item) item.scrollIntoView({ inline: 'start', behavior: 'instant' });
+            }
+        },
             h('div', { class: 'ds-lightbox-head' },
-                h('span', { class: 'ds-lightbox-tag' }, 'tile · ' + it.id),
+                h('span', { class: 'ds-lightbox-tag' }, 'tile · ' + (openIndex + 1) + ' of ' + items.length),
                 h('button', { class: 'btn', onclick: close }, 'close')
             ),
-            h('div', { class: 'ds-lightbox-preview', style: '--tile-tone:var(--' + it.tone + ')' }, it.caption),
-            h('p', { class: 'ds-m0' }, h('strong', {}, it.label)),
+            Carousel({ items, renderItem: LightboxTile, label: 'gallery tiles' }),
             // Tells the reader how to leave, which is the one thing they need
             // from a lightbox. It previously described its own implementation.
-            h('p', { class: 'ds-m0 ds-text-2' }, 'esc, or click anywhere outside, to close.')
+            h('p', { class: 'ds-m0 ds-text-2' }, 'use the carousel arrows to browse tiles, esc or click outside to close.')
         )
     );
 }
