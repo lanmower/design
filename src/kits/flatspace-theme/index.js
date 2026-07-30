@@ -7,8 +7,14 @@
 // and is not force-unified here.
 export { escapeHtml, escapeJson, extractArticle, rewriteLegacyLinks } from './html-utils.js';
 
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const { version } = require('../../../package.json');
+
 // Canonical unpkg URLs every theme.mjs's importmap/<link> points at, kept in
 // one place so a future SDK CDN path change is a single-file edit instead of
-// a 3-repo grep-and-replace.
-export const SDK_CSS_URL = 'https://unpkg.com/anentrypoint-design@latest/dist/247420.css';
-export const SDK_JS_URL = 'https://unpkg.com/anentrypoint-design@latest/dist/247420.js';
+// a 3-repo grep-and-replace. Pinned to the exact installed package version
+// (not @latest) so a consumer site's build serves what it actually built
+// against, immune to unpkg's alias-level cache TTL.
+export const SDK_CSS_URL = `https://unpkg.com/anentrypoint-design@${version}/dist/247420.css`;
+export const SDK_JS_URL = `https://unpkg.com/anentrypoint-design@${version}/dist/247420.js`;
