@@ -190,8 +190,20 @@ h4, .t-h4 { font-family: var(--ff-display); font-size: var(--fs-h4); line-height
 }
 .ds-prose p  { margin: 0 0 var(--space-4); }
 .ds-prose h1 { font-size: clamp(34px, 5.4cqi, 64px); margin-bottom: var(--space-3); }
-.ds-prose h2 { margin: var(--space-6) 0 var(--space-3); }
-.ds-prose h3 { margin: var(--space-5) 0 var(--space-2); font-size: var(--fs-lg); font-weight: 600; }
+.ds-prose h2 { margin: var(--space-6) 0 var(--space-3); font-size: var(--fs-h3); }
+.ds-prose h3 { margin: var(--space-5) 0 var(--space-2); font-size: var(--fs-h4); font-weight: 600; }
+.ds-prose h4 { margin: var(--space-5) 0 var(--space-2); font-size: var(--fs-xl); font-weight: 600; }
+.ds-prose hr { border: none; border-top: var(--bw-hair) solid var(--rule); margin: var(--space-6) 0; }
+.ds-prose blockquote {
+  margin: var(--space-5) 0;
+  padding: var(--space-3) var(--space-4);
+  border-left: var(--bw-chunk, 3px) solid var(--panel-accent);
+  background: var(--panel-hover);
+  border-radius: var(--r-1);
+  color: var(--panel-text-2);
+  font-family: var(--ff-body);
+}
+.ds-prose blockquote p:last-child { margin-bottom: 0; }
 /* Closing line of an article ("end. reply by opening a pr."), set off from the
    body it terminates. Quieter and smaller than the prose around it: it takes
    the mono face and the --fg-3 tone the house uses for ancillary voices
