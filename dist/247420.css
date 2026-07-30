@@ -1228,7 +1228,7 @@
 
 .ds-247420 .app-side {
   display: flex; flex-direction: column; gap: var(--space-4);
-  padding: var(--space-5) var(--space-3);
+  padding: var(--space-5) var(--space-2) var(--space-5) var(--space-3);
   font-size: var(--fs-sm);
 }
 /* Sidebar section wrapper emitted by Side() (src/components/shell/app-shell.js).
@@ -1721,8 +1721,22 @@
   font-weight: 500; color: var(--fg-3);
   font-family: var(--ff-mono); letter-spacing: 0;
 }
+/* Panel titles render as a real heading (h2 by default) for AT heading-jump
+   navigation, but must read identically to the old plain span — reset the
+   UA heading margin/size/weight so it inherits .panel-head's own type rules
+   instead of the browser's h2 stylesheet. */
+.ds-247420 .panel-title {
+  margin: 0; font: inherit; font-size: inherit; font-weight: inherit;
+  letter-spacing: inherit; text-transform: inherit; color: inherit;
+}
 .ds-247420 .panel-body { padding: var(--space-2) var(--space-3) var(--space-3); }
 .ds-247420 .panel-body > * { margin: 0; }
+/* One-line explanatory caption under a panel's title — e.g. distinguishing
+   two visually-similar panels (lore palette vs semantic tokens) in words
+   instead of leaving the reader to infer it from the title alone. */
+.ds-247420 .ds-panel-caption {
+  font-size: var(--fs-sm); color: var(--fg-3); margin: 0 0 var(--space-2);
+}
 /* Inner sibling rhythm scales with density like the outer panel rhythm, so a
    compact/spacious surface stays proportional instead of only its outer
    intervals moving while the panel interiors hold still. Kept strictly below
@@ -5095,7 +5109,11 @@
   /* Embedded shell (freddie WM window) fills its container, not the viewport. */
   .ds-247420 .fd-root .app { height: 100%; overflow: visible; }
   .ds-247420 .app-body { min-height: 0; flex: 1 1 auto; }
-  .ds-247420 .app-side-shell { overflow-y: auto; min-height: 0; }
+  /* scrollbar-gutter mirrors .app-main's own (topbar.css) — without it the
+     thumb draws flush against the sidebar's nav text with zero breathing
+     room, reading as a mark stuck to the content rather than a scrollbar
+     anchored to the shell's own edge. */
+  .ds-247420 .app-side-shell { overflow-y: auto; overflow-x: hidden; min-height: 0; scrollbar-gutter: stable; }
   .ds-247420 .app-main { overflow-y: auto; min-height: 0; }
 }
 
@@ -5993,23 +6011,12 @@
 .ds-247420 .ds-gallery-tile:hover { transform: translateY(-2px); box-shadow: 0 2px 8px color-mix(in oklab, var(--fg) 10%, transparent); }
 .ds-247420 .ds-gallery-tile:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 .ds-247420 .ds-gallery-tile--tight { min-height: clamp(96px, 14vw, 120px); }
-.ds-247420 .ds-lightbox {
-  position: fixed; inset: 0; background: var(--scrim);
-  display: flex; align-items: center; justify-content: center;
-  padding: clamp(var(--space-2-75), 4vw, var(--space-5));
-  padding-bottom: max(clamp(var(--space-2-75), 4vw, var(--space-5)), env(safe-area-inset-bottom));
-  z-index: var(--z-modal);
-}
-.ds-247420 .ds-lightbox-card {
-  /* 28px ceiling has no tier (--space-4 is 24, --space-5 is 32); it is the
-     lightbox card inset tuned against the min(520px,100%) card width. */
-  background: var(--panel-0); border-radius: var(--r-2); padding: clamp(var(--space-3), 4vw, 28px);
-  width: min(520px, 100%); min-width: 0;
-  max-height: calc(100vh - 24px);
-  max-height: calc(100dvh - 24px);
-  overflow: auto;
-  display: flex; flex-direction: column; gap: 14px; /* off-scale, matches the card inset above */
-}
+/* The lightbox scrim/card chrome itself is now Dialog's (.ds-ep-dialog /
+   .ds-ep-dialog-backdrop in editor-primitives.css) — Dialog already ships
+   role="dialog", aria-modal, Tab-trap and focus-restore-on-close, which the
+   former hand-rolled .ds-lightbox/.ds-lightbox-card overlay had none of. Only
+   the gallery-specific content rules (head row, tag, carousel sizing, tile
+   preview) remain here. */
 .ds-247420 .ds-lightbox-preview {
   /* 36px ceiling has no tier (--space-5 is 32, --space-6 is 48). */
   padding: clamp(var(--space-3), 6vw, 36px); border-radius: var(--r-1); text-align: center;
@@ -6215,11 +6222,24 @@
 .ds-247420 .ds-auth-otp-wrap { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); }
 .ds-247420 .ds-auth-field { display: flex; flex-direction: column; gap: var(--space-1); }
 /* .ds-auth-field-label joins the kit small-label voice above, no overrides. */
+.ds-247420 .ds-auth-field-input-row { position: relative; display: flex; align-items: center; }
+/* Reserves room for the absolutely-positioned toggle: its --space-1 inset plus
+   the --ds-icon-btn-sm 26px box, so the input text never sits under it. */
+.ds-247420 .ds-auth-field-input-row .input { flex: 1 1 auto; padding-right: calc(26px + var(--space-2)); }
+.ds-247420 .ds-auth-pw-toggle { position: absolute; right: var(--space-1); }
 .ds-247420 .ds-auth-row-between { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
 .ds-247420 .ds-auth-remember { display: flex; align-items: center; gap: var(--space-1-75); cursor: pointer; }
 .ds-247420 .ds-auth-remember-text { color: var(--panel-text-2); font-size: var(--fs-tiny); }
 .ds-247420 .ds-auth-forgot { font-size: var(--fs-tiny); }
-.ds-247420 .ds-auth-error { padding: var(--space-2) var(--space-2-5); background: var(--panel-1); border-radius: var(--r-0); color: var(--danger); font-size: var(--fs-tiny); overflow-wrap: anywhere; }
+/* Error and status share layout but not color: a color-only distinction
+   between role="alert" (something is wrong) and role="status" (informational)
+   fails WCAG 1.4.1, so each also carries a distinct ASCII marker via ::before —
+   never rely on the reader noticing the role attribute alone. */
+.ds-247420 .ds-auth-error, .ds-247420 .ds-auth-status { padding: var(--space-2) var(--space-2-5); background: var(--panel-1); border-radius: var(--r-0); font-size: var(--fs-tiny); overflow-wrap: anywhere; display: flex; gap: var(--space-1-75); align-items: flex-start; }
+.ds-247420 .ds-auth-error { color: var(--danger); }
+.ds-247420 .ds-auth-error::before { content: '[!]'; flex: none; }
+.ds-247420 .ds-auth-status { color: var(--panel-text-2); }
+.ds-247420 .ds-auth-status::before { content: '[i]'; flex: none; }
 .ds-247420 .ds-auth-providers { display: flex; gap: var(--space-2); flex-wrap: wrap; }
 .ds-247420 .ds-auth-provider-btn { flex: 1 1 100px; min-width: 0; display: flex; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-2-5); }
 .ds-247420 .ds-auth-provider-btn--loading { opacity: 0.7; pointer-events: none; }
@@ -6245,8 +6265,12 @@
 .ds-247420 .ds-gal-swatch-meta { display: flex; justify-content: space-between; gap: var(--space-1-75); flex-wrap: wrap; font-family: var(--ff-mono); font-size: var(--fs-nano); min-width: 0; }
 .ds-247420 .ds-gal-swatch-name { color: var(--panel-text); }
 .ds-247420 .ds-gal-swatch-hint { color: var(--panel-text-3); overflow-wrap: anywhere; }
-.ds-247420 .ds-lightbox-head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.ds-247420 .ds-lightbox-head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-2-75); }
 /* .ds-lightbox-tag joins the kit small-label voice above, no overrides. */
+/* Dialog's .ds-ep-dialog-body has no default child gap (unlike the former
+   hand-rolled .ds-lightbox-card, which was `display:flex; gap:14px`), so the
+   carousel block gets its own top gutter to keep head/carousel/hint spaced. */
+.ds-247420 .ds-lightbox-card--carousel { margin-bottom: var(--space-2-75); }
 
 /* --- error_404 kit --- */
 .ds-247420 .ds-err-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; justify-content: center; margin-top: var(--space-1-75); }
@@ -6304,6 +6328,20 @@
 .ds-247420 .ds-term-input-row { margin-top: var(--space-1-75); }
 .ds-247420 .ds-term-input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; font-family: var(--ff-mono); font-size: var(--fs-micro); color: var(--paper); caret-color: var(--acid); }
 .ds-247420 .ds-term-input::placeholder { color: var(--paper-3-dark); }
+/* Adding type="text" (for the a11y fix below) makes the global
+   input[type="text"] rule in states-interactions.css match this element for
+   the first time, at equal-or-higher specificity than this file's load
+   order would otherwise win. Re-assert the borderless prompt-line chrome so
+   the shared form-control skin (bg, border, radius, fixed height) can't leak
+   onto what is a terminal prompt, not a form field. */
+.ds-247420 .ds-term-input[type='text'] { background: transparent; border: 0; border-radius: 0; box-shadow: none; height: auto; }
+/* The row-level `outline: 0` above kills the browser default, so the control
+   needs its own :focus-visible ring back — otherwise a keyboard user gets no
+   visual confirmation focus landed on the one control they type into. */
+.ds-247420 .ds-term-input:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
 /* The input itself is a prompt line, not a form control, so it is NOT floored
    to 44px (that would break the terminal's line rhythm). Instead the whole
    prompt ROW becomes the tap target, and the font goes to 16px so focusing it
@@ -6326,8 +6364,25 @@
 .ds-247420 .ds-chat-layout > .chat { min-width: 0; }
 .ds-247420 .ds-chat-detail { display: none; }
 @media (min-width: 1100px) {
-  .ds-247420 .ds-chat-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; align-items: start; gap: var(--space-4); }
-  .ds-247420 .ds-chat-detail { display: block; position: sticky; top: 0; }
+  /* Two compounding grid quirks, not one:
+     1. align-items:start sizes the row to its tallest item's natural content
+        height instead of stretching items to fill it — align-items must stay
+        the grid default (stretch).
+     2. Even with stretch, an implicit row with no explicit sizing (the
+        default here) ALSO sizes itself to content first, then stretches
+        items to that content-derived height — which can exceed the row's
+        actual allotment from this grid's own flex parent (.chat-kit-page,
+        flex:1/min-height:0). .chat then renders taller than .ds-chat-layout's
+        own box, so it overflows past the grid container instead of being
+        clipped by .chat-thread's internal scroll — visually burying the
+        pattern-notes panel that follows this grid in the DOM. Explicit
+        `grid-template-rows: minmax(0, 1fr)` makes the row take exactly the
+        container's height (from the flex chain above) as the ceiling, so
+        .chat's min-height:0 has a real, smaller-than-content value to clip
+        against. .ds-chat-detail opts out via align-self so its own sticky
+        positioning still works without forcing the row back to content-sized. */
+  .ds-247420 .ds-chat-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; grid-template-rows: minmax(0, 1fr); gap: var(--space-4); }
+  .ds-247420 .ds-chat-detail { display: block; position: sticky; top: 0; align-self: start; }
 }
 
 /* Avatar — generic identity disc primitive (content.js Avatar). Sized

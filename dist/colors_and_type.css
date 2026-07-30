@@ -14,23 +14,33 @@
   --tree-indent: 12px;
   --tree-base-indent: 6px;
 
-  /* Paper / Ink — warm newsprint paper against near-black ink. The warmer
-     paper + deeper ink widen the tonal range so the electric lead reads as
-     printed, not glowing. */
-  --paper:       #F4F1E9;
-  --paper-2:     #EAE6DA;
-  --paper-3:     #DCD7C7;
-  --ink:         #0E0E12;
-  --ink-2:       #1F1F26;
-  --ink-3:       #52525A; /* WCAG AAA on --paper (~7.1:1) */
-  --ink-3-dark:  #464650; /* dark theme bg-3 (tier-3 surface) */
-  --paper-3-dark: #B4B4BC; /* dark theme fg-3 (tier-3 text)   */
+  /* Paper / Ink — RESTYLED to webjsx-toolkit's shadcn-neutral grayscale
+     palette (2026 restyle, replacing the prior "Acid Editorial" warm-paper/
+     electric-lime identity). Values below are HSL-equivalent-in-hex readings
+     of webjsx-toolkit's :root tokens (--background 0 0% 100%, --foreground
+     0 0% 10%, --muted 0 0% 95%, --border 0 0% 90%) so every downstream
+     color-mix()/oklch() derivation in this file keeps its formula and only
+     the ROOT input changes -- see restyle-tokens-webjsx-toolkit-look and
+     restyle-contrast-reverification-all-tokens for the swap rationale and
+     the re-verification this requires. */
+  --paper:       #FFFFFF;
+  --paper-2:     #F2F2F2;
+  --paper-3:     #E5E5E5;
+  --ink:         #1A1A1A;
+  --ink-2:       #333338;
+  --ink-3:       #525252; /* WCAG-verified 2026 restyle: npm run a11y caught 4.10:1 at #58585F against --paper-3 (#c6c5c5-equivalent surfaces); #525252 clears 4.54:1 there and 7.81:1 against pure paper */
+  --ink-3-dark:  #4D4D52; /* dark theme bg-3 (tier-3 surface) */
+  --paper-3-dark: #9B9B9B; /* dark theme fg-3 (tier-3 text); WCAG-verified: npm run a11y caught 4.41:1 at #999999 against --ink-2 (#333338); #9B9B9B clears 4.52:1 there */
 
-  /* Lore palette. --acid is the electric lead — a printed-ink lime that sits
-     forward of the heritage green; green/purple/mascot demote to print-ink
-     category roles. */
-  --acid:        #B6FF1B;
-  --acid-deep:   #4E4200; /* AA text tone of the lead on paper (WCAG-verified: #4E7A00 measured 4.21:1 against --accent-tint's own color-mix() output, which derives FROM --acid-deep -- so a small darkening shifts both foreground and background together and converges too slowly; #4E4200 is the minimal shade that actually clears 4.5:1 against its own self-referential tint background) */
+  /* Lore palette. --acid was the prior electric-lime lead; RESTYLED to a
+     neutral near-black accent matching webjsx-toolkit's grayscale --primary
+     (0 0% 15%), since the shadcn-neutral look has no saturated lead color at
+     all -- primary/accent are both neutral ink tones with hover-state
+     opacity, not a distinct hue. green/purple/mascot below stay as the
+     category/status palette (webjsx-toolkit has no opinion on multi-hue
+     category tagging, so these are kept rather than flattened). */
+  --acid:        #262626;
+  --acid-deep:   #171717; /* re-verify AA text tone under restyle-contrast-reverification-all-tokens */
   --green:       #247420;
   --green-2:     #3A9A34;
   --green-deep:  #133F10;
@@ -49,6 +59,14 @@
      need a tone chosen for ink rather than for the active theme. Same role
      --paper-3-dark plays for the tier-3 text ramp. */
   --mascot-on-ink: #FF5C9E;
+  /* Same always-dark-surface pattern, for .ds-cli-ok's success/OK text.
+     RESTYLED 2026: .ds-cli-ok previously used --acid directly (the bright
+     lime), which cleared contrast on --ink by construction; now that --acid
+     is a dark neutral, it fails 1.15:1 on the still-always-dark .cli card
+     (npm run a11y caught this on the terminal kit). Reuses the dark-theme
+     --green retune value (7.48:1 on --ink) rather than inventing a new hue,
+     since --green already carries the "success" semantic elsewhere. */
+  --success-on-ink: #5CBF52;
 
   /* Signals */
   --sun:         #F5C344;
@@ -95,11 +113,16 @@
   --fg-2:        var(--ink-2);
   --fg-3:        var(--ink-3);
 
-  /* The electric lead. --accent is the FILL (sits behind ink text); --accent-ink
-     is the readable TEXT tone for links/eyebrows/accents on paper (the lime
-     itself is too light for text). --accent-fg is what sits ON an --accent fill. */
+  /* --accent is the FILL; --accent-ink is the readable TEXT tone for
+     links/eyebrows/accents on paper; --accent-fg is what sits ON an --accent
+     fill. RESTYLED: --accent (formerly the bright --acid lime, dark text on
+     top) is now a dark neutral (webjsx-toolkit's --primary: 0 0% 15%), so
+     --accent-fg flips to a LIGHT tone (webjsx-toolkit's --primary-foreground:
+     0 0% 100%) -- verified via npm run a11y after the initial restyle caught
+     this exact dark-on-dark 1.15:1 failure across every kit's .btn-primary/
+     .active nav item, both of which read --accent-fg as their text color. */
   --accent:      var(--acid);
-  --accent-fg:   var(--ink);
+  --accent-fg:   var(--paper);
   --accent-ink:  var(--acid-deep);
   --accent-bright: var(--acid); /* base value so var(--accent-bright) never falls back empty; ink + [data-accent] retune it */
   /* Blends --accent-ink (the readable/darker ink variant), not the raw
@@ -240,13 +263,19 @@
   --rule-strong: color-mix(in oklab, currentColor 28%, transparent);
 
   /* Micro rungs below --r-1 — chips, badges, scrollbar thumbs, tick marks
-     genuinely want a tighter corner than 10px; without these two tokens the
-     component sheets fell back to raw px literals bypassing the scale. */
+     genuinely want a tighter corner than the base radius; without these two
+     tokens the component sheets fell back to raw px literals bypassing the
+     scale. RESTYLED (webjsx-toolkit look): base --radius is 0.5rem (8px),
+     with radius-sm/md/lg at radius-4px/radius-2px/radius (4px/6px/8px) --
+     --r-1 below is retuned to that 8px base; --r-2/--r-3 keep proportional
+     headroom above it for large-surface corners (cards, dialogs) rather than
+     collapsing to a single flat rung, since webjsx-toolkit itself has no
+     opinion above its one --radius value. */
   --r-hair:      2px;
   --r-0:         4px;
-  --r-1:         10px;
-  --r-2:         14px;
-  --r-3:         22px;
+  --r-1:         8px;
+  --r-2:         10px;
+  --r-3:         14px;
   --r-pill:      999px;
 
   --dur-snap:    80ms;
@@ -255,14 +284,24 @@
   --dur-reveal:  560ms;
   --ease:        cubic-bezier(0.2, 0, 0, 1);
   /* Physical tier — a slight overshoot that reads as a printed stamp landing,
-     used by presses and signature reveals (not by routine UI fades). */
+     used by presses and signature reveals (not by routine UI fades). Kept
+     available post-restyle since some existing consumers still reference it;
+     new work should prefer the webjsx-toolkit-equivalent curves below. */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-exit:   cubic-bezier(0.4, 0, 1, 1);
+  /* RESTYLED (webjsx-toolkit look): its three named easing curves, ported
+     verbatim from webjsx-toolkit/src/styles.css's @theme inline block. */
+  --ease-drawer:     cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-collapse:   cubic-bezier(0.2, 0, 0, 1);
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
 
-  /* Print texture — the signature surface treatment. --grain is a tiled
-     fractal-noise data-URI, opt-in via the .ds-grain utility and tuned faint
-     so type stays crisp. */
-  --grain-opacity:    0.05;
+  /* Print texture — the prior "Acid Editorial" signature surface treatment.
+     RESTYLED: opacity zeroed so .ds-grain/.ds-halftone (currently applied by
+     no consumer, verified by grep across src/components and ui_kits) render
+     inert under the flat-surface webjsx-toolkit look, without deleting the
+     machinery in case a future editorial-mode consumer opts back in. --grain
+     itself (the data-URI) and --grain-blend are left defined for that reason. */
+  --grain-opacity:    0;
   --grain-blend:      multiply;
   --grain:       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   /* Offset-ink registration — the small print-mark offset used on editorial
@@ -432,12 +471,16 @@ select:focus-visible {
   --panel-text:   var(--fg);
   --panel-text-2: var(--fg-2);
   --panel-text-3: var(--fg-3);
-  --accent:    var(--acid);
+  /* RESTYLED: webjsx-toolkit's dark --primary is a LIGHT neutral (0 0% 75%)
+     with a DARK --primary-foreground (0 0% 10%) -- the inverse of light mode,
+     matching shadcn's convention that dark-mode primary buttons read as a
+     light chip on the dark page, not a same-dark-as-bg chip. --accent no
+     longer aliases --acid here (a literal dark-on-dark 1.15:1 failure caught
+     by npm run a11y across every dark-rendered kit). */
+  --accent:    #BFBFBF;
   --accent-fg: var(--ink);
-  --accent-ink: var(--acid); /* on ink, the lime itself reads as bright text */
-  --accent-bright: var(--acid);
-  /* Preserves the prior --accent-based blend for dark; the :root light-theme
-     value above was retuned to blend --accent-ink instead. */
+  --accent-ink: var(--paper);
+  --accent-bright: #BFBFBF;
   --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
   --danger:    oklch(0.68 0.19 25);
   --flame:     #FF5A1F;
@@ -503,10 +546,10 @@ select:focus-visible {
     --panel-text:   var(--fg);
     --panel-text-2: var(--fg-2);
     --panel-text-3: var(--fg-3);
-    --accent:    var(--acid);
+    --accent:    #BFBFBF; /* mirrors [data-theme=ink/dark] retune above */
     --accent-fg: var(--ink);
-    --accent-ink: var(--acid);
-    --accent-bright: var(--acid);
+    --accent-ink: var(--paper);
+    --accent-bright: #BFBFBF;
     --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
     --danger:    oklch(0.68 0.19 25);
     --flame:     #FF5A1F;
@@ -569,6 +612,7 @@ select:focus-visible {
   --cat-purple-ink: inherit;
   --cat-mascot-ink: inherit;
   --mascot-on-ink: inherit;
+  --success-on-ink: inherit;
   --cat-sun: inherit;
   --cat-flame: inherit;
   --cat-sky: inherit;
@@ -592,7 +636,7 @@ select:focus-visible {
   color-scheme: light;
   --bg: var(--paper); --bg-2: var(--paper-2); --bg-3: var(--paper-3);
   --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
-  --accent: var(--acid); --accent-fg: var(--ink); --accent-ink: var(--acid-deep);
+  --accent: var(--acid); --accent-fg: var(--paper); --accent-ink: var(--acid-deep);
   --accent-tint: color-mix(in oklab, var(--accent-ink) 22%, var(--bg));
   /* A paper island under a dark ancestor must not inherit the dark signal pair. */
   --flame: #C53E00; --amber: #7C570F; --warn: #C41C0C; --sky: #3A6EFF;
@@ -663,7 +707,7 @@ select:focus-visible {
 [data-density="comfortable"] { --density: 1; }
 [data-density="spacious"]    { --density: 1.35; }
 
-[data-accent="acid"]   { --accent: var(--acid);   --accent-bright: var(--acid);     --accent-fg: var(--ink);   --accent-ink: var(--acid-deep); --panel-accent: var(--acid);   }
+[data-accent="acid"]   { --accent: var(--acid);   --accent-bright: var(--acid);     --accent-fg: var(--paper); --accent-ink: var(--acid-deep); --panel-accent: var(--acid);   }
 [data-accent="green"]  { --accent: var(--green);  --accent-bright: var(--green-2);  --accent-fg: var(--paper); --accent-ink: var(--green);     --panel-accent: var(--green);  }
 [data-accent="purple"] { --accent: var(--purple); --accent-bright: #C277FF;         --accent-fg: var(--paper); --accent-ink: var(--purple-2);  --panel-accent: var(--purple); }
 [data-accent="mascot"] { --accent: var(--mascot); --accent-bright: var(--mascot-2); --accent-fg: var(--ink);   --accent-ink: var(--mascot-deep);--panel-accent: var(--mascot); }

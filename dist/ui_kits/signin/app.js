@@ -1,13 +1,32 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status, AppShell, Panel, Heading, Lede, Chip, Icon, Divider } from 'ds/components.js';
+import { Topbar, Crumb, Status, AppShell, Panel, Heading, Lede, Chip, Icon, Divider, InputOTP } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 import { shortUid } from 'ds/uid.js';
 const h = webjsx.createElement;
 
 const root = document.getElementById('root');
-const state = { mode: 'signin', email: '', password: '', remember: true, sent: false, error: '', loading: null, demoUrl: '' };
+const state = { mode: 'signin', email: '', password: '', remember: true, sent: false, error: '', loading: null, demoUrl: '', otp: '', otpVerified: false, otpError: '' };
 
-function setMode(m) { state.mode = m; state.sent = false; state.error = ''; state.loading = null; state.demoUrl = ''; kit.render(); }
+function setMode(m) { state.mode = m; state.sent = false; state.error = ''; state.loading = null; state.demoUrl = ''; state.otp = ''; state.otpVerified = false; state.otpError = ''; kit.render(); }
+
+// A specimen page cannot actually deliver an email, so the interactive
+// stand-in for "click the link in your inbox" is a fixed demo code the
+// sent-state copy tells the visitor to type back — exercises real InputOTP
+// wiring (auto-advance, backspace-retreat, paste-split, onComplete) without
+// pretending to be a real server round trip.
+const DEMO_CODE = '247420';
+
+function verifyOtp(code) {
+    state.otp = code;
+    if (code.length < 6) { state.otpError = ''; kit.render(); return; }
+    if (code === DEMO_CODE) {
+        state.otpVerified = true;
+        state.otpError = '';
+    } else {
+        state.otpError = 'that code doesn\'t match — demo code is ' + DEMO_CODE + '.';
+    }
+    kit.render();
+}
 
 function submit(e) {
     e.preventDefault();
@@ -141,15 +160,30 @@ function Form() {
         // the only recovery was a page reload. Every sent state that waits on
         // an email now offers the correction path.
         const waiting = state.mode === 'magic' || state.mode === 'reset';
+        const magicVerify = state.mode === 'magic' && !state.otpVerified;
         return h('div', { class: 'ds-auth-form ds-auth-sent' },
-            h('div', { class: 'ds-auth-sent-glyph' }, '[x]'),
-            h('p', { class: 'ds-auth-sent-title' }, state.mode === 'magic' ? 'check your email' : (state.mode === 'reset' ? 'reset link sent' : 'welcome back')),
-            h('p', { class: 'ds-auth-sent-sub' }, state.mode === 'magic'
-                ? 'we sent a sign-in link to ' + state.email + '. it expires in 15 minutes.'
+            h('div', { class: 'ds-auth-sent-glyph' }, state.otpVerified ? '[ok]' : '[x]'),
+            h('p', { class: 'ds-auth-sent-title' },
+                state.otpVerified ? 'verified' :
+                state.mode === 'magic' ? 'check your email' : (state.mode === 'reset' ? 'reset link sent' : 'welcome back')),
+            h('p', { class: 'ds-auth-sent-sub' },
+                state.otpVerified ? 'signed in. taking you to the index.' :
+                state.mode === 'magic'
+                ? 'we sent a sign-in link to ' + state.email + '. it expires in 15 minutes — or enter the ' + DEMO_CODE.length + '-digit code from the email below (demo code: ' + DEMO_CODE + ').'
                 : (state.mode === 'reset' ? 'we sent a reset link to ' + state.email + '. follow it to set a new password.' : 'signed in. taking you to the index.')),
-            waiting ? h('button', {
+            magicVerify ? h('div', { class: 'ds-auth-otp-wrap' },
+                InputOTP({
+                    length: DEMO_CODE.length, value: state.otp,
+                    onChange: (code) => verifyOtp(code),
+                    onComplete: (code) => verifyOtp(code),
+                    error: Boolean(state.otpError),
+                    label: 'sign-in code',
+                }),
+                state.otpError ? h('div', { class: 'ds-auth-error', role: 'alert' }, state.otpError) : null
+            ) : null,
+            waiting && !state.otpVerified ? h('button', {
                 class: 'btn',
-                onclick: (e) => { e.preventDefault(); state.sent = false; kit.render(); }
+                onclick: (e) => { e.preventDefault(); state.sent = false; state.otp = ''; state.otpVerified = false; state.otpError = ''; kit.render(); }
             }, 'use a different email') : null
         );
     }
@@ -206,7 +240,14 @@ function App() {
         topbar: Topbar({ brand: '247420', leaf: 'auth', items: [['index', '../../']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: state.mode === 'signin' ? 'signin' : 'signin · ' + state.mode }),
         main: [
-            h('div', { class: 'ds-section ds-auth-wrap' },
+            // .ds-app-surface, not .ds-section: an auth screen is an Operate
+            // surface, so its h1 belongs on the app typescale. Under .ds-section
+            // the title rendered at the 64px marketing display ceiling (77px
+            // measured) and the root carried a 96px editorial margin, which
+            // together pushed a 430px card to a 946px scroll height inside a
+            // ~514px pane and gave .app-main its own inner scrollbar at every
+            // real window height.
+            h('div', { class: 'ds-app-surface ds-auth-wrap' },
                 h('div', { class: 'ds-auth-col' },
                     Heading({ level: 1, children: headings[0] }),
                     Lede({ children: headings[1] }),

@@ -415,7 +415,12 @@ html, body {
   .app-text-cursor { animation: app-cursor-blink 0.5s step-end infinite; }
   @keyframes app-cursor-blink { 50% { opacity: 0; } }
 }
-@media (max-width: 1023px) and (min-width: 768px) {
+/* (min-height: 501px): short-landscape windows (<501px tall) in this width
+ * band are on the mobile contract, not tablet — see the matching guard on
+ * the .wm-root tablet-inset rule below. Without the guard this block showed
+ * the side-rail and rail-offset the menubar/taskbar while the mobile band
+ * simultaneously tried to lay out rail-less full-screen windows. */
+@media (max-width: 1023px) and (min-width: 768px) and (min-height: 501px) {
     .os-side-rail { display: flex; }
     .ds-247420 .wm-root { left: calc(var(--os-rail-w) + env(safe-area-inset-left, 0px)); }
     .os-menubar { padding-left: calc(var(--os-rail-w) + env(safe-area-inset-left, 0px) + var(--space-2, 8px)); }
@@ -563,8 +568,16 @@ html, body {
 /* With bars overlaying the wm-root, a maximized window's 34px titlebar would
  * sit exactly under the 34px menubar (untappable) and its body under the
  * taskbar; keep maximized windows between the bars on desktop/tablet. The
- * mobile band re-asserts its own contract in the responsive layer below. */
-@media (min-width: 768px) {
+ * mobile band re-asserts its own contract in the responsive layer below.
+ * The (min-height: 501px) guard keeps this rule out of the short-landscape
+ * mobile band (768-1023 wide AND <500 tall): the mobile .wm-root already
+ * carries the bar-inset there, so this between-the-bars geometry used to
+ * DOUBLE-inset maximized windows — a restored wm-max window measured
+ * y=104/h=240 instead of y=52/h=344 at 782x448 (witnessed live on thebird
+ * 2026-07-29). Guarding here (same idiom as the tablet-band rules below)
+ * instead of overriding inside the mobile band keeps the !important
+ * ratchet flat — no new declaration was needed. */
+@media (min-width: 768px) and (min-height: 501px) {
   /* LOAD-BEARING !important: wm.css declares `.wm-win.wm-max{top:0!important;
    * height:100%!important}` (wm.css:137-143). Only another !important can beat
    * an !important, regardless of specificity. */
@@ -640,6 +653,12 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   color: var(--os-fg);
   min-width: 280px;
   box-shadow: var(--shadow-overlay);
+  /* Uncapped, the switcher grew one row per open window with no bound —
+   * witnessed live at 27 windows on a 448px-tall viewport: the overlay
+   * measured y=-344 / h=1136, its top rows unreachable above the screen.
+   * Cap to the viewport between the bars and scroll the overflow. */
+  max-height: calc(100dvh - (2 * var(--os-bar-h, 34px)) - 24px);
+  overflow-y: auto;
 }
 .ds-247420 .wm-switcher-item {
   padding: var(--space-2) var(--space-2-75);
@@ -1488,6 +1507,11 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
     border-radius: 0;
     box-shadow: none;
   }
+  /* A maximized window on the mobile band is just the full-screen window the
+   * rule above already describes — the desktop/tablet `.wm-win.wm-max`
+   * between-the-bars rule is kept out of this band by its own
+   * (min-height: 501px) guard (see its comment above), so no override is
+   * needed here and the !important ratchet stays flat. */
   /* titlebar must host a 44px close button -> 44px bar (beats the 34px brand
    * clamp by later source order at equal specificity) */
   .ds-247420 .wm-bar {
@@ -1529,8 +1553,17 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
  * the scoped inset:0; re-asserted here at equal (0,2,0) specificity but later
  * source order, which is enough now that the earlier rule is also scoped.
  * `inset` alone carries the left offset — the separate `left` declaration it
- * used to be paired with was redundant with this shorthand. --- */
-@media (min-width: 768px) and (max-width: 1023px) {
+ * used to be paired with was redundant with this shorthand.
+ * The (min-height: 501px) guard excludes the short-landscape overlap band
+ * (768-1023 wide AND <500 tall): both this query and the mobile band's
+ * (max-height: 500px)+(orientation: landscape) match there, and this rule —
+ * later in source order — used to override the mobile bar-inset, dropping
+ * .wm-root to top:0 so full-screen windows covered the menubar and their
+ * close buttons landed under it occluded and untappable (witnessed live on
+ * thebird at 782x448: elementFromPoint on the chat close button hit
+ * .os-clock, menubar z 601 over window z 102). Short-landscape is the
+ * phone/mobile contract, not tablet. --- */
+@media (min-width: 768px) and (max-width: 1023px) and (min-height: 501px) {
   .ds-247420 .wm-root {
     inset: 0 0 0 var(--os-rail-w);
   }
