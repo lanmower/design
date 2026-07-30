@@ -1301,6 +1301,7 @@
   -webkit-user-select: none;
   touch-action: none;
   transition: background var(--dur-base) var(--ease), border-color var(--dur-base) var(--ease), transform var(--dur-snap) var(--ease);
+  overflow: hidden;
 }
 .vx-ptt:hover { background: color-mix(in oklab, var(--fg) 8%, var(--bg-2)); }
 .vx-ptt:active { transform: scale(0.97); }
@@ -1311,11 +1312,6 @@
   border-radius: inherit;
   pointer-events: none;
   opacity: 0;
-}
-@media (max-width: 480px) {
-  /* .vx-ptt stretches full-width on narrow viewports, leaving no room for
-     the glow's -4px bleed without overflowing the viewport edge. */
-  .vx-ptt-glow { inset: -4px 0; }
 }
 @media (max-height: 420px) {
   /* Phone-in-landscape: topbar + chat-head + user-identity bar alone can
