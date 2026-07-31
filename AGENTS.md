@@ -117,10 +117,4 @@ Both of the obvious approaches report working controls as dead. Verify **behavio
 
 Correct probe: click → `await` ~60-80ms → **re-query** the element (the re-render replaces the node, so a held reference is stale) → compare. Exclude real external `http(s)` links, which cannot navigate in-page and otherwise read as dead. An audit that skips this reports ~100% false positives: one such pass claimed "20 of 20 homepage controls inert" where the real figure was 0 of 22.
 
-## Working in this tree
-
-- **This working tree has more than one writer.** An unrelated automated process commits to this same repo and branch. Re-check current file state before every edit rather than assuming a prior edit is still intact, and reconcile — never overwrite — after an external commit lands mid-session. (`concurrent-process-mutating-repo` in recall.)
-- **The `browser` verb's session/navigation flakiness is infra, not a site defect** (`__GM_BLANK__`, stale-session bleed, `document is not defined` on `url=` mode). Work-around: `session new`, then a separate `dom=`/`url=` navigate dispatch before any eval; never trust a single combined dispatch.
-- Past sweep narratives live in `git log` and `CHANGELOG.md`; their durable substance is in rs-learn (query e.g. "zero-border row zebra input focus", "glyph jank sweep", "stage-wide radius scale migration", "gmsniff consumer gap sweep", "homepage polish sidebar count token").
-
-@.gm/next-step.md
+Past sweep narratives live in `git log` and `CHANGELOG.md`.
