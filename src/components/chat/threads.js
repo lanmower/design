@@ -69,7 +69,12 @@ export function Chat({ title = 'chat', sub, messages = [], composer, header, sug
 
 export const AICAT_FACE = ` /\\_/\\\n( o.o )\n > ^ <`;
 
-export function AICatPortrait({ name = 'aicat', status = 'idle', face } = {}) {
+// `status` is opt-in and omitted by default: this component renders IDENTITY
+// (who you're talking to — name, avatar/face), not live conversation state.
+// A caller that also renders a thread head with its own status (AICat below)
+// should leave `status` unset here so there is exactly one place on the page
+// showing dynamic state — passing it back in duplicates that source of truth.
+export function AICatPortrait({ name = 'aicat', status, face } = {}) {
     return h('div', { class: 'aicat-portrait' },
         // role="img" collapses the ASCII art into a single named image for a
         // screen reader (otherwise the slashes and parens are read out
@@ -79,7 +84,9 @@ export function AICatPortrait({ name = 'aicat', status = 'idle', face } = {}) {
         h('pre', { class: 'aicat-face', role: 'img', 'aria-label': `${name} portrait` }, face || AICAT_FACE),
         h('div', { class: 'aicat-meta' },
             h('span', { class: 'name' }, name),
-            h('span', { class: 'status', 'aria-label': `status: ${status}` }, h('span', { class: 'dot ds-dot ds-dot-on', 'aria-hidden': 'true' }), ' ', status)
+            status != null
+                ? h('span', { class: 'status', 'aria-label': `status: ${status}` }, h('span', { class: 'dot ds-dot ds-dot-on', 'aria-hidden': 'true' }), ' ', status)
+                : null
         )
     );
 }

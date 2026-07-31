@@ -638,7 +638,21 @@
    it leaves a lone thread column growing to 1400px+ with no other use of
    the extra width. This wrapper adds a persistent "thread info" rail once
    there is room to spare, instead of just widening the message column. */
-.ds-chat-layout { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: var(--space-3); }
+/* min-height is a floor, not the intended size — .chat-kit-page's flex-column
+   splits leftover height between this (flex:1 1 0%, "leftover") and the
+   pattern-notes panel below it (flex:0 1 auto, i.e. sized to its own content
+   first). On a short viewport the panel's natural content height can consume
+   the entire column budget, squeezing this flex-basis:0% sibling to a real,
+   rendered, fully-populated-with-messages 0px — the thread is never empty,
+   it is invisible. Inside .chat itself, .chat-head and .chat-composer are
+   also flex:0-ish naturally-sized siblings of .chat-thread (flex:1 1 0%,
+   chat-polish.css), so the floor has to clear their combined natural height
+   (~55px head + ~78px composer, chrome + gap) with real room left for the
+   thread to still show at least a couple of message bubbles rather than
+   collapsing to a sliver between them — 30vh was not enough on a short
+   viewport. It still grows past this floor via flex:1 whenever the column
+   has room. */
+.ds-chat-layout { display: flex; flex-direction: column; flex: 1; min-height: max(30vh, 420px); gap: var(--space-3); }
 .ds-chat-layout > .chat { min-width: 0; }
 .ds-chat-detail { display: none; }
 @media (min-width: 1100px) {
@@ -873,6 +887,67 @@
   border-radius: var(--r-hair);
 }
 .ds-pattern-notes strong { color: var(--fg); font-weight: 600; }
+
+/* .panel.panel-docs — documentation/annotation chrome, visibly different from
+   the plain .panel the real interface renders in. aicat stacks its "about
+   this kit" caption directly under the live chat surface; identical card
+   chrome on both made the meta-explanation read as part of the product
+   instead of a caption about it. Dashed border reuses the .ds-dropzone
+   affordance vocabulary (a dashed edge already reads as "not solid content"
+   in this system) and the tint is a quiet, low-saturation wash rather than
+   an accent color, so it never competes with real accent-toned UI state. */
+.panel.panel-docs {
+  border-style: dashed;
+  border-color: var(--rule-strong);
+  background: color-mix(in oklab, var(--fg) 4%, var(--bg-2));
+  box-shadow: none;
+}
+.panel.panel-docs .panel-title {
+  color: var(--fg-3);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.panel.panel-docs .panel-title::before {
+  content: 'docs · ';
+  color: var(--fg-3);
+}
+
+/* .ds-kit-controls — collapsed-by-default dev/demo toggle drawer. Reference
+   state-toggle pills (ready/loading/empty/error and similar) are scaffolding
+   for exercising a kit's other states, not live content; sitting exposed in
+   the flow next to real content made them read as leftover dev debris. A
+   native <details>/<summary> disclosure needs no bespoke open/close state or
+   JS and is keyboard/AT-operable for free — closed by default, opens on
+   click or Enter/Space on the summary. */
+.ds-kit-controls {
+  border: var(--bw-hair) dashed var(--rule);
+  border-radius: var(--r-2);
+  margin: 0 0 var(--space-4);
+  background: var(--bg);
+}
+.ds-kit-controls summary {
+  cursor: pointer;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-xs);
+  color: var(--fg-3);
+  list-style: none;
+}
+.ds-kit-controls summary::-webkit-details-marker { display: none; }
+.ds-kit-controls summary::before { content: '[+] '; }
+.ds-kit-controls[open] summary::before { content: '[-] '; }
+.ds-kit-controls summary:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+.ds-kit-controls-body {
+  padding: 0 var(--space-3) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
 
 /* Swatch cell wrapper (system_primer pairs it with .ds-swatch-col, which owns
    the column/gap). This adds only what the wrapper itself needs: a minimum-zero

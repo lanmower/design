@@ -144,9 +144,9 @@ function App() {
         }),
         crumb: Crumb({ trail: ['247420'], leaf: state.route }),
         main: [
-            // badges fill the Hero's narrow right column — without them the
-            // asymmetric two-column grid renders with a dead right half at
-            // desktop width, which reads as a layout bug rather than tension.
+            // badges fill the Hero's full-width card below the body copy —
+            // without them the aside is simply absent (Hero omits it when
+            // both badges and actions are empty), rather than an empty column.
             // They are counts this page already knows, not invented metrics.
             Hero({
                 title: 'the creative department of the internet.',

@@ -130,6 +130,16 @@ function TranscriptError() {
     );
 }
 
+// Single source of truth for "conversation state" (thinking/purring/idle).
+// Both headers previously computed this independently — the portrait read
+// state.mood directly while the thread head hardcoded 'online · purring' —
+// so they could (and did) disagree. Deriving both from state.mood here means
+// there is exactly one place that decides what "online" currently means.
+function liveStatus(s) {
+    if (s.thinking) return 'thinking…';
+    return s.mood === 'happy' ? 'online · purring' : 'online · idle';
+}
+
 const state = {
     draft: '', thinking: false, mood: 'idle', phase: 'ready', lastFailedText: null,
     messages: [
@@ -203,9 +213,13 @@ function App() {
             h('div', { class: 'ds-app-surface ds-section-pad' },
                 Heading({ level: 1, children: 'aicat' }),
                 Lede({ children: 'an ai assistant with a cat persona. she replies in text, code (highlighted), markdown, images, pdfs, file attachments, or link cards — depending on what you ask.' }),
+                // Identity only: who you're talking to (name, face, avatar) —
+                // static, no live/dynamic status wording here. AICatPortrait
+                // still accepts a `status` prop for other consumers, but this
+                // kit intentionally omits it so the ONE live status line lives
+                // in the thread head below, not duplicated up here.
                 AICatPortrait({
                     name: 'aicat',
-                    status: state.thinking ? 'thinking…' : (state.mood === 'happy' ? 'online · purring' : 'online · idle'),
                     face: FACES[state.mood] || FACES.idle
                 }),
                 state.phase === 'loading' ? Panel({ title: 'restoring session', children: TranscriptSkeleton() })
@@ -213,7 +227,7 @@ function App() {
                 : state.phase === 'empty' ? Panel({ title: 'new session', children: TranscriptEmpty() })
                 : AICat({
                     name: 'aicat',
-                    status: state.thinking ? 'thinking…' : 'online · purring',
+                    status: liveStatus(state),
                     messages: state.messages, thinking: state.thinking,
                     composer: ChatComposer({
                         value: state.draft,
@@ -223,19 +237,35 @@ function App() {
                         onSend: send
                     })
                 }),
+                // Docs/annotation block — explains the interface above, so it
+                // gets `kind: 'docs'` (dashed border + tinted bg, see
+                // .panel-docs in kits-appended.css) instead of the plain
+                // `.panel` chrome the real chat surface uses above it. Without
+                // this the caption and the product it describes were
+                // visually identical cards back to back.
                 Panel({
+                    kind: 'docs',
                     title: 'about this kit',
                     children: h('div', { class: 'ds-pattern-notes' },
                         h('p', {}, '· portrait swaps with mood — ', Chip({ tone: 'dim', children: 'idle' }), ' ', Chip({ tone: 'dim', children: 'think' }), ' ', Chip({ tone: 'accent', children: 'happy' }), '.'),
                         h('p', {}, '· thinking-state appends a typing bubble, disables the composer, blocks pre-emptive multi-sends.'),
-                        h('p', {}, '· classifier in ', h('code', {}, 'classifyAndReply()'), ' is deterministic — wire it to your model, replies stay shaped as ', h('code', {}, '{parts:[…]}'), '.'),
-                        // Reference-surface toggle for the transcript's other
-                        // phases (loading/empty/error). Lives here, inline in a
-                        // labelled caption, rather than as a peer row inside the
-                        // sidebar's `role="navigation"` landmark — a first-time
-                        // visitor scanning real nav rows next to a debug "error"
-                        // row can mistake it for a live system alert.
-                        Lede({ children: 'reference: switch the transcript panel above between its states —' }),
+                        h('p', {}, '· classifier in ', h('code', {}, 'classifyAndReply()'), ' is deterministic — wire it to your model, replies stay shaped as ', h('code', {}, '{parts:[…]}'), '.')
+                    )
+                }),
+                // Dev/demo state toggles — reachable reference surface for the
+                // transcript's other phases (loading/empty/error), but NOT
+                // part of the "about this kit" documentation prose and not a
+                // peer row inside the sidebar's `role="navigation"` landmark
+                // (a first-time visitor scanning real nav rows next to a
+                // debug "error" row could mistake it for a live system
+                // alert). Collapsed by default behind a <details> disclosure —
+                // the same pattern devtools/inspector-style panels in this
+                // repo already use for opt-in secondary controls — so it
+                // reads as scaffolding you can open, not live content.
+                h('details', { class: 'ds-kit-controls' },
+                    h('summary', {}, 'kit controls — transcript reference state'),
+                    h('div', { class: 'ds-kit-controls-body' },
+                        Lede({ children: 'switch the transcript panel above between its states —' }),
                         h('div', { class: 'ds-filter-pills', role: 'group', 'aria-label': 'transcript reference state' },
                             ...PHASES.map((p) => h('button', {
                                 key: 'ph-' + p,
@@ -259,7 +289,7 @@ function App() {
                             }, p))
                         )
                     )
-                })
+                )
             )
         ],
         status: Status({

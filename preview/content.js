@@ -29,7 +29,7 @@ const view = () => h('div', { class: 'spec-page' },
     spec('PageHeader', 'Page title + optional lede.',
         PageHeader({ title: 'content primitives', lede: 'every export of content.js, rendered.' })),
 
-    spec('Hero', 'Asymmetric two-column lead. badges fill the right column.',
+    spec('Hero', 'Left-inset single-column lead. badges fill a full-width card below the body.',
         Hero({
             title: 'the creative department of the internet.',
             body: 'ships fast, breaks things on purpose, documents honestly.',

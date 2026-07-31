@@ -2,8 +2,10 @@
 /* colors_and_type.css */
 /* ============================================================
    247420 design system — colors + type
-   "Acid Editorial": confident display type, ink-on-paper with one
-   electric lead, print texture over glow. Scope-prefixed at build time.
+   shadcn-neutral (2026-07-30 restyle): confident display type, ink-on-paper
+   with a grayscale accent, print texture inert. RESTYLED from the prior
+   "Acid Editorial" warm-paper/electric-lime identity -- see the RESTYLED
+   notes below for the token-by-token detail. Scope-prefixed at build time.
    Source-of-truth tokens. Component sheet lives in app-shell.css.
    ============================================================ */
 
@@ -805,9 +807,9 @@
 /* app-shell.css */
 /* ============================================================
    247420 design system — component sheet
-   "Acid Editorial": system-font display + body + mono, no custom web fonts.
-   Confident hierarchy, asymmetric grid tension, print texture over glow,
-   one electric lead accent. Indicator rails over hairlines.
+   shadcn-neutral: system-font display + body + mono, no custom web fonts.
+   Confident hierarchy, centered editorial stack, neutral grayscale accent.
+   Indicator rails over hairlines.
    ============================================================ */
 
 /* ============================================================
@@ -969,6 +971,17 @@
   font-family: var(--ff-body); font-size: var(--fs-xl);
   line-height: var(--lh-tall); max-width: 38ch; font-weight: 400; color: var(--fg-2);
   margin: 0;
+}
+
+/* h1/h2/h3/h4 and .lede/.t-lede are both margin:0 primitives by design (a
+   heading used standalone must not force space its context doesn't want).
+   But a heading immediately followed by a lede is a named pairing, not two
+   independent primitives that happen to be adjacent -- it needs its own gap
+   regardless of whether the surrounding shell opts into .ds-app-surface
+   (which only adds this spacing on landing/marketing surfaces, leaving every
+   Operate-mode kit that skips that class with a zero-gap heading+subtitle). */
+.ds-247420 h1 + .lede, .ds-247420 h1 + .t-lede, .ds-247420 h2 + .lede, .ds-247420 h2 + .t-lede, .ds-247420 h3 + .lede, .ds-247420 h3 + .t-lede, .ds-247420 .t-h1 + .lede, .ds-247420 .t-h1 + .t-lede {
+  margin-top: var(--space-2);
 }
 
 .ds-247420 .eyebrow {
@@ -1707,6 +1720,18 @@
 }
 .ds-247420 .panel.panel-inline { background: var(--bg-2); padding: var(--space-3) var(--space-3); }
 .ds-247420 .panel.panel-wide   { background: transparent; box-shadow: none; border: none; }
+/* Changelog (and any other panel-wide content) needs its OWN container-query
+   context: the existing `@container (max-width: 760px) .ds-changelog-row`
+   rule in hero-content.css measures the nearest CQ ancestor, which without
+   this is `.app`/`.ds-stage` (base.css) — the whole shell width, not this
+   panel's actual rendered width. A changelog panel sitting inside
+   .ds-panel-trio (three equal siblings) can be far narrower than 760px
+   while the shell itself stays well over that, so the row-collapse rule
+   never engages and the message column's `minmax(0, 1fr)` track collapses
+   to 0 — the text then renders past the panel's right edge, clipped
+   mid-word instead of wrapping. Scoping the container here (not on
+   .panel generally) keeps the blast radius to panel-wide content only. */
+.ds-247420 .panel.panel-wide   { container-type: inline-size; }
 /* Dense panel — a compact container for app surfaces (inspector sections,
    sidebars) that want the .panel look without the roomy 16px pad + 24px stack
    gap. Tighter corner + padding + head, so it sits between .panel and the
@@ -1848,6 +1873,62 @@
 /* A row with no leading code/index drops the empty first column so the title
    takes the full width instead of wrapping in the narrow code gutter. */
 .ds-247420 .row.row-nocode { grid-template-columns: minmax(0, 1fr) auto; }
+/* Template-rendered index/example rows (site/theme.mjs panels, via
+   panelNode()/examplesNode() in src/page-html/client-script.js) share one
+   row template across every panel-driven section on the homepage — "ui
+   kits", "previews", "file browser", "web components", "public api", "why
+   design", "live examples". Every one of those rows carries an inline
+   ".meta.dim" description and a trailing ".ds-row-arrow"; some ALSO carry a
+   leading ".code" span (file_browser/web_components/api_exports items have
+   a `code` field, "why design"/"live examples" items do not) — the
+   selector below has to handle both shapes as ONE template, not two.
+   Un-augmented, the base 3-track .row grid (minmax(80px,12ch) /
+   minmax(0,1fr) / auto) either crams the title into the narrow 12ch code
+   gutter (no-code rows) or, worse, auto-places an EXPLICIT-grid orphan:
+   once .title/.ds-row-arrow/.meta.dim below are pinned to explicit
+   grid-column/grid-row, a .code span left on `auto` placement can't share
+   row 1 with .title (already occupying column 1) and gets pushed into a
+   phantom row 3, rendering as a stray floating "fb"/"wc"/"api" line under
+   the description — the exact bug this rule exists to prevent, previously
+   left unfixed for the has-code case. Rows carrying a dim meta description
+   and an arrow always get the two-row template: code + title + arrow share
+   row 1 (code first, in its own narrow track), the description drops to
+   its own full-width row 2 and wraps normally — matching how every other
+   multi-line row pattern in this file (.ds-row-detail) already gets a
+   dedicated line. */
+.ds-247420 .row:has(.meta.dim):has(.ds-row-arrow) {
+  grid-template-columns: minmax(80px, 12ch) minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  row-gap: var(--space-1);
+}
+.ds-247420 .row:has(.meta.dim):has(.ds-row-arrow) .code { grid-column: 1; grid-row: 1; }
+.ds-247420 .row:has(.meta.dim):has(.ds-row-arrow) .title { grid-column: 2; grid-row: 1; }
+.ds-247420 .row:has(.meta.dim):has(.ds-row-arrow) .ds-row-arrow { grid-column: 3; grid-row: 1; }
+.ds-247420 .row:has(.meta.dim):has(.ds-row-arrow) .meta.dim { grid-column: 1 / -1; grid-row: 2; }
+/* No-code rows ("why design", "live examples") drop the empty leading
+   gutter so the title starts flush left instead of leaving a dead 12ch
+   column — same fix .row-nocode already applies to the base template. */
+.ds-247420 .row:has(.meta.dim):has(.ds-row-arrow):not(:has(.code)) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.ds-247420 .row:has(.meta.dim):has(.ds-row-arrow):not(:has(.code)) .title { grid-column: 1; }
+.ds-247420 .row:has(.meta.dim):has(.ds-row-arrow):not(:has(.code)) .ds-row-arrow { grid-column: 2; }
+.ds-247420 .row .meta.dim {
+  white-space: normal;
+  min-width: 0;
+  text-align: left;
+}
+.ds-247420 .ds-row-arrow {
+  font-family: var(--ff-mono);
+  font-size: var(--fs-xs);
+  color: var(--fg-3);
+  white-space: nowrap;
+  align-self: center;
+  justify-self: end;
+}
+.ds-247420 a.row:hover .ds-row-arrow, .ds-247420 .row[role="button"]:hover .ds-row-arrow {
+  color: var(--accent-ink);
+}
 
 /* `.row-code` / `.row-title` / `.row-meta` are the BEM-ish spelling of the same
    three cells as `.code` / `.title` / `.meta`. Both spellings are live in the
@@ -1906,21 +1987,37 @@
    specific to the retired Acid Editorial identity. All child classes/markup
    are UNCHANGED (no JS component edit needed) -- only the grid arrangement
    and each part's own layout (aside becomes a full-width card below the body
-   instead of a right-column card) changed. Centered text, capped measure. */
+   instead of a right-column card) changed. Centered text, capped measure.
+
+   DE-CENTERED 2026-07-31: the flex-stack architecture from the restyle above
+   is kept as-is (still a single-column stack, still the oversized display
+   lead, still the full-width aside card) -- this is NOT a revert to the old
+   two-column grid. What changed is alignment only: `align-items: center` /
+   `text-align: center` read as the textbook dead-centered "AI portfolio"
+   hero the moment the oversized display type is involved, regardless of
+   architecture. Swapping to flex-start + left text-align, plus a
+   --space-6 left inset inside the unchanged --stage-wide container, pushes
+   the whole block toward the left edge so the oversized title crops against
+   real whitespace on the right instead of sitting symmetric in the middle --
+   editorial tension from a one-axis asymmetry, no grid architecture
+   reintroduced. */
 .ds-247420 .ds-hero {
   padding: var(--space-9) 0 var(--space-8);
-  display: flex; flex-direction: column; align-items: center;
+  display: flex; flex-direction: column; align-items: flex-start;
   gap: var(--space-5);
   max-width: var(--stage-wide);
-  text-align: center;
+  margin-inline-start: 0;
+  padding-inline-start: var(--space-6);
+  text-align: left;
   position: relative; isolation: isolate;
 }
-.ds-247420 .ds-hero-head { display: grid; gap: var(--space-3); justify-items: center; }
-.ds-247420 .ds-hero-body  { margin-inline: auto; }
+.ds-247420 .ds-hero-head { display: grid; gap: var(--space-3); justify-items: start; }
+.ds-247420 .ds-hero-body  { margin-inline: 0; }
 /* The stat/badge/CTA cluster now sits as a full-width card BELOW the body
-   copy, centered, rather than a right-offset column -- still carries its own
-   visual weight via the top accent bar (rotated from the former left spine)
-   so it still reads as a deliberate block, not an afterthought. */
+   copy, left-aligned with the rest of the stack, rather than a right-offset
+   column -- still carries its own visual weight via the top accent bar
+   (rotated from the former left spine) so it still reads as a deliberate
+   block, not an afterthought. */
 .ds-247420 .ds-hero-aside {
   position: relative; isolation: isolate;
   width: 100%; max-width: 46ch;
@@ -1952,23 +2049,23 @@
      Snapping to either changes the hero's whole optical weight. */
   font-size: clamp(40px, 9cqi, 116px);
   line-height: 0.96; letter-spacing: var(--tr-tighter);
-  margin: 0 auto; max-width: 20ch; text-wrap: balance;
+  margin: 0; max-width: 20ch; text-wrap: balance;
 }
 .ds-247420 .ds-hero-body {
   font-family: var(--ff-body); font-size: var(--fs-xl);
-  line-height: 1.45; margin: 0 auto; max-width: 46ch;
+  line-height: 1.45; margin: 0; max-width: 46ch;
   color: var(--fg-2);
 }
 /* The lead phrase in the title — printed in the electric lead, not glowing. */
 .ds-247420 .ds-hero-accent { color: var(--accent-ink); font-weight: 700; }
 .ds-247420 .ds-hero-actions {
   display: flex; gap: var(--space-2, 10px); flex-wrap: wrap;
-  justify-content: center; margin-top: var(--space-hair, 4px);
+  justify-content: flex-start; margin-top: var(--space-hair, 4px);
 }
 /* Below this width the aside card's own internal rhythm (stat rows still
    stacked vertically at full width) is already correct for a narrow column —
    no separate breakpoint override needed now that .ds-hero is always a
-   single-column centered stack at every width. */
+   single-column left-aligned stack at every width. */
 @container (max-width: 900px) {
   .ds-247420 .ds-hero { padding: var(--space-7) 0 var(--space-6); }
 }
@@ -1978,6 +2075,21 @@
    Section grouping
    ============================================================ */
 .ds-247420 .ds-section { margin: var(--space-8) 0; }
+/* A .ds-section's own margin-top exists so a BARE first section (no element
+   above it inside .app-main/.ds-app-surface) still gets the --space-8 lead
+   from something. But .app-main and .ds-tier are flex/grid containers, where
+   sibling margins never collapse -- so once ANY preceding sibling supplies
+   its own trailing space (a .panel's --space-4 bottom margin, or a prior
+   .ds-section's own --space-8 bottom margin), that top margin stacks ON TOP
+   of it instead of coordinating into one gap: measured live, two adjacent
+   .ds-section elements sat 192px apart (96 + 96) instead of 96, and a .panel
+   followed by a .ds-section sat ~136px apart instead of the intended single
+   gap. Zeroing the top margin on every NON-first .ds-section collapses the
+   pair back to one coordinated gap, supplied by whichever side already
+   carries it (the preceding sibling's own bottom margin, or the .ds-section's
+   trailing margin below) -- same "gap is owned by one side only" pattern as
+   .ds-panel-gap + .ds-panel-gap / .row + .row elsewhere in this file. */
+.ds-247420 * + .ds-section { margin-top: 0; }
 /* Compact section (e.g. a PageHeader used as a page's first element): no large
    leading margin, modest trailing margin — top-aligns without consumer overrides. */
 .ds-247420 .ds-section-compact { margin-top: 0; margin-bottom: var(--space-4); }
@@ -2105,6 +2217,15 @@
   font-size: var(--fs-xs);
   text-transform: uppercase; letter-spacing: var(--tr-caps);
   width: 14ch;
+  /* The 14ch column width is a target, not a guarantee — a label whose
+     uppercase-transformed width fills the column exactly (e.g. "environment")
+     leaves zero slack before the value cell, so label and value render with
+     no visible gap between them ("ENVIRONMENTproduction") while shorter
+     labels (region, build, by) are saved only by leftover column slack.
+     An explicit right-side padding guarantees a gap regardless of label
+     length, instead of relying on slack that a long label can consume
+     entirely. */
+  padding-right: var(--space-3);
 }
 .ds-247420 table.kv td:last-child {
   font-weight: 600;
@@ -2173,6 +2294,18 @@
 }
 .ds-247420 .ds-changelog-ver {
   font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-sm);
+}
+/* Belt-and-suspenders for the message column: `.row .title` (panel-row.css)
+   is already `white-space: normal` (no nowrap/ellipsis), so long entries wrap
+   by word as expected whenever the message track has any real width. This
+   only matters in the narrow zone between "row still on 3 columns" and the
+   panel's own `@container` breakpoint kicking in (see .panel-wide's new
+   container-type in panel-row.css) — overflow-wrap:anywhere is the fallback
+   so a single long unbroken token still wraps instead of overflowing the
+   track, rather than depending solely on the breakpoint transition. */
+.ds-247420 .ds-changelog-row .title {
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 /* ============================================================
@@ -4506,7 +4639,7 @@
   width: 100%; height: 0; border: 0;
 }
 .ds-247420 hr.rule { border-top: 1px solid var(--rule); }
-.ds-247420 hr.rule-double { border-top: 3px double var(--rule-strong); }
+.ds-247420 hr.rule-double { border-top: 4px double var(--rule-strong); }
 .ds-247420 hr.rule-dotted { border-top: 1px dotted var(--rule-strong); }
 
 /* Hairline-only text input — no box, no fill. A single bottom rule that
@@ -6372,7 +6505,21 @@
    it leaves a lone thread column growing to 1400px+ with no other use of
    the extra width. This wrapper adds a persistent "thread info" rail once
    there is room to spare, instead of just widening the message column. */
-.ds-247420 .ds-chat-layout { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: var(--space-3); }
+/* min-height is a floor, not the intended size — .chat-kit-page's flex-column
+   splits leftover height between this (flex:1 1 0%, "leftover") and the
+   pattern-notes panel below it (flex:0 1 auto, i.e. sized to its own content
+   first). On a short viewport the panel's natural content height can consume
+   the entire column budget, squeezing this flex-basis:0% sibling to a real,
+   rendered, fully-populated-with-messages 0px — the thread is never empty,
+   it is invisible. Inside .chat itself, .chat-head and .chat-composer are
+   also flex:0-ish naturally-sized siblings of .chat-thread (flex:1 1 0%,
+   chat-polish.css), so the floor has to clear their combined natural height
+   (~55px head + ~78px composer, chrome + gap) with real room left for the
+   thread to still show at least a couple of message bubbles rather than
+   collapsing to a sliver between them — 30vh was not enough on a short
+   viewport. It still grows past this floor via flex:1 whenever the column
+   has room. */
+.ds-247420 .ds-chat-layout { display: flex; flex-direction: column; flex: 1; min-height: max(30vh, 420px); gap: var(--space-3); }
 .ds-247420 .ds-chat-layout > .chat { min-width: 0; }
 .ds-247420 .ds-chat-detail { display: none; }
 @media (min-width: 1100px) {
@@ -6607,6 +6754,67 @@
   border-radius: var(--r-hair);
 }
 .ds-247420 .ds-pattern-notes strong { color: var(--fg); font-weight: 600; }
+
+/* .panel.panel-docs — documentation/annotation chrome, visibly different from
+   the plain .panel the real interface renders in. aicat stacks its "about
+   this kit" caption directly under the live chat surface; identical card
+   chrome on both made the meta-explanation read as part of the product
+   instead of a caption about it. Dashed border reuses the .ds-dropzone
+   affordance vocabulary (a dashed edge already reads as "not solid content"
+   in this system) and the tint is a quiet, low-saturation wash rather than
+   an accent color, so it never competes with real accent-toned UI state. */
+.ds-247420 .panel.panel-docs {
+  border-style: dashed;
+  border-color: var(--rule-strong);
+  background: color-mix(in oklab, var(--fg) 4%, var(--bg-2));
+  box-shadow: none;
+}
+.ds-247420 .panel.panel-docs .panel-title {
+  color: var(--fg-3);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.ds-247420 .panel.panel-docs .panel-title::before {
+  content: 'docs · ';
+  color: var(--fg-3);
+}
+
+/* .ds-kit-controls — collapsed-by-default dev/demo toggle drawer. Reference
+   state-toggle pills (ready/loading/empty/error and similar) are scaffolding
+   for exercising a kit's other states, not live content; sitting exposed in
+   the flow next to real content made them read as leftover dev debris. A
+   native <details>/<summary> disclosure needs no bespoke open/close state or
+   JS and is keyboard/AT-operable for free — closed by default, opens on
+   click or Enter/Space on the summary. */
+.ds-247420 .ds-kit-controls {
+  border: var(--bw-hair) dashed var(--rule);
+  border-radius: var(--r-2);
+  margin: 0 0 var(--space-4);
+  background: var(--bg);
+}
+.ds-247420 .ds-kit-controls summary {
+  cursor: pointer;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-xs);
+  color: var(--fg-3);
+  list-style: none;
+}
+.ds-247420 .ds-kit-controls summary::-webkit-details-marker { display: none; }
+.ds-247420 .ds-kit-controls summary::before { content: '[+] '; }
+.ds-247420 .ds-kit-controls[open] summary::before { content: '[-] '; }
+.ds-247420 .ds-kit-controls summary:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+.ds-247420 .ds-kit-controls-body {
+  padding: 0 var(--space-3) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
 
 /* Swatch cell wrapper (system_primer pairs it with .ds-swatch-col, which owns
    the column/gap). This adds only what the wrapper itself needs: a minimum-zero
@@ -12303,6 +12511,14 @@
     font: var(--fs-tiny, 12px)/1 var(--ff-mono, monospace);
     color: var(--panel-text-3, var(--fg-3));
     white-space: nowrap;
+    /* Sits on the ::before/::after rule line, which otherwise draws straight
+       through the label text. Background must match the label's containing
+       card (.panel uses --panel-1, falling back to --bg-2) so the line reads
+       as visually broken around the label rather than crossing it. */
+    background: var(--panel-1, var(--bg-2));
+    padding: 0 var(--space-1-5, 5px);
+    position: relative;
+    z-index: var(--z-raised);
 }
 /* PermissionMenu (ov-perm) — roving-tabindex menuitemcheckbox rows +
    approve-all/revoke-all actions, styled to match the sibling Dropdown menu. */

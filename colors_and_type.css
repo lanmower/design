@@ -1,7 +1,9 @@
 /* ============================================================
    247420 design system — colors + type
-   "Acid Editorial": confident display type, ink-on-paper with one
-   electric lead, print texture over glow. Scope-prefixed at build time.
+   shadcn-neutral (2026-07-30 restyle): confident display type, ink-on-paper
+   with a grayscale accent, print texture inert. RESTYLED from the prior
+   "Acid Editorial" warm-paper/electric-lime identity -- see the RESTYLED
+   notes below for the token-by-token detail. Scope-prefixed at build time.
    Source-of-truth tokens. Component sheet lives in app-shell.css.
    ============================================================ */
 

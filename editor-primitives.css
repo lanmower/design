@@ -1694,6 +1694,14 @@ input.ov-set-control[type="range"] { padding: 0; accent-color: var(--accent); }
     font: var(--fs-tiny, 12px)/1 var(--ff-mono, monospace);
     color: var(--panel-text-3, var(--fg-3));
     white-space: nowrap;
+    /* Sits on the ::before/::after rule line, which otherwise draws straight
+       through the label text. Background must match the label's containing
+       card (.panel uses --panel-1, falling back to --bg-2) so the line reads
+       as visually broken around the label rather than crossing it. */
+    background: var(--panel-1, var(--bg-2));
+    padding: 0 var(--space-1-5, 5px);
+    position: relative;
+    z-index: var(--z-raised);
 }
 /* PermissionMenu (ov-perm) — roving-tabindex menuitemcheckbox rows +
    approve-all/revoke-all actions, styled to match the sibling Dropdown menu. */

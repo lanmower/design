@@ -1,16 +1,18 @@
-// Masthead blocks — the page-opening surfaces: Hero (the asymmetric
-// two-column grid), HeroFromPageData (the same shape driven by a parsed
-// page-data object), PageHeader (display and dense forms), Marquee (the
-// signature ticker) and Manifesto (long-form prose block).
+// Masthead blocks — the page-opening surfaces: Hero (a left-aligned,
+// left-inset single-column stack: oversized display title, body copy, then
+// the badge/CTA cluster as a full-width card below — offset off the left
+// edge rather than dead-centered), HeroFromPageData (the same shape driven
+// by a parsed page-data object), PageHeader (display and dense forms),
+// Marquee (the signature ticker) and Manifesto (long-form prose block).
 
 import * as webjsx from '../../../vendor/webjsx/index.js';
 const h = webjsx.createElement;
 
 export function Hero({ eyebrow, title, body, accent, actions, badges }) {
-    // Eyebrow + title share the title grid-area so the named-area layout stays
-    // intact; body occupies the wide left column, badges + actions stack in
-    // the narrow right column so it carries real visual weight instead of
-    // sitting empty beside the body copy.
+    // Eyebrow + title stack at the top of the single-column layout; badges +
+    // actions render into a full-width card BELOW the body copy (.ds-hero-aside)
+    // rather than a side column, so it still carries real visual weight instead
+    // of sitting empty beside the body copy.
     const badgeList = Array.isArray(badges) ? badges.filter(Boolean) : [];
     const badgeRow = badgeList.length
         ? h('div', { class: 'ds-hero-stats' }, ...badgeList.map((b, i) =>

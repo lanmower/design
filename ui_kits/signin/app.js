@@ -5,7 +5,7 @@ import { shortUid } from 'ds/uid.js';
 const h = webjsx.createElement;
 
 const root = document.getElementById('root');
-const state = { mode: 'signin', email: '', password: '', remember: true, sent: false, error: '', loading: null, demoUrl: '', otp: '', otpVerified: false, otpError: '', emailError: '', passwordError: '', showPassword: false };
+const state = { mode: 'signin', email: '', password: '', remember: false, sent: false, error: '', loading: null, demoUrl: '', otp: '', otpVerified: false, otpError: '', emailError: '', passwordError: '', showPassword: false };
 
 function setMode(m) { state.mode = m; state.sent = false; state.error = ''; state.emailError = ''; state.passwordError = ''; state.loading = null; state.demoUrl = ''; state.otp = ''; state.otpVerified = false; state.otpError = ''; state.showPassword = false; kit.render(); }
 

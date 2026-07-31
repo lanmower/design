@@ -482,7 +482,7 @@ Segmented one-time-code / PIN entry.
 
 **Kind:** component
 
-**Signature:** `name` = `'aicat'`, `status` = `'idle'`, `face`
+**Signature:** `name` = `'aicat'`, `status`, `face`
 
 ### AICat
 

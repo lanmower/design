@@ -62,9 +62,9 @@ const events = [
 ];
 
 // Every data panel below reads its state from here rather than assuming the
-// happy path. FeedStateSwitcher (in the events panel itself) flips it, so
-// each state is a real reachable surface in the kit, not dead code behind a
-// flag nobody sets.
+// happy path. FeedStateSwitcher (collapsed kit-controls drawer, end of main)
+// flips it, so each state is a real reachable surface in the kit, not dead
+// code behind a flag nobody sets.
 const state = { feed: 'ready' };
 const FEED_STATES = ['ready', 'loading', 'empty', 'error'];
 
@@ -111,22 +111,28 @@ function EventsPanel() {
 
 const feedCountOf = () => (state.feed === 'ready' ? events.length : 0);
 
-// Labelled kit-demo control, not navigation: lets a viewer step through every
-// reachable state of the events panel (ready/loading/empty/error) without it
-// masquerading as a real sidebar nav row. Small ghost buttons + an explicit
-// "demo:" label so the affordance reads as "this changes the panel below",
-// never as a destination.
+// Dev/demo state toggles for the events feed — reachable reference surface
+// for its other phases (loading/empty/error), but not part of the "live"
+// Recent Events content it simulates. Collapsed by default behind a
+// <details> disclosure (see .ds-kit-controls, kits-appended.css) — the same
+// pattern the aicat kit uses for its transcript reference-state toggles —
+// so it reads as scaffolding you can open, not live panel content.
 function FeedStateSwitcher() {
-    return h('div', { class: 'ds-btn-row', 'aria-label': 'events panel demo state' },
-        h('span', { class: 'eyebrow' }, 'demo:'),
-        ...FEED_STATES.map((s) => Btn({
-            key: 'fs-' + s,
-            size: 'sm',
-            variant: state.feed === s ? 'primary' : 'ghost',
-            'aria-label': 'show events panel ' + s + ' state',
-            onClick: () => { state.feed = s; kit.render(); },
-            children: s
-        }))
+    return h('details', { class: 'ds-kit-controls' },
+        h('summary', {}, 'kit controls — recent events reference state'),
+        h('div', { class: 'ds-kit-controls-body' },
+            h('div', { class: 'ds-btn-row', 'aria-label': 'events panel demo state' },
+                h('span', { class: 'eyebrow' }, 'demo:'),
+                ...FEED_STATES.map((s) => Btn({
+                    key: 'fs-' + s,
+                    size: 'sm',
+                    variant: state.feed === s ? 'primary' : 'ghost',
+                    'aria-label': 'show events panel ' + s + ' state',
+                    onClick: () => { state.feed = s; kit.render(); },
+                    children: s
+                }))
+            )
+        )
     );
 }
 
@@ -159,11 +165,13 @@ function App() {
                 // group, styled identically to every real nav row above it —
                 // a first-time viewer has no way to tell "reachable panel
                 // anchor" from "kit-demo control that reassigns local state"
-                // when both render as the same .app-side link. It now lives
-                // as a labelled control strip inside the "recent events"
-                // panel it actually affects (see FeedStateSwitcher below),
-                // where its only plausible reading is "this changes what's
-                // below it", not "this navigates the app".
+                // when both render as the same .app-side link. It later moved
+                // to a control strip inside "recent events", but that still
+                // put demo scaffolding inside the panel it was simulating as
+                // live content. It now lives collapsed behind a
+                // <details class="ds-kit-controls"> disclosure at the end of
+                // main (see FeedStateSwitcher below) — reachable, but never
+                // mistaken for the events feed itself.
             ]
         }),
         main: [
@@ -190,12 +198,7 @@ function App() {
                 // grid gap is the single source of separation in the row.
                 h('div', { class: 'ds-panel-trio' },
                     Panel({ id: 'p-environment', title: 'environment', class: 'ds-panel-flush', children: Receipt({ rows: receipt }) }),
-                    // The demo-state switcher renders as the first child of the
-                    // panel body (above the feed content it controls), not in
-                    // the sidebar and not competing with the panel-head count
-                    // slot — its only plausible reading is "this changes what's
-                    // directly below it", never "this is app navigation".
-                    Panel({ id: 'p-events', title: 'recent events', count: feedCount, class: 'ds-panel-flush', children: [FeedStateSwitcher(), EventsPanel()] }),
+                    Panel({ id: 'p-events', title: 'recent events', count: feedCount, class: 'ds-panel-flush', children: EventsPanel() }),
                     Panel({ id: 'p-changelog', title: 'changelog', count: changelog.length, class: 'ds-panel-flush', children: Changelog({ entries: changelog }) })
                 ),
                 Panel({ title: 'about this kit', class: 'ds-panel-gap', children: h('div', { class: 'ds-pattern-notes' },
@@ -204,7 +207,13 @@ function App() {
                     h('p', {}, '· ', Chip({ tone: 'accent', children: 'Receipt' }), ' for kv environment manifest, ', Chip({ tone: 'accent', children: 'Changelog' }), ' for release log.'),
                     h('p', {}, '· ', Chip({ tone: 'accent', children: 'ds-panel-trio' }), '/', Chip({ tone: 'accent', children: 'ds-panel-duo' }), ' for multi-panel rows — real grid tracks that step down on container width, not the viewport.'),
                     h('p', {}, '· ', Chip({ tone: 'accent', children: 'ds-panel-flush' }), ' on any panel inside a gap-owning row, so the container is the single source of separation.')
-                ) })
+                ) }),
+                // Dev/demo state toggles for the events feed — reachable
+                // reference surface for the panel's other phases, but not
+                // part of the "about this kit" documentation prose and not
+                // sitting inside "recent events" pretending to be live
+                // content. Collapsed by default (see FeedStateSwitcher).
+                FeedStateSwitcher()
             )
         ],
         status: Status({

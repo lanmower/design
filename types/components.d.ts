@@ -907,8 +907,7 @@ export declare const AICAT_FACE: any;
 export interface AICatPortraitProps {
     /** @default 'aicat' */
     name?: string;
-    /** @default 'idle' */
-    status?: string;
+    status?: any;
     face?: any;
 }
 export declare function AICatPortrait(props?: AICatPortraitProps): VNode;

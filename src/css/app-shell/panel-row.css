@@ -180,30 +180,46 @@ a.row:hover .meta, .row[role="button"]:hover .meta { color: var(--accent-ink); t
 /* A row with no leading code/index drops the empty first column so the title
    takes the full width instead of wrapping in the narrow code gutter. */
 .row.row-nocode { grid-template-columns: minmax(0, 1fr) auto; }
-/* Template-rendered index/example rows (site/theme.mjs "why design" +
-   "live examples" panels, via panelNode()/examplesNode() in
-   src/page-html/client-script.js) never emit a leading ".code" span for
-   these entries (no `code` field on the "features" items), so their actual
-   children are title + an inline ".meta.dim" description + a trailing
-   ".ds-row-arrow" — three items, but with no ".code" as the first child the
-   base 3-track .row grid (minmax(80px,12ch) / minmax(0,1fr) / auto) still
-   places the FIRST item (the title) into the narrow 12ch leading track
-   meant for a code index, not the 1fr track. ".ds-row-arrow" also had no
-   rule at all, and ".meta" is nowrap by default, so on longer descriptions
-   ("…never borders", "…--fs-* tokens") the un-wrapped text overflows its
-   cramped column straight into the arrow's box. Rows carrying both a dim
-   meta description and an arrow get their own two-row template instead:
-   title + arrow share row 1, the description drops to its own full-width
-   row 2 and wraps normally — matching how every other multi-line row
-   pattern in this file (.ds-row-detail) already gets a dedicated line. */
+/* Template-rendered index/example rows (site/theme.mjs panels, via
+   panelNode()/examplesNode() in src/page-html/client-script.js) share one
+   row template across every panel-driven section on the homepage — "ui
+   kits", "previews", "file browser", "web components", "public api", "why
+   design", "live examples". Every one of those rows carries an inline
+   ".meta.dim" description and a trailing ".ds-row-arrow"; some ALSO carry a
+   leading ".code" span (file_browser/web_components/api_exports items have
+   a `code` field, "why design"/"live examples" items do not) — the
+   selector below has to handle both shapes as ONE template, not two.
+   Un-augmented, the base 3-track .row grid (minmax(80px,12ch) /
+   minmax(0,1fr) / auto) either crams the title into the narrow 12ch code
+   gutter (no-code rows) or, worse, auto-places an EXPLICIT-grid orphan:
+   once .title/.ds-row-arrow/.meta.dim below are pinned to explicit
+   grid-column/grid-row, a .code span left on `auto` placement can't share
+   row 1 with .title (already occupying column 1) and gets pushed into a
+   phantom row 3, rendering as a stray floating "fb"/"wc"/"api" line under
+   the description — the exact bug this rule exists to prevent, previously
+   left unfixed for the has-code case. Rows carrying a dim meta description
+   and an arrow always get the two-row template: code + title + arrow share
+   row 1 (code first, in its own narrow track), the description drops to
+   its own full-width row 2 and wraps normally — matching how every other
+   multi-line row pattern in this file (.ds-row-detail) already gets a
+   dedicated line. */
 .row:has(.meta.dim):has(.ds-row-arrow) {
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(80px, 12ch) minmax(0, 1fr) auto;
   grid-template-rows: auto auto;
   row-gap: var(--space-1);
 }
-.row:has(.meta.dim):has(.ds-row-arrow) .title { grid-column: 1; grid-row: 1; }
-.row:has(.meta.dim):has(.ds-row-arrow) .ds-row-arrow { grid-column: 2; grid-row: 1; }
+.row:has(.meta.dim):has(.ds-row-arrow) .code { grid-column: 1; grid-row: 1; }
+.row:has(.meta.dim):has(.ds-row-arrow) .title { grid-column: 2; grid-row: 1; }
+.row:has(.meta.dim):has(.ds-row-arrow) .ds-row-arrow { grid-column: 3; grid-row: 1; }
 .row:has(.meta.dim):has(.ds-row-arrow) .meta.dim { grid-column: 1 / -1; grid-row: 2; }
+/* No-code rows ("why design", "live examples") drop the empty leading
+   gutter so the title starts flush left instead of leaving a dead 12ch
+   column — same fix .row-nocode already applies to the base template. */
+.row:has(.meta.dim):has(.ds-row-arrow):not(:has(.code)) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.row:has(.meta.dim):has(.ds-row-arrow):not(:has(.code)) .title { grid-column: 1; }
+.row:has(.meta.dim):has(.ds-row-arrow):not(:has(.code)) .ds-row-arrow { grid-column: 2; }
 .row .meta.dim {
   white-space: normal;
   min-width: 0;

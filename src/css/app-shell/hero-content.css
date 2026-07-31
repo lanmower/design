@@ -8,21 +8,37 @@
    specific to the retired Acid Editorial identity. All child classes/markup
    are UNCHANGED (no JS component edit needed) -- only the grid arrangement
    and each part's own layout (aside becomes a full-width card below the body
-   instead of a right-column card) changed. Centered text, capped measure. */
+   instead of a right-column card) changed. Centered text, capped measure.
+
+   DE-CENTERED 2026-07-31: the flex-stack architecture from the restyle above
+   is kept as-is (still a single-column stack, still the oversized display
+   lead, still the full-width aside card) -- this is NOT a revert to the old
+   two-column grid. What changed is alignment only: `align-items: center` /
+   `text-align: center` read as the textbook dead-centered "AI portfolio"
+   hero the moment the oversized display type is involved, regardless of
+   architecture. Swapping to flex-start + left text-align, plus a
+   --space-6 left inset inside the unchanged --stage-wide container, pushes
+   the whole block toward the left edge so the oversized title crops against
+   real whitespace on the right instead of sitting symmetric in the middle --
+   editorial tension from a one-axis asymmetry, no grid architecture
+   reintroduced. */
 .ds-hero {
   padding: var(--space-9) 0 var(--space-8);
-  display: flex; flex-direction: column; align-items: center;
+  display: flex; flex-direction: column; align-items: flex-start;
   gap: var(--space-5);
   max-width: var(--stage-wide);
-  text-align: center;
+  margin-inline-start: 0;
+  padding-inline-start: var(--space-6);
+  text-align: left;
   position: relative; isolation: isolate;
 }
-.ds-hero-head { display: grid; gap: var(--space-3); justify-items: center; }
-.ds-hero-body  { margin-inline: auto; }
+.ds-hero-head { display: grid; gap: var(--space-3); justify-items: start; }
+.ds-hero-body  { margin-inline: 0; }
 /* The stat/badge/CTA cluster now sits as a full-width card BELOW the body
-   copy, centered, rather than a right-offset column -- still carries its own
-   visual weight via the top accent bar (rotated from the former left spine)
-   so it still reads as a deliberate block, not an afterthought. */
+   copy, left-aligned with the rest of the stack, rather than a right-offset
+   column -- still carries its own visual weight via the top accent bar
+   (rotated from the former left spine) so it still reads as a deliberate
+   block, not an afterthought. */
 .ds-hero-aside {
   position: relative; isolation: isolate;
   width: 100%; max-width: 46ch;
@@ -54,23 +70,23 @@
      Snapping to either changes the hero's whole optical weight. */
   font-size: clamp(40px, 9cqi, 116px);
   line-height: 0.96; letter-spacing: var(--tr-tighter);
-  margin: 0 auto; max-width: 20ch; text-wrap: balance;
+  margin: 0; max-width: 20ch; text-wrap: balance;
 }
 .ds-hero-body {
   font-family: var(--ff-body); font-size: var(--fs-xl);
-  line-height: 1.45; margin: 0 auto; max-width: 46ch;
+  line-height: 1.45; margin: 0; max-width: 46ch;
   color: var(--fg-2);
 }
 /* The lead phrase in the title — printed in the electric lead, not glowing. */
 .ds-hero-accent { color: var(--accent-ink); font-weight: 700; }
 .ds-hero-actions {
   display: flex; gap: var(--space-2, 10px); flex-wrap: wrap;
-  justify-content: center; margin-top: var(--space-hair, 4px);
+  justify-content: flex-start; margin-top: var(--space-hair, 4px);
 }
 /* Below this width the aside card's own internal rhythm (stat rows still
    stacked vertically at full width) is already correct for a narrow column —
    no separate breakpoint override needed now that .ds-hero is always a
-   single-column centered stack at every width. */
+   single-column left-aligned stack at every width. */
 @container (max-width: 900px) {
   .ds-hero { padding: var(--space-7) 0 var(--space-6); }
 }
@@ -80,6 +96,21 @@
    Section grouping
    ============================================================ */
 .ds-section { margin: var(--space-8) 0; }
+/* A .ds-section's own margin-top exists so a BARE first section (no element
+   above it inside .app-main/.ds-app-surface) still gets the --space-8 lead
+   from something. But .app-main and .ds-tier are flex/grid containers, where
+   sibling margins never collapse -- so once ANY preceding sibling supplies
+   its own trailing space (a .panel's --space-4 bottom margin, or a prior
+   .ds-section's own --space-8 bottom margin), that top margin stacks ON TOP
+   of it instead of coordinating into one gap: measured live, two adjacent
+   .ds-section elements sat 192px apart (96 + 96) instead of 96, and a .panel
+   followed by a .ds-section sat ~136px apart instead of the intended single
+   gap. Zeroing the top margin on every NON-first .ds-section collapses the
+   pair back to one coordinated gap, supplied by whichever side already
+   carries it (the preceding sibling's own bottom margin, or the .ds-section's
+   trailing margin below) -- same "gap is owned by one side only" pattern as
+   .ds-panel-gap + .ds-panel-gap / .row + .row elsewhere in this file. */
+* + .ds-section { margin-top: 0; }
 /* Compact section (e.g. a PageHeader used as a page's first element): no large
    leading margin, modest trailing margin — top-aligns without consumer overrides. */
 .ds-section-compact { margin-top: 0; margin-bottom: var(--space-4); }

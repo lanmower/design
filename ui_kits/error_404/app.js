@@ -69,7 +69,7 @@ function App() {
         topbar: Topbar({ brand: '247420', leaf: '404', items: [['index', '../../']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: '404', right: path ? 'requested: ' + path : '' }),
         main: [
-            h('div', { class: 'ds-section ds-section-pad' },
+            h('div', { class: 'ds-app-surface ds-section-pad' },
                 Panel({ class: 'ds-panel-gap', children: h('div', { class: 'ds-err-hero' },
                     h('div', { class: 'ds-err-numeral' }, '404'),
                     Heading({ level: 1, class: 'ds-m0', children: 'route not found' }),

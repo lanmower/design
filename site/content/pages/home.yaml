@@ -4,7 +4,7 @@ title: Home
 hero:
   heading: "design"
   subheading: "the 247420 design system"
-  body: "acid editorial. oversized display type, one electric green, print texture over glow. every 247420 surface runs on it."
+  body: "shadcn-neutral. oversized display type, a grayscale accent, print texture inert. every 247420 surface runs on it."
   badges:
     - { label: "design-system" }
     - { label: "tokens" }

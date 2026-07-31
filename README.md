@@ -6,7 +6,7 @@ filename `dist/247420.js`/`dist/247420.css` and in a few package.json fields;
 the published npm package name is `anentrypoint-design`. Both names refer to
 the same single system.)
 
-Acid Editorial: one electric lime lead on near-black ink or warm newsprint paper, system-font stack (no web-font request), monospace only on real code, tonal surfaces over borders, indicator rails for color-coded separation, asymmetric grid tension, print texture over glow.
+shadcn-neutral: a grayscale accent system on paper or near-black ink, system-font stack (no web-font request), monospace only on real code, tonal surfaces over borders, indicator rails for color-coded separation, centered layout, print texture inert (kept for a future opt-in).
 
 we fart in its general direction.
 

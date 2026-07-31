@@ -5,7 +5,8 @@
 <link rel="stylesheet" href="../app-shell.css">
 <style>body{padding:var(--space-4);background:var(--panel-0);color:var(--panel-text);max-width:640px;margin:0 auto}
 ul{list-style:none;padding:0;margin:0}
-li{padding:var(--space-2) 0;border-bottom:1px solid var(--panel-2)}
+li{padding:var(--space-2) 0;border-bottom:1px solid var(--panel-2);min-height:calc(var(--fs-body) * 1.4 + var(--space-2) * 2);display:flex;align-items:center;box-sizing:border-box}
+li a{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;width:100%}
 /* --accent-ink, never --panel-accent. The bare lead accent is a FILL: it
    measures 1.07:1 against paper, so every link on this page was effectively
    invisible in the light theme. --accent-ink is the readable text tone of the
