@@ -172,7 +172,13 @@ export function mountCommunityApp(root, adapter = {}) {
                     },
                 },
                 { label: 'reply', title: 'reply to ' + username, icon: 'corner-up-left', onClick: () => A.startReply && A.startReply({ id: m.id, userId: m.userId, username, content: m.content }) },
-                isYou ? { label: 'delete', title: 'delete message', icon: 'trash', onClick: () => A.deleteMessage && A.deleteMessage(m.id) } : null,
+                // "delete" is honest about what this actually does: a
+                // relay-side deletion request (NIP-09 kind:5), which relays
+                // are not obligated to honor and which other clients may
+                // have already cached before it arrives -- not a guarantee
+                // of removal. The title makes that explicit rather than
+                // implying certain content removal.
+                isYou ? { label: 'delete', title: 'request deletion (relays may not honor it; other clients may have already cached this message)', icon: 'trash', onClick: () => A.deleteMessage && A.deleteMessage(m.id) } : null,
             ].filter(Boolean);
             return { key: m.id || ('m' + i), who: isYou ? 'you' : 'them', name: isYou ? null : username, avatar: initial(username), time: formatTime(m.timestamp), parts: partsFromMessage(m), reactions, onToggleReaction: A.reactToMessage ? (emoji) => A.reactToMessage(m.id, m.userId, emoji) : null, actions: msgActions, receipt: isYou && m.read ? 'read' : (isYou && m.delivered ? 'delivered' : null) };
         });
