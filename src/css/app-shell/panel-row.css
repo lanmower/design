@@ -27,6 +27,18 @@
 }
 .panel.panel-inline { background: var(--bg-2); padding: var(--space-3) var(--space-3); }
 .panel.panel-wide   { background: transparent; box-shadow: none; border: none; }
+/* Changelog (and any other panel-wide content) needs its OWN container-query
+   context: the existing `@container (max-width: 760px) .ds-changelog-row`
+   rule in hero-content.css measures the nearest CQ ancestor, which without
+   this is `.app`/`.ds-stage` (base.css) — the whole shell width, not this
+   panel's actual rendered width. A changelog panel sitting inside
+   .ds-panel-trio (three equal siblings) can be far narrower than 760px
+   while the shell itself stays well over that, so the row-collapse rule
+   never engages and the message column's `minmax(0, 1fr)` track collapses
+   to 0 — the text then renders past the panel's right edge, clipped
+   mid-word instead of wrapping. Scoping the container here (not on
+   .panel generally) keeps the blast radius to panel-wide content only. */
+.panel.panel-wide   { container-type: inline-size; }
 /* Dense panel — a compact container for app surfaces (inspector sections,
    sidebars) that want the .panel look without the roomy 16px pad + 24px stack
    gap. Tighter corner + padding + head, so it sits between .panel and the
@@ -168,6 +180,46 @@ a.row:hover .meta, .row[role="button"]:hover .meta { color: var(--accent-ink); t
 /* A row with no leading code/index drops the empty first column so the title
    takes the full width instead of wrapping in the narrow code gutter. */
 .row.row-nocode { grid-template-columns: minmax(0, 1fr) auto; }
+/* Template-rendered index/example rows (site/theme.mjs "why design" +
+   "live examples" panels, via panelNode()/examplesNode() in
+   src/page-html/client-script.js) never emit a leading ".code" span for
+   these entries (no `code` field on the "features" items), so their actual
+   children are title + an inline ".meta.dim" description + a trailing
+   ".ds-row-arrow" — three items, but with no ".code" as the first child the
+   base 3-track .row grid (minmax(80px,12ch) / minmax(0,1fr) / auto) still
+   places the FIRST item (the title) into the narrow 12ch leading track
+   meant for a code index, not the 1fr track. ".ds-row-arrow" also had no
+   rule at all, and ".meta" is nowrap by default, so on longer descriptions
+   ("…never borders", "…--fs-* tokens") the un-wrapped text overflows its
+   cramped column straight into the arrow's box. Rows carrying both a dim
+   meta description and an arrow get their own two-row template instead:
+   title + arrow share row 1, the description drops to its own full-width
+   row 2 and wraps normally — matching how every other multi-line row
+   pattern in this file (.ds-row-detail) already gets a dedicated line. */
+.row:has(.meta.dim):has(.ds-row-arrow) {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  row-gap: var(--space-1);
+}
+.row:has(.meta.dim):has(.ds-row-arrow) .title { grid-column: 1; grid-row: 1; }
+.row:has(.meta.dim):has(.ds-row-arrow) .ds-row-arrow { grid-column: 2; grid-row: 1; }
+.row:has(.meta.dim):has(.ds-row-arrow) .meta.dim { grid-column: 1 / -1; grid-row: 2; }
+.row .meta.dim {
+  white-space: normal;
+  min-width: 0;
+  text-align: left;
+}
+.ds-row-arrow {
+  font-family: var(--ff-mono);
+  font-size: var(--fs-xs);
+  color: var(--fg-3);
+  white-space: nowrap;
+  align-self: center;
+  justify-self: end;
+}
+a.row:hover .ds-row-arrow, .row[role="button"]:hover .ds-row-arrow {
+  color: var(--accent-ink);
+}
 
 /* `.row-code` / `.row-title` / `.row-meta` are the BEM-ish spelling of the same
    three cells as `.code` / `.title` / `.meta`. Both spellings are live in the

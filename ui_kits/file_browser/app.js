@@ -169,7 +169,7 @@ function App() {
         ),
         BreadcrumbPath({
             segments: state.crumbs,
-            root: 'tigers',
+            root: 'root',
             onNav: (i) => { state.crumbs = state.crumbs.slice(0, i); render(); }
         }),
         FileToolbar({

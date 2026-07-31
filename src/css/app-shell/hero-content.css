@@ -207,6 +207,15 @@ table.kv td:first-child {
   font-size: var(--fs-xs);
   text-transform: uppercase; letter-spacing: var(--tr-caps);
   width: 14ch;
+  /* The 14ch column width is a target, not a guarantee — a label whose
+     uppercase-transformed width fills the column exactly (e.g. "environment")
+     leaves zero slack before the value cell, so label and value render with
+     no visible gap between them ("ENVIRONMENTproduction") while shorter
+     labels (region, build, by) are saved only by leftover column slack.
+     An explicit right-side padding guarantees a gap regardless of label
+     length, instead of relying on slack that a long label can consume
+     entirely. */
+  padding-right: var(--space-3);
 }
 table.kv td:last-child {
   font-weight: 600;
@@ -275,6 +284,18 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 }
 .ds-changelog-ver {
   font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-sm);
+}
+/* Belt-and-suspenders for the message column: `.row .title` (panel-row.css)
+   is already `white-space: normal` (no nowrap/ellipsis), so long entries wrap
+   by word as expected whenever the message track has any real width. This
+   only matters in the narrow zone between "row still on 3 columns" and the
+   panel's own `@container` breakpoint kicking in (see .panel-wide's new
+   container-type in panel-row.css) — overflow-wrap:anywhere is the fallback
+   so a single long unbroken token still wraps instead of overflowing the
+   track, rather than depending solely on the breakpoint transition. */
+.ds-changelog-row .title {
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 /* ============================================================

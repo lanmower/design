@@ -156,10 +156,10 @@ api_exports:
 features:
   heading: "why design"
   items:
-    - { name: "layered surfaces", desc: "panel-on-panel rhythm; loud content sits inside quiet chrome." }
-    - { name: "monospace labels", desc: "mono only for codes/labels/CLI; sans for everything legible." }
-    - { name: "indicator rails",  desc: "color-coded inset rails for category separation, never borders." }
-    - { name: "tokens-only",      desc: "every surface, type ramp, accent driven by --panel-* / --fs-* tokens." }
+    - { name: "layered surfaces", desc: "panel-on-panel rhythm; loud content sits inside quiet chrome.", href: "https://github.com/AnEntrypoint/design/blob/main/src/css/app-shell/panel-row.css", cta: "panel-row.css" }
+    - { name: "monospace labels", desc: "mono only for codes/labels/CLI; sans for everything legible.", href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css", cta: "colors_and_type.css" }
+    - { name: "indicator rails",  desc: "color-coded inset rails for category separation, never borders.", href: "https://github.com/AnEntrypoint/design/blob/main/src/css/app-shell/panel-row.css#L126", cta: "panel-row.css" }
+    - { name: "tokens-only",      desc: "every surface, type ramp, accent driven by --panel-* / --fs-* tokens.", href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css", cta: "colors_and_type.css" }
 
 examples:
   heading: "live examples"

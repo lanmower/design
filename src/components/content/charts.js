@@ -6,23 +6,33 @@ import * as webjsx from '../../../vendor/webjsx/index.js';
 import { Icon } from '../shell.js';
 const h = webjsx.createElement;
 
-// items: [n, label] or [n, label, {delta, tone: 'up'|'down', spark: number[]}]
+// items: [n, label] or [n, label, {delta, tone: 'up'|'down', spark: number[], invert}]
 // meta is optional and additive — every existing 2-tuple call site is untouched.
+// `tone` always drives the arrow glyph (it mirrors the delta's own arithmetic
+// sign, so the arrow never contradicts the figure beside it). `invert` is a
+// separate, optional per-metric flag for "lower is better" metrics (error
+// rate, latency, p95, etc.): when set, the good/bad COLOR polarity flips
+// relative to tone while the arrow direction is left alone — a rising error
+// rate still shows an up-arrow (the number went up) but in the bad/danger
+// color, not the good/success color the raw arithmetic sign would imply.
 export function Kpi({ items = [], emptyText = 'no metrics yet' }) {
     if (!items.length) return h('div', { class: 'empty' }, emptyText);
-    return h('div', { class: 'kpi' }, ...items.map(([n, l, meta], i) =>
-        h('div', { key: i, class: 'kpi-card' },
+    return h('div', { class: 'kpi' }, ...items.map(([n, l, meta], i) => {
+        const isUp = meta && meta.tone !== 'down';
+        const good = meta && meta.invert ? !isUp : isUp;
+        return h('div', { key: i, class: 'kpi-card' },
             h('div', { class: 'num' }, String(n)),
             h('div', { class: 'lbl' }, l),
             meta && (meta.delta != null || meta.spark)
                 ? h('div', { class: 'kpi-foot' },
                     meta.delta != null
-                        ? h('span', { class: 'kpi-delta kpi-delta-' + (meta.tone === 'down' ? 'down' : 'up') },
-                            Icon(meta.tone === 'down' ? 'arrow-down' : 'arrow-up', { size: 12 }),
+                        ? h('span', { class: 'kpi-delta kpi-delta-' + (good ? 'up' : 'down') },
+                            Icon(isUp ? 'arrow-up' : 'arrow-down', { size: 12 }),
                             String(meta.delta))
                         : null,
-                    meta.spark ? Sparkline({ values: meta.spark, tone: meta.tone }) : null)
-                : null)));
+                    meta.spark ? Sparkline({ values: meta.spark, tone: good ? 'up' : 'down' }) : null)
+                : null);
+    }));
 }
 
 // Minimal inline SVG trend line — token-stroke only, no raw color literals.

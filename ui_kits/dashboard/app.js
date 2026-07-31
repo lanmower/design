@@ -8,13 +8,13 @@ const root = document.getElementById('root');
 const kpis = [
     ['24,891', 'requests · 24h', { delta: '+12.4%', tone: 'up',   spark: [8, 11, 9, 14, 16, 15, 19, 22, 20, 24] }],
     ['184ms',  'avg latency · p50', { delta: '-6.1%', tone: 'up',  spark: [220, 210, 205, 198, 190, 188, 184, 186, 182, 184] }],
-    // tone here follows delta's own arithmetic sign (Kpi's contract: the arrow
-    // and kpi-delta-* color both derive from tone alone), not from whether the
-    // change is good or bad news for this particular metric. Error rate rose
-    // (+0.08%), so tone is 'up' even though a rising error rate is the
-    // worse-news direction — flipping tone to 'down' would draw a down-arrow
-    // next to a positive number, contradicting the figure right beside it.
-    ['0.42%',  'error rate · 5xx+4xx', { delta: '+0.08%', tone: 'up', spark: [0.2, 0.25, 0.3, 0.28, 0.35, 0.3, 0.38, 0.4, 0.36, 0.42] }],
+    // tone follows delta's own arithmetic sign (the arrow direction always
+    // matches the figure: error rate rose, so the arrow points up), but this
+    // is a "lower is better" metric — a rising error rate is bad news, not
+    // good. `invert: true` flips the good/bad COLOR polarity (Kpi's contract)
+    // to red/danger while leaving the up-arrow alone, so the figure and its
+    // arrow never contradict each other but the color still reads as bad.
+    ['0.42%',  'error rate · 5xx+4xx', { delta: '+0.08%', tone: 'up', invert: true, spark: [0.2, 0.25, 0.3, 0.28, 0.35, 0.3, 0.38, 0.4, 0.36, 0.42] }],
     ['94.7%',  'cache hit · edge', { delta: '+1.2%', tone: 'up', spark: [90, 91, 92, 91, 93, 92, 94, 93, 95, 94.7] }]
 ];
 

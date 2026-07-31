@@ -381,7 +381,7 @@ hr.rule, hr.rule-double, hr.rule-dotted {
   width: 100%; height: 0; border: 0;
 }
 hr.rule { border-top: 1px solid var(--rule); }
-hr.rule-double { border-top: 3px double var(--rule-strong); }
+hr.rule-double { border-top: 4px double var(--rule-strong); }
 hr.rule-dotted { border-top: 1px dotted var(--rule-strong); }
 
 /* Hairline-only text input — no box, no fill. A single bottom rule that

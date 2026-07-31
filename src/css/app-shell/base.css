@@ -166,6 +166,20 @@ h4, .t-h4 { font-family: var(--ff-display); font-size: var(--fs-h4); line-height
   margin: 0;
 }
 
+/* h1/h2/h3/h4 and .lede/.t-lede are both margin:0 primitives by design (a
+   heading used standalone must not force space its context doesn't want).
+   But a heading immediately followed by a lede is a named pairing, not two
+   independent primitives that happen to be adjacent -- it needs its own gap
+   regardless of whether the surrounding shell opts into .ds-app-surface
+   (which only adds this spacing on landing/marketing surfaces, leaving every
+   Operate-mode kit that skips that class with a zero-gap heading+subtitle). */
+h1 + .lede, h1 + .t-lede,
+h2 + .lede, h2 + .t-lede,
+h3 + .lede, h3 + .t-lede,
+.t-h1 + .lede, .t-h1 + .t-lede {
+  margin-top: var(--space-2);
+}
+
 .eyebrow {
   font-family: var(--ff-mono);
   font-size: var(--fs-tiny);

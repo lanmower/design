@@ -1,5 +1,5 @@
 import * as webjsx from 'webjsx';
-import { Chat, ChatComposer, Topbar, Crumb, Status, Side, AppShell, Panel } from 'ds/components.js';
+import { Chat, ChatComposer, Topbar, Crumb, Status, Side, AppShell, Panel, IconButton, Icon } from 'ds/components.js';
 import { mountKit } from 'ds/bootstrap.js';
 import 'ds/index.js';
 const h = webjsx.createElement;
@@ -41,7 +41,11 @@ const seed = [
 // `phase` drives the thread. Chat() already owns the empty state (its
 // .chat-empty block), so `empty` here just hands it zero messages plus the
 // room-specific copy; loading and error are rendered by this kit around it.
-const state = { draft: '', room: 'general', messages: seed.slice(), phase: 'ready' };
+// `detailOpen` gates the "this room" / participants rail — dismissible via
+// its close button or Escape, same as the rest of the kit's dismissible
+// surfaces (see the Popover component's onKey pattern in
+// src/components/overlay-primitives/popover.js).
+const state = { draft: '', room: 'general', messages: seed.slice(), phase: 'ready', detailOpen: true };
 const PHASES = ['ready', 'loading', 'empty', 'error'];
 
 // Message-shaped shimmer. Reuses .ds-event-row-skeleton + .ds-skel* from
@@ -113,7 +117,14 @@ function App() {
                     glyph: h('span', { class: state.phase === p ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }),
                     label: p, key: 'ph-' + p, active: state.phase === p,
                     onClick: (e) => { e.preventDefault(); state.phase = p; kit.render(); }
-                })) }
+                })) },
+                // Reopen affordance for the dismissible "this room" rail — closing
+                // it (its own close button, or Escape) must not be a dead end.
+                { group: 'room details', items: [{
+                    glyph: h('span', { class: state.detailOpen ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }),
+                    label: state.detailOpen ? 'shown' : 'show rail', key: 'detail-toggle', active: state.detailOpen,
+                    onClick: (e) => { e.preventDefault(); state.detailOpen = true; kit.render(); }
+                }] }
             ]
         }),
         main: [
@@ -146,18 +157,28 @@ function App() {
                     // Persistent detail rail — only revealed once .ds-chat-layout has
                     // room to spare (>=1100px, see app-shell.css). On mobile/tablet
                     // this is display:none rather than reflowed below the thread, so
-                    // the composer stays the last on-screen element there.
-                    h('div', { class: 'ds-chat-detail' },
-                        Panel({ title: 'this room', children: h('div', { class: 'ds-pattern-notes' },
-                            h('p', {}, h('strong', {}, '#' + state.room)),
-                            h('p', {}, rooms.find(r => r.key === state.room)?.count ?? dms.find(r => r.key === state.room)?.count ?? 0, ' members')
-                        ) }),
+                    // the composer stays the last on-screen element there. Dismissible:
+                    // the close button and Escape both clear detailOpen, matching every
+                    // other dismissible surface in this codebase (Popover's onKey).
+                    state.detailOpen ? h('div', { class: 'ds-chat-detail' },
+                        Panel({
+                            title: 'this room',
+                            right: IconButton({
+                                icon: Icon('x', { size: 14 }), size: 'sm', variant: 'ghost',
+                                title: 'close room details',
+                                onClick: () => { state.detailOpen = false; kit.render(); }
+                            }),
+                            children: h('div', { class: 'ds-pattern-notes' },
+                                h('p', {}, h('strong', {}, '#' + state.room)),
+                                h('p', {}, rooms.find(r => r.key === state.room)?.count ?? dms.find(r => r.key === state.room)?.count ?? 0, ' members')
+                            )
+                        }),
                         Panel({ title: 'participants', children:
                             [{ glyph: '·', label: 'jordan' }, { glyph: '·', label: 'mai' }].map((p, i) =>
                                 h('div', { key: 'p' + i, class: 'ds-pattern-notes' }, h('p', {}, p.glyph + ' ' + p.label))
                             )
                         })
-                    )
+                    ) : null
                 ),
                 Panel({
                     title: 'pattern notes',
@@ -165,7 +186,8 @@ function App() {
                         h('p', {}, '· bubble corner-cut on the originating side (4–6px) gives directional read without arrows.'),
                         h('p', {}, '· own messages take the accent fill so the eye lands on what you said last; [x] delivered, [x][x] read.'),
                         h('p', {}, '· markdown is parsed by ', h('code', {}, 'marked'), ' and sanitized by ', h('code', {}, 'DOMPurify'), '; code blocks lit by ', h('code', {}, 'prism.js'), '.'),
-                        h('p', {}, '· >=1100px viewport reveals a persistent "this room" + participants rail beside the thread instead of just widening the message column.')
+                        h('p', {}, '· >=1100px viewport reveals a persistent "this room" + participants rail beside the thread instead of just widening the message column.'),
+                        h('p', {}, '· the rail is dismissible — its close button and Escape both hide it; "room details" in the sidebar brings it back.')
                     )
                 })
             )
@@ -176,3 +198,15 @@ function App() {
 
 const kit = mountKit({ root, view: App, screen: '06 Chat' });
 window.__chat = { state, render: kit.render };
+
+// Escape-to-close for the "this room" rail — same dismissal contract as the
+// Popover/menu overlays elsewhere in this codebase (see onKey in
+// src/components/overlay-primitives/popover.js), scoped to document since
+// the rail is a persistent docked panel rather than a focus-trapped overlay:
+// Escape should close it regardless of which element currently has focus.
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || !state.detailOpen) return;
+    e.preventDefault();
+    state.detailOpen = false;
+    kit.render();
+});
