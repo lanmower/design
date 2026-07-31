@@ -156,7 +156,11 @@ export function SessionDashboard({ sessions = [], onStop, onOpen, onView, onStop
     selectable && selCount
       ? h('span', { key: 'cnt', class: 'ds-dash-count', role: 'status', 'aria-live': 'polite' }, selCount + ' selected')
       : (breakdown || h('span', { key: 'cnt', class: 'ds-dash-count', role: 'status', 'aria-live': 'polite' },
-          sessions.length ? sessions.length + ' running' : '0 running')),
+          // A "0 running" count is only trustworthy once the stream has
+          // actually connected - while still connecting/offline, zero means
+          // "no data yet", not "verified empty", and must read as such.
+          sessions.length ? sessions.length + ' running'
+            : (streamState && streamState !== 'connected' ? '— running (' + (STREAM_WORD[streamState] || streamState) + ')' : '0 running'))),
     selectAllCtl, clearCtl, streamLine,
     h('span', { key: 'spread', class: 'spread' }),
     // No stop control without a session to stop; the empty dashboard keeps

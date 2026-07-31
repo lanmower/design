@@ -5829,6 +5829,24 @@
    static readouts). */
 .ds-247420 .ds-session-row[role="button"], .ds-247420 a.ds-session-row { cursor: pointer; }
 
+/* ConversationList's title/meta layout had no dedicated rule anywhere (only a
+   stray cross-reference comment in panel-row.css), so the title sat at flex's
+   default 0-basis and lost the space race to its meta siblings (agent name,
+   status dot) - titles truncated to a character or two ("d…") well before the
+   row ran out of real width. .ds-session-main grows to fill the row; its
+   title/sub children get the min-width:0 an ellipsis needs inside a flex
+   item; the meta/actions siblings take only what their content needs. */
+.ds-247420 .ds-session-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 0; }
+.ds-247420 .ds-session-title {
+  display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: var(--fs-sm); font-weight: 500; color: var(--fg);
+}
+.ds-247420 .ds-session-sub {
+  display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: var(--fs-micro); color: var(--fg-3);
+}
+.ds-247420 .ds-session-meta, .ds-247420 .ds-session-row-actions { flex: 0 0 auto; display: flex; align-items: center; gap: var(--space-1); }
+
 /* Sub-parts that decorate the row above. */
 .ds-247420 .ds-session-row-id {
   font-family: var(--ff-mono); font-size: var(--fs-micro); color: var(--accent-ink);

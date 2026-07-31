@@ -81,7 +81,7 @@ export function AgentControls({ agents, selectedAgent, models, selectedModel, bu
 //     renders them as a breadcrumb + clickable dir list right in the composer
 //     — no round-trip through the Files tab and back required anymore.
 export function CwdBar({ cwd, editing, draft, onEdit, onSave, onCancel, onClear, onDraft, error, checking,
-                   roots, recent, browse, onBrowseCrumb, onBrowseEnter, onBrowsePick, onBrowseToggle }) {
+                   roots, recent, browse, onBrowseCrumb, onBrowseEnter, onBrowsePick, onBrowseToggle, defaultCwd }) {
   if (editing) {
     const hint = checking ? 'checking…' : (error || null);
     const rootsRow = (roots && roots.length)
@@ -139,5 +139,9 @@ export function CwdBar({ cwd, editing, draft, onEdit, onSave, onCancel, onClear,
     h('span', { class: 'agentchat-cwd-text', title: cwd || 'server default working directory' },
       'cwd: ' + (cwd || 'server default')),
     h('button', { type: 'button', class: 'agentchat-cwd-btn', onclick: () => onEdit && onEdit() }, cwd ? 'change' : 'set'),
-    cwd ? h('button', { type: 'button', class: 'agentchat-cwd-btn', onclick: () => onClear && onClear() }, 'use default') : null);
+    // What "default" resolves to previously wasn't visible until clicked -
+    // a title tooltip on the button itself answers that before the click.
+    cwd ? h('button', { type: 'button', class: 'agentchat-cwd-btn',
+        title: defaultCwd ? ('resets to: ' + defaultCwd) : 'reset to the server default working directory',
+        onclick: () => onClear && onClear() }, 'use default') : null);
 }

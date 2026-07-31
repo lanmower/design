@@ -1203,6 +1203,8 @@ export interface GitDiffViewProps {
     /** @default '' */
     diff?: string;
     filename?: any;
+    /** @default false */
+    binary?: boolean;
 }
 export declare function GitDiffView(props?: GitDiffViewProps): VNode;
 

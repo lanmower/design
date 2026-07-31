@@ -144,7 +144,7 @@ function langFromFilename(filename = '') {
 // highlight.js's Prism loader for language detection by file extension; the
 // +/- marker column is drawn by CSS (tone classes), Prism only tokenizes the
 // code content inside each line.
-export function GitDiffView({ diff = '', filename } = {}) {
+export function GitDiffView({ diff = '', filename, binary = false } = {}) {
     const hunks = parseUnifiedDiff(diff);
     const lang = langFromFilename(filename);
     const highlightRef = (el) => {
@@ -152,7 +152,11 @@ export function GitDiffView({ diff = '', filename } = {}) {
         try { highlightAllUnder(el); } catch { /* swallow: progressive enhancement only */ }
     };
     if (!hunks.length) {
-        return h('div', { class: 'ds-git-diff-empty', role: 'status' }, 'no diff to show');
+        // A binary changed file produces no unified diff at all - saying
+        // "no diff to show" reads as "nothing changed", which is wrong and
+        // misleading; name the real reason instead.
+        return h('div', { class: 'ds-git-diff-empty', role: 'status' },
+            binary ? 'binary file, diff not shown' : 'no diff to show');
     }
     return h('div', { class: 'ds-git-diff', ref: highlightRef },
         filename ? h('div', { class: 'ds-git-diff-head' }, h('span', { class: 'name' }, filename)) : null,
