@@ -46,7 +46,12 @@ import { EmojiPicker, CommandPalette, AuthModal, BootOverlay, SettingsPopover, V
 
 const h = webjsx.createElement;
 
-const CHANNEL_ICON = { voice: 'speaker', forum: 'forum', threaded: 'thread', announcement: 'megaphone', page: 'page', text: 'hash' };
+// announcement previously used 'megaphone', whose two-arc speaker-cone SVG
+// path reads as visually near-identical to the voice channel's 'speaker'
+// icon at rail size (15px) -- easy to confuse a text-only broadcast channel
+// for a live voice room. 'send' (paper-plane) reads distinctly as
+// one-way/outbound at a glance and shares no silhouette with 'speaker'.
+const CHANNEL_ICON = { voice: 'speaker', forum: 'forum', threaded: 'thread', announcement: 'send', page: 'page', text: 'hash' };
 
 export function mountCommunityApp(root, adapter = {}) {
     if (!root) throw new Error('mountCommunityApp: root required');
@@ -154,7 +159,18 @@ export function mountCommunityApp(root, adapter = {}) {
             const isYou = selfId && String(m.userId) === String(selfId);
             const reactions = Array.isArray(m.reactions) ? m.reactions.map(r => ({ emoji: r.emoji, count: r.count != null ? r.count : (r.users ? r.users.length : 1), you: !!(r.you || (r.users && selfId && r.users.includes(selfId))) })) : null;
             const msgActions = [
-                { label: 'react', title: 'react to ' + username + '\'s message', icon: 'smile', onClick: () => A.reactToMessage && A.reactToMessage(m.id, m.userId) },
+                {
+                    label: 'react', title: 'react to ' + username + '\'s message', icon: 'smile',
+                    onClick: (e) => {
+                        if (!A.reactToMessage) return;
+                        const rect = e && e.currentTarget && e.currentTarget.getBoundingClientRect ? e.currentTarget.getBoundingClientRect() : null;
+                        if (api.emojiPicker) {
+                            api.emojiPicker.show(rect ? rect.left : 200, rect ? rect.bottom + 4 : 200, (em) => A.reactToMessage(m.id, m.userId, em));
+                        } else {
+                            A.reactToMessage(m.id, m.userId);
+                        }
+                    },
+                },
                 { label: 'reply', title: 'reply to ' + username, icon: 'corner-up-left', onClick: () => A.startReply && A.startReply({ id: m.id, userId: m.userId, username, content: m.content }) },
                 isYou ? { label: 'delete', title: 'delete message', icon: 'trash', onClick: () => A.deleteMessage && A.deleteMessage(m.id) } : null,
             ].filter(Boolean);
