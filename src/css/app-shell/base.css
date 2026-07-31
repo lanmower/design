@@ -17,8 +17,13 @@ button, input, select, textarea { font: inherit; }
    ============================================================ */
 .skip-link {
   position: absolute;
-  top: -40px;
+  /* -40px alone left the 44px-tall pill (padding + min-height floor below)
+     poking ~4px into every page pre-focus -- measured live via
+     getBoundingClientRect(). The offset must clear the full rendered height,
+     not a guessed constant, so translateY pushes it out by its own box. */
+  top: 0;
   left: 0;
+  transform: translateY(-100%);
   background: var(--accent);
   color: var(--accent-fg);
   padding: var(--space-2) var(--space-3);
@@ -41,6 +46,7 @@ button, input, select, textarea { font: inherit; }
   align-items: center;
 }
 .skip-link:focus {
+  transform: translateY(0);
   top: 10px;
   outline: var(--focus-w) solid var(--focus-color);
   outline-offset: var(--focus-offset);

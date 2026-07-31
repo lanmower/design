@@ -93,11 +93,18 @@ function marqueeNode(marquee) {
 
 function quickstartNode(quickstart) {
   if (!quickstart || !Array.isArray(quickstart.lines) || !quickstart.lines.length) return null;
-  const lineNodes = quickstart.lines.map((l, i) => h('div', { key: 'q' + i, class: 'cli' },
-    h('span', { class: 'prompt' }, l.kind === 'cmt' ? '#' : '$'),
-    h('span', { class: 'cmd' }, l.text)
-  ));
-  return C.Panel({ title: quickstart.heading || 'quick start', children: h('div', { class: 'ds-quickstart' }, ...lineNodes) });
+  // A single .cli wrapper holding .ds-cli-row/.ds-cli-comment children, not
+  // one .cli per line -- hero-content.css's multi-line wrap rule
+  // (.cli:has(.ds-cli-row) { white-space: pre-wrap }) only fires when the
+  // rows live inside one shared .cli. One-.cli-per-line instead hit the
+  // single-line .cli .cmd { white-space: nowrap } rule, forcing horizontal
+  // scroll on any long line (e.g. the importmap script tag).
+  const lineNodes = quickstart.lines.map((l, i) => l.kind === 'cmt'
+    ? h('div', { key: 'q' + i, class: 'ds-cli-comment' }, l.text)
+    : h('div', { key: 'q' + i, class: 'ds-cli-row' },
+        h('span', { class: 'prompt' }, '$'),
+        h('span', { class: 'cmd' }, l.text)));
+  return C.Panel({ title: quickstart.heading || 'quick start', children: h('div', { class: 'cli' }, ...lineNodes) });
 }
 
 function sideNode(sidebar) {

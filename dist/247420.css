@@ -824,8 +824,13 @@
    ============================================================ */
 .ds-247420 .skip-link {
   position: absolute;
-  top: -40px;
+  /* -40px alone left the 44px-tall pill (padding + min-height floor below)
+     poking ~4px into every page pre-focus -- measured live via
+     getBoundingClientRect(). The offset must clear the full rendered height,
+     not a guessed constant, so translateY pushes it out by its own box. */
+  top: 0;
   left: 0;
+  transform: translateY(-100%);
   background: var(--accent);
   color: var(--accent-fg);
   padding: var(--space-2) var(--space-3);
@@ -848,6 +853,7 @@
   align-items: center;
 }
 .ds-247420 .skip-link:focus {
+  transform: translateY(0);
   top: 10px;
   outline: var(--focus-w) solid var(--focus-color);
   outline-offset: var(--focus-offset);
@@ -4647,9 +4653,19 @@
    instead of a browser-default boxed field. */
 .ds-247420 .input {
   display: block; width: 100%; box-sizing: border-box;
+  /* appearance:none alone is not enough: with color-scheme:dark set on the
+     page (colors_and_type.css), Chrome still paints its native dark
+     form-control ring (an inset box-shadow) on <input> regardless of
+     appearance -- confirmed live via getComputedStyle showing a real
+     border-radius/box-shadow despite appearance computing to "none". Pin
+     color-scheme:normal on the input itself to opt it out of that native
+     dark styling, and zero box-shadow explicitly so nothing survives. */
+  appearance: none; -webkit-appearance: none;
+  color-scheme: normal;
   border: 0; border-bottom: 1px solid var(--rule-strong);
   border-radius: var(--r-0);
   background: transparent;
+  box-shadow: none;
   padding: var(--space-2) var(--space-1);
   font: inherit; color: var(--fg);
 }
@@ -4708,8 +4724,15 @@
   align-self: flex-end;
 }
 
-.ds-247420 .ds-field input,
-.ds-247420 .ds-field textarea,
+/* :not(.input) guards, matching the bare-native-control pattern above: without
+   them this descendant selector's (0,1,1) specificity out-ranks the hairline
+   .input rule's (0,1,0), so any <input class="input"> inside .ds-field (every
+   settings-kit field) got this boxed tonal-fill chrome instead -- confirmed
+   live via getComputedStyle showing border-radius:8px + inset box-shadow on
+   settings kit inputs despite .input declaring border-radius:var(--r-0) and
+   box-shadow:none. */
+.ds-247420 .ds-field input:not(.input),
+.ds-247420 .ds-field textarea:not(.input),
 .ds-247420 .ds-field .ds-select,
 .ds-247420 .ds-search-input {
   width: 100%;
@@ -4732,19 +4755,19 @@
 }
 /* textarea is multi-line: height is auto (min-height instead), keep symmetric
    vertical padding so text doesn't sit flush to the top edge. */
-.ds-247420 .ds-field textarea { height: auto; min-height: calc(4 * 1.5em); padding: var(--space-2) var(--space-3); resize: vertical; }
+.ds-247420 .ds-field textarea:not(.input) { height: auto; min-height: calc(4 * 1.5em); padding: var(--space-2) var(--space-3); resize: vertical; }
 
 /* Field size ladder (size prop on TextField/Select/SearchInput). md == base.
    sm/lg retune height + h-padding + font off the --ctl-* ladder, matching the
    button ladder so a form of mixed controls stays on one rhythm. */
-.ds-247420 .ds-field--sm input, .ds-247420 .ds-field--sm .ds-select, .ds-247420 .ds-field--sm .ds-search-input {
+.ds-247420 .ds-field--sm input:not(.input), .ds-247420 .ds-field--sm .ds-select, .ds-247420 .ds-field--sm .ds-search-input {
   height: var(--ctl-sm); padding: 0 var(--space-2-5); font-size: var(--fs-tiny);
 }
-.ds-247420 .ds-field--sm textarea { height: auto; padding: var(--space-1-75) var(--space-2-5); font-size: var(--fs-tiny); }
-.ds-247420 .ds-field--lg input, .ds-247420 .ds-field--lg .ds-select, .ds-247420 .ds-field--lg .ds-search-input {
+.ds-247420 .ds-field--sm textarea:not(.input) { height: auto; padding: var(--space-1-75) var(--space-2-5); font-size: var(--fs-tiny); }
+.ds-247420 .ds-field--lg input:not(.input), .ds-247420 .ds-field--lg .ds-select, .ds-247420 .ds-field--lg .ds-search-input {
   height: var(--ctl-lg); padding: 0 var(--space-4); font-size: var(--fs-body);
 }
-.ds-247420 .ds-field--lg textarea { height: auto; padding: var(--space-2-5) var(--space-4); font-size: var(--fs-body); }
+.ds-247420 .ds-field--lg textarea:not(.input) { height: auto; padding: var(--space-2-5) var(--space-4); font-size: var(--fs-body); }
 .ds-247420 .ds-search-input::placeholder { color: var(--fg-3); }
 /* Only present when SearchInput is passed resultCount or has a value (clear
    button) - transparent to any flex/grid layout the bare input previously
@@ -4773,8 +4796,8 @@
 .ds-247420 .ds-search-clear:hover { background: var(--bg-2); color: var(--fg); }
 .ds-247420 .ds-search-clear:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 
-.ds-247420 .ds-field input:focus-visible,
-.ds-247420 .ds-field textarea:focus-visible,
+.ds-247420 .ds-field input:not(.input):focus-visible,
+.ds-247420 .ds-field textarea:not(.input):focus-visible,
 .ds-247420 .ds-field .ds-select:focus-visible,
 .ds-247420 .ds-search-input:focus-visible {
   outline: none;
@@ -4783,14 +4806,14 @@
   box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
               inset 0 calc(-1 * var(--bw-chunk)) 0 var(--accent);
 }
-.ds-247420 .ds-field input:disabled,
-.ds-247420 .ds-field textarea:disabled,
+.ds-247420 .ds-field input:not(.input):disabled,
+.ds-247420 .ds-field textarea:not(.input):disabled,
 .ds-247420 .ds-field .ds-select:disabled {
   opacity: .55;
   cursor: not-allowed;
 }
-.ds-247420 .ds-field input[aria-invalid="true"],
-.ds-247420 .ds-field textarea[aria-invalid="true"] {
+.ds-247420 .ds-field input:not(.input)[aria-invalid="true"],
+.ds-247420 .ds-field textarea:not(.input)[aria-invalid="true"] {
   box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--flame);
 }
 
@@ -4838,15 +4861,6 @@
   outline: var(--focus-w) solid var(--focus-color);
   outline-offset: var(--focus-offset);
 }
-
-/* Skip to main content link */
-.ds-247420 .skip-to-main {
-  position: absolute; top: -40px; left: 0;
-  background: var(--fg); color: var(--bg);
-  padding: 8px 16px; border-radius: var(--r-1);
-  text-decoration: none; z-index: var(--z-top);
-}
-.ds-247420 .skip-to-main:focus { top: 10px; }
 
 /* Reduced motion preferences — scoped to the DS surface so it doesn't reach
    into and neutralize the host document's own motion.
