@@ -4197,8 +4197,18 @@
 
 .ds-247420 .aicat-portrait { display: inline-flex; align-items: center; gap: var(--space-2-5); padding: var(--space-1) 0; }
 .ds-247420 .aicat-face {
-  /* 24px is the ICON size inside a 32px round chip — see .chat-file .glyph. */
-  width: 32px; height: 32px; font-size: 24px;
+  /* The face is 3 lines of ascii art ( /\_/\ , ( o.o ) , > ^ < ), not a
+     single icon glyph -- the previous 24px/line-height:normal sizing (sized
+     like .chat-file .glyph's single-char icon) ran to ~3 line-heights tall
+     and clipped the ear/whisker rows against this box's fixed 32px height
+     + overflow:hidden. pico (10px) + line-height:1 fits all 3 lines in 30px.
+     padding:0 overrides the global `pre { padding: var(--space-5) }` (32px)
+     -- box-sizing:border-box + that padding alone exceeded the declared
+     32x32 box, so the box never actually enforced 32x32 and rendered at its
+     forced min-content size instead, clipping the art regardless of font
+     size. */
+  width: 32px; height: 32px; font-size: var(--fs-pico); line-height: 1;
+  padding: 0;
   display: inline-flex; align-items: center; justify-content: center;
   background: color-mix(in oklab, var(--mascot) 22%, var(--bg-2));
   border-radius: 50%; flex-shrink: 0;

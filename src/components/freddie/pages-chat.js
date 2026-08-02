@@ -17,7 +17,7 @@
 
 import * as webjsx from '../../../vendor/webjsx/index.js';
 import { makePage, api, loadingState, emptyState } from './runtime.js';
-import { Table, PageHeader } from '../content.js';
+import { Table, PageHeader, Select } from '../content.js';
 import { Chip } from '../shell.js';
 import { formatTime } from '../../locale.js';
 import { queueMessage, watchReconnect, isOnline } from '../../idb-outbox.js';
@@ -86,7 +86,20 @@ function applyEnvelope(msgs, env, sendApprove) {
 }
 
 export const chat = makePage((ctx) => {
-    Object.assign(ctx.state, { loading: false, messages: [], draft: '', busy: false, error: null, sessionId: null, ws: null, conn: 'closed' });
+    Object.assign(ctx.state, { loading: false, messages: [], draft: '', busy: false, error: null, sessionId: null, ws: null, conn: 'closed', sessions: [] });
+
+    // Session picker (kimi web's sessions sidebar, compact form): recent
+    // conversations from /api/sessions, needsInput badges included. Picking
+    // one reconnects the WS under that id and rebuilds from server replay.
+    api('/api/sessions').then(rows => { ctx.state.sessions = Array.isArray(rows) ? rows : []; ctx.rerender(); }).catch(() => { /* swallow: picker degrades to new-chat-only */ });
+
+    function switchSession(id) {
+        const st = ctx.state;
+        if (!id || id === st.sessionId) return;
+        try { st.ws && st.ws.close(); } catch { /* already closed */ }
+        ctx.set({ sessionId: id, messages: [], ws: null, conn: 'closed', busy: false, error: null });
+        ensureWs();
+    }
 
     // Offline outbox: a prompt sent while genuinely offline queues to
     // IndexedDB and auto-flushes on the real 'online' event via the legacy
@@ -144,6 +157,8 @@ export const chat = makePage((ctx) => {
                         if (f.error && !c.error) c.error = f.error;
                     }
                     ctx.set({ busy: false });
+                    // New turns can create/rename sessions — refresh the picker.
+                    api('/api/sessions').then(rows => { ctx.state.sessions = Array.isArray(rows) ? rows : []; ctx.rerender(); }).catch(() => { /* swallow: picker refresh is best-effort */ });
                 } else if (f.type === 'error') {
                     const c = cur();
                     if (c && c.role === 'assistant') c.error = f.error;
@@ -208,6 +223,14 @@ export const chat = makePage((ctx) => {
     return () => {
         const st = s();
         return h('div', { class: 'fd-chat' },
+            st.sessions.length ? h('div', { class: 'fd-chat-picker' },
+                Select({
+                    value: st.sessionId || '',
+                    placeholder: 'new conversation',
+                    'aria-label': 'switch conversation',
+                    options: st.sessions.map(row => ({ value: row.id, label: (row.title || '(untitled)').slice(0, 60) + (row.needsInput ? ' — needs input' : '') })),
+                    onChange: switchSession,
+                })) : null,
             AgentChat({
                 messages: st.messages,
                 busy: st.busy,
