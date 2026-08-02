@@ -91,6 +91,39 @@ function marqueeNode(marquee) {
   return C.Marquee ? C.Marquee({ items: marquee.items, sep: marquee.sep || '/' }) : null;
 }
 
+let __copyResetTimer = null;
+function copyQuickstart(text, btnEl) {
+  const done = (ok) => {
+    if (!btnEl) return;
+    btnEl.textContent = ok ? 'copied' : 'copy failed';
+    clearTimeout(__copyResetTimer);
+    __copyResetTimer = setTimeout(() => { btnEl.textContent = 'copy'; }, 1600);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => done(true), () => copyViaTextarea(text, done));
+  } else {
+    copyViaTextarea(text, done);
+  }
+}
+// Fallback for non-secure contexts / browsers without navigator.clipboard:
+// a hidden textarea + document.execCommand('copy'), the standard shim.
+function copyViaTextarea(text, done) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    done(ok);
+  } catch (_e) {
+    done(false);
+  }
+}
+
 function quickstartNode(quickstart) {
   if (!quickstart || !Array.isArray(quickstart.lines) || !quickstart.lines.length) return null;
   // A single .cli wrapper holding .ds-cli-row/.ds-cli-comment children, not
@@ -104,7 +137,19 @@ function quickstartNode(quickstart) {
     : h('div', { key: 'q' + i, class: 'ds-cli-row' },
         h('span', { class: 'prompt' }, '$'),
         h('span', { class: 'cmd' }, l.text)));
-  return C.Panel({ title: quickstart.heading || 'quick start', children: h('div', { class: 'cli' }, ...lineNodes) });
+  // Copy the whole snippet (comment lines included) as one paste-ready block,
+  // not just the command lines -- a reader copying "the quick start" expects
+  // what they see, not a silently filtered subset.
+  const fullText = quickstart.lines.map((l) => l.text).join('\\n');
+  const copyBtn = h('button', {
+    type: 'button', class: 'copy ds-quickstart-copy',
+    'aria-label': 'copy quick start snippet',
+    onclick: (e) => copyQuickstart(fullText, e.currentTarget),
+  }, 'copy');
+  return C.Panel({
+    title: quickstart.heading || 'quick start',
+    children: h('div', { class: 'cli ds-quickstart-cli' }, h('div', { class: 'ds-cli-block' }, ...lineNodes), copyBtn),
+  });
 }
 
 function sideNode(sidebar) {
@@ -134,6 +179,21 @@ function __md(md) {
 }
 
 const bodyNode = data.bodyHtml ? C.Section({ children: h('div', { class: 'page-body', innerHTML: data.bodyHtml }) }) : null;
+
+// A real closing block: the page previously just stopped after its last
+// panel, leaving nothing but the app-stage's own bottom padding as unexplained
+// empty space. Reuses data already on the page (nav links, siteName, year) —
+// no invented content.
+function footerNode() {
+  const year = new Date().getFullYear();
+  const links = (data.navItems || []).filter(([, href]) => /^https?:/.test(String(href)));
+  return h('footer', { class: 'ds-page-footer' },
+    h('span', { class: 'ds-page-footer-copy' }, String(year) + ' · ' + data.siteName),
+    links.length ? h('nav', { class: 'ds-page-footer-links', 'aria-label': 'footer' },
+      ...links.map(([label, href], i) => h('a', { key: i, href }, String(label).replace(' ->', '')))
+    ) : null,
+  );
+}
 
 function tierNode(tier, children) {
   const kids = children.filter(Boolean);
@@ -172,6 +232,7 @@ const mainChildren = [
   ...tierNodes,
   ...leftoverPanels,
   bodyNode,
+  footerNode(),
 ].filter(Boolean);
 
 mount(document.getElementById('app'), () => C.AppShell({

@@ -51,7 +51,13 @@ export const PAGE_INLINE_STYLES = `
 a.row:hover .ds-row-arrow { opacity: 1 }
 /* hero stat strip — all badges as a wrapping inline rhythm, not one empty panel */
 .ds-hero-stats { display: flex; flex-wrap: wrap; gap: var(--space-3, 16px) var(--space-5, 32px); margin-top: var(--space-2, 8px) }
-.ds-hero-stat { display: flex; align-items: baseline; gap: var(--space-2, 8px) }
+/* hero-content.css's .ds-hero-stat is styled for a vertical stacked list
+   (border-bottom row divider, meant to read top-to-bottom); this page renders
+   badges in a horizontal row instead (.ds-hero-stats above), where that same
+   border reads as an underlined tab strip -- an affordance for a set of
+   plain, non-interactive metadata chips. Reset both inherited properties so a
+   row of badges never borrows tab-bar chrome it did not opt into. */
+.ds-hero-stat { display: flex; align-items: baseline; gap: var(--space-2, 8px); border-bottom: none !important; padding-bottom: 0 !important }
 .ds-hero-stat-n { font-family: var(--ff-body); font-weight: 700; font-size: var(--fs-lg, 18px); color: var(--fg) }
 .ds-hero-stat-l { font-size: var(--fs-sm, 15px); color: var(--fg-3) }
 /* accent sits on its own line, muted, so it reads as a distinct aside instead
@@ -68,4 +74,20 @@ a.row:hover .ds-row-arrow { opacity: 1 }
 .ds-feature-title { font-weight: 600; font-size: var(--fs-lg, 18px); color: var(--fg) }
 .ds-feature-desc { font-size: var(--fs-sm, 15px); color: var(--fg-2); line-height: 1.5; overflow-wrap: anywhere }
 .ds-feature-benefit { font-style: italic; font-size: var(--fs-sm, 15px); color: var(--fg-3); margin-top: var(--space-1, 4px) }
+/* Real closing content instead of the page simply stopping after its last
+   panel — a tonal divider line, a copyright string, and the same external
+   links the topbar already carries (footer.js reuses data.navItems, so this
+   is never invented content). Sits inside .app-stage's own grid gap like
+   every other block, no extra margin needed. */
+.ds-page-footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: var(--space-3, 16px);
+  padding-top: var(--space-5, 32px);
+  margin-top: var(--space-3, 16px);
+  border-top: 1px solid var(--rule, var(--bg-3));
+  color: var(--fg-3); font-size: var(--fs-sm, 15px);
+}
+.ds-page-footer-links { display: flex; gap: var(--space-4, 24px) }
+.ds-page-footer-links a { color: var(--fg-3) }
+.ds-page-footer-links a:hover { color: var(--fg) }
 `.trim();

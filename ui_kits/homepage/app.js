@@ -174,9 +174,13 @@ function App() {
             Section({ id: 'manifesto', title: 'manifesto · rough draft',
                 children: Manifesto({ paragraphs: manifesto }) })
         ],
+        // 'source ->' already lives in the topbar nav (navItems above) — a
+        // second identical link in the status bar added nothing but a
+        // duplicate destination, so the right cluster is dropped rather than
+        // repeating either that link or the phase already shown on the left.
         status: Status({
             left: ['main', state.phase === 'ready' ? '8 works' : '0 works', state.phase === 'ready' ? '5 posts' : '0 posts', state.phase],
-            right: ['probably emerging', h('a', { href: 'https://github.com/AnEntrypoint' }, 'source ->')]
+            right: []
         })
     });
 }

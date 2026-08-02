@@ -4,7 +4,7 @@ title: Home
 hero:
   heading: "design"
   subheading: "the 247420 design system"
-  body: "shadcn-neutral. oversized display type, a grayscale accent, print texture inert. every 247420 surface runs on it."
+  body: "14 kit surfaces, zero raw color literals, one importmap script tag to install. every panel, row, and form control in this system reads its color, radius, and spacing from a single token file — swap the tokens and every surface built on them changes with it."
   badges:
     - { label: "design-system" }
     - { label: "tokens" }
@@ -18,17 +18,22 @@ sidebar:
     label: "open"
     glyph: "+"
     href: "./ui_kits/homepage/"
+  # `count` here is a fallback only -- site/theme.mjs::withRealCounts()
+  # overwrites it at render time from the real kits/decks/previews/docs
+  # arrays below for any row whose href is in COUNT_SOURCE_BY_HREF, so a
+  # hand-typed number here can never drift out of sync with what the
+  # matching panel actually renders.
   bins:
-    - { label: "everything", href: "#all", count: 23, active: true }
-    - { label: "pinned",     href: "#kits",  count: 5 }
-    - { label: "shipped",    href: "#previews", count: 12 }
-    - { label: "drafts",     href: "#decks",  count: 6 }
+    - { label: "everything", href: "#all", active: true }
+    - { label: "pinned",     href: "#kits" }
+    - { label: "shipped",    href: "#previews" }
+    - { label: "drafts",     href: "#decks" }
   labels_group: "labels"
   labels:
-    - { label: "ui kits",  href: "#kits",     count: 4 }
-    - { label: "decks",    href: "#decks",    count: 1 }
-    - { label: "previews", href: "#previews", count: 20 }
-    - { label: "docs",     href: "#docs",     count: 3 }
+    - { label: "ui kits",  href: "#kits" }
+    - { label: "decks",    href: "#decks" }
+    - { label: "previews", href: "#previews" }
+    - { label: "docs",     href: "#docs" }
   more_group: "more"
   more:
     - { label: "readme",  href: "https://github.com/AnEntrypoint/design/blob/main/README.md" }
@@ -185,6 +190,9 @@ status_left:
   - "main"
   - "utf-8"
   - "lf"
+# theme.mjs overwrites this with the real published SDK version + live kit
+# count (14 surfaces, from home.kits.items.length) rather than the static
+# fallback strings below, which only render if that lookup ever fails.
 status_right:
-  - "247420 · mmxxvi"
-  - "probably emerging"
+  - "anentrypoint-design"
+  - "14 kits"

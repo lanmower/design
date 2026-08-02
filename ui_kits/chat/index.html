@@ -13,6 +13,20 @@
   <link rel="stylesheet" href="../../app-shell.css">
   <link rel="stylesheet" href="../../chat.css">
   <link rel="stylesheet" href="../../editor-primitives.css">
+<!-- Critical pre-stylesheet background: body's real background/color rule
+     lives in src/css/app-shell/base.css, one of ~30 sheets app-shell.css's
+     own @import barrel must fetch before it applies. On a cold cache that
+     barrel resolution can outlast the module script's first render, leaving
+     the UA default (often a stark white-on-transparent, or black under a
+     dark OS theme) visible until every sheet lands -- reported as "blank
+     page on first load, fine on reload" (reload = warm cache = barrel
+     resolves instantly). This mirrors site/theme.mjs's headExtra, which
+     solves the identical race for the SDK-consumer landing page; the two
+     raw hex pairs are deliberately kept in sync with each other (both trace
+     to --paper #FFFFFF / --ink #1A1A1A in colors_and_type.css) since neither
+     can reference a CSS custom property before that same stylesheet has
+     loaded. -->
+<style>html,body{background:#1A1A1A;color:#FFFFFF}@media (prefers-color-scheme: light){html,body{background:#FFFFFF;color:#1A1A1A}}</style>
 <script type="importmap">
 { "imports": {
   "webjsx": "../../vendor/webjsx/index.js",

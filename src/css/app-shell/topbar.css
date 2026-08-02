@@ -155,7 +155,12 @@ body.canvas-host { background: transparent !important; }
 .app-crumb .leaf { color: var(--fg); font-weight: 600; }
 .app-crumb .crumb-right { margin-left: auto; color: var(--fg-3); }
 
-.app-side-shell { background: var(--bg); }
+/* The shell is the grid cell (.app-body's fixed sidebar column); it must own
+   its own scroll, not just size to content, because .app-body's row track is
+   `minmax(0, 1fr)` — a real height the sidebar can overflow once bins +
+   labels + more exceed it. Without this the extra rows were silently chopped
+   at the viewport edge with no way to reach them. */
+.app-side-shell { background: var(--bg); overflow-y: auto; min-height: 0; }
 .app-body { display: grid; grid-template-columns: var(--sidebar-width) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); align-items: stretch; align-content: stretch; flex: 1; min-height: 0; }
 .app-body.no-side { grid-template-columns: minmax(0, 1fr); }
 /* When there is no sidebar, the empty side-shell must not occupy a grid row,

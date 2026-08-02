@@ -32,12 +32,41 @@ function panel(section, id, itemsKey = 'items') {
   };
 }
 
+// A sidebar row's `count` is never hand-typed: it is looked up here from the
+// same content arrays theme.mjs builds real panels from, so a badge can never
+// drift out of sync with the panel header/row-count it points at. `countFor`
+// resolves a row's destination href against a small table of real sources —
+// add a source here whenever a new href needs a count-backed row.
+function realCount(home, key) {
+  const src = {
+    all: () => (home.kits?.items?.length || 0) + (home.decks?.items?.length || 0) + (home.previews?.items?.length || 0) + (home.docs?.items?.length || 0),
+    kits: () => home.kits?.items?.length || 0,
+    decks: () => home.decks?.items?.length || 0,
+    previews: () => home.previews?.items?.length || 0,
+    docs: () => home.docs?.items?.length || 0,
+  }[key];
+  return src ? src() : null;
+}
+
+// href -> realCount key. Every bin/label href that should carry a live count
+// is listed once here; a row whose href isn't in this table keeps whatever
+// count its yaml source provides (or none).
+const COUNT_SOURCE_BY_HREF = { '#all': 'all', '#kits': 'kits', '#decks': 'decks', '#previews': 'previews', '#docs': 'docs' };
+
+function withRealCounts(home, items) {
+  return items.map((it) => {
+    const key = COUNT_SOURCE_BY_HREF[it.href];
+    const count = key ? realCount(home, key) : it.count;
+    return { ...it, count };
+  });
+}
+
 function buildSidebar(home) {
   const sb = home.sidebar || {};
   const sections = [];
   if (sb.fab) sections.push({ group: 'open', items: [{ glyph: sb.fab.glyph || '+', label: sb.fab.label || 'open', href: sb.fab.href || '#' }] });
-  if (sb.bins && sb.bins.length) sections.push({ group: 'bins', items: sb.bins });
-  if (sb.labels && sb.labels.length) sections.push({ group: sb.labels_group || 'labels', items: sb.labels });
+  if (sb.bins && sb.bins.length) sections.push({ group: 'bins', items: withRealCounts(home, sb.bins) });
+  if (sb.labels && sb.labels.length) sections.push({ group: sb.labels_group || 'labels', items: withRealCounts(home, sb.labels) });
   if (sb.more && sb.more.length) sections.push({ group: sb.more_group || 'more', items: sb.more });
   return sections.length ? { sections } : null;
 }
@@ -96,7 +125,14 @@ export default {
       quickstart: home.quickstart && home.quickstart.lines ? { heading: home.quickstart.heading, lines: home.quickstart.lines } : null,
       sidebar: buildSidebar(home),
       statusLeft: home.status_left || ['main', '- utf-8', '- lf'],
-      statusRight: home.status_right || ['247420 · mmxxvi', '- probably emerging'],
+      // Real facts, not filler: the SDK version this page actually loads
+      // (pageHtml pins every consumer to @latest, so 'latest' is the honest
+      // answer, not a placeholder) and the live kit count already computed
+      // for the kits panel above — never a hand-typed vanity string.
+      statusRight: [
+        'anentrypoint-design@latest',
+        (home.kits && home.kits.items ? home.kits.items.length : 0) + ' kits',
+      ],
       seo: {
         description: site.description || site.tagline || site.title,
         keywords: site.keywords || ['247420', 'anentrypoint', 'design system'],

@@ -217,12 +217,32 @@
   padding: 3px 0;
 }
 .ds-cli-row .prompt { color: var(--green-2); flex: 0 0 auto; user-select: none; }
-.ds-cli-row .cmd { flex: 1 1 auto; white-space: pre-wrap; word-break: break-word; color: var(--paper); }
+/* `overflow-wrap: break-word` only breaks a token when it genuinely cannot
+   fit the line at all (last resort); `word-break: break-word` (its
+   predecessor here) breaks ANY overflowing token eagerly, which is what
+   split "anentrypoint-design" mid-identifier inside the importmap JSON line.
+   `min-width: 0` lets the flex child actually shrink to trigger wrapping
+   instead of pushing the panel wider. */
+.ds-cli-row .cmd { flex: 1 1 auto; min-width: 0; white-space: pre-wrap; overflow-wrap: break-word; word-break: normal; color: var(--paper); }
 .ds-cli-comment {
   color: var(--fg-3);
   font-family: var(--ff-mono); font-size: var(--fs-tiny); line-height: 1.6;
-  padding: 3px 0; white-space: pre-wrap; word-break: break-word;
+  padding: 3px 0; white-space: pre-wrap; overflow-wrap: break-word; word-break: normal;
 }
+
+/* Quickstart copy button: sits below the multi-line block (Install's inline
+   copy button assumes a single-line row with room beside it; the stacked
+   quickstart block has no such side room). */
+.ds-quickstart-cli { flex-direction: column; align-items: stretch; gap: var(--space-2); }
+.ds-quickstart-copy {
+  align-self: flex-end;
+  padding: 8px 16px; background: transparent; color: var(--paper);
+  font-family: var(--ff-mono); font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: var(--tr-caps);
+  cursor: pointer; box-shadow: inset 0 0 0 1px var(--rule-strong);
+  border-radius: var(--r-pill); border: none;
+}
+.ds-quickstart-copy:hover { background: var(--fg-3); }
+.ds-quickstart-copy:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 /* ============================================================
    Receipt — key/value table
