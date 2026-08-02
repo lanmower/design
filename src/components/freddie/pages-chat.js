@@ -57,6 +57,8 @@ function applyEnvelope(msgs, env, sendApprove) {
         }
     } else if (event === 'steer.append') {
         if (!isDupUser(data.text)) msgs.push({ id: 'u' + msgs.length + env.ts, role: 'user', content: data.text || '', time: formatTime(ts) });
+    } else if (event === 'queue.append') {
+        if (!isDupUser(data.text)) msgs.push({ id: 'u' + msgs.length + env.ts, role: 'user', content: data.text || '', time: formatTime(ts) });
     } else if (event === 'assistant.delta') {
         // Progressive text mid-turn: accumulate into the live bubble; the
         // settled message.append at turn end overwrites with the authoritative
@@ -166,10 +168,10 @@ export const chat = makePage((ctx) => {
         const t = (typeof text === 'string' ? text : s().draft || '').trim();
         if (!t) return;
 
-        // Mid-turn send = STEER (kimi's steering): injected at the next step
-        // boundary instead of starting a parallel turn.
+        // Mid-turn send = QUEUE for after the turn (kimi 1.31's Enter channel);
+        // injection mid-turn is /steer in the REPL or a wire steer frame.
         if (s().busy) {
-            if (sendFrame({ type: 'steer', text: t })) {
+            if (sendFrame({ type: 'queue', text: t })) {
                 s().messages = [...s().messages, { id: 'u' + Date.now(), role: 'user', content: t, time: formatTime(Date.now()) }];
                 ctx.set({ draft: '' });
             }
@@ -212,7 +214,7 @@ export const chat = makePage((ctx) => {
                 draft: st.draft,
                 status: st.busy ? 'streaming…' : (st.conn === 'open' ? 'ready' : 'connecting…'),
                 agentName: 'freddie',
-                placeholder: st.busy ? 'steer the turn… (or stop)' : 'message…',
+                placeholder: st.busy ? 'queue a follow-up… (or stop)' : 'message…',
                 showMinimap: true,
                 banners: st.error ? [noteAlert({ kind: 'error', msg: st.error })] : [],
                 onInput: (v) => { st.draft = v; },
