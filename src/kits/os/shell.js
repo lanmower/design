@@ -26,18 +26,44 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
     const { drawer, drawerClose, drawerGrid } = buildDrawer();
     const taskbar = buildTaskbar();
 
-    const apps = typeof registry.list === 'function' ? registry.list() : [...registry.values()];
-
-    for (const app of apps) {
-        const { menuBtn, railBtn, tile } = buildAppEntries(app, {
-            onMenuClick: () => { closeMenu(); openApp(app.id); },
-            onRailClick: () => openApp(app.id),
-            onTileClick: () => { closeDrawer(); openApp(app.id); },
-        });
-        appsMenu.appendChild(menuBtn);
-        sideRail.appendChild(railBtn);
-        drawerGrid.appendChild(tile);
+    // The registry is not frozen at shell creation — hosts can register and
+    // unregister apps later (thebird's per-instance user-* apps come and go on
+    // instance switch and fs edits). refreshApps() re-syncs the three launcher
+    // surfaces (apps menu / side rail / drawer grid) surgically: entries for
+    // newly registered apps are appended, entries whose app was unregistered
+    // are removed, and already-rendered entries keep their nodes (listeners,
+    // focus, and any host-side regrouping of the menu intact). The initial
+    // render is the same call. Buttons are tagged data-app-id so removal can
+    // find them again.
+    const renderedAppIds = new Set();
+    function refreshApps() {
+        const apps = typeof registry.list === 'function' ? registry.list() : [...registry.values()];
+        const live = new Set(apps.map(a => a.id));
+        for (const id of renderedAppIds) {
+            if (live.has(id)) continue;
+            for (const container of [appsMenu, sideRail, drawerGrid]) {
+                const stale = container.querySelector('[data-app-id="' + id + '"]');
+                if (stale) stale.remove();
+            }
+            renderedAppIds.delete(id);
+        }
+        for (const app of apps) {
+            if (renderedAppIds.has(app.id)) continue;
+            const { menuBtn, railBtn, tile } = buildAppEntries(app, {
+                onMenuClick: () => { closeMenu(); openApp(app.id); },
+                onRailClick: () => openApp(app.id),
+                onTileClick: () => { closeDrawer(); openApp(app.id); },
+            });
+            menuBtn.dataset.appId = app.id;
+            railBtn.dataset.appId = app.id;
+            tile.dataset.appId = app.id;
+            appsMenu.appendChild(menuBtn);
+            sideRail.appendChild(railBtn);
+            drawerGrid.appendChild(tile);
+            renderedAppIds.add(app.id);
+        }
     }
+    refreshApps();
 
     osRoot.append(menubar, appsMenu, taskbar);
     document.body.append(sideRail, drawer);
@@ -193,7 +219,11 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
         refreshTaskbar();
         const finish = (r) => {
             if (isAsync && typeof win.setBody === 'function') win.setBody(r.node);
-            win._app = { id: appId, dispose: r.dispose };
+            // Keep the FULL factory result on _app (only id is overridden with
+            // the registry's appId): hosts persist/restore per-window view
+            // state through getViewState/restoreViewState hooks on the factory
+            // result — a lossy {id, dispose} wrap silently dropped them.
+            win._app = { ...r, id: appId };
             refreshTaskbar();
             return win;
         };
@@ -210,7 +240,7 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
 
     const api = {
         wm, registry, openApp, setContext, refreshTaskbar, setActiveInstance,
-        openDrawer, closeDrawer, openMenu, closeMenu,
+        openDrawer, closeDrawer, openMenu, closeMenu, refreshApps,
         get activeInstanceId() { return activeInstanceId; },
         elements: { osRoot, menubar, taskbar, appsMenu, sideRail, drawer, instSwitch, homeBtn, appsBtn },
         dispose() { clearInterval(clockTimer); clearInterval(taskTimer); window.removeEventListener('resize', onViewportResize); osRoot.remove(); sideRail.remove(); drawer.remove(); },

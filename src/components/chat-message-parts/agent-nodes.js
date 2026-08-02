@@ -89,6 +89,35 @@ export function ToolCallNode(p) {
     );
 }
 
+// Approval-request card for the freddie wire protocol's approval.request event
+// (plugins/gui/gui-agent): a gated tool call pauses mid-turn until the user
+// resolves it here. p.onResolve({approved, always?}) sends the decision back
+// over the same channel; once resolved the card renders the settled state.
+export function ApprovalNode(p) {
+    const status = p.status || 'pending';
+    const argsText = typeof p.args === 'string' ? p.args : JSON.stringify(p.args || {}, null, 2);
+    const iconName = status === 'pending' ? 'warn' : (status === 'approved' ? 'check' : 'warn');
+    const decide = (decision) => (e) => { e.preventDefault(); if (p.onResolve) p.onResolve(decision); };
+    return h('div', { class: 'chat-bubble chat-tool chat-approval tool-' + (status === 'pending' ? 'running' : status) },
+        h('div', { class: 'chat-tool-head' },
+            h('span', { class: 'chat-tool-icon', 'aria-hidden': 'true' }, Icon(iconName, { size: 14 })),
+            h('span', { class: 'chat-tool-name' }, 'approval: ' + (p.name || 'tool')),
+            h('span', { class: 'chat-tool-status' }, status)
+        ),
+        h('div', { class: 'chat-tool-body' },
+            h('div', { class: 'chat-tool-section' },
+                h('div', { class: 'chat-tool-section-label' }, h('span', {}, 'args')),
+                h('pre', { class: 'chat-tool-pre' }, h('code', {}, argsText))),
+            status === 'pending'
+                ? h('div', { class: 'chat-approval-actions' },
+                    h('button', { type: 'button', class: 'chat-code-copy chat-approval-btn', onclick: decide({ approved: true }) }, 'approve'),
+                    h('button', { type: 'button', class: 'chat-code-copy chat-approval-btn', onclick: decide({ approved: true, always: true }) }, 'always'),
+                    h('button', { type: 'button', class: 'chat-code-copy chat-approval-btn', onclick: decide({ approved: false }) }, 'reject'))
+                : h('div', { class: 'chat-approval-note' }, status === 'approved' ? (p.always ? 'approved (always, this turn)' : 'approved') : 'rejected')
+        )
+    );
+}
+
 export function ThinkingNode(p) {
     if (p.settled) {
         return h('details', { class: 'chat-bubble chat-thinking-settled' },

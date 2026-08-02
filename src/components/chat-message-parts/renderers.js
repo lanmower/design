@@ -7,7 +7,7 @@ import { Icon } from '../shell.js';
 import { fmtFileSize } from '../files.js';
 import { safeUrl, renderInline, fileIconName } from './inline.js';
 import { MdNode, CodeNode } from './prose-nodes.js';
-import { ToolCallNode, ThinkingNode } from './agent-nodes.js';
+import { ToolCallNode, ThinkingNode, ApprovalNode } from './agent-nodes.js';
 
 const h = webjsx.createElement;
 
@@ -35,6 +35,7 @@ export const PART_RENDERERS = {
     tool_call:   (p) => ToolCallNode(p),
     tool_result: (p) => ToolCallNode({ ...p, name: p.name || 'tool_result', result: p.text != null ? p.text : p.result }),
     thinking:    (p) => ThinkingNode(p),
+    approval:    (p) => ApprovalNode(p),
     image: (p) => {
         // Guard both the wrapping link and the img src against unsafe schemes
         // (e.g. a data:text/html src) so an embedded-image part from untrusted
