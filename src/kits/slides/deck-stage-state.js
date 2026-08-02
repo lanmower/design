@@ -55,7 +55,7 @@ export function collectSlides(deckEl, slot) {
     return slides;
 }
 
-export function applyIndex(deckEl, { index, prevIndex, slides, countEl, showOverlay = true, broadcast = true, reason = 'init', flashFn = null } = {}) {
+export function applyIndex(deckEl, { index, prevIndex, slides, countEl, totalEl, showOverlay = true, broadcast = true, reason = 'init', flashFn = null } = {}) {
     if (!slides.length) return;
     const prev = prevIndex == null ? -1 : prevIndex;
     const curr = index;
@@ -64,6 +64,7 @@ export function applyIndex(deckEl, { index, prevIndex, slides, countEl, showOver
         else s.removeAttribute('data-deck-active');
     });
     if (countEl) countEl.textContent = String(curr + 1);
+    if (totalEl) totalEl.textContent = String(slides.length);
     persistIndex(deckEl, curr);
     if (broadcast) {
         try { window.postMessage({ slideIndexChanged: curr }, '*'); } catch (e) { /* swallow: cross-frame notification is best-effort, local slide state already updated */ }

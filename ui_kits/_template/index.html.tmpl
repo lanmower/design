@@ -21,7 +21,25 @@
      to --paper #FFFFFF / --ink #1A1A1A in colors_and_type.css) since neither
      can reference a CSS custom property before that same stylesheet has
      loaded. -->
-<style>html,body{background:#1A1A1A;color:#FFFFFF}@media (prefers-color-scheme: light){html,body{background:#FFFFFF;color:#1A1A1A}}</style>
+<style>
+html,body{background:#1A1A1A;color:#FFFFFF}
+@media (prefers-color-scheme: light){html,body{background:#FFFFFF;color:#1A1A1A}}
+/* Boot spinner: fills the pre-mount window with a visible loading cue instead
+   of a flat color flash. #root:empty means app.js hasn't appended real
+   content yet; the moment it does, this pseudo-element's selector stops
+   matching and the spinner disappears with no JS coordination needed.
+   Off-scale literals here, same as the background/color pair above and for
+   the identical reason: this block runs before colors_and_type.css has
+   loaded, so it cannot reference a --space-N/--r-N/color token yet. rgba()
+   over currentColor keeps the ring visible on both the dark and light
+   pre-paint background set two lines up without a second media query. */
+#root:empty{min-height:100vh;display:flex;align-items:center;justify-content:center}
+#root:empty::after{content:"";width:28px;height:28px;border-radius:50%;
+  border:3px solid rgba(127,127,127,.35);border-top-color:currentColor;
+  animation:ds-boot-spin .8s linear infinite}
+@media (prefers-reduced-motion: reduce){#root:empty::after{animation:none;opacity:.6}}
+@keyframes ds-boot-spin{to{transform:rotate(360deg)}}
+</style>
 <script type="importmap">
 { "imports": {
   "webjsx": "../../vendor/webjsx/index.js",

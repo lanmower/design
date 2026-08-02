@@ -26,7 +26,7 @@ const REPLIES = {
     'code-react': () => ({ parts: [
         { kind: 'text', text: 'sure — here\'s a tiny one:' },
         { kind: 'code', lang: 'jsx', filename: 'Greet.jsx',
-          code: 'export function Greet({ name }) {\n  return <p>hi, {name} =^.^=</p>;\n}\n\nexport default Greet;' }
+          code: 'export function Greet({ name }) {\n  return <p>hi, {name} — =^.^=</p>;\n}\n\nexport default Greet;' }
     ] }),
     'code-py': () => ({ parts: [
         { kind: 'text', text: 'classic sieve, no imports:' },

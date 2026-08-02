@@ -107,7 +107,7 @@ class DeckStage extends HTMLElement {
         this._index = restoreIndex(this, this._slides);
         applyIndex(this, {
             index: this._index, prevIndex: this._prevIndex, slides: this._slides,
-            countEl: this._countEl, showOverlay: false, broadcast: true, reason: 'init',
+            countEl: this._countEl, totalEl: this._totalEl, showOverlay: false, broadcast: true, reason: 'init',
             flashFn: () => this._flashOverlay()
         });
         this._fit();
@@ -147,7 +147,7 @@ class DeckStage extends HTMLElement {
         this._index = clamped;
         applyIndex(this, {
             index: this._index, prevIndex: this._prevIndex, slides: this._slides,
-            countEl: this._countEl, showOverlay: true, broadcast: true, reason,
+            countEl: this._countEl, totalEl: this._totalEl, showOverlay: true, broadcast: true, reason,
             flashFn: () => this._flashOverlay()
         });
     }
