@@ -86,12 +86,29 @@ function applyEnvelope(msgs, env, sendApprove) {
 }
 
 export const chat = makePage((ctx) => {
-    Object.assign(ctx.state, { loading: false, messages: [], draft: '', busy: false, error: null, sessionId: null, ws: null, conn: 'closed', sessions: [] });
+    Object.assign(ctx.state, { loading: false, messages: [], draft: '', busy: false, error: null, sessionId: null, ws: null, conn: 'closed', sessions: [], staged: [] });
 
     // Session picker (kimi web's sessions sidebar, compact form): recent
     // conversations from /api/sessions, needsInput badges included. Picking
     // one reconnects the WS under that id and rebuilds from server replay.
     api('/api/sessions').then(rows => { ctx.state.sessions = Array.isArray(rows) ? rows : []; ctx.rerender(); }).catch(() => { /* swallow: picker degrades to new-chat-only */ });
+
+    // File upload (kimi web parity): files are staged to disk via the gui-agent
+    // endpoint and ride the next prompt frame as path references — the agent
+    // reads them with its file tools, so no model-capability negotiation here.
+    async function attachFiles(fileList) {
+        const st = ctx.state;
+        if (!st.sessionId) st.sessionId = newSessionId();
+        for (const file of fileList || []) {
+            try {
+                const dataUrl = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
+                const base64 = String(dataUrl).split(',')[1] || '';
+                const r = await api('/api/sessions/' + encodeURIComponent(st.sessionId) + '/files', { method: 'POST', body: { name: file.name, contentBase64: base64 } });
+                if (r && r.path) { st.staged = [...st.staged, { name: r.name || file.name, path: r.path }]; }
+            } catch (e) { ctx.set({ error: 'upload failed: ' + (e && e.message || e) }); }
+        }
+        ctx.rerender();
+    }
 
     function switchSession(id) {
         const st = ctx.state;
@@ -206,11 +223,13 @@ export const chat = makePage((ctx) => {
             return;
         }
 
-        if (!ensureWs() || !sendFrame({ type: 'prompt', text: t })) {
+        if (!ensureWs() || !sendFrame({ type: 'prompt', text: t, attachments: s().staged.map(f => ({ name: f.name, path: f.path })) })) {
             curMsg.error = 'agent workspace connection unavailable';
             delete curMsg._live;
             ctx.set({ busy: false });
+            return;
         }
+        ctx.set({ staged: [] });
     }
 
     function stop() {
@@ -223,14 +242,20 @@ export const chat = makePage((ctx) => {
     return () => {
         const st = s();
         return h('div', { class: 'fd-chat' },
-            st.sessions.length ? h('div', { class: 'fd-chat-picker' },
-                Select({
+            h('div', { class: 'fd-chat-picker' },
+                st.sessions.length ? Select({
                     value: st.sessionId || '',
                     placeholder: 'new conversation',
                     'aria-label': 'switch conversation',
                     options: st.sessions.map(row => ({ value: row.id, label: (row.title || '(untitled)').slice(0, 60) + (row.needsInput ? ' — needs input' : '') })),
                     onChange: switchSession,
-                })) : null,
+                }) : null,
+                h('label', { class: 'fd-chat-attach', title: 'attach files to the next message' },
+                    'attach',
+                    h('input', { type: 'file', multiple: true, style: 'display:none', onchange: (e) => { attachFiles(e.target.files); e.target.value = ''; } })),
+                ...st.staged.map((f, i) => h('span', { key: 'st' + i, class: 'fd-chat-staged' },
+                    f.name,
+                    h('button', { type: 'button', class: 'fd-chat-staged-x', 'aria-label': 'remove ' + f.name, onclick: () => { st.staged = st.staged.filter((_, j) => j !== i); ctx.rerender(); } }, '×')))),
             AgentChat({
                 messages: st.messages,
                 busy: st.busy,
