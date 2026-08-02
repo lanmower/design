@@ -659,7 +659,7 @@ The live multi-session command center ("Live" dashboard).  The stop-all / stop-s
 
 **Kind:** component
 
-**Signature:** `diff` = `''`, `filename`
+**Signature:** `diff` = `''`, `filename`, `binary` = `false`
 
 ## `src/components/worktree-switcher.js`
 
