@@ -390,12 +390,21 @@
   gap: var(--space-1-75, 6px);
 }
 /* Table() scroll containment — wide tables scroll inside their own box,
-   never the page body. */
+   never the page body. overflow-x:auto alone works but gives no visible cue
+   that a table is wider than its box (macOS overlay scrollbars stay hidden
+   until an active hover/scroll gesture) -- columns beyond the fold read as
+   simply missing rather than reachable. An always-visible thin scrollbar
+   track makes the overflow legible without a gesture first. */
 .ds-table-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   max-width: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-strong) transparent;
 }
+.ds-table-wrap::-webkit-scrollbar { height: 8px; }
+.ds-table-wrap::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: var(--r-pill, 999px); }
+.ds-table-wrap::-webkit-scrollbar-track { background: transparent; }
 .ds-table-wrap > table { min-width: 100%; }
 /* Sortable column headers (Table's opt-in sortable prop) — a docstudio-cue
    addition: color stays neutral at rest (this is a structural control, not a

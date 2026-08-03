@@ -959,7 +959,12 @@
 .ds-247420 .t-mega    { font-family: var(--ff-display); font-size: var(--fs-mega); line-height: 0.92;            letter-spacing: var(--tr-tighter); font-weight: 700; margin: 0; }
 
 .ds-247420 .t-display { font-family: var(--ff-display); font-weight: 600; letter-spacing: var(--tr-tight); }
-.ds-247420 .t-mono    { font-family: var(--ff-mono); }
+/* Explicit weight, not relying on inherited normal: --ff-mono's stack (Menlo,
+   Consolas, ui-monospace) can resolve to a variable-font fallback on some
+   platforms whose default instance isn't the 400 weight, rendering "body ·
+   16px regular" visibly bold despite its own label -- pin the weight so the
+   sample matches what it claims regardless of which font in the stack loads. */
+.ds-247420 .t-mono    { font-family: var(--ff-mono); font-weight: 400; }
 .ds-247420 .t-body    { font-family: var(--ff-body); }
 
 /* House small-label voice, in two sizes. Every declaration here is sourced
@@ -1277,7 +1282,20 @@
    `minmax(0, 1fr)` — a real height the sidebar can overflow once bins +
    labels + more exceed it. Without this the extra rows were silently chopped
    at the viewport edge with no way to reach them. */
-.ds-247420 .app-side-shell { background: var(--bg); overflow-y: auto; min-height: 0; }
+/* .app-side-shell and .app-main (below) are two INDEPENDENT scroll regions
+   side by side -- correct by design (a sidebar nav and a main panel each own
+   their own overflow), but with default invisible/overlay OS scrollbars a
+   user hovering the boundary has no visual cue which region the wheel will
+   scroll, or that there even are two scrollable zones rather than one page
+   scroll. Thin always-visible scrollbar tracks make each region's own scroll
+   ownership legible without changing the (correct) two-region architecture. */
+.ds-247420 .app-side-shell {
+  background: var(--bg); overflow-y: auto; min-height: 0;
+  scrollbar-width: thin; scrollbar-color: var(--rule-strong) transparent;
+}
+.ds-247420 .app-side-shell::-webkit-scrollbar { width: 8px; }
+.ds-247420 .app-side-shell::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: var(--r-pill, 999px); }
+.ds-247420 .app-side-shell::-webkit-scrollbar-track { background: transparent; }
 .ds-247420 .app-body { display: grid; grid-template-columns: var(--sidebar-width) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); align-items: stretch; align-content: stretch; flex: 1; min-height: 0; }
 .ds-247420 .app-body.no-side { grid-template-columns: minmax(0, 1fr); }
 /* When there is no sidebar, the empty side-shell must not occupy a grid row,
@@ -1385,6 +1403,15 @@
 /* Reserve the scrollbar track so routes with/without overflow don't shift
    the layout horizontally when the bar appears. */
 .ds-247420 .app-main { scrollbar-gutter: stable; }
+/* Same visible-scroll-ownership rationale as .app-side-shell above -- makes
+   this the visually distinct SECOND independent scroll region rather than
+   an invisible-scrollbar mystery next to the sidebar. */
+.ds-247420 .app-main {
+  scrollbar-width: thin; scrollbar-color: var(--rule-strong) transparent;
+}
+.ds-247420 .app-main::-webkit-scrollbar { width: 8px; }
+.ds-247420 .app-main::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: var(--r-pill, 999px); }
+.ds-247420 .app-main::-webkit-scrollbar-track { background: transparent; }
 /* Jump-target anchors clear the inner-scroll top edge (no chrome overlap,
    but a little breathing room when deep-linked within .app-main). */
 .ds-247420 .app-main [id] { scroll-margin-top: var(--space-4); }
@@ -1475,7 +1502,18 @@
   color: var(--fg-3);
 }
 .ds-247420 .dateline span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.ds-247420 .dateline .spread { flex: 1 1 auto; min-width: var(--space-3); }
+/* The spreader itself only ever set flex-basis -- an empty div with no
+   background renders as blank space, not the "dotted spreader" the preview
+   page's own caption describes. border-bottom (not background-image) keeps
+   the dots crisp at 1px without a repeating-gradient banding artifact. */
+.ds-247420 .dateline .spread {
+  flex: 1 1 auto; min-width: var(--space-3); align-self: stretch;
+  display: flex; align-items: center;
+}
+.ds-247420 .dateline .spread::after {
+  content: ''; flex: 1 1 auto;
+  border-bottom: var(--bw-hair, 1px) dotted var(--rule-strong);
+}
 
 /* ============================================================
    Primitives
@@ -1509,13 +1547,19 @@
 }
 .ds-247420 .btn { background: var(--bg-2); color: var(--fg); border-color: var(--rule); }
 .ds-247420 .btn:hover { background: var(--bg-3); color: var(--fg); transform: translateY(-1px); box-shadow: var(--shadow-1); }
-/* Primary CTA — the electric lead as a solid editorial block; hover inverts to
-   an ink block with the lead as text, a confident two-tone flip. */
+/* Primary CTA — the brand green as a solid editorial block; hover inverts to
+   an ink block with green text, a confident two-tone flip. Uses --green
+   (the site's own #247420 identity color, dark-mode-retuned to --green's
+   ink-safe #5CBF52 rather than --accent/--acid, which a prior contrast-driven
+   restyle deliberately flattened to a neutral gray for --accent's OTHER
+   consumers (nav active state, focus rings, etc) -- .btn-primary needed the
+   brand color back for click-hierarchy without undoing that restyle
+   elsewhere. --on-color (#fff) clears AA on both light and dark --green. */
 .ds-247420 .btn-primary {
-  background: var(--accent); color: var(--accent-fg);
+  background: var(--green); color: var(--on-color);
   font-weight: 700;
 }
-.ds-247420 .btn-primary:hover { background: var(--fg); color: var(--accent-ink); transform: translateY(-1px); box-shadow: var(--shadow-2); }
+.ds-247420 .btn-primary:hover { background: var(--fg); color: var(--green); transform: translateY(-1px); box-shadow: var(--shadow-2); }
 .ds-247420 .btn-ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 2px var(--fg); }
 .ds-247420 .btn-ghost:hover { background: var(--fg); color: var(--bg); transform: translateY(-1px); }
 .ds-247420 .btn:active, .ds-247420 .btn-primary:active, .ds-247420 .btn-ghost:active { transform: translateY(1px); box-shadow: none; }
@@ -2081,7 +2125,12 @@
      still fits a narrow column, and a 116px ceiling between the two tiers.
      Snapping to either changes the hero's whole optical weight. */
   font-size: clamp(40px, 9cqi, 116px);
-  line-height: 0.96; letter-spacing: var(--tr-tighter);
+  /* 0.96 let ascenders/descenders visibly touch between wrapped lines at the
+     upper end of this clamp (measured on "the creative department of the
+     internet" at the 116px ceiling) -- 1.02 keeps the tight, no-air display
+     feel this title wants while clearing enough vertical room that letters
+     stop colliding. */
+  line-height: 1.02; letter-spacing: var(--tr-tighter);
   margin: 0; max-width: 20ch; text-wrap: balance;
 }
 .ds-247420 .ds-hero-body {
@@ -2304,11 +2353,18 @@
      (was 12/14 x 16 => ~43px rows). Density scales the vertical padding. */
   border-radius: var(--r-0); overflow: hidden;
 }
+/* Panel heads / KPI labels / table headers were all identical uppercase-
+   tracked-mono weight (600), so a page with several of these side by side
+   (a dashboard) reads as one flat volume with no anchor -- the most
+   repetitive, least-singular label (a column header, one of many per
+   table) drops to a lighter 500 with slightly tighter tracking, keeping the
+   system's uppercase-mono voice but giving panel titles (still 600) a real
+   step up as the "read this first" tier. */
 .ds-247420 table th {
   text-align: left;
   padding: calc(var(--space-2) * var(--density)) var(--space-2-75);
-  font-size: var(--fs-tiny); font-weight: 600;
-  color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-caps);
+  font-size: var(--fs-tiny); font-weight: 500;
+  color: var(--fg-3); text-transform: uppercase; letter-spacing: calc(var(--tr-caps) * 0.7);
   background: var(--bg-2);
 }
 /* letter-spacing adds trailing space AFTER the last glyph too, but the table's
@@ -2924,7 +2980,12 @@
   border-color: var(--rule);
 }
 .ds-247420 .ds-file-row:active { transform: translateY(1px); }
-.ds-247420 .ds-file-row.active { background: var(--accent-tint); border-color: var(--accent); }
+/* file-grid's own header/caption both claim NEVER A BORDER -- border-color
+   here silently broke that promise for exactly the row it's meant to call
+   out (the row a screenshot/manual test would actually look at). Selected
+   state stays legible via the tint alone; border-color stays transparent so
+   the base rule's promise holds for every row, active or not. */
+.ds-247420 .ds-file-row.active { background: var(--accent-tint); }
 .ds-247420 .ds-file-row[data-file-type="dir"]      { border-left-width: 3px; border-left-color: var(--accent); }
 .ds-247420 .ds-file-row[data-file-type="image"],
 .ds-247420 .ds-file-row[data-file-type="video"],
@@ -3259,9 +3320,14 @@
 }
 .ds-247420 .ds-error-banner:hover { background: color-mix(in oklab, var(--warn) 20%, var(--bg)); }
 
-/* Dropzone */
+/* Dropzone — a tonal target, not a dashed-border affordance (preview/
+   dropzone.html's own header/caption both describe this: "NO DASHED
+   BORDERS" / "tonal panel that swaps to --panel-select on dragover"). A
+   solid hairline plus the idle->dragover background swap is the actual
+   design; dashed was this system's OTHER "drop target" vocabulary
+   (.panel-docs, kits-appended.css) leaking in here by copy-paste. */
 .ds-247420 .ds-dropzone {
-  border: var(--bw-rule) dashed var(--rule);
+  border: var(--bw-rule) solid var(--rule);
   border-radius: var(--r-3); background: var(--bg);
   transition: border-color var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
 }
@@ -4362,8 +4428,14 @@
    :disabled pseudo-class, so a disabled link-styled button relies entirely
    on this class selector for its visual treatment (aria-disabled + tabindex
    are set in JS; this is the paired CSS half). */
+/* opacity:0.6 alone barely separated from an active .btn-primary against a
+   busy background -- close enough in dark mode that users clicked disabled
+   buttons expecting them to work. grayscale flattens any color signal (no
+   more "still looks clickable-green") and the steeper opacity drop reads as
+   unmistakably inert at a glance, not just slightly dimmed. */
 .ds-247420 .btn:disabled, .ds-247420 .btn-primary:disabled, .ds-247420 .btn-ghost:disabled, .ds-247420 .btn.is-disabled, .ds-247420 .btn-primary.is-disabled, .ds-247420 .btn-ghost.is-disabled, .ds-247420 button:disabled, .ds-247420[disabled] {
-  opacity: 0.6;
+  opacity: 0.45;
+  filter: grayscale(60%);
   cursor: not-allowed;
   pointer-events: none;
 }
@@ -4678,7 +4750,13 @@
   transform: rotate(-2deg);
   white-space: nowrap;
 }
-.ds-247420 .stamp.ink { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+/* border-color previously matched background exactly (var(--ink) on both) --
+   same class of bug as the colors-core "paper" swatch: a border drawn in the
+   identical color as its own fill is invisible, so the ink-toned stamp was
+   the one variant on the page missing its box outline. --paper reads as a
+   visible ring against the ink fill (paper-on-ink is this token pair's
+   whole reason to exist), matching every other .stamp variant's contrast. */
+.ds-247420 .stamp.ink { background: var(--ink); border-color: var(--paper); color: var(--paper); }
 .ds-247420 .stamp.acid { background: var(--accent); border-color: var(--accent-ink); color: var(--accent-ink); }
 .ds-247420 .stamp.purple { border-color: var(--purple-2); color: var(--purple-2); }
 .ds-247420 .stamp.mascot { border-color: var(--mascot); color: var(--mascot-deep); }
@@ -4693,6 +4771,11 @@
   border: 2px solid var(--fg);
   border-radius: var(--r-hair);
   background: transparent; color: var(--fg);
+  /* .stamp's own caption claims the rubber-stamp motif is "always rotated
+     slightly" -- .btn-stamp is the same visual face as an interactive
+     <button> (preview/stamps-lore.html's second row) and had no rotation at
+     all, breaking that claim for every stamp in that row. */
+  transform: rotate(-2deg);
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
 .ds-247420 .btn-stamp:hover { background: var(--panel-hover); }
@@ -4710,11 +4793,20 @@
 }
 .ds-247420 hr.rule { border-top: 1px solid var(--rule); }
 .ds-247420 hr.rule-double { border-top: 4px double var(--rule-strong); }
-.ds-247420 hr.rule-dotted { border-top: 1px dotted var(--rule-strong); }
+/* 1px was indistinguishable from .rule -- border-style:dotted needs enough
+   width to actually draw a gap between dots; below ~2px (esp. at DPRs where
+   1px resolves to a sub-pixel value like 0.8px) Chrome collapses it to a
+   solid line, which is exactly what preview/rules.html's report caught live. */
+.ds-247420 hr.rule-dotted { border-top: 2px dotted var(--rule-strong); }
 
-/* Hairline-only text input — no box, no fill. A single bottom rule that
-   thickens to 2px on focus, matching the row/rule zero-border aesthetic
-   instead of a browser-default boxed field. */
+/* Hairline-only text input — no full box, no permanent fill. A single bottom
+   rule that thickens to 2px on focus, matching the row/rule zero-border
+   aesthetic instead of a browser-default boxed field. A completely flat,
+   static hairline reads as a static label rather than an editable control
+   at a glance (no cue at rest, nothing on hover) -- the very faint permanent
+   wash plus a stronger hover tint below signal "this is a field" without
+   reverting to the boxed/filled chrome the hairline design deliberately
+   moved away from. */
 .ds-247420 .input {
   display: block; width: 100%; box-sizing: border-box;
   /* appearance:none alone is not enough: with color-scheme:dark set on the
@@ -4728,11 +4820,13 @@
   color-scheme: normal;
   border: 0; border-bottom: 1px solid var(--rule-strong);
   border-radius: var(--r-0);
-  background: transparent;
+  background: color-mix(in oklab, var(--fg) 2.5%, transparent);
   box-shadow: none;
   padding: var(--space-2) var(--space-1);
   font: inherit; color: var(--fg);
+  transition: background var(--dur-snap) var(--ease), border-color var(--dur-snap) var(--ease);
 }
+.ds-247420 .input:hover { background: color-mix(in oklab, var(--fg) 5%, transparent); }
 /* Touch floor for the BASE input. Several specific inputs already carried this
    (ds-file-filter-input, ds-modal-input, ds-term-input) but the primitive every
    form actually uses did not, so a plain field measured 34px under a coarse
@@ -6387,12 +6481,21 @@
   gap: var(--space-1-75, 6px);
 }
 /* Table() scroll containment — wide tables scroll inside their own box,
-   never the page body. */
+   never the page body. overflow-x:auto alone works but gives no visible cue
+   that a table is wider than its box (macOS overlay scrollbars stay hidden
+   until an active hover/scroll gesture) -- columns beyond the fold read as
+   simply missing rather than reachable. An always-visible thin scrollbar
+   track makes the overflow legible without a gesture first. */
 .ds-247420 .ds-table-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   max-width: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-strong) transparent;
 }
+.ds-247420 .ds-table-wrap::-webkit-scrollbar { height: 8px; }
+.ds-247420 .ds-table-wrap::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: var(--r-pill, 999px); }
+.ds-247420 .ds-table-wrap::-webkit-scrollbar-track { background: transparent; }
 .ds-247420 .ds-table-wrap > table { min-width: 100%; }
 /* Sortable column headers (Table's opt-in sortable prop) — a docstudio-cue
    addition: color stays neutral at rest (this is a structural control, not a

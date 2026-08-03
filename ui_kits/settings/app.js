@@ -25,6 +25,7 @@ const state = {
     lastSaved: null,
     draft: null,
     showConfirmDiscard: false,
+    showConfirmDelete: false,
     // Which state the notifications surface renders in. Toggled from the
     // sidebar so loading / empty / error are reachable here, not just on a
     // real backend failure.
@@ -213,10 +214,30 @@ function Danger() {
     return Panel({ title: 'danger zone', kind: 'danger', class: 'ds-panel-gap', children: h('div', { class: 'ds-settings-body ds-settings-body-stack' },
         h('p', { class: 'ds-note-quiet' }, 'these actions are permanent.'),
         h('div', { class: 'ds-btn-row' },
-            h('button', { class: 'btn ds-btn-mascot' }, 'export account'),
-            h('button', { class: 'btn ds-btn-warn' }, 'delete account')
+            // Export is reversible (a copy of your own data) -- it should
+            // read as a normal, safe action, not share the alarming
+            // hot-pink/red severity signal that delete needs to actually mean
+            // something. Same size/weight/position as delete previously made
+            // "harmless" and "irreversible" indistinguishable at a glance.
+            h('button', { class: 'btn' }, 'export account'),
+            h('button', { class: 'btn ds-btn-warn', onclick: () => { state.showConfirmDelete = true; kit.render(); } }, 'delete account')
         )
     ) });
+}
+
+function DeleteConfirmModal({ onConfirm, onCancel }) {
+    return h('div', { class: 'ds-modal-backdrop', onclick: (e) => { if (e.target === e.currentTarget) onCancel(); } },
+        h('div', { class: 'ds-modal ds-modal-small ds-settings-modal' },
+            h('div', { class: 'ds-modal-head' }, 'Delete account?'),
+            h('div', { class: 'ds-modal-body ds-modal-body-form' },
+                h('p', { class: 'ds-modal-note' }, 'This permanently deletes your account and cannot be undone. There is no recovery.'),
+                h('div', { class: 'ds-modal-actions' },
+                    h('button', { class: 'btn', onclick: onCancel }, 'cancel'),
+                    h('button', { class: 'btn btn-primary danger ds-btn-warn', onclick: onConfirm }, 'delete account')
+                )
+            )
+        )
+    );
 }
 
 function App() {
@@ -248,6 +269,10 @@ function App() {
                 state.showConfirmDiscard ? DiscardConfirmModal({
                     onCancel: () => { state.showConfirmDiscard = false; kit.render(); },
                     onConfirm: () => { state.dirty = false; clearDraft(); state.showConfirmDiscard = false; kit.render(); }
+                }) : null,
+                state.showConfirmDelete ? DeleteConfirmModal({
+                    onCancel: () => { state.showConfirmDelete = false; kit.render(); },
+                    onConfirm: () => { state.showConfirmDelete = false; state.section = 'profile'; kit.render(); }
                 }) : null,
                 state.dirty ? h('div', { class: 'ds-savebar' },
                     h('span', { class: 'ds-savebar-note' }, 'unsaved changes · draft auto-saved'),

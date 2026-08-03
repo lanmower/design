@@ -2,14 +2,20 @@
 <html lang="en" data-theme="auto" class="ds-247420"><head><meta charset="utf-8">
 <title>file viewer / 247420 preview</title><link rel="stylesheet" href="../colors_and_type.css">
 <link rel="stylesheet" href="../app-shell.css">
-<style>body{padding:0;background:var(--panel-0);color:var(--panel-text);min-height:100vh;display:flex;align-items:center;justify-content:center}
-/* The specimen is a full-bleed modal over a backdrop, so the landmark that
-   wraps it has to stay a full-size flex item rather than shrink to content. */
-body > main{flex:1;align-self:stretch;min-width:0}</style>
+<style>body{padding:0;background:var(--panel-0);color:var(--panel-text);min-height:100vh}
+/* .ds-modal-backdrop is position:fixed with its own centering, so it no
+   longer depends on body's flex alignment -- kept simple now that the
+   dateline header sits above it in normal flow instead of body centering
+   everything including the header. */
+.fv-dateline{padding:var(--space-3-5) var(--space-3-5) 0}
+.fv-desc{padding:0 var(--space-3-5);margin-top:var(--space-1-75)}
+.fv-backdrop{position:relative;width:100%;height:100vh}</style>
 </head><body>
+<div class="dateline fv-dateline"><span>247420 · FILE-BROWSER · FILE-VIEWER</span><span class="spread"></span><span>MODAL · SYNTAX · ACTIONS</span></div>
+<div class="t-meta fv-desc">full-bleed preview modal for a single file — syntax-highlighted body, download/close actions in the head. 1 item.</div>
 <h1 class="sr-only">File viewer</h1>
 <main aria-label="File viewer specimens">
-<div class="ds-modal-backdrop" style="position:relative;width:100%;height:100vh">
+<div class="ds-modal-backdrop fv-backdrop">
   <div class="ds-modal ds-modal-preview">
     <div class="ds-modal-head ds-preview-head" data-file-type="code">
       <span class="ds-preview-name">FileRow.js</span>

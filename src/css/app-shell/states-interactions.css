@@ -26,10 +26,16 @@ tr.clickable:focus-visible {
    :disabled pseudo-class, so a disabled link-styled button relies entirely
    on this class selector for its visual treatment (aria-disabled + tabindex
    are set in JS; this is the paired CSS half). */
+/* opacity:0.6 alone barely separated from an active .btn-primary against a
+   busy background -- close enough in dark mode that users clicked disabled
+   buttons expecting them to work. grayscale flattens any color signal (no
+   more "still looks clickable-green") and the steeper opacity drop reads as
+   unmistakably inert at a glance, not just slightly dimmed. */
 .btn:disabled, .btn-primary:disabled, .btn-ghost:disabled,
 .btn.is-disabled, .btn-primary.is-disabled, .btn-ghost.is-disabled,
 button:disabled, [disabled] {
-  opacity: 0.6;
+  opacity: 0.45;
+  filter: grayscale(60%);
   cursor: not-allowed;
   pointer-events: none;
 }
@@ -350,7 +356,13 @@ textarea::placeholder {
   transform: rotate(-2deg);
   white-space: nowrap;
 }
-.stamp.ink { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+/* border-color previously matched background exactly (var(--ink) on both) --
+   same class of bug as the colors-core "paper" swatch: a border drawn in the
+   identical color as its own fill is invisible, so the ink-toned stamp was
+   the one variant on the page missing its box outline. --paper reads as a
+   visible ring against the ink fill (paper-on-ink is this token pair's
+   whole reason to exist), matching every other .stamp variant's contrast. */
+.stamp.ink { background: var(--ink); border-color: var(--paper); color: var(--paper); }
 .stamp.acid { background: var(--accent); border-color: var(--accent-ink); color: var(--accent-ink); }
 .stamp.purple { border-color: var(--purple-2); color: var(--purple-2); }
 .stamp.mascot { border-color: var(--mascot); color: var(--mascot-deep); }
@@ -365,6 +377,11 @@ textarea::placeholder {
   border: 2px solid var(--fg);
   border-radius: var(--r-hair);
   background: transparent; color: var(--fg);
+  /* .stamp's own caption claims the rubber-stamp motif is "always rotated
+     slightly" -- .btn-stamp is the same visual face as an interactive
+     <button> (preview/stamps-lore.html's second row) and had no rotation at
+     all, breaking that claim for every stamp in that row. */
+  transform: rotate(-2deg);
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
 .btn-stamp:hover { background: var(--panel-hover); }
@@ -382,11 +399,20 @@ hr.rule, hr.rule-double, hr.rule-dotted {
 }
 hr.rule { border-top: 1px solid var(--rule); }
 hr.rule-double { border-top: 4px double var(--rule-strong); }
-hr.rule-dotted { border-top: 1px dotted var(--rule-strong); }
+/* 1px was indistinguishable from .rule -- border-style:dotted needs enough
+   width to actually draw a gap between dots; below ~2px (esp. at DPRs where
+   1px resolves to a sub-pixel value like 0.8px) Chrome collapses it to a
+   solid line, which is exactly what preview/rules.html's report caught live. */
+hr.rule-dotted { border-top: 2px dotted var(--rule-strong); }
 
-/* Hairline-only text input — no box, no fill. A single bottom rule that
-   thickens to 2px on focus, matching the row/rule zero-border aesthetic
-   instead of a browser-default boxed field. */
+/* Hairline-only text input — no full box, no permanent fill. A single bottom
+   rule that thickens to 2px on focus, matching the row/rule zero-border
+   aesthetic instead of a browser-default boxed field. A completely flat,
+   static hairline reads as a static label rather than an editable control
+   at a glance (no cue at rest, nothing on hover) -- the very faint permanent
+   wash plus a stronger hover tint below signal "this is a field" without
+   reverting to the boxed/filled chrome the hairline design deliberately
+   moved away from. */
 .input {
   display: block; width: 100%; box-sizing: border-box;
   /* appearance:none alone is not enough: with color-scheme:dark set on the
@@ -400,11 +426,13 @@ hr.rule-dotted { border-top: 1px dotted var(--rule-strong); }
   color-scheme: normal;
   border: 0; border-bottom: 1px solid var(--rule-strong);
   border-radius: var(--r-0);
-  background: transparent;
+  background: color-mix(in oklab, var(--fg) 2.5%, transparent);
   box-shadow: none;
   padding: var(--space-2) var(--space-1);
   font: inherit; color: var(--fg);
+  transition: background var(--dur-snap) var(--ease), border-color var(--dur-snap) var(--ease);
 }
+.input:hover { background: color-mix(in oklab, var(--fg) 5%, transparent); }
 /* Touch floor for the BASE input. Several specific inputs already carried this
    (ds-file-filter-input, ds-modal-input, ds-term-input) but the primitive every
    form actually uses did not, so a plain field measured 34px under a coarse

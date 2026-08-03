@@ -152,7 +152,12 @@ h4, .t-h4 { font-family: var(--ff-display); font-size: var(--fs-h4); line-height
 .t-mega    { font-family: var(--ff-display); font-size: var(--fs-mega); line-height: 0.92;            letter-spacing: var(--tr-tighter); font-weight: 700; margin: 0; }
 
 .t-display { font-family: var(--ff-display); font-weight: 600; letter-spacing: var(--tr-tight); }
-.t-mono    { font-family: var(--ff-mono); }
+/* Explicit weight, not relying on inherited normal: --ff-mono's stack (Menlo,
+   Consolas, ui-monospace) can resolve to a variable-font fallback on some
+   platforms whose default instance isn't the 400 weight, rendering "body ·
+   16px regular" visibly bold despite its own label -- pin the weight so the
+   sample matches what it claims regardless of which font in the stack loads. */
+.t-mono    { font-family: var(--ff-mono); font-weight: 400; }
 .t-body    { font-family: var(--ff-body); }
 
 /* House small-label voice, in two sizes. Every declaration here is sourced

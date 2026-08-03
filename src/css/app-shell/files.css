@@ -92,7 +92,12 @@
   border-color: var(--rule);
 }
 .ds-file-row:active { transform: translateY(1px); }
-.ds-file-row.active { background: var(--accent-tint); border-color: var(--accent); }
+/* file-grid's own header/caption both claim NEVER A BORDER -- border-color
+   here silently broke that promise for exactly the row it's meant to call
+   out (the row a screenshot/manual test would actually look at). Selected
+   state stays legible via the tint alone; border-color stays transparent so
+   the base rule's promise holds for every row, active or not. */
+.ds-file-row.active { background: var(--accent-tint); }
 .ds-file-row[data-file-type="dir"]      { border-left-width: 3px; border-left-color: var(--accent); }
 .ds-file-row[data-file-type="image"],
 .ds-file-row[data-file-type="video"],
@@ -427,9 +432,14 @@
 }
 .ds-error-banner:hover { background: color-mix(in oklab, var(--warn) 20%, var(--bg)); }
 
-/* Dropzone */
+/* Dropzone — a tonal target, not a dashed-border affordance (preview/
+   dropzone.html's own header/caption both describe this: "NO DASHED
+   BORDERS" / "tonal panel that swaps to --panel-select on dragover"). A
+   solid hairline plus the idle->dragover background swap is the actual
+   design; dashed was this system's OTHER "drop target" vocabulary
+   (.panel-docs, kits-appended.css) leaking in here by copy-paste. */
 .ds-dropzone {
-  border: var(--bw-rule) dashed var(--rule);
+  border: var(--bw-rule) solid var(--rule);
   border-radius: var(--r-3); background: var(--bg);
   transition: border-color var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
 }

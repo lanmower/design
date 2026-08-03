@@ -17,7 +17,12 @@
      palette must not wobble with container width. Kept literal deliberately. */
   .sw .name{font-family:var(--ff-display);font-size:24px;font-weight:700;letter-spacing:-0.01em;}
   .sw .hex{font-family:var(--ff-mono);font-size:var(--fs-sm);font-weight:500;}
-  .sw .tok{font-family:var(--ff-mono);font-size:var(--fs-tiny);text-transform:uppercase;letter-spacing:0.14em;opacity:0.7;}
+  /* opacity:0.7 blends toward whatever's UNDER the swatch, not a fixed
+     contrast ratio -- against a colored swatch fill it can land well below
+     the 4.5:1 the underlying text color already clears on its own. A solid
+     tier-3 text color keeps the caption at the token's own verified ratio
+     regardless of which swatch it sits on. */
+  .sw .tok{font-family:var(--ff-mono);font-size:var(--fs-tiny);text-transform:uppercase;letter-spacing:0.14em;color:var(--panel-text-2);}
 </style><script defer src="./motion-default.js"></script>
 </head><body>
 <div class="dateline"><span>247420 · COLORS · CORE</span><span class="spread"></span><span>04 SWATCHES</span></div>

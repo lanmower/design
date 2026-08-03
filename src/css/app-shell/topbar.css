@@ -160,7 +160,20 @@ body.canvas-host { background: transparent !important; }
    `minmax(0, 1fr)` — a real height the sidebar can overflow once bins +
    labels + more exceed it. Without this the extra rows were silently chopped
    at the viewport edge with no way to reach them. */
-.app-side-shell { background: var(--bg); overflow-y: auto; min-height: 0; }
+/* .app-side-shell and .app-main (below) are two INDEPENDENT scroll regions
+   side by side -- correct by design (a sidebar nav and a main panel each own
+   their own overflow), but with default invisible/overlay OS scrollbars a
+   user hovering the boundary has no visual cue which region the wheel will
+   scroll, or that there even are two scrollable zones rather than one page
+   scroll. Thin always-visible scrollbar tracks make each region's own scroll
+   ownership legible without changing the (correct) two-region architecture. */
+.app-side-shell {
+  background: var(--bg); overflow-y: auto; min-height: 0;
+  scrollbar-width: thin; scrollbar-color: var(--rule-strong) transparent;
+}
+.app-side-shell::-webkit-scrollbar { width: 8px; }
+.app-side-shell::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: var(--r-pill, 999px); }
+.app-side-shell::-webkit-scrollbar-track { background: transparent; }
 .app-body { display: grid; grid-template-columns: var(--sidebar-width) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); align-items: stretch; align-content: stretch; flex: 1; min-height: 0; }
 .app-body.no-side { grid-template-columns: minmax(0, 1fr); }
 /* When there is no sidebar, the empty side-shell must not occupy a grid row,
@@ -268,6 +281,15 @@ body.canvas-host { background: transparent !important; }
 /* Reserve the scrollbar track so routes with/without overflow don't shift
    the layout horizontally when the bar appears. */
 .app-main { scrollbar-gutter: stable; }
+/* Same visible-scroll-ownership rationale as .app-side-shell above -- makes
+   this the visually distinct SECOND independent scroll region rather than
+   an invisible-scrollbar mystery next to the sidebar. */
+.app-main {
+  scrollbar-width: thin; scrollbar-color: var(--rule-strong) transparent;
+}
+.app-main::-webkit-scrollbar { width: 8px; }
+.app-main::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: var(--r-pill, 999px); }
+.app-main::-webkit-scrollbar-track { background: transparent; }
 /* Jump-target anchors clear the inner-scroll top edge (no chrome overlap,
    but a little breathing room when deep-linked within .app-main). */
 .app-main [id] { scroll-margin-top: var(--space-4); }
@@ -358,5 +380,16 @@ body.canvas-host { background: transparent !important; }
   color: var(--fg-3);
 }
 .dateline span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.dateline .spread { flex: 1 1 auto; min-width: var(--space-3); }
+/* The spreader itself only ever set flex-basis -- an empty div with no
+   background renders as blank space, not the "dotted spreader" the preview
+   page's own caption describes. border-bottom (not background-image) keeps
+   the dots crisp at 1px without a repeating-gradient banding artifact. */
+.dateline .spread {
+  flex: 1 1 auto; min-width: var(--space-3); align-self: stretch;
+  display: flex; align-items: center;
+}
+.dateline .spread::after {
+  content: ''; flex: 1 1 auto;
+  border-bottom: var(--bw-hair, 1px) dotted var(--rule-strong);
+}
 

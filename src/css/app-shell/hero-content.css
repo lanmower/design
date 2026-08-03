@@ -69,7 +69,12 @@
      still fits a narrow column, and a 116px ceiling between the two tiers.
      Snapping to either changes the hero's whole optical weight. */
   font-size: clamp(40px, 9cqi, 116px);
-  line-height: 0.96; letter-spacing: var(--tr-tighter);
+  /* 0.96 let ascenders/descenders visibly touch between wrapped lines at the
+     upper end of this clamp (measured on "the creative department of the
+     internet" at the 116px ceiling) -- 1.02 keeps the tight, no-air display
+     feel this title wants while clearing enough vertical room that letters
+     stop colliding. */
+  line-height: 1.02; letter-spacing: var(--tr-tighter);
   margin: 0; max-width: 20ch; text-wrap: balance;
 }
 .ds-hero-body {
@@ -292,11 +297,18 @@ table {
      (was 12/14 x 16 => ~43px rows). Density scales the vertical padding. */
   border-radius: var(--r-0); overflow: hidden;
 }
+/* Panel heads / KPI labels / table headers were all identical uppercase-
+   tracked-mono weight (600), so a page with several of these side by side
+   (a dashboard) reads as one flat volume with no anchor -- the most
+   repetitive, least-singular label (a column header, one of many per
+   table) drops to a lighter 500 with slightly tighter tracking, keeping the
+   system's uppercase-mono voice but giving panel titles (still 600) a real
+   step up as the "read this first" tier. */
 table th {
   text-align: left;
   padding: calc(var(--space-2) * var(--density)) var(--space-2-75);
-  font-size: var(--fs-tiny); font-weight: 600;
-  color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-caps);
+  font-size: var(--fs-tiny); font-weight: 500;
+  color: var(--fg-3); text-transform: uppercase; letter-spacing: calc(var(--tr-caps) * 0.7);
   background: var(--bg-2);
 }
 /* letter-spacing adds trailing space AFTER the last glyph too, but the table's

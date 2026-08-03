@@ -30,13 +30,19 @@
 }
 .btn { background: var(--bg-2); color: var(--fg); border-color: var(--rule); }
 .btn:hover { background: var(--bg-3); color: var(--fg); transform: translateY(-1px); box-shadow: var(--shadow-1); }
-/* Primary CTA — the electric lead as a solid editorial block; hover inverts to
-   an ink block with the lead as text, a confident two-tone flip. */
+/* Primary CTA — the brand green as a solid editorial block; hover inverts to
+   an ink block with green text, a confident two-tone flip. Uses --green
+   (the site's own #247420 identity color, dark-mode-retuned to --green's
+   ink-safe #5CBF52 rather than --accent/--acid, which a prior contrast-driven
+   restyle deliberately flattened to a neutral gray for --accent's OTHER
+   consumers (nav active state, focus rings, etc) -- .btn-primary needed the
+   brand color back for click-hierarchy without undoing that restyle
+   elsewhere. --on-color (#fff) clears AA on both light and dark --green. */
 .btn-primary {
-  background: var(--accent); color: var(--accent-fg);
+  background: var(--green); color: var(--on-color);
   font-weight: 700;
 }
-.btn-primary:hover { background: var(--fg); color: var(--accent-ink); transform: translateY(-1px); box-shadow: var(--shadow-2); }
+.btn-primary:hover { background: var(--fg); color: var(--green); transform: translateY(-1px); box-shadow: var(--shadow-2); }
 .btn-ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 2px var(--fg); }
 .btn-ghost:hover { background: var(--fg); color: var(--bg); transform: translateY(-1px); }
 .btn:active, .btn-primary:active, .btn-ghost:active { transform: translateY(1px); box-shadow: none; }
