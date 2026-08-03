@@ -422,6 +422,40 @@ hr.rule-dotted { border-top: 1px dotted var(--rule-strong); }
   border-bottom-color: var(--accent-ink);
 }
 
+/* Switch primitive (form-primitives.js Toggle) -- track + sliding knob.
+   Previously unstyled anywhere in this repo (a bare button with no visible
+   affordance), so every real consumer resorted to a local literal-bracket-
+   text reimplementation ('[x] on'/'[ ] off') instead. Sized off --space
+   tokens: a 40x22 track (2x11 knob diameter + 2px inset each side) is the
+   standard iOS/Material switch proportion, not an arbitrary literal. */
+.ds-toggle {
+  appearance: none; -webkit-appearance: none;
+  display: inline-flex; align-items: center; flex-shrink: 0;
+  width: 40px; height: 22px; padding: 2px;
+  border: 1px solid var(--rule-strong); border-radius: var(--r-pill, 999px);
+  background: var(--bg-3); box-shadow: none; cursor: pointer;
+  transition: background-color var(--dur-snap) var(--ease), border-color var(--dur-snap) var(--ease);
+}
+.ds-toggle-knob {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--fg-3);
+  transition: transform var(--dur-snap) var(--ease), background-color var(--dur-snap) var(--ease);
+}
+.ds-toggle[aria-checked="true"] {
+  background: var(--accent-ink); border-color: var(--accent-ink);
+}
+.ds-toggle[aria-checked="true"] .ds-toggle-knob {
+  background: var(--panel-0, #fff);
+  transform: translateX(18px);
+}
+.ds-toggle:disabled { opacity: 0.5; cursor: not-allowed; }
+.ds-toggle:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+.ds-toggle-row { display: inline-flex; align-items: center; gap: var(--space-2); cursor: pointer; }
+.ds-toggle-row .ds-toggle-label { color: inherit; }
+
 /* -- Field controls: themed base for TextField / Select / SearchInput --
    Root fix: previously only `transition` was set, so themed apps got
    browser-default white boxes in dark mode and labels collided with inputs

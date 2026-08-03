@@ -186,6 +186,29 @@ h3 + .lede, h3 + .t-lede,
   margin-top: var(--space-2);
 }
 
+/* A lede immediately followed by the article body is a named pairing too --
+   same rationale as the heading+lede gap above. Without this, .lede's
+   margin:0 leaves zero space above the first paragraph while every
+   paragraph-to-paragraph gap below it uses --space-4 (.ds-prose p), so the
+   dek reads as glued to the body it introduces. */
+.lede + .post-body, .t-lede + .post-body,
+.lede + .ds-prose, .t-lede + .ds-prose {
+  margin-top: var(--space-4);
+}
+
+/* Same gap-ownership problem again for .ds-section (hero-content.css):
+   `* + .ds-section { margin-top: 0 }` deliberately relies on the PRECEDING
+   sibling supplying the lead-in space, so two spacing primitives can
+   coordinate into one gap instead of stacking. .lede supplies none (margin:0
+   by design), so a lede-then-section pairing (e.g. project_page's h1 -> lede
+   -> "install" section) collapses to a flush 0px gap instead of inheriting
+   .ds-section's own --space-8 lead. Measured live on project_page: the
+   "install" h3 sat ~4px from the lede above it (padding only) vs the
+   intended --space-8/2 gap other section-adjacent siblings get. */
+.lede + .ds-section, .t-lede + .ds-section {
+  margin-top: var(--space-8);
+}
+
 .eyebrow {
   font-family: var(--ff-mono);
   font-size: var(--fs-tiny);

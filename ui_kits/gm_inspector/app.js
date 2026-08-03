@@ -1,10 +1,15 @@
 import * as webjsx from 'webjsx';
+// Imported directly from owning submodules, not the ds/components.js barrel
+// -- see ui_kits/aicat/app.js for the measured rationale (200+ serial
+// unbundled module requests when every kit pulls the full 30+-submodule
+// barrel).
+import { Topbar, Crumb, Side, Status, AppShell, Heading, Lede, Chip, Pill } from 'ds/components/shell.js';
+import { Panel } from 'ds/components/content.js';
 import {
-    Topbar, Crumb, Side, Status, AppShell, Panel, Heading, Lede, Chip, Pill,
     Pager, JsonViewer, ToolbarRow, PropertyGrid, PropertyGridRow, PropertyField, InlineEditableField,
-    Grid, GridItem, Collapse, CollapseGroup, Divider,
-    ContextMeter, ContextTreemap, ContextXRayPanel
-} from 'ds/components.js';
+    Grid, GridItem, Collapse, CollapseGroup, Divider
+} from 'ds/components/editor-primitives.js';
+import { ContextMeter, ContextTreemap, ContextXRayPanel } from 'ds/components/context-pane.js';
 import { mountKit } from 'ds/bootstrap.js';
 import {
     PhaseWalk, TreeNode, BarRow, StatsGrid, SessionRow, DevRow, LiveLog

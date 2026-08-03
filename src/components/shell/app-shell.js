@@ -40,6 +40,13 @@ export function Topbar({ brand = '247420', leaf = '', items = [], active = '', o
                     if (!String(href).startsWith('http') && onNav) {
                         e.preventDefault();
                         onNav(cleanLabel);
+                        // preventDefault above blocks the browser's own
+                        // anchor-jump, so a #-target must be scrolled to
+                        // manually or the click looks purely decorative.
+                        if (String(href).startsWith('#')) {
+                            const target = document.getElementById(href.slice(1));
+                            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
                     }
                 }
             }, label);

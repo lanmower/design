@@ -3,9 +3,14 @@
 // ConversationList + AgentChat + SessionDashboard, wired together with mock
 // state so the combo has a runnable reference alongside the other kits.
 import * as webjsx from 'webjsx';
-import { WorkspaceShell, WorkspaceRail, ConversationList, AgentChat, SessionDashboard, Status, PresenceBar } from 'ds/components.js';
+// Imported directly from owning submodules, not the ds/components.js barrel
+// -- see aicat/app.js for the measured rationale (200+ serial unbundled
+// module requests when every kit pulls the full 30+-submodule barrel).
+import { WorkspaceShell, WorkspaceRail, Status } from 'ds/components/shell.js';
+import { ConversationList, SessionDashboard } from 'ds/components/sessions.js';
+import { AgentChat } from 'ds/components/agent-chat.js';
+import { PresenceBar } from 'ds/components/collab.js';
 import { mountKit } from 'ds/bootstrap.js';
-import 'ds/index.js';
 const h = webjsx.createElement;
 
 const root = document.getElementById('root');

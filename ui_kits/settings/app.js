@@ -1,5 +1,10 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip, Btn, Row } from 'ds/components.js';
+// Imported directly from owning submodules, not the ds/components.js barrel
+// -- see aicat/app.js for the measured rationale (200+ serial unbundled
+// module requests when every kit pulls the full 30+-submodule barrel).
+import { Topbar, Crumb, Status, Side, AppShell, Heading, Lede, Chip, Btn } from 'ds/components/shell.js';
+import { Panel, Row } from 'ds/components/content.js';
+import { Toggle as DsToggle } from 'ds/components/form-primitives.js';
 import { mountKit } from 'ds/bootstrap.js';
 import { shortUid } from 'ds/uid.js';
 const h = webjsx.createElement;
@@ -111,10 +116,11 @@ function Field({ label, hint, children }) {
 }
 
 function Toggle({ on, onChange, label }) {
-    return h('button', {
-        class: (on ? 'btn btn-primary' : 'btn') + ' ds-toggle-btn',
-        onclick: () => { onChange(!on); state.dirty = true; kit.render(); }
-    }, on ? '[x] on' : '[ ] off', label ? h('span', { class: 'ds-toggle-label' }, label) : null);
+    return DsToggle({
+        checked: on,
+        label,
+        onChange: (v) => { onChange(v); state.dirty = true; kit.render(); }
+    });
 }
 
 function Profile() {

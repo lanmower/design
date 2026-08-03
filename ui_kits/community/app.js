@@ -1,11 +1,13 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status } from 'ds/components.js';
+// Imported directly from owning submodules, not the ds/components.js barrel
+// -- see aicat/app.js for the measured rationale (200+ serial unbundled
+// module requests when every kit pulls the full 30+-submodule barrel).
+import { Topbar, Crumb, Status } from 'ds/components/shell.js';
 import {
     CommunityShell, ServerRail, ChannelSidebar,
     MemberList, ChatHeader, VoiceStrip
-} from 'ds/components.js';
+} from 'ds/components/community.js';
 import { mountKit } from 'ds/bootstrap.js';
-import 'ds/index.js';
 const h = webjsx.createElement;
 
 const servers = [

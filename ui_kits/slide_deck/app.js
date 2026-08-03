@@ -1,5 +1,10 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status, Side, AppShell, PageHeader, ThemeToggle } from 'ds/components.js';
+// Imported directly from owning submodules, not the ds/components.js barrel
+// -- see aicat/app.js for the measured rationale (200+ serial unbundled
+// module requests when every kit pulls the full 30+-submodule barrel).
+import { Topbar, Crumb, Status, Side, AppShell } from 'ds/components/shell.js';
+import { PageHeader } from 'ds/components/content.js';
+import { ThemeToggle } from 'ds/components/theme-toggle.js';
 import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
 

@@ -1,7 +1,15 @@
 import * as webjsx from 'webjsx';
-import { AICat, AICatPortrait, ChatComposer, Topbar, Crumb, Status, Side, AppShell, Panel, Heading, Lede, Chip, flashComposerNote } from 'ds/components.js';
+// Imported directly from their owning submodules, not the ds/components.js
+// barrel: the barrel re-exports 30+ submodules (voice, collab, calendar,
+// editor/overlay-primitives, freddie, etc) that this kit never uses, and
+// native unbundled ESM must fetch+parse every one of them to build the graph
+// regardless of which names are actually imported -- measured live at 200+
+// serial module requests for this page alone. Importing straight from the
+// owning file keeps this kit's fetch graph proportional to what it renders.
+import { Topbar, Crumb, Side, AppShell, Status, Heading, Lede, Chip } from 'ds/components/shell.js';
+import { Panel } from 'ds/components/content.js';
+import { AICatPortrait, AICat, flashComposerNote, ChatComposer } from 'ds/components/chat.js';
 import { mountKit } from 'ds/bootstrap.js';
-import 'ds/index.js';
 const h = webjsx.createElement;
 
 const FACES = {
@@ -140,16 +148,17 @@ function liveStatus(s) {
     return s.mood === 'happy' ? 'online · purring' : 'online · idle';
 }
 
+function timeNow() { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+
 const state = {
     draft: '', thinking: false, mood: 'idle', phase: 'ready', lastFailedText: null,
     messages: [
-        { who: 'them', name: 'aicat', text: 'hi. I am **aicat**. I read fast and I knock things off shelves.', time: '·' },
-        { who: 'them', name: 'aicat', parts: [{ kind: 'md', text: 'try one of these:\n\n- ask for `code` (react/python — pick a flavour)\n- ask for the **token pdf** or the **mascot image**\n- ask me to attach a *config file*\n- or just chat — I respond in markdown.' }], time: '·' }
+        { who: 'them', name: 'aicat', text: 'hi. I am **aicat**. I read fast and I knock things off shelves.', time: timeNow() },
+        { who: 'them', name: 'aicat', parts: [{ kind: 'md', text: 'try one of these:\n\n- ask for `code` (react/python — pick a flavour)\n- ask for the **token pdf** or the **mascot image**\n- ask me to attach a *config file*\n- or just chat — I respond in markdown.' }], time: timeNow() }
     ]
 };
 
 const root = document.getElementById('root');
-function timeNow() { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
 
 function send(text) {
     // Guard against overlapping sends (rapid preset clicks / composer submits

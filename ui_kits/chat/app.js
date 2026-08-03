@@ -1,7 +1,11 @@
 import * as webjsx from 'webjsx';
-import { Chat, ChatComposer, Topbar, Crumb, Status, Side, AppShell, Panel, IconButton, Icon } from 'ds/components.js';
+// Imported directly from owning submodules, not the ds/components.js barrel
+// -- see aicat/app.js for the measured rationale (200+ serial unbundled
+// module requests when every kit pulls the full 30+-submodule barrel).
+import { Topbar, Crumb, Status, Side, AppShell, IconButton, Icon } from 'ds/components/shell.js';
+import { Panel } from 'ds/components/content.js';
+import { Chat, ChatComposer } from 'ds/components/chat.js';
 import { mountKit } from 'ds/bootstrap.js';
-import 'ds/index.js';
 const h = webjsx.createElement;
 
 const seed = [

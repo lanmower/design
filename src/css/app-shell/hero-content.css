@@ -299,6 +299,13 @@ table th {
   color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tr-caps);
   background: var(--bg-2);
 }
+/* letter-spacing adds trailing space AFTER the last glyph too, but the table's
+   own border-radius+overflow:hidden (above) clips flush to the card edge --
+   the last header's positive tracking bleeds past its own padding box and
+   gets cropped mid-word ("STATUS" -> "STATI"). Absorb that bleed with a bit
+   of extra right padding on the last column only, so no header text sits
+   closer to the clip edge than --tr-caps can push it. */
+table th:last-child { padding-right: calc(var(--space-2-75) + var(--tr-caps, 0px)); }
 table td { padding: calc(var(--space-2) * var(--density)) var(--space-2-75); border-top: 1px solid var(--rule); }
 table tr.clickable { cursor: pointer; }
 table tr.clickable:hover td { background: var(--bg-2); }

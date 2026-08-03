@@ -1,5 +1,21 @@
 import * as webjsx from 'webjsx';
-import { Topbar, Crumb, Status, Side, AppShell, Panel, PageHeader, Chip, Btn, ThemeToggle, Slider, Progress, InputOTP, HoverCard, DatePicker, formatDate, DateRangePicker, Carousel, Menubar, AspectRatio, LiveCursorOverlay, RemoteSelectionRings, RecentEditHighlightFlash, AgentPresenceChip, PresenceBar, ContextMeter, ContextTreemap, ContextXRayPanel } from 'ds/components.js';
+// Imported directly from owning submodules, not the ds/components.js barrel
+// -- see aicat/app.js for the measured rationale (200+ serial unbundled
+// module requests when every kit pulls the full 30+-submodule barrel). This
+// kit is the primer/showcase for the whole system so it legitimately touches
+// many submodules -- the point is each import still names its real owner
+// instead of routing everything through the all-encompassing barrel.
+import { Topbar, Crumb, Status, Side, AppShell, Chip, Btn } from 'ds/components/shell.js';
+import { Panel, PageHeader, InputOTP } from 'ds/components/content.js';
+import { ThemeToggle } from 'ds/components/theme-toggle.js';
+import { Slider } from 'ds/components/slider.js';
+import { Progress } from 'ds/components/data-density.js';
+import { HoverCard, Menubar } from 'ds/components/overlay-primitives.js';
+import { DatePicker, formatDate, DateRangePicker } from 'ds/components/calendar.js';
+import { Carousel } from 'ds/components/carousel.js';
+import { AspectRatio } from 'ds/components/editor-primitives.js';
+import { LiveCursorOverlay, RemoteSelectionRings, RecentEditHighlightFlash, AgentPresenceChip, PresenceBar } from 'ds/components/collab.js';
+import { ContextMeter, ContextTreemap, ContextXRayPanel } from 'ds/components/context-pane.js';
 import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
 
