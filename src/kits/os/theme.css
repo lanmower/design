@@ -829,6 +829,7 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   display: flex; align-items: center; justify-content: center;
   pointer-events: none;
 }
+.tb-sess-empty[hidden] { display: none; }
 .tb-sess-empty-card {
   pointer-events: auto;
   background: var(--bg);

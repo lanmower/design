@@ -134,6 +134,8 @@
 .wm-win.wm-min .wm-body,
 .wm-win.wm-min .wm-resize { display: none; }
 
+.wm-win.wm-min { display: none; }
+
 .wm-win.wm-max {
     left: 0 !important;
     top: 0 !important;
