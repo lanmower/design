@@ -1099,9 +1099,15 @@
   background: var(--bg-2); padding: 2px 6px; border-radius: var(--r-1);
 }
 
+/* --bg-3 (not --bg-2): an inline code pill needs to read as a distinct
+   surface against the page background, not just against adjacent text — at
+   --bg-2 the pill measured 1.39:1 background-to-background contrast in dark
+   theme (barely distinguishable from the page itself). --bg-3 is the same
+   tier-3 surface step .chip.tone-dim already uses for the same reason,
+   bringing the pill to 2.07:1, consistent with the rest of the tier-3 ramp. */
 .ds-247420 code {
   font-family: var(--ff-mono); font-size: 0.92em;
-  background: var(--bg-2); padding: 0.15em 0.5em; border-radius: var(--r-1);
+  background: var(--bg-3); padding: 0.15em 0.5em; border-radius: var(--r-1);
 }
 
 .ds-247420 pre {
@@ -13358,6 +13364,13 @@
 .ds-247420 .ds-prose a { color: var(--panel-accent); }
 .ds-247420 .ds-prose a:hover { background: none; color: var(--panel-accent); text-decoration-color: transparent; }
 .ds-247420 .ds-prose pre, .ds-247420 .ds-prose table { overflow-x: auto; max-width: 100%; }
+/* Mermaid diagrams render with an explicit width/height mermaid.js computes
+   from the source graph, not the column it's mounted in — without this, a
+   wide diagram overflows a narrow article-col and a narrow one leaves dead
+   space rather than filling it. cursor:zoom-in signals the click-to-enlarge
+   wiring theme.mjs adds after mermaid.run() finishes. */
+.ds-247420 .ds-prose .mermaid { max-width: 100%; }
+.ds-247420 .ds-prose .mermaid svg { max-width: 100%; height: auto; cursor: zoom-in; }
 .ds-247420 .ds-prose canvas {
   display: block;
   width: 100%;
@@ -13373,6 +13386,12 @@
   min-height: 0;
 }
 
+/* Article prose measure — a character-count cap (--measure, 68ch) rather than
+   a fixed pixel width (the old --measure-narrow: 760px), so the line length a
+   reader actually experiences stays in the 60-75ch reading-comfort band
+   regardless of the article-col's body font-size. --measure-narrow remains
+   defined in colors_and_type.css for other consumers; this sheet switches to
+   the ch-unit token for its own article-col width. */
 .ds-247420 #ds-article-host.has-toc {
   display: flex;
   align-items: flex-start;
@@ -13383,23 +13402,33 @@
      re-derived, so the literal and the calc stay coupled and explicit. */
   column-gap: 44px;
   gap: 44px;
-  max-width: calc(256px + 44px + var(--measure-narrow));
+  max-width: calc(256px + 44px + var(--measure));
   margin-left: auto;
   margin-right: auto;
 }
 .ds-247420 #ds-article-host.has-toc > .article-col {
   flex: 1 1 0;
   min-width: 0;
-  max-width: var(--measure-narrow);
+  max-width: var(--measure);
 }
+/* Sticky offset accounts for the page's own sticky header band (.app-chrome,
+   which stacks --app-topbar-h + --app-crumb-h when both Topbar and Crumb are
+   present — the gm paper page always renders both) plus a visual gap, so the
+   TOC's own sticky rail settles just below the header instead of the header
+   painting over its top rows. The 16px gap between header and TOC/max-height
+   ceiling below is a small breathing margin, not a rhythm token — this sheet
+   has no other layout depending on it. */
 .ds-247420 #ds-article-host.has-toc > .toc {
   flex: 0 0 256px;
   align-self: flex-start;
   position: sticky;
-  top: 24px;
+  /* --article-header-h, when set (theme.mjs measures the real .app-chrome
+     rect after layout+fonts settle), is the accurate figure; the calc()
+     fallback covers a consumer that never sets it. */
+  top: calc(var(--article-header-h, calc(var(--app-topbar-h, 0px) + var(--app-crumb-h, 0px))) + 16px);
   align-self: start;
-  max-height: calc(100vh - 48px);
-  max-height: calc(100dvh - 48px);
+  max-height: calc(100vh - var(--article-header-h, calc(var(--app-topbar-h, 0px) + var(--app-crumb-h, 0px))) - 32px);
+  max-height: calc(100dvh - var(--article-header-h, calc(var(--app-topbar-h, 0px) + var(--app-crumb-h, 0px))) - 32px);
   overflow-y: auto;
   overscroll-behavior: contain;
   margin: 0;
@@ -13445,7 +13474,20 @@
   margin: 0 0 var(--space-3) 0;
 }
 .ds-247420 #ds-article-host .toc ol { margin: 0; padding-left: var(--space-3-5); }
-.ds-247420 #ds-article-host .toc li { font-size: var(--fs-tiny); line-height: 1.85; color: var(--panel-text); }
+/* Even wrap rhythm regardless of title length ("Fix on Sight" vs "In-Phase
+   Quality: The Search and Code Discipline"): a fixed min-height per entry
+   keeps one-line and two-line titles landing on the same row grid instead of
+   the list visually concertina-ing between tight and loose rows, and a light
+   separator every 5th entry breaks a long flat run (this TOC's source has no
+   h3-level entries, so grouping is a typographic rhythm aid, not a fabricated
+   semantic nesting the article doesn't declare). */
+.ds-247420 #ds-article-host .toc li {
+  font-size: var(--fs-tiny);
+  line-height: 1.85;
+  color: var(--panel-text);
+  min-height: 1.85em;
+}
+.ds-247420 #ds-article-host .toc li:nth-child(5n) { margin-bottom: var(--space-2); }
 .ds-247420 #ds-article-host .toc li::marker { color: var(--panel-text-3); font-variant-numeric: tabular-nums; }
 .ds-247420 #ds-article-host .toc a { color: var(--panel-text-2); text-decoration: none; transition: color .12s ease; }
 .ds-247420 #ds-article-host .toc a:hover { color: var(--panel-accent); }

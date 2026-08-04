@@ -2,7 +2,7 @@
 
 Generated from `src/components.js`'s real export barrel + each symbol's real definition in `src/components/*.js`, via `node scripts/generate-component-docs.mjs`. Do not hand-edit -- re-run after any component signature or JSDoc change.
 
-269 exported symbols across 30 source files.
+271 exported symbols across 30 source files.
 
 ---
 
@@ -918,6 +918,18 @@ The directory listing.  `loading` and `busy` are NOT two spellings of one state 
 **Kind:** component
 
 **Signature:** `file`, `body`, `onClose`, `onAction`, `onPrev`, `onNext`
+
+### Modal
+
+**Kind:** component
+
+**Signature:** `onClose`, `kind` = `''`, `head`, `headClass` = `''`, `headAttrs` = `{}`, `body`, `bodyClass` = `'ds-modal-body'`, `bodyAttrs` = `{}`, `actions`, `busy` = `false`
+
+### modalError
+
+**Kind:** component
+
+**Signature:** `error` _(positional arg)_
 
 ## `src/components/community.js`
 

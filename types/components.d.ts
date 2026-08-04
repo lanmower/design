@@ -6,7 +6,7 @@
 // signature change; `npm run lint:component-types` fails CI when this
 // file is stale.
 //
-// 269 exported symbols across 30 source files.
+// 271 exported symbols across 30 source files.
 
 /** A webjsx virtual node, as returned by every component in this SDK. */
 export type VNode = any;
@@ -1755,6 +1755,31 @@ export interface FilePreviewPaneProps {
     onNext?: (...args: any[]) => any;
 }
 export declare function FilePreviewPane(props?: FilePreviewPaneProps): VNode;
+
+/**
+ * Props for {@link Modal} (src/components/files-modals.js).
+ */
+export interface ModalProps {
+    onClose?: (...args: any[]) => any;
+    /** @default '' */
+    kind?: string;
+    head?: any;
+    /** @default '' */
+    headClass?: string;
+    /** @default {} */
+    headAttrs?: Record<string, any>;
+    body?: any;
+    /** @default 'ds-modal-body' */
+    bodyClass?: string;
+    /** @default {} */
+    bodyAttrs?: Record<string, any>;
+    actions?: any;
+    /** @default false */
+    busy?: boolean;
+}
+export declare function Modal(props?: ModalProps): VNode;
+
+export declare function modalError(error?: any): VNode;
 
 // ---- src/components/community.js -------------------------------------
 

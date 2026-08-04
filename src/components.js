@@ -61,7 +61,8 @@ export {
 
 export {
     ConfirmDialog, PromptDialog, CountdownDialog,
-    FilePreviewMedia, FilePreviewCode, FilePreviewText, FileViewer, FilePreviewPane
+    FilePreviewMedia, FilePreviewCode, FilePreviewText, FileViewer, FilePreviewPane,
+    Modal, modalError
 } from './components/files-modals.js';
 
 export {
