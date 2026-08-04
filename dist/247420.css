@@ -34,7 +34,7 @@
   --ink-2:       #333338;
   --ink-3:       #525252; /* WCAG-verified 2026 restyle: npm run a11y caught 4.10:1 at #58585F against --paper-3 (#c6c5c5-equivalent surfaces); #525252 clears 4.54:1 there and 7.81:1 against pure paper */
   --ink-3-dark:  #4D4D52; /* dark theme bg-3 (tier-3 surface) */
-  --paper-3-dark: #9B9B9B; /* dark theme fg-3 (tier-3 text); WCAG-verified: npm run a11y caught 4.41:1 at #999999 against --ink-2 (#333338); #9B9B9B clears 4.52:1 there */
+  --paper-3-dark: #BEBEBE; /* dark theme fg-3 (tier-3 text); #9B9B9B cleared 4.52:1 against --ink-2 but --fg-3 also renders on --bg-3 (--ink-3-dark, #4D4D52, e.g. .chip.tone-dim), where it measured only 3.02:1. #BEBEBE clears 4.52:1 on --ink-3-dark, 6.76:1 on --ink-2, 9.36:1 on --ink. */
 
   /* Lore palette. --acid was the prior electric-lime lead; RESTYLED to a
      neutral near-black accent matching webjsx-toolkit's grayscale --primary
