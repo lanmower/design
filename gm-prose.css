@@ -1,22 +1,7 @@
-/* ============================================================
-   gm-prose -- long-form article + doc-site prose surfaces
-   Extracted-article host, sticky table-of-contents rail, CLI
-   transcript block, definition-panel rows, repo cards, tag
-   chips, and attributed callouts. Consumed pro-rata by doc
-   sites (the gm paper) that mount the SDK and inject a flatspace
-   article into #ds-article-host. Every color is a token from
-   colors_and_type.css; no raw literals.
-   ============================================================ */
-
 .ds-prose { line-height: 1.65; }
 .ds-prose a { color: var(--panel-accent); }
 .ds-prose a:hover { background: none; color: var(--panel-accent); text-decoration-color: transparent; }
 .ds-prose pre, .ds-prose table { overflow-x: auto; max-width: 100%; }
-/* Mermaid diagrams render with an explicit width/height mermaid.js computes
-   from the source graph, not the column it's mounted in — without this, a
-   wide diagram overflows a narrow article-col and a narrow one leaves dead
-   space rather than filling it. cursor:zoom-in signals the click-to-enlarge
-   wiring theme.mjs adds after mermaid.run() finishes. */
 .ds-prose .mermaid { max-width: 100%; }
 .ds-prose .mermaid svg { max-width: 100%; height: auto; cursor: zoom-in; }
 .ds-prose canvas {
@@ -34,23 +19,17 @@
   min-height: 0;
 }
 
-/* Article prose measure — a character-count cap (--measure, 68ch) rather than
-   a fixed pixel width (the old --measure-narrow: 760px), so the line length a
-   reader actually experiences stays in the 60-75ch reading-comfort band
-   regardless of the article-col's body font-size. --measure-narrow remains
-   defined in colors_and_type.css for other consumers; this sheet switches to
-   the ch-unit token for its own article-col width. */
+:root {
+  --article-toc-rail-w: 256px;
+  --article-toc-gutter-nonrhythm: 44px;
+  --article-toc-header-gap: 16px;
+}
 #ds-article-host.has-toc {
   display: flex;
   align-items: flex-start;
-  /* 44px is OFF-SCALE ON PURPOSE — it is not a rhythm step but one term of the
-     three-term width equation on the next line (256px rail + 44px gutter +
-     measure). It sits between --space-6 (48) and --space-5 (32); snapping it
-     would silently change the host's computed max-width unless the calc were
-     re-derived, so the literal and the calc stay coupled and explicit. */
-  column-gap: 44px;
-  gap: 44px;
-  max-width: calc(256px + 44px + var(--measure));
+  column-gap: var(--article-toc-gutter-nonrhythm);
+  gap: var(--article-toc-gutter-nonrhythm);
+  max-width: calc(var(--article-toc-rail-w) + var(--article-toc-gutter-nonrhythm) + var(--measure));
   margin-left: auto;
   margin-right: auto;
 }
@@ -59,21 +38,11 @@
   min-width: 0;
   max-width: var(--measure);
 }
-/* Sticky offset accounts for the page's own sticky header band (.app-chrome,
-   which stacks --app-topbar-h + --app-crumb-h when both Topbar and Crumb are
-   present — the gm paper page always renders both) plus a visual gap, so the
-   TOC's own sticky rail settles just below the header instead of the header
-   painting over its top rows. The 16px gap between header and TOC/max-height
-   ceiling below is a small breathing margin, not a rhythm token — this sheet
-   has no other layout depending on it. */
 #ds-article-host.has-toc > .toc {
-  flex: 0 0 256px;
+  flex: 0 0 var(--article-toc-rail-w);
   align-self: flex-start;
   position: sticky;
-  /* --article-header-h, when set (theme.mjs measures the real .app-chrome
-     rect after layout+fonts settle), is the accurate figure; the calc()
-     fallback covers a consumer that never sets it. */
-  top: calc(var(--article-header-h, calc(var(--app-topbar-h, 0px) + var(--app-crumb-h, 0px))) + 16px);
+  top: calc(var(--article-header-h, calc(var(--app-topbar-h, 0px) + var(--app-crumb-h, 0px))) + var(--article-toc-header-gap));
   align-self: start;
   max-height: calc(100vh - var(--article-header-h, calc(var(--app-topbar-h, 0px) + var(--app-crumb-h, 0px))) - 32px);
   max-height: calc(100dvh - var(--article-header-h, calc(var(--app-topbar-h, 0px) + var(--app-crumb-h, 0px))) - 32px);
@@ -100,15 +69,6 @@
   background: var(--panel-text-3);
   background-clip: padding-box;
 }
-/* Small-label voice — the local composition of the house `.t-label` recipe
-   (src/css/app-shell/base.css). This sheet is a standalone published export
-   with its own <link>, so it cannot join the `.t-label` selector list; it
-   composes by referencing the identical token set. Both members are gm-
-   generated markup (injected into #ds-article-host), so the class list is not
-   reachable from src/ — the rule, not the markup, does the composing.
-   Deliberate override for both: --panel-text-2, because prose surfaces use the
-   panel text ramp rather than the app --fg ramp. Sized at --fs-nano: these
-   labels ride above dense article chrome, not UI text. */
 #ds-article-host .toc .toc-title,
 .ds-prose .gm-callout .who {
   font-family: var(--ff-mono);
@@ -122,13 +82,6 @@
   margin: 0 0 var(--space-3) 0;
 }
 #ds-article-host .toc ol { margin: 0; padding-left: var(--space-3-5); }
-/* Even wrap rhythm regardless of title length ("Fix on Sight" vs "In-Phase
-   Quality: The Search and Code Discipline"): a fixed min-height per entry
-   keeps one-line and two-line titles landing on the same row grid instead of
-   the list visually concertina-ing between tight and loose rows, and a light
-   separator every 5th entry breaks a long flat run (this TOC's source has no
-   h3-level entries, so grouping is a typographic rhythm aid, not a fabricated
-   semantic nesting the article doesn't declare). */
 #ds-article-host .toc li {
   font-size: var(--fs-tiny);
   line-height: 1.85;
@@ -151,28 +104,15 @@
   }
 }
 
-/* .ds-cli-block — the multi-row article/transcript container (CliBlock()'s
-   outer wrapper holding stacked .ds-cli-row / .ds-cli-comment children).
-   Distinct from the bare `.cli` single prompt+cmd row primitive owned by
-   app-shell.css (Install(), HeroFromPageData(), terminal/site quickstart
-   lines) — the two used to share the `.cli` selector with incompatible
-   display models (flex row vs block transcript), so whichever stylesheet
-   loaded last silently won for both consumers. Renamed here to remove the
-   collision; see content.js CliBlock(). */
 .ds-cli-block {
+  --ds-cli-block-fs-mono-halfrung: 12.5px;
   display: block;
   background: var(--panel-1);
   border-radius: var(--r-0);
   padding: var(--space-3) var(--space-3-5);
   margin: var(--space-3) 0 var(--space-5) 0;
   font-family: var(--ff-mono);
-  /* Deliberate half-step, NOT un-migrated drift: this is a transcript block set
-     in the mono face, which runs optically ~1 rung larger than the system
-     stack at the same px. --fs-micro (12) reads thin against the surrounding
-     prose and --fs-tiny (13) reads heavy; 12.5 is the tuned midpoint. There is
-     no half-rung on the --fs-* ladder and one must not be invented for a
-     single block, so this literal stays. */
-  font-size: 12.5px;
+  font-size: var(--ds-cli-block-fs-mono-halfrung);
   line-height: 1.6;
   color: var(--panel-text);
   box-shadow: var(--panel-shadow);
@@ -245,18 +185,11 @@
   color: var(--panel-text-2);
   border: 1px solid var(--panel-3);
   font-size: 0.7rem;
-  /* rem, not --space-*: the chip's inset is deliberately tied to the root type
-     scale alongside its own 0.7rem size, so the capsule keeps its proportions
-     when a doc site scales root font-size. A px rung would decouple them. */
-  padding: 0.15rem 0.5rem;
+  --tag-inset-rem-coupled-to-root-fontsize: 0.15rem 0.5rem;
+  padding: var(--tag-inset-rem-coupled-to-root-fontsize);
   border-radius: var(--r-hair);
   font-family: var(--ff-mono);
 }
-/* Attributed callout — an editorial pull-quote (it carries a .who byline), so
-   the left accent is DELIBERATE, not the generic alert stripe. Expressed via
-   the house .panel-spine idiom (absolute ::before rail at --bw-chunk, squared
-   leading corners) instead of a raw 3px border-left, so it stays on the border
-   scale and matches the spine primitive in panel-row.css. */
 .ds-prose .gm-callout {
   position: relative;
   margin: var(--space-3-5) 0;
@@ -271,23 +204,11 @@
   width: var(--bw-chunk); background: var(--panel-accent);
   border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
 }
-/* Joins the small-label voice above; only its own box properties here. */
 .ds-prose .gm-callout .who {
   display: block;
   margin-bottom: var(--space-1);
 }
 
-/* .ds-prose-endnote — the closing line of an article ("end. reply by opening a
-   pr."), set off from the body it terminates. Quieter and smaller than prose:
-   it takes the mono face and the --panel-text-2 tone that this sheet's other
-   ancillary voices use (.toc a, .gm-callout .who, .card .desc), so the endnote
-   reads as chrome around the article rather than a final paragraph of it. The
-   generous --space-5 lead is what does the "set off" — it breaks the paragraph
-   rhythm so the eye registers the piece has ended before reading the words.
-   Sized at --fs-xs rather than the --fs-nano label rung: this is a readable
-   sentence with a link in it, not an uppercase micro-label.
-   Replaces the inline style ui_kits/blog carried before the inline-style
-   sweep, which named this class without ever defining it. */
 .ds-prose .ds-prose-endnote,
 .ds-prose-endnote {
   margin-top: var(--space-5);
@@ -297,8 +218,5 @@
   line-height: 1.6;
   color: var(--panel-text-2);
 }
-/* The endnote's link keeps the prose accent but stays in the quiet register —
-   --panel-accent is the panel-ramp counterpart of --accent-ink (a readable
-   TEXT tone), never the bare --accent fill, which is ~1.07:1 on paper. */
 .ds-prose-endnote a { color: var(--panel-accent); text-decoration: none; }
 .ds-prose-endnote a:hover { text-decoration: underline; }
