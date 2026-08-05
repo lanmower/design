@@ -87,17 +87,8 @@ export function renderPageHtml({
     const seoTags = seo ? renderSeoTags({ title, siteName, seo }) : '';
     const faviconTags = renderFaviconTags({ faviconHref, faviconGlyph });
 
-    // Theme attribute co-location is CORRECT here: dist/247420.css keys every
-    // theme block off the COMPOUND selector `.ds-247420[data-theme="X"]`
-    // (verified in dist/247420.css ~L229). That selector requires BOTH the class
-    // and the data-theme on the SAME node, so `<html class="ds-247420"
-    // data-theme=...>` is what the CSS expects for SSR. The AGENTS.md
-    // "descendant-selector" warning is about the dashboard's RUNTIME controller,
-    // which splits them (.ds-247420 on <html>, data-theme on <body>) and relies
-    // on inheritance — a different mechanism. Do NOT move data-theme to <body>
-    // here or the theme blocks stop matching.
     return `<!doctype html>
-<html lang="en" class="ds-247420" data-theme="${theme}">
+<html lang="en" class="ds-247420">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -114,7 +105,7 @@ ${PAGE_INLINE_STYLES}
 <script id="__site__" type="application/json">${JSON.stringify(pageData).replace(/</g, '\\u003c')}</script>
 ${headExtra}
 </head>
-<body>
+<body data-theme="${theme}">
 <div id="app"></div>
 <script type="module">
 ${CLIENT_SCRIPT}${clientScriptExtra}

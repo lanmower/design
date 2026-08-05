@@ -203,8 +203,8 @@
   --fs-body:     16px;
   --fs-lg:       18px;
   --fs-xl:       21px;
-  --fs-h4:       clamp(19px, 1.8cqi, 24px);
-  --fs-h3:       clamp(22px, 2.4cqi, 30px);
+  --fs-h4:       clamp(22px, 2cqi, 26px);
+  --fs-h3:       clamp(25px, 2.6cqi, 34px);
   --fs-h2:       clamp(28px, 3.6cqi, 44px);
   --fs-h1:       clamp(34px, 5cqi, 64px);
   --fs-hero:     clamp(42px, 7cqi, 96px);
@@ -805,50 +805,26 @@
 }
 
 /* app-shell.css */
-/* ============================================================
-   247420 design system — component sheet
-   shadcn-neutral: system-font display + body + mono, no custom web fonts.
-   Confident hierarchy, centered editorial stack, neutral grayscale accent.
-   Indicator rails over hairlines.
-   ============================================================ */
-
-/* ============================================================
-   Base
-   ============================================================ */
 .ds-247420 * { box-sizing: border-box; }
 .ds-247420, .ds-247420 body { margin: 0; padding: 0; }
 .ds-247420 button, .ds-247420 input, .ds-247420 select, .ds-247420 textarea { font: inherit; }
 
-/* ============================================================
-   Accessibility — Skip Link
-   ============================================================ */
 .ds-247420 .skip-link {
+  --skip-link-preflight-translate-clear: -100%;
   position: absolute;
-  /* -40px alone left the 44px-tall pill (padding + min-height floor below)
-     poking ~4px into every page pre-focus -- measured live via
-     getBoundingClientRect(). The offset must clear the full rendered height,
-     not a guessed constant, so translateY pushes it out by its own box. */
   top: 0;
   left: 0;
-  transform: translateY(-100%);
+  transform: translateY(var(--skip-link-preflight-translate-clear));
   background: var(--accent);
   color: var(--accent-fg);
   padding: var(--space-2) var(--space-3);
   text-decoration: none;
-  /* Must outrank every layer of chrome once focused, or the first Tab press
-     lands on a control hidden behind the sticky header (was z-index:100,
-     which the header alone now matches). */
   z-index: var(--z-top);
   border-radius: var(--r-pill);
   font-weight: 600;
   font-size: var(--fs-sm);
-  /* The skip link is the first thing a keyboard or switch user reaches, so it
-     is the last control that should be hard to hit. Its padding alone rendered
-     it 39px tall -- measured live under coarse-pointer emulation on every kit.
-     Floored unconditionally rather than under a pointer:coarse query, because
-     switch and head-pointer users are not detected as coarse pointers and need
-     the larger target just as much. */
-  min-height: 44px;
+  --skip-link-min-touch-target: 44px;
+  min-height: var(--skip-link-min-touch-target);
   display: inline-flex;
   align-items: center;
 }
@@ -858,23 +834,6 @@
   outline: var(--focus-w) solid var(--focus-color);
   outline-offset: var(--focus-offset);
 }
-/* Visually-hidden but still in the accessibility tree. Emitted by Row() (the
-   rail status word), FilterBar()/FileGrid() (aria-live result counts) and
-   form-primitives' required marker — all of which shipped BEFORE this rule
-   existed anywhere the app shell loads. The only other definitions live in
-   app-surfaces.css (pre-scoped to `.ds-247420`, so it never reaches a kit that
-   does not mount that root) and editor-primitives.css (a separate opt-in
-   <link>), which left every app-shell consumer rendering screen-reader-only
-   text VISIBLY the moment it passed `rail`/`resultCount`.
-   Deliberately NOT `display:none` / `visibility:hidden` / `width:0`: those
-   remove the node from the accessibility tree too, which defeats the entire
-   purpose — the text exists only for AT. The clip + 1px box is what keeps it
-   announced while occupying no visible area.
-   `margin: -1px` is OFF-SCALE ON PURPOSE — it is not rhythm, it is one half of
-   the canonical visually-hidden idiom: the negative margin cancels the 1px box
-   so the clipped element contributes zero layout. Snapping it to a --space-*
-   rung would reintroduce a measurable gap. `clip` is deprecated but retained
-   alongside `clip-path` for older AT/browser pairs that ignore the latter. */
 .ds-247420 .sr-only {
   position: absolute;
   width: 1px;
@@ -888,11 +847,6 @@
   border: 0;
 }
 
-/* .ds-aspect — generic aspect-ratio utility. Native `aspect-ratio` property
-   (broadly supported for years) rather than the padding-bottom hack: no
-   extra wrapper markup, no absolutely-positioned inner layer needed just to
-   fill the box. `--aspect` defaults to 16/9; a caller overrides it inline
-   (e.g. style="--aspect:1/1") or via a ratio-named modifier class below. */
 .ds-247420 .ds-aspect {
   aspect-ratio: var(--aspect, 16 / 9);
   width: 100%;
@@ -912,14 +866,11 @@
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-/* Light (paper, the default theme) needs a stronger accent share than dark to
-   clear a visible selection tint against --bg-2 -- the dark-theme value (24%)
-   read too weak on paper. Dark/ink keeps its existing 24% mix, restored below
-   in the ink/dark + auto-dark blocks (mirrors the --danger/--flame pattern of
-   scoping a value per theme rather than sharing one across both). */
-.ds-247420 ::selection { background: color-mix(in oklab, var(--accent) 46%, var(--bg-2)); color: var(--fg); }
+.ds-247420 {
+  --selection-tint-paper-share: 46%;
+}
+.ds-247420 ::selection { background: color-mix(in oklab, var(--accent) var(--selection-tint-paper-share), var(--bg-2)); color: var(--fg); }
 
-/* Every root has a CQ container so fluid type can resolve to a meaningful inline-size. */
 .ds-247420 .app, .ds-247420 .ds-stage {
   container-type: inline-size;
   overflow-x: clip;
@@ -927,29 +878,16 @@
 }
 .ds-247420 .app * { min-width: 0; }
 
-/* Scrollbar treatment, applied once at the root rather than per-component.
-   chat.css already styled its own thread and code blocks this way, but every
-   other scroll container (.app-side-shell, .app-main, .ds-scroll-x,
-   .ds-table-wrap, .ds-live-log) fell back to the UA default -- measured live,
-   4 of 4 containers on dashboard and 7 of 7 on gm_inspector were unstyled while
-   chat's two were not. A default scrollbar reads as a bright seam against a
-   near-black panel in the ink and dark themes, and inconsistently between two
-   panels on the same page. Tokens mean the thumb follows the active theme.
-   Inheriting from the container also covers scrollers added later. */
 .ds-247420 .app, .ds-247420 .ds-stage, .ds-247420 .app *, .ds-247420 .ds-stage * {
   scrollbar-width: thin;
   scrollbar-color: var(--bg-3) transparent;
 }
 
-/* ============================================================
-   Typography
-   ============================================================ */
 .ds-247420 h1, .ds-247420 .t-h1 { font-family: var(--ff-display); font-size: var(--fs-h1); line-height: var(--lh-snug); letter-spacing: var(--tr-tight); font-weight: 600; margin: 0; }
 .ds-247420 h2, .ds-247420 .t-h2 { font-family: var(--ff-display); font-size: var(--fs-h2); line-height: var(--lh-snug); letter-spacing: var(--tr-tight); font-weight: 600; margin: 0; }
 .ds-247420 h3, .ds-247420 .t-h3 { font-family: var(--ff-display); font-size: var(--fs-h3); line-height: var(--lh-snug); letter-spacing: -0.01em;          font-weight: 600; margin: 0; }
 .ds-247420 h4, .ds-247420 .t-h4 { font-family: var(--ff-display); font-size: var(--fs-h4); line-height: var(--lh-snug);                                  font-weight: 600; margin: 0; }
 
-/* App/chrome typescale opt-in: compact heading ceiling for application UIs. */
 .ds-247420[data-typescale="app"] h1, .ds-247420[data-typescale="app"] .t-h1 { font-size: var(--fs-h1-app); line-height: 1.15; }
 .ds-247420[data-typescale="app"] h2, .ds-247420[data-typescale="app"] .t-h2 { font-size: var(--fs-h2-app); }
 .ds-247420[data-typescale="app"] h3, .ds-247420[data-typescale="app"] .t-h3 { font-size: var(--fs-h3-app); }
@@ -959,21 +897,9 @@
 .ds-247420 .t-mega    { font-family: var(--ff-display); font-size: var(--fs-mega); line-height: 0.92;            letter-spacing: var(--tr-tighter); font-weight: 700; margin: 0; }
 
 .ds-247420 .t-display { font-family: var(--ff-display); font-weight: 600; letter-spacing: var(--tr-tight); }
-/* Explicit weight, not relying on inherited normal: --ff-mono's stack (Menlo,
-   Consolas, ui-monospace) can resolve to a variable-font fallback on some
-   platforms whose default instance isn't the 400 weight, rendering "body ·
-   16px regular" visibly bold despite its own label -- pin the weight so the
-   sample matches what it claims regardless of which font in the stack loads. */
 .ds-247420 .t-mono    { font-family: var(--ff-mono); font-weight: 400; }
 .ds-247420 .t-body    { font-family: var(--ff-body); }
 
-/* House small-label voice, in two sizes. Every declaration here is sourced
-   from a token, so a sheet that cannot join these selector lists (community.css
-   and gm-prose.css ship as separate <link>-able exports and must not depend on
-   app-shell.css being present) still composes the same voice by referencing the
-   same four tokens — --ff-mono / --fs-* / uppercase / --tr-label. That token
-   set, not this rule, is the single source of truth; a selector that restates a
-   literal instead of the token is the drift this pairing exists to prevent. */
 .ds-247420 .t-label   { font-family: var(--ff-mono); font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: var(--tr-label); font-weight: 500; }
 .ds-247420 .t-micro   { font-family: var(--ff-mono); font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: var(--tr-label); color: var(--fg-3); }
 .ds-247420 .t-meta    { font-family: var(--ff-body); font-size: var(--fs-sm); color: var(--fg-3); }
@@ -984,35 +910,14 @@
   margin: 0;
 }
 
-/* h1/h2/h3/h4 and .lede/.t-lede are both margin:0 primitives by design (a
-   heading used standalone must not force space its context doesn't want).
-   But a heading immediately followed by a lede is a named pairing, not two
-   independent primitives that happen to be adjacent -- it needs its own gap
-   regardless of whether the surrounding shell opts into .ds-app-surface
-   (which only adds this spacing on landing/marketing surfaces, leaving every
-   Operate-mode kit that skips that class with a zero-gap heading+subtitle). */
 .ds-247420 h1 + .lede, .ds-247420 h1 + .t-lede, .ds-247420 h2 + .lede, .ds-247420 h2 + .t-lede, .ds-247420 h3 + .lede, .ds-247420 h3 + .t-lede, .ds-247420 .t-h1 + .lede, .ds-247420 .t-h1 + .t-lede {
   margin-top: var(--space-2);
 }
 
-/* A lede immediately followed by the article body is a named pairing too --
-   same rationale as the heading+lede gap above. Without this, .lede's
-   margin:0 leaves zero space above the first paragraph while every
-   paragraph-to-paragraph gap below it uses --space-4 (.ds-prose p), so the
-   dek reads as glued to the body it introduces. */
 .ds-247420 .lede + .post-body, .ds-247420 .t-lede + .post-body, .ds-247420 .lede + .ds-prose, .ds-247420 .t-lede + .ds-prose {
   margin-top: var(--space-4);
 }
 
-/* Same gap-ownership problem again for .ds-section (hero-content.css):
-   `* + .ds-section { margin-top: 0 }` deliberately relies on the PRECEDING
-   sibling supplying the lead-in space, so two spacing primitives can
-   coordinate into one gap instead of stacking. .lede supplies none (margin:0
-   by design), so a lede-then-section pairing (e.g. project_page's h1 -> lede
-   -> "install" section) collapses to a flush 0px gap instead of inheriting
-   .ds-section's own --space-8 lead. Measured live on project_page: the
-   "install" h3 sat ~4px from the lede above it (padding only) vs the
-   intended --space-8/2 gap other section-adjacent siblings get. */
 .ds-247420 .lede + .ds-section, .ds-247420 .t-lede + .ds-section {
   margin-top: var(--space-8);
 }
@@ -1026,7 +931,6 @@
   color: var(--accent-ink);
   display: inline-flex; align-items: center; gap: 12px;
 }
-/* Editorial kicker mark — a short solid ink rule, the print-byline tell. */
 .ds-247420 .eyebrow::before {
   content: '';
   width: 28px; height: 3px; background: currentColor;
@@ -1055,21 +959,6 @@
   font-family: var(--ff-body);
 }
 .ds-247420 .ds-prose blockquote p:last-child { margin-bottom: 0; }
-/* Closing line of an article ("end. reply by opening a pr."), set off from the
-   body it terminates. Quieter and smaller than the prose around it: it takes
-   the mono face and the --fg-3 tone the house uses for ancillary voices
-   (.t-micro, .dim), so the endnote reads as chrome around the article rather
-   than a final paragraph of it. The --space-5 lead does the "set off" — it
-   breaks the paragraph rhythm so the eye registers the piece has ended before
-   reading the words; margin-bottom:0 overrides .ds-prose p's --space-4 so the
-   article does not end on dead space.
-   Lives here, beside the rest of the .ds-prose family, NOT in gm-prose.css:
-   the blog kit that uses this class links only colors_and_type.css +
-   app-shell.css, so a rule in that separately-<link>-ed export would be exactly
-   as undefined as the class was before. Sized at --fs-xs, not the --fs-micro
-   label rung: this is a readable sentence with a link in it, not a micro-label.
-   The link inherits .ds-prose a's --accent-ink treatment (a readable TEXT tone;
-   the bare --accent fill is ~1.07:1 on paper) — deliberately not re-stated. */
 .ds-247420 .ds-prose .ds-prose-endnote,
 .ds-247420 .ds-prose-endnote {
   margin-top: var(--space-5);
@@ -1082,7 +971,6 @@
 
 .ds-247420 .dim { color: var(--fg-3); }
 
-/* Links */
 .ds-247420 a { color: inherit; text-decoration: none; }
 .ds-247420 a.ds-link-accent, .ds-247420 .ds-prose a {
   color: var(--accent-ink);
@@ -1099,15 +987,10 @@
   background: var(--bg-2); padding: 2px 6px; border-radius: var(--r-1);
 }
 
-/* --bg-3 (not --bg-2): an inline code pill needs to read as a distinct
-   surface against the page background, not just against adjacent text — at
-   --bg-2 the pill measured 1.39:1 background-to-background contrast in dark
-   theme (barely distinguishable from the page itself). --bg-3 is the same
-   tier-3 surface step .chip.tone-dim already uses for the same reason,
-   bringing the pill to 2.07:1, consistent with the rest of the tier-3 ramp. */
 .ds-247420 code {
+  --code-pill-tier3-surface: var(--bg-3);
   font-family: var(--ff-mono); font-size: 0.92em;
-  background: var(--bg-3); padding: 0.15em 0.5em; border-radius: var(--r-1);
+  background: var(--code-pill-tier3-surface); padding: 0.15em 0.5em; border-radius: var(--r-1);
 }
 
 .ds-247420 pre {
@@ -1521,15 +1404,8 @@
   border-bottom: var(--bw-hair, 1px) dotted var(--rule-strong);
 }
 
-/* ============================================================
-   Primitives
-   ============================================================ */
 .ds-247420 .btn, .ds-247420 .btn-primary, .ds-247420 .btn-ghost {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  /* Fixed height + horizontal-only padding: the control height is exact and
-     alignable (flex centres the label vertically), the way webgeist snaps every
-     control to a height ladder. Default is the --ctl-md rung; --btn-sm/--btn-lg
-     retune height + h-padding + font per size. Density scales the ladder. */
   height: var(--ctl-md); min-height: var(--ctl-md);
   padding: 0 var(--space-2-75);
   font-family: var(--ff-body);
@@ -1537,30 +1413,15 @@
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
-  /* Rounded-rect app chrome, not a marketing-page stadium CTA.
-     Shape vocabulary: r-1/r-2 = actionable buttons, icon-buttons, and
-     containers; r-pill = reserved for status/input/chip/badge/progress
-     surfaces (composer input, chips, badges, progress bars, theme-toggle
-     segments) - never for actions. */
   border-radius: var(--r-1);
   border: var(--bw-hair) solid transparent;
   box-shadow: none;
-  /* Restrained hover-lift: a 1px rise + hairline shadow reads as a crisp,
-     confident affordance rather than a soft glow-card float. */
   transition: transform var(--dur-base) var(--ease-spring), background var(--dur-snap) var(--ease),
     color var(--dur-snap) var(--ease), box-shadow var(--dur-base) var(--ease-spring),
     border-color var(--dur-snap) var(--ease);
 }
 .ds-247420 .btn { background: var(--bg-2); color: var(--fg); border-color: var(--rule); }
 .ds-247420 .btn:hover { background: var(--bg-3); color: var(--fg); transform: translateY(-1px); box-shadow: var(--shadow-1); }
-/* Primary CTA — the brand green as a solid editorial block; hover inverts to
-   an ink block with green text, a confident two-tone flip. Uses --green
-   (the site's own #247420 identity color, dark-mode-retuned to --green's
-   ink-safe #5CBF52 rather than --accent/--acid, which a prior contrast-driven
-   restyle deliberately flattened to a neutral gray for --accent's OTHER
-   consumers (nav active state, focus rings, etc) -- .btn-primary needed the
-   brand color back for click-hierarchy without undoing that restyle
-   elsewhere. --on-color (#fff) clears AA on both light and dark --green. */
 .ds-247420 .btn-primary {
   background: var(--green); color: var(--on-color);
   font-weight: 700;
@@ -1574,10 +1435,6 @@
   outline-offset: var(--focus-offset);
 }
 
-/* Button size ladder — the size prop on Btn() (sm | md | lg). md is the base
-   rule above; sm/lg retune height (off the --ctl-* ladder), horizontal padding,
-   and font-size so a size swap is one class, never inline padding overrides
-   (the old preview faked sizes with style=). Applies to every variant. */
 .ds-247420 .btn-sm, .ds-247420 .btn-sm.btn-primary, .ds-247420 .btn-sm.btn-ghost {
   height: var(--ctl-sm); min-height: var(--ctl-sm);
   padding: 0 var(--space-2); font-size: var(--fs-tiny); gap: var(--space-1);
@@ -1587,10 +1444,6 @@
   padding: 0 var(--space-4); font-size: var(--fs-body); gap: var(--space-2);
 }
 
-/* App-mode quiet interactions — the marketing hover-lift (translateY + shadow)
-   and the .row .meta slide read as decorative float on a dense working surface.
-   Under [data-typescale="app"], state changes are background/border-only: crisp,
-   no motion, no elevation. Marketing surfaces (no data-typescale) keep the lift. */
 .ds-247420[data-typescale="app"] .btn:hover,
 .ds-247420[data-typescale="app"] .btn-primary:hover,
 .ds-247420[data-typescale="app"] .btn-ghost:hover { transform: none; box-shadow: none; }
@@ -1601,9 +1454,6 @@
 .ds-247420[data-typescale="app"] a.row:hover .meta,
 .ds-247420[data-typescale="app"] .row[role="button"]:hover .meta { transform: none; }
 
-/* ============================================================
-   IconButton — square icon-only button
-   ============================================================ */
 .ds-247420 .ds-icon-btn {
   display: inline-flex; align-items: center; justify-content: center;
   padding: 0; border: none; cursor: pointer;
@@ -1620,7 +1470,6 @@
 .ds-247420 .ds-icon-btn-ghost:hover { background: var(--fg); color: var(--bg); }
 .ds-247420 .ds-icon-btn-primary { background: var(--accent); color: var(--accent-fg); }
 .ds-247420 .ds-icon-btn-primary:hover { background: var(--fg); color: var(--accent-ink); }
-/* warn = destructive ACTION tone; flame stays exclusively error STATUS. */
 .ds-247420 .ds-icon-btn-danger { background: var(--warn); color: var(--on-color); }
 .ds-247420 .ds-icon-btn-danger:hover { filter: brightness(0.92); }
 .ds-247420 .ds-icon-btn:active { transform: translateY(1px); }
@@ -1628,9 +1477,6 @@
   opacity: 0.5; cursor: not-allowed; pointer-events: none;
 }
 
-/* ============================================================
-   Badge — small inline count/status pill
-   ============================================================ */
 .ds-247420 .ds-badge {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 18px; height: 18px; padding: 0 6px;
@@ -1638,15 +1484,8 @@
   border-radius: var(--r-pill);
   background: var(--bg-3); color: var(--fg-2);
 }
-/* Badge size ladder — sm for dense inline counts, lg for prominent markers.
-   Base (above) stays the 18px default. */
 .ds-247420 .ds-badge.ds-badge--sm { min-width: 14px; height: 14px; padding: 0 var(--space-1); font-size: 10px; }
 .ds-247420 .ds-badge.ds-badge--lg { min-width: 22px; height: 22px; padding: 0 var(--space-2); font-size: var(--fs-tiny); }
-/* Canonical tone names are tone-success / tone-error / tone-neutral. Every
-   other tone name grouped into the same rule below (tone-green/tone-live,
-   tone-flame, tone-wip, tone-sun/tone-yellow, tone-ok/tone-miss) is a
-   true-synonym legacy alias, kept working but sharing one declaration so the
-   tone-family colors can't drift apart across names. */
 .ds-247420 .ds-badge.tone-green, .ds-247420 .ds-badge.tone-live, .ds-247420 .ds-badge.tone-success {
   background: var(--green-tint); color: var(--green-deep);
 }
@@ -1673,18 +1512,12 @@
   letter-spacing: var(--tr-caps); text-transform: uppercase;
   border-radius: var(--r-pill);
 }
-/* Chip size ladder — sm for dense toolbars/table cells, lg for prominent
-   status. tone-* colouring (below) is orthogonal to size. */
 .ds-247420 .chip.chip--sm { padding: var(--space-half) var(--space-2); font-size: var(--fs-micro); gap: var(--space-1); }
 .ds-247420 .chip.chip--lg { padding: var(--space-1-75) var(--space-2-75); font-size: var(--fs-xs); }
-/* Tag variant — a rectangular, sentence-case chip for dense data (table cells,
-   inline labels) where the all-caps pill reads too shouty and space-hungry.
-   Keeps the tone-* palette; drops the caps + pill for a tight --r-0 corner. */
 .ds-247420 .chip.chip--tag {
   text-transform: none; letter-spacing: 0; font-weight: 500;
   border-radius: var(--r-0); padding: var(--space-half) var(--space-2);
 }
-/* Same canonical/legacy-alias grouping as .ds-badge above. */
 .ds-247420 .chip.tone-green, .ds-247420 .chip.tone-live, .ds-247420 .chip.tone-success, .ds-247420 .chip.tone-ok {
   background: var(--green-tint); color: var(--green-deep);
 }
@@ -1694,21 +1527,9 @@
 .ds-247420 .chip.tone-wip, .ds-247420 .chip.tone-neutral {
   background: var(--bg-3); color: var(--fg-2);
 }
-/* `.chip.accent` is the bare-adjective spelling of tone-accent (ui_kits/blog
-   uses it for a "draft" chip). It had no rule anywhere, so an accented chip
-   rendered byte-identical to a plain one. Folded into the alias grouping rather
-   than given its own block, so the two spellings cannot drift apart. --accent
-   is the FILL and --accent-ink the readable text tone (AGENTS.md) — the bare
-   lead is ~1.07:1 on paper and unreadable as text. */
 .ds-247420 .chip.accent, .ds-247420 .chip.tone-accent {
   background: var(--accent-tint); color: var(--accent-ink);
 }
-/* tone-dim was applied by five kits (aicat, project_page, signin, system_primer,
-   terminal) with no rule anywhere, so a "dim" chip rendered byte-identical to a
-   plain one — measured at rgb(234,230,218) on rgb(31,31,38), same opacity. It is
-   the recede-into-the-row tone: the tier-3 foreground on the same recessed
-   surface tone-wip uses, which is quieter than the default --fg-2 without
-   dropping to an opacity fade that would take the border and background with it. */
 .ds-247420 .chip.tone-dim {
   background: var(--bg-3); color: var(--fg-3);
 }
@@ -1722,10 +1543,6 @@
 .ds-247420 .chip.tone-orange   { background: color-mix(in oklab, var(--flame) 30%, var(--sun) 70%); color: var(--ink); }
 .ds-247420 .chip.tone-yellow   { background: var(--sun);         color: var(--ink); }
 
-/* Removable chip — a trailing dismiss (x) button for editable tag/filter
-   chip lists (session tags, saved-search chips). Reuses the chip's own
-   tone/size; the button itself stays neutral-at-rest, per the standing
-   color-reserved-for-meaning convention, tinting only on hover/focus. */
 .ds-247420 .chip.ds-chip-removable { padding-right: var(--space-1); }
 .ds-247420 .ds-chip-remove-btn {
   display: inline-flex; align-items: center; justify-content: center;
@@ -1741,8 +1558,6 @@
   .ds-247420 .ds-chip-remove-btn svg { width: 12px; height: 12px; }
 }
 
-/* ds-pill — plain neutral chip, distinct from the toned .ds-badge/.chip family
-   (gmsniff's .pill: a bare rounded label with no semantic tone). */
 .ds-247420 .ds-pill {
   display: inline-block;
   padding: 1px 7px;
@@ -1760,16 +1575,6 @@
   font-family: var(--ff-mono); font-size: var(--fs-tiny);
   opacity: 0.8;
 }
-/* Glyph() (src/components/shell/atoms.js) emits `glyph glyph-{size}` and an
-   inline `font-size: var(--glyph-size-{size}, <literal>)`. The custom property
-   is the documented theming hook — it is what lets a theme retune glyph scale
-   without touching the component — but nothing declared it, so every glyph fell
-   through to the hard-coded inline literal and the hook was inert. Declaring
-   the three rungs on the scale makes the hook real; the sm/lg classes also give
-   the box a matching footprint instead of the one-size 18px square. */
-/* Values mirror Glyph()'s own inline fallbacks exactly (11 / 13 / 16px), so
-   declaring the hook changes nothing visually — it only makes the property
-   themeable, which is what it always claimed to be. */
 .ds-247420 .glyph { --glyph-size-sm: var(--fs-nano); --glyph-size-base: var(--fs-tiny); --glyph-size-lg: var(--fs-body); }
 .ds-247420 .glyph-sm { width: 14px; height: 14px; }
 .ds-247420 .glyph-lg { width: 22px; height: 22px; }
@@ -2656,8 +2461,7 @@
   .ds-247420 .app .row.ds-changelog-row { grid-template-columns: minmax(70px, 10ch) minmax(0, 1fr) !important; }
   .ds-247420 .ds-changelog-row .title { grid-column: 1 / -1; }
 
-  /* Buttons */
-  .ds-247420 .btn, .ds-247420 .btn-primary, .ds-247420 .btn-ghost {
+  .ds-247420 .btn:not(.btn-sm):not(.btn-lg), .ds-247420 .btn-primary:not(.btn-sm):not(.btn-lg), .ds-247420 .btn-ghost:not(.btn-sm):not(.btn-lg) {
     /* 11px vertical is optical, not scale drift: --space-2-75 (12) would tip
        the intrinsic box past the 44px min-height floor below and make the
        floor dead, changing the mobile button rhythm. */
@@ -2823,8 +2627,7 @@
     gap: var(--space-3);
   }
 
-  /* Buttons */
-  .ds-247420 .btn, .ds-247420 .btn-primary, .ds-247420 .btn-ghost {
+  .ds-247420 .btn:not(.btn-sm):not(.btn-lg), .ds-247420 .btn-primary:not(.btn-sm):not(.btn-lg), .ds-247420 .btn-ghost:not(.btn-sm):not(.btn-lg) {
     /* 18px inline has no tier (--space-3 is 16, --space-3-5 is 20); it is the
        tablet CTA width tuned against the 12px vertical, so snapping changes
        the button aspect on the most visible control in the kit. */
@@ -4798,7 +4601,11 @@
   width: 100%; height: 0; border: 0;
 }
 .ds-247420 hr.rule { border-top: 1px solid var(--rule); }
-.ds-247420 hr.rule-double { border-top: 4px double var(--rule-strong); }
+.ds-247420 hr.rule-double {
+  height: 3px;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
+}
 /* 1px was indistinguishable from .rule -- border-style:dotted needs enough
    width to actually draw a gap between dots; below ~2px (esp. at DPRs where
    1px resolves to a sub-pixel value like 0.8px) Chrome collapses it to a
@@ -13350,25 +13157,10 @@
 .ds-247420 .fd-page-error { max-height: 60vh; overflow: auto; white-space: pre-wrap; word-break: break-all; }
 
 /* gm-prose.css */
-/* ============================================================
-   gm-prose -- long-form article + doc-site prose surfaces
-   Extracted-article host, sticky table-of-contents rail, CLI
-   transcript block, definition-panel rows, repo cards, tag
-   chips, and attributed callouts. Consumed pro-rata by doc
-   sites (the gm paper) that mount the SDK and inject a flatspace
-   article into #ds-article-host. Every color is a token from
-   colors_and_type.css; no raw literals.
-   ============================================================ */
-
 .ds-247420 .ds-prose { line-height: 1.65; }
 .ds-247420 .ds-prose a { color: var(--panel-accent); }
 .ds-247420 .ds-prose a:hover { background: none; color: var(--panel-accent); text-decoration-color: transparent; }
 .ds-247420 .ds-prose pre, .ds-247420 .ds-prose table { overflow-x: auto; max-width: 100%; }
-/* Mermaid diagrams render with an explicit width/height mermaid.js computes
-   from the source graph, not the column it's mounted in — without this, a
-   wide diagram overflows a narrow article-col and a narrow one leaves dead
-   space rather than filling it. cursor:zoom-in signals the click-to-enlarge
-   wiring theme.mjs adds after mermaid.run() finishes. */
 .ds-247420 .ds-prose .mermaid { max-width: 100%; }
 .ds-247420 .ds-prose .mermaid svg { max-width: 100%; height: auto; cursor: zoom-in; }
 .ds-247420 .ds-prose canvas {
@@ -13386,23 +13178,17 @@
   min-height: 0;
 }
 
-/* Article prose measure — a character-count cap (--measure, 68ch) rather than
-   a fixed pixel width (the old --measure-narrow: 760px), so the line length a
-   reader actually experiences stays in the 60-75ch reading-comfort band
-   regardless of the article-col's body font-size. --measure-narrow remains
-   defined in colors_and_type.css for other consumers; this sheet switches to
-   the ch-unit token for its own article-col width. */
+.ds-247420 {
+  --article-toc-rail-w: 256px;
+  --article-toc-gutter-nonrhythm: 44px;
+  --article-toc-header-gap: 16px;
+}
 .ds-247420 #ds-article-host.has-toc {
   display: flex;
   align-items: flex-start;
-  /* 44px is OFF-SCALE ON PURPOSE — it is not a rhythm step but one term of the
-     three-term width equation on the next line (256px rail + 44px gutter +
-     measure). It sits between --space-6 (48) and --space-5 (32); snapping it
-     would silently change the host's computed max-width unless the calc were
-     re-derived, so the literal and the calc stay coupled and explicit. */
-  column-gap: 44px;
-  gap: 44px;
-  max-width: calc(256px + 44px + var(--measure));
+  column-gap: var(--article-toc-gutter-nonrhythm);
+  gap: var(--article-toc-gutter-nonrhythm);
+  max-width: calc(var(--article-toc-rail-w) + var(--article-toc-gutter-nonrhythm) + var(--measure));
   margin-left: auto;
   margin-right: auto;
 }
@@ -13411,21 +13197,11 @@
   min-width: 0;
   max-width: var(--measure);
 }
-/* Sticky offset accounts for the page's own sticky header band (.app-chrome,
-   which stacks --app-topbar-h + --app-crumb-h when both Topbar and Crumb are
-   present — the gm paper page always renders both) plus a visual gap, so the
-   TOC's own sticky rail settles just below the header instead of the header
-   painting over its top rows. The 16px gap between header and TOC/max-height
-   ceiling below is a small breathing margin, not a rhythm token — this sheet
-   has no other layout depending on it. */
 .ds-247420 #ds-article-host.has-toc > .toc {
-  flex: 0 0 256px;
+  flex: 0 0 var(--article-toc-rail-w);
   align-self: flex-start;
   position: sticky;
-  /* --article-header-h, when set (theme.mjs measures the real .app-chrome
-     rect after layout+fonts settle), is the accurate figure; the calc()
-     fallback covers a consumer that never sets it. */
-  top: calc(var(--article-header-h, calc(var(--app-topbar-h, 0px) + var(--app-crumb-h, 0px))) + 16px);
+  top: calc(var(--article-header-h, calc(var(--app-topbar-h, 0px) + var(--app-crumb-h, 0px))) + var(--article-toc-header-gap));
   align-self: start;
   max-height: calc(100vh - var(--article-header-h, calc(var(--app-topbar-h, 0px) + var(--app-crumb-h, 0px))) - 32px);
   max-height: calc(100dvh - var(--article-header-h, calc(var(--app-topbar-h, 0px) + var(--app-crumb-h, 0px))) - 32px);
@@ -13452,15 +13228,6 @@
   background: var(--panel-text-3);
   background-clip: padding-box;
 }
-/* Small-label voice — the local composition of the house `.t-label` recipe
-   (src/css/app-shell/base.css). This sheet is a standalone published export
-   with its own <link>, so it cannot join the `.t-label` selector list; it
-   composes by referencing the identical token set. Both members are gm-
-   generated markup (injected into #ds-article-host), so the class list is not
-   reachable from src/ — the rule, not the markup, does the composing.
-   Deliberate override for both: --panel-text-2, because prose surfaces use the
-   panel text ramp rather than the app --fg ramp. Sized at --fs-nano: these
-   labels ride above dense article chrome, not UI text. */
 .ds-247420 #ds-article-host .toc .toc-title,
 .ds-247420 .ds-prose .gm-callout .who {
   font-family: var(--ff-mono);
@@ -13474,13 +13241,6 @@
   margin: 0 0 var(--space-3) 0;
 }
 .ds-247420 #ds-article-host .toc ol { margin: 0; padding-left: var(--space-3-5); }
-/* Even wrap rhythm regardless of title length ("Fix on Sight" vs "In-Phase
-   Quality: The Search and Code Discipline"): a fixed min-height per entry
-   keeps one-line and two-line titles landing on the same row grid instead of
-   the list visually concertina-ing between tight and loose rows, and a light
-   separator every 5th entry breaks a long flat run (this TOC's source has no
-   h3-level entries, so grouping is a typographic rhythm aid, not a fabricated
-   semantic nesting the article doesn't declare). */
 .ds-247420 #ds-article-host .toc li {
   font-size: var(--fs-tiny);
   line-height: 1.85;
@@ -13491,6 +13251,27 @@
 .ds-247420 #ds-article-host .toc li::marker { color: var(--panel-text-3); font-variant-numeric: tabular-nums; }
 .ds-247420 #ds-article-host .toc a { color: var(--panel-text-2); text-decoration: none; transition: color .12s ease; }
 .ds-247420 #ds-article-host .toc a:hover { color: var(--panel-accent); }
+.ds-247420 #ds-article-host .toc li.toc-group {
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--panel-3);
+  list-style: none;
+  font-family: var(--ff-mono);
+  font-size: var(--fs-nano);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-label);
+  color: var(--panel-text-3);
+}
+.ds-247420 #ds-article-host .toc li.toc-group > ol {
+  margin-top: var(--space-1-5);
+  padding-left: var(--space-3);
+}
+.ds-247420 #ds-article-host .toc li.toc-group li {
+  font-size: var(--fs-nano);
+  line-height: 1.7;
+  min-height: 1.7em;
+}
+.ds-247420 #ds-article-host .toc li.toc-group li:nth-child(5n) { margin-bottom: 0; }
 .ds-247420 #ds-article-host.has-toc > .article-col > * { min-width: 0; }
 @media (max-width: 900px) {
   .ds-247420 #ds-article-host.has-toc { display: block; }
@@ -13503,28 +13284,15 @@
   }
 }
 
-/* .ds-cli-block — the multi-row article/transcript container (CliBlock()'s
-   outer wrapper holding stacked .ds-cli-row / .ds-cli-comment children).
-   Distinct from the bare `.cli` single prompt+cmd row primitive owned by
-   app-shell.css (Install(), HeroFromPageData(), terminal/site quickstart
-   lines) — the two used to share the `.cli` selector with incompatible
-   display models (flex row vs block transcript), so whichever stylesheet
-   loaded last silently won for both consumers. Renamed here to remove the
-   collision; see content.js CliBlock(). */
 .ds-247420 .ds-cli-block {
+  --ds-cli-block-fs-mono-halfrung: 12.5px;
   display: block;
   background: var(--panel-1);
   border-radius: var(--r-0);
   padding: var(--space-3) var(--space-3-5);
   margin: var(--space-3) 0 var(--space-5) 0;
   font-family: var(--ff-mono);
-  /* Deliberate half-step, NOT un-migrated drift: this is a transcript block set
-     in the mono face, which runs optically ~1 rung larger than the system
-     stack at the same px. --fs-micro (12) reads thin against the surrounding
-     prose and --fs-tiny (13) reads heavy; 12.5 is the tuned midpoint. There is
-     no half-rung on the --fs-* ladder and one must not be invented for a
-     single block, so this literal stays. */
-  font-size: 12.5px;
+  font-size: var(--ds-cli-block-fs-mono-halfrung);
   line-height: 1.6;
   color: var(--panel-text);
   box-shadow: var(--panel-shadow);
@@ -13597,18 +13365,11 @@
   color: var(--panel-text-2);
   border: 1px solid var(--panel-3);
   font-size: 0.7rem;
-  /* rem, not --space-*: the chip's inset is deliberately tied to the root type
-     scale alongside its own 0.7rem size, so the capsule keeps its proportions
-     when a doc site scales root font-size. A px rung would decouple them. */
-  padding: 0.15rem 0.5rem;
+  --tag-inset-rem-coupled-to-root-fontsize: 0.15rem 0.5rem;
+  padding: var(--tag-inset-rem-coupled-to-root-fontsize);
   border-radius: var(--r-hair);
   font-family: var(--ff-mono);
 }
-/* Attributed callout — an editorial pull-quote (it carries a .who byline), so
-   the left accent is DELIBERATE, not the generic alert stripe. Expressed via
-   the house .panel-spine idiom (absolute ::before rail at --bw-chunk, squared
-   leading corners) instead of a raw 3px border-left, so it stays on the border
-   scale and matches the spine primitive in panel-row.css. */
 .ds-247420 .ds-prose .gm-callout {
   position: relative;
   margin: var(--space-3-5) 0;
@@ -13623,23 +13384,11 @@
   width: var(--bw-chunk); background: var(--panel-accent);
   border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
 }
-/* Joins the small-label voice above; only its own box properties here. */
 .ds-247420 .ds-prose .gm-callout .who {
   display: block;
   margin-bottom: var(--space-1);
 }
 
-/* .ds-prose-endnote — the closing line of an article ("end. reply by opening a
-   pr."), set off from the body it terminates. Quieter and smaller than prose:
-   it takes the mono face and the --panel-text-2 tone that this sheet's other
-   ancillary voices use (.toc a, .gm-callout .who, .card .desc), so the endnote
-   reads as chrome around the article rather than a final paragraph of it. The
-   generous --space-5 lead is what does the "set off" — it breaks the paragraph
-   rhythm so the eye registers the piece has ended before reading the words.
-   Sized at --fs-xs rather than the --fs-nano label rung: this is a readable
-   sentence with a link in it, not an uppercase micro-label.
-   Replaces the inline style ui_kits/blog carried before the inline-style
-   sweep, which named this class without ever defining it. */
 .ds-247420 .ds-prose .ds-prose-endnote,
 .ds-247420 .ds-prose-endnote {
   margin-top: var(--space-5);
@@ -13649,9 +13398,6 @@
   line-height: 1.6;
   color: var(--panel-text-2);
 }
-/* The endnote's link keeps the prose accent but stays in the quiet register —
-   --panel-accent is the panel-ramp counterpart of --accent-ink (a readable
-   TEXT tone), never the bare --accent fill, which is ~1.07:1 on paper. */
 .ds-247420 .ds-prose-endnote a { color: var(--panel-accent); text-decoration: none; }
 .ds-247420 .ds-prose-endnote a:hover { text-decoration: underline; }
 

@@ -9,7 +9,14 @@
 // this file. `clientScriptExtra` is appended raw after the mount() call.
 
 export const CLIENT_SCRIPT = `import { mount, components as C, h } from 'anentrypoint-design';
-const data = JSON.parse(document.getElementById('__site__').textContent);
+let data;
+try {
+  data = JSON.parse(document.getElementById('__site__').textContent);
+} catch (e) {
+  console.error('[page-html] failed to parse #__site__ bootstrap data:', e);
+  document.getElementById('app').textContent = 'This page failed to load correctly. Please refresh, or contact support if the problem persists.';
+  throw e;
+}
 
 function heroNode(hero) {
   if (!hero) return null;

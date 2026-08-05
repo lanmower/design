@@ -104,19 +104,27 @@ export function makeToolsPages(ctx) {
         async env(h0) {
             const list = (typeof h0.pi.env?.list === 'function') ? h0.pi.env.list() : [];
             const setCount = list.filter(k => k.set).length;
-            const chipNodes = list.map(k => h(
-                'span',
-                {
-                    key: k.key,
-                    class: 'fd-env-chip',
-                    onclick: () => {
-                        const v = prompt('set ' + k.key + ' (empty to unset):');
-                        if (v == null) return;
-                        if (typeof h0.pi.env.set === 'function') { h0.pi.env.set(k.key, v); rerender(); }
+            const makeEditEnvVar = (k) => () => {
+                const v = prompt('set ' + k.key + ' (empty to unset):');
+                if (v == null) return;
+                if (typeof h0.pi.env.set === 'function') { h0.pi.env.set(k.key, v); rerender(); }
+            };
+            const chipNodes = list.map(k => {
+                const editEnvVar = makeEditEnvVar(k);
+                return h(
+                    'span',
+                    {
+                        key: k.key,
+                        class: 'fd-env-chip',
+                        role: 'button',
+                        tabindex: '0',
+                        'aria-label': 'edit environment variable ' + k.key,
+                        onclick: editEnvVar,
+                        onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); editEnvVar(); } },
                     },
-                },
-                Chip({ tone: k.set ? 'ok' : 'miss', children: k.key + (k.set ? ' [x]' : ' [ ]') })
-            ));
+                    Chip({ tone: k.set ? 'ok' : 'miss', children: k.key + (k.set ? ' [x]' : ' [ ]') })
+                );
+            });
             return [
                 Kpi({ items: [[setCount, 'set'], [list.length - setCount, 'missing'], [list.length, 'total known']] }),
                 Panel({

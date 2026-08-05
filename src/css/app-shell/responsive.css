@@ -77,8 +77,7 @@
   .app .row.ds-changelog-row { grid-template-columns: minmax(70px, 10ch) minmax(0, 1fr) !important; }
   .ds-changelog-row .title { grid-column: 1 / -1; }
 
-  /* Buttons */
-  .btn, .btn-primary, .btn-ghost {
+  .btn:not(.btn-sm):not(.btn-lg), .btn-primary:not(.btn-sm):not(.btn-lg), .btn-ghost:not(.btn-sm):not(.btn-lg) {
     /* 11px vertical is optical, not scale drift: --space-2-75 (12) would tip
        the intrinsic box past the 44px min-height floor below and make the
        floor dead, changing the mobile button rhythm. */
@@ -245,8 +244,7 @@
     gap: var(--space-3);
   }
 
-  /* Buttons */
-  .btn, .btn-primary, .btn-ghost {
+  .btn:not(.btn-sm):not(.btn-lg), .btn-primary:not(.btn-sm):not(.btn-lg), .btn-ghost:not(.btn-sm):not(.btn-lg) {
     /* 18px inline has no tier (--space-3 is 16, --space-3-5 is 20); it is the
        tablet CTA width tuned against the 12px vertical, so snapping changes
        the button aspect on the most visible control in the kit. */

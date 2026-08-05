@@ -86,6 +86,9 @@ export function MdNode(p) {
                     return;
                 }
                 swap();
+            }).catch((e) => {
+                console.error('renderMarkdownCached failed:', e);
+                if (el.dataset.mdSrc === srcKey) el.textContent = p.text || '';
             });
         }
         // Streaming turns parse immediately (latency-critical: the user is

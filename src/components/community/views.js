@@ -124,7 +124,7 @@ export function PageView({ title = '', html = '', isAdmin = false, onEdit } = {}
             ref: (el) => {
                 if (!el) return;
                 if (!html) { el.innerHTML = '<p class="cm-page-empty">This page is empty.</p>'; return; }
-                sanitizeHtml(html).then((clean) => { el.innerHTML = clean; });
+                sanitizeHtml(html).then((clean) => { el.innerHTML = clean; }).catch((e) => { console.error('sanitizeHtml failed:', e); el.innerHTML = '<p class="cm-page-empty">This page could not be rendered.</p>'; });
             }
         })
     );

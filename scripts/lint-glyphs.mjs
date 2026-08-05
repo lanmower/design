@@ -32,7 +32,7 @@ const SCAN_EXT = new Set(['.js', '.mjs', '.css', '.html']);
 const SCAN_ROOT_FILES = [
     'app-shell.css', 'chat.css', 'colors_and_type.css', 'community.css',
     'community-app.css', 'editor-primitives.css', 'app-surfaces.css',
-    'marketing.css',
+    'marketing.css', 'gm-prose.css',
 ];
 
 // Files that are DELIBERATE glyph showcases or documentation of the unicode

@@ -26,9 +26,11 @@
   <url><loc>https://anentrypoint.github.io/design/preview/colors-core.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/colors-lore.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/colors-semantic.html</loc><priority>0.5</priority></url>
+  <url><loc>https://anentrypoint.github.io/design/preview/content.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/data-density.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/dateline.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/dropzone.html</loc><priority>0.5</priority></url>
+  <url><loc>https://anentrypoint.github.io/design/preview/editor-primitives.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/file-grid.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/file-row.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/file-toolbar.html</loc><priority>0.5</priority></url>
@@ -38,11 +40,13 @@
   <url><loc>https://anentrypoint.github.io/design/preview/index-row.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/inputs.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/manifesto.html</loc><priority>0.5</priority></url>
+  <url><loc>https://anentrypoint.github.io/design/preview/panel-rows.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/rules.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/spacing.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/stamps-lore.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/stamps.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/theme-ink.html</loc><priority>0.5</priority></url>
+  <url><loc>https://anentrypoint.github.io/design/preview/theme-map.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/type-display.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/type-mono.html</loc><priority>0.5</priority></url>
   <url><loc>https://anentrypoint.github.io/design/preview/type-prose.html</loc><priority>0.5</priority></url>

@@ -43,7 +43,7 @@ function writeStored(mode) {
 
 function writeAttr(mode) {
     if (!isBrowser()) return;
-    document.documentElement.setAttribute('data-theme', mode);
+    document.body.setAttribute('data-theme', mode);
 }
 
 function ensureMq() {
@@ -166,12 +166,10 @@ export function initDirection() {
     return getDirection();
 }
 
-// Auto-init on browser import. Picks stored value, else falls back to
-// whatever data-theme is already on <html> (set by page-html.js), else 'auto'.
 export function initTheme() {
     if (!isBrowser()) return 'auto';
     const stored = readStored();
-    const fromAttr = document.documentElement.getAttribute('data-theme');
+    const fromAttr = document.body.getAttribute('data-theme');
     const initial = stored || (VALID.has(fromAttr) ? fromAttr : 'auto');
     applyTheme(initial);
     // Restore persisted accent/density (no-op if none stored — keeps the

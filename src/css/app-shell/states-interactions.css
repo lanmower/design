@@ -398,7 +398,11 @@ hr.rule, hr.rule-double, hr.rule-dotted {
   width: 100%; height: 0; border: 0;
 }
 hr.rule { border-top: 1px solid var(--rule); }
-hr.rule-double { border-top: 4px double var(--rule-strong); }
+hr.rule-double {
+  height: 3px;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
+}
 /* 1px was indistinguishable from .rule -- border-style:dotted needs enough
    width to actually draw a gap between dots; below ~2px (esp. at DPRs where
    1px resolves to a sub-pixel value like 0.8px) Chrome collapses it to a
