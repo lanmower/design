@@ -36,11 +36,13 @@ function heroNode(hero) {
   );
 }
 
+function __esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
 function sectionNode(sec, idx) {
   const features = sec.features || sec.items || [];
   const rows = features.map((f, i) => {
     const kids = [h('div', { key: 't', class: 'ds-feature-title' }, String(f.name || ''))];
-    if (f.desc) kids.push(h('div', { key: 'd', class: 'ds-feature-desc', innerHTML: String(f.desc).replace(/\`([^\`]+)\`/g, '<code>$1</code>') }));
+    if (f.desc) kids.push(h('div', { key: 'd', class: 'ds-feature-desc', innerHTML: __esc(String(f.desc)).replace(/\`([^\`]+)\`/g, '<code>$1</code>') }));
     if (f.benefit) kids.push(h('div', { key: 'b', class: 'ds-feature-benefit' }, String(f.benefit)));
     return h('div', { key: i, class: 'ds-feature' }, ...kids);
   });

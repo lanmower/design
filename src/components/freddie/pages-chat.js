@@ -87,6 +87,7 @@ function applyEnvelope(msgs, env, sendApprove) {
 
 export const chat = makePage((ctx) => {
     Object.assign(ctx.state, { loading: false, messages: [], draft: '', busy: false, error: null, sessionId: null, ws: null, conn: 'closed', sessions: [], staged: [] });
+    let unmounted = false;
 
     // Session picker (kimi web's sessions sidebar, compact form): recent
     // conversations from /api/sessions, needsInput badges included. Picking
@@ -129,6 +130,10 @@ export const chat = makePage((ctx) => {
         ctx.rerender();
     }
     watchReconnect('chat', sendQueuedToServer);
+    ctx.onCleanup(() => {
+        unmounted = true;
+        try { ctx.state.ws && ctx.state.ws.close(); } catch { /* already closed */ }
+    });
 
     const s = () => ctx.state;
     const cur = () => s().messages[s().messages.length - 1];
@@ -142,6 +147,7 @@ export const chat = makePage((ctx) => {
     }
 
     function ensureWs() {
+        if (unmounted) return null;
         const st = s();
         if (!st.sessionId) st.sessionId = newSessionId();
         if (st.ws && (st.ws.readyState === 1 || st.ws.readyState === 0)) return st.ws;

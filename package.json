@@ -11,6 +11,8 @@
     "./src/index.js",
     "./src/styles.js",
     "./src/markdown-cache.js",
+    "./src/theme.js",
+    "./src/motion-toggle.js",
     "./src/components/chat/stats.js",
     "./src/web-components/freddie-chat.js",
     "./dist/247420.js"
