@@ -54,10 +54,10 @@ export function DropZone({ children, dragover, rejected, onDrop, onDragOver, onD
     // managers never burn a permanent band on a maybe-drop). Without children
     // it keeps the explicit picker-block look. `rejected` lets the host flag a
     // drag whose payload fails a type/size guard with a distinct treatment
-    // (.drag-rejected) instead of the normal accept-toned .dragover.
+    // (.rejected) instead of the normal accept-toned .dragover.
     const kids = Array.isArray(children) ? children : children ? [children] : [];
     return h('div', {
-        class: 'ds-dropzone' + (kids.length ? ' ds-dropzone--wrap' : '') + (rejected ? ' drag-rejected' : dragover ? ' dragover' : ''),
+        class: 'ds-dropzone' + (kids.length ? ' ds-dropzone--wrap' : '') + (dragover ? ' dragover' : '') + (rejected ? ' rejected' : ''),
         ondragover: (e) => { e.preventDefault(); onDragOver && onDragOver(e); },
         ondragleave: (e) => { if (!e.currentTarget.contains(e.relatedTarget)) { onDragLeave && onDragLeave(e); } },
         ondrop: (e) => { e.preventDefault(); onDrop && onDrop(e.dataTransfer.files); }
