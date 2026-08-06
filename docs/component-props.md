@@ -1039,7 +1039,7 @@ The directory listing.  `loading` and `busy` are NOT two spellings of one state 
 
 **Kind:** component
 
-**Signature:** `title` = `''`, `html` = `''`, `isAdmin` = `false`, `onEdit`
+**Signature:** `title` = `''`, `html` = `''`, `author` = `''`, `updatedAt` = `0`, `isAdmin` = `false`, `onEdit`
 
 ## `src/components/voice.js`
 
