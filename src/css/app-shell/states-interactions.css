@@ -254,6 +254,7 @@ input[type="checkbox"], input[type="radio"] {
 }
 .ds-context-menu-item.danger {
   color: var(--warn);
+  box-shadow: inset 2px 0 0 var(--warn);
 }
 .ds-context-menu-item.danger:hover {
   background: color-mix(in oklab, var(--warn) 12%, var(--bg));
@@ -356,6 +357,7 @@ textarea::placeholder {
 .prose p { margin: 0 0 var(--space-4) 0; }
 .prose p:last-child { margin-bottom: 0; }
 .prose a { color: var(--accent-ink); text-decoration-color: var(--rule-strong); text-underline-offset: 0.15em; }
+.prose a:visited { color: color-mix(in oklab, var(--accent-ink) 70%, var(--purple-2, var(--fg-3))); }
 .prose a:hover { text-decoration-color: currentColor; }
 
 /* Rubber-stamp motif — a bordered, uppercase, letter-spaced badge with a

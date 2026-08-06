@@ -193,6 +193,9 @@ a.ds-link-accent, .ds-prose a {
   text-underline-offset: 4px;
   text-decoration-thickness: 2px;
 }
+a.ds-link-accent:visited, .ds-prose a:visited {
+  color: color-mix(in oklab, var(--accent-ink) 70%, var(--purple-2, var(--fg-3)));
+}
 a.ds-link-accent:hover, .ds-prose a:hover {
   background: var(--accent); color: var(--accent-fg); text-decoration-color: transparent;
 }

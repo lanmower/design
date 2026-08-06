@@ -86,7 +86,11 @@
   border-radius: var(--r-pill);
   background: var(--bg-3); color: var(--fg-2);
 }
-.ds-badge.ds-badge--sm { min-width: var(--icon-xs); height: var(--icon-xs); padding: 0 var(--space-1); font-size: var(--fs-pico); }
+/* --fs-nano (11px), not --fs-pico (10px): --fs-pico sits below the 11px
+   legibility floor other small-scale labels in this system respect (see
+   .ds-stat-lbl, .ds-session-row-id), and this size is used live for the
+   workspace rail item-count badge (atoms.js Badge size="sm"). */
+.ds-badge.ds-badge--sm { min-width: var(--icon-xs); height: var(--icon-xs); padding: 0 var(--space-1); font-size: var(--fs-nano); }
 .ds-badge.ds-badge--lg { min-width: 22px; height: 22px; padding: 0 var(--space-2); font-size: var(--fs-tiny); }
 .ds-badge.tone-green, .ds-badge.tone-live, .ds-badge.tone-success {
   background: var(--green-tint); color: var(--green-deep);

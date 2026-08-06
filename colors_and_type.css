@@ -202,7 +202,7 @@
   --fs-lg:       18px;
   --fs-xl:       21px;
   --fs-h4:       clamp(24px, 2cqi, 28px);
-  --fs-h3:       clamp(25px, 2.6cqi, 34px);
+  --fs-h3:       clamp(26px, 2.6cqi, 34px);
   --fs-h2:       clamp(28px, 3.6cqi, 44px);
   --fs-h1:       clamp(34px, 5cqi, 64px);
   --fs-hero:     clamp(42px, 7cqi, 96px);
@@ -544,6 +544,27 @@ select:focus-visible {
   --code-fn:      var(--flame);
   --code-str-alt: var(--mascot);
   --code-num:     var(--sun);
+}
+
+/* [data-accent="X"] overrides (below) hardcode LIGHT-tuned fills (--acid,
+   --purple, --green) with no dark-theme companion, so data-theme=dark +
+   data-accent=acid/purple/green produced a near-invisible fill against the
+   dark page bg (measured: acid 1.15:1, purple 1.04:1, green 2.98:1 on --ink
+   -- all under the 3:1 non-text UI-fill floor). Same convention as the base
+   --accent retune above: restate the fill as its dark-tuned equivalent so
+   the swatch stays visible, using tones already verified elsewhere in this
+   file (green retune 7.48:1 on --ink, purple-2 retune 6.11:1 on --ink). */
+[data-theme="ink"][data-accent="acid"],
+[data-theme="dark"][data-accent="acid"] {
+  --accent: #BFBFBF; --accent-bright: #BFBFBF; --accent-fg: var(--ink); --accent-ink: var(--paper); --panel-accent: #BFBFBF;
+}
+[data-theme="ink"][data-accent="purple"],
+[data-theme="dark"][data-accent="purple"] {
+  --accent: #C277FF; --accent-bright: #C277FF; --accent-fg: var(--ink); --accent-ink: #C277FF; --panel-accent: #C277FF;
+}
+[data-theme="ink"][data-accent="green"],
+[data-theme="dark"][data-accent="green"] {
+  --accent: #5CBF52; --accent-bright: #5CBF52; --accent-fg: var(--ink); --accent-ink: #5CBF52; --panel-accent: #5CBF52;
 }
 
 /* Restores the pre-existing (weaker) dark-theme selection tint after the
