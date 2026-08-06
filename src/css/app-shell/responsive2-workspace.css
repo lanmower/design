@@ -281,7 +281,9 @@
 .ws-rail-item:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
 .ws-rail-item.active { background: var(--accent-tint); color: var(--fg); box-shadow: inset 2px 0 0 var(--accent); }
 .ws-rail-item-label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
-.ws-rail-item-count { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); }
+/* Shape/color come from the shared .ds-badge component (see app-shell/primitives.css);
+   this class is now just the rail-item layout hook (spacing, collapsed-state targeting). */
+.ws-rail-item-count { flex: none; margin-inline-start: var(--space-1); }
 .ws-rail-item-flag { width: 6px; height: 6px; border-radius: 50%; flex: none; }
 .ws-rail-item-flag.tone-flame { background: var(--flame); box-shadow: 0 0 0 2px color-mix(in oklab, var(--flame) 38%, transparent); }
 .ws-rail-foot { margin-top: auto; padding-top: var(--space-2); border-top: var(--bw-hair) solid var(--bg-3); }

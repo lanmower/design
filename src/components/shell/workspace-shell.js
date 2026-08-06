@@ -173,7 +173,7 @@ export function WorkspaceRail({ brand = '247420', action, items = [], footer } =
                     it.icon ? Icon(it.icon) : h('span', { class: 'ws-rail-item-glyph', 'aria-hidden': 'true' }),
                     h('span', { class: 'ws-rail-item-label' }, it.label),
                     (it.count != null && it.count !== 0 && it.count !== '0')
-                        ? h('span', { class: 'ws-rail-item-count', 'aria-hidden': 'true' }, String(it.count))
+                        ? h('span', { class: 'ws-rail-item-count ds-badge ds-badge--sm', 'aria-hidden': 'true' }, String(it.count))
                         : null,
                     it.rail ? h('span', { class: 'ws-rail-item-flag tone-' + it.rail, 'aria-hidden': 'true' }) : null)))),
         footer ? h('div', { class: 'ws-rail-foot' }, footer) : null,

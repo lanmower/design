@@ -40,6 +40,20 @@ button:disabled, [disabled] {
   pointer-events: none;
 }
 
+/* Systemic hover fallback — button-like elements with no design-system class
+   (a bare <button>, [role="button"], or a generic .row/.chip usage) get a
+   `transition` declared above (line ~106) but nothing to transition to, so
+   they look inert until clicked. This is a low-specificity (0,0,1)/(0,1,1)
+   catch-all: any element that also carries `.btn`/`.btn-primary`/`.btn-ghost`/
+   `.ds-icon-btn`/etc. keeps its own component `:hover` (those selectors are
+   equal-or-higher specificity and, for the shared ones, declared later in
+   the cascade), so this never overrides a deliberate per-component hover —
+   it only fills the gap for elements that don't have one. */
+button:not(:disabled):hover,
+[role="button"]:not([aria-disabled="true"]):hover {
+  background-color: var(--panel-hover, var(--bg-3));
+}
+
 /* Loading state — spinning indicator */
 @keyframes spinner-rotate {
   from { transform: rotate(0deg); }

@@ -37,8 +37,8 @@ export function computeSpawnRect(sz, openCount) {
     const scaled = small ? sz : scaleSpawnSize(sz, vw, vh);
     const w = Math.min(scaled.w, vw);
     const h = Math.min(scaled.h, vh);
-    const x = Math.max(0, Math.min(100 + (openCount * 28) % 240, vw - w));
-    const y = Math.max(0, Math.min(80 + (openCount * 22) % 180, vh - h));
+    const x = Math.max(0, Math.min(100 + (openCount * 36) % 288, vw - w));
+    const y = Math.max(0, Math.min(80 + (openCount * 28) % 224, vh - h));
     return { w, h, x, y, maximized: small };
 }
 

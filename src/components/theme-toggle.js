@@ -67,11 +67,16 @@ export function ThemeToggle({ compact = false, onChange } = {}) {
                 el.setAttribute('title', titleFor(now));
                 const lab = el.querySelector('.ds-theme-toggle-label');
                 if (lab) lab.textContent = labelFor(now);
+                const disc = el.querySelector('.ds-theme-disc');
+                if (disc) disc.setAttribute('data-mode', now);
             })
         },
-        // CSS-drawn half-disc so the control still reads as the theme switch
-        // when the label is hidden (icon-only rail strip).
-        h('span', { class: 'ds-theme-disc', 'aria-hidden': 'true' }),
+        // CSS-drawn disc so the control still reads as the theme switch when
+        // the label is hidden (icon-only rail strip). data-mode selects a
+        // per-mode fill (solid light / solid dark / half-and-half for auto)
+        // so the icon itself — not just the title tooltip — shows current
+        // state at a glance.
+        h('span', { class: 'ds-theme-disc', 'data-mode': current, 'aria-hidden': 'true' }),
         h('span', { class: 'ds-theme-toggle-label' }, labelFor(current)));
     }
 

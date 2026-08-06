@@ -1,7 +1,9 @@
 /* ============================================================
    Window Manager visuals — paired with createWM() behavior
    Tokens: --os-* (defined by desktop/theme.css)
-   Bible: tonal surfaces, no borders for chrome, inset rail for focus.
+   Bible: tonal surfaces, inset rail for focus, subtle hairline border +
+   elevation shadow on every window (stronger on wm-focused) so windows
+   read as distinct layers against a dark desktop background.
    ============================================================ */
 
 .wm-root {
@@ -21,14 +23,18 @@
     max-height: 100%;
     background: var(--os-bg-1);
     color: var(--os-fg);
-    border: none;
+    border: 1px solid color-mix(in oklab, var(--os-fg) 14%, transparent);
     border-radius: var(--os-radius, var(--r-2, 10px));
     display: flex;
     flex-direction: column;
     pointer-events: auto;
     overflow: hidden;
+    box-shadow: var(--shadow-2, 0 4px 12px rgba(0, 0, 0, .3));
 }
-.wm-win.wm-focused { box-shadow: inset 4px 0 0 var(--os-accent); }
+.wm-win.wm-focused {
+    border-color: color-mix(in oklab, var(--os-fg) 28%, transparent);
+    box-shadow: inset 4px 0 0 var(--os-accent), var(--shadow-3, 0 12px 32px rgba(0, 0, 0, .4));
+}
 /* Promote to a compositor layer only for the duration of a drag/resize so the
    per-frame left/top/width/height writes don't force a main-thread layout each
    pointermove. Released on pointerup (class removed) to avoid the permanent
@@ -60,10 +66,10 @@
     text-transform: lowercase;
 }
 
-.wm-btns { display: flex; gap: 6px; }
+.wm-btns { display: flex; align-items: center; gap: 6px; }
 .wm-btn {
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
     border: none;
     background: var(--os-bg-3);
     color: var(--os-fg-2);
@@ -79,6 +85,13 @@
     touch-action: manipulation;
 }
 .wm-btn:hover { background: var(--panel-hover, var(--os-bg-1)); color: var(--os-fg); }
+/* Close gets its own hover color (red) so the destructive action is
+   distinguishable from minimize/maximize at a glance, not just by position. */
+.wm-btn[title='close']:hover,
+.wm-btn[aria-label='close']:hover {
+    background: var(--color-danger, #C41C0C);
+    color: var(--paper, #fff);
+}
 
 .wm-body {
     flex: 1;

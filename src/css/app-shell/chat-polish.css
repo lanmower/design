@@ -69,6 +69,18 @@
   background: color-mix(in oklab, var(--mascot) 26%, var(--bg-2));
   color: var(--mascot-deep);
 }
+/* Plain assistant turns ('them', no aicat persona) previously fell through to
+   the bare .chat-avatar gray disc with no role identity at all — 'you' and
+   'aicat' both got a tinted background + ring, the default assistant got
+   nothing. Give it the same tinted-background treatment via --color-success
+   (the conventional assistant/bot association, distinct from the accent hue
+   'you' owns and the mascot hue 'aicat' owns) plus a thin identity ring so
+   role is readable from the avatar alone, not just bubble position/color. */
+.chat-msg.them:not(.aicat) .chat-avatar {
+  background: color-mix(in oklab, var(--color-success) 20%, var(--bg-3));
+  color: color-mix(in oklab, var(--color-success) 65%, var(--fg));
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-success) 35%, transparent);
+}
 
 .chat-stack {
   display: flex; flex-direction: column; gap: var(--space-1);

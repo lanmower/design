@@ -6,8 +6,9 @@
 
 import {
     ensureCss, buildMenubar, buildAppsMenu, buildSideRail, buildDrawer,
-    buildTaskbar, buildAppEntries,
+    buildTaskbar, buildAppEntries, ic,
 } from './shell-chrome.js';
+import { icons } from './icons.js';
 import { computeSpawnRect, reflowWindows } from './shell-geometry.js';
 
 export function createDesktopShell({ root = document.body, wm, registry, brand = 'desktop', themeUrl, onNewInstance, autoBoot = false } = {}) {
@@ -171,8 +172,15 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
             const t = document.createElement('button');
             t.className = 'os-task' + (w.focused ? ' focused' : '');
             t.type = 'button';
-            t.textContent = w.title;
             t.dataset.winId = w.id;
+            // Same icon-resolution order as buildAppEntries (menu/rail/drawer):
+            // the registered app's own icon, falling back to the id-keyed
+            // default set — so a taskbar entry always matches its apps-menu
+            // counterpart instead of reading as unrelated text-only chrome.
+            const app = w.appId && (typeof registry.get === 'function' ? registry.get(w.appId) : registry[w.appId]);
+            const iconSvg = (app && app.icon) || icons[w.appId] || '';
+            if (iconSvg) t.append(ic(iconSvg));
+            t.append(Object.assign(document.createElement('span'), { className: 'os-task-label', textContent: w.title }));
             // aria-current announces which window is the active one; a
             // sighted user reads this from the .focused visual state alone.
             if (w.focused) t.setAttribute('aria-current', 'true');
@@ -194,7 +202,20 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
     function makeLoadingNode() {
         const n = document.createElement('div');
         n.className = 'app-pane os-app-loading';
-        n.textContent = 'loading…';
+        n.setAttribute('role', 'status');
+        n.setAttribute('aria-live', 'polite');
+        n.setAttribute('aria-label', 'loading');
+        const spinner = document.createElement('div');
+        spinner.className = 'ds-spinner';
+        spinner.setAttribute('aria-hidden', 'true');
+        spinner.appendChild(document.createElement('span'));
+        spinner.appendChild(document.createElement('span'));
+        spinner.appendChild(document.createElement('span'));
+        const label = document.createElement('span');
+        label.className = 'os-app-loading-label';
+        label.textContent = 'loading…';
+        n.appendChild(spinner);
+        n.appendChild(label);
         return n;
     }
 

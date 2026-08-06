@@ -75,6 +75,24 @@ body {
   scrollbar-width: thin;
   scrollbar-color: var(--bg-3) transparent;
 }
+/* Firefox gets themed scrollbars via scrollbar-width/-color above; Chrome,
+   Safari, and Edge need the ::-webkit-scrollbar family too, or every
+   scrollable node in the app shell falls back to the raw OS scrollbar and
+   clashes with the dark UI. Same selector scope, same --bg-3 token. */
+.app::-webkit-scrollbar, .ds-stage::-webkit-scrollbar,
+.app *::-webkit-scrollbar, .ds-stage *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.app::-webkit-scrollbar-track, .ds-stage::-webkit-scrollbar-track,
+.app *::-webkit-scrollbar-track, .ds-stage *::-webkit-scrollbar-track {
+  background: transparent;
+}
+.app::-webkit-scrollbar-thumb, .ds-stage::-webkit-scrollbar-thumb,
+.app *::-webkit-scrollbar-thumb, .ds-stage *::-webkit-scrollbar-thumb {
+  background: var(--bg-3);
+  border-radius: var(--r-pill, 999px);
+}
 
 h1, .t-h1 { font-family: var(--ff-display); font-size: var(--fs-h1); line-height: var(--lh-snug); letter-spacing: var(--tr-tight); font-weight: 600; margin: 0; }
 h2, .t-h2 { font-family: var(--ff-display); font-size: var(--fs-h2); line-height: var(--lh-snug); letter-spacing: var(--tr-tight); font-weight: 600; margin: 0; }

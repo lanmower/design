@@ -10,8 +10,8 @@ class FreddieChat extends DsChat {
     constructor() {
         super();
         this._title = 'freddie';
-        this._sub = '';
-        this._placeholder = 'message freddie · /tools · /tool name {json} · /run …';
+        this._sub = '/tools · /tool name {json} · /run …';
+        this._placeholder = 'message freddie…';
     }
 
     connectedCallback() {

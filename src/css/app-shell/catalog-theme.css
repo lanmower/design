@@ -143,11 +143,23 @@
   font-family: var(--ff-mono); font-size: var(--fs-xs);
   display: inline-flex; align-items: center; gap: 6px;
 }
-/* CSS-drawn half-disc mark on the compact theme toggle: keeps the control
-   legible when its text label is hidden (icon-only rail strip). */
+/* CSS-drawn disc mark on the compact theme toggle: keeps the control
+   legible when its text label is hidden (icon-only rail strip). Per-mode
+   fill gives the icon itself a distinct look for auto/light/dark, so state
+   reads without relying on the title tooltip alone. */
 .ds-theme-disc {
   flex: 0 0 auto; width: 14px; height: 14px; border-radius: 50%;
   border: var(--bw-hair) solid var(--fg-3);
+  /* auto: half-and-half, matches default (no data-mode) for safety */
   background: linear-gradient(90deg, var(--fg-3) 0 50%, transparent 50% 100%);
+}
+.ds-theme-disc[data-mode="auto"] {
+  background: linear-gradient(90deg, var(--fg-3) 0 50%, transparent 50% 100%);
+}
+.ds-theme-disc[data-mode="paper"] {
+  background: var(--bg); border-color: var(--fg-3);
+}
+.ds-theme-disc[data-mode="ink"] {
+  background: var(--fg-3); border-color: var(--fg-3);
 }
 
