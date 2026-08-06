@@ -44,6 +44,16 @@ export function makeCorePages(ctx) {
             const tools = h0.pi.tools.size;
             const skills = h0.pi.skills.size;
             const health = (typeof h0.pi.health === 'function') ? h0.pi.health() : { ok: true };
+            // Epoch-ms fields (ts, or any *At/*Time-suffixed key) render as raw
+            // 13-digit numbers otherwise -- unreadable and gives no sense of
+            // recency. Format as a locale timestamp; anything that doesn't
+            // parse as a plausible epoch-ms value falls through to String(v)
+            // unchanged so this never mangles a genuine small integer.
+            const isEpochMsKey = (k) => k === 'ts' || /(At|Time)$/.test(k);
+            const fmtHealthValue = (k, v) => {
+                if (isEpochMsKey(k) && typeof v === 'number' && v > 1e12) return new Date(v).toLocaleString();
+                return String(v);
+            };
             return [
                 Hero({ title: 'assistant', body: 'open js agent harness — in-page agent runtime.', accent: h0.version || 'web' }),
                 Kpi({ items: [[sessions.length, 'sessions'], [tools, 'tools'], [skills, 'skills']] }),
@@ -55,7 +65,7 @@ export function makeCorePages(ctx) {
                     ['set api key', 'keys tab -> click chip to set value'],
                     ['add cron',    'cron tab -> form'],
                 ] }) }),
-                Panel({ title: 'host', children: Receipt({ rows: Object.entries(health).map(([k, v]) => [k, String(v)]) }) }),
+                Panel({ title: 'host', children: Receipt({ rows: Object.entries(health).map(([k, v]) => [k, fmtHealthValue(k, v)]) }) }),
             ];
         },
         async sessions(h0) {
@@ -79,7 +89,7 @@ export function makeCorePages(ctx) {
                 Kpi({ items: [[list.length, 'sessions']] }),
                 Panel({ title: 'recent sessions', count: list.length, children: list.length === 0
                     ? EmptyState({ text: 'no sessions yet — open chat and send a message', glyph: Icon('thread') })
-                    : Table({ headers: ['id', 'title', 'platform', 'model', 'cwd', 'skill', ''], rows }) }),
+                    : Table({ headers: ['id', 'title', 'platform', 'model', 'cwd', 'skill', ''], striped: true, rows }) }),
             ];
         },
         async agents(h0) {
@@ -88,7 +98,7 @@ export function makeCorePages(ctx) {
                 Kpi({ items: [[a.count || 0, 'active'], [a.turns || 0, 'turns']] }),
                 Panel({ title: 'agent overview', children: Receipt({ rows: [
                     ['total turns', String(a.turns || 0)],
-                    ['active session', a.active || '(none)'],
+                    ['active session', a.active || '—'],
                     ['last activity', a.last_activity ? new Date(a.last_activity).toLocaleString() : '—'],
                 ] }) }),
             ];

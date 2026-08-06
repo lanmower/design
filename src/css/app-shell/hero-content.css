@@ -562,14 +562,36 @@ table td.is-num, table th.is-num { text-align: right; font-variant-numeric: tabu
   padding: var(--space-5);
   background: var(--bg-2);
   border-radius: var(--r-3);
+  /* Grid's default justify-items:stretch was silently stretching the submit
+   * button (a direct grid child, same as every input) to the full column
+   * width -- other primary buttons elsewhere (e.g. session-ui's "new
+   * session") are inline/compact by contrast, since they're not grid
+   * children. justify-self:start keeps inputs/textareas at their natural
+   * grid-stretched width (a form field SHOULD fill its column) while the
+   * submit button sizes to its own content, matching the compact convention
+   * used everywhere else primary buttons appear. */
 }
+.row-form > button[type="submit"] { justify-self: start; }
 .row-form input,
 .row-form textarea {
   font-family: inherit; font-size: var(--fs-sm);
   padding: 12px 16px;
-  background: var(--bg); color: var(--fg);
+  /* --bg here previously resolved to the SAME color as .row-form's own
+   * --bg-2 background in the dark theme, leaving only a 14%-opacity
+   * currentColor ring (var(--rule)) as the sole edge between an input and
+   * the panel behind it -- effectively invisible. --bg-3 (one step darker
+   * than the panel) plus a stronger border restores a real, panel-distinct
+   * field surface.
+   * LOAD-BEARING !important: `.row-form input` and states-interactions.css's
+   * bare `input[type="text"]:where(...)` rule are both (0,1,1) specificity
+   * (the :where() wrapper there is intentionally zero-specificity) --
+   * states-interactions.css @imports AFTER this file in app-shell.css, so on
+   * this exact tie it wins by source order and silently discarded these two
+   * declarations. Only !important beats that without restructuring the
+   * shared bare-input rule's own selector, which many other consumers rely on. */
+  background: var(--bg-3) !important; color: var(--fg);
   border: 0; border-radius: var(--r-2);
-  box-shadow: inset 0 0 0 1px var(--rule);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, currentColor 28%, transparent) !important;
 }
 .row-form input:focus-visible,
 .row-form textarea:focus-visible { box-shadow: var(--focus-ring-inset); }

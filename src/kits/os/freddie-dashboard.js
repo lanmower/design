@@ -19,6 +19,13 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces, loading
     const state = { active: 'home', ts: new Date().toLocaleTimeString(), body: null, error: null };
     let host = instance.host || null;
     const allRoutes = osSurfaces ? [...ROUTES, ...OS_ROUTE_DEFS] : ROUTES;
+    // Bumped on every setActive() and captured by loadActive() before its
+    // first await; a resolving page whose generation no longer matches the
+    // live one is a stale in-flight nav (user clicked a second page before
+    // the first's async page() resolved) and must not overwrite state.body —
+    // otherwise the crumb/side (synchronous) shows the new page while the
+    // main content silently keeps whichever page happened to resolve last.
+    let navGeneration = 0;
 
     async function ensureHost() {
         if (host) return host;
@@ -27,7 +34,7 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces, loading
         return host;
     }
 
-    function setActive(p) { state.active = p; rerender(); }
+    function setActive(p) { state.active = p; navGeneration++; rerender(); }
     if (typeof window !== 'undefined') window.__fd_nav = setActive;
 
     function rerender() { webjsx.applyDiff(root, view()); loadActive(); }
@@ -72,15 +79,19 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces, loading
     }
 
     async function loadActive() {
+        const myGeneration = navGeneration;
+        let body, error = null;
         try {
             const h0 = await ensureHost();
             const page = PAGES[state.active] || PAGES.home;
-            state.body = await page(h0, instance);
-            state.error = null;
+            body = await page(h0, instance);
         } catch (e) {
-            state.error = String(e && e.stack || e);
-            state.body = Panel({ title: 'error', children: pre(state.error) });
+            error = String(e && e.stack || e);
+            body = Panel({ title: 'error', children: pre(error) });
         }
+        if (myGeneration !== navGeneration) return; // superseded by a later nav click
+        state.body = body;
+        state.error = error;
         state.ts = new Date().toLocaleTimeString();
         webjsx.applyDiff(root, view());
     }
