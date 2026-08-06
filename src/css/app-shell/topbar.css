@@ -80,7 +80,23 @@ body.canvas-host { background: transparent !important; }
 .app-topbar > .brand { flex: 0 0 auto; }
 .app-topbar > .app-search { flex: 1 1 auto; }
 .app-topbar > nav { margin-left: auto; }
-.app-topbar > .app-topbar-theme { flex: 0 0 auto; }
+/* Utility cluster grouping: the theme toggle sits after the repo-info nav
+   links with no visual separation between the two groups, so the row read
+   as one undifferentiated strip of controls. A thin inset rule plus extra
+   left gap reads as "these are a distinct utility group", matching the
+   subtle divider already used between .app-status segments. */
+.app-topbar > .app-topbar-theme {
+  flex: 0 0 auto;
+  margin-left: var(--space-2);
+  padding-left: var(--space-3);
+  position: relative;
+}
+.app-topbar > .app-topbar-theme::before {
+  content: ''; position: absolute; left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 1px; height: 18px;
+  background: var(--rule-strong);
+}
 .app-topbar nav { display: flex; gap: var(--space-1); font-size: var(--fs-sm); flex-wrap: wrap; }
 .app-topbar nav a { flex: 0 0 auto; }
 .app-topbar nav a {
@@ -171,6 +187,15 @@ body.canvas-host { background: transparent !important; }
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   min-width: 0; flex: 0 1 auto;
 }
+/* Ancestor trail segments previously had no rule of their own and simply
+   inherited .app-crumb's base --fg-3 — the same tone the separators sit on
+   top of (before their own 0.5 opacity dims them further). That leaves only
+   two visually distinct tiers in practice (dim separator, bold leaf) rather
+   than three, since the ancestor tone reads as "default text colour", not a
+   deliberate middle step. --fg-3 is the crumb bar's OWN base, so explicitly
+   restating it here is the anchor for the 3-tier read: separator (--fg-3 at
+   0.5 opacity, dimmest) < ancestor (--fg-3, mid) < leaf (--fg bold, brightest). */
+.app-crumb > span:not(.sep):not(.leaf):not(.crumb-right) { color: var(--fg-3); }
 .app-crumb .leaf { color: var(--fg); font-weight: 600; flex: 0 1 auto; }
 .app-crumb .crumb-right { margin-left: auto; color: var(--fg-3); flex: 0 0 auto; }
 
@@ -189,6 +214,15 @@ body.canvas-host { background: transparent !important; }
 .app-side-shell {
   background: var(--bg); overflow-y: auto; min-height: 0;
   scrollbar-width: thin; scrollbar-color: var(--rule-strong) transparent;
+  /* Bottom-edge fade: a rail longer than the viewport otherwise shows only
+     the thin scrollbar track as its sole "there is more below" cue. Mirrors
+     the horizontal fade already used by .os-instances (src/kits/os/theme.css)
+     for its own overflow edge, oriented top-to-bottom for this vertical
+     scroller. The top edge stays fully opaque (rows start flush under the
+     topbar with no need to hint upward scroll on initial load); only the
+     trailing 24px softens toward transparent. */
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to bottom, black calc(100% - 24px), transparent);
 }
 .app-side-shell::-webkit-scrollbar { width: 8px; }
 .app-side-shell::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: var(--r-pill, 999px); }

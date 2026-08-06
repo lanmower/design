@@ -10,6 +10,7 @@
 
 import * as webjsx from '../../vendor/webjsx/index.js';
 import { applyTheme, getTheme, resolvedTheme, onThemeChange } from '../theme.js';
+import { Icon, iconMarkup } from './shell/icons.js';
 
 const h = webjsx.createElement;
 
@@ -18,6 +19,12 @@ const MODES = [
     ['paper', 'light'],
     ['ink',   'dark'],
 ];
+
+// Sun/moon/contrast line-icon per mode (ICON_PATHS already carries these —
+// see icons.js's "theme-toggle icons" entry) so the control reads at a
+// glance even before the text label is parsed, not just via the CSS-drawn
+// disc (which is icon-rail-only; the compact button keeps its text label).
+const ICON_FOR_MODE = { auto: 'contrast', paper: 'sun', ink: 'moon' };
 
 // Both variants render from `getTheme()` at the moment their vnode is built,
 // but nothing re-renders this control when the theme changes: a host kit's view
@@ -69,6 +76,12 @@ export function ThemeToggle({ compact = false, onChange } = {}) {
                 if (lab) lab.textContent = labelFor(now);
                 const disc = el.querySelector('.ds-theme-disc');
                 if (disc) disc.setAttribute('data-mode', now);
+                // Repaint via raw markup (not a webjsx re-render — this ref
+                // runs outside any applyDiff pass), same pattern as icons.js's
+                // iconMarkup() is meant for: raw-DOM consumers with no
+                // webjsx render scope at hand.
+                const icon = el.querySelector('.ds-theme-toggle-icon');
+                if (icon) icon.innerHTML = iconMarkup(ICON_FOR_MODE[now] || 'contrast', { size: 14 });
             })
         },
         // CSS-drawn disc so the control still reads as the theme switch when
@@ -77,6 +90,11 @@ export function ThemeToggle({ compact = false, onChange } = {}) {
         // so the icon itself — not just the title tooltip — shows current
         // state at a glance.
         h('span', { class: 'ds-theme-disc', 'data-mode': current, 'aria-hidden': 'true' }),
+        // Sun/moon/contrast glyph alongside the text label — was text-only
+        // ("theme: auto"), so the control carried no visual cue of the
+        // current mode beyond the tiny CSS disc. Kept minimal: one small
+        // line-icon, no extra chrome.
+        h('span', { class: 'ds-theme-toggle-icon' }, Icon(ICON_FOR_MODE[current] || 'contrast', { size: 14 })),
         h('span', { class: 'ds-theme-toggle-label' }, labelFor(current)));
     }
 

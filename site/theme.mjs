@@ -80,6 +80,19 @@ export default {
     if (!homeDoc) throw new Error('site/content/pages/home.yaml missing or has no id: home');
     const home = homeDoc;
     const hero = home.hero || null;
+    // hero.body is hand-typed prose that cites the live kit count inline
+    // ("WCAG AA verified across all N kits"). Never let that number drift
+    // from the real array length the kits panel/sidebar counts already
+    // derive from (see realCount()/withRealCounts() above) -- interpolate
+    // the true count here with a targeted replace of just that phrase,
+    // not a blanket digit substitution that could clobber an unrelated
+    // number elsewhere in the copy.
+    const heroBody = hero && hero.body
+      ? hero.body.replace(
+          /WCAG AA verified across all \d+ kits/,
+          'WCAG AA verified across all ' + (home.kits?.items?.length || 0) + ' kits'
+        )
+      : (hero ? hero.body : null);
 
     const panels = [
       panel(home.kits, 'kits'),
@@ -91,6 +104,24 @@ export default {
       panel(home.docs, 'docs'),
       panel(home.features, 'features'),
     ].filter(Boolean);
+
+    // Same stale-count hazard as hero.body above: the "Accessible by
+    // default" feature card also hand-cites the live kit count ("0 blocking
+    // violations across all N surfaces"). Patch it in place after panel()
+    // has built the row so this stays in sync with home.kits.items.length
+    // without a second hand-typed number to drift.
+    const featuresPanel = panels.find((p) => p && p.id === (home.features?.id || 'features'));
+    if (featuresPanel) {
+      const kitsCount = home.kits?.items?.length || 0;
+      for (const row of featuresPanel.items) {
+        if (row.sub) {
+          row.sub = row.sub.replace(
+            /across all \d+ surfaces/,
+            'across all ' + kitsCount + ' surfaces'
+          );
+        }
+      }
+    }
 
     if (home.previews && home.previews.items && home.previews.items.length) {
       const base = home.previews.base || './preview/';
@@ -115,7 +146,7 @@ export default {
       navItems: (nav.links || []).map(l => [String(l.label || ''), l.href]),
       hero: hero ? {
         heading: hero.heading, subheading: hero.subheading || site.tagline,
-        body: hero.body, badges: hero.badges,
+        body: heroBody, badges: hero.badges,
         ctas: hero.ctas,
       } : null,
       showcase: home.showcase ? { heading: home.showcase.heading, lede: home.showcase.lede } : null,

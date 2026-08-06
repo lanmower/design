@@ -62,7 +62,7 @@ function submit(e) {
     kit.render();
 }
 
-function Provider({ glyph, label, provider }) {
+function Provider({ icon, label, provider }) {
     const isLoading = state.loading === provider;
     return h('button', {
         class: 'btn ds-auth-provider-btn' + (isLoading ? ' ds-auth-provider-btn--loading' : ''),
@@ -76,7 +76,7 @@ function Provider({ glyph, label, provider }) {
         },
         disabled: isLoading
     },
-        h('span', { class: 'ds-auth-provider-glyph' + (isLoading ? ' ds-spin' : '') }, isLoading ? Icon('refresh') : glyph),
+        h('span', { class: 'ds-auth-provider-glyph' + (isLoading ? ' ds-spin' : '') }, Icon(isLoading ? 'refresh' : icon)),
         h('span', {}, isLoading ? 'redirecting...' : label)
     );
 }
@@ -261,16 +261,20 @@ function Form() {
         // color alone was the only signal before (WCAG 1.4.1).
         state.demoUrl ? h('div', { class: 'ds-auth-status', role: 'status' },
             'demo mode — would open: ' + state.demoUrl) : null,
+        // No trailing arrow: this button submits the form in place (state
+        // change, no navigation to another page) -- the arrow is reserved
+        // for CTAs that take the visitor somewhere else (row links, the
+        // hero's GitHub/247420 links).
         h('button', { class: 'btn btn-primary', type: 'submit' },
-            state.mode === 'signup' ? 'create account ->' :
-            state.mode === 'magic'  ? 'send magic link ->' :
-            state.mode === 'reset'  ? 'send reset link ->' : 'sign in ->'
+            state.mode === 'signup' ? 'create account' :
+            state.mode === 'magic'  ? 'send magic link' :
+            state.mode === 'reset'  ? 'send reset link' : 'sign in'
         ),
         state.mode !== 'reset' ? Divider({ label: 'or' }) : null,
         state.mode !== 'reset' ? h('div', { class: 'ds-auth-providers' },
-            Provider({ glyph: 'gh', label: 'github', provider: 'github' }),
-            Provider({ glyph: 'g', label: 'google', provider: 'google' }),
-            Provider({ glyph: '@', label: 'sso', provider: 'sso' })
+            Provider({ icon: 'github', label: 'github', provider: 'github' }),
+            Provider({ icon: 'google', label: 'google', provider: 'google' }),
+            Provider({ icon: 'sso', label: 'sso', provider: 'sso' })
         ) : null
         // The "use a magic link instead" button was removed from here: it was
         // a full-width default button sitting directly under the three OAuth

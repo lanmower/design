@@ -92,7 +92,7 @@
 .ds-hero-accent { color: var(--accent-ink); font-weight: 700; }
 .ds-hero-actions {
   display: flex; gap: var(--space-2, 10px); flex-wrap: wrap;
-  justify-content: flex-start; margin-top: var(--space-hair, 4px);
+  justify-content: flex-start; margin-top: var(--space-4);
 }
 /* Hero CTA labels are content-driven (e.g. "GitHub", proper nouns from
    home.yaml) and the site's voice is deliberately all-lowercase everywhere
@@ -464,6 +464,17 @@ table td.is-num, table th.is-num { text-align: right; font-variant-numeric: tabu
   border-color: color-mix(in oklab, var(--accent) 40%, var(--rule));
   transform: translateY(-1px);
   box-shadow: var(--shadow-1, 0 2px 8px rgba(0,0,0,.12));
+}
+/* Number+caption stack, isolated from .kpi-foot below it. Previously the
+   number and label were plain block children of .kpi-card with the label's
+   own margin-top providing the gap — visually fine for a single card, but
+   across a row of four the caption's WRAPPED height (one line vs two, e.g.
+   "requests · 24h" vs "error rate · 5xx+4xx") pushed .kpi-foot down by a
+   different amount per card, so the deltas/sparklines never lined up on one
+   shared baseline. A dedicated flex column groups exactly the two elements
+   that must stay glued together, independent of whatever sits below. */
+.kpi-stack {
+  display: flex; flex-direction: column; align-items: flex-start;
 }
 .kpi-glyph {
   position: absolute;

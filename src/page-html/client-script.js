@@ -35,9 +35,15 @@ function heroNode(hero) {
       hero.body || hero.subheading,
       hero.accent ? h('span', { class: 'ds-hero-accent' }, ' ' + hero.accent) : null,
     ) : null,
+    // Every hero CTA is a plain <a href> that navigates away from this page
+    // (GitHub, the portfolio site, ...), never an in-page action -- so the
+    // trailing arrow is appended here once, at the render layer, rather than
+    // hand-typed per label in content yaml where it could drift out of sync
+    // with the "navigates away = arrow" rule used elsewhere (row ctas,
+    // signin's in-page submit buttons).
     Array.isArray(hero.ctas) && hero.ctas.length
       ? h('div', { class: 'ds-hero-actions' }, ...hero.ctas.map((c, i) =>
-          h('a', { key: i, class: i === 0 ? 'btn btn-accent' : 'btn btn-ghost', href: c.href || '#' }, c.label || c.cta || 'go')))
+          h('a', { key: i, class: i === 0 ? 'btn btn-accent' : 'btn btn-ghost', href: c.href || '#' }, (c.label || c.cta || 'go') + ' ->')))
       : null,
     badgeRow,
   );
@@ -56,8 +62,18 @@ function showcaseNode(showcase) {
     C.Btn({ key: 'b1', variant: 'primary', children: 'Primary' }),
     C.Btn({ key: 'b2', variant: 'default', children: 'Default' }),
     C.Btn({ key: 'b3', variant: 'ghost', children: 'Ghost' }),
-    C.Btn({ key: 'b4', variant: 'danger', children: 'Danger' }),
+    // .ds-showcase-btn-danger-group gives Danger its own visually separated
+    // cluster (extra leading gap + a hairline divider) instead of sitting in
+    // the same uniform-gap row as Primary -- two similarly-weighted filled
+    // buttons side by side otherwise compete for "the one action to take"
+    // with nothing marking Danger as the deliberately-set-apart one.
+    h('span', { key: 'b4-group', class: 'ds-showcase-btn-danger-group' },
+      C.Btn({ key: 'b4', variant: 'danger', children: 'Danger' })),
   );
+  // Hue documents STATUS, not decoration: green = shipping/live, blue = pre-
+  // release/in-flux, purple = newly added. Badge (not a bespoke pill) carries
+  // the '0 violations' count so every status indicator in this row is one of
+  // the two real chip-family components, never a one-off styled span.
   const chipRow = h('div', { class: 'ds-showcase-row' },
     C.Chip({ key: 'c1', tone: 'green', children: 'Live' }),
     C.Chip({ key: 'c2', tone: 'blue', children: 'Beta' }),

@@ -164,7 +164,12 @@ function onSaveClick() {
 }
 
 function Profile() {
-    return Panel({ title: 'profile', class: 'ds-panel-gap', children: h('div', { class: 'ds-settings-body' },
+    // panel-spine (accent left rail, existing lever in panel-row.css) gives
+    // this kit's panels a visual identity of their own -- settings otherwise
+    // rendered as the same plain bordered .panel every generic-utility kit
+    // uses, with no color lever anywhere (unlike terminal's always-ink mono
+    // surface, chat's avatar/bubble pairing, or dashboard's KPI/rail tones).
+    return Panel({ title: 'profile', class: 'ds-panel-gap panel-spine', children: h('div', { class: 'ds-settings-body' },
         // name/email use the shared form-primitives Field (inline
         // aria-invalid + role="alert" error message), not the local
         // hint-only Field() above, so validation feedback is real and
@@ -186,7 +191,7 @@ function Profile() {
 
 function Theme() {
     const opts = [['auto', 'auto'], ['light', 'light'], ['dark', 'dark']];
-    return Panel({ title: 'theme', class: 'ds-panel-gap', children: h('div', { class: 'ds-settings-body' },
+    return Panel({ title: 'theme', class: 'ds-panel-gap panel-spine', children: h('div', { class: 'ds-settings-body' },
         Field({ label: 'mode', children: h('div', { class: 'ds-btn-row ds-btn-row-tight' },
             ...opts.map(([k, l]) => h('button', { key: k,
                 class: state.theme === k ? 'btn btn-primary' : 'btn',
@@ -250,13 +255,13 @@ function PrefsError() {
 }
 
 function Notify() {
-    if (state.phase === 'loading') return Panel({ title: 'notifications', class: 'ds-panel-gap', children: PrefsSkeleton() });
-    if (state.phase === 'error') return Panel({ title: 'notifications', class: 'ds-panel-gap', children: PrefsError() });
-    if (state.phase === 'empty') return Panel({ title: 'notifications', class: 'ds-panel-gap', children: PrefsEmpty() });
+    if (state.phase === 'loading') return Panel({ title: 'notifications', class: 'ds-panel-gap panel-spine', children: PrefsSkeleton() });
+    if (state.phase === 'error') return Panel({ title: 'notifications', class: 'ds-panel-gap panel-spine', children: PrefsError() });
+    if (state.phase === 'empty') return Panel({ title: 'notifications', class: 'ds-panel-gap panel-spine', children: PrefsEmpty() });
     // No `code` — these are settings, not an indexed list. Carrying a one-glyph
     // code would reserve the row's 12ch leading gutter for a single character
     // and strand the label far right of its own panel edge.
-    return Panel({ title: 'notifications', class: 'ds-panel-gap', children: [
+    return Panel({ title: 'notifications', class: 'ds-panel-gap panel-spine', children: [
         Row({ key: 'n1', title: 'mentions',  sub: 'when someone @s you',        meta: Toggle({ on: state.notify.mentions,  onChange: (v) => state.notify.mentions = v }) }),
         Row({ key: 'n2', title: 'releases',  sub: 'on every tagged build',      meta: Toggle({ on: state.notify.releases,  onChange: (v) => state.notify.releases = v }) }),
         Row({ key: 'n3', title: 'marketing', sub: 'occasional product updates', meta: Toggle({ on: state.notify.marketing, onChange: (v) => state.notify.marketing = v }) })
@@ -264,7 +269,7 @@ function Notify() {
 }
 
 function ApiKeys() {
-    return Panel({ title: 'api keys', count: 1, class: 'ds-panel-gap', children: h('div', { class: 'ds-settings-body' },
+    return Panel({ title: 'api keys', count: 1, class: 'ds-panel-gap panel-spine', children: h('div', { class: 'ds-settings-body' },
         Field({ label: 'production key', hint: 'rotate quarterly.', children:
             h('div', { class: 'ds-btn-row' },
                 h('input', { class: 'input ds-key-input', value: state.api_key, readonly: true }),

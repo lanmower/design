@@ -186,7 +186,7 @@ status_left:
   - "utf-8"
   - "lf"
 # theme.mjs overwrites this with the real published SDK version + live kit
-# count (14 surfaces, from home.kits.items.length) rather than the static
+# count (15 surfaces, from home.kits.items.length) rather than the static
 # fallback strings below, which only render if that lookup ever fails.
 status_right:
   - "anentrypoint-design"

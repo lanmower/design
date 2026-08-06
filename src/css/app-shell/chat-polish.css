@@ -393,6 +393,24 @@
 .chat-reactions .rxn .n { font-family: var(--ff-mono); font-weight: 600; font-size: var(--fs-nano); color: var(--fg-2); }
 .chat-reactions .rxn.you .n { color: var(--accent-ink); }
 
+/* Typing indicator renders through the same .chat-bubble container as a real
+   message, but must never read as a bubble holding actual content — no
+   border, no hover-lift shadow, no tail-corner cut; just a pill-shaped
+   borderless dot cluster, visually lighter than any card/bubble on the page. */
+/* Double-class selector (.chat-bubble.chat-bubble-typing) deliberately, not
+   bare .chat-bubble-typing: chat.css (loaded after app-shell.css on every
+   kit that links both) still carries a plain `.chat-bubble { background:
+   var(--bg-2) }` rule at the same (0,1,0) specificity, and cascade order
+   would let that later rule win over an equal-specificity selector here. */
+.chat-bubble.chat-bubble-typing {
+  background: transparent;
+  padding: var(--space-2) var(--space-1);
+  border-radius: var(--r-pill);
+}
+.chat-msg:hover .chat-bubble.chat-bubble-typing { transform: none; box-shadow: none; }
+.chat-msg:not(.you) .chat-bubble.chat-bubble-typing,
+.chat-msg.you .chat-bubble.chat-bubble-typing { border-bottom-left-radius: var(--r-pill); border-bottom-right-radius: var(--r-pill); }
+
 .chat-typing { display: inline-flex; gap: var(--space-1); align-items: center; }
 .chat-typing span {
   width: 8px; height: 8px; border-radius: 50%; background: var(--fg-3);
