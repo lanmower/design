@@ -71,7 +71,7 @@
    rely on spacing alone, matching panel-wide's already-transparent chrome. */
 .panel.panel-wide .panel-head { border-bottom: none; margin-bottom: 0; }
 .panel.panel--dense .panel-head { border-bottom: var(--bw-hair) solid var(--rule); margin-bottom: 0; }
-.panel-head > :last-child {
+.panel-head > :last-child:not(.ds-badge) {
   font-weight: 500; color: var(--fg-3);
   font-family: var(--ff-mono); letter-spacing: 0;
 }

@@ -151,7 +151,6 @@
 .chip.tone-disabled { background: var(--bg-3);        color: var(--fg-3); }
 .chip.tone-blue     { background: var(--accent-tint); color: var(--accent-ink); }
 .chip.tone-orange   { background: color-mix(in oklab, var(--flame) 30%, var(--sun) 70%); color: var(--ink); }
-.chip.tone-yellow   { background: var(--sun);         color: var(--ink); }
 
 .chip.ds-chip-removable { padding-right: var(--space-1); }
 .ds-chip-remove-btn {
@@ -191,6 +190,7 @@
 }
 .glyph { --glyph-size-sm: var(--fs-nano); --glyph-size-base: var(--fs-tiny); --glyph-size-lg: var(--fs-body); }
 .glyph-sm { width: var(--icon-xs); height: var(--icon-xs); }
+.glyph-base { width: 18px; height: 18px; }
 .glyph-lg { width: 22px; height: 22px; }
 
 /* Shared empty-state base -- hero-content.css's .empty and community.css's
