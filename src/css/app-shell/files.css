@@ -651,10 +651,16 @@
    floor. --ink on the same fill measures 6.27:1. Same principle as the
    --accent/--accent-ink split the token layer documents: a light saturated fill
    takes the dark text tone. Measured in a live browser. */
+/* Severity is never color-alone (gd-14, color-blindness/grayscale-print safe):
+   the bold weight + widened letter-spacing is a shape cue that survives a
+   colorless render, matching how .btn-primary.danger differs from every
+   other .btn-primary at a glance even with color stripped out. */
 .btn-primary.danger {
   background: var(--warn);
   border-color: var(--warn);
   color: var(--ink);
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 .btn-primary.danger:hover { filter: brightness(0.92); border-color: var(--warn); }
 

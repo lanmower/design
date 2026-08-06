@@ -1034,6 +1034,13 @@
   text-underline-offset: 4px;
   text-decoration-thickness: 2px;
 }
+/* Visited state was entirely absent -- a returning user had no way to tell an
+   already-read link from an unread one, the one link state browsers don't
+   fake for you. --purple-2 keeps it distinct from both the unvisited accent
+   and any hover/danger tone already in the palette. */
+.ds-247420 a.ds-link-accent:visited, .ds-247420 .ds-prose a:visited {
+  color: var(--purple-2);
+}
 .ds-247420 a.ds-link-accent:hover, .ds-247420 .ds-prose a:hover {
   background: var(--accent); color: var(--accent-fg); text-decoration-color: transparent;
 }
@@ -3486,10 +3493,16 @@
    floor. --ink on the same fill measures 6.27:1. Same principle as the
    --accent/--accent-ink split the token layer documents: a light saturated fill
    takes the dark text tone. Measured in a live browser. */
+/* Severity is never color-alone (gd-14, color-blindness/grayscale-print safe):
+   the bold weight + widened letter-spacing is a shape cue that survives a
+   colorless render, matching how .btn-primary.danger differs from every
+   other .btn-primary at a glance even with color stripped out. */
 .ds-247420 .btn-primary.danger {
   background: var(--warn);
   border-color: var(--warn);
   color: var(--ink);
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 .ds-247420 .btn-primary.danger:hover { filter: brightness(0.92); border-color: var(--warn); }
 
@@ -4989,7 +5002,7 @@
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
 .ds-247420 .ds-search-clear:hover { background: var(--bg-2); color: var(--fg); }
-.ds-247420 .ds-search-clear:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.ds-247420 .ds-search-clear:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 .ds-247420 .ds-field input:not(.input):focus-visible,
 .ds-247420 .ds-field textarea:not(.input):focus-visible,

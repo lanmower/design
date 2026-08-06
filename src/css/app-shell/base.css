@@ -193,6 +193,13 @@ a.ds-link-accent, .ds-prose a {
   text-underline-offset: 4px;
   text-decoration-thickness: 2px;
 }
+/* Visited state was entirely absent -- a returning user had no way to tell an
+   already-read link from an unread one, the one link state browsers don't
+   fake for you. --purple-2 keeps it distinct from both the unvisited accent
+   and any hover/danger tone already in the palette. */
+a.ds-link-accent:visited, .ds-prose a:visited {
+  color: var(--purple-2);
+}
 a.ds-link-accent:hover, .ds-prose a:hover {
   background: var(--accent); color: var(--accent-fg); text-decoration-color: transparent;
 }
