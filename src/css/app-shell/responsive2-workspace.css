@@ -326,8 +326,14 @@
    because the chat thread carries its own --measure gutter. */
 .ws-main { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; padding: var(--space-4) var(--space-5); }
 .ws-main.ws-main--flush { padding: 0; }
-/* Non-interactive scroll region (content column), not a focusable control — outline intentionally suppressed. */
+/* Skip-link target (workspace-shell.js's "#ws-main" skip-link, tabindex="-1")
+   — it does receive real keyboard-driven focus when the skip link is
+   activated, so it needs a visible ring rather than a bare outline:none. */
 .ws-main:focus { outline: none; }
+.ws-main:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: calc(-1 * var(--focus-offset));
+}
 
 /* Right context pane */
 .ws-pane {

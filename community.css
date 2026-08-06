@@ -132,11 +132,11 @@
   min-width: 18px;
   height: 18px;
   padding: 0 var(--space-1-5);
-  /* TODO(a11y): --paper is a fixed near-white on --warn (#FF5A52) -- likely
-     ~3:1, below the 4.5:1 AA floor (same defect fixed via --ink elsewhere
-     for --warn text). Small numeric badge; needs contrast audit. */
+  /* --ink, not --paper: --paper is a fixed near-white, which measures ~3:1 on
+     --warn (#FF5A52) -- below the 4.5:1 AA floor. --ink clears it (same fix
+     as .btn-primary.danger in app-shell/files.css). */
   background: var(--warn);
-  color: var(--paper);
+  color: var(--ink);
   font-family: var(--ff-mono);
   font-size: var(--fs-micro);
   font-weight: 700;
@@ -467,11 +467,11 @@
   min-width: 16px;
   height: 16px;
   padding: 0 var(--space-1-5);
-  /* TODO(a11y): --paper is a fixed near-white on --warn (#FF5A52) -- likely
-     ~3:1, below the 4.5:1 AA floor (same defect fixed via --ink elsewhere
-     for --warn text). Small numeric badge; needs contrast audit. */
+  /* --ink, not --paper: --paper is a fixed near-white, which measures ~3:1 on
+     --warn (#FF5A52) -- below the 4.5:1 AA floor. --ink clears it (same fix
+     as .btn-primary.danger in app-shell/files.css). */
   background: var(--warn);
-  color: var(--paper);
+  color: var(--ink);
   font-family: var(--ff-mono);
   font-size: var(--fs-micro);
   font-weight: 700;
@@ -1690,13 +1690,15 @@
 .fd-page-inner { display: flex; flex-direction: column; gap: var(--space-3, 16px); padding: var(--space-3, 16px); max-width: 1100px; }
 .fd-page-inner > * { min-width: 0; }
 .fd-loading { display: flex; align-items: center; gap: var(--space-2, 10px); padding: var(--space-4, 24px); color: var(--fg-2, var(--fg)); }
-.fd-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2, 10px); padding: var(--space-5, 32px) var(--space-3, 16px); color: var(--fg-2, var(--fg)); text-align: center; }
+/* Base layout shared with .ds-empty-state (primitives.css); overrides padding
+   (--space-5, denser than the shared --space-6) and color for this context. */
+.fd-empty { padding: var(--space-5, 32px) var(--space-3, 16px); color: var(--fg-2, var(--fg)); }
 /* 28px is an ICON size (empty-state mark), not a type tier — the --fs-* ladder
    tops out at --fs-xl (21px) before every remaining rung becomes a fluid
    heading clamp, so neither substitutes without visibly resizing the mark.
    --fs-2xl bridges that gap as a fixed 28px token. */
 .fd-empty-glyph { font-size: var(--fs-2xl); opacity: .55; line-height: 1; }
-.fd-pre { margin: 0; padding: var(--space-2, 10px); background: var(--bg-3, var(--panel-bg-2)); border: var(--bw-hair, 1px) solid var(--rule, var(--panel-accent)); border-radius: var(--r-1, 6px); overflow: auto; max-height: 460px; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; font-family: var(--font-mono, ui-monospace, monospace); font-size: var(--fs-micro); line-height: 1.5; }
+.fd-pre { margin: 0; padding: var(--space-2, 10px); background: var(--bg-3, var(--panel-bg-2)); border: var(--bw-hair, 1px) solid var(--rule, var(--panel-accent)); border-radius: var(--r-1, 8px); overflow: auto; max-height: 460px; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; font-family: var(--font-mono, ui-monospace, monospace); font-size: var(--fs-micro); line-height: 1.5; }
 .fd-skill-body { max-height: 320px; }
 .fd-row-actions { display: inline-flex; gap: var(--space-1, 6px); align-items: center; }
 .fd-chat { display: flex; flex-direction: column; gap: var(--space-2, 10px); height: 100%; min-height: 0; }

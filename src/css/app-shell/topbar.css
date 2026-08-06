@@ -300,13 +300,26 @@ body.canvas-host { background: transparent !important; }
 .app-main > .ds-file-stage,
 .app-main > .ds-files-stack,
 .app-main > .grow { flex: 1 1 auto; min-height: 0; }
-.app-main.narrow { max-width: var(--measure-narrow); margin: 0 auto; }
+/* width:100% is load-bearing, not redundant with max-width: .app-body is a
+   CSS grid, and margin:auto on a grid item overrides the default stretch,
+   shrinking the item to its max-content width instead of filling the track
+   and then clamping -- confirmed live at 2560px viewport where mainWidth
+   measured 688px against a correctly-resolved 1400px max-width. Explicit
+   width:100% restores fill-then-cap for every .narrow page, not just wide
+   viewports (the shrink-to-fit bug undersized even the base 760px case). */
+.app-main.narrow { width: 100%; max-width: var(--measure-narrow); margin: 0 auto; }
 /* A shell with no sidebar has no competing column, so the prose clamp there was
    leaving the whole sidebar's worth of width empty -- 760px of content inside a
    1413px shell on a real page. Widen the clamp by the space the absent sidebar
-   would have taken so the measure still reads as prose, just not starved. */
+   would have taken so the measure still reads as prose, just not starved.
+   The floor stays a fixed 980px (no-side is still readable narrow); the
+   ceiling grows with viewport instead of staying pinned at 980px forever --
+   on a 2560px ultrawide the old fixed value left over half the shell as dead
+   side margin. 1400px ceiling keeps prose measure sane (nobody wants a
+   2400px-wide paragraph) while letting non-prose content (index rows, meta)
+   actually use the extra room. */
 .app-body.no-side .app-main.narrow {
-  max-width: calc(var(--measure-narrow) + var(--sidebar-width));
+  max-width: clamp(calc(var(--measure-narrow) + var(--sidebar-width)), 60vw, 1400px);
 }
 /* Article-body heading rhythm and lede spacing, consumed by flatspace-rendered
    long-form pages (docs, papers) that drop headings/panels directly into .app-main. */

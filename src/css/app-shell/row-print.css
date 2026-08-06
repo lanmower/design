@@ -37,7 +37,7 @@
 }
 
 /* Disabled file actions (read-only row / in-flight mutation) stay visible but inert. */
-.ds-file-act:disabled { opacity: .45; cursor: default; }
+.ds-file-act:disabled { opacity: .5; cursor: default; }
 .ds-file-act:disabled:hover { background: transparent; color: var(--fg-3); }
 .ds-file-act:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 

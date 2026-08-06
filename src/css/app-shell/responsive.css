@@ -11,9 +11,9 @@
      of this value, worth aligning to 768px when touched.
    - Tablet/desktop boundary: 900px (max-width) / 901px (min-width) — used for
      main layout reflow (hero-content.css, responsive2-workspace.css)
-   - Legacy tablet band: 481px–1024px (min-width 481px / max-width 1025px) —
-     used in this file (responsive.css) for a specific tablet treatment,
-     consider migrating to the 768/900 pair
+   - Tablet landscape band: 768px–1024px (min-width 768px / max-width 1024px) —
+     used in this file (responsive.css) for a specific tablet treatment;
+     aligned to the 768px mobile/tablet boundary above (was 481px, a near-miss).
 */
 
 /* --------------------------------------------------------------------
@@ -194,7 +194,7 @@
 /* --------------------------------------------------------------------
    Tablet Landscape Breakpoint (768px to 1024px)
    ---------------------------------------------------------------------- */
-@media (min-width: 481px) and (max-width: 1024px) {
+@media (min-width: 768px) and (max-width: 1024px) {
   /* App Layout — side handled by 900px drawer block; restore for 901-1024 */
   .app-side a {
     padding: var(--space-2-75) var(--space-2-75); gap: var(--space-2);

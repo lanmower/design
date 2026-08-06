@@ -87,15 +87,16 @@
 }
 .ds-plugins-version { font-size: var(--fs-micro); color: var(--fg-3); }
 
-/* NOTE: a second toggle-switch implementation exists in data-density.css:18
-   (.ds-phasewalk-seg) at a different scale (18x10 vs this 40x22) — consider
-   consolidating into a shared .ds-switch primitive with a size modifier. */
+/* Same track/knob proportions as the shared .ds-toggle primitive
+   (states-interactions.css) -- kept as its own class since ds-plugins-toggle
+   is a plain <button>+.on instead of .ds-toggle's [aria-checked] contract,
+   but sized and colored to match it exactly rather than drifting. */
 .ds-plugins-toggle {
-  flex: 0 0 auto; width: 40px; height: 22px; border-radius: 11px; border: none; padding: 0;
+  flex: 0 0 auto; width: 40px; height: 22px; border-radius: var(--r-pill, 999px); border: none; padding: 0;
   background: var(--rule); position: relative; cursor: pointer;
   transition: background var(--dur-snap) var(--ease);
 }
-.ds-plugins-toggle.on { background: var(--accent); }
+.ds-plugins-toggle.on { background: var(--accent-ink); }
 .ds-plugins-toggle[disabled] { cursor: wait; opacity: 0.65; }
 .ds-plugins-toggle-knob {
   position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%;

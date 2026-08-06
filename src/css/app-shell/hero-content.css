@@ -484,13 +484,12 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 /* ============================================================
    Empty state
    ============================================================ */
+/* Shares its base declarations with .ds-empty-state (primitives.css) via the
+   combined selector there -- .empty only adds its own font-size/background/
+   radius modifiers on top. Was --space-8 (96px) padding; --space-6 (48px)
+   still centres a message with air without the empty state dominating the
+   fold. */
 .empty {
-  /* Was --space-8 (96px) — an empty list spent 192px of vertical space on
-     nothing. --space-6 (48px) still centres a message with air, without the
-     empty state dominating the fold. Mobile drops it further (below). */
-  padding: var(--space-6);
-  text-align: center;
-  color: var(--fg-3);
   background: var(--bg-2);
   border-radius: var(--r-1);
   font-size: var(--fs-sm);

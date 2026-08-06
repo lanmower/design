@@ -399,6 +399,17 @@
   --sidebar-width:           220px;
   --sidebar-width-collapsed: 64px;
 
+  /* Canonical breakpoint values — @media can't reference custom properties,
+     so these are documented here (not tokenized) for consistency across
+     responsive.css/responsive2-workspace.css/hero-content.css:
+       - 480px  (max-width) mobile portrait
+       - 768px  (max-width) mobile/tablet boundary, compact nav/sidebar collapse
+       - 768-1024px (min/max-width) tablet landscape band
+       - 900px  (max-width) / 901px (min-width) tablet/desktop layout reflow
+       - 1025px (min-width) desktop
+     Always use these exact values; a near-miss (e.g. 760px, 481px) should be
+     aligned to its canonical neighbour when touched. */
+
   --lh-tall:     1.4;
 
   /* Control size scale — heights for status/topbar/crumb + controls. */

@@ -387,7 +387,7 @@
 
 .chat-typing { display: inline-flex; gap: var(--space-1); align-items: center; }
 .chat-typing span {
-  width: 6px; height: 6px; border-radius: 50%; background: var(--fg-3);
+  width: 8px; height: 8px; border-radius: 50%; background: var(--fg-3);
 }
 
 @media (prefers-reduced-motion: no-preference) {

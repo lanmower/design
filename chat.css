@@ -244,7 +244,7 @@
 .chat-msg-action {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--space-1);
   min-width: 26px; height: 26px; padding: 0 var(--space-1-75); cursor: pointer;
-  border: none; border-radius: var(--r-1, 4px); background: none; color: var(--fg-3);
+  border: none; border-radius: var(--r-1, 8px); background: none; color: var(--fg-3);
   font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
 .chat-msg-action-label { font-size: var(--fs-tiny); }
@@ -312,7 +312,7 @@
   display: flex; align-items: center; gap: var(--space-2, 8px);
   padding: var(--space-1, 4px) var(--space-2, 8px);
   border: var(--bw-hair) solid var(--rule);
-  border-radius: var(--r-1, 4px);
+  border-radius: var(--r-1, 8px);
   background: var(--bg-2);
 }
 .agentchat-install-agent { flex: 0 0 auto; font-size: var(--fs-tiny); color: var(--fg-3); min-width: 8ch; }
@@ -322,7 +322,7 @@
 }
 .agentchat-install-copy {
   flex: 0 0 auto; cursor: pointer; padding: var(--space-hair) var(--space-2); min-height: 24px;
-  border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 4px);
+  border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 8px);
   background: none; color: var(--fg-3);
   font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
@@ -333,7 +333,7 @@
 /* Host-supplied transcript export actions riding the controls row. */
 .agentchat-export-act {
   cursor: pointer; padding: var(--space-1) var(--space-2-5); min-height: 32px;
-  border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 4px);
+  border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 8px);
   background: none; color: var(--fg-3);
   font-family: var(--ff-body); font-size: var(--fs-tiny);
 }
@@ -567,7 +567,7 @@
   background: var(--bg); border: var(--border-w) solid var(--accent); border-radius: var(--r-1);
   padding: var(--space-1) var(--space-2);
 }
-.ds-session-rename-input:focus { outline: none; box-shadow: var(--focus-ring-inset); }
+.ds-session-rename-input:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
 
 /* Inline delete confirm — same row height, two flat buttons, no modal;
    mirrors SessionDashboard's arm-then-confirm bulk-stop control. */
@@ -609,7 +609,7 @@
 .ds-dash-header .btn-primary.danger.is-armed { background: var(--warn); color: var(--ink); border-color: var(--warn); }
 .ds-dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-2); padding: var(--space-3); }
 @media (min-width: 1500px) { .ds-dash-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } }
-.ds-dash-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-2); }
+.ds-dash-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--bg-2); border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1); }
 
 /* Compact density — one line per session. The comfortable card stacks title +
    head + meta + actions as four flex rows and measured 208px tall on a real
@@ -777,7 +777,7 @@
   position: absolute; top: 6px; right: 6px;
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 48px; min-height: 24px; padding: var(--space-hair) var(--space-2);
-  border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 4px);
+  border: var(--bw-hair) solid var(--bg-3); border-radius: var(--r-1, 8px);
   background: var(--bg-2); color: var(--fg-2); cursor: pointer;
   font-family: var(--ff-body); font-size: var(--fs-tiny);
   opacity: 0; transition: opacity var(--dur-snap, .12s) var(--ease, ease);
