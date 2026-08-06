@@ -9454,6 +9454,9 @@
   font-size: var(--fs-sm);
 }
 .ds-247420 .vx-toggle { accent-color: var(--accent); width: 18px; height: 18px; cursor: pointer; }
+@media (pointer: coarse) {
+  .ds-247420 .vx-toggle { width: 24px; height: 24px; }
+}
 
 .ds-247420 .vx-queue {
   display: flex; align-items: center; gap: var(--space-2);
@@ -12656,6 +12659,9 @@
 .ds-247420 .ov-set-control:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; border-color: var(--accent-ink); }
 .ds-247420 input.ov-set-control[type="range"] { padding: 0; accent-color: var(--accent); }
 .ds-247420 .ov-set-toggle { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; cursor: pointer; }
+@media (pointer: coarse) {
+    .ds-247420 .ov-set-toggle { width: 24px; height: 24px; }
+}
 .ds-247420 .ov-set-btn {
     width: 100%; appearance: none; cursor: pointer;
     background: var(--accent); color: var(--accent-fg);

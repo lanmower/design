@@ -721,6 +721,28 @@ html, body {
     --accent-bright: var(--green) !important;
     --paper: #F5F0E4;
 }
+/* Themed scrollbars for every scrollable node under the OS shell (panels,
+ * sidebars, panes, modals) that doesn't already opt into its own scrollbar
+ * styling — .chat-thread below keeps its bespoke version. Firefox via
+ * scrollbar-width/-color, Chrome/Safari/Edge via ::-webkit-scrollbar. */
+.ds-247420, .ds-247420 * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--fg) 22%, transparent) transparent;
+}
+.ds-247420::-webkit-scrollbar, .ds-247420 *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.ds-247420::-webkit-scrollbar-track, .ds-247420 *::-webkit-scrollbar-track {
+    background: transparent;
+}
+.ds-247420::-webkit-scrollbar-thumb, .ds-247420 *::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--fg) 18%, transparent);
+    border-radius: var(--r-pill, 999px);
+}
+.ds-247420::-webkit-scrollbar-thumb:hover, .ds-247420 *::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--fg) 30%, transparent);
+}
 /* Window titlebar matches the 34px bar height; clamp so menubar/taskbar/titlebar
  * heights are uniform. */
 .ds-247420 .wm-bar { height: 34px; min-height: 34px; box-sizing: border-box; padding-top: var(--space-1); padding-bottom: var(--space-1); }
@@ -1815,6 +1837,8 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
   /* chat composer controls */
   .ds-247420 .chat-composer .send { width: var(--os-tap, 44px); height: var(--os-tap, 44px); }
   .ds-247420 .cc-toggle { min-height: var(--os-tap, 44px); }
+  /* sessions grid card checkbox */
+  .ds-247420 .tb-sessions-card-check { width: var(--os-tap, 44px); height: var(--os-tap, 44px); flex: 0 0 var(--os-tap, 44px); }
 }
 
 /* --- files-app row actions must reveal on coarse pointers too (the existing
