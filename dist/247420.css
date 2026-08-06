@@ -1070,8 +1070,12 @@
   text-underline-offset: 4px;
   text-decoration-thickness: 2px;
 }
+/* Visited state was entirely absent -- a returning user had no way to tell an
+   already-read link from an unread one, the one link state browsers don't
+   fake for you. --purple-2 keeps it distinct from both the unvisited accent
+   and any hover/danger tone already in the palette. */
 .ds-247420 a.ds-link-accent:visited, .ds-247420 .ds-prose a:visited {
-  color: color-mix(in oklab, var(--accent-ink) 70%, var(--purple-2, var(--fg-3)));
+  color: var(--purple-2);
 }
 .ds-247420 a.ds-link-accent:hover, .ds-247420 .ds-prose a:hover {
   background: var(--accent); color: var(--accent-fg); text-decoration-color: transparent;
@@ -1504,16 +1508,15 @@
   color: var(--fg-3);
   border-top: 1px solid var(--rule);
 }
-.ds-247420 .app-status .item { color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.ds-247420 .app-status .item { color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; display: flex; align-items: center; gap: var(--space-3); }
 .ds-247420 .app-status .item:first-of-type { color: var(--accent-ink); }
 /* Subtle divider between adjacent status segments — a thin inset rule, not a
    full-height border, so it reads as a quiet separator rather than boxing
-   each item. Skips the first item and anything right after the spread (its
-   own left margin already reads as the section break). */
-.ds-247420 .app-status .item + .item,
-.ds-247420 .app-status .spread + .item {
-  padding-left: var(--space-3);
-  border-left: 1px solid var(--rule);
+   each item. */
+.ds-247420 .app-status .item:not(:first-of-type)::before {
+  content: ''; flex: 0 0 auto;
+  width: 1px; height: 10px;
+  background: var(--rule-strong);
 }
 .ds-247420 .app-status .spread { flex: 1; }
 /* The status bar NEVER wraps: at narrow widths the trailing items (hints,
@@ -1701,7 +1704,6 @@
 .ds-247420 .chip.tone-disabled { background: var(--bg-3);        color: var(--fg-3); }
 .ds-247420 .chip.tone-blue     { background: var(--accent-tint); color: var(--accent-ink); }
 .ds-247420 .chip.tone-orange   { background: color-mix(in oklab, var(--flame) 30%, var(--sun) 70%); color: var(--ink); }
-.ds-247420 .chip.tone-yellow   { background: var(--sun);         color: var(--ink); }
 
 .ds-247420 .chip.ds-chip-removable { padding-right: var(--space-1); }
 .ds-247420 .ds-chip-remove-btn {
@@ -1741,6 +1743,7 @@
 }
 .ds-247420 .glyph { --glyph-size-sm: var(--fs-nano); --glyph-size-base: var(--fs-tiny); --glyph-size-lg: var(--fs-body); }
 .ds-247420 .glyph-sm { width: var(--icon-xs); height: var(--icon-xs); }
+.ds-247420 .glyph-base { width: 18px; height: 18px; }
 .ds-247420 .glyph-lg { width: 22px; height: 22px; }
 
 /* Shared empty-state base -- hero-content.css's .empty and community.css's
@@ -1870,7 +1873,7 @@
    rely on spacing alone, matching panel-wide's already-transparent chrome. */
 .ds-247420 .panel.panel-wide .panel-head { border-bottom: none; margin-bottom: 0; }
 .ds-247420 .panel.panel--dense .panel-head { border-bottom: var(--bw-hair) solid var(--rule); margin-bottom: 0; }
-.ds-247420 .panel-head > :last-child {
+.ds-247420 .panel-head > :last-child:not(.ds-badge) {
   font-weight: 500; color: var(--fg-3);
   font-family: var(--ff-mono); letter-spacing: 0;
 }
@@ -2569,7 +2572,7 @@
   display: inline-flex; align-items: center; gap: var(--space-hair);
   font-size: var(--fs-xs); font-weight: 600;
 }
-.ds-247420 .kpi-delta-up { color: var(--green); }
+.ds-247420 .kpi-delta-up { color: var(--success); }
 .ds-247420 .kpi-delta-down { color: var(--danger); }
 .ds-247420 .ds-sparkline path { stroke: currentColor; }
 .ds-247420 .ds-sparkline-up { color: var(--success); }
@@ -3438,6 +3441,9 @@
 /* Icon size, not type — see .ds-file-cell-media .ds-file-icon above. */
 .ds-247420 .ds-dropzone-glyph { font-size: var(--icon-lg, 24px); color: var(--fg-3); }
 .ds-247420 .ds-dropzone-label { font-size: var(--fs-sm); color: var(--fg-3); }
+.ds-247420 .ds-dropzone:not(.dragover):not(.rejected):hover {
+  border-color: var(--fg-3);
+}
 .ds-247420 .ds-dropzone.dragover {
   border-color: var(--accent);
   background: var(--accent-tint);
@@ -3451,17 +3457,26 @@
   0%, 100% { border-color: var(--accent); }
   50% { border-color: color-mix(in oklab, var(--accent) 45%, transparent); }
 }
-/* Drag-rejected: dragged payload fails a type/size guard (host sets this
-   class instead of .dragover once it inspects dataTransfer.types). --flame
-   keeps it visually distinct from the accent-toned dragover/hover states
-   and from the --warn upload-error tone used elsewhere in this file. */
-.ds-247420 .ds-dropzone.drag-rejected {
-  border-color: var(--flame);
-  background: color-mix(in oklab, var(--flame) 10%, var(--bg));
-  animation: none;
+/* Rejected — an in-flight drag carrying a disallowed payload (wrong type,
+   over the size cap). Distinct from dragover: warn tone, not accent, so the
+   two "something is happening" states never read as the same affordance. */
+.ds-247420 .ds-dropzone.rejected {
+  border-color: var(--warn);
+  background: color-mix(in oklab, var(--warn) 10%, var(--bg));
 }
-.ds-247420 .ds-dropzone.drag-rejected .ds-dropzone-glyph,
-.ds-247420 .ds-dropzone.drag-rejected .ds-dropzone-label { color: var(--flame); }
+@media (prefers-reduced-motion: no-preference) {
+  .ds-247420 .ds-dropzone.rejected { animation: ds-dropzone-shake 0.4s var(--ease); }
+}
+.ds-247420 .ds-dropzone.rejected .ds-dropzone-glyph,
+.ds-247420 .ds-dropzone.rejected .ds-dropzone-label { color: var(--warn); }
+@keyframes ds-dropzone-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+.ds-247420 .ds-dropzone--wrap.rejected > .ds-dropzone-inner {
+  outline-color: var(--warn);
+}
 /* Wrapper form (has children): no permanent chrome - the content renders as if
    the zone were not there, and the dashed affordance overlays it ONLY while a
    drag is in flight. */
@@ -3476,16 +3491,6 @@
   border-radius: var(--r-3);
 }
 .ds-247420 .ds-dropzone--wrap.dragover { animation: none; }
-.ds-247420 .ds-dropzone--wrap.drag-rejected > .ds-dropzone-inner {
-  display: flex; position: absolute; inset: 0; z-index: var(--z-raised);
-  margin: 0; padding: var(--space-3);
-  align-items: center; justify-content: center;
-  background: color-mix(in srgb, var(--bg) 84%, transparent);
-  outline: var(--bw-rule) dashed var(--flame); outline-offset: -6px;
-  border-radius: var(--r-3);
-}
-.ds-247420 .ds-dropzone--wrap.drag-rejected .ds-dropzone-glyph,
-.ds-247420 .ds-dropzone--wrap.drag-rejected .ds-dropzone-label { color: var(--flame); }
 /* Touch devices can never fire dragover — keep the pick-files affordance
    visible as a compact static row so upload stays reachable in wrap mode. */
 @media (hover: none) and (pointer: coarse) {
@@ -3579,6 +3584,8 @@
            max(var(--space-3), env(safe-area-inset-bottom))
            max(var(--space-3), env(safe-area-inset-left));
   background: color-mix(in oklab, var(--ink) 55%, transparent);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 @media (prefers-reduced-motion: no-preference) {
   .ds-247420 .ds-modal-backdrop { animation: ds-modal-fade var(--dur-base) var(--ease); }
@@ -3653,11 +3660,17 @@
    floor. --ink on the same fill measures 6.27:1. Same principle as the
    --accent/--accent-ink split the token layer documents: a light saturated fill
    takes the dark text tone. Measured in a live browser. */
+/* Severity is never color-alone (gd-14, color-blindness/grayscale-print safe):
+   the bold weight + widened letter-spacing is a shape cue that survives a
+   colorless render, matching how .btn-primary.danger differs from every
+   other .btn-primary at a glance even with color stripped out. */
 .ds-247420 .btn-primary.danger {
   background: var(--warn);
   border-color: var(--warn);
   color: var(--ink);
   box-shadow: inset 0 0 0 var(--bw-hair, 1px) color-mix(in oklab, var(--ink) 25%, transparent);
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 .ds-247420 .btn-primary.danger:hover { filter: brightness(0.92); border-color: var(--warn); }
 
@@ -5278,6 +5291,15 @@
    button) - transparent to any flex/grid layout the bare input previously
    sat in directly. */
 .ds-247420 .ds-search-input-wrap { display: contents; }
+/* Leading-icon slot, matching .app-search's icon placement in Topbar so the
+   two search surfaces read as one control family instead of icon-vs-no-icon. */
+.ds-247420 .ds-search-field { position: relative; display: inline-flex; align-items: center; min-width: 0; }
+.ds-247420 .ds-search-field .ds-search-icon {
+  position: absolute; left: var(--space-3);
+  display: inline-flex; pointer-events: none;
+  color: var(--fg-3); opacity: 0.6;
+}
+.ds-247420 .ds-search-field .ds-search-input { padding-left: calc(var(--space-3) + 15px + var(--space-2)); }
 
 /* Visible clear (X) button for SearchInput - mirrors .ds-alert-dismiss's
    ghost-icon treatment but sized to the kit's 44px touch-target floor
@@ -5299,7 +5321,7 @@
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
 .ds-247420 .ds-search-clear:hover { background: var(--bg-2); color: var(--fg); }
-.ds-247420 .ds-search-clear:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.ds-247420 .ds-search-clear:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 .ds-247420 .ds-field input:not(.input):focus-visible,
 .ds-247420 .ds-field textarea:not(.input):focus-visible,
@@ -5915,6 +5937,9 @@
   opacity: 1; background-image: radial-gradient(circle, var(--accent) 1px, transparent 1px);
 }
 .ds-247420 .ws-resizer:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
+/* Active drag state: wider + fully opaque accent grip so the handle a
+   fast-moving pointer has left :hover on still visibly reads as "gripped". */
+.ds-247420 .ws-resizer.ws-resizer-active::after { background: var(--accent); width: 3px; }
 .ds-247420 .ws-resizer.ws-resizer-rail { grid-column: 1; }
 .ds-247420 .ws-resizer.ws-resizer-sessions { grid-column: 2; }
 .ds-247420 .ws-resizer.ws-resizer-pane { grid-column: 3; justify-self: end; }
@@ -5969,7 +5994,10 @@
 .ds-247420 .ws-rail-toggle:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 .ds-247420 .ws-rail-inner { display: flex; flex-direction: column; min-height: 0; flex: 1; padding: var(--space-3) var(--space-2); gap: var(--space-2); }
 .ds-247420 .ws-rail-head { display: flex; align-items: center; min-height: 36px; padding: 0 var(--space-2); }
-.ds-247420 .ws-rail-brand { font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-body); color: var(--fg); white-space: nowrap; overflow: hidden; }
+/* Wordmark treatment matches .brand (topbar.css) — same display family/weight/
+   tracking — so the rail brand reads as the SAME logotype as every other kit's
+   topbar wordmark instead of a lighter, differently-set imitation. */
+.ds-247420 .ws-rail-brand { font-family: var(--ff-display); font-weight: 700; font-size: var(--fs-body); letter-spacing: var(--tr-tight); color: var(--fg); white-space: nowrap; overflow: hidden; }
 .ds-247420 .ws-rail-action {
   display: flex; align-items: center; gap: var(--space-2);
   padding: var(--space-2) var(--space-3); margin: var(--space-1) 0;
