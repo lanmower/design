@@ -46,7 +46,9 @@ export function SearchInput({ value = '', placeholder = 'search…', onInput, on
     // has no way to morph one element type into another in place - it produced
     // a corrupted merged DOM node carrying attributes from both shapes.
     return h('span', { key, class: 'ds-search-input-wrap' },
-        input,
+        h('span', { key: 'fld', class: 'ds-search-field' },
+            h('span', { key: 'ic', class: 'ds-search-icon', 'aria-hidden': 'true' }, Icon('search', { size: 15 })),
+            input),
         clearBtn,
         resultCount != null ? h('span', { key: 'cnt', class: 'sr-only', role: 'status', 'aria-live': 'polite' }, resultCount) : null);
 }

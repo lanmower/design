@@ -1218,10 +1218,15 @@
   padding: 6px var(--pad-x);
   display: flex; align-items: center; gap: 8px;
   font-size: var(--fs-sm); color: var(--fg-3);
+  min-width: 0;
 }
-.ds-247420 .app-crumb .sep { opacity: 0.5; }
-.ds-247420 .app-crumb .leaf { color: var(--fg); font-weight: 600; }
-.ds-247420 .app-crumb .crumb-right { margin-left: auto; color: var(--fg-3); }
+.ds-247420 .app-crumb .sep { opacity: 0.5; flex: 0 0 auto; }
+.ds-247420 .app-crumb > span:not(.sep):not(.crumb-right) {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  min-width: 0; flex: 0 1 auto;
+}
+.ds-247420 .app-crumb .leaf { color: var(--fg); font-weight: 600; flex-shrink: 1; }
+.ds-247420 .app-crumb .crumb-right { margin-left: auto; color: var(--fg-3); flex: 0 0 auto; }
 
 /* The shell is the grid cell (.app-body's fixed sidebar column); it must own
    its own scroll, not just size to content, because .app-body's row track is
@@ -1439,8 +1444,13 @@
   color: var(--fg-3);
   border-top: 1px solid var(--rule);
 }
-.ds-247420 .app-status .item { color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.ds-247420 .app-status .item { color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; display: flex; align-items: center; gap: var(--space-3); }
 .ds-247420 .app-status .item:first-of-type { color: var(--accent-ink); }
+.ds-247420 .app-status .item:not(:first-of-type)::before {
+  content: ''; flex: 0 0 auto;
+  width: 1px; height: 10px;
+  background: var(--rule-strong);
+}
 .ds-247420 .app-status .spread { flex: 1; }
 /* The status bar NEVER wraps: at narrow widths the trailing items (hints,
    agent target) drop in priority order instead of breaking mid-word onto a
@@ -4968,6 +4978,15 @@
    button) - transparent to any flex/grid layout the bare input previously
    sat in directly. */
 .ds-247420 .ds-search-input-wrap { display: contents; }
+/* Leading-icon slot, matching .app-search's icon placement in Topbar so the
+   two search surfaces read as one control family instead of icon-vs-no-icon. */
+.ds-247420 .ds-search-field { position: relative; display: inline-flex; align-items: center; min-width: 0; }
+.ds-247420 .ds-search-field .ds-search-icon {
+  position: absolute; left: var(--space-3);
+  display: inline-flex; pointer-events: none;
+  color: var(--fg-3); opacity: 0.6;
+}
+.ds-247420 .ds-search-field .ds-search-input { padding-left: calc(var(--space-3) + 15px + var(--space-2)); }
 
 /* Visible clear (X) button for SearchInput - mirrors .ds-alert-dismiss's
    ghost-icon treatment but sized to the kit's 44px touch-target floor

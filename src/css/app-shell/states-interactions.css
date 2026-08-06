@@ -591,6 +591,15 @@ hr.rule-dotted { border-top: 2px dotted var(--rule-strong); }
    button) - transparent to any flex/grid layout the bare input previously
    sat in directly. */
 .ds-search-input-wrap { display: contents; }
+/* Leading-icon slot, matching .app-search's icon placement in Topbar so the
+   two search surfaces read as one control family instead of icon-vs-no-icon. */
+.ds-search-field { position: relative; display: inline-flex; align-items: center; min-width: 0; }
+.ds-search-field .ds-search-icon {
+  position: absolute; left: var(--space-3);
+  display: inline-flex; pointer-events: none;
+  color: var(--fg-3); opacity: 0.6;
+}
+.ds-search-field .ds-search-input { padding-left: calc(var(--space-3) + 15px + var(--space-2)); }
 
 /* Visible clear (X) button for SearchInput - mirrors .ds-alert-dismiss's
    ghost-icon treatment but sized to the kit's 44px touch-target floor

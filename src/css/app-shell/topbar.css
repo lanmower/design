@@ -151,10 +151,15 @@ body.canvas-host { background: transparent !important; }
   padding: 6px var(--pad-x);
   display: flex; align-items: center; gap: 8px;
   font-size: var(--fs-sm); color: var(--fg-3);
+  min-width: 0;
 }
-.app-crumb .sep { opacity: 0.5; }
-.app-crumb .leaf { color: var(--fg); font-weight: 600; }
-.app-crumb .crumb-right { margin-left: auto; color: var(--fg-3); }
+.app-crumb .sep { opacity: 0.5; flex: 0 0 auto; }
+.app-crumb > span:not(.sep):not(.crumb-right) {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  min-width: 0; flex: 0 1 auto;
+}
+.app-crumb .leaf { color: var(--fg); font-weight: 600; flex-shrink: 1; }
+.app-crumb .crumb-right { margin-left: auto; color: var(--fg-3); flex: 0 0 auto; }
 
 /* The shell is the grid cell (.app-body's fixed sidebar column); it must own
    its own scroll, not just size to content, because .app-body's row track is
@@ -372,8 +377,13 @@ body.canvas-host { background: transparent !important; }
   color: var(--fg-3);
   border-top: 1px solid var(--rule);
 }
-.app-status .item { color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.app-status .item { color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; display: flex; align-items: center; gap: var(--space-3); }
 .app-status .item:first-of-type { color: var(--accent-ink); }
+.app-status .item:not(:first-of-type)::before {
+  content: ''; flex: 0 0 auto;
+  width: 1px; height: 10px;
+  background: var(--rule-strong);
+}
 .app-status .spread { flex: 1; }
 /* The status bar NEVER wraps: at narrow widths the trailing items (hints,
    agent target) drop in priority order instead of breaking mid-word onto a
