@@ -459,10 +459,13 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   display: inline-flex; align-items: center; gap: var(--space-hair);
   font-size: var(--fs-xs); font-weight: 600;
 }
-.kpi-delta-up { color: var(--success); }
+/* --green, not --success (--green-2): --success measures 3.2:1 on --paper-2,
+   below the 4.5:1 AA floor for text -- --success is tuned for non-text uses
+   (fills/backgrounds, where 3:1 suffices), --green clears 5.2:1 as text. */
+.kpi-delta-up { color: var(--green); }
 .kpi-delta-down { color: var(--danger); }
 .ds-sparkline path { stroke: currentColor; }
-.ds-sparkline-up { color: var(--success); }
+.ds-sparkline-up { color: var(--green); }
 .ds-sparkline-down { color: var(--danger); }
 
 /* ============================================================

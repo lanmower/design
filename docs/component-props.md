@@ -843,7 +843,7 @@ The directory listing.  `loading` and `busy` are NOT two spellings of one state 
 
 **Kind:** component
 
-**Signature:** `children`, `dragover`, `onDrop`, `onDragOver`, `onDragLeave`, `label` = `'drop files here'`, `onPick`
+**Signature:** `children`, `dragover`, `rejected`, `onDrop`, `onDragOver`, `onDragLeave`, `label` = `'drop files here'`, `onPick`
 
 ### UploadProgress
 

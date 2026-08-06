@@ -43,7 +43,12 @@ export function makeBtn(svg, label, role) {
 export function buildMenubar({ brand, withNewInstance }) {
     const menubar = document.createElement('div');
     menubar.className = 'os-menubar';
-    menubar.setAttribute('role', 'menubar');
+    // toolbar, not menubar: role="menubar" requires every direct child to be
+    // role="menuitem"/menuitemcheckbox/menuitemradio, but this bar mixes plain
+    // buttons (home, add-instance), a brand label, an instance switcher, and a
+    // clock -- only appsBtn actually opens a dropdown menu. toolbar has no such
+    // children constraint and correctly describes "a row of controls".
+    menubar.setAttribute('role', 'toolbar');
     menubar.setAttribute('aria-label', 'Desktop menu bar');
 
     const homeBtn = makeBtn(icons.home, '', 'home');
