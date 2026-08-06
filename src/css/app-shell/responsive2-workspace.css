@@ -217,6 +217,9 @@
   opacity: 1; background-image: radial-gradient(circle, var(--accent) 1px, transparent 1px);
 }
 .ws-resizer:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
+/* Active drag state: wider + fully opaque accent grip so the handle a
+   fast-moving pointer has left :hover on still visibly reads as "gripped". */
+.ws-resizer.ws-resizer-active::after { background: var(--accent); width: 3px; }
 .ws-resizer.ws-resizer-rail { grid-column: 1; }
 .ws-resizer.ws-resizer-sessions { grid-column: 2; }
 .ws-resizer.ws-resizer-pane { grid-column: 3; justify-self: end; }
@@ -271,7 +274,10 @@
 .ws-rail-toggle:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 .ws-rail-inner { display: flex; flex-direction: column; min-height: 0; flex: 1; padding: var(--space-3) var(--space-2); gap: var(--space-2); }
 .ws-rail-head { display: flex; align-items: center; min-height: 36px; padding: 0 var(--space-2); }
-.ws-rail-brand { font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-body); color: var(--fg); white-space: nowrap; overflow: hidden; }
+/* Wordmark treatment matches .brand (topbar.css) — same display family/weight/
+   tracking — so the rail brand reads as the SAME logotype as every other kit's
+   topbar wordmark instead of a lighter, differently-set imitation. */
+.ws-rail-brand { font-family: var(--ff-display); font-weight: 700; font-size: var(--fs-body); letter-spacing: var(--tr-tight); color: var(--fg); white-space: nowrap; overflow: hidden; }
 .ws-rail-action {
   display: flex; align-items: center; gap: var(--space-2);
   padding: var(--space-2) var(--space-3); margin: var(--space-1) 0;
