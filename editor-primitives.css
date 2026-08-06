@@ -1015,7 +1015,7 @@
     outline: var(--focus-w) solid var(--focus-color);
     outline-offset: var(--focus-offset);
 }
-.ds-toggle:disabled { cursor: not-allowed; }
+.ds-toggle:disabled { cursor: not-allowed; opacity: 0.5; }
 
 @media (prefers-reduced-motion: no-preference) {
     .ds-toggle { transition: background var(--dur-base, 160ms) var(--ease), border-color var(--dur-base, 160ms) var(--ease); }

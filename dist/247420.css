@@ -2329,6 +2329,7 @@
   border-radius: var(--r-pill);
 }
 .ds-247420 .cli .copy:hover { background: var(--fg-3); }
+.ds-247420 .cli .copy:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 /* Multi-line CLI block: when .cli holds .ds-cli-row / .ds-cli-comment children
    (quickstart scripts, multi-command snippets — see CliBlock in
@@ -5174,38 +5175,13 @@
 }
 
 /* Switch primitive (form-primitives.js Toggle) -- track + sliding knob.
-   Previously unstyled anywhere in this repo (a bare button with no visible
-   affordance), so every real consumer resorted to a local literal-bracket-
-   text reimplementation ('[x] on'/'[ ] off') instead. Sized off --space
-   tokens: a 40x22 track (2x11 knob diameter + 2px inset each side) is the
-   standard iOS/Material switch proportion, not an arbitrary literal. */
-.ds-247420 .ds-toggle {
-  appearance: none; -webkit-appearance: none;
-  display: inline-flex; align-items: center; flex-shrink: 0;
-  width: 40px; height: 22px; padding: 2px;
-  border: 1px solid var(--rule-strong); border-radius: var(--r-pill, 999px);
-  background: var(--bg-3); box-shadow: none; cursor: pointer;
-  transition: background-color var(--dur-snap) var(--ease), border-color var(--dur-snap) var(--ease);
-}
-.ds-247420 .ds-toggle-knob {
-  width: 16px; height: 16px; border-radius: 50%;
-  background: var(--fg-3);
-  transition: transform var(--dur-snap) var(--ease), background-color var(--dur-snap) var(--ease);
-}
-.ds-247420 .ds-toggle[aria-checked="true"] {
-  background: var(--accent-ink); border-color: var(--accent-ink);
-}
-.ds-247420 .ds-toggle[aria-checked="true"] .ds-toggle-knob {
-  background: var(--panel-0, var(--bg));
-  transform: translateX(18px);
-}
-.ds-247420 .ds-toggle:disabled { opacity: 0.5; cursor: not-allowed; }
-.ds-247420 .ds-toggle:focus-visible {
-  outline: var(--focus-w) solid var(--focus-color);
-  outline-offset: var(--focus-offset);
-}
-.ds-247420 .ds-toggle-row { display: inline-flex; align-items: center; gap: var(--space-2); cursor: pointer; }
-.ds-247420 .ds-toggle-row .ds-toggle-label { color: inherit; }
+   Canonical definition lives in editor-primitives.css alongside the rest of
+   the .ds-check/.ds-radio/.ds-toggle form-primitive family (that file loads
+   AFTER this one in the build.mjs concat order, so a second .ds-toggle block
+   here was dead weight that silently lost the cascade while still disagreeing
+   on size/colors/knob-offset with the surviving rule — a duplicate-source-of-
+   -truth foot-gun, not an intentional override). Removed; see
+   editor-primitives.css's ".ds-toggle" block for track/knob/disabled/focus. */
 
 /* -- Field controls: themed base for TextField / Select / SearchInput --
    Root fix: previously only `transition` was set, so themed apps got
@@ -12577,7 +12553,7 @@
     outline: var(--focus-w) solid var(--focus-color);
     outline-offset: var(--focus-offset);
 }
-.ds-247420 .ds-toggle:disabled { cursor: not-allowed; }
+.ds-247420 .ds-toggle:disabled { cursor: not-allowed; opacity: 0.5; }
 
 @media (prefers-reduced-motion: no-preference) {
     .ds-247420 .ds-toggle { transition: background var(--dur-base, 160ms) var(--ease), border-color var(--dur-base, 160ms) var(--ease); }

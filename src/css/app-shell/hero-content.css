@@ -219,6 +219,7 @@
   border-radius: var(--r-pill);
 }
 .cli .copy:hover { background: var(--fg-3); }
+.cli .copy:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 /* Multi-line CLI block: when .cli holds .ds-cli-row / .ds-cli-comment children
    (quickstart scripts, multi-command snippets — see CliBlock in
