@@ -2041,6 +2041,12 @@
   padding-bottom: var(--space-2); border-bottom: var(--bw-hair) solid var(--bg-3);
 }
 .ds-247420 .ds-hero-stat:last-child { border-bottom: 0; padding-bottom: 0; }
+/* HeroFromPageData's richer badge shape ({label, desc}) renders a strong
+   figure plus a muted descriptor inside the same .ds-hero-stat row — give
+   the pair a baseline-aligned inline layout instead of falling back to
+   unstyled default inline flow. */
+.ds-247420 .ds-hero-stat-n { font-weight: 700; color: var(--fg); margin-right: var(--space-2); }
+.ds-247420 .ds-hero-stat-l { color: var(--fg-3); font-size: var(--fs-xs); }
 .ds-247420 .ds-hero-title {
   font-family: var(--ff-display); font-weight: 700;
   /* Bespoke display clamp, deliberately off the --fs-* ladder: --fs-hero is
@@ -5314,8 +5320,10 @@
 .ds-247420 .ds-skeleton {
   background: linear-gradient(90deg, var(--bg-2) 25%, var(--bg-3) 50%, var(--bg-2) 75%);
   background-size: 200% 100%;
-  animation: ds-shimmer 1.5s infinite;
   border-radius: var(--r-1);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ds-247420 .ds-skeleton { animation: ds-shimmer 1.5s infinite; }
 }
 
 @keyframes ds-shimmer {
