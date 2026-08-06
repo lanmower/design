@@ -14,6 +14,22 @@ permissions:
 
 jobs:
   publish:
+    # Guards against this job's own bump commit (step "Commit version bump and
+    # tag" below) re-triggering itself in an infinite loop. In practice this
+    # guard is close to moot: a GITHUB_TOKEN-authored push (which the bump
+    # commit is, via the checkout token above) does not fire further
+    # workflow_run events on GitHub's side at all -- confirmed live: pushing a
+    # bot-authored commit produced zero workflow runs, while a human/PAT-
+    # authored push with identical tree contents triggered normally. The
+    # string-match guard is kept anyway as defense in depth (covers a PAT
+    # being swapped in later without this file being revisited), and is safe
+    # against false positives on real commits: '[skip publish]' is an exact,
+    # deliberately unusual marker, and 'chore(release):' is this workflow's
+    # own fixed commit-message prefix, not a generic conventional-commit type
+    # a contributor would coincidentally choose. Net effect: every real
+    # (human-authored) push to main bumps and publishes; the resulting bump
+    # commit itself never shows a CI/Pages checkmark, which is expected
+    # platform behavior, not a broken pipeline.
     if: "!contains(github.event.head_commit.message, '[skip publish]') && !startsWith(github.event.head_commit.message, 'chore(release):')"
     runs-on: ubuntu-latest
     steps:
