@@ -326,6 +326,7 @@
    because the chat thread carries its own --measure gutter. */
 .ws-main { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; padding: var(--space-4) var(--space-5); }
 .ws-main.ws-main--flush { padding: 0; }
+/* Non-interactive scroll region (content column), not a focusable control — outline intentionally suppressed. */
 .ws-main:focus { outline: none; }
 
 /* Right context pane */

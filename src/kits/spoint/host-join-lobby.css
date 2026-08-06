@@ -62,12 +62,12 @@
   background: var(--bg);
   color: var(--fg);
   border: 1px solid var(--bw-rule, var(--rule));
-  border-radius: var(--r-1, 6px);
-  padding: 8px 10px;
+  border-radius: var(--r-1, 8px);
+  padding: var(--space-2) var(--space-2-5);
   font: var(--fs-body) var(--ff-mono);
   outline: none;
 }
-.sp-lobby-input:focus { border-color: var(--accent); }
+.sp-lobby-input:focus-visible { border-color: var(--accent); box-shadow: var(--focus-ring-inset); }
 .sp-lobby-link { font-size: var(--fs-small, 11px); }
 .sp-lobby-code {
   font-family: var(--ff-display);

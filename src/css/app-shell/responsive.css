@@ -3,6 +3,19 @@
    Responsive Design — Mobile (480px), Tablet (1024px), Desktop (1440px+)
    ============================================================ */
 
+/* Breakpoint reference (CSS custom properties can't be used in @media queries,
+   so these are documented here for consistency — always use these exact values):
+   - Mobile/tablet boundary: 768px (max-width) — used for compact nav/sidebar
+     collapse (catalog-theme.css, sidebar-misc.css). Note: kits-appended.css
+     uses 760px for the same kind of collapse in a few places — a near-miss
+     of this value, worth aligning to 768px when touched.
+   - Tablet/desktop boundary: 900px (max-width) / 901px (min-width) — used for
+     main layout reflow (hero-content.css, responsive2-workspace.css)
+   - Legacy tablet band: 481px–1024px (min-width 481px / max-width 1025px) —
+     used in this file (responsive.css) for a specific tablet treatment,
+     consider migrating to the 768/900 pair
+*/
+
 /* --------------------------------------------------------------------
    Mobile Portrait Breakpoint (480px and below)
    ---------------------------------------------------------------------- */

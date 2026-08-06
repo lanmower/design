@@ -735,7 +735,7 @@
 .ds-preview-code::-webkit-scrollbar,
 .ds-preview-text::-webkit-scrollbar,
 .ds-preview-body::-webkit-scrollbar,
-.ds-modal-body::-webkit-scrollbar { width: 10px; height: 10px; }
+.ds-modal-body::-webkit-scrollbar { width: 8px; height: 8px; }
 .ds-preview-code::-webkit-scrollbar-thumb,
 .ds-preview-text::-webkit-scrollbar-thumb {
   background: color-mix(in oklab, var(--paper) 28%, transparent);

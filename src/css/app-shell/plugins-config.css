@@ -87,6 +87,9 @@
 }
 .ds-plugins-version { font-size: var(--fs-micro); color: var(--fg-3); }
 
+/* NOTE: a second toggle-switch implementation exists in data-density.css:18
+   (.ds-phasewalk-seg) at a different scale (18x10 vs this 40x22) — consider
+   consolidating into a shared .ds-switch primitive with a size modifier. */
 .ds-plugins-toggle {
   flex: 0 0 auto; width: 40px; height: 22px; border-radius: 11px; border: none; padding: 0;
   background: var(--rule); position: relative; cursor: pointer;

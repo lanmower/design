@@ -4,14 +4,14 @@
  * prefixer leaves it untouched (consumers mount on <html class="ds-247420">).
  * All values read kit tokens — no hardcoded hex, no inline design in the app. */
 
-.ds-247420 .site-panel { margin: var(--space-2); }
+.ds-247420 .site-panel { margin: var(--space-2); max-width: 1100px; padding: var(--space-3, 16px); }
 
 /* Hero block */
 .ds-247420 .site-hero { padding: var(--space-4); }
 .ds-247420 .site-hero-h { margin: 0 0 var(--space-2); }
 .ds-247420 .site-hero-body { margin: var(--space-2) 0 var(--space-3); color: var(--fg-2); max-width: 64ch; }
-.ds-247420 .site-chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 var(--space-3); }
-.ds-247420 .site-cta-row { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.ds-247420 .site-chip-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 0 0 var(--space-3); }
+.ds-247420 .site-cta-row { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
 
 /* Quickstart CLI block — these .cli/.prompt/.cmd nodes were previously unstyled. */
 .ds-247420 .site-cli { padding: var(--space-3); background: var(--bg); border: var(--bw-hair, 1px) solid var(--rule); border-radius: var(--r-1); }

@@ -79,6 +79,11 @@
   border-radius: var(--r-pill);
   background: var(--bg-2);
 }
+/* .ds-collab-chip-avatar (24px identity circle) and .ds-collab-chip-status
+   (8px status dot) below are both circular via border-radius: 50% but are
+   intentionally distinct: different sizes, different content (initial vs.
+   plain fill), different positioning role (layout box vs. absolute badge).
+   Not extracting a shared class -- there's nothing substantive to share. */
 .ds-collab-chip-avatar {
   position: relative;
   width: 24px;

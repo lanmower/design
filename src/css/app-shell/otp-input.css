@@ -17,11 +17,11 @@
 .ds-otp-box:focus-visible {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 40%, transparent);
+  box-shadow: var(--focus-ring-inset);
 }
 .ds-otp-box-filled { border-color: var(--rule-strong); background: var(--bg-3); }
 .ds-otp-box-error { border-color: var(--red); }
-.ds-otp-box-error:focus-visible { box-shadow: 0 0 0 3px color-mix(in oklab, var(--red) 40%, transparent); }
+.ds-otp-box-error:focus-visible { box-shadow: var(--focus-ring-inset); }
 .ds-otp-box:disabled { opacity: 0.5; cursor: default; }
 
 @media (prefers-reduced-motion: reduce) {

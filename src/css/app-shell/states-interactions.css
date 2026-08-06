@@ -34,7 +34,7 @@ tr.clickable:focus-visible {
 .btn:disabled, .btn-primary:disabled, .btn-ghost:disabled,
 .btn.is-disabled, .btn-primary.is-disabled, .btn-ghost.is-disabled,
 button:disabled, [disabled] {
-  opacity: 0.45;
+  opacity: 0.5;
   filter: grayscale(60%);
   cursor: not-allowed;
   pointer-events: none;
@@ -61,10 +61,12 @@ button:not(:disabled):hover,
 }
 /* Reusable spin utility: rotates the element (e.g. a refresh Icon used as a
    busy indicator) via the shared spinner-rotate keyframe. Respects reduced
-   motion. Use instead of a decorative rotation glyph. */
+   motion. Use instead of a decorative rotation glyph.
+   Ring spinner — use for larger blocking/full-region loading states. */
 .ds-spin { animation: spinner-rotate 0.8s linear infinite; transform-origin: center; }
 @media (prefers-reduced-motion: reduce) { .ds-spin { animation: none; } }
 
+/* Ring spinner — use for larger blocking/full-region loading states. */
 .loading { position: relative; }
 .loading::after {
   content: '';
@@ -491,7 +493,7 @@ hr.rule-dotted { border-top: 2px dotted var(--rule-strong); }
   background: var(--accent-ink); border-color: var(--accent-ink);
 }
 .ds-toggle[aria-checked="true"] .ds-toggle-knob {
-  background: var(--panel-0, #fff);
+  background: var(--panel-0, var(--bg));
   transform: translateX(18px);
 }
 .ds-toggle:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -625,7 +627,7 @@ hr.rule-dotted { border-top: 2px dotted var(--rule-strong); }
 .ds-field input:not(.input):disabled,
 .ds-field textarea:not(.input):disabled,
 .ds-field .ds-select:disabled {
-  opacity: .55;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 .ds-field input:not(.input)[aria-invalid="true"],

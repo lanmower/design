@@ -500,7 +500,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
    Form
    ============================================================ */
 .row-form {
-  display: grid; gap: 12px;
+  display: grid; gap: var(--space-2-75);
   padding: var(--space-5);
   background: var(--bg-2);
   border-radius: var(--r-3);

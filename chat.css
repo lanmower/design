@@ -567,7 +567,7 @@
   background: var(--bg); border: var(--border-w) solid var(--accent); border-radius: var(--r-1);
   padding: var(--space-1) var(--space-2);
 }
-.ds-session-rename-input:focus { outline: none; }
+.ds-session-rename-input:focus { outline: none; box-shadow: var(--focus-ring-inset); }
 
 /* Inline delete confirm — same row height, two flat buttons, no modal;
    mirrors SessionDashboard's arm-then-confirm bulk-stop control. */
@@ -1445,7 +1445,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   /* Minimap internal order: centerline < viewport < dot < tooltip. All four
      live inside the one raised widget, so they share its rung and differ
      only by a local offset. */
-  z-index: calc(var(--z-raised) + 1);
+  z-index: var(--z-raised-1);
 }
 .chat-minimap-centerline {
   position: absolute;
@@ -1465,7 +1465,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   border-radius: var(--r-pill, 999px);
   transform: translate(-50%, -50%) scale(1);
   transition: transform 0.1s;
-  z-index: calc(var(--z-raised) + 2);
+  z-index: var(--z-raised-2);
 }
 .chat-minimap-dot.is-user {
   background: color-mix(in oklab, var(--accent) 18%, transparent);
@@ -1490,7 +1490,7 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
   /* Top of the minimap's internal order. Deliberately NOT --z-tooltip: it is
      clipped to the minimap rail rather than floating over the app, so it must
      not outrank real overlays that may cover the rail. */
-  z-index: calc(var(--z-raised) + 3);
+  z-index: var(--z-raised-3);
   pointer-events: none;
   opacity: 0.45;
   font-size: var(--fs-tiny);
