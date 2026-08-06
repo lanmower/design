@@ -28,6 +28,7 @@ class DsChat extends HTMLElement {
             this._placeholder = val || '';
         } else if (name === 'title') {
             this._title = val || 'chat';
+            if (!this.hasAttribute('aria-label') || this._ariaLabelAuto) { this.setAttribute('aria-label', this._title); this._ariaLabelAuto = true; }
         } else if (name === 'sub') {
             this._sub = val || '';
         } else if (name === 'disabled') {
@@ -47,6 +48,14 @@ class DsChat extends HTMLElement {
     get disabled() { return this._disabled; }
     connectedCallback() {
         this.classList.add('ds-247420');
+        // Accessible name for the custom element itself: <ds-chat> has no
+        // implicit ARIA role/name, so a screen reader landmark/element list
+        // shows an unlabeled item without this. role="region" + aria-label
+        // (falling back to the chat title) makes it identifiable on its own,
+        // separate from the inner .chat-thread's role="log"/aria-live, which
+        // announces individual streamed messages rather than naming the widget.
+        if (!this.hasAttribute('role')) this.setAttribute('role', 'region');
+        if (!this.hasAttribute('aria-label')) this.setAttribute('aria-label', this._title || 'chat');
         this._render();
     }
     _send(text) {

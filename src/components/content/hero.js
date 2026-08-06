@@ -99,13 +99,20 @@ export function Marquee({ items = [], sep = '/' }) {
     if (!items.length) return null;
     // Two identical runs make the -50% translate loop seamless. Each text and
     // separator is a keyed span so webjsx applyDiff never sees a primitive
-    // sibling beside a keyed VElement.
+    // sibling beside a keyed VElement. Run 'a' is the real, assistive-tech-
+    // visible content; run 'b' is a purely visual duplicate for the seamless
+    // loop and must not be exposed to screen readers as doubled text, so it
+    // is wrapped in its own aria-hidden container (standard seamless-marquee
+    // technique).
     const run = (runKey) => items.flatMap((it, i) => [
         h('span', { class: 'ds-marquee-item', key: `${runKey}-i${i}` }, it),
         h('span', { class: 'ds-marquee-sep', key: `${runKey}-s${i}`, 'aria-hidden': 'true' }, sep),
     ]);
     return h('div', { class: 'ds-marquee', role: 'marquee' },
-        h('div', { class: 'ds-marquee-track' }, ...run('a'), ...run('b'))
+        h('div', { class: 'ds-marquee-track' },
+            h('span', { class: 'ds-marquee-run ds-marquee-run-a' }, ...run('a')),
+            h('span', { class: 'ds-marquee-run ds-marquee-run-b', 'aria-hidden': 'true' }, ...run('b')),
+        )
     );
 }
 

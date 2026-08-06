@@ -263,6 +263,12 @@
   display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
   gap: var(--space-3); align-items: start;
 }
+/* Mobile fallback: auto-fill can still pack 2 cramped columns down to ~320px
+   viewports; force a single column below the shared mobile breakpoint
+   (docs/responsive.md) so thumbnails and file rails always read as a list. */
+@media (max-width: 480px) {
+  .ds-file-grid-thumb { grid-template-columns: 1fr; }
+}
 .ds-file-cell {
   position: relative;
   background: var(--bg); border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);

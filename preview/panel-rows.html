@@ -11,9 +11,18 @@ body{padding:var(--space-3-5);background:var(--panel-0);color:var(--panel-text);
 .spec{outline:1px dashed var(--rule-strong);outline-offset:-1px;}
 .spec-note{margin:var(--space-5) 0 var(--space-2);}
 .spec-fill{padding:var(--space-3);}
+/* Nesting-depth specimen (below) -- depth 1/2 use the real --panel-1/--panel-2
+   surface tokens; depth 3 deliberately repeats --panel-2 (no --panel-3 token
+   exists) to demonstrate where the pattern breaks down. */
+.spec-nest{border:var(--bw-hair) solid var(--rule);border-radius:var(--r-2);padding:var(--space-3)}
+.spec-nest-1{background:var(--panel-1);margin-top:var(--space-3)}
+.spec-nest-2,.spec-nest-3{background:var(--panel-2)}
+.spec-nest-label{margin-bottom:var(--space-2)}
+.spec-nest-danger{color:var(--danger)}
 </style><script defer src="./motion-default.js"></script>
 </head><body>
 <div class="dateline"><span>247420 · PANEL ROWS · CONTAINER-QUERY</span><span class="spread"></span><span>TRIO / DUO / FLUSH</span></div>
+<div class="ds-demo-tokens-backlink tokens-backlink">tokens used here: panel, rule-strong, space — <a href="../preview/theme-map.html">tokens -&gt;</a></div>
 
 
 <h1 class="sr-only">Panel rows</h1>
@@ -74,6 +83,34 @@ body{padding:var(--space-3-5);background:var(--panel-0);color:var(--panel-text);
   <div class="panel-body spec-fill">Set <code>data-density</code> to
     <code>compact</code> or <code>spacious</code> on the root and both intervals
     move together, holding the ratio.</div>
+</div>
+
+<div class="t-label">panel-on-panel &mdash; nesting depth limit</div>
+<div class="panel ds-panel-gap spec">
+  <div class="panel-head"><span>nesting depth</span></div>
+  <div class="panel-body spec-fill">The token ladder only defines two panel
+    surfaces above the page background: <code>--panel-1</code>
+    (<code>--bg-2</code>) and <code>--panel-2</code> (<code>--bg-3</code>).
+    That is a hard, deliberate ceiling of <strong>2 levels of nesting</strong>
+    (page &rarr; panel &rarr; panel-in-panel) &mdash; there is no
+    <code>--panel-3</code> step. A third nested level has nothing left to
+    escalate to, so it either repeats <code>--panel-2</code> (the nested
+    panel becomes visually indistinguishable from its parent, and the
+    hierarchy reads as flat) or falls back to a border-only treatment. Depth
+    3+ is where the pattern breaks down: if content needs a third visually
+    distinct layer, it should not be another nested panel &mdash; use a
+    modal/drawer/dialog surface instead, which resets the depth stack rather
+    than extending it.
+    <div class="spec-nest spec-nest-1">
+      <div class="t-micro spec-nest-label">DEPTH 1 &mdash; --panel-1 / --bg-2</div>
+      <div class="spec-nest spec-nest-2">
+        <div class="t-micro spec-nest-label">DEPTH 2 &mdash; --panel-2 / --bg-3, still legible against depth 1</div>
+        <div class="spec-nest spec-nest-3">
+          <div class="t-micro spec-nest-danger">DEPTH 3 &mdash; no --panel-3 token exists; this repeats --panel-2 and is visually indistinguishable from its parent. This is the breakdown point &mdash; stop nesting panels here and use a modal/drawer instead.</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 </main>
 </body></html>

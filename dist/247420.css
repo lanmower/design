@@ -1091,6 +1091,7 @@
 .ds-247420 .app-topbar > .brand { flex: 0 0 auto; }
 .ds-247420 .app-topbar > .app-search { flex: 1 1 auto; }
 .ds-247420 .app-topbar > nav { margin-left: auto; }
+.ds-247420 .app-topbar > .app-topbar-theme { flex: 0 0 auto; }
 .ds-247420 .app-topbar nav { display: flex; gap: 4px; font-size: var(--fs-sm); flex-wrap: wrap; }
 .ds-247420 .app-topbar nav a { flex: 0 0 auto; }
 .ds-247420 .app-topbar nav a {
@@ -1654,6 +1655,13 @@
   margin: 0; font: inherit; font-size: inherit; font-weight: inherit;
   letter-spacing: inherit; text-transform: inherit; color: inherit;
 }
+/* Category glyph beside a panel title (kits / previews / decks / docs on the
+   homepage) — same inline-svg vocabulary as icons.js, sized to sit on the
+   text baseline rather than dominating it. */
+.ds-247420 .ds-panel-title-glyph {
+  display: inline-flex; align-items: center; gap: var(--space-1-5, 6px);
+}
+.ds-247420 .ds-panel-title-glyph .ds-icon { flex-shrink: 0; color: var(--fg-3); }
 .ds-247420 .panel-body { padding: var(--space-2) var(--space-3) var(--space-3); }
 .ds-247420 .panel-body > * { margin: 0; }
 /* One-line explanatory caption under a panel's title — e.g. distinguishing
@@ -1694,6 +1702,14 @@
   transition: background var(--dur-snap) var(--ease), box-shadow var(--dur-base) var(--ease-spring);
 }
 .ds-247420 .row + .row { margin-top: 2px; }
+/* Mobile tap-target floor: at compact/comfortable density on a touch
+   viewport the padding-only row height can fall under the 44px effective
+   tap target (WCAG 2.5.5), especially at [data-density="compact"] (0.75x).
+   Force a min-height on narrow/coarse-pointer viewports only, so the dense
+   desktop mono/list layout (file-row, index-row) is untouched above 640px. */
+@media (max-width: 640px), (pointer: coarse) {
+  .ds-247420 .row, .ds-247420 a.row, .ds-247420 button.row, .ds-247420 .row[role="button"] { min-height: 44px; }
+}
 /* Interactive rows (anchor/button wrappers) get a hairline lift on hover,
    matching the btn/panel elevation language — non-interactive rows (plain
    divs used as static list items) are unaffected since the selector needs a
@@ -1955,6 +1971,18 @@
   display: flex; gap: var(--space-2, 10px); flex-wrap: wrap;
   justify-content: flex-start; margin-top: var(--space-hair, 4px);
 }
+/* Hero CTA labels are content-driven (e.g. "GitHub", proper nouns from
+   home.yaml) and the site's voice is deliberately all-lowercase everywhere
+   else. Force the rendered case here rather than hand-lowercasing every
+   proper-noun label at the content layer, so a future CTA label doesn't
+   silently reintroduce Title Case. */
+.ds-247420 .ds-hero-actions .btn { text-transform: lowercase; }
+/* Filter input above the homepage's "ui kits" panel — reuses the same
+   .input token the search kit's own topbar query box uses, just placed
+   inline above the panel instead of in a topbar slot. */
+.ds-247420 .ds-kits-panel-wrap { display: flex; flex-direction: column; gap: var(--space-2, 10px); }
+.ds-247420 .ds-kits-filter { display: flex; }
+.ds-247420 .ds-kits-filter-input { width: 100%; max-width: 32ch; }
 /* Below this width the aside card's own internal rhythm (stat rows still
    stacked vertically at full width) is already correct for a narrow column —
    no separate breakpoint override needed now that .ds-hero is always a
@@ -2034,6 +2062,7 @@
   white-space: nowrap; will-change: transform;
   animation: ds-marquee-run 28s linear infinite;
 }
+.ds-247420 .ds-marquee-run { display: inline-flex; align-items: center; gap: var(--space-5); }
 .ds-247420 .ds-marquee-item { display: inline-flex; align-items: center; gap: var(--space-5); }
 .ds-247420 .ds-marquee-sep { color: var(--accent-ink); }
 .ds-247420 .ds-marquee:hover .ds-marquee-track,
@@ -2960,6 +2989,12 @@
   display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
   gap: var(--space-3); align-items: start;
 }
+/* Mobile fallback: auto-fill can still pack 2 cramped columns down to ~320px
+   viewports; force a single column below the shared mobile breakpoint
+   (docs/responsive.md) so thumbnails and file rails always read as a list. */
+@media (max-width: 480px) {
+  .ds-247420 .ds-file-grid-thumb { grid-template-columns: 1fr; }
+}
 .ds-247420 .ds-file-cell {
   position: relative;
   background: var(--bg); border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
@@ -3498,6 +3533,12 @@
 .ds-247420 .ds-demo + .ds-demo { margin-top: var(--space-2-75); }
 .ds-247420 .ds-demo-label { font-size: var(--fs-xs); font-weight: 500; margin: 0 0 var(--space-1); }
 .ds-247420 .ds-demo-desc { font-size: var(--fs-tiny); color: var(--fg-3); margin: 0 0 var(--space-2); }
+
+/* Per-preview backlink to the full token map/doc — names which token
+   families the specimen above it demonstrates, then links out to the
+   generated theme-map for the resolved values. */
+.ds-247420 .tokens-backlink { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); margin-top: 2px; }
+.ds-247420 .tokens-backlink a { color: inherit; }
 
 @media (max-width: 768px) {
   .ds-247420 .ds-catalog { flex-direction: column; }
@@ -5026,6 +5067,48 @@
   }
 }
 
+/* Stacking host for the imperative toast()/<Toast> component
+   (src/components/editor-primitives/toast.js). One fixed-position column;
+   individual toasts are appended/removed as siblings inside it rather than
+   each toast fixed-positioning itself, so more than one toast in flight
+   stacks instead of overlapping at the same bottom-right point. */
+.ds-247420 .ds-ep-toast-host {
+  position: fixed; z-index: var(--z-toast);
+  bottom: 24px; right: 24px;
+  display: flex; flex-direction: column-reverse; gap: var(--space-2);
+  pointer-events: none;
+}
+.ds-247420 .ds-ep-toast {
+  pointer-events: auto;
+  display: flex; align-items: center; gap: var(--space-3);
+  background: var(--bg-2); color: var(--fg);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-2);
+  padding: var(--space-3) var(--space-4);
+  max-width: 320px;
+  box-shadow: var(--shadow-overlay);
+  font-size: var(--fs-sm);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ds-247420 .ds-ep-toast { animation: toast-slide-in 0.3s ease-out; }
+  .ds-247420 .ds-ep-toast.leaving { animation: toast-slide-in 0.2s ease-in reverse; }
+}
+.ds-247420 .ds-ep-toast.kind-error   { border-color: var(--danger, var(--warn)); }
+.ds-247420 .ds-ep-toast.kind-success { border-color: var(--green-2); }
+.ds-247420 .ds-ep-toast.kind-warning { border-color: var(--amber); }
+.ds-247420 .ds-ep-toast-msg { flex: 1; }
+.ds-247420 .ds-ep-toast-action {
+  flex-shrink: 0;
+  background: transparent; border: 0; color: var(--accent-ink);
+  font: inherit; font-weight: 600; cursor: pointer; padding: 0;
+}
+.ds-247420 .ds-ep-toast-action:hover { text-decoration: underline; }
+
+@media (max-width: 480px) {
+  .ds-247420 .ds-ep-toast-host { bottom: 16px; right: 16px; left: 16px; }
+  .ds-247420 .ds-ep-toast { max-width: none; }
+}
+
 /* ============================================================
    Spinner — animated loading indicator
    ============================================================ */
@@ -5703,6 +5786,39 @@
   .ds-247420 .ds-live-log { height: auto; max-height: none; overflow: visible; }
   .ds-247420 .ds-stat, .ds-247420 .kpi-card { border: 1px solid var(--rule); }
   .ds-247420 .ds-session-row { break-inside: avoid; }
+
+  /* Receipt table (Receipt() in src/components/content/panel.js, `.kv`) — the
+     project_page kit's "receipt" section, and any other kv-table consumer.
+     On screen it inherits panel/token colors that can render as near-white
+     text on a printer's assumed-white page background if the browser's
+     "background graphics" print option is off (the common default); force
+     the LIGHT-theme ink/paper tokens (real print-page colors, not a raw
+     literal — --ink/--paper are the same "true black text on true white
+     page" values the light theme already defines) and visible cell borders
+     so it stays legible without relying on background-graphics printing at
+     all. break-inside:avoid keeps a receipt from splitting a row across a
+     page boundary. */
+  .ds-247420 .kv { border-collapse: collapse; width: 100%; color: var(--ink); background: var(--paper); }
+  .ds-247420 .kv tr { break-inside: avoid; }
+  .ds-247420 .kv td { border: 1px solid var(--paper-3); padding: 4px 8px; color: var(--ink); }
+
+  /* Any button/interactive-only affordance still present inside otherwise-
+     printable content (copy buttons, expand/collapse toggles, filter pills,
+     the receipt/doc section's own action row) is chrome, not content. */
+  .ds-247420 .btn, .ds-247420 .btn-primary, .ds-247420 .btn-ghost, .ds-247420 .row-act, .ds-247420 .ds-filter-pills, .ds-247420 .app-search, .ds-247420 input[type="search"] { display: none; }
+
+  /* Force real ink-on-paper for body copy: panel/fg tokens are tuned for
+     screen surfaces (including dark theme, where --panel-text can resolve
+     near-white) and a printer defaults to a white page regardless of
+     data-theme, so an unconverted dark-theme page would print near-invisible
+     text without this override. Same --ink/--paper light-theme pair as the
+     receipt table above, not a second raw literal. */
+  /* No !important: source order already wins here (this rule is the last
+     word inside its own @media print block, same as every other override in
+     this file), and an unconditional !important on `body` would beat even a
+     future print-specific consumer override with higher specificity. */
+  .ds-247420 body, .ds-247420 .app-main, .ds-247420 .page-body, .ds-247420 .ds-lede { color: var(--ink); background: var(--paper); }
+  .ds-247420 a { color: var(--ink); text-decoration: underline; }
 }
 
 /* ============================================================
@@ -6355,6 +6471,11 @@
 .ds-247420 .ds-btn-row-tight { gap: var(--space-1-75, 6px); }
 .ds-247420 .ds-key-input { flex: 1 1 160px; min-width: 0; font-family: var(--ff-mono); }
 .ds-247420 .ds-toggle-btn { min-width: 78px; }
+/* Side-by-side checked/unchecked reference pair (settings kit theme panel) --
+   documents the visual difference between states in one static, non-live
+   spot rather than requiring a viewer to toggle a real control back and
+   forth to compare. */
+.ds-247420 .ds-toggle-state-sample { display: flex; align-items: center; gap: var(--space-1-5, 6px); }
 .ds-247420 .ds-toggle-label { margin-left: var(--space-2, 8px); color: inherit; opacity: 0.7; }
 .ds-247420 .ds-btn-warn { color: var(--warn); }
 /* Raw --mascot text measures 3.11:1 on paper (fails 4.5:1); --mascot-deep is
@@ -6497,6 +6618,14 @@
   display: flex; flex-direction: column; gap: 0;
   background: var(--ink); border-radius: var(--r-1);
   font-family: var(--ff-mono); font-size: var(--fs-micro); line-height: 1.65;
+  /* Responsive strategy for long logs: cap the scrollback height and scroll
+     vertically rather than growing the page indefinitely; long command/output
+     lines wrap (see .cli .cmd's overflow-wrap: anywhere below) instead of
+     scrolling horizontally, so wrapping is the chosen default over
+     horizontal scroll for this kit. */
+  max-height: 60vh;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
 }
 /* .cli is authored in hero-content.css as a STANDALONE hero code block --
    20px/24px padding, --fs-lg type, --r-3 radius and its own --ink background
@@ -12478,6 +12607,16 @@
     box-shadow: var(--shadow-3);
     color: var(--panel-text);
     overflow: hidden;
+}
+/* prefers-reduced-transparency: the dock's whole "non-occluding" idiom (see
+   the comment above this block) relies on translucency + blur to let the
+   viewport read through behind it; a user who has disabled see-through
+   panel chrome gets a fully solid --panel-1 backing instead, same layout. */
+@media (prefers-reduced-transparency: reduce) {
+  .ds-247420 .ds-ep-dock {
+    background: var(--panel-1);
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
 }
 .ds-247420 .ds-ep-dock-left { left: 8px; }
 .ds-247420 .ds-ep-dock-right { right: 8px; }

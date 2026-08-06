@@ -1616,6 +1616,16 @@ input.ov-set-control[type="range"] { padding: 0; accent-color: var(--accent); }
     color: var(--panel-text);
     overflow: hidden;
 }
+/* prefers-reduced-transparency: the dock's whole "non-occluding" idiom (see
+   the comment above this block) relies on translucency + blur to let the
+   viewport read through behind it; a user who has disabled see-through
+   panel chrome gets a fully solid --panel-1 backing instead, same layout. */
+@media (prefers-reduced-transparency: reduce) {
+  .ds-247420 .ds-ep-dock {
+    background: var(--panel-1);
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+}
 .ds-247420 .ds-ep-dock-left { left: 8px; }
 .ds-247420 .ds-ep-dock-right { right: 8px; }
 /* Collapsed: shrink to just the header strip, freeing the viewport. */

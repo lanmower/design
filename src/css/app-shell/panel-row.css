@@ -73,6 +73,13 @@
   margin: 0; font: inherit; font-size: inherit; font-weight: inherit;
   letter-spacing: inherit; text-transform: inherit; color: inherit;
 }
+/* Category glyph beside a panel title (kits / previews / decks / docs on the
+   homepage) — same inline-svg vocabulary as icons.js, sized to sit on the
+   text baseline rather than dominating it. */
+.ds-panel-title-glyph {
+  display: inline-flex; align-items: center; gap: var(--space-1-5, 6px);
+}
+.ds-panel-title-glyph .ds-icon { flex-shrink: 0; color: var(--fg-3); }
 .panel-body { padding: var(--space-2) var(--space-3) var(--space-3); }
 .panel-body > * { margin: 0; }
 /* One-line explanatory caption under a panel's title — e.g. distinguishing
@@ -113,6 +120,14 @@
   transition: background var(--dur-snap) var(--ease), box-shadow var(--dur-base) var(--ease-spring);
 }
 .row + .row { margin-top: 2px; }
+/* Mobile tap-target floor: at compact/comfortable density on a touch
+   viewport the padding-only row height can fall under the 44px effective
+   tap target (WCAG 2.5.5), especially at [data-density="compact"] (0.75x).
+   Force a min-height on narrow/coarse-pointer viewports only, so the dense
+   desktop mono/list layout (file-row, index-row) is untouched above 640px. */
+@media (max-width: 640px), (pointer: coarse) {
+  .row, a.row, button.row, .row[role="button"] { min-height: 44px; }
+}
 /* Interactive rows (anchor/button wrappers) get a hairline lift on hover,
    matching the btn/panel elevation language — non-interactive rows (plain
    divs used as static list items) are unaffected since the selector needs a

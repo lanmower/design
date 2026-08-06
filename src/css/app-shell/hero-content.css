@@ -88,6 +88,18 @@
   display: flex; gap: var(--space-2, 10px); flex-wrap: wrap;
   justify-content: flex-start; margin-top: var(--space-hair, 4px);
 }
+/* Hero CTA labels are content-driven (e.g. "GitHub", proper nouns from
+   home.yaml) and the site's voice is deliberately all-lowercase everywhere
+   else. Force the rendered case here rather than hand-lowercasing every
+   proper-noun label at the content layer, so a future CTA label doesn't
+   silently reintroduce Title Case. */
+.ds-hero-actions .btn { text-transform: lowercase; }
+/* Filter input above the homepage's "ui kits" panel — reuses the same
+   .input token the search kit's own topbar query box uses, just placed
+   inline above the panel instead of in a topbar slot. */
+.ds-kits-panel-wrap { display: flex; flex-direction: column; gap: var(--space-2, 10px); }
+.ds-kits-filter { display: flex; }
+.ds-kits-filter-input { width: 100%; max-width: 32ch; }
 /* Below this width the aside card's own internal rhythm (stat rows still
    stacked vertically at full width) is already correct for a narrow column —
    no separate breakpoint override needed now that .ds-hero is always a
@@ -167,6 +179,7 @@
   white-space: nowrap; will-change: transform;
   animation: ds-marquee-run 28s linear infinite;
 }
+.ds-marquee-run { display: inline-flex; align-items: center; gap: var(--space-5); }
 .ds-marquee-item { display: inline-flex; align-items: center; gap: var(--space-5); }
 .ds-marquee-sep { color: var(--accent-ink); }
 .ds-marquee:hover .ds-marquee-track,

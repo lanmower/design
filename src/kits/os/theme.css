@@ -58,6 +58,8 @@ html, body {
     color: var(--os-fg);
     font: var(--fs-tiny) var(--os-font);
     height: var(--os-bar-h);
+    /* prefers-reduced-transparency handled below (near bottom of this file):
+       drops the blur + backing translucency to a solid --os-bg-2 fill. */
     padding: 0 var(--space-2-75);
     gap: var(--space-1-75);
     box-shadow: none;
@@ -1097,6 +1099,25 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
 .ds-247420 .tb-sess-overlay { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 @media (prefers-reduced-motion: reduce) {
   .ds-247420 .tb-sess-overlay { backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+
+/* -----------------------------------------------------------------------
+   prefers-reduced-transparency — distinct from prefers-reduced-motion
+   above: a user can want full animation but zero see-through/blur panel
+   chrome (vestibular-motion sensitivity vs. low-vision/legibility need are
+   different accessibility needs, so this is its own media query, not folded
+   into the motion one). Every backdrop-blur/translucent-panel effect in this
+   kit drops to a solid, fully-opaque backing fill — the blur adds nothing
+   once nothing shows through it, so it is dropped alongside the alpha for
+   one less GPU compositing pass, not just left as dead blur-on-opaque.
+   ----------------------------------------------------------------------- */
+@media (prefers-reduced-transparency: reduce) {
+  .os-menubar, .os-taskbar {
+    background: var(--os-bg-2);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .ds-247420 .tb-sess-overlay { background: var(--scrim-strong); backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
 
 /* -----------------------------------------------------------------------

@@ -5,6 +5,7 @@
 <style>body{padding:var(--space-3-5);background:var(--panel-0);color:var(--panel-text);} .row-2{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);max-width:880px}</style><script defer src="./motion-default.js"></script>
 </head><body>
 <div class="dateline"><span>247420 · FILE-BROWSER · DROPZONE</span><span class="spread"></span><span>TONAL TARGET · NO DASHED BORDERS</span></div>
+<div class="ds-demo-tokens-backlink tokens-backlink">tokens used here: panel, space — <a href="../preview/theme-map.html">tokens -&gt;</a></div>
 
 <h1 class="sr-only">Dropzone</h1>
 <main aria-label="Dropzone specimens"><div class="row-2" style="margin-top:14px">
@@ -14,7 +15,8 @@
       <div class="ds-dropzone-inner">
         <span class="ds-dropzone-glyph">⇪</span>
         <span class="ds-dropzone-label">drop files here to upload</span>
-        <a class="btn">pick files</a>
+        <label class="btn" for="dropzone-file-input-idle">pick files</label>
+        <input type="file" id="dropzone-file-input-idle" multiple class="sr-only" />
       </div>
     </div>
   </div>
@@ -24,11 +26,12 @@
       <div class="ds-dropzone-inner">
         <span class="ds-dropzone-glyph">⇪</span>
         <span class="ds-dropzone-label">release to upload</span>
-        <a class="btn">pick files</a>
+        <label class="btn" for="dropzone-file-input-dragover">pick files</label>
+        <input type="file" id="dropzone-file-input-dragover" multiple class="sr-only" />
       </div>
     </div>
   </div>
 </div>
-<div class="t-meta" style="margin-top:12px">dropzone is a tonal panel that swaps to <code>--panel-select</code> on dragover. <strong>preventDefault must run on document, not just the zone</strong> or the browser will navigate to the dropped file.</div>
+<div class="t-meta" style="margin-top:12px">dropzone is a tonal panel that swaps to <code>--panel-select</code> on dragover. <strong>preventDefault must run on document, not just the zone</strong> or the browser will navigate to the dropped file. The visually-hidden <code>&lt;input type="file"&gt;</code> behind each "pick files" label is the accessible fallback for non-drag users (keyboard, screen reader, assistive pointer).</div>
 </main>
 </body></html>

@@ -7,9 +7,14 @@ import * as webjsx from '../../../vendor/webjsx/index.js';
 import { trapTab } from '../overlay-primitives.js';
 import { Brand, Glyph } from './atoms.js';
 import { Icon } from './icons.js';
+import { ThemeToggle } from '../theme-toggle.js';
 const h = webjsx.createElement;
 
-export function Topbar({ brand = '247420', leaf = '', items = [], active = '', onNav, search } = {}) {
+// `themeToggle` defaults on: every Topbar consumer (homepage included) gets a
+// real, working light/dark/auto control in the shell chrome instead of each
+// call site having to remember to wire ThemeToggle() in by hand. Pass
+// `themeToggle: false` to opt a shell out (e.g. a kit that renders its own).
+export function Topbar({ brand = '247420', leaf = '', items = [], active = '', onNav, search, themeToggle = true } = {}) {
     return h('header', { class: 'app-topbar', role: 'banner' },
         Brand({ name: brand, leaf }),
         search ? h('label', { class: 'app-search' },
@@ -50,7 +55,8 @@ export function Topbar({ brand = '247420', leaf = '', items = [], active = '', o
                     }
                 }
             }, label);
-        }))
+        })),
+        themeToggle ? h('div', { class: 'app-topbar-theme' }, ThemeToggle({ compact: true })) : null
     );
 }
 
@@ -208,9 +214,14 @@ export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
     // brand + nav (topbar) and breadcrumb + right slot (crumb) share a single
     // band so the chrome reads as one bar, not two. Either prop alone still
     // renders on its own (consumers that pass only a topbar are unaffected).
+    // Landmark wrapper: topbar/crumb are opaque children with no semantics of
+    // their own, so screen-reader users landmark-navigating a page saw no
+    // "banner"/"navigation" region at all above <main>. <header role="banner">
+    // names the brand+nav band; the app-side-shell aside below already exists
+    // as a real <aside>, so this closes the missing landmark for the top band.
     const chrome = (topbar && crumb)
-        ? h('div', { class: 'app-chrome' }, topbar, crumb)
-        : (topbar || crumb || null);
+        ? h('header', { class: 'app-chrome', role: 'banner' }, topbar, crumb)
+        : (topbar || crumb) ? h('header', { class: 'app-chrome', role: 'banner' }, topbar || crumb) : null;
     return h('div', { class: 'app', ref: syncAppSide },
         h('a', { href: '#app-main', class: 'skip-link' }, 'skip to main content'),
         hasSide ? h('button', {

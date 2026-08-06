@@ -41,6 +41,12 @@
 .ds-demo-label { font-size: var(--fs-xs); font-weight: 500; margin: 0 0 var(--space-1); }
 .ds-demo-desc { font-size: var(--fs-tiny); color: var(--fg-3); margin: 0 0 var(--space-2); }
 
+/* Per-preview backlink to the full token map/doc — names which token
+   families the specimen above it demonstrates, then links out to the
+   generated theme-map for the resolved values. */
+.tokens-backlink { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); margin-top: 2px; }
+.tokens-backlink a { color: inherit; }
+
 @media (max-width: 768px) {
   .ds-catalog { flex-direction: column; }
   .ds-catalog-side { width: 100%; height: auto; position: static; border-right: 0; border-bottom: var(--bw-hair) solid var(--rule); }

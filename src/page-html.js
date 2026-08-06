@@ -82,13 +82,14 @@ export function renderPageHtml({
         quickstart: quickstart || null,
         statusLeft: Array.isArray(statusLeft) ? statusLeft : null,
         statusRight: Array.isArray(statusRight) ? statusRight : null,
+        seoAuthor: seo && seo.author ? seo.author : null,
     };
 
     const seoTags = seo ? renderSeoTags({ title, siteName, seo }) : '';
     const faviconTags = renderFaviconTags({ faviconHref, faviconGlyph });
 
     return `<!doctype html>
-<html lang="en" class="ds-247420">
+<html lang="en" class="ds-247420" data-theme="${theme}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -105,7 +106,7 @@ ${PAGE_INLINE_STYLES}
 <script id="__site__" type="application/json">${JSON.stringify(pageData).replace(/</g, '\\u003c')}</script>
 ${headExtra}
 </head>
-<body data-theme="${theme}">
+<body>
 <div id="app"></div>
 <script type="module">
 ${CLIENT_SCRIPT}${clientScriptExtra}

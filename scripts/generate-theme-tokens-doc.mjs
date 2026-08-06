@@ -79,6 +79,113 @@ for (const g of groupNames) {
     md += `\n`;
 }
 
+// ---- token resolution + WCAG contrast (real math, no deps) ----
+// `tokens` values are exactly what colors_and_type.css wrote — many are
+// `var(--other-token)` aliases (--bg: var(--paper)), not resolved hex. Follow
+// the chain (bounded depth against accidental cycles) to a literal #hex
+// before any contrast math can run on it.
+function resolveTokenValue(name, depth = 0) {
+    const raw = tokens[name];
+    if (raw == null || depth > 12) return null;
+    const m = /^var\((--[a-zA-Z0-9_-]+)\)$/.exec(raw.trim());
+    if (m) return resolveTokenValue(m[1], depth + 1);
+    return raw.trim();
+}
+
+function hexToRgb(hex) {
+    const h = hex.replace('#', '');
+    const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
+    if (!/^[0-9a-fA-F]{6}$/.test(full)) return null;
+    return [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16));
+}
+
+// WCAG 2.1 relative luminance + contrast ratio (spec formula, sRGB).
+function relLuminance([r, g, b]) {
+    const chan = (c) => {
+        const s = c / 255;
+        return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    };
+    const [rl, gl, bl] = [chan(r), chan(g), chan(b)];
+    return 0.2126 * rl + 0.7152 * gl + 0.0722 * bl;
+}
+
+function contrastRatio(hexA, hexB) {
+    const rgbA = hexToRgb(hexA), rgbB = hexToRgb(hexB);
+    if (!rgbA || !rgbB) return null;
+    const lA = relLuminance(rgbA), lB = relLuminance(rgbB);
+    const [lighter, darker] = lA > lB ? [lA, lB] : [lB, lA];
+    return (lighter + 0.05) / (darker + 0.05);
+}
+
+// Semantic foreground/background token PAIRS actually used together in real
+// component CSS (fg-on-panel, fg-on-accent, status text) — not every
+// combinatorial token cross-product, just the pairs the system actually
+// renders text over. AA text floor is 4.5:1 normal text / 3:1 large text or
+// UI components; every row here is normal body/label text, so 4.5:1 gates.
+const CONTRAST_PAIRS = [
+    ['--panel-text on --panel-0', '--panel-text', '--panel-0'],
+    ['--panel-text-2 on --panel-0', '--panel-text-2', '--panel-0'],
+    ['--panel-text-3 on --panel-0', '--panel-text-3', '--panel-0'],
+    ['--panel-text on --panel-1', '--panel-text', '--panel-1'],
+    ['--panel-text on --panel-2', '--panel-text', '--panel-2'],
+    ['--fg on --bg', '--fg', '--bg'],
+    ['--fg-2 on --bg', '--fg-2', '--bg'],
+    ['--fg-3 on --bg', '--fg-3', '--bg'],
+    ['--fg on --bg-2', '--fg', '--bg-2'],
+    ['--fg-3 on --bg-2', '--fg-3', '--bg-2'],
+    ['--fg on --bg-3', '--fg', '--bg-3'],
+    ['--accent-fg on --accent', '--accent-fg', '--accent'],
+    ['--accent-ink on --bg', '--accent-ink', '--bg'],
+    ['--on-color on --warn', '--on-color', '--warn'],
+    ['--on-color on --green', '--on-color', '--green'],
+    ['--cat-green-ink on --panel-0', '--cat-green-ink', '--panel-0'],
+    ['--cat-purple-ink on --panel-0', '--cat-purple-ink', '--panel-0'],
+    ['--cat-mascot-ink on --panel-0', '--cat-mascot-ink', '--panel-0'],
+];
+
+let contrastMd = `## Contrast (WCAG 2.1 AA)\n\n`;
+contrastMd += `Computed here (relative-luminance formula, WCAG 2.1 sec. 1.4.3) from the resolved hex each semantic pair evaluates to at generation time — not a hand-maintained claim. AA text floor: 4.5:1 (normal text). Re-run this generator after any primitive color change to refresh the table. Complements the DOM-level, axe-core-driven checks in \`docs/a11y-report.md\` (which catches *rendered* violations across live component markup); this table checks the *token pairs themselves* independent of any one component's usage.\n\n`;
+contrastMd += `| pair | resolved hex | ratio | AA (4.5:1) |\n|---|---|---|---|\n`;
+for (const [label, fgTok, bgTok] of CONTRAST_PAIRS) {
+    const fgHex = resolveTokenValue(fgTok);
+    const bgHex = resolveTokenValue(bgTok);
+    const ratio = fgHex && bgHex ? contrastRatio(fgHex, bgHex) : null;
+    const ratioCell = ratio != null ? ratio.toFixed(2) + ':1' : '_unresolved_';
+    const pass = ratio != null ? (ratio >= 4.5 ? 'PASS' : 'FAIL') : '?';
+    contrastMd += `| \`${label}\` | \`${fgHex || '?'}\` on \`${bgHex || '?'}\` | ${ratioCell} | ${pass} |\n`;
+}
+contrastMd += `\n`;
+md += contrastMd;
+
+// ---- Indicator-rail colors: documented bounded set ----
+// Two distinct rail concepts exist in colors_and_type.css: the CATEGORY rail
+// (--cat-*, cycled by index across category tags/avatars — see the CAT array
+// in ui_kits/community-app/app.js) and the STATUS-severity rail (--rail-*,
+// picked by name, never cycled). Both are enumerated from tokens.json
+// directly rather than hand-copied, so this section can't drift from the
+// source CSS.
+const CAT_RAIL_TOKENS = ['--cat-green', '--cat-purple', '--cat-mascot', '--cat-sun', '--cat-flame', '--cat-sky'];
+const STATUS_RAIL_TOKENS = ['--rail-info', '--rail-success', '--rail-warning', '--rail-error'];
+
+let railMd = `## Indicator-rail colors\n\n`;
+railMd += `Two bounded rail-color sets. Both are "never borders" fill/indicator colors, never used as a 1px rule.\n\n`;
+railMd += `### Category rail (cycled)\n\n`;
+railMd += `Cycled by array index (see \`CAT\` in \`ui_kits/community-app/app.js\`) across category tags/avatars/threads — category N reuses category (N mod ${CAT_RAIL_TOKENS.length})'s color. **Cycle-repeat count: ${CAT_RAIL_TOKENS.length} distinct categories before a color repeats.**\n\n`;
+railMd += `| name | token | resolved hex |\n|---|---|---|\n`;
+for (const tok of CAT_RAIL_TOKENS) {
+    const hex = resolveTokenValue(tok);
+    railMd += `| ${tok.replace('--cat-', '')} | \`${tok}\` | \`${hex || '?'}\` |\n`;
+}
+railMd += `\n### Status-severity rail (picked by name, not cycled)\n\n`;
+railMd += `Selected by severity name (info/success/warning/error), matching \`.tone-info\`/\`.tone-success\`/\`.tone-warning\`/\`.tone-error\` banner/badge/chip conventions — never cycled by index.\n\n`;
+railMd += `| name | token | resolved hex |\n|---|---|---|\n`;
+for (const tok of STATUS_RAIL_TOKENS) {
+    const hex = resolveTokenValue(tok);
+    railMd += `| ${tok.replace('--rail-', '')} | \`${tok}\` | \`${hex || '?'}\` |\n`;
+}
+railMd += `\n`;
+md += railMd;
+
 fs.mkdirSync(path.join(root, 'docs'), { recursive: true });
 fs.writeFileSync(path.join(root, 'docs', 'theme-tokens.md'), md);
 console.log(`[theme-tokens-doc] wrote docs/theme-tokens.md (${Object.keys(tokens).length} tokens, ${groupNames.length} groups)`);

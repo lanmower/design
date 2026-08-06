@@ -2,7 +2,7 @@
 
 Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs && node scripts/generate-theme-tokens-doc.mjs`. Do not hand-edit -- re-run after any token change.
 
-200 root tokens across 16 groups. Source snapshot: 2026-07-31T10:55:59.661Z.
+200 root tokens across 16 groups. Source snapshot: 2026-08-06T08:32:17.191Z.
 
 ## colors-type
 
@@ -106,7 +106,7 @@ Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs 
 | `--green` | `#3fb950` | `chat.css`, `community.css`, `editor-primitives.css`, `src/css/app-shell/base.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/states-interactions.css` |
 | `--green-2` | `#3fb950` | `chat.css`, `community.css`, `editor-primitives.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/states-interactions.css` |
 | `--mascot-deep` | `#ff7b72` | `src/css/app-shell/chat-polish.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/states-interactions.css` |
-| `--panel-0` | `var(--bg)` | _(unused outside colors_and_type.css)_ |
+| `--panel-0` | `var(--bg)` | `src/css/app-shell/states-interactions.css` |
 | `--panel-1` | `var(--bg-2)` | `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/panel-row.css` |
 | `--panel-2` | `var(--bg-3)` | `chat.css`, `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/kits-appended.css` |
 | `--panel-3` | `color-mix(in oklab, var(--fg) 20%, transparent)` | `community.css`, `editor-primitives.css`, `gm-prose.css` |
@@ -146,7 +146,7 @@ Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs 
 | `--flame` | `#FF5A1F` | `chat.css`, `community.css`, `editor-primitives.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/files.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/states-interactions.css` |
 | `--green` | `#5CBF52` | `chat.css`, `community.css`, `editor-primitives.css`, `src/css/app-shell/base.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/states-interactions.css` |
 | `--mascot-deep` | `#FF5C9E` | `src/css/app-shell/chat-polish.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/states-interactions.css` |
-| `--panel-0` | `var(--bg)` | _(unused outside colors_and_type.css)_ |
+| `--panel-0` | `var(--bg)` | `src/css/app-shell/states-interactions.css` |
 | `--panel-1` | `var(--bg-2)` | `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/panel-row.css` |
 | `--panel-2` | `var(--bg-3)` | `chat.css`, `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/kits-appended.css` |
 | `--panel-3` | `color-mix(in oklab, var(--fg) 20%, transparent)` | `community.css`, `editor-primitives.css`, `gm-prose.css` |
@@ -191,9 +191,9 @@ Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs 
 | `--fg` | `var(--ink)` | `app-surfaces.css`, `chat.css`, `community.css`, `community-app.css`, `editor-primitives.css`, `marketing.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-basic.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/sidebar-misc.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css`, `src/kits/spoint/game-hud.css`, `src/kits/spoint/host-join-lobby.css`, `src/kits/spoint/loading-screen.css` |
 | `--fg-2` | `var(--ink-2)` | `app-surfaces.css`, `chat.css`, `community.css`, `community-app.css`, `editor-primitives.css`, `marketing.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css`, `src/kits/spoint/loading-screen.css` |
 | `--fg-3` | `var(--ink-3)` | `app-surfaces.css`, `chat.css`, `community.css`, `community-app.css`, `editor-primitives.css`, `marketing.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/sidebar-misc.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css`, `src/kits/spoint/host-join-lobby.css`, `src/kits/spoint/loading-screen.css` |
-| `--paper` | `#F5F0E4` | `app-surfaces.css`, `community.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/states-interactions.css` |
+| `--paper` | `#F5F0E4` | `app-surfaces.css`, `community.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/states-interactions.css` |
 | `--paper-2` | `#EFE9DB` | `src/css/app-shell/kits-appended.css` |
-| `--paper-3` | `#E3DAC7` | `src/css/app-shell/files.css`, `src/css/app-shell/kits-appended.css` |
+| `--paper-3` | `#E3DAC7` | `src/css/app-shell/files.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/row-print.css` |
 
 ## override-data-typescale-lg
 
@@ -272,7 +272,7 @@ Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs 
 | `--bg-2` | `var(--paper-2)` | `chat.css`, `community.css`, `community-app.css`, `editor-primitives.css`, `marketing.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-basic.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/sidebar-misc.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css`, `src/kits/spoint/host-join-lobby.css` |
 | `--bg-3` | `var(--paper-3)` | `chat.css`, `community.css`, `community-app.css`, `editor-primitives.css`, `src/css/app-shell/base.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/sidebar-misc.css`, `src/css/app-shell/states-interactions.css`, `src/kits/spoint/game-hud.css`, `src/kits/spoint/host-join-lobby.css`, `src/kits/spoint/loading-screen.css` |
 | `--bw-chunk` | `4px` | `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/base.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/states-interactions.css` |
-| `--bw-hair` | `1px` | `app-surfaces.css`, `chat.css`, `community.css`, `editor-primitives.css`, `marketing.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/states-interactions.css` |
+| `--bw-hair` | `1px` | `app-surfaces.css`, `chat.css`, `community.css`, `editor-primitives.css`, `marketing.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css` |
 | `--bw-rule` | `2px` | `community.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/states-interactions.css`, `src/kits/spoint/host-join-lobby.css` |
 | `--bw-slab` | `8px` | _(unused outside colors_and_type.css)_ |
 | `--cat-flame` | `var(--flame)` | _(unused outside colors_and_type.css)_ |
@@ -314,7 +314,7 @@ Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs 
 | `--field-height` | `var(--ctl-md)` | `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css` |
 | `--flame` | `#C53E00` | `chat.css`, `community.css`, `editor-primitives.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/files.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/states-interactions.css` |
 | `--focus-color` | `var(--accent-ink)` | `app-surfaces.css`, `chat.css`, `community.css`, `editor-primitives.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css` |
-| `--focus-offset` | `2px` | `app-surfaces.css`, `chat.css`, `editor-primitives.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/files.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css` |
+| `--focus-offset` | `2px` | `app-surfaces.css`, `chat.css`, `editor-primitives.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css` |
 | `--focus-ring-inset` | `inset 0 0 0 var(--focus-w) var(--focus-color)` | `chat.css`, `editor-primitives.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-basic.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/sidebar-misc.css` |
 | `--focus-w` | `2px` | `app-surfaces.css`, `chat.css`, `community.css`, `editor-primitives.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css` |
 | `--fs-body` | `16px` | `chat.css`, `community.css`, `editor-primitives.css`, `src/css/app-shell/base.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/files.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/states-interactions.css`, `src/kits/spoint/host-join-lobby.css`, `src/kits/spoint/loading-screen.css` |
@@ -322,17 +322,17 @@ Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs 
 | `--fs-h1-app` | `clamp(22px, 2.4cqi, 30px)` | `src/css/app-shell/base.css`, `src/css/app-shell/kits-appended.css` |
 | `--fs-h2` | `clamp(28px, 3.6cqi, 44px)` | `src/css/app-shell/base.css`, `src/css/app-shell/kits-appended.css`, `src/kits/spoint/host-join-lobby.css`, `src/kits/spoint/loading-screen.css` |
 | `--fs-h2-app` | `clamp(19px, 2cqi, 24px)` | `src/css/app-shell/base.css`, `src/css/app-shell/kits-appended.css` |
-| `--fs-h3` | `clamp(22px, 2.4cqi, 30px)` | `community.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/kits/spoint/host-join-lobby.css` |
+| `--fs-h3` | `clamp(25px, 2.6cqi, 34px)` | `community.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/kits/spoint/host-join-lobby.css` |
 | `--fs-h3-app` | `clamp(17px, 1.8cqi, 20px)` | `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/kits-appended.css` |
-| `--fs-h4` | `clamp(19px, 1.8cqi, 24px)` | `src/css/app-shell/base.css`, `src/css/app-shell/chat-polish.css` |
+| `--fs-h4` | `clamp(22px, 2cqi, 26px)` | `src/css/app-shell/base.css`, `src/css/app-shell/chat-polish.css` |
 | `--fs-h4-app` | `clamp(15px, 1.6cqi, 17px)` | `src/css/app-shell/base.css` |
 | `--fs-hero` | `clamp(42px, 7cqi, 96px)` | `src/css/app-shell/base.css`, `src/css/app-shell/kits-appended.css` |
 | `--fs-lg` | `18px` | `app-surfaces.css`, `community.css`, `editor-primitives.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/topbar.css` |
 | `--fs-mega` | `clamp(56px, 11cqi, 168px)` | `src/css/app-shell/base.css` |
 | `--fs-micro` | `12px` | `chat.css`, `community.css`, `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/sidebar-misc.css`, `src/css/app-shell/topbar.css` |
 | `--fs-nano` | `11px` | `gm-prose.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/primitives.css` |
-| `--fs-pico` | `10px` | `app-surfaces.css`, `chat.css`, `community.css`, `src/css/app-shell/kits-appended.css` |
-| `--fs-sm` | `15px` | `chat.css`, `community.css`, `community-app.css`, `editor-primitives.css`, `marketing.css`, `src/css/app-shell/base.css`, `src/css/app-shell/chat-basic.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/sidebar-misc.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css`, `src/kits/spoint/host-join-lobby.css`, `src/kits/spoint/loading-screen.css` |
+| `--fs-pico` | `10px` | `app-surfaces.css`, `chat.css`, `community.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/kits-appended.css` |
+| `--fs-sm` | `15px` | `chat.css`, `community.css`, `community-app.css`, `editor-primitives.css`, `marketing.css`, `src/css/app-shell/base.css`, `src/css/app-shell/chat-basic.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/sidebar-misc.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css`, `src/kits/spoint/host-join-lobby.css`, `src/kits/spoint/loading-screen.css` |
 | `--fs-tiny` | `13px` | `chat.css`, `community.css`, `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/states-interactions.css` |
 | `--fs-xl` | `21px` | `chat.css`, `community.css`, `src/css/app-shell/base.css`, `src/css/app-shell/hero-content.css` |
 | `--fs-xs` | `14px` | `chat.css`, `community.css`, `gm-prose.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css` |
@@ -344,7 +344,7 @@ Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs 
 | `--green-deep` | `#133F10` | `src/css/app-shell/primitives.css` |
 | `--green-tint` | `#D7E4C2` | `src/css/app-shell/primitives.css` |
 | `--gutter` | `calc(var(--space-4) * var(--density))` | _(unused outside colors_and_type.css)_ |
-| `--ink` | `#1A1A1A` | `app-surfaces.css`, `chat.css`, `community.css`, `community-app.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/states-interactions.css` |
+| `--ink` | `#1A1A1A` | `app-surfaces.css`, `chat.css`, `community.css`, `community-app.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/states-interactions.css` |
 | `--ink-2` | `#333338` | _(unused outside colors_and_type.css)_ |
 | `--ink-3` | `#525252` | _(unused outside colors_and_type.css)_ |
 | `--ink-3-dark` | `#4D4D52` | _(unused outside colors_and_type.css)_ |
@@ -361,13 +361,13 @@ Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs 
 | `--mascot-on-ink` | `#FF5C9E` | `src/css/app-shell/kits-appended.css` |
 | `--mascot-tint` | `#F7CEDD` | `src/css/app-shell/primitives.css` |
 | `--measure` | `68ch` | `chat.css`, `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/base.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css` |
-| `--measure-narrow` | `760px` | `gm-prose.css`, `src/css/app-shell/topbar.css` |
+| `--measure-narrow` | `760px` | `src/css/app-shell/topbar.css` |
 | `--measure-wide` | `940px` | `src/css/app-shell/topbar.css` |
 | `--on-accent` | `var(--accent-fg)` | `chat.css`, `community-app.css`, `editor-primitives.css` |
 | `--on-color` | `#fff` | `community.css`, `editor-primitives.css`, `src/css/app-shell/primitives.css` |
 | `--pad-x` | `calc(var(--space-5) * var(--density))` | `src/css/app-shell/sidebar-misc.css`, `src/css/app-shell/topbar.css` |
 | `--pad-y` | `calc(var(--space-5) * var(--density))` | _(unused outside colors_and_type.css)_ |
-| `--panel-0` | `var(--bg)` | _(unused outside colors_and_type.css)_ |
+| `--panel-0` | `var(--bg)` | `src/css/app-shell/states-interactions.css` |
 | `--panel-1` | `var(--bg-2)` | `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/panel-row.css` |
 | `--panel-2` | `var(--bg-3)` | `chat.css`, `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/kits-appended.css` |
 | `--panel-3` | `color-mix(in oklab, var(--fg) 12%, transparent)` | `community.css`, `editor-primitives.css`, `gm-prose.css` |
@@ -380,10 +380,10 @@ Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs 
 | `--panel-text` | `var(--fg)` | `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/base.css`, `src/css/app-shell/kits-appended.css` |
 | `--panel-text-2` | `var(--fg-2)` | `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/base.css`, `src/css/app-shell/kits-appended.css` |
 | `--panel-text-3` | `var(--fg-3)` | `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/kits-appended.css` |
-| `--paper` | `#FFFFFF` | `app-surfaces.css`, `community.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/states-interactions.css` |
+| `--paper` | `#FFFFFF` | `app-surfaces.css`, `community.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/states-interactions.css` |
 | `--paper-2` | `#F2F2F2` | `src/css/app-shell/kits-appended.css` |
-| `--paper-3` | `#E5E5E5` | `src/css/app-shell/files.css`, `src/css/app-shell/kits-appended.css` |
-| `--paper-3-dark` | `#9B9B9B` | `src/css/app-shell/kits-appended.css` |
+| `--paper-3` | `#E5E5E5` | `src/css/app-shell/files.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/row-print.css` |
+| `--paper-3-dark` | `#BEBEBE` | `src/css/app-shell/kits-appended.css` |
 | `--purple` | `#3A0140` | `chat.css`, `editor-primitives.css`, `src/css/app-shell/files.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/states-interactions.css` |
 | `--purple-2` | `#7F18A4` | `chat.css`, `editor-primitives.css`, `src/css/app-shell/files.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/states-interactions.css` |
 | `--purple-deep` | `#220026` | `src/css/app-shell/primitives.css` |
@@ -393,10 +393,10 @@ Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs 
 | `--r-2` | `10px` | `chat.css`, `community.css`, `editor-primitives.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/sidebar-misc.css`, `src/css/app-shell/states-interactions.css`, `src/kits/spoint/host-join-lobby.css` |
 | `--r-3` | `14px` | `community.css`, `src/css/app-shell/base.css`, `src/css/app-shell/chat-basic.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css` |
 | `--r-hair` | `2px` | `chat.css`, `community.css`, `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/states-interactions.css`, `src/kits/spoint/loading-screen.css` |
-| `--r-pill` | `999px` | `chat.css`, `community.css`, `editor-primitives.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-basic.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/topbar.css` |
+| `--r-pill` | `999px` | `chat.css`, `community.css`, `editor-primitives.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-basic.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css` |
 | `--row-height` | `calc(40px * var(--density))` | _(unused outside colors_and_type.css)_ |
 | `--rule` | `color-mix(in oklab, currentColor 14%, transparent)` | `app-surfaces.css`, `chat.css`, `community.css`, `editor-primitives.css`, `gm-prose.css`, `marketing.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css`, `src/kits/spoint/host-join-lobby.css` |
-| `--rule-strong` | `color-mix(in oklab, currentColor 28%, transparent)` | `chat.css`, `community.css`, `editor-primitives.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/states-interactions.css` |
+| `--rule-strong` | `color-mix(in oklab, currentColor 28%, transparent)` | `chat.css`, `community.css`, `editor-primitives.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css` |
 | `--scrim` | `color-mix(in oklab, var(--fg) 40%, transparent)` | `editor-primitives.css` |
 | `--scrim-media` | `color-mix(in oklab, var(--fg) 85%, transparent)` | `editor-primitives.css` |
 | `--scrim-strong` | `color-mix(in oklab, var(--fg) 72%, transparent)` | `editor-primitives.css` |
@@ -408,7 +408,7 @@ Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs 
 | `--sky` | `#3A6EFF` | `chat.css`, `editor-primitives.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/files.css`, `src/css/app-shell/loading-alerts.css` |
 | `--space-0` | `0` | _(unused outside colors_and_type.css)_ |
 | `--space-1` | `4px` | `app-surfaces.css`, `chat.css`, `community.css`, `community-app.css`, `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/states-interactions.css` |
-| `--space-1-5` | `5px` | `chat.css`, `community.css`, `editor-primitives.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/states-interactions.css` |
+| `--space-1-5` | `5px` | `chat.css`, `community.css`, `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/states-interactions.css` |
 | `--space-1-75` | `6px` | `chat.css`, `community.css`, `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive.css`, `src/css/app-shell/states-interactions.css` |
 | `--space-10` | `192px` | _(unused outside colors_and_type.css)_ |
 | `--space-2` | `8px` | `app-surfaces.css`, `chat.css`, `community.css`, `editor-primitives.css`, `gm-prose.css`, `marketing.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/row-print.css`, `src/css/app-shell/sidebar-misc.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css` |
@@ -417,10 +417,10 @@ Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs 
 | `--space-3` | `16px` | `chat.css`, `community.css`, `editor-primitives.css`, `gm-prose.css`, `marketing.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/responsive.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/sidebar-misc.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css` |
 | `--space-3-5` | `20px` | `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/kits-appended.css` |
 | `--space-4` | `24px` | `app-surfaces.css`, `chat.css`, `community.css`, `editor-primitives.css`, `marketing.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-basic.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/loading-alerts.css`, `src/css/app-shell/panel-row.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/sidebar-misc.css`, `src/css/app-shell/states-interactions.css`, `src/css/app-shell/topbar.css` |
-| `--space-5` | `32px` | `app-surfaces.css`, `chat.css`, `community.css`, `gm-prose.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/responsive.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/topbar.css` |
+| `--space-5` | `32px` | `app-surfaces.css`, `chat.css`, `community.css`, `gm-prose.css`, `src/css/app-shell/base.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/responsive.css`, `src/css/app-shell/responsive2-workspace.css`, `src/css/app-shell/topbar.css` |
 | `--space-6` | `48px` | `app-surfaces.css`, `chat.css`, `src/css/app-shell/base.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/responsive.css` |
 | `--space-7` | `64px` | `src/css/app-shell/hero-content.css`, `src/css/app-shell/kits-appended.css`, `src/css/app-shell/responsive.css` |
-| `--space-8` | `96px` | `src/css/app-shell/hero-content.css` |
+| `--space-8` | `96px` | `src/css/app-shell/base.css`, `src/css/app-shell/hero-content.css` |
 | `--space-9` | `128px` | `src/css/app-shell/hero-content.css` |
 | `--space-hair` | `2px` | `chat.css`, `community.css`, `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/chat-polish.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/hero-content.css`, `src/css/app-shell/responsive.css`, `src/css/app-shell/topbar.css` |
 | `--space-half` | `3px` | `chat.css`, `community.css`, `editor-primitives.css`, `gm-prose.css`, `src/css/app-shell/catalog-theme.css`, `src/css/app-shell/data-density.css`, `src/css/app-shell/files.css`, `src/css/app-shell/primitives.css`, `src/css/app-shell/responsive.css` |
@@ -447,6 +447,59 @@ Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs 
 | `--z-sticky` | `200` | `chat.css`, `src/css/app-shell/kits-appended.css` |
 | `--z-toast` | `900` | `editor-primitives.css`, `src/css/app-shell/states-interactions.css` |
 | `--z-tooltip` | `1000` | `editor-primitives.css` |
-| `--z-top` | `1100` | `editor-primitives.css`, `src/css/app-shell/base.css`, `src/css/app-shell/states-interactions.css`, `src/kits/spoint/loading-screen.css` |
+| `--z-top` | `1100` | `editor-primitives.css`, `src/css/app-shell/base.css`, `src/kits/spoint/loading-screen.css` |
 | `--z-window` | `500` | _(unused outside colors_and_type.css)_ |
+
+## Contrast (WCAG 2.1 AA)
+
+Computed here (relative-luminance formula, WCAG 2.1 sec. 1.4.3) from the resolved hex each semantic pair evaluates to at generation time — not a hand-maintained claim. AA text floor: 4.5:1 (normal text). Re-run this generator after any primitive color change to refresh the table. Complements the DOM-level, axe-core-driven checks in `docs/a11y-report.md` (which catches *rendered* violations across live component markup); this table checks the *token pairs themselves* independent of any one component's usage.
+
+| pair | resolved hex | ratio | AA (4.5:1) |
+|---|---|---|---|
+| `--panel-text on --panel-0` | `#1A1A1A` on `#FFFFFF` | 17.40:1 | PASS |
+| `--panel-text-2 on --panel-0` | `#333338` on `#FFFFFF` | 12.56:1 | PASS |
+| `--panel-text-3 on --panel-0` | `#525252` on `#FFFFFF` | 7.81:1 | PASS |
+| `--panel-text on --panel-1` | `#1A1A1A` on `#F2F2F2` | 15.55:1 | PASS |
+| `--panel-text on --panel-2` | `#1A1A1A` on `#E5E5E5` | 13.82:1 | PASS |
+| `--fg on --bg` | `#1A1A1A` on `#FFFFFF` | 17.40:1 | PASS |
+| `--fg-2 on --bg` | `#333338` on `#FFFFFF` | 12.56:1 | PASS |
+| `--fg-3 on --bg` | `#525252` on `#FFFFFF` | 7.81:1 | PASS |
+| `--fg on --bg-2` | `#1A1A1A` on `#F2F2F2` | 15.55:1 | PASS |
+| `--fg-3 on --bg-2` | `#525252` on `#F2F2F2` | 6.98:1 | PASS |
+| `--fg on --bg-3` | `#1A1A1A` on `#E5E5E5` | 13.82:1 | PASS |
+| `--accent-fg on --accent` | `#FFFFFF` on `#262626` | 15.13:1 | PASS |
+| `--accent-ink on --bg` | `#171717` on `#FFFFFF` | 17.93:1 | PASS |
+| `--on-color on --warn` | `#fff` on `#C41C0C` | 5.97:1 | PASS |
+| `--on-color on --green` | `#fff` on `#247420` | 5.84:1 | PASS |
+| `--cat-green-ink on --panel-0` | `#133F10` on `#FFFFFF` | 12.03:1 | PASS |
+| `--cat-purple-ink on --panel-0` | `#220026` on `#FFFFFF` | 19.16:1 | PASS |
+| `--cat-mascot-ink on --panel-0` | `#B81F63` on `#FFFFFF` | 6.15:1 | PASS |
+
+## Indicator-rail colors
+
+Two bounded rail-color sets. Both are "never borders" fill/indicator colors, never used as a 1px rule.
+
+### Category rail (cycled)
+
+Cycled by array index (see `CAT` in `ui_kits/community-app/app.js`) across category tags/avatars/threads — category N reuses category (N mod 6)'s color. **Cycle-repeat count: 6 distinct categories before a color repeats.**
+
+| name | token | resolved hex |
+|---|---|---|
+| green | `--cat-green` | `#3A9A34` |
+| purple | `--cat-purple` | `#7F18A4` |
+| mascot | `--cat-mascot` | `#FF2E84` |
+| sun | `--cat-sun` | `#F5C344` |
+| flame | `--cat-flame` | `#C53E00` |
+| sky | `--cat-sky` | `#3A6EFF` |
+
+### Status-severity rail (picked by name, not cycled)
+
+Selected by severity name (info/success/warning/error), matching `.tone-info`/`.tone-success`/`.tone-warning`/`.tone-error` banner/badge/chip conventions — never cycled by index.
+
+| name | token | resolved hex |
+|---|---|---|
+| info | `--rail-info` | `#3A6EFF` |
+| success | `--rail-success` | `#3A9A34` |
+| warning | `--rail-warning` | `#7C570F` |
+| error | `--rail-error` | `#C41C0C` |
 

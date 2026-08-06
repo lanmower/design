@@ -43,7 +43,11 @@ function writeStored(mode) {
 
 function writeAttr(mode) {
     if (!isBrowser()) return;
-    document.body.setAttribute('data-theme', mode);
+    // data-theme must live on the same element carrying the .ds-247420 scope
+    // class (<html>, per every shipped page template) -- the bundled CSS
+    // selectors are `.ds-247420[data-theme="ink"]`, which cannot match if
+    // the attribute sits on <body> instead of <html>.
+    document.documentElement.setAttribute('data-theme', mode);
 }
 
 function ensureMq() {
@@ -169,7 +173,7 @@ export function initDirection() {
 export function initTheme() {
     if (!isBrowser()) return 'auto';
     const stored = readStored();
-    const fromAttr = document.body.getAttribute('data-theme');
+    const fromAttr = document.documentElement.getAttribute('data-theme');
     const initial = stored || (VALID.has(fromAttr) ? fromAttr : 'auto');
     applyTheme(initial);
     // Restore persisted accent/density (no-op if none stored — keeps the

@@ -451,6 +451,11 @@
 .ds-btn-row-tight { gap: var(--space-1-75, 6px); }
 .ds-key-input { flex: 1 1 160px; min-width: 0; font-family: var(--ff-mono); }
 .ds-toggle-btn { min-width: 78px; }
+/* Side-by-side checked/unchecked reference pair (settings kit theme panel) --
+   documents the visual difference between states in one static, non-live
+   spot rather than requiring a viewer to toggle a real control back and
+   forth to compare. */
+.ds-toggle-state-sample { display: flex; align-items: center; gap: var(--space-1-5, 6px); }
 .ds-toggle-label { margin-left: var(--space-2, 8px); color: inherit; opacity: 0.7; }
 .ds-btn-warn { color: var(--warn); }
 /* Raw --mascot text measures 3.11:1 on paper (fails 4.5:1); --mascot-deep is
@@ -593,6 +598,14 @@
   display: flex; flex-direction: column; gap: 0;
   background: var(--ink); border-radius: var(--r-1);
   font-family: var(--ff-mono); font-size: var(--fs-micro); line-height: 1.65;
+  /* Responsive strategy for long logs: cap the scrollback height and scroll
+     vertically rather than growing the page indefinitely; long command/output
+     lines wrap (see .cli .cmd's overflow-wrap: anywhere below) instead of
+     scrolling horizontally, so wrapping is the chosen default over
+     horizontal scroll for this kit. */
+  max-height: 60vh;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
 }
 /* .cli is authored in hero-content.css as a STANDALONE hero code block --
    20px/24px padding, --fs-lg type, --r-3 radius and its own --ink background

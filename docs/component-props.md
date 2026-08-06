@@ -103,7 +103,7 @@ The standard button/link factory. Renders an `<a>` when `href` is given, otherwi
 
 **Kind:** component
 
-**Signature:** `brand` = `'247420'`, `leaf` = `''`, `items` = `[]`, `active` = `''`, `onNav`, `search`
+**Signature:** `brand` = `'247420'`, `leaf` = `''`, `items` = `[]`, `active` = `''`, `onNav`, `search`, `themeToggle` = `true`
 
 ### Crumb
 

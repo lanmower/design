@@ -29,6 +29,14 @@ npm install anentrypoint-design
 </script>
 ```
 
+`@latest` is unpinned — a production deploy tracking it silently picks up every future release, breaking or not, with no warning. Pin to the exact version you tested against instead:
+
+```html
+<script type="importmap">
+  { "imports": { "anentrypoint-design": "https://unpkg.com/anentrypoint-design@0.0.476/dist/247420.js" } }
+</script>
+```
+
 Add the scope class on a wrapping element and you are done:
 
 ```html
@@ -50,6 +58,72 @@ mount(document.getElementById('app'), () => C.AppShell({
 ```
 
 `mount` automatically adds `.ds-247420` to your root.
+
+## Framework integration
+
+The SDK is framework-free (webjsx + custom elements), so React/Vue integration
+means treating `<ds-chat>` (see below) as an imperative DOM element rather than
+a native component.
+
+**React** — set props/attributes on the element via `ref`, after import registers it:
+
+```jsx
+import { useRef, useEffect } from 'react';
+import 'anentrypoint-design'; // registers <ds-chat>
+
+function ChatWidget({ messages, onSend }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    el.messages = messages;
+    const handleSend = (e) => onSend(e.detail.text);
+    el.addEventListener('send', handleSend);
+    return () => el.removeEventListener('send', handleSend);
+  }, [messages, onSend]);
+
+  return <ds-chat ref={ref} />;
+}
+```
+
+**Vue** — tell the compiler `ds-chat` is a custom element (not a Vue component)
+so it isn't warned about / resolved against your component registry, then use
+it directly in a template. In `vite.config.js`:
+
+```js
+import vue from '@vitejs/plugin-vue';
+
+export default {
+  plugins: [
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag === 'ds-chat',
+        },
+      },
+    }),
+  ],
+};
+```
+
+Then in a Vue SFC:
+
+```vue
+<script setup>
+import 'anentrypoint-design'; // registers <ds-chat>
+import { ref, onMounted } from 'vue';
+
+const el = ref(null);
+onMounted(() => {
+  el.value.messages = [{ role: 'assistant', text: 'gm.' }];
+  el.value.addEventListener('send', (e) => console.log(e.detail.text));
+});
+</script>
+
+<template>
+  <ds-chat ref="el" />
+</template>
+```
 
 ## what's in the box
 
@@ -256,6 +330,33 @@ Layout primitives worth knowing: `.ds-app-surface` is the Operate-mode page root
 `npm run a11y` is the runtime companion: axe-core against the live rendered DOM of every kit, blocking on serious/critical WCAG violations. It needs a Chrome already listening on `CDP_BASE` and a server on `BASE_URL` — it never launches a browser, and it pulls in no browser-automation dependency (`scripts/cdp.mjs` speaks CDP over Node's global `WebSocket`). Because it runs WCAG-tagged rules only, best-practice rules like `page-has-heading-one` and `bypass` are outside its scope.
 
 The scanned set is computed, not listed: `COMPONENT_SHEETS` in `scripts/lint-tokens.mjs` names entry points and `expandSheets()` resolves each one's `@import` graph transitively, because the root `app-shell.css` is a barrel with no declarations of its own. A companion guard requires every `.css` file under `src/css/app-shell/` to appear in that expanded set, so a split sheet cannot be bundled into `dist/247420.css` while remaining invisible to both the linters and any consumer that `<link>`s `app-shell.css` directly.
+
+## Visual regression testing
+
+`npm run visual` (`node scripts/visual-baseline.mjs check`) screenshots every
+`preview/*.html` page (except `index.html`/`theme-map.html`) in three theme
+states — `paper`, `ink`, `auto` (with `auto` pinned to an emulated `light`
+color-scheme preference, so it captures deterministically) — via Chrome DevTools
+Protocol `Page.captureScreenshot` at a fixed 1280×900 viewport, then diffs each
+capture pixel-by-pixel against the matching committed PNG under
+`visual-baselines/`. It needs no browser-automation package and no image
+library: `scripts/cdp.mjs` drives an already-running Chrome over Node's built-in
+`WebSocket` (it never launches a browser itself — start one with
+`--headless --remote-debugging-port=9333`, or your own workflow step) and
+`scripts/png-diff.mjs` decodes PNG bytes using only `node:zlib`.
+
+A page fails the check when either: it has no committed baseline for a given
+file+theme combination, or its diff ratio exceeds `DIFF_THRESHOLD_RATIO`
+(0.5% of pixels), where a pixel only counts as differing once its per-channel
+delta exceeds `CHANNEL_TOLERANCE` (24/255) — this tolerance absorbs
+antialiasing/font-rendering jitter rather than flagging it as a regression. A
+size mismatch between capture and baseline is always a failure regardless of
+threshold.
+
+To (re-)freeze the current rendering as the new baseline, run
+`npm run visual:update` (`node scripts/visual-baseline.mjs update`), which
+overwrites every `visual-baselines/*.png` with a fresh capture — no diffing,
+no pass/fail, just a straight re-write.
 
 ## why scope-prefixed
 

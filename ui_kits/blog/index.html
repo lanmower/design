@@ -48,6 +48,12 @@
      base.css's `.ds-prose a` already sets, so this rule only needs to not
      fight it. Kept explicit so the intent survives the next edit. */
   .post-body a{color:var(--accent-ink);}
+  .post-index{margin-top:var(--space-6);padding-top:var(--space-4);border-top:1px solid var(--panel-border);}
+  .post-index h2{font-size:var(--fs-sm);text-transform:uppercase;letter-spacing:0.08em;color:var(--panel-text-2);margin-bottom:var(--space-2-5);}
+  .post-index-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--space-2);padding:var(--space-1-75) 0;border-bottom:1px solid var(--panel-border);font-size:var(--fs-sm);}
+  .post-index-row:last-child{border-bottom:none;}
+  .post-index-title{color:var(--panel-text);font-weight:600;}
+  .post-index-meta{font-family:var(--ff-mono);font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:0.06em;color:var(--panel-text-3);}
 </style>
 
 </head>
@@ -78,6 +84,7 @@
       <div class="post-meta">
         <span>lore</span><span class="sep">·</span>
         <span>apr 14 2026</span><span class="sep">·</span>
+        <span>by grendel</span><span class="sep">·</span>
         <span>8 min read</span><span class="sep">·</span>
         <span><span class="chip accent">draft</span></span>
       </div>
@@ -91,6 +98,21 @@
         <h2>so what's the actual point</h2>
         <p>the point is: stop asking permission. ship the rough draft. document honestly. humor is load-bearing. and if you're reading this thinking "that's obvious" — good. you're home.</p>
         <p class="ds-prose-endnote">end. reply by opening a pr. <a href="https://github.com/AnEntrypoint/design">source -></a></p>
+      </div>
+      <div class="post-index">
+        <h2>more from lore</h2>
+        <div class="post-index-row">
+          <span class="post-index-title">we were here first</span>
+          <span class="post-index-meta">apr 14 2026 · by grendel</span>
+        </div>
+        <div class="post-index-row">
+          <span class="post-index-title">the 2am tax</span>
+          <span class="post-index-meta">feb 02 2026 · by mireille</span>
+        </div>
+        <div class="post-index-row">
+          <span class="post-index-title">nobody asked for tokens, we shipped them anyway</span>
+          <span class="post-index-meta">nov 19 2025 · by grendel</span>
+        </div>
       </div>
     </main>
   </div>

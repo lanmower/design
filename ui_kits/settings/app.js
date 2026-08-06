@@ -4,7 +4,8 @@ import * as webjsx from 'webjsx';
 // module requests when every kit pulls the full 30+-submodule barrel).
 import { Topbar, Crumb, Status, Side, AppShell, Heading, Lede, Chip, Btn } from 'ds/components/shell.js';
 import { Panel, Row } from 'ds/components/content.js';
-import { Toggle as DsToggle } from 'ds/components/form-primitives.js';
+import { Toggle as DsToggle, Field as DsField, useFormValidation } from 'ds/components/form-primitives.js';
+import { toast } from 'ds/components/editor-primitives.js';
 import { mountKit } from 'ds/bootstrap.js';
 import { shortUid } from 'ds/uid.js';
 const h = webjsx.createElement;
@@ -31,6 +32,16 @@ const state = {
     // real backend failure.
     phase: 'ready'
 };
+
+// Inline validation for the profile fields — reuses the shared
+// form-primitives Field/useFormValidation (aria-invalid + role="alert"
+// ds-field-error message under the offending control) instead of inventing a
+// second validation UI. Kept module-level like `state` so it survives
+// re-renders; `profileValidation.errors` is read directly by Profile().
+const profileValidation = useFormValidation({
+    name:  [{ rule: 'required', message: 'name is required.' }],
+    email: [{ rule: 'required', message: 'email is required.' }, { rule: 'email', message: 'enter a valid email address.' }]
+});
 
 const sections = [
     { id: 'profile',   label: 'profile',      glyph: '@' },
@@ -124,12 +135,48 @@ function Toggle({ on, onChange, label }) {
     });
 }
 
+// Validate one field on blur (not on every keystroke — errors should not
+// flash while a user is mid-type) and re-render so the inline ds-field-error
+// message appears/clears under the control.
+function validateProfileField(name, value) {
+    profileValidation.validateField(name, value);
+    kit.render();
+}
+
+// Save-bar handler: re-validate the profile fields before persisting, same
+// as any real form. On failure, surface it as a toast (transient, ambient
+// feedback for an already-applied action attempt) AND jump to the profile
+// section so the two inline ds-field-error messages are actually visible —
+// a toast alone would tell the user something failed without showing where.
+function onSaveClick() {
+    const { valid } = profileValidation.validate({ name: state.name, email: state.email });
+    if (!valid) {
+        state.section = 'profile';
+        toast({ message: 'could not save — fix the highlighted fields.', kind: 'error' });
+        kit.render();
+        return;
+    }
+    saveDraft();
+    state.dirty = false;
+    state.lastSaved = Date.now();
+    toast({ message: 'settings saved.', kind: 'success' });
+    kit.render();
+}
+
 function Profile() {
     return Panel({ title: 'profile', class: 'ds-panel-gap', children: h('div', { class: 'ds-settings-body' },
-        Field({ label: 'name', hint: 'shown on commits and PRs.', children:
-            h('input', { class: 'input', value: state.name, oninput: (e) => { state.name = e.target.value; state.dirty = true; saveDraft(); kit.render(); } }) }),
-        Field({ label: 'email', hint: 'used for git identity. never mailed.', children:
-            h('input', { class: 'input', type: 'email', value: state.email, oninput: (e) => { state.email = e.target.value; state.dirty = true; saveDraft(); kit.render(); } }) }),
+        // name/email use the shared form-primitives Field (inline
+        // aria-invalid + role="alert" error message), not the local
+        // hint-only Field() above, so validation feedback is real and
+        // reachable by assistive tech rather than a decorative note.
+        DsField({ label: 'name', hint: profileValidation.errors.name ? null : 'shown on commits and PRs.', error: profileValidation.errors.name, required: true, children:
+            h('input', { class: 'input', value: state.name,
+                oninput: (e) => { state.name = e.target.value; state.dirty = true; saveDraft(); },
+                onblur: (e) => validateProfileField('name', e.target.value) }) }),
+        DsField({ label: 'email', hint: profileValidation.errors.email ? null : 'used for git identity. never mailed.', error: profileValidation.errors.email, required: true, children:
+            h('input', { class: 'input', type: 'email', value: state.email,
+                oninput: (e) => { state.email = e.target.value; state.dirty = true; saveDraft(); },
+                onblur: (e) => validateProfileField('email', e.target.value) }) }),
         Field({ label: 'handle', children:
             h('input', { class: 'input', value: state.handle, oninput: (e) => { state.handle = e.target.value; state.dirty = true; } }) }),
         Field({ label: 'bio', hint: 'one sentence. plain text.', children:
@@ -146,7 +193,24 @@ function Theme() {
                 onclick: () => { state.theme = k; state.dirty = true; kit.render(); } }, l))
         ) }),
         Field({ label: 'motion', hint: 'honour prefers-reduced-motion regardless.', children:
-            Toggle({ on: state.motion, onChange: (v) => state.motion = v, label: state.motion ? 'animations on' : 'animations off' }) })
+            Toggle({ on: state.motion, onChange: (v) => state.motion = v, label: state.motion ? 'animations on' : 'animations off' }) }),
+        // Static reference pair -- every live toggle above only ever shows ONE
+        // of its two states at a time (whatever state.* currently holds), so
+        // there was no place a viewer could see checked vs unchecked side by
+        // side to confirm the visual difference is legible. These two are
+        // deliberately non-interactive (no onChange) and exist only as a
+        // documentation strip, not a real setting.
+        Field({ label: 'toggle states (reference)', hint: 'both states shown together — not a live setting.', children:
+            h('div', { class: 'ds-btn-row ds-btn-row-tight' },
+                h('div', { class: 'ds-toggle-state-sample' },
+                    DsToggle({ checked: false, label: 'unchecked', onChange: (v) => { /* lint-dead-controls:allow -- static reference pair, not a live setting */ } }),
+                    h('span', { class: 'ds-hint-sm' }, 'unchecked')
+                ),
+                h('div', { class: 'ds-toggle-state-sample' },
+                    DsToggle({ checked: true, label: 'checked', onChange: (v) => { /* lint-dead-controls:allow -- static reference pair, not a live setting */ } }),
+                    h('span', { class: 'ds-hint-sm' }, 'checked')
+                )
+            ) })
     ) });
 }
 
@@ -277,7 +341,7 @@ function App() {
                 state.dirty ? h('div', { class: 'ds-savebar' },
                     h('span', { class: 'ds-savebar-note' }, 'unsaved changes · draft auto-saved'),
                     h('button', { class: 'btn', onclick: () => { state.showConfirmDiscard = true; kit.render(); } }, 'discard'),
-                    h('button', { class: 'btn btn-primary', onclick: () => { saveDraft(); state.dirty = false; state.lastSaved = Date.now(); kit.render(); } }, 'save')
+                    h('button', { class: 'btn btn-primary', onclick: onSaveClick }, 'save')
                 ) : null
             )
         ],

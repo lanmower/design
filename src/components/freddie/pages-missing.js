@@ -90,7 +90,7 @@ export const themePage = makePage((ctx) => {
         return [
             PageHeader({ title: 'theme', lede: 'theme preference' }),
             section('current', Table({ headers: ['setting', 'value'], rows: [
-                ['theme', (typeof window !== 'undefined' && document.body.getAttribute('data-theme')) || 'github-dark'],
+                ['theme', (typeof window !== 'undefined' && document.documentElement.getAttribute('data-theme')) || 'github-dark'],
                 ['density', (typeof window !== 'undefined' && document.documentElement.getAttribute('data-density')) || 'compact'],
                 ['accent', (typeof window !== 'undefined' && document.documentElement.getAttribute('data-accent')) || 'default'],
             ] })),

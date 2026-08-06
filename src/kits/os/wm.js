@@ -11,6 +11,38 @@
 
 import { icons } from './icons.js';
 
+// Shared aria-live announcer for window open/close/focus-change events.
+// Visually hidden, one instance per document, lazily created so importing
+// this module has no side effect until a window actually renders. Screen
+// readers get no other signal that a floating, non-modal window opened,
+// closed, or changed focus -- there is no page navigation or route change
+// to announce it implicitly, unlike a normal document flow.
+let _announcer = null;
+function getAnnouncer() {
+    if (_announcer && _announcer.isConnected) return _announcer;
+    _announcer = document.getElementById('wm-announcer');
+    if (_announcer) return _announcer;
+    _announcer = document.createElement('div');
+    _announcer.id = 'wm-announcer';
+    _announcer.setAttribute('aria-live', 'polite');
+    _announcer.setAttribute('aria-atomic', 'true');
+    _announcer.className = 'sr-only';
+    // Inline fallback in case the consuming page's stylesheet doesn't define
+    // .sr-only (this module has no guaranteed CSS import of its own) --
+    // standard clip-based visually-hidden-but-AT-visible technique.
+    _announcer.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+    document.body.appendChild(_announcer);
+    return _announcer;
+}
+function announce(text) {
+    const a = getAnnouncer();
+    // Clear-then-set on a microtask forces a re-announcement even if the
+    // text is identical to what's already there (e.g. focusing the same
+    // window twice in a row) -- aria-live only fires on a DOM mutation.
+    a.textContent = '';
+    requestAnimationFrame(() => { a.textContent = text; });
+}
+
 export function renderWindow(opts = {}) {
     const {
         title = 'window',
@@ -127,11 +159,15 @@ export function renderWindow(opts = {}) {
             return;
         }
         disarmClose();
+        announce('closed ' + titleEl.textContent);
         callbacks.onClose && callbacks.onClose();
     });
     closeBtn.addEventListener('blur', disarmClose);
 
-    const focus = () => callbacks.onFocus && callbacks.onFocus();
+    const focus = () => {
+        if (!el.classList.contains('wm-focused')) announce(titleEl.textContent + ' focused');
+        callbacks.onFocus && callbacks.onFocus();
+    };
 
     el.addEventListener('pointerdown', () => focus());
 
@@ -172,6 +208,7 @@ export function renderWindow(opts = {}) {
     applyFocused(el, focused);
     applyMaximized(el, maximized);
     applyMinimized(el, minimized);
+    announce('opened ' + title);
 
     return {
         el,

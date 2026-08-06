@@ -825,3 +825,45 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
     max-width: none;
   }
 }
+
+/* Stacking host for the imperative toast()/<Toast> component
+   (src/components/editor-primitives/toast.js). One fixed-position column;
+   individual toasts are appended/removed as siblings inside it rather than
+   each toast fixed-positioning itself, so more than one toast in flight
+   stacks instead of overlapping at the same bottom-right point. */
+.ds-ep-toast-host {
+  position: fixed; z-index: var(--z-toast);
+  bottom: 24px; right: 24px;
+  display: flex; flex-direction: column-reverse; gap: var(--space-2);
+  pointer-events: none;
+}
+.ds-ep-toast {
+  pointer-events: auto;
+  display: flex; align-items: center; gap: var(--space-3);
+  background: var(--bg-2); color: var(--fg);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-2);
+  padding: var(--space-3) var(--space-4);
+  max-width: 320px;
+  box-shadow: var(--shadow-overlay);
+  font-size: var(--fs-sm);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ds-ep-toast { animation: toast-slide-in 0.3s ease-out; }
+  .ds-ep-toast.leaving { animation: toast-slide-in 0.2s ease-in reverse; }
+}
+.ds-ep-toast.kind-error   { border-color: var(--danger, var(--warn)); }
+.ds-ep-toast.kind-success { border-color: var(--green-2); }
+.ds-ep-toast.kind-warning { border-color: var(--amber); }
+.ds-ep-toast-msg { flex: 1; }
+.ds-ep-toast-action {
+  flex-shrink: 0;
+  background: transparent; border: 0; color: var(--accent-ink);
+  font: inherit; font-weight: 600; cursor: pointer; padding: 0;
+}
+.ds-ep-toast-action:hover { text-decoration: underline; }
+
+@media (max-width: 480px) {
+  .ds-ep-toast-host { bottom: 16px; right: 16px; left: 16px; }
+  .ds-ep-toast { max-width: none; }
+}

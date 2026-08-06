@@ -116,6 +116,78 @@ theme for other consumers.
 One `[data-accent="X"]` block setting `--accent`, `--accent-bright`,
 `--accent-fg`, `--panel-accent`. Add the name to `VALID_ACCENT` in `theme.js`.
 
+## Stamp vs badge vs rail
+
+Three different "small marked surface" primitives exist and are easy to
+reach for interchangeably — they are not interchangeable:
+
+- **Stamp** (`.stamp`, `preview/stamps.html` / `preview/stamps-lore.html`) —
+  decorative, rotated rubber-stamp motif. Editorial flourish only: a one-off
+  "approved" / "live · vX" / "do not ship" mark on a hero or receipt-style
+  surface. Never used for live/repeating UI state, never more than one per
+  page (per the existing note in `preview/stamps.html`), and never the only
+  way a piece of state is conveyed — it is decoration layered on top of real
+  content, not a status indicator itself.
+- **Badge** (`Badge` component, `variant`/`tone`/`size` props) — compact
+  inline status/count marker attached to a specific piece of content (an
+  unread count, a "new" flag, a tone-coded label next to a title). Not
+  rotated, not decorative — its tone/variant is meaningful and can repeat as
+  many times per page as there are things to badge.
+- **Rail** (`Rail`/`ServerRail`/`WorkspaceRail`, indicator rails in
+  `panel-row.css`) — a persistent color-coded inset edge used for
+  category/channel separation across a list of rows (file-type rails,
+  server-list rails). Structural, not decorative: it is a layout-level
+  grouping cue for a set of rows, never a single standalone mark the way a
+  stamp or badge is.
+
+Rule of thumb: reaching for a stamp on live app state, or a rail for a single
+one-off mark, is a sign the wrong primitive was picked.
+
+## Typography scale exceptions
+
+Component type should snap to a `--fs-*` step from `preview/type-scale.html` /
+`preview/type-display.html`. One documented exception: `.ds-hero-title`
+(`src/css/app-shell/hero-content.css`) runs a bespoke `clamp(40px, 9cqi,
+116px)` display size instead of `--fs-hero` / `--fs-mega`, because neither
+scale step's slope/floor fits a two-line 16ch title in a narrow column at
+this element's specific optical weight — see the comment above
+`.ds-hero-title` for the measured rationale. Any future off-scale value needs
+the same kind of inline comment explaining why the nearest scale step doesn't
+work, not a silent bespoke number.
+
+## Reduced-motion and reduced-transparency
+
+Two distinct accessibility media queries, honored separately because they
+answer different needs (vestibular-motion sensitivity vs. low-vision/
+legibility or a GPU/battery preference for opaque chrome):
+
+- **`prefers-reduced-motion: reduce`** — driven by `src/motion.js` /
+  `src/motion-toggle.js` (an in-app override on top of the OS-level media
+  query) and consumed directly as `@media (prefers-reduced-motion: reduce)`
+  throughout the component sheets (`colors_and_type.css`,
+  `src/css/app-shell/*.css`, `app-surfaces.css`, `community.css`,
+  `editor-primitives.css`, `chat.css`, etc.) to cut transition/animation
+  durations to near-zero and drop scroll-snap/parallax/marquee motion.
+- **`prefers-reduced-transparency: reduce`** — a real OS-level media query
+  (Windows/macOS/GNOME all expose it) with no in-app toggle counterpart yet.
+  Every backdrop-blur or translucent-panel effect in the system drops to a
+  fully opaque backing fill under this query instead of a see-through one,
+  since the blur adds nothing once nothing shows through it:
+  - `.os-menubar` / `.os-taskbar` (`src/kits/os/theme.css`) — translucent
+    blurred bar -> solid `--os-bg-2` fill.
+  - `.tb-sess-overlay` (`src/kits/os/theme.css`) — blurred session overlay ->
+    solid `--scrim-strong` fill (same rule this selector already applies
+    under `prefers-reduced-motion`, extended to this query too).
+  - `.ds-ep-dock` (`editor-primitives.css`, the floating editor
+    hierarchy/inspector docks) — translucent blurred card -> solid
+    `--panel-1` fill, same layout.
+
+  A future translucent/blurred surface must add its own
+  `@media (prefers-reduced-transparency: reduce)` fallback next to its
+  `backdrop-filter` rule, following the pattern above — do not assume
+  `prefers-reduced-motion` alone covers it; a user can want full animation
+  with zero see-through chrome, or vice versa.
+
 ## The one rule for component CSS
 
 No raw color literal — ever. If you need a color, it is either an existing

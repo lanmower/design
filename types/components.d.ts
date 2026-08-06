@@ -141,6 +141,8 @@ export interface TopbarProps {
     active?: string;
     onNav?: (...args: any[]) => any;
     search?: any;
+    /** @default true */
+    themeToggle?: boolean;
 }
 export declare function Topbar(props?: TopbarProps): VNode;
 

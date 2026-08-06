@@ -4,7 +4,7 @@ title: Home
 hero:
   heading: "design"
   subheading: "the 247420 design system"
-  body: "14 kit surfaces, zero raw color literals, one importmap script tag to install. every panel, row, and form control in this system reads its color, radius, and spacing from a single token file — swap the tokens and every surface built on them changes with it."
+  body: "14 kit surfaces, 25 previews, one deck, and a full desktop-OS shell — plus a web component and an SDK, all tokens-only, zero raw color literals, one importmap script tag to install. every panel, row, and form control in this system reads its color, radius, and spacing from a single token file — swap the tokens and every surface built on them changes with it."
   badges:
     - { label: "design-system" }
     - { label: "tokens" }
@@ -40,6 +40,7 @@ sidebar:
     - { label: "skill",   href: "https://github.com/AnEntrypoint/design/blob/main/SKILL.md" }
     - { label: "tokens",  href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css" }
     - { label: "source",  href: "https://github.com/AnEntrypoint/design" }
+    - { label: "MIT license", href: "https://github.com/AnEntrypoint/design/blob/main/LICENSE" }
 
 tabs:
   - { label: "everything", href: "#all", active: true }
@@ -51,20 +52,20 @@ kits:
   heading: "ui kits"
   count: "14 surfaces"
   items:
-    - { code: "01", title: "homepage",     sub: "marquee + works grid",                  desc: "editorial banner over a quiet shell",                href: "./ui_kits/homepage/" }
-    - { code: "02", title: "project page", sub: "hero receipt install changelog",  desc: "shippable case-study template",                      href: "./ui_kits/project_page/" }
-    - { code: "03", title: "docs",         sub: "long-form prose chrome",                desc: "sidebar nav, mono headings, code blocks",            href: "./ui_kits/docs/" }
-    - { code: "04", title: "blog",         sub: "dated index + reading view",            desc: "typographic, no clutter",                            href: "./ui_kits/blog/" }
-    - { code: "05", title: "chat",         sub: "message thread + composer",             desc: "pill bubbles, monospace timestamps, room sidebar",   href: "./ui_kits/chat/" }
-    - { code: "06", title: "aicat",        sub: "ai assistant with cat persona",         desc: "ascii portrait, thinking dots, mood-swapping face",  href: "./ui_kits/aicat/" }
-    - { code: "07", title: "file browser", sub: "rails by file type drop preview",   desc: "static demo wired to fsbrowse — every file-row primitive in one surface", href: "./ui_kits/file_browser/" }
-    - { code: "08", title: "dashboard",    sub: "kpis tables receipts changelog",  desc: "every content primitive in one operations surface", href: "./ui_kits/dashboard/" }
-    - { code: "09", title: "terminal",     sub: "cli prompt command lines log view", desc: "five line kinds (cmt cmd out ok warn) over a tonal panel", href: "./ui_kits/terminal/" }
-    - { code: "10", title: "settings",     sub: "sectioned forms toggles save bar",  desc: "every input primitive — fields, segmented buttons, danger panel", href: "./ui_kits/settings/" }
-    - { code: "11", title: "signin",       sub: "auth providers magic link",         desc: "narrow shell + tone-on-tone form, no shadows, no spinners", href: "./ui_kits/signin/" }
-    - { code: "12", title: "search",       sub: "topbar query faceted filters rows", desc: "ranked results reuse the same RowLink primitive every list does", href: "./ui_kits/search/" }
-    - { code: "13", title: "404",          sub: "empty-state hero suggested routes",   desc: "narrow shell, oversized mono code, three CTAs",      href: "./ui_kits/error_404/" }
-    - { code: "14", title: "gallery",      sub: "visual grid tonal cards lightbox",  desc: "tiles share the panel tokens; lightbox reuses the same surface", href: "./ui_kits/gallery/" }
+    - { code: "01", title: "homepage",     sub: "marquee + works grid",                  desc: "opens with an editorial banner over a quiet works-grid shell",                href: "./ui_kits/homepage/" }
+    - { code: "02", title: "project page", sub: "hero receipt install changelog",  desc: "ships a full case-study template — hero, receipt, install, changelog",                      href: "./ui_kits/project_page/" }
+    - { code: "03", title: "docs",         sub: "long-form prose chrome",                desc: "wraps long-form prose in sidebar nav, mono headings, and code blocks",            href: "./ui_kits/docs/" }
+    - { code: "04", title: "blog",         sub: "dated index + reading view",            desc: "lists dated posts with author bylines and a distraction-free reading view",                            href: "./ui_kits/blog/" }
+    - { code: "05", title: "chat",         sub: "message thread + composer",             desc: "threads messages through pill bubbles with monospace timestamps and a room sidebar",   href: "./ui_kits/chat/" }
+    - { code: "06", title: "aicat",        sub: "ai assistant with cat persona",         desc: "animates an ascii cat portrait through thinking dots and a mood-swapping face",  href: "./ui_kits/aicat/" }
+    - { code: "07", title: "file browser", sub: "rails by file type drop preview",   desc: "wires every file-row primitive to a static demo backed by fsbrowse", href: "./ui_kits/file_browser/" }
+    - { code: "08", title: "dashboard",    sub: "kpis tables receipts changelog",  desc: "tracks kpis, tables, and receipts with a running changelog in one operations surface", href: "./ui_kits/dashboard/" }
+    - { code: "09", title: "terminal",     sub: "cli prompt command lines log view", desc: "renders five line kinds (cmt cmd out ok warn) over a tonal log panel", href: "./ui_kits/terminal/" }
+    - { code: "10", title: "settings",     sub: "sectioned forms toggles save bar",  desc: "covers every input primitive — fields, segmented buttons, danger panel", href: "./ui_kits/settings/" }
+    - { code: "11", title: "signin",       sub: "auth providers magic link",         desc: "authenticates through a narrow tone-on-tone form, no shadows, no spinners", href: "./ui_kits/signin/" }
+    - { code: "12", title: "search",       sub: "topbar query faceted filters rows", desc: "ranks results through faceted filters, reusing the same RowLink primitive every list does", href: "./ui_kits/search/" }
+    - { code: "13", title: "404",          sub: "empty-state hero suggested routes",   desc: "greets dead links with an oversized mono code and three recovery CTAs",      href: "./ui_kits/error_404/" }
+    - { code: "14", title: "gallery",      sub: "visual grid tonal cards lightbox",  desc: "arranges tiles on shared panel tokens and opens them in a matching lightbox", href: "./ui_kits/gallery/" }
 
 decks:
   heading: "decks"
@@ -77,6 +78,8 @@ docs:
     - { code: "md",  title: "readme", sub: "overview, manifesto, conventions",   desc: "start here",                          href: "https://github.com/AnEntrypoint/design/blob/main/README.md" }
     - { code: "md",  title: "skill",  sub: "authoring rules for the agent",      desc: "editorial zine surface modes",    href: "https://github.com/AnEntrypoint/design/blob/main/SKILL.md" }
     - { code: "css", title: "tokens", sub: "colors, type, panel surface tokens", desc: "canonical source of truth",           href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css" }
+    - { code: "md",  title: "component props", sub: "generated prop reference", desc: "every exported component's signature and documented params", href: "https://github.com/AnEntrypoint/design/blob/main/docs/component-props.md" }
+    - { code: "md",  title: "changelog", sub: "release history", desc: "what shipped in each published version", href: "https://github.com/AnEntrypoint/design/blob/main/CHANGELOG.md" }
 
 previews:
   heading: "previews"
@@ -112,12 +115,12 @@ file_browser:
   heading: "file browser"
   count: "primitives"
   items:
-    - { code: "fb", title: "file_browser kit",   sub: "drop, list, preview, dialogs",   desc: "the full surface, working with mock data",  href: "./ui_kits/file_browser/", cta: "open kit" }
-    - { code: "fb", title: "FileRow",            sub: "rail icon name meta",      desc: "data-file-type drives the rail color — never apply rail-* manually", href: "./preview/file-row.html", cta: "preview" }
-    - { code: "fb", title: "FileGrid",           sub: "stack of rows in a panel",       desc: "directories sort first; selected row gets the mint .active tone", href: "./preview/file-grid.html", cta: "preview" }
-    - { code: "fb", title: "DropZone",           sub: "tonal upload target",            desc: "swap to --panel-select on dragover; preventDefault on document, not just zone", href: "./preview/dropzone.html", cta: "preview" }
-    - { code: "fb", title: "FileViewer",         sub: "modal preview keyed head",     desc: "head + body both carry data-file-type so rails propagate inside the modal", href: "./preview/file-viewer.html", cta: "preview" }
-    - { code: "fb", title: "FileToolbar",        sub: "actions breadcrumb upload",  desc: "left-aligned actions, right-aligned count; UploadProgress sits underneath", href: "./preview/file-toolbar.html", cta: "preview" }
+    - { code: "fb", title: "file_browser kit",   sub: "drop, list, preview, dialogs",   desc: "the full surface, working with mock data",  href: "./ui_kits/file_browser/", cta: "open ->" }
+    - { code: "fb", title: "FileRow",            sub: "rail icon name meta",      desc: "data-file-type drives the rail color — never apply rail-* manually", href: "./preview/file-row.html", cta: "open ->" }
+    - { code: "fb", title: "FileGrid",           sub: "stack of rows in a panel",       desc: "directories sort first; selected row gets the mint .active tone", href: "./preview/file-grid.html", cta: "open ->" }
+    - { code: "fb", title: "DropZone",           sub: "tonal upload target",            desc: "swap to --panel-select on dragover; preventDefault on document, not just zone", href: "./preview/dropzone.html", cta: "open ->" }
+    - { code: "fb", title: "FileViewer",         sub: "modal preview keyed head",     desc: "head + body both carry data-file-type so rails propagate inside the modal", href: "./preview/file-viewer.html", cta: "open ->" }
+    - { code: "fb", title: "FileToolbar",        sub: "actions breadcrumb upload",  desc: "left-aligned actions, right-aligned count; UploadProgress sits underneath", href: "./preview/file-toolbar.html", cta: "open ->" }
     - { code: "fb", title: "fsbrowse",           sub: "Express + busboy backend",       desc: "canonical real-world wiring — same SDK, real filesystem operations",     href: "https://github.com/AnEntrypoint/fsbrowse", cta: "source" }
 
 quickstart:
@@ -165,26 +168,6 @@ features:
     - { name: "monospace labels", desc: "mono only for codes/labels/CLI; sans for everything legible.", href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css", cta: "colors_and_type.css" }
     - { name: "indicator rails",  desc: "color-coded inset rails for category separation, never borders.", href: "https://github.com/AnEntrypoint/design/blob/main/src/css/app-shell/panel-row.css#L126", cta: "panel-row.css" }
     - { name: "tokens-only",      desc: "every surface, type ramp, accent driven by --panel-* / --fs-* tokens.", href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css", cta: "colors_and_type.css" }
-
-examples:
-  heading: "live examples"
-  items:
-    - { name: "index shell",      desc: "full navigation shell with tabs, filters, and row interactions.", href: "./index.html",           cta: "open index" }
-    - { name: "homepage kit",     desc: "hero + works layout and updated readable type scale.",            href: "./ui_kits/homepage/",     cta: "open kit" }
-    - { name: "project page kit", desc: "overview, install, receipt, and changelog template.",              href: "./ui_kits/project_page/", cta: "open kit" }
-    - { name: "docs kit",         desc: "technical documentation layout with sidebar and prose.",           href: "./ui_kits/docs/",         cta: "open docs" }
-    - { name: "blog kit",         desc: "long-form writing layout tuned for readability.",                  href: "./ui_kits/blog/",         cta: "open writing" }
-    - { name: "chat kit",         desc: "message thread + composer with pill bubbles and room sidebar.",    href: "./ui_kits/chat/",         cta: "open chat" }
-    - { name: "aicat kit",        desc: "ai assistant with cat persona — ascii portrait + mood face.",      href: "./ui_kits/aicat/",        cta: "open aicat" }
-    - { name: "slide deck",       desc: "16:9 deck stage with improved presenter controls text.",           href: "./slides/",               cta: "open slides" }
-    - { name: "dashboard kit",    desc: "kpis, tables, receipts, changelog — operations surface.",          href: "./ui_kits/dashboard/",    cta: "open dashboard" }
-    - { name: "terminal kit",     desc: "cli prompt, command lines, log viewer.",                           href: "./ui_kits/terminal/",     cta: "open terminal" }
-    - { name: "settings kit",     desc: "sectioned forms, toggles, segmented buttons, save bar.",           href: "./ui_kits/settings/",     cta: "open settings" }
-    - { name: "signin kit",       desc: "auth panel, providers, magic link.",                               href: "./ui_kits/signin/",       cta: "open signin" }
-    - { name: "search kit",       desc: "query bar, faceted filters, ranked results.",                      href: "./ui_kits/search/",       cta: "open search" }
-    - { name: "404 kit",          desc: "empty-state hero with suggested routes.",                          href: "./ui_kits/error_404/",    cta: "open 404" }
-    - { name: "gallery kit",      desc: "visual grid + lightbox over tonal cards.",                         href: "./ui_kits/gallery/",      cta: "open gallery" }
-    - { name: "preview samples",  desc: "design previews and component samples.",                           href: "./preview/buttons.html",  cta: "open previews" }
 
 status_left:
   - "main"

@@ -80,9 +80,64 @@ function examplesNode(examples) {
   });
 }
 
-function panelNode(panel, idx) {
-  const items = Array.isArray(panel.items) ? panel.items : [];
-  if (!items.length) return null;
+// Category glyph per homepage panel id — the same line-icon vocabulary
+// icons.js already provides, so kits/previews/decks/docs read as distinct
+// categories at a glance instead of by text label alone. Falls back to no
+// icon for panel ids outside this table (e.g. one-off feature panels).
+const PANEL_ICON = {
+  kits: 'grid',
+  file_browser: 'folder',
+  desktop_os: 'square',
+  web_components: 'page',
+  api_exports: 'link',
+  decks: 'screen',
+  docs: 'file-text',
+  previews: 'eye',
+  features: 'info',
+};
+
+// Filter state for the kits search box above the "ui kits" panel. Reuses
+// ui_kits/search's own query-bar pattern (plain module-level state object,
+// mutated on input, driving a re-render) rather than inventing a second
+// filtering mechanism -- this homepage already ships that kit, so the
+// homepage's own kit listing gets the same affordance instead of being the
+// one surface on the site without a way to search kits by name.
+const kitsFilterState = { q: '' };
+
+function panelNode(panel, idx, rerender) {
+  let items = Array.isArray(panel.items) ? panel.items : [];
+  const isKits = panel.id === 'kits';
+  const q = isKits ? kitsFilterState.q.trim().toLowerCase() : '';
+  if (isKits && q) {
+    items = items.filter((it) => {
+      const hay = (String(it.title || it.name || '') + ' ' + String(it.sub || it.desc || '')).toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  const iconName = panel.id && PANEL_ICON[panel.id];
+  const titleText = panel.title || panel.name || '';
+  const titleNode = iconName && titleText
+    ? h('span', { class: 'ds-panel-title-glyph' }, C.Icon(iconName, { size: 15 }), h('span', {}, titleText))
+    : titleText;
+  const filterInput = isKits && rerender ? h('div', { class: 'ds-kits-filter' },
+    h('input', {
+      type: 'search', class: 'input ds-kits-filter-input',
+      placeholder: 'filter kits by name or description…',
+      value: kitsFilterState.q,
+      'aria-label': 'filter ui kits',
+      oninput: (e) => { kitsFilterState.q = e.target.value; rerender(); },
+    })) : null;
+  if (!items.length) {
+    if (isKits && q) {
+      return h('div', { class: 'ds-kits-panel-wrap' }, filterInput,
+        C.Panel({ id: panel.id || null, title: titleNode, count: 0, children:
+          h('div', { class: 'ds-empty-state' },
+            h('div', { class: 'ds-empty-state-glyph' }, '( )'),
+            h('p', { class: 'ds-empty-state-msg' }, 'no kits match ', h('code', {}, '"' + kitsFilterState.q.trim() + '"')),
+          ) }));
+    }
+    return filterInput ? h('div', { class: 'ds-kits-panel-wrap' }, filterInput) : null;
+  }
   const rows = items.map((it, i) => {
     const code = it.code == null ? '' : String(it.code).trim();
     const kids = [];
@@ -92,7 +147,8 @@ function panelNode(panel, idx) {
     kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, it.meta || '->'));
     return h('a', { key: i, class: 'row', href: it.href || '#' }, ...kids);
   });
-  return C.Panel({ id: panel.id || null, title: panel.title || panel.name || '', count: panel.count || items.length, children: rows });
+  const panelEl = C.Panel({ id: panel.id || null, title: titleNode, count: items.length, children: rows });
+  return filterInput ? h('div', { class: 'ds-kits-panel-wrap' }, filterInput, panelEl) : panelEl;
 }
 
 function marqueeNode(marquee) {
@@ -196,8 +252,14 @@ const bodyNode = data.bodyHtml ? C.Section({ children: h('div', { class: 'page-b
 function footerNode() {
   const year = new Date().getFullYear();
   const links = (data.navItems || []).filter(([, href]) => /^https?:/.test(String(href)));
+  // Names the actual maintaining entity, not just the project's numeric
+  // brand. This is a personal/community project (MIT, copyright holder
+  // "AnEntrypoint" per LICENSE) with no separate legal org behind it, so the
+  // footer says that plainly instead of leaving "247420" to stand in for an
+  // entity it isn't.
+  const entity = (data.seoAuthor || '247420 · a design system by AnEntrypoint').toLowerCase();
   return h('footer', { class: 'ds-page-footer' },
-    h('span', { class: 'ds-page-footer-copy' }, String(year) + ' · ' + data.siteName),
+    h('span', { class: 'ds-page-footer-copy' }, String(year) + ' · ' + entity),
     links.length ? h('nav', { class: 'ds-page-footer-links', 'aria-label': 'footer' },
       ...links.map(([label, href], i) => h('a', { key: i, href }, String(label).replace(' ->', '')))
     ) : null,
@@ -215,40 +277,46 @@ function tierNode(tier, children) {
   return h('section', { key: tier.key, class: 'ds-tier ds-tier-' + tier.key, id: tier.key, 'aria-labelledby': labelId }, head, ...kids);
 }
 
-const panelsById = new Map((data.panels || []).map((p) => [p.id || p.title || p.name || '', p]));
-const takePanel = (id) => { const p = panelsById.get(id); if (p) panelsById.delete(id); return p ? panelNode(p) : null; };
-
 const TIERS = [
   { key: 'open', label: 'open', lede: 'browse and try the system running.', ids: ['kits', 'previews', 'decks'], extra: () => [examplesNode(data.examples)] },
   { key: 'ships', label: 'ships', lede: 'what the package contains.', ids: ['file_browser', 'desktop_os', 'web_components', 'api_exports'], extra: () => [] },
   { key: 'read', label: 'read', lede: 'understand the rules behind it.', ids: ['docs', 'features'], extra: () => [quickstartNode(data.quickstart)] },
 ];
 
-const tierNodes = TIERS.map((t) => {
-  const kids = [...t.ids.map(takePanel), ...t.extra()].filter(Boolean);
-  if (t.key === 'open' && kids.length) {
-    const lead = kids[0];
-    if (lead.props) lead.props.class = (lead.props.class || '') + ' ds-tier-lead';
-  }
-  return tierNode(t, kids);
-});
-const leftoverPanels = [...panelsById.values()].map(panelNode);
+// Builds the whole main-content tree fresh each render so the kits filter
+// (module-level kitsFilterState) can drive a real re-render via mount()'s
+// own returned render callback -- same reactive shape mountKit() gives every
+// other kit on the site, applied here to the static-page renderer.
+function buildMainChildren(rerender) {
+  const panelsById = new Map((data.panels || []).map((p) => [p.id || p.title || p.name || '', p]));
+  const takePanel = (id) => { const p = panelsById.get(id); if (p) panelsById.delete(id); return p ? panelNode(p, 0, rerender) : null; };
 
-const mainChildren = [
-  heroNode(data.hero),
-  marqueeNode(data.marquee),
-  ...data.sections.map(sectionNode),
-  ...tierNodes,
-  ...leftoverPanels,
-  bodyNode,
-  footerNode(),
-].filter(Boolean);
+  const tierNodes = TIERS.map((t) => {
+    const kids = [...t.ids.map(takePanel), ...t.extra()].filter(Boolean);
+    if (t.key === 'open' && kids.length) {
+      const lead = kids[0];
+      if (lead.props) lead.props.class = (lead.props.class || '') + ' ds-tier-lead';
+    }
+    return tierNode(t, kids);
+  });
+  const leftoverPanels = [...panelsById.values()].map((p) => panelNode(p, 0, rerender));
 
-mount(document.getElementById('app'), () => C.AppShell({
+  return [
+    heroNode(data.hero),
+    marqueeNode(data.marquee),
+    ...data.sections.map(sectionNode),
+    ...tierNodes,
+    ...leftoverPanels,
+    bodyNode,
+    footerNode(),
+  ].filter(Boolean);
+}
+
+mount(document.getElementById('app'), (rerender) => C.AppShell({
   topbar: C.Topbar({ brand: data.siteName, items: data.navItems, active: data.title }),
   crumb: C.Crumb({ leaf: data.title }),
   side: sideNode(data.sidebar),
-  main: h('div', { class: 'app-stage' }, ...mainChildren),
+  main: h('div', { class: 'app-stage' }, ...buildMainChildren(rerender)),
   status: C.Status({
     left: data.statusLeft || [data.siteName.toLowerCase(), data.slug],
     right: data.statusRight || ['live'],

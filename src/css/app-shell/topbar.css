@@ -80,6 +80,7 @@ body.canvas-host { background: transparent !important; }
 .app-topbar > .brand { flex: 0 0 auto; }
 .app-topbar > .app-search { flex: 1 1 auto; }
 .app-topbar > nav { margin-left: auto; }
+.app-topbar > .app-topbar-theme { flex: 0 0 auto; }
 .app-topbar nav { display: flex; gap: 4px; font-size: var(--fs-sm); flex-wrap: wrap; }
 .app-topbar nav a { flex: 0 0 auto; }
 .app-topbar nav a {

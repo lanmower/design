@@ -136,7 +136,7 @@ export default {
       seo: {
         description: site.description || site.tagline || site.title,
         keywords: site.keywords || ['247420', 'anentrypoint', 'design system'],
-        author: site.author || '247420 / AnEntrypoint',
+        author: site.author || '247420 · a design system by AnEntrypoint',
         twitter: site.twitter || '@AnEntrypoint',
         locale: site.locale || 'en_US',
         lang: site.lang || 'en',
