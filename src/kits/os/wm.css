@@ -1,4 +1,11 @@
 /* ============================================================
+   DEPRECATED: superseded by theme.css, which has a superset of these rules
+   (26 .wm-win selectors vs this file's 11) and is the only stylesheet any
+   consumer actually links. createWM() (the API these rules were paired to)
+   no longer exists -- renderWindow() in wm.js is the current API, styled by
+   theme.css. Kept as a package.json export map entry for now; scheduled for
+   removal in the next major version rather than a same-session delete.
+
    Window Manager visuals — paired with createWM() behavior
    Tokens: --os-* (defined by desktop/theme.css)
    Bible: tonal surfaces, inset rail for focus, subtle hairline border +

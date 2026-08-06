@@ -1,3 +1,10 @@
+/* DEPRECATED: styled the validate.html harness, which thebird's README
+   documents as removed (headless CI flaked on the 61MB plugkit.wasm
+   cold-load). validator-app.js (the component this sheet styled) no longer
+   exists in this repo's source -- only a stale vendored copy remains in
+   thebird's docs/vendor/. Kept as a package.json export map entry for now;
+   scheduled for removal in the next major version rather than a
+   same-session delete. */
 body { margin: 0; padding: 24px; font-family: var(--os-font); background: var(--os-bg-0); color: var(--os-fg); }
 h1 { margin: 0 0 8px 0; font-size: 22px; font-weight: 600; }
 h3 { margin: 18px 0 6px 0; color: var(--os-fg-2); font-size: 13px; font-weight: 600; }

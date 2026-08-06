@@ -1,4 +1,11 @@
 /* ============================================================
+   DEPRECATED: superseded by theme.css's .launcher-dock rules, the only
+   stylesheet any consumer actually links. createLauncher() (the API these
+   rules were paired to) was part of the now-removed validation harness --
+   renderDock() in launcher.js is the current API, styled by theme.css. Kept
+   as a package.json export map entry for now; scheduled for removal in the
+   next major version rather than a same-session delete.
+
    Launcher dock — paired with createLauncher() (validation harness path)
    Bible: tonal step from canvas, no borders, pill controls, lowercase.
    ============================================================ */
