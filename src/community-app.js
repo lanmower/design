@@ -15,7 +15,9 @@
 //     audioQueueItems, audioQueueCurrentId, audioQueuePaused,
 //     showAuthModal, settingsOpen, voiceSettingsOpen, replyTarget,
 //     mobileMenuOpen,  // drives the .ca-rail off-canvas drawer on narrow shells
-//     canManage        // gates the rail's "+ create channel" affordance
+//     canManage,       // gates the rail's "+ create channel" affordance
+//     forumPosts,      // ch.type==='forum': [{id,title,snippet,author,time,replyCount,tags?}]
+//     pageHtml, pageAuthor, pageUpdatedAt  // ch.type==='page': PageView content + attribution
 //   }
 //   adapter.subscribe(cb) -> unsubscribe   // cb fires when any snapshot field changes
 //   adapter.actions = {
@@ -223,7 +225,7 @@ export function mountCommunityApp(root, adapter = {}) {
         const inVoiceChannel = ch.type === 'voice';
         const bodyMain = inVoiceChannel ? voiceView(s)
             : ch.type === 'forum' ? ForumView({ posts: s.forumPosts || [], onSelect: (id) => A.openThread && A.openThread(id), onNewPost: () => A.newForumPost && A.newForumPost() })
-            : ch.type === 'page' ? PageView({ title: ch.name, html: s.pageHtml || '', isAdmin: !!s.canManage, onEdit: () => A.editPage && A.editPage() })
+            : ch.type === 'page' ? PageView({ title: ch.name, html: s.pageHtml || '', author: s.pageAuthor || '', updatedAt: s.pageUpdatedAt || 0, isAdmin: !!s.canManage, onEdit: () => A.editPage && A.editPage() })
             : chatView(s);
         const showVoiceBanner = s.voiceConnected && s.voiceChannelName && !(inVoiceChannel && s.voiceChannelName === ch.name);
         return h('div', { class: 'ca-app' },

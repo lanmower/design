@@ -4,7 +4,7 @@
 
 import * as webjsx from '../../../vendor/webjsx/index.js';
 import { Icon } from '../shell.js';
-import { Avatar, avatarInitial } from '../content.js';
+import { Avatar, avatarInitial, avatarContrastFg } from '../content.js';
 import { UserPanel } from './presence.js';
 const h = webjsx.createElement;
 
@@ -97,7 +97,7 @@ export function ChannelItem({ id, name, type = 'text', active, voiceActive, voic
         ),
         voiceActive && participants.length ? h('div', { class: 'cm-ch-voice-users' },
             ...participants.map(p => h('div', { class: 'cm-ch-voice-user' + (p.speaking ? ' speaking' : '') },
-                h('div', { class: 'cm-ch-voice-user-avatar', style: p.color ? `--avatar-bg:${p.color}` : null }, avatarInitial(p.identity)),
+                h('div', { class: 'cm-ch-voice-user-avatar', style: p.color ? (avatarContrastFg(p.color) ? `--avatar-bg:${p.color};--avatar-fg:${avatarContrastFg(p.color)}` : `--avatar-bg:${p.color}`) : null }, avatarInitial(p.identity)),
                 h('span', { class: 'cm-ch-voice-user-name' }, p.identity)
             ))
         ) : null

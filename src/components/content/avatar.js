@@ -16,6 +16,36 @@ export function avatarInitial(name, count = 1) {
     return name ? String(name).trim().slice(0, count).toUpperCase() || '?' : '?';
 }
 
+// avatarContrastFg — picks black or white text against an arbitrary
+// per-user hashed --avatar-bg color, via WCAG relative luminance, so
+// initials clear 4.5:1 regardless of which hue the hash lands on (a
+// single fixed --fg-2 token can't: some hashed hues are light enough
+// that dark-on-dark or light-on-light both existed in the wild).
+// Returns null for an unparsable color so callers can omit the
+// inline style entirely and fall back to the CSS default.
+export function avatarContrastFg(color) {
+    if (!color) return null;
+    let r, g, b;
+    const hex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(color).trim());
+    if (hex) {
+        let h = hex[1];
+        if (h.length === 3) h = h.split('').map(c => c + c).join('');
+        r = parseInt(h.slice(0, 2), 16); g = parseInt(h.slice(2, 4), 16); b = parseInt(h.slice(4, 6), 16);
+    } else {
+        const rgb = /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i.exec(String(color).trim());
+        if (!rgb) return null;
+        r = +rgb[1]; g = +rgb[2]; b = +rgb[3];
+    }
+    const lin = (c) => { const v = c / 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+    const L = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+    // Contrast against pure black/white; pick whichever side clears more
+    // headroom (both landing >=4.5:1 is common, but some hues only clear
+    // one side, so max-headroom is the right tiebreak, not a 0.5 cutoff).
+    const contrastWhite = 1.05 / (L + 0.05);
+    const contrastBlack = (L + 0.05) / 0.05;
+    return contrastWhite >= contrastBlack ? '#fff' : '#000';
+}
+
 // Avatar — the single letter-fallback/image avatar primitive. `initialsCount`
 // (default 1) controls how many leading characters of `name` become the
 // fallback letters when no `src`/`fallback` is given (community.js's

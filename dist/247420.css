@@ -882,6 +882,21 @@
   scrollbar-width: thin;
   scrollbar-color: var(--bg-3) transparent;
 }
+/* Firefox gets themed scrollbars via scrollbar-width/-color above; Chrome,
+   Safari, and Edge need the ::-webkit-scrollbar family too, or every
+   scrollable node in the app shell falls back to the raw OS scrollbar and
+   clashes with the dark UI. Same selector scope, same --bg-3 token. */
+.ds-247420 .app::-webkit-scrollbar, .ds-247420 .ds-stage::-webkit-scrollbar, .ds-247420 .app *::-webkit-scrollbar, .ds-247420 .ds-stage *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.ds-247420 .app::-webkit-scrollbar-track, .ds-247420 .ds-stage::-webkit-scrollbar-track, .ds-247420 .app *::-webkit-scrollbar-track, .ds-247420 .ds-stage *::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ds-247420 .app::-webkit-scrollbar-thumb, .ds-247420 .ds-stage::-webkit-scrollbar-thumb, .ds-247420 .app *::-webkit-scrollbar-thumb, .ds-247420 .ds-stage *::-webkit-scrollbar-thumb {
+  background: var(--bg-3);
+  border-radius: var(--r-pill, 999px);
+}
 
 .ds-247420 h1, .ds-247420 .t-h1 { font-family: var(--ff-display); font-size: var(--fs-h1); line-height: var(--lh-snug); letter-spacing: var(--tr-tight); font-weight: 600; margin: 0; }
 .ds-247420 h2, .ds-247420 .t-h2 { font-family: var(--ff-display); font-size: var(--fs-h2); line-height: var(--lh-snug); letter-spacing: var(--tr-tight); font-weight: 600; margin: 0; }
@@ -3636,12 +3651,24 @@
   font-family: var(--ff-mono); font-size: var(--fs-xs);
   display: inline-flex; align-items: center; gap: 6px;
 }
-/* CSS-drawn half-disc mark on the compact theme toggle: keeps the control
-   legible when its text label is hidden (icon-only rail strip). */
+/* CSS-drawn disc mark on the compact theme toggle: keeps the control
+   legible when its text label is hidden (icon-only rail strip). Per-mode
+   fill gives the icon itself a distinct look for auto/light/dark, so state
+   reads without relying on the title tooltip alone. */
 .ds-247420 .ds-theme-disc {
   flex: 0 0 auto; width: 14px; height: 14px; border-radius: 50%;
   border: var(--bw-hair) solid var(--fg-3);
+  /* auto: half-and-half, matches default (no data-mode) for safety */
   background: linear-gradient(90deg, var(--fg-3) 0 50%, transparent 50% 100%);
+}
+.ds-247420 .ds-theme-disc[data-mode="auto"] {
+  background: linear-gradient(90deg, var(--fg-3) 0 50%, transparent 50% 100%);
+}
+.ds-247420 .ds-theme-disc[data-mode="paper"] {
+  background: var(--bg); border-color: var(--fg-3);
+}
+.ds-247420 .ds-theme-disc[data-mode="ink"] {
+  background: var(--fg-3); border-color: var(--fg-3);
 }
 
 /* ============================================================
@@ -3714,6 +3741,18 @@
 .ds-247420 .chat-msg.aicat .chat-avatar {
   background: color-mix(in oklab, var(--mascot) 26%, var(--bg-2));
   color: var(--mascot-deep);
+}
+/* Plain assistant turns ('them', no aicat persona) previously fell through to
+   the bare .chat-avatar gray disc with no role identity at all — 'you' and
+   'aicat' both got a tinted background + ring, the default assistant got
+   nothing. Give it the same tinted-background treatment via --color-success
+   (the conventional assistant/bot association, distinct from the accent hue
+   'you' owns and the mascot hue 'aicat' owns) plus a thin identity ring so
+   role is readable from the avatar alone, not just bubble position/color. */
+.ds-247420 .chat-msg.them:not(.aicat) .chat-avatar {
+  background: color-mix(in oklab, var(--color-success) 20%, var(--bg-3));
+  color: color-mix(in oklab, var(--color-success) 65%, var(--fg));
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-success) 35%, transparent);
 }
 
 .ds-247420 .chat-stack {
@@ -4288,6 +4327,20 @@
   filter: grayscale(60%);
   cursor: not-allowed;
   pointer-events: none;
+}
+
+/* Systemic hover fallback — button-like elements with no design-system class
+   (a bare <button>, [role="button"], or a generic .row/.chip usage) get a
+   `transition` declared above (line ~106) but nothing to transition to, so
+   they look inert until clicked. This is a low-specificity (0,0,1)/(0,1,1)
+   catch-all: any element that also carries `.btn`/`.btn-primary`/`.btn-ghost`/
+   `.ds-icon-btn`/etc. keeps its own component `:hover` (those selectors are
+   equal-or-higher specificity and, for the shared ones, declared later in
+   the cascade), so this never overrides a deliberate per-component hover —
+   it only fills the gap for elements that don't have one. */
+.ds-247420 button:not(:disabled):hover,
+.ds-247420[role="button"]:not([aria-disabled="true"]):hover {
+  background-color: var(--panel-hover, var(--bg-3));
 }
 
 /* Loading state — spinning indicator */
@@ -5511,7 +5564,9 @@
 .ds-247420 .ws-rail-item:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
 .ds-247420 .ws-rail-item.active { background: var(--accent-tint); color: var(--fg); box-shadow: inset 2px 0 0 var(--accent); }
 .ds-247420 .ws-rail-item-label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
-.ds-247420 .ws-rail-item-count { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); }
+/* Shape/color come from the shared .ds-badge component (see app-shell/primitives.css);
+   this class is now just the rail-item layout hook (spacing, collapsed-state targeting). */
+.ds-247420 .ws-rail-item-count { flex: none; margin-inline-start: var(--space-1); }
 .ds-247420 .ws-rail-item-flag { width: 6px; height: 6px; border-radius: 50%; flex: none; }
 .ds-247420 .ws-rail-item-flag.tone-flame { background: var(--flame); box-shadow: 0 0 0 2px color-mix(in oklab, var(--flame) 38%, transparent); }
 .ds-247420 .ws-rail-foot { margin-top: auto; padding-top: var(--space-2); border-top: var(--bw-hair) solid var(--bg-3); }
@@ -8334,7 +8389,7 @@
   height: 20px;
   border-radius: 50%;
   background: var(--avatar-bg, var(--bg-3));
-  color: var(--fg-2);
+  color: var(--avatar-fg, var(--fg-2));
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -8466,7 +8521,7 @@
   height: 32px;
   border-radius: 50%;
   background: var(--avatar-bg, var(--bg-3));
-  color: var(--fg-2);
+  color: var(--avatar-fg, var(--fg-2));
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -8677,7 +8732,7 @@
   height: 28px;
   border-radius: 50%;
   background: var(--avatar-bg, var(--bg-3));
-  color: var(--fg-2);
+  color: var(--avatar-fg, var(--fg-2));
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -8738,7 +8793,7 @@
   height: 56px;
   border-radius: 50%;
   background: var(--avatar-bg, var(--bg-3));
-  color: var(--fg-2);
+  color: var(--avatar-fg, var(--fg-2));
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -9449,7 +9504,11 @@
 /* PageView — cm-page / cm-page-* */
 .ds-247420 .cm-page { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow-y: auto; background: var(--bg-1, var(--bg-2)); color: var(--fg); }
 .ds-247420 .cm-page-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: var(--space-3); border-bottom: var(--bw-hair) solid var(--rule); }
+.ds-247420 .cm-page-head-title { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
 .ds-247420 .cm-page-title { margin: 0; font-size: var(--fs-xl); font-weight: 700; }
+.ds-247420 .cm-page-meta { display: flex; align-items: center; gap: var(--space-2); font-size: var(--fs-xs); color: var(--fg-2, var(--fg)); }
+.ds-247420 .cm-page-author { font-weight: 500; }
+.ds-247420 .cm-page-time { opacity: .75; }
 .ds-247420 .cm-page-edit { padding: var(--space-1) var(--space-2); border: var(--bw-hair) solid var(--rule-strong); border-radius: var(--r-1); background: var(--bg-3); color: var(--fg); cursor: pointer; }
 .ds-247420 .cm-page-body { padding: var(--space-3); line-height: 1.6; }
 .ds-247420 .cm-page-empty { color: var(--fg-2, var(--fg)); opacity: .7; }
@@ -12345,6 +12404,14 @@
     box-shadow: var(--shadow-3);
     outline: none; overflow: hidden;
 }
+.ds-247420 .ov-emoji-search {
+    flex-shrink: 0; margin: var(--space-2, 8px); margin-bottom: 0;
+    padding: var(--space-1-5, 6px) var(--space-2, 8px);
+    border: 1px solid var(--rule); border-radius: var(--r-1, 10px);
+    background: var(--bg-1, var(--bg-3)); color: var(--fg);
+    font: inherit; font-size: var(--fs-sm, 13px);
+}
+.ds-247420 .ov-emoji-search:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; }
 .ds-247420 .ov-emoji-tabs {
     display: flex; flex-shrink: 0;
     border-bottom: 1px solid var(--rule);
@@ -12607,16 +12674,6 @@
     box-shadow: var(--shadow-3);
     color: var(--panel-text);
     overflow: hidden;
-}
-/* prefers-reduced-transparency: the dock's whole "non-occluding" idiom (see
-   the comment above this block) relies on translucency + blur to let the
-   viewport read through behind it; a user who has disabled see-through
-   panel chrome gets a fully solid --panel-1 backing instead, same layout. */
-@media (prefers-reduced-transparency: reduce) {
-  .ds-247420 .ds-ep-dock {
-    background: var(--panel-1);
-    -webkit-backdrop-filter: none; backdrop-filter: none;
-  }
 }
 .ds-247420 .ds-ep-dock-left { left: 8px; }
 .ds-247420 .ds-ep-dock-right { right: 8px; }

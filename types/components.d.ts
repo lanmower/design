@@ -2039,6 +2039,10 @@ export interface PageViewProps {
     title?: string;
     /** @default '' */
     html?: string;
+    /** @default '' */
+    author?: string;
+    /** @default 0 */
+    updatedAt?: number;
     /** @default false */
     isAdmin?: boolean;
     onEdit?: (...args: any[]) => any;

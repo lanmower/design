@@ -6,7 +6,7 @@
 // submodule under ./content/, and the public export surface here is unchanged
 // — no consumer import needs to move.
 
-import { avatarInitial, Avatar } from './content/avatar.js';
+import { avatarInitial, avatarContrastFg, Avatar } from './content/avatar.js';
 import { Row, RowLink } from './content/row.js';
 import { Panel, Card, PanelFromItems, Section, Receipt, Changelog } from './content/panel.js';
 import { Hero, HeroFromPageData, Marquee, Manifesto, PageHeader } from './content/hero.js';
@@ -20,7 +20,7 @@ import { Spinner, Skeleton, Alert, FilterPills } from './content/feedback.js';
 import { HomeView, ProjectView } from './content/views.js';
 
 export {
-    avatarInitial, Avatar,
+    avatarInitial, avatarContrastFg, Avatar,
     Row, RowLink,
     Panel, Card, PanelFromItems, Section, Receipt, Changelog,
     Hero, HeroFromPageData, Marquee, Manifesto, PageHeader,

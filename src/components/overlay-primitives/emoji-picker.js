@@ -44,12 +44,18 @@ const ALL_EMOJI = EMOJI_CATEGORIES.flatMap((c) => c.emoji);
 export function EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose, query = '' } = {}) {
     if (!open) return null;
     let cat = EMOJI_CATEGORIES[0].id;
-    let rootEl = null, gridEl = null;
+    let rootEl = null, gridEl = null, searchEl = null;
+    // Internal search state, seeded from the `query` prop so a consumer that
+    // already knows the typed ':smile' trigger text (e.g. a composer keydown
+    // handler) can still pre-fill it — but typing in the picker's own input
+    // (added here since no consumer previously had anywhere to route text
+    // into `query`) is the primary path now.
+    let search = query || '';
     const close = () => onClose && onClose();
 
     const renderGrid = () => {
         if (!gridEl) return;
-        const q = (query || '').trim().toLowerCase();
+        const q = (search || '').trim().toLowerCase();
         const cells = q
             ? ALL_EMOJI.filter(([, name]) => name.toLowerCase().includes(q))
             : (EMOJI_CATEGORIES.find(x => x.id === cat) || EMOJI_CATEGORIES[0]).emoji;
@@ -82,7 +88,13 @@ export function EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose,
             el._ovEmojiCleanup = _anchoredOverlayLifecycle(el, { anchorX, anchorY, fallbackW: 260, fallbackH: 240, close });
         },
     },
-        (query || '').trim() ? null : h('div', { class: 'ov-emoji-tabs', role: 'tablist' },
+        h('input', {
+            type: 'search', class: 'ov-emoji-search', placeholder: 'Search emoji…',
+            'aria-label': 'search emoji', value: search,
+            ref: (el) => { searchEl = el; },
+            oninput: (e) => { search = e.target.value; renderGrid(); },
+        }),
+        (search || '').trim() ? null : h('div', { class: 'ov-emoji-tabs', role: 'tablist' },
             ...EMOJI_CATEGORIES.map((c) => h('button', {
                 type: 'button', class: 'ov-emoji-tab', role: 'tab',
                 'aria-selected': c.id === cat ? 'true' : 'false',

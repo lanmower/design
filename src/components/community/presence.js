@@ -4,13 +4,19 @@
 
 import * as webjsx from '../../../vendor/webjsx/index.js';
 import { Icon } from '../shell.js';
-import { avatarInitial } from '../content.js';
+import { avatarInitial, avatarContrastFg } from '../content.js';
 const h = webjsx.createElement;
+
+function avatarStyle(color) {
+    if (!color) return null;
+    const fg = avatarContrastFg(color);
+    return fg ? `--avatar-bg:${color};--avatar-fg:${fg}` : `--avatar-bg:${color}`;
+}
 
 export function VoiceUser({ identity, speaking, color } = {}) {
     const initial = avatarInitial(identity);
     return h('div', { class: 'cm-voice-user' + (speaking ? ' speaking' : '') },
-        h('div', { class: 'cm-voice-user-avatar', style: color ? `--avatar-bg:${color}` : null }, initial),
+        h('div', { class: 'cm-voice-user-avatar', style: avatarStyle(color) }, initial),
         h('span', { class: 'cm-voice-user-name' }, identity)
     );
 }
@@ -29,7 +35,7 @@ export function UserPanel({ name, tag, color, muted, deafened, onMute, onDeafen,
         }
     };
     return h('div', { class: 'cm-user-panel' },
-        h('div', { class: 'cm-user-avatar', style: color ? `--avatar-bg:${color}` : null },
+        h('div', { class: 'cm-user-avatar', style: avatarStyle(color) },
             h('span', { class: 'cm-user-status-dot' }),
             initial
         ),
@@ -48,7 +54,7 @@ export function UserPanel({ name, tag, color, muted, deafened, onMute, onDeafen,
 export function MemberItem({ identity, name, color, status = 'online' } = {}) {
     const initial = avatarInitial(name || identity);
     return h('div', { class: 'cm-member-item' },
-        h('div', { class: 'cm-member-avatar', style: color ? `--avatar-bg:${color}` : null },
+        h('div', { class: 'cm-member-avatar', style: avatarStyle(color) },
             h('span', { class: 'cm-member-status' + (status === 'online' ? ' online' : '') }),
             initial
         ),

@@ -226,6 +226,7 @@ const ALLOW = {
         '#F5F0E4', // thebird named-theme preset token definition (now also in colors_and_type.css; kept harmless)
         '#EFE9DB',
         '#E3DAC7',
+        '--accent-primary: #247420;', // intentional: brand-lead literal per this file's own comment above the declaration — kept as its own token (not a bare alias) so non-.ds-247420 consumers get the literal brand green even before a preset override applies
     ],
     'editor-primitives.css': [
         'background: #000', // intentional: lightbox video letterbox — true black media frame

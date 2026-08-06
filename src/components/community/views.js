@@ -111,10 +111,16 @@ export function ForumView({ posts = [], onSearch, onSort, onSelect, onNewPost, l
     );
 }
 
-export function PageView({ title = '', html = '', isAdmin = false, onEdit } = {}) {
+export function PageView({ title = '', html = '', author = '', updatedAt = 0, isAdmin = false, onEdit } = {}) {
     return h('div', { class: 'cm-page', role: 'document' },
         h('div', { class: 'cm-page-head' },
-            h('h1', { class: 'cm-page-title' }, title || ''),
+            h('div', { class: 'cm-page-head-title' },
+                h('h1', { class: 'cm-page-title' }, title || ''),
+                (author || updatedAt) ? h('div', { class: 'cm-page-meta' },
+                    author ? h('span', { class: 'cm-page-author' }, author) : null,
+                    updatedAt ? h('span', { class: 'cm-page-time' }, fmtRelTime(updatedAt)) : null
+                ) : null
+            ),
             isAdmin && onEdit ? h('button', { type: 'button', class: 'cm-page-edit', onclick: onEdit }, 'Edit') : null
         ),
         h('div', {

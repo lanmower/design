@@ -1353,6 +1353,14 @@
     box-shadow: var(--shadow-3);
     outline: none; overflow: hidden;
 }
+.ov-emoji-search {
+    flex-shrink: 0; margin: var(--space-2, 8px); margin-bottom: 0;
+    padding: var(--space-1-5, 6px) var(--space-2, 8px);
+    border: 1px solid var(--rule); border-radius: var(--r-1, 10px);
+    background: var(--bg-1, var(--bg-3)); color: var(--fg);
+    font: inherit; font-size: var(--fs-sm, 13px);
+}
+.ov-emoji-search:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; }
 .ov-emoji-tabs {
     display: flex; flex-shrink: 0;
     border-bottom: 1px solid var(--rule);
@@ -1615,16 +1623,6 @@ input.ov-set-control[type="range"] { padding: 0; accent-color: var(--accent); }
     box-shadow: var(--shadow-3);
     color: var(--panel-text);
     overflow: hidden;
-}
-/* prefers-reduced-transparency: the dock's whole "non-occluding" idiom (see
-   the comment above this block) relies on translucency + blur to let the
-   viewport read through behind it; a user who has disabled see-through
-   panel chrome gets a fully solid --panel-1 backing instead, same layout. */
-@media (prefers-reduced-transparency: reduce) {
-  .ds-247420 .ds-ep-dock {
-    background: var(--panel-1);
-    -webkit-backdrop-filter: none; backdrop-filter: none;
-  }
 }
 .ds-247420 .ds-ep-dock-left { left: 8px; }
 .ds-247420 .ds-ep-dock-right { right: 8px; }
