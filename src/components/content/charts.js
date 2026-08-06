@@ -6,7 +6,7 @@ import * as webjsx from '../../../vendor/webjsx/index.js';
 import { Icon } from '../shell.js';
 const h = webjsx.createElement;
 
-// items: [n, label] or [n, label, {delta, tone: 'up'|'down', spark: number[], invert}]
+// items: [n, label] or [n, label, {delta, tone: 'up'|'down', spark: number[], invert, glyph}]
 // meta is optional and additive — every existing 2-tuple call site is untouched.
 // `tone` always drives the arrow glyph (it mirrors the delta's own arithmetic
 // sign, so the arrow never contradicts the figure beside it). `invert` is a
@@ -15,12 +15,16 @@ const h = webjsx.createElement;
 // relative to tone while the arrow direction is left alone — a rising error
 // rate still shows an up-arrow (the number went up) but in the bad/danger
 // color, not the good/success color the raw arithmetic sign would imply.
+// `meta.glyph` is an optional icon NAME (resolved via Icon()) giving each
+// tile a small identifying glyph in its top-right corner — purely additive,
+// omitted call sites render exactly as before (no icon slot in the DOM).
 export function Kpi({ items = [], emptyText = 'no metrics yet' }) {
     if (!items.length) return h('div', { class: 'empty' }, emptyText);
     return h('div', { class: 'kpi' }, ...items.map(([n, l, meta], i) => {
         const isUp = meta && meta.tone !== 'down';
         const good = meta && meta.invert ? !isUp : isUp;
         return h('div', { key: i, class: 'kpi-card' },
+            meta && meta.glyph ? h('div', { class: 'kpi-glyph' }, Icon(meta.glyph, { size: 16 })) : null,
             h('div', { class: 'num' }, String(n)),
             h('div', { class: 'lbl' }, l),
             meta && (meta.delta != null || meta.spark)

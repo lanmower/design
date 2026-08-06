@@ -189,6 +189,16 @@
   --ff-body:     system-ui, sans-serif;
   --ff-mono:     ui-monospace, Menlo, Consolas, monospace;
 
+  /* Weight scale — regular is the default voice for body/UI text everywhere;
+     medium/semibold/bold are reserved for genuine emphasis (active state,
+     unread counts, own-message author, section headers). Never reach for a
+     hardcoded 600/700 in a component rule — use these so the whole surface
+     can be re-tuned in one place instead of drifting per-component. */
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+
   /* Sub-12px tiers exist ONLY for dense OS/data chrome — taskbar strips,
      session chips, tool-call headers, file-row metadata, ID/stat columns.
      Never use them for body copy or ordinary UI text: at these sizes the
@@ -1649,8 +1659,18 @@
    workspace rail item-count badge (atoms.js Badge size="sm"). */
 .ds-247420 .ds-badge.ds-badge--sm { min-width: var(--icon-xs); height: var(--icon-xs); padding: 0 var(--space-1); font-size: var(--fs-nano); }
 .ds-247420 .ds-badge.ds-badge--lg { min-width: 22px; height: 22px; padding: 0 var(--space-2); font-size: var(--fs-tiny); }
-.ds-247420 .ds-badge.tone-green, .ds-247420 .ds-badge.tone-live, .ds-247420 .ds-badge.tone-success {
+.ds-247420 .ds-badge.tone-green, .ds-247420 .ds-badge.tone-success {
   background: var(--green-tint); color: var(--green-deep);
+}
+/* tone-live is its own hue (sky), split out of the success/green group:
+   "live/broadcasting now" and "operation succeeded" are different facts and
+   read identically when both borrow the brand's accent green — a LIVE badge
+   next to an "ok" chip must not look like the same state. --sky is already
+   used for informational surfaces (ds-alert-info, audio-file icons) and is
+   never pinned by the thebird brand's `--accent:var(--green)!important`
+   override, so it stays visually distinct under every accent preset. */
+.ds-247420 .ds-badge.tone-live {
+  background: color-mix(in oklab, var(--sky) 22%, var(--bg)); color: var(--sky);
 }
 .ds-247420 .ds-badge.tone-flame, .ds-247420 .ds-badge.tone-error {
   background: var(--flame); color: var(--on-color);
@@ -1681,8 +1701,35 @@
   text-transform: none; letter-spacing: 0; font-weight: 500;
   border-radius: var(--r-0); padding: var(--space-half) var(--space-2);
 }
-.ds-247420 .chip.tone-green, .ds-247420 .chip.tone-live, .ds-247420 .chip.tone-success, .ds-247420 .chip.tone-ok {
+.ds-247420 .chip.tone-green, .ds-247420 .chip.tone-success, .ds-247420 .chip.tone-ok {
   background: var(--green-tint); color: var(--green-deep);
+}
+/* tone-live: its own sky hue, split from tone-ok/tone-success — see the
+   .ds-badge.tone-live comment above for the rationale. A small pulsing dot
+   precedes the label so "live" reads as an active broadcast state, not a
+   static status chip. */
+.ds-247420 .chip.tone-live {
+  background: color-mix(in oklab, var(--sky) 16%, var(--bg));
+  color: var(--sky);
+  position: relative;
+  padding-left: 22px;
+}
+.ds-247420 .chip.tone-live::before {
+  content: '';
+  position: absolute;
+  left: 10px; top: 50%;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--sky);
+  transform: translateY(-50%);
+  animation: chip-live-pulse 1.6s ease-in-out infinite;
+}
+@keyframes chip-live-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in oklab, var(--sky) 50%, transparent); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 4px transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-247420 .chip.tone-live::before { animation: none; }
 }
 .ds-247420 .chip.tone-flame, .ds-247420 .chip.tone-error, .ds-247420 .chip.tone-miss {
   background: var(--flame); color: var(--on-color);
@@ -2461,6 +2508,12 @@
   outline-offset: -2px;
 }
 .ds-247420 table tr.clickable:focus-visible td { background: var(--bg-2); }
+/* Non-clickable (static) rows still get a subtle hover cue — most dashboard
+   tables (freddie's sessions-by-platform/model, tool distribution, commands)
+   never pass onRowClick, so they had zero row-hover feedback at all. A dim
+   hover on ANY row (not just .clickable) reads as "you're scanning this
+   row" without implying it's actionable. */
+.ds-247420 table tr:not(.clickable):hover td { background: color-mix(in oklab, var(--bg-2) 60%, transparent); }
 
 /* Table() striped/compact opt-in density modifiers (webgeist g-table parity).
    Scoped under .ds-table-wrap so they never leak onto an unrelated bare
@@ -2468,8 +2521,15 @@
 .ds-247420 .ds-table-wrap.is-striped table tr:nth-child(even) td { background: var(--bg-2); }
 .ds-247420 .ds-table-wrap.is-striped table tr.clickable:nth-child(even):hover td,
 .ds-247420 .ds-table-wrap.is-striped table tr.clickable:nth-child(even):focus-visible td { background: var(--bg-3, var(--bg-2)); }
+.ds-247420 .ds-table-wrap.is-striped table tr:not(.clickable):nth-child(even):hover td { background: color-mix(in oklab, var(--bg-3, var(--bg-2)) 60%, transparent); }
 .ds-247420 .ds-table-wrap.is-compact table th { padding: var(--space-1-5, 5px) var(--space-2, 8px); }
 .ds-247420 .ds-table-wrap.is-compact table td { padding: var(--space-1-5, 5px) var(--space-2, 8px); }
+/* Numeric-column right-alignment: Table() (content/table.js) tags a cell
+   td.is-num when its raw content is a plain integer/decimal, so digit
+   columns (session counts, tool counts, etc.) line up on the ones place
+   instead of ragged-left like prose columns. th.is-num mirrors it on the
+   matching header so the label sits over its column. */
+.ds-247420 table td.is-num, .ds-247420 table th.is-num { text-align: right; font-variant-numeric: tabular-nums; }
 
 /* ============================================================
    Changelog
@@ -2532,6 +2592,9 @@
 .ds-247420 .ds-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; vertical-align: middle; }
 .ds-247420 .ds-dot-on  { color: var(--green-2); }
 .ds-247420 .ds-dot-off { color: var(--fg-3); }
+/* live is a distinct hue from a plain "on" dot — see .chip.tone-live's
+   comment for the success-vs-live rationale. */
+.ds-247420 .ds-dot-live { color: var(--sky); }
 .ds-247420 .ds-dot-live { color: var(--green-2); }
 .ds-247420 .ds-dot-idle { color: var(--fg-3); }
 
@@ -2549,6 +2612,26 @@
   padding: var(--space-3);
   background: var(--bg-2);
   border-radius: var(--r-1);
+  /* A thin border + hover elevation gives the tile real edges and a "this is
+     a distinct object" affordance instead of a flat color patch that blends
+     into the surrounding panel — matches the "no border, no hover state"
+     gap named against the stat tiles. */
+  border: 1px solid var(--rule);
+  position: relative;
+  transition: border-color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+}
+.ds-247420 .kpi-card:hover {
+  border-color: color-mix(in oklab, var(--accent) 40%, var(--rule));
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-1, 0 2px 8px rgba(0,0,0,.12));
+}
+.ds-247420 .kpi-glyph {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  color: var(--fg-3);
+  opacity: 0.6;
+  display: inline-flex;
 }
 .ds-247420 .kpi-card .num {
   font-family: var(--ff-body); font-weight: 600;
@@ -8437,7 +8520,7 @@
   justify-content: center;
   font-family: var(--ff-body);
   font-size: var(--fs-lg);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   letter-spacing: var(--tr-tight);
   cursor: pointer;
   overflow: hidden;
@@ -8494,7 +8577,7 @@
   color: var(--ink);
   font-family: var(--ff-mono);
   font-size: var(--fs-micro);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   border-radius: var(--r-pill);
   display: flex;
   align-items: center;
@@ -8513,7 +8596,7 @@
   align-items: center;
   justify-content: center;
   font-size: var(--fs-xl);
-  font-weight: 400;
+  font-weight: var(--fw-regular);
   cursor: pointer;
   border: 0;
   transition:
@@ -8559,7 +8642,7 @@
   padding: var(--space-2-75) var(--space-3);
   background: var(--bg-2);
   box-shadow: 0 1px 0 color-mix(in oklab, var(--fg) 8%, transparent);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   font-size: var(--fs-sm);
   letter-spacing: -0.01em;
   /* No cursor:pointer, no :hover background, no user-select:none. This is a
@@ -8614,7 +8697,7 @@
   padding: var(--space-1) var(--space-2);
   font-family: var(--ff-body);
   font-size: var(--fs-micro);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   color: var(--fg-3);
   letter-spacing: var(--tr-caps);
   text-transform: uppercase;
@@ -8653,7 +8736,7 @@
   font-family: var(--ff-mono);
   font-size: var(--fs-micro);
   color: var(--fg-3);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   letter-spacing: 0;
   text-transform: none;
 }
@@ -8723,7 +8806,7 @@
 .ds-247420 .cm-channel-item.active {
   background: color-mix(in oklab, var(--fg) 10%, transparent);
   color: var(--fg);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 .ds-247420 .cm-channel-item.active::before {
   content: '';
@@ -8829,7 +8912,7 @@
   color: var(--ink);
   font-family: var(--ff-mono);
   font-size: var(--fs-micro);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   border-radius: var(--r-pill);
   display: inline-flex;
   align-items: center;
@@ -8913,7 +8996,7 @@
   align-items: center;
   justify-content: center;
   font-size: var(--fs-pico);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   overflow: hidden;
   transition: box-shadow var(--dur-snap) var(--ease);
 }
@@ -8952,7 +9035,7 @@
    a pulsing dot and must read as the loudest thing in the strip). */
 .ds-247420 .cm-vs-label {
   color: var(--green);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   display: inline-flex;
   align-items: center;
   gap: var(--space-1-75);
@@ -8978,7 +9061,7 @@
 
 .ds-247420 .cm-vs-channel {
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   color: var(--fg);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -9006,7 +9089,7 @@
   border-radius: var(--r-1);
   font-family: var(--ff-body);
   font-size: var(--fs-xs);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   cursor: pointer;
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
@@ -9048,7 +9131,7 @@
   align-items: center;
   justify-content: center;
   font-size: var(--fs-xs);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   overflow: hidden;
 }
 .ds-247420 .cm-user-avatar img {
@@ -9078,7 +9161,7 @@
 }
 .ds-247420 .cm-user-name {
   font-size: var(--fs-xs);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   color: var(--fg);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -9159,7 +9242,7 @@
      pinned weight/size/colour, but a bare h1 also brings a UA block margin
      that would break this flex row — so the margin is zeroed explicitly. */
   margin: 0;
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   font-size: var(--fs-sm);
   color: var(--fg);
   letter-spacing: -0.01em;
@@ -9223,7 +9306,7 @@
   padding: var(--space-2-75) var(--space-3) var(--space-1-75);
   font-family: var(--ff-body);
   font-size: var(--fs-micro);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   color: var(--fg-3);
   letter-spacing: var(--tr-caps);
   text-transform: uppercase;
@@ -9259,7 +9342,7 @@
   align-items: center;
   justify-content: center;
   font-size: var(--fs-micro);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   overflow: hidden;
 }
 .ds-247420 .cm-member-avatar img {
@@ -9320,7 +9403,7 @@
   align-items: center;
   justify-content: center;
   font-size: var(--fs-lg);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   overflow: hidden;
 }
 .ds-247420 .cm-voice-user-avatar img {
@@ -9336,7 +9419,7 @@
 .ds-247420 .cm-voice-user-name {
   font-size: var(--fs-xs);
   color: var(--fg);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -9531,7 +9614,7 @@
   flex: 1 1 auto;
   min-width: 0;
   font-family: var(--font-mono, monospace);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   color: var(--fg);
   white-space: nowrap;
   overflow: hidden;
@@ -9554,7 +9637,7 @@
   font-size: var(--fs-xs);
 }
 .ds-247420 .cm-rb-label { flex: none; color: var(--fg-2); }
-.ds-247420 .cm-rb-author { color: var(--accent); font-weight: 600; }
+.ds-247420 .cm-rb-author { color: var(--accent); font-weight: var(--fw-medium); }
 .ds-247420 .cm-rb-preview {
   flex: 1 1 auto;
   min-width: 0;
@@ -9586,7 +9669,7 @@
   width: 100%;
   padding: var(--space-2) var(--space-3);
   font-size: var(--fs-xs);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 .ds-247420 .cm-banner.clickable { cursor: pointer; }
 .ds-247420 .cm-banner.clickable:hover { background: color-mix(in oklab, currentColor 10%, transparent); }
@@ -9597,7 +9680,7 @@
   background: transparent;
   color: inherit;
   font: inherit;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   padding: var(--space-hair) var(--space-2);
   border-radius: var(--r-1);
   cursor: pointer;
@@ -9659,7 +9742,7 @@
   color: var(--fg);
   font-family: var(--ff-body);
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
@@ -9781,7 +9864,7 @@
   color: var(--fg);
   font-family: var(--ff-body);
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   cursor: pointer;
   transition: background var(--dur-base) var(--ease);
 }
@@ -9811,7 +9894,7 @@
   padding: var(--space-3);
   border-bottom: var(--bw-hair) solid var(--rule);
 }
-.ds-247420 .vx-modal-title { margin: 0; font-size: var(--fs-lg); font-weight: 600; }
+.ds-247420 .vx-modal-title { margin: 0; font-size: var(--fs-lg); font-weight: var(--fw-semibold); }
 .ds-247420 .vx-modal-x {
   border: 0; background: transparent; color: var(--fg-3);
   font-size: var(--fs-xl); line-height: 1; cursor: pointer; padding: 0 var(--space-1);
@@ -9835,7 +9918,7 @@
   color: var(--fg);
   font-family: var(--ff-body);
   font-size: var(--fs-tiny);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   letter-spacing: var(--tr-caps);
   cursor: pointer;
 }
@@ -9893,13 +9976,13 @@
 .ds-247420 .vx-chip-current { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 16%, var(--bg-3)); }
 .ds-247420 .vx-chip-live { border-color: var(--green-2); }
 .ds-247420 .vx-chip-dot { width: 8px; height: 8px; border-radius: var(--r-pill); background: var(--fg-3); flex-shrink: 0; }
-.ds-247420 .vx-chip-name { font-weight: 600; }
+.ds-247420 .vx-chip-name { font-weight: var(--fw-medium); }
 .ds-247420 .vx-chip-dur { font-family: var(--ff-mono); color: var(--fg-3); }
 /* Joins the small-label voice above. Deliberate overrides: --green + weight 700
    because this is the "LIVE" badge on a session chip, same signal role as
    .cm-vs-label. */
 .ds-247420 .vx-chip-tag {
-  color: var(--green); font-weight: 700;
+  color: var(--green); font-weight: var(--fw-bold);
 }
 
 /* VoiceControls — vx-vc-* */
@@ -9945,7 +10028,7 @@
   display: flex; align-items: center; justify-content: space-between;
   padding: var(--space-2); border-bottom: var(--bw-hair) solid var(--rule);
 }
-.ds-247420 .cm-tp-title { font-weight: 700; font-size: var(--fs-xs); }
+.ds-247420 .cm-tp-title { font-weight: var(--fw-bold); font-size: var(--fs-xs); }
 .ds-247420 .cm-tp-head-actions { display: flex; gap: var(--space-1); }
 .ds-247420 .cm-tp-new, .ds-247420 .cm-tp-close {
   border: none; background: transparent; color: var(--fg-2, var(--fg));
@@ -9963,7 +10046,7 @@
 }
 .ds-247420 .cm-tp-item:hover { background: var(--bg-3); }
 .ds-247420 .cm-tp-item.is-active { background: var(--bg-3); box-shadow: inset 3px 0 0 var(--accent); }
-.ds-247420 .cm-tp-item.is-unread .cm-tp-item-title { font-weight: 700; }
+.ds-247420 .cm-tp-item.is-unread .cm-tp-item-title { font-weight: var(--fw-bold); }
 .ds-247420 .cm-tp-dot { position: absolute; left: 4px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
 .ds-247420 .cm-tp-item-title { font-size: var(--fs-xs); }
 .ds-247420 .cm-tp-item-snippet { font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -10017,7 +10100,7 @@
 .ds-247420 .cm-forum-item { display: flex; flex-direction: column; gap: var(--space-1); width: 100%; text-align: left; cursor: pointer; padding: var(--space-2) var(--space-3); border: none; background: transparent; border-bottom: var(--bw-hair) solid var(--rule); color: var(--fg); }
 .ds-247420 .cm-forum-item:hover { background: var(--bg-3); }
 .ds-247420 .cm-forum-item-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
-.ds-247420 .cm-forum-item-title { font-weight: 700; font-size: var(--fs-xs); }
+.ds-247420 .cm-forum-item-title { font-weight: var(--fw-bold); font-size: var(--fs-xs); }
 .ds-247420 .cm-forum-item-replies { font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .8; white-space: nowrap; }
 .ds-247420 .cm-forum-item-snippet { font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .85; }
 .ds-247420 .cm-forum-item-meta { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .7; }
@@ -10030,9 +10113,9 @@
 .ds-247420 .cm-page { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow-y: auto; background: var(--bg-1, var(--bg-2)); color: var(--fg); }
 .ds-247420 .cm-page-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: var(--space-3); border-bottom: var(--bw-hair) solid var(--rule); }
 .ds-247420 .cm-page-head-title { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
-.ds-247420 .cm-page-title { margin: 0; font-size: var(--fs-xl); font-weight: 700; }
+.ds-247420 .cm-page-title { margin: 0; font-size: var(--fs-xl); font-weight: var(--fw-bold); }
 .ds-247420 .cm-page-meta { display: flex; align-items: center; gap: var(--space-2); font-size: var(--fs-xs); color: var(--fg-2, var(--fg)); }
-.ds-247420 .cm-page-author { font-weight: 500; }
+.ds-247420 .cm-page-author { font-weight: var(--fw-medium); }
 .ds-247420 .cm-page-time { opacity: .75; }
 .ds-247420 .cm-page-edit { padding: var(--space-1) var(--space-2); border: var(--bw-hair) solid var(--rule-strong); border-radius: var(--r-1); background: var(--bg-3); color: var(--fg); cursor: pointer; }
 .ds-247420 .cm-page-body { padding: var(--space-3); line-height: 1.6; }
@@ -10071,9 +10154,105 @@
 }
 
 /* chat.css */
-/* chat.css — chat-specific styles. Most chat styles live in app-shell.css under
-   the .chat-* prefix. This file carries the AgentChat kit styles (the reusable
-   multi-agent orchestration chat surface). */
+/* chat.css — chat-specific styles, including the base .chat-* rules used by
+   Chat()/ChatMessage() (chat/threads.js, chat/message.js): .chat, .chat-head,
+   .chat-thread, .chat-msg, .chat-avatar, .chat-bubble, .chat-stack,
+   .chat-empty. This file also carries the AgentChat kit styles (the reusable
+   multi-agent orchestration chat surface, .agentchat-*). */
+
+/* Base chat surface — the default (non-flat) messenger layout: left/right
+   avatar-disc + colored-bubble turns. .chat-msg-flat further down overrides
+   these to the claude.ai/code full-width turn style; these are the rules it
+   overrides FROM, and were previously entirely undefined, so the default
+   layout rendered on raw flex/browser defaults (unstyled bubble shape, no
+   avatar depth, no defined thread padding) until a Chat() consumer supplied
+   its own colliding class names. */
+.ds-247420 .chat {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.ds-247420 .chat-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2-75) var(--space-3);
+  border-bottom: 1px solid var(--panel-3, color-mix(in oklab, var(--fg) 10%, transparent));
+  flex-shrink: 0;
+}
+.ds-247420 .chat-head .ds-chat-title { font-size: var(--fs-sm); font-weight: var(--fw-medium); margin: 0; }
+.ds-247420 .chat-head .sub { font-size: var(--fs-tiny); color: var(--fg-3); }
+.ds-247420 .chat-head .spread { flex: 1; }
+.ds-247420 .chat-thread {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3) var(--space-4);
+  /* A short thread must not stretch its one message across the whole
+     viewport height — pack content to the bottom (where the composer is)
+     instead of centering it in a sea of empty space above and below. */
+  justify-content: flex-end;
+}
+.ds-247420 .chat-empty {
+  margin: auto;
+  max-width: var(--measure-narrow, 60ch);
+  text-align: center;
+  padding: var(--space-5) var(--space-3);
+  color: var(--fg-3);
+}
+.ds-247420 .chat-empty-title { font-size: var(--fs-lg); font-weight: var(--fw-medium); color: var(--fg-2); margin: 0 0 var(--space-1); }
+.ds-247420 .chat-empty-sub { font-size: var(--fs-sm); margin: 0; }
+.ds-247420 .chat-msg {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  max-width: 100%;
+}
+.ds-247420 .chat-msg.you { flex-direction: row-reverse; }
+.ds-247420 .chat-msg.centered { justify-content: center; text-align: center; }
+.ds-247420 .chat-avatar {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--bg-3);
+  color: var(--fg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-tiny);
+  font-weight: var(--fw-medium);
+  /* Depth over a flat solid-color disc: a hairline inset ring plus the same
+     soft shadow --panel-shadow uses elsewhere, so avatars read as a real
+     surface element instead of a wireframe placeholder. */
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg) 10%, transparent), 0 1px 2px color-mix(in oklab, var(--fg) 10%, transparent);
+}
+.ds-247420 .chat-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-width: 70%;
+  min-width: 0;
+}
+.ds-247420 .chat-msg.you .chat-stack { align-items: flex-end; }
+.ds-247420 .chat-bubble {
+  padding: var(--space-2) var(--space-2-75);
+  background: var(--bg-2);
+  color: var(--fg);
+  /* r-2, not a pill — a pill-capsule bubble read as a generic chat-template
+     shape inconsistent with every other rounded element in the app (which
+     all use the r-0..r-3 scale, never 999px). */
+  border-radius: var(--r-2);
+  line-height: var(--lh-base, 1.5);
+  word-break: break-word;
+  font-size: var(--fs-sm);
+}
+.ds-247420 .chat-msg.you .chat-bubble { background: var(--accent); color: var(--accent-fg); }
+.ds-247420 .chat-meta { display: flex; gap: var(--space-1-5); font-size: var(--fs-nano); color: var(--fg-3); padding: 0 var(--space-1); }
 
 .ds-247420 .agentchat {
   display: flex;
@@ -13437,6 +13616,48 @@
   padding: 0;
 }
 
+/* app topbar — mountCommunityApp's own sole chrome above the chat-head; had
+   no rules anywhere (relying on raw flex defaults), which read as unaligned
+   default spacing rather than a designed header row. */
+.ds-247420.ds-247420 .app-topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 48px;
+  flex-shrink: 0;
+  padding: 0 var(--space-3);
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--panel-3, color-mix(in oklab, var(--fg) 10%, transparent));
+}
+.ds-247420.ds-247420 .app-topbar .brand {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  min-width: 0;
+  font-weight: var(--fw-medium, 500);
+  font-size: var(--fs-sm);
+  color: var(--fg);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ds-247420.ds-247420 .app-topbar .brand .slash { color: var(--fg-3); }
+.ds-247420.ds-247420 .app-topbar nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.ds-247420.ds-247420 .app-topbar nav a {
+  color: var(--fg-2);
+  font-size: var(--fs-tiny);
+  text-decoration: none;
+  padding: var(--space-1) var(--space-1-5);
+  border-radius: var(--r-1);
+  transition: background var(--dur-snap, .12s) var(--ease, ease), color var(--dur-snap, .12s) var(--ease, ease);
+}
+.ds-247420.ds-247420 .app-topbar nav a:hover { color: var(--fg); background: color-mix(in oklab, var(--fg) 8%, transparent); }
+.ds-247420.ds-247420 .app-topbar nav a:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 2px; }
+
 /* server + channel rail */
 .ds-247420.ds-247420 .ca-rail {
   display: flex;
@@ -13452,7 +13673,7 @@
 }
 .ds-247420.ds-247420 .ca-rail .group {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: var(--fw-semibold, 600);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
@@ -13512,7 +13733,7 @@
   background: var(--accent);
   color: var(--on-accent);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: var(--fw-semibold, 600);
   text-align: center;
 }
 .ds-247420.ds-247420 .ca-rail .rail-empty {

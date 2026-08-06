@@ -12,18 +12,18 @@ export function makeToolsPages(ctx) {
         async analytics(h0) {
             const list = await h0.pi.sessions.list();
             const tools = [...h0.pi.tools.values()];
-            const byPlatform = list.reduce((a, s) => { const k = s.platform || '?'; a[k] = (a[k] || 0) + 1; return a; }, {});
-            const byModel = list.reduce((a, s) => { const k = s.model || '?'; a[k] = (a[k] || 0) + 1; return a; }, {});
+            const byPlatform = list.reduce((a, s) => { const k = s.platform || 'unknown'; a[k] = (a[k] || 0) + 1; return a; }, {});
+            const byModel = list.reduce((a, s) => { const k = s.model || 'unknown'; a[k] = (a[k] || 0) + 1; return a; }, {});
             const byToolset = tools.reduce((a, t) => { (a[t.toolset || 'core'] = a[t.toolset || 'core'] || []).push(t.name); return a; }, {});
             return [
                 Kpi({ items: [[list.length, 'sessions'], [tools.length, 'tools']] }),
                 Panel({ title: 'sessions by platform', children: Object.keys(byPlatform).length === 0
                     ? EmptyState({ text: 'no data', glyph: Icon('activity') })
-                    : Table({ headers: ['platform', 'count'], rows: Object.entries(byPlatform).sort((a, b) => b[1] - a[1]) }) }),
+                    : Table({ headers: ['platform', 'count'], striped: true, rows: Object.entries(byPlatform).sort((a, b) => b[1] - a[1]) }) }),
                 Panel({ title: 'sessions by model', children: Object.keys(byModel).length === 0
                     ? EmptyState({ text: 'no data', glyph: Icon('circle-dot') })
-                    : Table({ headers: ['model', 'count'], rows: Object.entries(byModel).sort((a, b) => b[1] - a[1]) }) }),
-                Panel({ title: 'tool distribution', children: Table({ headers: ['toolset', 'count', 'tools'],
+                    : Table({ headers: ['model', 'count'], striped: true, rows: Object.entries(byModel).sort((a, b) => b[1] - a[1]) }) }),
+                Panel({ title: 'tool distribution', children: Table({ headers: ['toolset', 'count', 'tools'], striped: true,
                     rows: Object.entries(byToolset).map(([k, v]) => [k, v.length, v.slice(0, 4).join(', ') + (v.length > 4 ? '…' : '')]) }) }),
             ];
         },
@@ -65,7 +65,7 @@ export function makeToolsPages(ctx) {
                 }) }),
                 Panel({ title: 'scheduled jobs', count: list.length, children: list.length === 0
                     ? EmptyState({ text: 'no cron jobs — add one above', glyph: Icon('circle') })
-                    : Table({ headers: ['id', 'cron', 'prompt', 'enabled'],
+                    : Table({ headers: ['id', 'cron', 'prompt', 'enabled'], striped: true,
                         rows: list.map(j => [j.id, j.cron, (j.prompt || '').slice(0, 40), j.enabled ? 'yes' : 'no']) }) }),
             ];
         },
@@ -77,7 +77,7 @@ export function makeToolsPages(ctx) {
                 list.length === 0 ? EmptyState({ text: 'no skills loaded — add SKILL.md files to ~/.freddie/skills/', glyph: Icon('square') }) : null,
                 ...Object.entries(byCat).map(([cat, ss]) => Panel({ title: cat, count: ss.length,
                     children: ss.length === 0 ? EmptyState({ text: 'none', glyph: Icon('square') })
-                        : Table({ headers: ['name', 'description'], rows: ss.map(s => [skillLabel(s), (s.description || '').slice(0, 120)]) }) })),
+                        : Table({ headers: ['name', 'description'], striped: true, rows: ss.map(s => [skillLabel(s), (s.description || '').slice(0, 120)]) }) })),
             ].filter(Boolean);
         },
         async config(h0) {
@@ -97,7 +97,7 @@ export function makeToolsPages(ctx) {
                     },
                 }) }),
                 Panel({ title: 'commands', count: commands.length,
-                    children: Table({ headers: ['name', 'category', 'description'], rows: commands.map(c => [c.name, c.category || '', c.description || '']) }) }),
+                    children: Table({ headers: ['name', 'category', 'description'], striped: true, rows: commands.map(c => [c.name, c.category || '', c.description || '']) }) }),
                 Panel({ title: 'active config', children: pre(cfg) }),
             ];
         },

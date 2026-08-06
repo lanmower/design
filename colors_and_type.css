@@ -187,6 +187,16 @@
   --ff-body:     system-ui, sans-serif;
   --ff-mono:     ui-monospace, Menlo, Consolas, monospace;
 
+  /* Weight scale — regular is the default voice for body/UI text everywhere;
+     medium/semibold/bold are reserved for genuine emphasis (active state,
+     unread counts, own-message author, section headers). Never reach for a
+     hardcoded 600/700 in a component rule — use these so the whole surface
+     can be re-tuned in one place instead of drifting per-component. */
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+
   /* Sub-12px tiers exist ONLY for dense OS/data chrome — taskbar strips,
      session chips, tool-call headers, file-row metadata, ID/stat columns.
      Never use them for body copy or ordinary UI text: at these sizes the

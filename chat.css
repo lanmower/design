@@ -1,6 +1,102 @@
-/* chat.css — chat-specific styles. Most chat styles live in app-shell.css under
-   the .chat-* prefix. This file carries the AgentChat kit styles (the reusable
-   multi-agent orchestration chat surface). */
+/* chat.css — chat-specific styles, including the base .chat-* rules used by
+   Chat()/ChatMessage() (chat/threads.js, chat/message.js): .chat, .chat-head,
+   .chat-thread, .chat-msg, .chat-avatar, .chat-bubble, .chat-stack,
+   .chat-empty. This file also carries the AgentChat kit styles (the reusable
+   multi-agent orchestration chat surface, .agentchat-*). */
+
+/* Base chat surface — the default (non-flat) messenger layout: left/right
+   avatar-disc + colored-bubble turns. .chat-msg-flat further down overrides
+   these to the claude.ai/code full-width turn style; these are the rules it
+   overrides FROM, and were previously entirely undefined, so the default
+   layout rendered on raw flex/browser defaults (unstyled bubble shape, no
+   avatar depth, no defined thread padding) until a Chat() consumer supplied
+   its own colliding class names. */
+.chat {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.chat-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2-75) var(--space-3);
+  border-bottom: 1px solid var(--panel-3, color-mix(in oklab, var(--fg) 10%, transparent));
+  flex-shrink: 0;
+}
+.chat-head .ds-chat-title { font-size: var(--fs-sm); font-weight: var(--fw-medium); margin: 0; }
+.chat-head .sub { font-size: var(--fs-tiny); color: var(--fg-3); }
+.chat-head .spread { flex: 1; }
+.chat-thread {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3) var(--space-4);
+  /* A short thread must not stretch its one message across the whole
+     viewport height — pack content to the bottom (where the composer is)
+     instead of centering it in a sea of empty space above and below. */
+  justify-content: flex-end;
+}
+.chat-empty {
+  margin: auto;
+  max-width: var(--measure-narrow, 60ch);
+  text-align: center;
+  padding: var(--space-5) var(--space-3);
+  color: var(--fg-3);
+}
+.chat-empty-title { font-size: var(--fs-lg); font-weight: var(--fw-medium); color: var(--fg-2); margin: 0 0 var(--space-1); }
+.chat-empty-sub { font-size: var(--fs-sm); margin: 0; }
+.chat-msg {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  max-width: 100%;
+}
+.chat-msg.you { flex-direction: row-reverse; }
+.chat-msg.centered { justify-content: center; text-align: center; }
+.chat-avatar {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--bg-3);
+  color: var(--fg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-tiny);
+  font-weight: var(--fw-medium);
+  /* Depth over a flat solid-color disc: a hairline inset ring plus the same
+     soft shadow --panel-shadow uses elsewhere, so avatars read as a real
+     surface element instead of a wireframe placeholder. */
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg) 10%, transparent), 0 1px 2px color-mix(in oklab, var(--fg) 10%, transparent);
+}
+.chat-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-width: 70%;
+  min-width: 0;
+}
+.chat-msg.you .chat-stack { align-items: flex-end; }
+.chat-bubble {
+  padding: var(--space-2) var(--space-2-75);
+  background: var(--bg-2);
+  color: var(--fg);
+  /* r-2, not a pill — a pill-capsule bubble read as a generic chat-template
+     shape inconsistent with every other rounded element in the app (which
+     all use the r-0..r-3 scale, never 999px). */
+  border-radius: var(--r-2);
+  line-height: var(--lh-base, 1.5);
+  word-break: break-word;
+  font-size: var(--fs-sm);
+}
+.chat-msg.you .chat-bubble { background: var(--accent); color: var(--accent-fg); }
+.chat-meta { display: flex; gap: var(--space-1-5); font-size: var(--fs-nano); color: var(--fg-3); padding: 0 var(--space-1); }
 
 .agentchat {
   display: flex;

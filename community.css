@@ -82,7 +82,7 @@
   justify-content: center;
   font-family: var(--ff-body);
   font-size: var(--fs-lg);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   letter-spacing: var(--tr-tight);
   cursor: pointer;
   overflow: hidden;
@@ -139,7 +139,7 @@
   color: var(--ink);
   font-family: var(--ff-mono);
   font-size: var(--fs-micro);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   border-radius: var(--r-pill);
   display: flex;
   align-items: center;
@@ -158,7 +158,7 @@
   align-items: center;
   justify-content: center;
   font-size: var(--fs-xl);
-  font-weight: 400;
+  font-weight: var(--fw-regular);
   cursor: pointer;
   border: 0;
   transition:
@@ -204,7 +204,7 @@
   padding: var(--space-2-75) var(--space-3);
   background: var(--bg-2);
   box-shadow: 0 1px 0 color-mix(in oklab, var(--fg) 8%, transparent);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   font-size: var(--fs-sm);
   letter-spacing: -0.01em;
   /* No cursor:pointer, no :hover background, no user-select:none. This is a
@@ -259,7 +259,7 @@
   padding: var(--space-1) var(--space-2);
   font-family: var(--ff-body);
   font-size: var(--fs-micro);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   color: var(--fg-3);
   letter-spacing: var(--tr-caps);
   text-transform: uppercase;
@@ -298,7 +298,7 @@
   font-family: var(--ff-mono);
   font-size: var(--fs-micro);
   color: var(--fg-3);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   letter-spacing: 0;
   text-transform: none;
 }
@@ -368,7 +368,7 @@
 .cm-channel-item.active {
   background: color-mix(in oklab, var(--fg) 10%, transparent);
   color: var(--fg);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 .cm-channel-item.active::before {
   content: '';
@@ -474,7 +474,7 @@
   color: var(--ink);
   font-family: var(--ff-mono);
   font-size: var(--fs-micro);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   border-radius: var(--r-pill);
   display: inline-flex;
   align-items: center;
@@ -558,7 +558,7 @@
   align-items: center;
   justify-content: center;
   font-size: var(--fs-pico);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   overflow: hidden;
   transition: box-shadow var(--dur-snap) var(--ease);
 }
@@ -597,7 +597,7 @@
    a pulsing dot and must read as the loudest thing in the strip). */
 .cm-vs-label {
   color: var(--green);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   display: inline-flex;
   align-items: center;
   gap: var(--space-1-75);
@@ -623,7 +623,7 @@
 
 .cm-vs-channel {
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   color: var(--fg);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -651,7 +651,7 @@
   border-radius: var(--r-1);
   font-family: var(--ff-body);
   font-size: var(--fs-xs);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   cursor: pointer;
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
@@ -693,7 +693,7 @@
   align-items: center;
   justify-content: center;
   font-size: var(--fs-xs);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   overflow: hidden;
 }
 .cm-user-avatar img {
@@ -723,7 +723,7 @@
 }
 .cm-user-name {
   font-size: var(--fs-xs);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   color: var(--fg);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -804,7 +804,7 @@
      pinned weight/size/colour, but a bare h1 also brings a UA block margin
      that would break this flex row — so the margin is zeroed explicitly. */
   margin: 0;
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   font-size: var(--fs-sm);
   color: var(--fg);
   letter-spacing: -0.01em;
@@ -868,7 +868,7 @@
   padding: var(--space-2-75) var(--space-3) var(--space-1-75);
   font-family: var(--ff-body);
   font-size: var(--fs-micro);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   color: var(--fg-3);
   letter-spacing: var(--tr-caps);
   text-transform: uppercase;
@@ -904,7 +904,7 @@
   align-items: center;
   justify-content: center;
   font-size: var(--fs-micro);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   overflow: hidden;
 }
 .cm-member-avatar img {
@@ -965,7 +965,7 @@
   align-items: center;
   justify-content: center;
   font-size: var(--fs-lg);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   overflow: hidden;
 }
 .cm-voice-user-avatar img {
@@ -981,7 +981,7 @@
 .cm-voice-user-name {
   font-size: var(--fs-xs);
   color: var(--fg);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1176,7 +1176,7 @@
   flex: 1 1 auto;
   min-width: 0;
   font-family: var(--font-mono, monospace);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   color: var(--fg);
   white-space: nowrap;
   overflow: hidden;
@@ -1199,7 +1199,7 @@
   font-size: var(--fs-xs);
 }
 .cm-rb-label { flex: none; color: var(--fg-2); }
-.cm-rb-author { color: var(--accent); font-weight: 600; }
+.cm-rb-author { color: var(--accent); font-weight: var(--fw-medium); }
 .cm-rb-preview {
   flex: 1 1 auto;
   min-width: 0;
@@ -1231,7 +1231,7 @@
   width: 100%;
   padding: var(--space-2) var(--space-3);
   font-size: var(--fs-xs);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 .cm-banner.clickable { cursor: pointer; }
 .cm-banner.clickable:hover { background: color-mix(in oklab, currentColor 10%, transparent); }
@@ -1242,7 +1242,7 @@
   background: transparent;
   color: inherit;
   font: inherit;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   padding: var(--space-hair) var(--space-2);
   border-radius: var(--r-1);
   cursor: pointer;
@@ -1304,7 +1304,7 @@
   color: var(--fg);
   font-family: var(--ff-body);
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
@@ -1426,7 +1426,7 @@
   color: var(--fg);
   font-family: var(--ff-body);
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   cursor: pointer;
   transition: background var(--dur-base) var(--ease);
 }
@@ -1456,7 +1456,7 @@
   padding: var(--space-3);
   border-bottom: var(--bw-hair) solid var(--rule);
 }
-.vx-modal-title { margin: 0; font-size: var(--fs-lg); font-weight: 600; }
+.vx-modal-title { margin: 0; font-size: var(--fs-lg); font-weight: var(--fw-semibold); }
 .vx-modal-x {
   border: 0; background: transparent; color: var(--fg-3);
   font-size: var(--fs-xl); line-height: 1; cursor: pointer; padding: 0 var(--space-1);
@@ -1480,7 +1480,7 @@
   color: var(--fg);
   font-family: var(--ff-body);
   font-size: var(--fs-tiny);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   letter-spacing: var(--tr-caps);
   cursor: pointer;
 }
@@ -1538,13 +1538,13 @@
 .vx-chip-current { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 16%, var(--bg-3)); }
 .vx-chip-live { border-color: var(--green-2); }
 .vx-chip-dot { width: 8px; height: 8px; border-radius: var(--r-pill); background: var(--fg-3); flex-shrink: 0; }
-.vx-chip-name { font-weight: 600; }
+.vx-chip-name { font-weight: var(--fw-medium); }
 .vx-chip-dur { font-family: var(--ff-mono); color: var(--fg-3); }
 /* Joins the small-label voice above. Deliberate overrides: --green + weight 700
    because this is the "LIVE" badge on a session chip, same signal role as
    .cm-vs-label. */
 .vx-chip-tag {
-  color: var(--green); font-weight: 700;
+  color: var(--green); font-weight: var(--fw-bold);
 }
 
 /* VoiceControls — vx-vc-* */
@@ -1590,7 +1590,7 @@
   display: flex; align-items: center; justify-content: space-between;
   padding: var(--space-2); border-bottom: var(--bw-hair) solid var(--rule);
 }
-.cm-tp-title { font-weight: 700; font-size: var(--fs-xs); }
+.cm-tp-title { font-weight: var(--fw-bold); font-size: var(--fs-xs); }
 .cm-tp-head-actions { display: flex; gap: var(--space-1); }
 .cm-tp-new, .cm-tp-close {
   border: none; background: transparent; color: var(--fg-2, var(--fg));
@@ -1608,7 +1608,7 @@
 }
 .cm-tp-item:hover { background: var(--bg-3); }
 .cm-tp-item.is-active { background: var(--bg-3); box-shadow: inset 3px 0 0 var(--accent); }
-.cm-tp-item.is-unread .cm-tp-item-title { font-weight: 700; }
+.cm-tp-item.is-unread .cm-tp-item-title { font-weight: var(--fw-bold); }
 .cm-tp-dot { position: absolute; left: 4px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
 .cm-tp-item-title { font-size: var(--fs-xs); }
 .cm-tp-item-snippet { font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1664,7 +1664,7 @@
 .cm-forum-item { display: flex; flex-direction: column; gap: var(--space-1); width: 100%; text-align: left; cursor: pointer; padding: var(--space-2) var(--space-3); border: none; background: transparent; border-bottom: var(--bw-hair) solid var(--rule); color: var(--fg); }
 .cm-forum-item:hover { background: var(--bg-3); }
 .cm-forum-item-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
-.cm-forum-item-title { font-weight: 700; font-size: var(--fs-xs); }
+.cm-forum-item-title { font-weight: var(--fw-bold); font-size: var(--fs-xs); }
 .cm-forum-item-replies { font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .8; white-space: nowrap; }
 .cm-forum-item-snippet { font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .85; }
 .cm-forum-item-meta { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .7; }
@@ -1677,9 +1677,9 @@
 .cm-page { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow-y: auto; background: var(--bg-1, var(--bg-2)); color: var(--fg); }
 .cm-page-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: var(--space-3); border-bottom: var(--bw-hair) solid var(--rule); }
 .cm-page-head-title { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
-.cm-page-title { margin: 0; font-size: var(--fs-xl); font-weight: 700; }
+.cm-page-title { margin: 0; font-size: var(--fs-xl); font-weight: var(--fw-bold); }
 .cm-page-meta { display: flex; align-items: center; gap: var(--space-2); font-size: var(--fs-xs); color: var(--fg-2, var(--fg)); }
-.cm-page-author { font-weight: 500; }
+.cm-page-author { font-weight: var(--fw-medium); }
 .cm-page-time { opacity: .75; }
 .cm-page-edit { padding: var(--space-1) var(--space-2); border: var(--bw-hair) solid var(--rule-strong); border-radius: var(--r-1); background: var(--bg-3); color: var(--fg); cursor: pointer; }
 .cm-page-body { padding: var(--space-3); line-height: 1.6; }

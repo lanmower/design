@@ -99,6 +99,23 @@ html, body {
     text-rendering: optimizeLegibility;
 }
 
+/* ---- Desktop wallpaper ----
+ * A flat --os-bg-0 fill behind the window layer reads as an empty/unfinished
+ * void once windows are moved aside. A very subtle two-stop radial wash
+ * (barely above the base tone, no imagery/texture asset to fetch or theme)
+ * gives the desktop depth without competing with window chrome — scoped to
+ * .ds-247420 .wm-root specifically (the actual desktop viewport BEHIND
+ * windows), not the page background used by bare/non-OS surfaces. */
+.ds-247420 .wm-root {
+    background:
+        radial-gradient(ellipse 120% 80% at 20% -10%, color-mix(in oklab, var(--os-accent) 6%, transparent), transparent 60%),
+        radial-gradient(ellipse 100% 70% at 100% 100%, color-mix(in oklab, var(--os-accent) 4%, transparent), transparent 55%),
+        var(--os-bg-0);
+}
+@media (prefers-reduced-transparency: reduce) {
+    .ds-247420 .wm-root { background: var(--os-bg-0); }
+}
+
 /* ---- Global focus-visible ring ----
    Baseline accent-colored outline for every keyboard-focusable element
    (inputs/textareas/buttons/links/contenteditable, including the terminal's
@@ -192,6 +209,13 @@ html, body {
 .os-btn:focus-visible { background: var(--panel-hover, var(--os-bg-2)); }
 .os-btn .ic { color: var(--os-accent); display: inline-flex; width: 16px; height: 16px; }
 .os-btn .ic svg { width: 16px; height: 16px; display: block; fill: none; stroke: currentColor; }
+/* Filled/duotone active-state icon treatment: an active nav icon otherwise
+ * looks visually IDENTICAL to its inactive sibling (only the container
+ * background changes) — a soft `fill:currentColor` wash behind the same
+ * stroke-only glyph gives active items real duotone weight, matching the
+ * "filled/duotone treatment for active items" ask. fill-opacity keeps the
+ * glyph legible over the wash rather than solid-filling the whole path. */
+.os-btn.active .ic svg, .os-btn[aria-pressed="true"] .ic svg { fill: currentColor; fill-opacity: 0.18; }
 
 .os-menu {
     position: absolute;
@@ -451,6 +475,7 @@ html, body {
 .os-rail-btn:active { background: var(--panel-select, var(--os-accent-soft)); }
 .os-rail-btn .ic { color: var(--os-accent); display: inline-flex; }
 .os-rail-btn .ic svg { width: 22px; height: 22px; fill: none; stroke: currentColor; }
+.os-rail-btn:active .ic svg { fill: currentColor; fill-opacity: 0.18; }
 
 .os-drawer {
     position: fixed;
@@ -518,6 +543,7 @@ html, body {
 .os-drawer-tile:active, .os-drawer-tile.active { background: var(--panel-select, var(--os-accent-soft)); }
 .os-drawer-tile .ic { color: var(--os-accent); display: inline-flex; }
 .os-drawer-tile .ic svg { width: 32px; height: 32px; fill: none; stroke: currentColor; }
+.os-drawer-tile:active .ic svg, .os-drawer-tile.active .ic svg { fill: currentColor; fill-opacity: 0.18; }
 .os-drawer-tile .lbl { color: var(--os-fg); font-weight: 600; }
 
 .os-spacer { flex: 1 1 auto; }

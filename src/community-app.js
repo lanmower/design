@@ -6,6 +6,7 @@
 // data and receives action callbacks.
 //
 // Adapter contract (all fields optional; the app degrades when one is absent):
+//   adapter.brandName  // string shown in the topbar brand span; defaults to 'app'
 //   adapter.get() -> snapshot {
 //     channels, categories, servers, currentChannel, currentServerId, homeMode,
 //     messages,  // each message may carry reactions: [{emoji, count, users?, you?}]
@@ -60,6 +61,10 @@ export function mountCommunityApp(root, adapter = {}) {
     const get = typeof adapter.get === 'function' ? adapter.get : () => ({});
     const A = adapter.actions || {};
     const H = adapter.helpers || {};
+    // The topbar brand name was hardcoded 'zellous' -- a design-system
+    // component should not bake in one consumer's name. Any host can supply
+    // its own via adapter.brandName; 'app' is a neutral, non-branded fallback.
+    const brandName = adapter.brandName || 'app';
     const avatarColor = H.avatarColor || (() => 'var(--accent)');
     const initial = H.initial || ((n) => String(n || '?').slice(0, 1).toUpperCase());
     const formatTime = H.formatTime || ((t) => new Date(t || Date.now()).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
@@ -235,7 +240,7 @@ export function mountCommunityApp(root, adapter = {}) {
             h('a', { href: '#app-main', class: 'skip-link' }, 'skip to main content'),
             // top bar (sole app chrome above the chat-head)
             h('header', { class: 'app-topbar' },
-                h('span', { class: 'brand' }, 'zellous', h('span', { class: 'slash' }, ' / '), h('span', {}, ch.name || 'general')),
+                h('span', { class: 'brand' }, brandName, h('span', { class: 'slash' }, ' / '), h('span', {}, ch.name || 'general')),
                 h('span', {}),
                 h('nav', {},
                     h('a', { href: '../', title: 'Home', onclick: (e) => { if (A.goHome) { e.preventDefault(); A.goHome(); } } }, 'home'),

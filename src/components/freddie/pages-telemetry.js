@@ -69,7 +69,7 @@ export const logs = makePage((ctx) => {
         return [
             PageHeader({
                 title: 'logs', lede: 'live JSONL log tail — /api/logs/stream',
-                right: s.connected ? Chip({ tone: 'ok', children: 'live' }) : Chip({ tone: 'miss', children: 'reconnecting…' }),
+                right: s.connected ? Chip({ tone: 'live', children: 'live' }) : Chip({ tone: 'miss', children: 'reconnecting…' }),
             }),
             s.wsError ? refreshError(s.wsError) : null,
             h('div', { class: 'ds-toolbar' },

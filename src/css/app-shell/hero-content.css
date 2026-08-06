@@ -348,6 +348,12 @@ table tr.clickable:focus-visible {
   outline-offset: -2px;
 }
 table tr.clickable:focus-visible td { background: var(--bg-2); }
+/* Non-clickable (static) rows still get a subtle hover cue — most dashboard
+   tables (freddie's sessions-by-platform/model, tool distribution, commands)
+   never pass onRowClick, so they had zero row-hover feedback at all. A dim
+   hover on ANY row (not just .clickable) reads as "you're scanning this
+   row" without implying it's actionable. */
+table tr:not(.clickable):hover td { background: color-mix(in oklab, var(--bg-2) 60%, transparent); }
 
 /* Table() striped/compact opt-in density modifiers (webgeist g-table parity).
    Scoped under .ds-table-wrap so they never leak onto an unrelated bare
@@ -355,8 +361,15 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-table-wrap.is-striped table tr:nth-child(even) td { background: var(--bg-2); }
 .ds-table-wrap.is-striped table tr.clickable:nth-child(even):hover td,
 .ds-table-wrap.is-striped table tr.clickable:nth-child(even):focus-visible td { background: var(--bg-3, var(--bg-2)); }
+.ds-table-wrap.is-striped table tr:not(.clickable):nth-child(even):hover td { background: color-mix(in oklab, var(--bg-3, var(--bg-2)) 60%, transparent); }
 .ds-table-wrap.is-compact table th { padding: var(--space-1-5, 5px) var(--space-2, 8px); }
 .ds-table-wrap.is-compact table td { padding: var(--space-1-5, 5px) var(--space-2, 8px); }
+/* Numeric-column right-alignment: Table() (content/table.js) tags a cell
+   td.is-num when its raw content is a plain integer/decimal, so digit
+   columns (session counts, tool counts, etc.) line up on the ones place
+   instead of ragged-left like prose columns. th.is-num mirrors it on the
+   matching header so the label sits over its column. */
+table td.is-num, table th.is-num { text-align: right; font-variant-numeric: tabular-nums; }
 
 /* ============================================================
    Changelog
@@ -419,6 +432,9 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
 .ds-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; vertical-align: middle; }
 .ds-dot-on  { color: var(--green-2); }
 .ds-dot-off { color: var(--fg-3); }
+/* live is a distinct hue from a plain "on" dot — see .chip.tone-live's
+   comment for the success-vs-live rationale. */
+.ds-dot-live { color: var(--sky); }
 .ds-dot-live { color: var(--green-2); }
 .ds-dot-idle { color: var(--fg-3); }
 
@@ -436,6 +452,26 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   padding: var(--space-3);
   background: var(--bg-2);
   border-radius: var(--r-1);
+  /* A thin border + hover elevation gives the tile real edges and a "this is
+     a distinct object" affordance instead of a flat color patch that blends
+     into the surrounding panel — matches the "no border, no hover state"
+     gap named against the stat tiles. */
+  border: 1px solid var(--rule);
+  position: relative;
+  transition: border-color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+}
+.kpi-card:hover {
+  border-color: color-mix(in oklab, var(--accent) 40%, var(--rule));
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-1, 0 2px 8px rgba(0,0,0,.12));
+}
+.kpi-glyph {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  color: var(--fg-3);
+  opacity: 0.6;
+  display: inline-flex;
 }
 .kpi-card .num {
   font-family: var(--ff-body); font-weight: 600;

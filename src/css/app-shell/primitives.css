@@ -96,8 +96,18 @@
    workspace rail item-count badge (atoms.js Badge size="sm"). */
 .ds-badge.ds-badge--sm { min-width: var(--icon-xs); height: var(--icon-xs); padding: 0 var(--space-1); font-size: var(--fs-nano); }
 .ds-badge.ds-badge--lg { min-width: 22px; height: 22px; padding: 0 var(--space-2); font-size: var(--fs-tiny); }
-.ds-badge.tone-green, .ds-badge.tone-live, .ds-badge.tone-success {
+.ds-badge.tone-green, .ds-badge.tone-success {
   background: var(--green-tint); color: var(--green-deep);
+}
+/* tone-live is its own hue (sky), split out of the success/green group:
+   "live/broadcasting now" and "operation succeeded" are different facts and
+   read identically when both borrow the brand's accent green — a LIVE badge
+   next to an "ok" chip must not look like the same state. --sky is already
+   used for informational surfaces (ds-alert-info, audio-file icons) and is
+   never pinned by the thebird brand's `--accent:var(--green)!important`
+   override, so it stays visually distinct under every accent preset. */
+.ds-badge.tone-live {
+  background: color-mix(in oklab, var(--sky) 22%, var(--bg)); color: var(--sky);
 }
 .ds-badge.tone-flame, .ds-badge.tone-error {
   background: var(--flame); color: var(--on-color);
@@ -128,8 +138,35 @@
   text-transform: none; letter-spacing: 0; font-weight: 500;
   border-radius: var(--r-0); padding: var(--space-half) var(--space-2);
 }
-.chip.tone-green, .chip.tone-live, .chip.tone-success, .chip.tone-ok {
+.chip.tone-green, .chip.tone-success, .chip.tone-ok {
   background: var(--green-tint); color: var(--green-deep);
+}
+/* tone-live: its own sky hue, split from tone-ok/tone-success — see the
+   .ds-badge.tone-live comment above for the rationale. A small pulsing dot
+   precedes the label so "live" reads as an active broadcast state, not a
+   static status chip. */
+.chip.tone-live {
+  background: color-mix(in oklab, var(--sky) 16%, var(--bg));
+  color: var(--sky);
+  position: relative;
+  padding-left: 22px;
+}
+.chip.tone-live::before {
+  content: '';
+  position: absolute;
+  left: 10px; top: 50%;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--sky);
+  transform: translateY(-50%);
+  animation: chip-live-pulse 1.6s ease-in-out infinite;
+}
+@keyframes chip-live-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in oklab, var(--sky) 50%, transparent); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 4px transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chip.tone-live::before { animation: none; }
 }
 .chip.tone-flame, .chip.tone-error, .chip.tone-miss {
   background: var(--flame); color: var(--on-color);

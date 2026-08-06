@@ -64,7 +64,7 @@ export function createFreddieDashboard({ instance, bootHost, osSurfaces, loading
         const route = allRoutes.find(r => r.path === state.active) || ROUTES[1];
         return AppShell({
             topbar: Topbar({ brand: 'assistant', leaf: 'dashboard', items: [], active: '' }),
-            crumb: Crumb({ trail: ['assistant', instance.id], leaf: route.path, right: state.error ? Chip({ tone: 'miss', children: 'error' }) : Chip({ tone: 'ok', children: 'live' }) }),
+            crumb: Crumb({ trail: ['assistant', instance.id], leaf: route.path, right: state.error ? Chip({ tone: 'miss', children: 'error' }) : Chip({ tone: 'live', children: 'live' }) }),
             side: buildSide(),
             main: state.body || EmptyState({ text: loadingText || 'loading…', glyph: Icon('circle') }),
             status: Status({ left: ['ds-247420 · webjsx · ' + allRoutes.length + ' routes', 'instance=' + instance.id], right: [state.ts] }),

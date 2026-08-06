@@ -29,11 +29,11 @@ export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothin
     // component has no opinion on comparator/locale/type - it only renders the
     // control and current state). A docstudio-style dense admin table needs
     // sortable columns; Table previously had no way to express that at all.
-    const thFor = (hd, i) => {
-        if (!sortable || !onSort) return h('th', { key: i, scope: 'col' }, hd);
+    const thFor = (hd, i, isNum) => {
+        if (!sortable || !onSort) return h('th', { key: i, scope: 'col', class: isNum ? 'is-num' : null }, hd);
         const isActive = sortKey === i;
         const ariaSort = isActive ? (sortDir === 'desc' ? 'descending' : 'ascending') : 'none';
-        return h('th', { key: i, scope: 'col', 'aria-sort': ariaSort },
+        return h('th', { key: i, scope: 'col', 'aria-sort': ariaSort, class: isNum ? 'is-num' : null },
             h('button', { type: 'button', class: 'ds-table-sort-btn' + (isActive ? ' is-active' : ''), onclick: () => onSort(i) },
                 h('span', { class: 'ds-table-sort-label' }, hd),
                 isActive ? Icon(sortDir === 'desc' ? 'chevron-down' : 'chevron-up', { size: 12 }) : null));
@@ -50,13 +50,23 @@ export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothin
     // NOTE this fires only when the table actually overflows, which is
     // viewport-dependent — it reproduces at 1024x768 but not at 1280x900,
     // which is why it surfaced only in CI's viewport.
+    // A column is numeric when every row's value in it is a plain
+    // integer/decimal (optionally signed) — checked across the whole column,
+    // not per-cell, so a mixed column (e.g. one row's count rendered as a
+    // Chip vnode) never right-aligns only some of its cells.
+    const NUM_RE = /^-?\d+(\.\d+)?$/;
+    const isNumericCol = (j) => rows.every((row) => {
+        const c = row[j];
+        return c != null && typeof c !== 'object' && NUM_RE.test(String(c).trim());
+    });
+    const numericCols = headers.map((_, j) => isNumericCol(j));
     return h('div', {
         class: wrapClass,
         tabindex: '0',
         role: 'group',
         'aria-label': 'table, scrollable',
     }, h('table', {},
-        h('thead', {}, h('tr', {}, ...headers.map((hd, i) => thFor(hd, i)))),
+        h('thead', {}, h('tr', {}, ...headers.map((hd, i) => thFor(hd, i, numericCols[i])))),
         h('tbody', {}, ...rows.map((row, i) => h('tr', {
             key: i,
             class: onRowClick ? 'clickable' : '',
@@ -64,7 +74,7 @@ export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothin
             // Space scrolls by default — preventDefault on Space (and Enter) so
             // keyboard activation matches click without page jump.
             ...(onRowClick ? { tabindex: '0', role: 'button', 'aria-label': 'open ' + labelFor(row, i), onkeydown: (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); onRowClick(i); } } } : {})
-        }, ...row.map((c, j) => h('td', { key: j }, c == null ? '' : (typeof c === 'object' ? c : String(c)))))))));
+        }, ...row.map((c, j) => h('td', { key: j, class: numericCols[j] ? 'is-num' : null }, c == null ? '' : (typeof c === 'object' ? c : String(c)))))))));
 }
 
 // HealthTable — generic health-check table: given an arbitrary
