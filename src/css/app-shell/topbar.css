@@ -398,16 +398,15 @@ body.canvas-host { background: transparent !important; }
   color: var(--fg-3);
   border-top: 1px solid var(--rule);
 }
-.app-status .item { color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.app-status .item { color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; display: flex; align-items: center; gap: var(--space-3); }
 .app-status .item:first-of-type { color: var(--accent-ink); }
 /* Subtle divider between adjacent status segments — a thin inset rule, not a
    full-height border, so it reads as a quiet separator rather than boxing
-   each item. Skips the first item and anything right after the spread (its
-   own left margin already reads as the section break). */
-.app-status .item + .item,
-.app-status .spread + .item {
-  padding-left: var(--space-3);
-  border-left: 1px solid var(--rule);
+   each item. */
+.app-status .item:not(:first-of-type)::before {
+  content: ''; flex: 0 0 auto;
+  width: 1px; height: 10px;
+  background: var(--rule-strong);
 }
 .app-status .spread { flex: 1; }
 /* The status bar NEVER wraps: at narrow widths the trailing items (hints,
