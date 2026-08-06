@@ -3292,6 +3292,9 @@
 /* Icon size, not type — see .ds-file-cell-media .ds-file-icon above. */
 .ds-247420 .ds-dropzone-glyph { font-size: var(--icon-lg, 24px); color: var(--fg-3); }
 .ds-247420 .ds-dropzone-label { font-size: var(--fs-sm); color: var(--fg-3); }
+.ds-247420 .ds-dropzone:not(.dragover):not(.rejected):hover {
+  border-color: var(--fg-3);
+}
 .ds-247420 .ds-dropzone.dragover {
   border-color: var(--accent);
   background: var(--accent-tint);
@@ -3304,6 +3307,26 @@
 @keyframes ds-dropzone-pulse {
   0%, 100% { border-color: var(--accent); }
   50% { border-color: color-mix(in oklab, var(--accent) 45%, transparent); }
+}
+/* Rejected — an in-flight drag carrying a disallowed payload (wrong type,
+   over the size cap). Distinct from dragover: warn tone, not accent, so the
+   two "something is happening" states never read as the same affordance. */
+.ds-247420 .ds-dropzone.rejected {
+  border-color: var(--warn);
+  background: color-mix(in oklab, var(--warn) 10%, var(--bg));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ds-247420 .ds-dropzone.rejected { animation: ds-dropzone-shake 0.4s var(--ease); }
+}
+.ds-247420 .ds-dropzone.rejected .ds-dropzone-glyph,
+.ds-247420 .ds-dropzone.rejected .ds-dropzone-label { color: var(--warn); }
+@keyframes ds-dropzone-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+.ds-247420 .ds-dropzone--wrap.rejected > .ds-dropzone-inner {
+  outline-color: var(--warn);
 }
 /* Wrapper form (has children): no permanent chrome - the content renders as if
    the zone were not there, and the dashed affordance overlays it ONLY while a
@@ -3412,6 +3435,8 @@
            max(var(--space-3), env(safe-area-inset-bottom))
            max(var(--space-3), env(safe-area-inset-left));
   background: color-mix(in oklab, var(--ink) 55%, transparent);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 @media (prefers-reduced-motion: no-preference) {
   .ds-247420 .ds-modal-backdrop { animation: ds-modal-fade var(--dur-base) var(--ease); }

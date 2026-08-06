@@ -1568,6 +1568,7 @@ export declare function RootsPicker(props?: RootsPickerProps): VNode;
 export interface DropZoneProps {
     children?: any;
     dragover?: any;
+    rejected?: any;
     onDrop?: (...args: any[]) => any;
     onDragOver?: (...args: any[]) => any;
     onDragLeave?: (...args: any[]) => any;
