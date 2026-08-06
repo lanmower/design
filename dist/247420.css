@@ -11246,7 +11246,7 @@
 /* Buttons inside the dense strip shrink to fit the 26px band. */
 .ds-247420 .ds-ep-statusbar button {
     min-height: 0; height: 20px; padding: 0 var(--space-2);
-    border-radius: var(--r-1, 4px);
+    border-radius: var(--r-1, 8px);
     font: var(--fs-micro, 11px)/1 var(--ff-mono, monospace);
 }
 
@@ -11278,7 +11278,7 @@
     border: 1px solid var(--rule);
     color: var(--panel-text, var(--fg));
     padding: var(--space-1-5, 5px) var(--space-2-5, 10px);
-    border-radius: var(--r-1, 4px);
+    border-radius: var(--r-1, 8px);
     font-size: var(--fs-tiny, 12px);
     font-family: inherit;
 }
@@ -11396,7 +11396,7 @@
 .ds-247420 .ds-ep-tree-row {
     display: flex; align-items: center; gap: var(--space-1-75);
     padding: var(--space-1) var(--space-2) var(--space-1) 0;
-    border-radius: var(--r-1, 10px);
+    border-radius: var(--r-1, 8px);
     cursor: pointer;
     color: var(--panel-text-2);
     transition: background var(--dur-snap, 80ms) var(--ease, ease), color var(--dur-snap, 80ms) var(--ease, ease);
@@ -11458,7 +11458,7 @@
     background: var(--panel-2);
     color: var(--panel-text);
     border: 1px solid var(--rule);
-    border-radius: var(--r-1, 10px);
+    border-radius: var(--r-1, 8px);
     padding: var(--space-1) var(--space-2);
     font: inherit;
     min-width: 0; width: 100%;
@@ -11499,7 +11499,7 @@
 .ds-247420 .ds-ep-propfield-value input,
 .ds-247420 .ds-ep-propfield-value .ds-input-bare {
     padding: var(--space-hair) var(--space-1-75);
-    border-radius: var(--r-1, 4px);
+    border-radius: var(--r-1, 8px);
     font: var(--fs-tiny, 12px)/1.3 var(--ff-mono, monospace);
 }
 .ds-247420 .ds-input-bare {
@@ -11507,7 +11507,7 @@
     background: var(--panel-2);
     color: var(--panel-text);
     border: 1px solid var(--rule);
-    border-radius: var(--r-1, 4px);
+    border-radius: var(--r-1, 8px);
     padding: var(--space-hair) var(--space-1-75);
     font: var(--fs-tiny, 12px)/1.3 var(--ff-mono, monospace);
     min-width: 0;
@@ -11549,7 +11549,7 @@
     border: 1px solid transparent;
     color: inherit; font: inherit;
     width: 100%;
-    border-radius: var(--r-1, 4px);
+    border-radius: var(--r-1, 8px);
     padding: var(--space-hair, 2px) var(--space-1, 4px);
 }
 .ds-247420 .ds-ep-inline-input.ds-ep-inline-input:focus-visible {
@@ -11576,7 +11576,7 @@
     width: 100%;
     /* Snapped to --ctl-sm (was a lone 28px literal that happened to match). */
     min-height: var(--ctl-sm); height: var(--ctl-sm); padding: 0 var(--space-2-5);
-    border-radius: var(--r-1, 4px);
+    border-radius: var(--r-1, 8px);
     font: var(--fs-tiny, 12px)/1 var(--ff-mono, monospace);
 }
 
@@ -11586,7 +11586,7 @@
 .ds-247420 .ds-ep-tree-row button:not(.ds-ep-btngrp-btn),
 .ds-247420 .ds-ep-toolbar button:not(.ds-ep-btngrp-btn) {
     min-height: 24px; height: 24px; padding: 0 var(--space-2);
-    border-radius: var(--r-1, 4px);
+    border-radius: var(--r-1, 8px);
     font: var(--fs-tiny, 12px)/1 var(--ff-mono, monospace);
 }
 @media (pointer: coarse) {
@@ -11613,7 +11613,7 @@
     border: 1px solid var(--rule);
     color: var(--panel-text, var(--fg));
     padding: var(--space-half, 3px) var(--space-2-5, 10px);
-    border-radius: var(--r-1, 4px);
+    border-radius: var(--r-1, 8px);
     font: inherit;
 }
 .ds-247420 .ds-ep-pager-btn:hover:not([disabled]) { background: color-mix(in oklab, var(--accent) 10%, transparent); }
@@ -11631,7 +11631,7 @@
        computed to 23px -- just under the target floor. */
     min-width: max(24px, 1.75em);
     padding: var(--space-half, 3px) var(--space-1, 4px);
-    border-radius: var(--r-1, 4px);
+    border-radius: var(--r-1, 8px);
     font: inherit;
     text-align: center;
 }
@@ -11710,7 +11710,7 @@
     background: var(--panel-2, var(--bg-2));
     color: var(--panel-text, var(--fg));
     padding: var(--space-2, 8px);
-    border-radius: var(--r-1, var(--r-2, 4px));
+    border-radius: var(--r-1, 8px);
     max-height: 300px;
     overflow-y: auto;
     margin: 0;
@@ -11738,7 +11738,7 @@
 .ds-247420 .ds-ep-json-sum {
     cursor: pointer; user-select: none;
     list-style: none;
-    border-radius: var(--r-1, 4px);
+    border-radius: var(--r-1, 8px);
 }
 .ds-247420 .ds-ep-json-sum::-webkit-details-marker { display: none; }
 .ds-247420 .ds-ep-json-sum::before {
@@ -11768,7 +11768,7 @@
     color: var(--panel-text-2, var(--fg-2));
     font: var(--fs-micro, 11px)/1 var(--ff-mono, monospace);
     padding: var(--space-half, 3px) var(--space-2, 8px);
-    border-radius: var(--r-1, 4px);
+    border-radius: var(--r-1, 8px);
     opacity: 0.75;
 }
 .ds-247420 .ds-ep-json-copy:hover { opacity: 1; border-color: var(--accent); }
@@ -11815,7 +11815,7 @@
 .ds-247420 .ds-ep-btngrp {
     display: inline-flex;
     border: 1px solid var(--rule);
-    border-radius: var(--r-1, 10px);
+    border-radius: var(--r-1, 8px);
     overflow: hidden;
     background: var(--panel-2);
 }
@@ -11902,7 +11902,7 @@
     padding: var(--space-2) var(--space-2-5);
     background: transparent; border: 0;
     color: inherit; font: inherit; text-align: left;
-    border-radius: var(--r-1, 4px);
+    border-radius: var(--r-1, 8px);
     cursor: pointer;
 }
 .ds-247420 .ds-ep-ctxmenu-item:hover:not(.disabled),
@@ -11977,7 +11977,7 @@
     min-height: var(--ctl-sm); padding: 0 var(--space-3);
     display: inline-flex; align-items: center; justify-content: center;
     border: 1px solid var(--rule);
-    border-radius: var(--r-1, 6px);
+    border-radius: var(--r-1, 8px);
     background: var(--panel-2, transparent);
     color: inherit; font: inherit; cursor: pointer;
 }
@@ -12014,7 +12014,7 @@
        .kind-error below recolour border-left-color and nothing else. Do not
        demote to a hairline; that would erase the status signal. */
     border-left: var(--bw-chunk) solid var(--accent);
-    border-radius: var(--r-1, 6px);
+    border-radius: var(--r-1, 8px);
     padding: var(--space-2) var(--space-2-75);
     box-shadow: var(--shadow-3);
     min-width: 220px; max-width: 360px;
@@ -12037,7 +12037,7 @@
     font: inherit;
     font-weight: 600;
     padding: var(--space-1) var(--space-1-75);
-    border-radius: var(--r-1, 6px);
+    border-radius: var(--r-1, 8px);
     cursor: pointer;
 }
 .ds-247420 .ds-ep-toast-action:hover { background: var(--panel-2, var(--panel-bg)); }
@@ -12240,7 +12240,7 @@
     background: var(--panel-1, var(--panel-bg));
     color: var(--panel-text, var(--fg-text));
     border: 1px solid var(--rule);
-    border-radius: var(--r-1, 6px);
+    border-radius: var(--r-1, 8px);
     padding: var(--space-1-75) var(--space-2-5);
     font-size: var(--fs-micro);
     line-height: 1.4;
@@ -12293,7 +12293,7 @@
     padding: var(--space-1-5) var(--space-2-75);
     background: transparent; border: 0;
     color: inherit; font: inherit; text-align: left;
-    border-radius: var(--r-1, 4px);
+    border-radius: var(--r-1, 8px);
     cursor: pointer;
 }
 .ds-247420 .ds-dropdown-item:hover,
@@ -12322,7 +12322,7 @@
     background: var(--panel-2, transparent);
     color: inherit; font: inherit;
     border: 1px solid var(--rule);
-    border-radius: var(--r-1, 6px);
+    border-radius: var(--r-1, 8px);
     padding: 0 var(--space-2-75);
     cursor: pointer;
     /* Snapped to the --ctl-sm rung so this small control shares the height
@@ -12345,7 +12345,7 @@
     padding: var(--space-1-5) var(--space-2-75);
     background: transparent; border: 0;
     color: inherit; font: inherit; text-align: left;
-    border-radius: var(--r-1, 4px);
+    border-radius: var(--r-1, 8px);
     cursor: pointer;
     width: 100%;
 }
@@ -12372,7 +12372,7 @@
 }
 .ds-247420 .ov-menubutton-retry {
     appearance: none; background: transparent; border: 1px solid var(--rule);
-    border-radius: var(--r-1, 4px); color: inherit; font: inherit; font-size: var(--fs-sm);
+    border-radius: var(--r-1, 8px); color: inherit; font: inherit; font-size: var(--fs-sm);
     padding: var(--space-hair) var(--space-1-5); cursor: pointer;
 }
 .ds-247420 .ov-menubutton-retry:hover, .ds-247420 .ov-menubutton-retry:focus-visible { background: var(--panel-2, var(--rule)); outline: none; }
@@ -12381,7 +12381,7 @@
     background: var(--panel-2, transparent);
     color: inherit; font: inherit;
     border: 1px solid var(--rule);
-    border-radius: var(--r-1, 6px);
+    border-radius: var(--r-1, 8px);
     padding: 0 var(--space-2-75);
     cursor: pointer;
     min-height: var(--ctl-sm); height: var(--ctl-sm);
@@ -12399,7 +12399,7 @@
 .ds-247420 .ds-ep-diagnostics-title { margin: 0; font-size: var(--fs-lg); }
 .ds-247420 .ds-ep-diagnostics-refresh {
     appearance: none; background: var(--panel-2, transparent); color: inherit; font: inherit;
-    border: 1px solid var(--rule); border-radius: var(--r-1, 6px);
+    border: 1px solid var(--rule); border-radius: var(--r-1, 8px);
     padding: var(--space-1) var(--space-2-75); cursor: pointer;
 }
 .ds-247420 .ds-ep-diagnostics-refresh:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -12421,7 +12421,7 @@
 .ds-247420 .ds-reorderable-horizontal { flex-direction: row; }
 .ds-247420 .ds-reorder-item {
     display: flex; align-items: center; gap: var(--space-2, 8px);
-    padding: var(--space-1, 4px); border-radius: var(--r-1, 10px);
+    padding: var(--space-1, 4px); border-radius: var(--r-1, 8px);
     background: var(--panel-1); color: var(--panel-text);
     transition: transform var(--dur-snap, 120ms) var(--ease, ease), opacity var(--dur-snap, 120ms) var(--ease, ease);
 }
@@ -12429,7 +12429,7 @@
     min-width: 44px; min-height: 44px;
     display: inline-flex; align-items: center; justify-content: center;
     appearance: none; background: transparent; color: var(--panel-text-2, var(--panel-text));
-    border: 0; border-radius: var(--r-1, 10px);
+    border: 0; border-radius: var(--r-1, 8px);
     cursor: grab; font: 14px/1 var(--ff-mono, monospace); letter-spacing: -2px;
     touch-action: none; user-select: none;
 }
@@ -12453,7 +12453,7 @@
     display: inline-block; font: 0.85em/1 var(--ff-mono, monospace);
     padding: var(--space-1, 4px) calc(var(--space-1, 4px) * 1.5);
     border: 1px solid var(--rule, var(--panel-text-3));
-    border-radius: var(--r-1, 10px);
+    border-radius: var(--r-1, 8px);
     background: var(--panel-2, var(--panel-1)); color: var(--panel-text);
 }
 .ds-247420 .ds-kbd-group { margin: var(--space-3, 16px) 0; }
@@ -12507,7 +12507,7 @@
     padding: var(--space-2, 8px) var(--space-3, 16px);
     background: transparent; border: 0;
     color: var(--fg); font: inherit; text-align: left;
-    border-radius: var(--r-1, 10px); cursor: pointer;
+    border-radius: var(--r-1, 8px); cursor: pointer;
 }
 .ds-247420 .ov-cmd-item:hover { background: var(--panel-2, var(--rule)); }
 .ds-247420 .ov-cmd-item.is-active { background: var(--accent); color: var(--accent-fg); }
@@ -12538,7 +12538,7 @@
 .ds-247420 .ov-emoji-search {
     flex-shrink: 0; margin: var(--space-2, 8px); margin-bottom: 0;
     padding: var(--space-1-5, 6px) var(--space-2, 8px);
-    border: 1px solid var(--rule); border-radius: var(--r-1, 10px);
+    border: 1px solid var(--rule); border-radius: var(--r-1, 8px);
     background: var(--bg-1, var(--bg-3)); color: var(--fg);
     font: inherit; font-size: var(--fs-sm, 13px);
 }
@@ -12560,7 +12560,7 @@
 .ds-247420 .ov-emoji-cell {
     appearance: none; border: 0; background: transparent;
     aspect-ratio: 1; font-size: var(--fs-lg, 18px);
-    border-radius: var(--r-1, 10px); cursor: pointer;
+    border-radius: var(--r-1, 8px); cursor: pointer;
     display: inline-flex; align-items: center; justify-content: center;
 }
 .ds-247420 .ov-emoji-cell:hover, .ds-247420 .ov-emoji-cell:focus-visible {
@@ -12650,7 +12650,7 @@
 .ds-247420 .ov-set-control {
     appearance: none; flex-shrink: 0; max-width: 55%;
     background: var(--bg-3); color: var(--fg);
-    border: 1px solid var(--rule); border-radius: var(--r-1, 10px);
+    border: 1px solid var(--rule); border-radius: var(--r-1, 8px);
     padding: var(--space-1, 4px) var(--space-2, 8px); font: inherit;
 }
 .ds-247420 .ov-set-control:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; border-color: var(--accent-ink); }
@@ -12659,7 +12659,7 @@
 .ds-247420 .ov-set-btn {
     width: 100%; appearance: none; cursor: pointer;
     background: var(--accent); color: var(--accent-fg);
-    border: 0; border-radius: var(--r-1, 10px);
+    border: 0; border-radius: var(--r-1, 8px);
     padding: var(--space-2, 8px); font: inherit;
 }
 
@@ -12745,7 +12745,7 @@
 .ds-247420 .ds-input-color {
     appearance: none; -webkit-appearance: none;
     width: 28px; height: 22px; padding: 0;
-    border: 1px solid var(--rule); border-radius: var(--r-1, 4px);
+    border: 1px solid var(--rule); border-radius: var(--r-1, 8px);
     background: var(--panel-2); cursor: pointer; flex-shrink: 0;
 }
 .ds-247420 .ds-input-color::-webkit-color-swatch-wrapper { padding: var(--space-hair); }
@@ -12754,7 +12754,7 @@
 .ds-247420 .ds-input-check {
     appearance: none; -webkit-appearance: none;
     width: 16px; height: 16px; flex-shrink: 0;
-    border: 1px solid var(--rule); border-radius: var(--r-1, 4px);
+    border: 1px solid var(--rule); border-radius: var(--r-1, 8px);
     background: var(--panel-2); cursor: pointer; position: relative;
 }
 .ds-247420 .ds-input-check:checked { background: var(--accent); border-color: var(--accent); }
@@ -12840,7 +12840,7 @@
 /* Collapse / CollapseGroup — progressive-disclosure toggle panel. */
 .ds-247420 .ds-ep-collapse {
     border: 1px solid var(--rule);
-    border-radius: var(--r-1, 4px);
+    border-radius: var(--r-1, 8px);
     background: var(--panel-2, var(--bg-2));
 }
 .ds-247420 .ds-ep-collapse + .ds-ep-collapse { margin-top: var(--space-1, 4px); }
@@ -12903,7 +12903,7 @@
     padding: var(--space-2, 8px) var(--space-3, 16px);
     background: transparent; border: 0;
     color: var(--fg); font: inherit; text-align: left;
-    border-radius: var(--r-1, 10px); cursor: pointer;
+    border-radius: var(--r-1, 8px); cursor: pointer;
 }
 .ds-247420 .ov-perm-item:hover { background: var(--panel-2, var(--rule)); }
 .ds-247420 .ov-perm-item[aria-checked="true"] { color: var(--accent-ink); }
@@ -12918,7 +12918,7 @@
 .ds-247420 .ov-perm-action {
     flex: 1; appearance: none; border: 1px solid var(--rule); background: transparent;
     color: var(--fg-2); font: inherit; font-size: var(--fs-tiny, 12px);
-    padding: var(--space-1) var(--space-2); border-radius: var(--r-1, 10px); cursor: pointer;
+    padding: var(--space-1) var(--space-2); border-radius: var(--r-1, 8px); cursor: pointer;
 }
 .ds-247420 .ov-perm-action:hover { background: var(--panel-2, var(--rule)); }
 
@@ -12941,14 +12941,14 @@
 .ds-247420 .ov-approval-cat { color: var(--fg-3); font-weight: 400; }
 .ds-247420 .ov-approval-args {
     margin: 0; padding: var(--space-2, 8px);
-    background: var(--panel-2, var(--rule)); border-radius: var(--r-1, 10px);
+    background: var(--panel-2, var(--rule)); border-radius: var(--r-1, 8px);
     font: var(--fs-tiny, 12px)/1.4 var(--ff-mono, monospace);
     color: var(--fg-3); max-height: 100px; overflow: auto; white-space: pre-wrap; word-break: break-all;
 }
 .ds-247420 .ov-approval-note {
     width: 100%; min-height: 48px; resize: vertical;
     padding: var(--space-2, 8px) var(--space-2-75, 12px);
-    border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1, 10px);
+    border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1, 8px);
     background: var(--bg); color: var(--fg); font: inherit; box-sizing: border-box;
 }
 .ds-247420 .ov-approval-note:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
