@@ -40,6 +40,7 @@ export function renderPageHtml({
     seo = null,               // { description, keywords, author, twitter, locale, lang, image, url, glyph, ldJson:boolean }
     sidebar = null,           // { sections: [{ group, items: [{glyph,label,href}] }] } -> C.Side
     marquee = null,           // { items: [...strings], sep }
+    showcase = null,          // { heading, lede } -> a live strip of real Btn/Chip/Table specimens, rendered right below the hero
     panels = null,            // [{ id, title, count, items: [{code,title,sub,meta,href}] }] -> C.Panel + RowLink rows
     quickstart = null,        // { heading, lines: [{ kind, text }] } -> cli block panel
     statusLeft = null,        // override the default [siteName.toLowerCase(), slug] status-bar left cluster
@@ -78,6 +79,7 @@ export function renderPageHtml({
         bodyHtml: body ? renderMarkdown(body) : '',
         sidebar: sidebar || null,
         marquee: marquee || null,
+        showcase: showcase || null,
         panels: Array.isArray(panels) ? panels : [],
         quickstart: quickstart || null,
         statusLeft: Array.isArray(statusLeft) ? statusLeft : null,

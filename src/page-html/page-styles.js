@@ -90,4 +90,20 @@ a.row:hover .ds-row-arrow { opacity: 1 }
 .ds-page-footer-links { display: flex; gap: var(--space-4, 24px) }
 .ds-page-footer-links a { color: var(--fg-3) }
 .ds-page-footer-links a:hover { color: var(--fg) }
+/* Live component showcase: a grid of cards, each holding a real mounted
+   specimen (not a screenshot) of the actual SDK components. */
+.ds-showcase-grid {
+  display: grid; gap: var(--space-3, 16px);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.ds-showcase-card {
+  padding: var(--space-3, 16px); background: var(--panel-1, var(--bg));
+  border-radius: var(--r-2, 14px); display: grid; gap: var(--space-2, 8px);
+}
+.ds-showcase-card--wide { grid-column: 1 / -1; }
+.ds-showcase-label {
+  font-size: var(--fs-tiny, 13px); font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--fg-3, #6b6b6b);
+}
+.ds-showcase-row { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); align-items: center; }
 `.trim();

@@ -117,6 +117,7 @@ export default {
         body: hero.body, badges: hero.badges,
         ctas: hero.ctas,
       } : null,
+      showcase: home.showcase ? { heading: home.showcase.heading, lede: home.showcase.lede } : null,
       panels,
       examples: home.examples && home.examples.items ? home.examples.items.map((e) => ({
         label: e.name || e.title, desc: e.desc, href: e.href,

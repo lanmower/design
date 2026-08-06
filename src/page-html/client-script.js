@@ -45,6 +45,51 @@ function heroNode(hero) {
 
 function __esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
+// A live, interactive strip of the actual SDK components (not a screenshot,
+// not a description) rendered directly below the hero -- "show, don't just
+// tell" concretely: real Btn/Chip/Badge/Table specimens, mounted from the
+// same C.* namespace every kit page uses, so what a visitor sees IS what a
+// consumer gets by importing the SDK.
+function showcaseNode(showcase) {
+  if (!showcase) return null;
+  const btnRow = h('div', { class: 'ds-showcase-row' },
+    C.Btn({ key: 'b1', variant: 'primary', children: 'Primary' }),
+    C.Btn({ key: 'b2', variant: 'default', children: 'Default' }),
+    C.Btn({ key: 'b3', variant: 'ghost', children: 'Ghost' }),
+    C.Btn({ key: 'b4', variant: 'danger', children: 'Danger' }),
+  );
+  const chipRow = h('div', { class: 'ds-showcase-row' },
+    C.Chip({ key: 'c1', tone: 'green', children: 'Live' }),
+    C.Chip({ key: 'c2', tone: 'blue', children: 'Beta' }),
+    C.Chip({ key: 'c3', tone: 'purple', children: 'New' }),
+    C.Badge({ key: 'c4', tone: 'success', children: '0 violations' }),
+  );
+  const table = C.Table({
+    headers: ['Kit', 'Status', 'A11y'],
+    rows: [
+      ['chat', 'shipped', 'pass'],
+      ['dashboard', 'shipped', 'pass'],
+      ['os', 'shipped', 'pass'],
+    ],
+    compact: true,
+  });
+  return C.Section({
+    id: 'showcase',
+    title: showcase.heading || 'Live components',
+    children: [
+      showcase.lede ? h('p', { class: 'ds-lede' }, showcase.lede) : null,
+      h('div', { class: 'ds-showcase-grid' },
+        h('div', { key: 'btns', class: 'ds-showcase-card' },
+          h('span', { class: 'ds-showcase-label' }, 'Buttons'), btnRow),
+        h('div', { key: 'chips', class: 'ds-showcase-card' },
+          h('span', { class: 'ds-showcase-label' }, 'Chips & badges'), chipRow),
+        h('div', { key: 'table', class: 'ds-showcase-card ds-showcase-card--wide' },
+          h('span', { class: 'ds-showcase-label' }, 'Table'), table),
+      ),
+    ].filter(Boolean),
+  });
+}
+
 function sectionNode(sec, idx) {
   const features = sec.features || sec.items || [];
   const rows = features.map((f, i) => {
@@ -303,6 +348,7 @@ function buildMainChildren(rerender) {
 
   return [
     heroNode(data.hero),
+    showcaseNode(data.showcase),
     marqueeNode(data.marquee),
     ...data.sections.map(sectionNode),
     ...tierNodes,

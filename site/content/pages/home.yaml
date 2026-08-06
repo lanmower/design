@@ -1,6 +1,10 @@
 id: home
 title: Home
 
+showcase:
+  heading: "Live components"
+  lede: "Not a screenshot — the same Btn, Chip, Badge, and Table components every kit page imports, rendered right here from the SDK you'd actually install."
+
 hero:
   heading: "Design"
   subheading: "The 247420 design system"
