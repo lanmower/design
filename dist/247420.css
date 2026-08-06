@@ -1619,7 +1619,6 @@
 .ds-247420 .chip.tone-disabled { background: var(--bg-3);        color: var(--fg-3); }
 .ds-247420 .chip.tone-blue     { background: var(--accent-tint); color: var(--accent-ink); }
 .ds-247420 .chip.tone-orange   { background: color-mix(in oklab, var(--flame) 30%, var(--sun) 70%); color: var(--ink); }
-.ds-247420 .chip.tone-yellow   { background: var(--sun);         color: var(--ink); }
 
 .ds-247420 .chip.ds-chip-removable { padding-right: var(--space-1); }
 .ds-247420 .ds-chip-remove-btn {
@@ -1659,6 +1658,7 @@
 }
 .ds-247420 .glyph { --glyph-size-sm: var(--fs-nano); --glyph-size-base: var(--fs-tiny); --glyph-size-lg: var(--fs-body); }
 .ds-247420 .glyph-sm { width: var(--icon-xs); height: var(--icon-xs); }
+.ds-247420 .glyph-base { width: 18px; height: 18px; }
 .ds-247420 .glyph-lg { width: 22px; height: 22px; }
 
 /* Shared empty-state base -- hero-content.css's .empty and community.css's
@@ -1740,7 +1740,7 @@
   letter-spacing: var(--tr-caps); text-transform: uppercase;
 }
 .ds-247420 .panel.panel-wide .panel-head { padding-left: 0; padding-right: 0; }
-.ds-247420 .panel-head > :last-child {
+.ds-247420 .panel-head > :last-child:not(.ds-badge) {
   font-weight: 500; color: var(--fg-3);
   font-family: var(--ff-mono); letter-spacing: 0;
 }
@@ -2430,7 +2430,7 @@
   display: inline-flex; align-items: center; gap: var(--space-hair);
   font-size: var(--fs-xs); font-weight: 600;
 }
-.ds-247420 .kpi-delta-up { color: var(--green); }
+.ds-247420 .kpi-delta-up { color: var(--success); }
 .ds-247420 .kpi-delta-down { color: var(--danger); }
 .ds-247420 .ds-sparkline path { stroke: currentColor; }
 .ds-247420 .ds-sparkline-up { color: var(--success); }

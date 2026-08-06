@@ -61,7 +61,7 @@
   letter-spacing: var(--tr-caps); text-transform: uppercase;
 }
 .panel.panel-wide .panel-head { padding-left: 0; padding-right: 0; }
-.panel-head > :last-child {
+.panel-head > :last-child:not(.ds-badge) {
   font-weight: 500; color: var(--fg-3);
   font-family: var(--ff-mono); letter-spacing: 0;
 }

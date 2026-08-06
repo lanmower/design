@@ -17,7 +17,7 @@ export function Panel({ title, count, right, style = '', class: className = '', 
     return h('div', { class: cls, style, ...(id ? { id } : {}) },
         title != null ? h('div', { class: 'panel-head' },
             h(headingTag, { class: 'panel-title' }, title),
-            right != null ? right : (count != null ? h('span', {}, String(count)) : null)
+            right != null ? right : (count != null ? h('span', { class: 'ds-badge' }, String(count)) : null)
         ) : null,
         h('div', { class: 'panel-body' }, ...(Array.isArray(children) ? children : [children]))
     );

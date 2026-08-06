@@ -450,7 +450,7 @@ table tr.clickable:focus-visible td { background: var(--bg-2); }
   display: inline-flex; align-items: center; gap: var(--space-hair);
   font-size: var(--fs-xs); font-weight: 600;
 }
-.kpi-delta-up { color: var(--green); }
+.kpi-delta-up { color: var(--success); }
 .kpi-delta-down { color: var(--danger); }
 .ds-sparkline path { stroke: currentColor; }
 .ds-sparkline-up { color: var(--success); }
