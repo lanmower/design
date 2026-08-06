@@ -530,7 +530,7 @@
 .ds-session-agent { font-size: var(--fs-tiny); color: var(--fg-3); }
 /* New-activity cue is a hollow accent RING so it stays shape-distinct from the
    running live disc (a solid pulsing accent dot) for colour-blind / reduced-motion users. */
-.ds-session-unread { width: 8px; height: 8px; border-radius: 50%; background: var(--fg-2); display: inline-block; }
+.ds-session-unread { width: 8px; height: 8px; border-radius: 50%; background: transparent; border: 2px solid var(--accent); box-sizing: border-box; display: inline-block; }
 .ds-session-state { padding: var(--space-5) var(--space-3); text-align: center; color: var(--fg-3); font-size: var(--fs-sm); }
 .ds-session-state-error { color: var(--flame); }
 

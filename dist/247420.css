@@ -5587,9 +5587,15 @@
    right edge of each chrome track; drag (or ArrowLeft/Right) writes a clamped
    inline --ws-*-w. */
 .ds-247420 .ws-resizer { grid-row: 1 / -1; align-self: stretch; justify-self: end; width: 8px; margin-right: -4px; z-index: var(--z-raised); cursor: col-resize; background: transparent; border: none; padding: 0; touch-action: none; }
-.ds-247420 .ws-resizer::after { content: ""; display: block; width: 2px; height: 100%; margin: 0 auto; background: transparent; transition: background var(--dur-snap) var(--ease); }
+/* Persistent faint grip line (always visible, not just on hover) so the
+   column boundary reads as draggable chrome rather than a bare hairline —
+   hover/focus/drag brighten it to --accent for the active affordance. */
+.ds-247420 .ws-resizer::after { content: ""; display: block; width: 2px; height: 100%; margin: 0 auto; background: var(--bg-3); transition: background var(--dur-snap) var(--ease), width var(--dur-snap) var(--ease); }
 .ds-247420 .ws-resizer:hover::after, .ds-247420 .ws-resizer:focus-visible::after { background: var(--accent); }
 .ds-247420 .ws-resizer:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
+/* Active drag state: wider + fully opaque accent grip so the handle a
+   fast-moving pointer has left :hover on still visibly reads as "gripped". */
+.ds-247420 .ws-resizer.ws-resizer-active::after { background: var(--accent); width: 3px; }
 .ds-247420 .ws-resizer.ws-resizer-rail { grid-column: 1; }
 .ds-247420 .ws-resizer.ws-resizer-sessions { grid-column: 2; }
 .ds-247420 .ws-resizer.ws-resizer-pane { grid-column: 3; justify-self: end; }
@@ -5644,7 +5650,10 @@
 .ds-247420 .ws-rail-toggle:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 .ds-247420 .ws-rail-inner { display: flex; flex-direction: column; min-height: 0; flex: 1; padding: var(--space-3) var(--space-2); gap: var(--space-2); }
 .ds-247420 .ws-rail-head { display: flex; align-items: center; min-height: 36px; padding: 0 var(--space-2); }
-.ds-247420 .ws-rail-brand { font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-body); color: var(--fg); white-space: nowrap; overflow: hidden; }
+/* Wordmark treatment matches .brand (topbar.css) — same display family/weight/
+   tracking — so the rail brand reads as the SAME logotype as every other kit's
+   topbar wordmark instead of a lighter, differently-set imitation. */
+.ds-247420 .ws-rail-brand { font-family: var(--ff-display); font-weight: 700; font-size: var(--fs-body); letter-spacing: var(--tr-tight); color: var(--fg); white-space: nowrap; overflow: hidden; }
 .ds-247420 .ws-rail-action {
   display: flex; align-items: center; gap: var(--space-2);
   padding: var(--space-2) var(--space-3); margin: var(--space-1) 0;
@@ -10205,7 +10214,7 @@
 .ds-247420 .ds-session-agent { font-size: var(--fs-tiny); color: var(--fg-3); }
 /* New-activity cue is a hollow accent RING so it stays shape-distinct from the
    running live disc (a solid pulsing accent dot) for colour-blind / reduced-motion users. */
-.ds-247420 .ds-session-unread { width: 8px; height: 8px; border-radius: 50%; background: var(--fg-2); display: inline-block; }
+.ds-247420 .ds-session-unread { width: 8px; height: 8px; border-radius: 50%; background: transparent; border: 2px solid var(--accent); box-sizing: border-box; display: inline-block; }
 .ds-247420 .ds-session-state { padding: var(--space-5) var(--space-3); text-align: center; color: var(--fg-3); font-size: var(--fs-sm); }
 .ds-247420 .ds-session-state-error { color: var(--flame); }
 

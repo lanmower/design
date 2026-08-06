@@ -88,12 +88,14 @@ export function WsResizer(col) {
     const onDown = (e) => {
         e.preventDefault();
         const handleEl = e.currentTarget;
+        handleEl.classList.add('ws-resizer-active');
         let lastX = e.clientX;
         const move = (ev) => { const dx = ev.clientX - lastX; lastX = ev.clientX; wsResize(col, dx, false, handleEl); };
         const up = () => {
             document.removeEventListener('pointermove', move);
             document.removeEventListener('pointerup', up);
             document.body.style.cursor = '';
+            handleEl.classList.remove('ws-resizer-active');
             wsResize(col, 0, true, handleEl); // commit the settled width once
         };
         document.addEventListener('pointermove', move);
