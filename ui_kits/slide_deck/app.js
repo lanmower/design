@@ -137,6 +137,18 @@ function Stage() {
     }, h('div', { class: 'ds-deck-slide' }, Slide(s)));
 }
 
+function Progress() {
+    return h('div', { class: 'ds-deck-progress', role: 'tablist', 'aria-label': 'slide progress' },
+        ...slides.map((s, i) => h('span', {
+            key: 'dot' + i,
+            class: 'ds-deck-dot' + (i === state.i ? ' ds-deck-dot--active' : ''),
+            role: 'tab',
+            'aria-selected': i === state.i ? 'true' : 'false',
+            'aria-label': 'slide ' + (i + 1) + ' of ' + slides.length
+        }))
+    );
+}
+
 function Controls() {
     // Disabled at the ends rather than silently no-op: a button that looks
     // live and does nothing when pressed reads as a broken deck, not as "you
@@ -191,6 +203,7 @@ function App() {
             }),
             h('div', { class: 'ds-section ds-section-pad' },
                 Stage(),
+                Progress(),
                 Controls()
             )
         ],

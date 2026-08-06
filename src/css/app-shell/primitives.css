@@ -209,3 +209,41 @@
 .ds-empty-state--panel { background: var(--bg-2); border-radius: var(--r-1); }
 .ds-empty-state--compact { padding: var(--space-5) var(--space-3); }
 
+/* .ds-tooltip — shared floating bubble (overlay-primitives/tooltip.js appends
+   one instance to <body> and repositions it via useFloating). Fade timing
+   matches the component's own 350ms hover-intent delay. */
+.ds-tooltip {
+  position: fixed;
+  z-index: var(--z-top);
+  max-width: 240px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--r-1);
+  background: var(--fg);
+  color: var(--bg);
+  font-size: var(--fs-xs);
+  line-height: 1.35;
+  box-shadow: var(--shadow-2);
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity var(--dur-snap) var(--ease), transform var(--dur-snap) var(--ease);
+}
+.ds-tooltip:not([hidden]) { opacity: 1; transform: scale(1); }
+.ds-tooltip::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--fg);
+  transform: rotate(45deg);
+}
+.ds-tooltip[data-placement^="top"]::after    { bottom: -3px; left: 50%; margin-left: -3px; }
+.ds-tooltip[data-placement^="bottom"]::after { top: -3px; left: 50%; margin-left: -3px; }
+.ds-tooltip[data-placement^="left"]::after   { right: -3px; top: 50%; margin-top: -3px; }
+.ds-tooltip[data-placement^="right"]::after  { left: -3px; top: 50%; margin-top: -3px; }
+.ds-tooltip.kind-danger { background: var(--warn); color: var(--ink); }
+.ds-tooltip.kind-danger::after { background: var(--warn); }
+@media (prefers-reduced-motion: reduce) {
+  .ds-tooltip { transition: none; }
+}
+

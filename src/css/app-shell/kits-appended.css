@@ -157,7 +157,17 @@
     aspect-ratio: auto;
   }
 }
-.ds-deck-slide { flex: 1; display: flex; min-width: 0; }
+.ds-deck-slide {
+  flex: 1; display: flex; min-width: 0;
+  animation: ds-deck-slide-in var(--dur-base) var(--ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-deck-slide { animation: none; }
+}
+@keyframes ds-deck-slide-in {
+  from { opacity: 0; transform: translateY(var(--space-1-75)); }
+  to { opacity: 1; transform: none; }
+}
 .ds-deck-controls {
   /* 14px sits between --space-2-75 (12) and --space-3 (16) with no tier; it is
      the deck control spacing tuned against the mono glyph run. */
@@ -168,6 +178,19 @@
 @media (pointer: coarse) {
   .ds-deck-controls .btn { min-height: 44px; min-width: 44px; }
 }
+/* Dot progress indicator: one dot per slide, current slide filled with
+   --accent (same fill token .ds-dot-on uses elsewhere in the system), rest
+   dim at --fg-3 so the row reads as a track, not a second counter. */
+.ds-deck-progress {
+  display: flex; align-items: center; justify-content: center;
+  gap: var(--space-1-5); padding-bottom: var(--space-2);
+}
+.ds-deck-dot {
+  width: var(--space-1-5); height: var(--space-1-5); border-radius: 50%;
+  background: var(--fg-3); flex: 0 0 auto;
+  transition: background var(--dur-base) var(--ease), transform var(--dur-base) var(--ease);
+}
+.ds-deck-dot--active { background: var(--accent); transform: scale(1.3); }
 /* Kit small-label voice — one local composition of the house `.t-label` recipe
    (base.css) for every eyebrow/label in the appended kit blocks below. These
    previously each restated the four declarations with drifted tracking
@@ -278,7 +301,12 @@
 }
 .ds-gallery-tile {
   cursor: pointer; display: flex; flex-direction: column; gap: var(--space-1-75);
-  padding: var(--space-2-75); border-radius: var(--r-1); min-height: clamp(120px, 18vw, 160px);
+  padding: var(--space-2-75); border-radius: var(--r-1);
+  /* Fixed aspect-ratio (not just a min-height floor) so every tile in the grid
+     occupies the same shape regardless of caption length — the ascii specimen
+     is centered inside via .ds-tile-cap's flex alignment, the equivalent of
+     object-fit: cover for a text tile with no bitmap to crop. */
+  aspect-ratio: 4 / 3;
   border: 0; text-align: left; font: inherit; color: inherit;
   background: var(--tile-tone, var(--panel-1));
   transition: transform var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease);
@@ -288,7 +316,7 @@
    translateY + shadow idiom .chat-msg:hover .chat-bubble already uses. */
 .ds-gallery-tile:hover { transform: translateY(-2px); box-shadow: 0 2px 8px color-mix(in oklab, var(--fg) 10%, transparent); }
 .ds-gallery-tile:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
-.ds-gallery-tile--tight { min-height: clamp(96px, 14vw, 120px); }
+.ds-gallery-tile--tight { aspect-ratio: 3 / 2; }
 /* The lightbox scrim/card chrome itself is now Dialog's (.ds-ep-dialog /
    .ds-ep-dialog-backdrop in editor-primitives.css) — Dialog already ships
    role="dialog", aria-modal, Tab-trap and focus-restore-on-close, which the
@@ -312,13 +340,21 @@
 @media (max-width: 480px) {
   .ds-topbar-search { flex-basis: 100%; }
 }
-.ds-empty-state { padding: clamp(var(--space-3), 5vw, var(--space-4)); text-align: center; color: var(--panel-text-3); }
+/* Namespaced .ds-kit-empty-state (not .ds-empty-state) -- .ds-empty-state is
+   primitives.css's shared base (padding var(--space-6), color var(--fg-3));
+   this sheet loads after it in app-shell.css's import order, so reusing the
+   same class name silently overrode that base's padding/color for every
+   consumer, defeating the "shared base, one place" contract primitives.css
+   documents. This block is unused by any component today, but kept
+   namespaced so a future consumer gets this sheet's fluid clamp() treatment
+   deliberately rather than by cascade accident. */
+.ds-kit-empty-state { padding: clamp(var(--space-3), 5vw, var(--space-4)); text-align: center; color: var(--panel-text-3); }
 /* Fluid ICON size (empty-state mark), not a type tier: it scales with the
    viewport between 24 and 32px. Every fluid --fs-* tier is a heading clamp
    tuned to cqi + heading weight, so none of them substitutes here. */
-.ds-empty-state-glyph { font-size: clamp(24px, 6vw, 32px); }
-.ds-empty-state-msg { margin: var(--space-1-75) 0; }
-.ds-empty-state-hint { margin: 0; font-size: var(--fs-sm); }
+.ds-kit-empty-state-glyph { font-size: clamp(24px, 6vw, 32px); }
+.ds-kit-empty-state-msg { margin: var(--space-1-75) 0; }
+.ds-kit-empty-state-hint { margin: 0; font-size: var(--fs-sm); }
 
 /* --- system primer ------------------------------------------ */
 /* The three primer panels below share one fluid inset,
@@ -707,6 +743,7 @@
   border-radius: 50%; background: var(--bg-3); color: var(--fg);
   font-family: var(--ff-mono); font-weight: 600; text-transform: lowercase;
   letter-spacing: 0.02em; user-select: none; flex-shrink: 0; object-fit: cover;
+  box-shadow: inset 0 0 0 1px var(--rule);
 }
 .ds-avatar-sm { width: 24px; height: 24px; font-size: var(--fs-pico); }
 .ds-avatar-md { width: 36px; height: 36px; font-size: var(--fs-micro); }
@@ -834,6 +871,7 @@
   font-weight: 600;
   line-height: 1;
   user-select: none;
+  box-shadow: inset 0 0 0 1px var(--rule);
 }
 
 /* Body stack — name + time on one baseline, text beneath. .chat-stack's

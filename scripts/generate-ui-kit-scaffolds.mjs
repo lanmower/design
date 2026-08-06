@@ -12,10 +12,10 @@
 // system_primer, terminal, chat, gm_inspector, dashboard, signin, homepage,
 // project_page, file_browser, community.
 //
-// The other 4 (blog, docs, community-app, workspace) have genuinely custom
-// index.html markup -- hand-authored bodies or bespoke stylesheet/theme
-// wiring -- and are deliberately NOT in kits.config.mjs, so this script never
-// touches them.
+// The other 5 (blog, docs, community-app, workspace, os) have genuinely
+// custom index.html markup -- hand-authored bodies or bespoke stylesheet/
+// theme wiring -- and are deliberately NOT in kits.config.mjs, so this script
+// never touches them.
 //
 // Run: node scripts/generate-ui-kit-scaffolds.mjs
 // Add --check to verify the working tree already matches generated output

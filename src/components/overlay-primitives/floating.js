@@ -45,6 +45,7 @@ export function useFloating(anchorEl, contentEl, { placement = 'bottom-start', o
         contentEl.style.left = x + 'px';
         contentEl.style.top = y + 'px';
         finalPlacement = s + '-' + align;
+        contentEl.setAttribute('data-placement', finalPlacement);
     };
     compute();
     const cb = () => compute();
