@@ -24,29 +24,29 @@ sidebar:
   # hand-typed number here can never drift out of sync with what the
   # matching panel actually renders.
   bins:
-    - { label: "everything", href: "#all", active: true }
-    - { label: "pinned",     href: "#kits" }
-    - { label: "shipped",    href: "#previews" }
-    - { label: "drafts",     href: "#decks" }
-  labels_group: "labels"
+    - { label: "Everything", href: "#all", active: true }
+    - { label: "Pinned",     href: "#kits" }
+    - { label: "Shipped",    href: "#previews" }
+    - { label: "Drafts",     href: "#decks" }
+  labels_group: "Labels"
   labels:
-    - { label: "ui kits",  href: "#kits" }
-    - { label: "decks",    href: "#decks" }
-    - { label: "previews", href: "#previews" }
-    - { label: "docs",     href: "#docs" }
-  more_group: "more"
+    - { label: "UI kits",  href: "#kits" }
+    - { label: "Decks",    href: "#decks" }
+    - { label: "Previews", href: "#previews" }
+    - { label: "Docs",     href: "#docs" }
+  more_group: "More"
   more:
-    - { label: "readme",  href: "https://github.com/AnEntrypoint/design/blob/main/README.md" }
-    - { label: "skill",   href: "https://github.com/AnEntrypoint/design/blob/main/SKILL.md" }
-    - { label: "tokens",  href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css" }
-    - { label: "source",  href: "https://github.com/AnEntrypoint/design" }
+    - { label: "Readme",  href: "https://github.com/AnEntrypoint/design/blob/main/README.md" }
+    - { label: "Skill",   href: "https://github.com/AnEntrypoint/design/blob/main/SKILL.md" }
+    - { label: "Tokens",  href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css" }
+    - { label: "Source",  href: "https://github.com/AnEntrypoint/design" }
     - { label: "MIT license", href: "https://github.com/AnEntrypoint/design/blob/main/LICENSE" }
 
 tabs:
-  - { label: "everything", href: "#all", active: true }
-  - { label: "kits",       href: "#kits" }
-  - { label: "decks",      href: "#decks" }
-  - { label: "previews",   href: "#previews" }
+  - { label: "Everything", href: "#all", active: true }
+  - { label: "Kits",       href: "#kits" }
+  - { label: "Decks",      href: "#decks" }
+  - { label: "Previews",   href: "#previews" }
 
 kits:
   heading: "UI kits"
@@ -57,7 +57,7 @@ kits:
     - { code: "03", title: "Docs",         sub: "Long-form prose chrome",                desc: "Sidebar navigation, mono headings, and code blocks for documentation.",            href: "./ui_kits/docs/" }
     - { code: "04", title: "Blog",         sub: "Dated index and reading view",            desc: "A dated post index with author bylines and a distraction-free reading view.",                            href: "./ui_kits/blog/" }
     - { code: "05", title: "Chat",         sub: "Message thread and composer",             desc: "A message thread with pill bubbles, monospace timestamps, and a room sidebar.",   href: "./ui_kits/chat/" }
-    - { code: "06", title: "AICat",        sub: "AI assistant with a character persona",         desc: "An animated ASCII portrait with thinking states and mood changes.",  href: "./ui_kits/aicat/" }
+    - { code: "06", title: "AICat",        sub: "AI assistant with a cat persona",         desc: "An animated ASCII cat portrait with thinking states and mood changes.",  href: "./ui_kits/aicat/" }
     - { code: "07", title: "File browser", sub: "Type-aware rails, drop zone, preview",   desc: "Every file-row primitive wired to a static demo backed by fsbrowse.", href: "./ui_kits/file_browser/" }
     - { code: "08", title: "Dashboard",    sub: "KPIs, tables, receipts, changelog",  desc: "KPIs, tables, and receipts tracked with a running changelog in one operations surface.", href: "./ui_kits/dashboard/" }
     - { code: "09", title: "Terminal",     sub: "CLI prompt, command lines, log view", desc: "Five line kinds (comment, command, output, ok, warning) over a tonal log panel.", href: "./ui_kits/terminal/" }
@@ -69,21 +69,23 @@ kits:
     - { code: "15", title: "OS shell",     sub: "Menubar, window manager, taskbar", desc: "A runnable desktop-shell demo with its own window manager and app registry.", href: "./ui_kits/os/" }
 
 decks:
-  heading: "decks"
+  heading: "Decks"
   items:
-    - { code: "01", title: "deck template", sub: "16:9 stage with auto-fit", desc: "title, lede, code, comparison, manifesto", href: "./slides/" }
+    - { code: "01", title: "Deck template", sub: "16:9 stage with auto-fit", desc: "Title, lede, code, comparison, and manifesto slides.", href: "./slides/" }
 
 docs:
-  heading: "docs"
+  heading: "Docs"
   items:
-    - { code: "md",  title: "readme", sub: "overview, manifesto, conventions",   desc: "start here",                          href: "https://github.com/AnEntrypoint/design/blob/main/README.md" }
-    - { code: "md",  title: "skill",  sub: "authoring rules for the agent",      desc: "editorial zine surface modes",    href: "https://github.com/AnEntrypoint/design/blob/main/SKILL.md" }
-    - { code: "css", title: "tokens", sub: "colors, type, panel surface tokens", desc: "canonical source of truth",           href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css" }
-    - { code: "md",  title: "component props", sub: "generated prop reference", desc: "every exported component's signature and documented params", href: "https://github.com/AnEntrypoint/design/blob/main/docs/component-props.md" }
-    - { code: "md",  title: "changelog", sub: "release history", desc: "what shipped in each published version", href: "https://github.com/AnEntrypoint/design/blob/main/CHANGELOG.md" }
+    - { code: "md",  title: "Readme", sub: "Overview, manifesto, conventions",   desc: "Start here.",                          href: "https://github.com/AnEntrypoint/design/blob/main/README.md" }
+    - { code: "md",  title: "Skill",  sub: "Authoring rules for the agent",      desc: "Editorial zine surface modes.",    href: "https://github.com/AnEntrypoint/design/blob/main/SKILL.md" }
+    - { code: "css", title: "Tokens", sub: "Colors, type, panel surface tokens", desc: "Canonical source of truth.",           href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css" }
+    - { code: "md",  title: "Component props", sub: "Generated prop reference", desc: "Every exported component's signature and documented parameters.", href: "https://github.com/AnEntrypoint/design/blob/main/docs/component-props.md" }
+    - { code: "md",  title: "Changelog", sub: "Release history", desc: "What shipped in each published version.", href: "https://github.com/AnEntrypoint/design/blob/main/CHANGELOG.md" }
+    - { code: "md",  title: "Accessibility", sub: "WCAG AA compliance, keyboard navigation", desc: "Contrast ratios, focus-visible tokens, ARIA conventions, and the live audit baseline.", href: "https://github.com/AnEntrypoint/design/blob/main/docs/accessibility.md" }
+    - { code: "md",  title: "Responsive breakpoints", sub: "The documented breakpoint scale in use", desc: "Verified mobile, tablet, and desktop behavior across kits.", href: "https://github.com/AnEntrypoint/design/blob/main/docs/responsive.md" }
 
 previews:
-  heading: "previews"
+  heading: "Previews"
   base: "./preview/"
   items:
     - buttons
@@ -113,23 +115,23 @@ previews:
     - wordmarks
 
 file_browser:
-  heading: "file browser"
+  heading: "File browser"
   count: "primitives"
   items:
-    - { code: "fb", title: "file_browser kit",   sub: "drop, list, preview, dialogs",   desc: "the full surface, working with mock data",  href: "./ui_kits/file_browser/", cta: "open ->" }
-    - { code: "fb", title: "FileRow",            sub: "rail icon name meta",      desc: "data-file-type drives the rail color — never apply rail-* manually", href: "./preview/file-row.html", cta: "open ->" }
-    - { code: "fb", title: "FileGrid",           sub: "stack of rows in a panel",       desc: "directories sort first; selected row gets the mint .active tone", href: "./preview/file-grid.html", cta: "open ->" }
-    - { code: "fb", title: "DropZone",           sub: "tonal upload target",            desc: "swap to --panel-select on dragover; preventDefault on document, not just zone", href: "./preview/dropzone.html", cta: "open ->" }
-    - { code: "fb", title: "FileViewer",         sub: "modal preview keyed head",     desc: "head + body both carry data-file-type so rails propagate inside the modal", href: "./preview/file-viewer.html", cta: "open ->" }
-    - { code: "fb", title: "FileToolbar",        sub: "actions breadcrumb upload",  desc: "left-aligned actions, right-aligned count; UploadProgress sits underneath", href: "./preview/file-toolbar.html", cta: "open ->" }
-    - { code: "fb", title: "fsbrowse",           sub: "Express + busboy backend",       desc: "canonical real-world wiring — same SDK, real filesystem operations",     href: "https://github.com/AnEntrypoint/fsbrowse", cta: "source" }
+    - { code: "fb", title: "file_browser kit",   sub: "Drop, list, preview, dialogs",   desc: "The full surface, working with mock data.",  href: "./ui_kits/file_browser/", cta: "open ->" }
+    - { code: "fb", title: "FileRow",            sub: "Rail, icon, name, meta",      desc: "data-file-type drives the rail color — never apply rail-* manually.", href: "./preview/file-row.html", cta: "open ->" }
+    - { code: "fb", title: "FileGrid",           sub: "A stack of rows in a panel",       desc: "Directories sort first; the selected row gets the mint .active tone.", href: "./preview/file-grid.html", cta: "open ->" }
+    - { code: "fb", title: "DropZone",           sub: "Tonal upload target",            desc: "Swaps to --panel-select on dragover; preventDefault runs on document, not just the zone.", href: "./preview/dropzone.html", cta: "open ->" }
+    - { code: "fb", title: "FileViewer",         sub: "Modal preview, keyed head",     desc: "Head and body both carry data-file-type so rails propagate inside the modal.", href: "./preview/file-viewer.html", cta: "open ->" }
+    - { code: "fb", title: "FileToolbar",        sub: "Actions, breadcrumb, upload",  desc: "Left-aligned actions, right-aligned count; UploadProgress sits underneath.", href: "./preview/file-toolbar.html", cta: "open ->" }
+    - { code: "fb", title: "fsbrowse",           sub: "Express + busboy backend",       desc: "Canonical real-world wiring — same SDK, real filesystem operations.",     href: "https://github.com/AnEntrypoint/fsbrowse", cta: "source" }
 
 quickstart:
-  heading: "quick start"
+  heading: "Quick start"
   lines:
-    - { kind: "cmt", text: "# install via importmap (no bundler)" }
+    - { kind: "cmt", text: "# Install via importmap (no bundler)" }
     - { kind: "cmd", text: "<script type='importmap'>{\"imports\":{\"anentrypoint-design\":\"https://unpkg.com/anentrypoint-design@latest/dist/247420.js\"}}</script>" }
-    - { kind: "cmt", text: "# or clone the source" }
+    - { kind: "cmt", text: "# Or clone the source" }
     - { kind: "cmd", text: "git clone https://github.com/AnEntrypoint/design.git" }
 
 desktop_os:
@@ -144,25 +146,25 @@ desktop_os:
     - { code: "os", title: "Import path",         sub: "anentrypoint-design/kits/os",                         desc: "subpath export, no bundler needed — pulls icons, shell, and every app paint surface",    href: "https://github.com/AnEntrypoint/design/blob/main/package.json",          cta: "exports" }
 
 web_components:
-  heading: "web components"
+  heading: "Web components"
   count: "1 element"
   items:
-    - { code: "wc", title: "<ds-chat>",           sub: "auto-registers when the sdk loads in a browser", desc: "set el.messages = [...] or pass json via attribute; listen for 'send' event",      href: "https://github.com/AnEntrypoint/design/blob/main/src/web-components/ds-chat.js", cta: "ds-chat.js" }
-    - { code: "wc", title: "registerChatElement", sub: "manual register helper",                         desc: "exported from the sdk root for ssr / late-mount when customElements is gated",     href: "https://github.com/AnEntrypoint/design/blob/main/src/index.js",                  cta: "source" }
+    - { code: "wc", title: "<ds-chat>",           sub: "Auto-registers when the SDK loads in a browser", desc: "Set el.messages = [...] or pass JSON via an attribute; listen for the 'send' event.",      href: "https://github.com/AnEntrypoint/design/blob/main/src/web-components/ds-chat.js", cta: "ds-chat.js" }
+    - { code: "wc", title: "registerChatElement", sub: "Manual register helper",                         desc: "Exported from the SDK root for SSR or late-mount, when customElements is gated. Custom-element auto-registration is opt-in, not forced on every consumer.",     href: "https://github.com/AnEntrypoint/design/blob/main/src/index.js",                  cta: "source" }
 
 api_exports:
-  heading: "public api"
-  count: "sdk surface"
+  heading: "Public API"
+  count: "SDK surface"
   items:
-    - { code: "api", title: "h / applyDiff",                  sub: "webjsx createElement + diff",       desc: "build vnodes with h(), render with applyDiff(root, [vnode]) — no jsx pragma needed",       href: "https://github.com/AnEntrypoint/design/blob/main/src/index.js",      cta: "index.js" }
-    - { code: "api", title: "installStyles / scope",          sub: "ds-247420 css scope + bootstrap",   desc: "installStyles() injects the prefixed css; scope = '.ds-247420' for selector composition",  href: "https://github.com/AnEntrypoint/design/blob/main/src/styles.js",     cta: "styles.js" }
-    - { code: "api", title: "loadCss",                        sub: "fetch the bundled css string",      desc: "useful for shadow roots or custom style injection paths",                                  href: "https://github.com/AnEntrypoint/design/blob/main/src/styles.js",     cta: "styles.js" }
-    - { code: "api", title: "mount / mountKit",               sub: "ds shell + ui_kit bootstrap",       desc: "mount(root, viewFn) wires applyDiff + motion; mountKit({root,view,screen}) wires a kit",   href: "https://github.com/AnEntrypoint/design/blob/main/src/bootstrap.js",  cta: "bootstrap.js" }
-    - { code: "api", title: "registerDeckStage / getDeckStage", sub: "16:9 deck stage api",             desc: "register custom deck stages and fetch the active stage for slide transitions",             href: "https://github.com/AnEntrypoint/design/blob/main/src/deck-stage.js", cta: "deck-stage.js" }
-    - { code: "api", title: "renderMarkdown",                 sub: "marked v15 + dompurify lazy stack", desc: "lazy-loads marked + dompurify from jsdelivr; only xss gate for chat html",                 href: "https://github.com/AnEntrypoint/design/blob/main/src/markdown.js",   cta: "markdown.js" }
-    - { code: "api", title: "ensurePrism / highlightAllUnder", sub: "prism core + per-language",         desc: "injects prism on first use; CodeNode ref-callback highlights inside any subtree",         href: "https://github.com/AnEntrypoint/design/blob/main/src/highlight.js",  cta: "highlight.js" }
-    - { code: "api", title: "renderPageHtml",                 sub: "static page html template",         desc: "shared head/body wrapper for kit pages — meta, importmap, ds-247420 scope",                href: "https://github.com/AnEntrypoint/design/blob/main/src/page-html.js",  cta: "page-html.js" }
-    - { code: "api", title: "components / motion / debug",    sub: "namespaces from the default export", desc: "components.* are the C.* primitives; motion.animateTree, debug.window.__debug registry",  href: "https://github.com/AnEntrypoint/design/blob/main/src/components.js", cta: "components.js" }
+    - { code: "api", title: "h / applyDiff",                  sub: "webjsx createElement and diff",       desc: "Build vnodes with h(), render with applyDiff(root, [vnode]) — no JSX pragma needed.",       href: "https://github.com/AnEntrypoint/design/blob/main/src/index.js",      cta: "index.js" }
+    - { code: "api", title: "installStyles / scope",          sub: "ds-247420 CSS scope and bootstrap",   desc: "installStyles() injects the prefixed CSS; scope = '.ds-247420' for selector composition.",  href: "https://github.com/AnEntrypoint/design/blob/main/src/styles.js",     cta: "styles.js" }
+    - { code: "api", title: "loadCss",                        sub: "Fetch the bundled CSS string",      desc: "Useful for shadow roots or custom style-injection paths.",                                  href: "https://github.com/AnEntrypoint/design/blob/main/src/styles.js",     cta: "styles.js" }
+    - { code: "api", title: "mount / mountKit",               sub: "Shell and ui_kit bootstrap",       desc: "mount(root, viewFn) wires applyDiff and motion; mountKit({root,view,screen}) wires a full kit.",   href: "https://github.com/AnEntrypoint/design/blob/main/src/bootstrap.js",  cta: "bootstrap.js" }
+    - { code: "api", title: "registerDeckStage / getDeckStage", sub: "16:9 deck stage API",             desc: "Register custom deck stages and fetch the active stage for slide transitions.",             href: "https://github.com/AnEntrypoint/design/blob/main/src/deck-stage.js", cta: "deck-stage.js" }
+    - { code: "api", title: "renderMarkdown",                 sub: "marked v15 + DOMPurify, lazy-loaded", desc: "Lazily loads marked and DOMPurify from a CDN; the only XSS gate for chat HTML.",                 href: "https://github.com/AnEntrypoint/design/blob/main/src/markdown.js",   cta: "markdown.js" }
+    - { code: "api", title: "ensurePrism / highlightAllUnder", sub: "Prism core plus per-language",         desc: "Injects Prism on first use; a ref-callback highlights code inside any subtree.",         href: "https://github.com/AnEntrypoint/design/blob/main/src/highlight.js",  cta: "highlight.js" }
+    - { code: "api", title: "renderPageHtml",                 sub: "Static page HTML template",         desc: "Shared head/body wrapper for kit pages — meta tags, importmap, ds-247420 scope.",                href: "https://github.com/AnEntrypoint/design/blob/main/src/page-html.js",  cta: "page-html.js" }
+    - { code: "api", title: "components / motion / debug",    sub: "Namespaces from the default export", desc: "components.* are the C.* primitives; motion.animateTree; a debug registry at window.__debug.",  href: "https://github.com/AnEntrypoint/design/blob/main/src/components.js", cta: "components.js" }
 
 features:
   heading: "Why teams choose 247420"

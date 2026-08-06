@@ -121,7 +121,7 @@ export default {
       examples: home.examples && home.examples.items ? home.examples.items.map((e) => ({
         label: e.name || e.title, desc: e.desc, href: e.href,
       })) : null,
-      marquee: { items: ['open source', 'design tokens', 'buildless components', 'zero raw color literals'], sep: '/' },
+      marquee: { items: ['Open source', 'Design tokens', 'WCAG AA verified', 'No bundler required'], sep: '/' },
       quickstart: home.quickstart && home.quickstart.lines ? { heading: home.quickstart.heading, lines: home.quickstart.lines } : null,
       sidebar: buildSidebar(home),
       statusLeft: home.status_left || ['main', '- utf-8', '- lf'],
