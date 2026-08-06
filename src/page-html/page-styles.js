@@ -106,4 +106,30 @@ a.row:hover .ds-row-arrow { opacity: 1 }
   letter-spacing: 0.06em; color: var(--fg-3, #6b6b6b);
 }
 .ds-showcase-row { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); align-items: center; }
+/* Card-grid layout (panel.layout === 'cards'): a browsable gallery of tiles
+   instead of a dense text-row list, opt-in per panel via home.yaml's
+   kits.layout: cards. */
+.ds-kit-card-grid {
+  display: grid; gap: var(--space-2, 8px);
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+.ds-kit-card {
+  display: grid; gap: var(--space-1, 4px); align-content: start;
+  padding: var(--space-3, 16px); background: var(--panel-1, var(--bg));
+  border-radius: var(--r-2, 14px); color: inherit; text-decoration: none;
+  transition: transform var(--dur-base, .18s) var(--ease, ease), box-shadow var(--dur-base, .18s) var(--ease, ease);
+  position: relative;
+}
+.ds-kit-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-1, 0 1px 2px rgba(0,0,0,.1)); }
+.ds-kit-card:focus-visible { outline: var(--focus-w, 2px) solid var(--focus-color, currentColor); outline-offset: var(--focus-offset, 2px); }
+.ds-kit-card-code {
+  font-family: var(--ff-mono, monospace); font-size: var(--fs-micro, 12px);
+  color: var(--fg-3, #6b6b6b);
+}
+.ds-kit-card-title { font-weight: 600; font-size: var(--fs-base, 16px); }
+.ds-kit-card-sub { font-size: var(--fs-sm, 15px); color: var(--fg-2, #444); }
+.ds-kit-card-arrow {
+  position: absolute; top: var(--space-3, 16px); right: var(--space-3, 16px);
+  color: var(--fg-3, #6b6b6b); font-size: var(--fs-sm, 15px);
+}
 `.trim();

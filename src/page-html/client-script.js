@@ -183,16 +183,33 @@ function panelNode(panel, idx, rerender) {
     }
     return filterInput ? h('div', { class: 'ds-kits-panel-wrap' }, filterInput) : null;
   }
-  const rows = items.map((it, i) => {
-    const code = it.code == null ? '' : String(it.code).trim();
-    const kids = [];
-    if (code) kids.push(h('span', { key: 'c', class: 'code' }, code));
-    kids.push(h('span', { key: 't', class: 'title' }, String(it.title || it.name || '')));
-    if (it.sub || it.desc) kids.push(h('span', { key: 'm', class: 'meta dim' }, ' — ' + (it.sub || it.desc)));
-    kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, it.meta || '->'));
-    return h('a', { key: i, class: 'row', href: it.href || '#' }, ...kids);
-  });
-  const panelEl = C.Panel({ id: panel.id || null, title: titleNode, count: items.length, children: rows });
+  // Card-grid layout (panel.layout === 'cards'): each item gets its own
+  // visual tile with a code badge and a two-line title/sub stack, instead of
+  // a single-line text row -- the "show, don't just tell" request for a
+  // browsable gallery feel on the kits panel specifically, opt-in per panel
+  // so every other panel (docs, api_exports, etc) keeps its dense row list,
+  // which suits reference material better than a card grid would.
+  const rows = panel.layout === 'cards'
+    ? items.map((it, i) => {
+        const code = it.code == null ? '' : String(it.code).trim();
+        return h('a', { key: i, class: 'ds-kit-card', href: it.href || '#' },
+          code ? h('span', { key: 'c', class: 'ds-kit-card-code' }, code) : null,
+          h('span', { key: 't', class: 'ds-kit-card-title' }, String(it.title || it.name || '')),
+          (it.sub || it.desc) ? h('span', { key: 'm', class: 'ds-kit-card-sub' }, it.sub || it.desc) : null,
+          h('span', { key: 'a', class: 'ds-kit-card-arrow' }, it.meta || '->'),
+        );
+      })
+    : items.map((it, i) => {
+        const code = it.code == null ? '' : String(it.code).trim();
+        const kids = [];
+        if (code) kids.push(h('span', { key: 'c', class: 'code' }, code));
+        kids.push(h('span', { key: 't', class: 'title' }, String(it.title || it.name || '')));
+        if (it.sub || it.desc) kids.push(h('span', { key: 'm', class: 'meta dim' }, ' — ' + (it.sub || it.desc)));
+        kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, it.meta || '->'));
+        return h('a', { key: i, class: 'row', href: it.href || '#' }, ...kids);
+      });
+  const rowsWrapped = panel.layout === 'cards' ? h('div', { class: 'ds-kit-card-grid' }, ...rows) : rows;
+  const panelEl = C.Panel({ id: panel.id || null, title: titleNode, count: items.length, children: rowsWrapped });
   return filterInput ? h('div', { class: 'ds-kits-panel-wrap' }, filterInput, panelEl) : panelEl;
 }
 

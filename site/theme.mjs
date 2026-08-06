@@ -29,6 +29,7 @@ function panel(section, id, itemsKey = 'items') {
     title: section.heading,
     count: section.count || section[itemsKey].length,
     items: rows(section[itemsKey]),
+    layout: section.layout || null,
   };
 }
 

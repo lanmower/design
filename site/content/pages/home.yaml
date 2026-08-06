@@ -55,6 +55,7 @@ tabs:
 kits:
   heading: "UI kits"
   count: "15 surfaces"
+  layout: cards
   items:
     - { code: "01", title: "Homepage",     sub: "Marquee and works grid",                  desc: "An editorial banner over a quiet works-grid shell.",                href: "./ui_kits/homepage/" }
     - { code: "02", title: "Project page", sub: "Hero, receipt, install, changelog",  desc: "A full case-study template for shipping a product story.",                      href: "./ui_kits/project_page/" }
