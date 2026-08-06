@@ -173,6 +173,8 @@
   padding: var(--space-2) 0;
   font-family: var(--ff-display); font-weight: 600;
   text-transform: uppercase; letter-spacing: var(--tr-caps);
+  mask-image: linear-gradient(90deg, transparent 0, var(--fg) 28px, var(--fg) calc(100% - 28px), transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, var(--fg) 28px, var(--fg) calc(100% - 28px), transparent 100%);
 }
 .ds-marquee-track {
   display: inline-flex; gap: var(--space-5);
