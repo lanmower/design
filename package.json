@@ -110,6 +110,8 @@
     "lint:component-docs": "node scripts/generate-component-docs.mjs --check",
     "types:components": "node scripts/generate-component-types.mjs",
     "lint:component-types": "node scripts/generate-component-types.mjs --check",
+    "manifest:components": "node scripts/generate-component-manifest.mjs",
+    "lint:component-manifest": "node scripts/generate-component-manifest.mjs --check",
     "generate:ui-kits": "node scripts/generate-ui-kit-scaffolds.mjs",
     "generate:preview-index": "node scripts/generate-preview-index.mjs",
     "a11y": "node scripts/a11y-audit.mjs",

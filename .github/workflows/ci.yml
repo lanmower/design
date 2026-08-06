@@ -39,6 +39,13 @@ jobs:
       - name: Component types up to date
         run: npm run lint:component-types
 
+      # The interactive component explorer (ui_kits/component_explorer/) reads
+      # this manifest at runtime; it is generated from the same extraction as
+      # the two checks above, so a signature change that isn't reflected here
+      # would silently ship a stale explorer showing an old prop table.
+      - name: Component manifest up to date
+        run: npm run lint:component-manifest
+
       - name: Build
         run: npm run build
 

@@ -13,6 +13,8 @@
 //   workspace       -- links chat.css + app-surfaces.css (AgentChat), not in this shape
 //   os              -- desktop-shell demo (createDesktopShell + wm + registry), links
 //                      src/kits/os/theme.css + app-panes.css directly, not app-shell.css
+//   component_explorer -- interactive props reference, fetches manifest.json at runtime,
+//                      carries its own inline <style> block for explorer-specific classes
 //
 // Each entry maps 1:1 to the template's {{...}} placeholders. `htmlTheme`
 // controls whether <html> gets data-theme="auto"; `themeColorMetas` controls
