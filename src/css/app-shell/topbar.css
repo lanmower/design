@@ -134,6 +134,12 @@ body.canvas-host { background: transparent !important; }
   border-radius: var(--r-pill);
   font-size: var(--fs-sm); color: var(--fg-3);
   max-width: 360px;
+  /* Match the system-wide input border language (.ds-field / .ds-search-input:
+     tonal fill + printed baseline rule) instead of a borderless pill, so the
+     topbar search reads as the same control family as every other input. */
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
+              inset 0 calc(-1 * var(--bw-rule)) 0 var(--rule-strong);
+  transition: box-shadow var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease);
 }
 .app-search .icon { opacity: 0.6; }
 .app-search input {
@@ -141,9 +147,13 @@ body.canvas-host { background: transparent !important; }
   font-family: inherit; font-size: inherit; color: var(--fg);
   width: 100%;
 }
+/* Same focus language as .ds-field/.ds-search-input: no outline ring, the
+   baseline rule thickens to the accent instead — matching every other form
+   input in the system rather than a one-off outline ring. */
 .app-search:focus-within {
-  outline: var(--focus-w) solid var(--focus-color);
-  outline-offset: var(--focus-offset);
+  background: var(--bg);
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
+              inset 0 calc(-1 * var(--bw-chunk)) 0 var(--accent);
 }
 
 .app-crumb {
@@ -151,10 +161,18 @@ body.canvas-host { background: transparent !important; }
   padding: var(--space-1-75) var(--pad-x);
   display: flex; align-items: center; gap: var(--space-2);
   font-size: var(--fs-sm); color: var(--fg-3);
+  min-width: 0;
 }
-.app-crumb .sep { opacity: 0.5; }
-.app-crumb .leaf { color: var(--fg); font-weight: 600; }
-.app-crumb .crumb-right { margin-left: auto; color: var(--fg-3); }
+.app-crumb .sep { opacity: 0.5; flex: 0 0 auto; }
+/* Trail segments and the current/leaf segment truncate independently instead
+   of the whole crumb bar overflowing — a long segment (deep file path, long
+   title) must not push the sibling segments or the right slot off-screen. */
+.app-crumb > span:not(.sep):not(.crumb-right) {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  min-width: 0; flex: 0 1 auto;
+}
+.app-crumb .leaf { color: var(--fg); font-weight: 600; flex: 0 1 auto; }
+.app-crumb .crumb-right { margin-left: auto; color: var(--fg-3); flex: 0 0 auto; }
 
 /* The shell is the grid cell (.app-body's fixed sidebar column); it must own
    its own scroll, not just size to content, because .app-body's row track is
@@ -308,6 +326,14 @@ body.canvas-host { background: transparent !important; }
    width:100% restores fill-then-cap for every .narrow page, not just wide
    viewports (the shrink-to-fit bug undersized even the base 760px case). */
 .app-main.narrow { width: 100%; max-width: var(--measure-narrow); margin: 0 auto; }
+/* .narrow means "prose reading measure", not "shrink the whole shell on wide
+   screens" -- the fixed 760px floor read as narrow on any viewport above
+   ~1300px since the clamp below only widens the no-side case. Sidebar-present
+   narrow pages (docs, papers) get the same wide-viewport widening treatment,
+   just without the no-side variant's extra sidebar-width allowance. */
+.app-body:not(.no-side) .app-main.narrow {
+  max-width: clamp(var(--measure-narrow), 46vw, 1000px);
+}
 /* A shell with no sidebar has no competing column, so the prose clamp there was
    leaving the whole sidebar's worth of width empty -- 760px of content inside a
    1413px shell on a real page. Widen the clamp by the space the absent sidebar
@@ -374,6 +400,15 @@ body.canvas-host { background: transparent !important; }
 }
 .app-status .item { color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .app-status .item:first-of-type { color: var(--accent-ink); }
+/* Subtle divider between adjacent status segments — a thin inset rule, not a
+   full-height border, so it reads as a quiet separator rather than boxing
+   each item. Skips the first item and anything right after the spread (its
+   own left margin already reads as the section break). */
+.app-status .item + .item,
+.app-status .spread + .item {
+  padding-left: var(--space-3);
+  border-left: 1px solid var(--rule);
+}
 .app-status .spread { flex: 1; }
 /* The status bar NEVER wraps: at narrow widths the trailing items (hints,
    agent target) drop in priority order instead of breaking mid-word onto a

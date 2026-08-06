@@ -204,7 +204,7 @@
   --fs-lg:       18px;
   --fs-xl:       21px;
   --fs-h4:       clamp(24px, 2cqi, 28px);
-  --fs-h3:       clamp(25px, 2.6cqi, 34px);
+  --fs-h3:       clamp(26px, 2.6cqi, 34px);
   --fs-h2:       clamp(28px, 3.6cqi, 44px);
   --fs-h1:       clamp(34px, 5cqi, 64px);
   --fs-hero:     clamp(42px, 7cqi, 96px);
@@ -546,6 +546,27 @@
   --code-fn:      var(--flame);
   --code-str-alt: var(--mascot);
   --code-num:     var(--sun);
+}
+
+/* [data-accent="X"] overrides (below) hardcode LIGHT-tuned fills (--acid,
+   --purple, --green) with no dark-theme companion, so data-theme=dark +
+   data-accent=acid/purple/green produced a near-invisible fill against the
+   dark page bg (measured: acid 1.15:1, purple 1.04:1, green 2.98:1 on --ink
+   -- all under the 3:1 non-text UI-fill floor). Same convention as the base
+   --accent retune above: restate the fill as its dark-tuned equivalent so
+   the swatch stays visible, using tones already verified elsewhere in this
+   file (green retune 7.48:1 on --ink, purple-2 retune 6.11:1 on --ink). */
+.ds-247420[data-theme="ink"][data-accent="acid"],
+.ds-247420[data-theme="dark"][data-accent="acid"] {
+  --accent: #BFBFBF; --accent-bright: #BFBFBF; --accent-fg: var(--ink); --accent-ink: var(--paper); --panel-accent: #BFBFBF;
+}
+.ds-247420[data-theme="ink"][data-accent="purple"],
+.ds-247420[data-theme="dark"][data-accent="purple"] {
+  --accent: #C277FF; --accent-bright: #C277FF; --accent-fg: var(--ink); --accent-ink: #C277FF; --panel-accent: #C277FF;
+}
+.ds-247420[data-theme="ink"][data-accent="green"],
+.ds-247420[data-theme="dark"][data-accent="green"] {
+  --accent: #5CBF52; --accent-bright: #5CBF52; --accent-fg: var(--ink); --accent-ink: #5CBF52; --panel-accent: #5CBF52;
 }
 
 /* Restores the pre-existing (weaker) dark-theme selection tint after the
@@ -1034,6 +1055,9 @@
   text-underline-offset: 4px;
   text-decoration-thickness: 2px;
 }
+.ds-247420 a.ds-link-accent:visited, .ds-247420 .ds-prose a:visited {
+  color: color-mix(in oklab, var(--accent-ink) 70%, var(--purple-2, var(--fg-3)));
+}
 .ds-247420 a.ds-link-accent:hover, .ds-247420 .ds-prose a:hover {
   background: var(--accent); color: var(--accent-fg); text-decoration-color: transparent;
 }
@@ -1117,7 +1141,7 @@
   display: flex; flex-wrap: wrap;
   align-items: center; gap: var(--space-4);
   min-height: var(--app-topbar-h);
-  padding: 10px var(--pad-x);
+  padding: var(--space-2-5) var(--pad-x);
   background: color-mix(in oklab, var(--bg) 97%, transparent);
 }
 
@@ -1130,7 +1154,7 @@
   position: sticky; top: 0; z-index: var(--z-header);
   display: flex; flex-wrap: wrap; align-items: center;
   gap: var(--space-2) var(--space-4);
-  padding: 8px var(--pad-x);
+  padding: var(--space-2) var(--pad-x);
   background: color-mix(in oklab, var(--bg) 97%, transparent);
 }
 .ds-247420 .app-chrome > .app-topbar,
@@ -1148,7 +1172,7 @@
 .ds-247420 .app-topbar > .app-search { flex: 1 1 auto; }
 .ds-247420 .app-topbar > nav { margin-left: auto; }
 .ds-247420 .app-topbar > .app-topbar-theme { flex: 0 0 auto; }
-.ds-247420 .app-topbar nav { display: flex; gap: 4px; font-size: var(--fs-sm); flex-wrap: wrap; }
+.ds-247420 .app-topbar nav { display: flex; gap: var(--space-1); font-size: var(--fs-sm); flex-wrap: wrap; }
 .ds-247420 .app-topbar nav a { flex: 0 0 auto; }
 .ds-247420 .app-topbar nav a {
   color: var(--fg-2);
@@ -1201,6 +1225,12 @@
   border-radius: var(--r-pill);
   font-size: var(--fs-sm); color: var(--fg-3);
   max-width: 360px;
+  /* Match the system-wide input border language (.ds-field / .ds-search-input:
+     tonal fill + printed baseline rule) instead of a borderless pill, so the
+     topbar search reads as the same control family as every other input. */
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
+              inset 0 calc(-1 * var(--bw-rule)) 0 var(--rule-strong);
+  transition: box-shadow var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease);
 }
 .ds-247420 .app-search .icon { opacity: 0.6; }
 .ds-247420 .app-search input {
@@ -1208,20 +1238,32 @@
   font-family: inherit; font-size: inherit; color: var(--fg);
   width: 100%;
 }
+/* Same focus language as .ds-field/.ds-search-input: no outline ring, the
+   baseline rule thickens to the accent instead — matching every other form
+   input in the system rather than a one-off outline ring. */
 .ds-247420 .app-search:focus-within {
-  outline: var(--focus-w) solid var(--focus-color);
-  outline-offset: var(--focus-offset);
+  background: var(--bg);
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
+              inset 0 calc(-1 * var(--bw-chunk)) 0 var(--accent);
 }
 
 .ds-247420 .app-crumb {
   min-height: var(--app-crumb-h);
-  padding: 6px var(--pad-x);
-  display: flex; align-items: center; gap: 8px;
+  padding: var(--space-1-75) var(--pad-x);
+  display: flex; align-items: center; gap: var(--space-2);
   font-size: var(--fs-sm); color: var(--fg-3);
+  min-width: 0;
 }
-.ds-247420 .app-crumb .sep { opacity: 0.5; }
-.ds-247420 .app-crumb .leaf { color: var(--fg); font-weight: 600; }
-.ds-247420 .app-crumb .crumb-right { margin-left: auto; color: var(--fg-3); }
+.ds-247420 .app-crumb .sep { opacity: 0.5; flex: 0 0 auto; }
+/* Trail segments and the current/leaf segment truncate independently instead
+   of the whole crumb bar overflowing — a long segment (deep file path, long
+   title) must not push the sibling segments or the right slot off-screen. */
+.ds-247420 .app-crumb > span:not(.sep):not(.crumb-right) {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  min-width: 0; flex: 0 1 auto;
+}
+.ds-247420 .app-crumb .leaf { color: var(--fg); font-weight: 600; flex: 0 1 auto; }
+.ds-247420 .app-crumb .crumb-right { margin-left: auto; color: var(--fg-3); flex: 0 0 auto; }
 
 /* The shell is the grid cell (.app-body's fixed sidebar column); it must own
    its own scroll, not just size to content, because .app-body's row track is
@@ -1264,7 +1306,7 @@
 .ds-247420 .app-side .group {
   font-size: var(--fs-xs); font-weight: 600;
   color: var(--fg-3); padding: 0 var(--space-3);
-  margin-bottom: 6px;
+  margin-bottom: var(--space-1-75);
 }
 .ds-247420 .app-side a {
   display: grid; grid-template-columns: 18px 1fr auto;
@@ -1279,7 +1321,7 @@
   min-height: 44px;
   border-radius: var(--r-1);
   color: var(--fg-2);
-  margin-bottom: 2px;
+  margin-bottom: var(--space-hair);
 }
 @media (pointer: coarse) {
   .ds-247420 .app-side a { min-height: 44px; padding: var(--space-2-75) var(--space-3); }
@@ -1375,6 +1417,14 @@
    width:100% restores fill-then-cap for every .narrow page, not just wide
    viewports (the shrink-to-fit bug undersized even the base 760px case). */
 .ds-247420 .app-main.narrow { width: 100%; max-width: var(--measure-narrow); margin: 0 auto; }
+/* .narrow means "prose reading measure", not "shrink the whole shell on wide
+   screens" -- the fixed 760px floor read as narrow on any viewport above
+   ~1300px since the clamp below only widens the no-side case. Sidebar-present
+   narrow pages (docs, papers) get the same wide-viewport widening treatment,
+   just without the no-side variant's extra sidebar-width allowance. */
+.ds-247420 .app-body:not(.no-side) .app-main.narrow {
+  max-width: clamp(var(--measure-narrow), 46vw, 1000px);
+}
 /* A shell with no sidebar has no competing column, so the prose clamp there was
    leaving the whole sidebar's worth of width empty -- 760px of content inside a
    1413px shell on a real page. Widen the clamp by the space the absent sidebar
@@ -1441,6 +1491,15 @@
 }
 .ds-247420 .app-status .item { color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .ds-247420 .app-status .item:first-of-type { color: var(--accent-ink); }
+/* Subtle divider between adjacent status segments — a thin inset rule, not a
+   full-height border, so it reads as a quiet separator rather than boxing
+   each item. Skips the first item and anything right after the spread (its
+   own left margin already reads as the section break). */
+.ds-247420 .app-status .item + .item,
+.ds-247420 .app-status .spread + .item {
+  padding-left: var(--space-3);
+  border-left: 1px solid var(--rule);
+}
 .ds-247420 .app-status .spread { flex: 1; }
 /* The status bar NEVER wraps: at narrow widths the trailing items (hints,
    agent target) drop in priority order instead of breaking mid-word onto a
@@ -1562,7 +1621,11 @@
   border-radius: var(--r-pill);
   background: var(--bg-3); color: var(--fg-2);
 }
-.ds-247420 .ds-badge.ds-badge--sm { min-width: var(--icon-xs); height: var(--icon-xs); padding: 0 var(--space-1); font-size: var(--fs-pico); }
+/* --fs-nano (11px), not --fs-pico (10px): --fs-pico sits below the 11px
+   legibility floor other small-scale labels in this system respect (see
+   .ds-stat-lbl, .ds-session-row-id), and this size is used live for the
+   workspace rail item-count badge (atoms.js Badge size="sm"). */
+.ds-247420 .ds-badge.ds-badge--sm { min-width: var(--icon-xs); height: var(--icon-xs); padding: 0 var(--space-1); font-size: var(--fs-nano); }
 .ds-247420 .ds-badge.ds-badge--lg { min-width: 22px; height: 22px; padding: 0 var(--space-2); font-size: var(--fs-tiny); }
 .ds-247420 .ds-badge.tone-green, .ds-247420 .ds-badge.tone-live, .ds-247420 .ds-badge.tone-success {
   background: var(--green-tint); color: var(--green-deep);
@@ -1738,8 +1801,18 @@
   font-size: var(--fs-tiny); font-weight: 600;
   color: var(--fg-3);
   letter-spacing: var(--tr-caps); text-transform: uppercase;
+  /* A hairline divider is the header's only structural separator from the
+     body — without it, an uppercase caps label at fs-tiny/600 reads as just
+     another dim meta line once the eye drops past the top of the panel. */
+  border-bottom: var(--bw-hair) solid var(--rule);
+  margin-bottom: var(--space-1);
 }
 .ds-247420 .panel.panel-wide .panel-head { padding-left: 0; padding-right: 0; }
+/* A borderless .panel-wide (no card edge to lean on) would otherwise show a
+   divider floating with nothing to visually anchor it — drop it there and
+   rely on spacing alone, matching panel-wide's already-transparent chrome. */
+.ds-247420 .panel.panel-wide .panel-head { border-bottom: none; margin-bottom: 0; }
+.ds-247420 .panel.panel--dense .panel-head { border-bottom: var(--bw-hair) solid var(--rule); margin-bottom: 0; }
 .ds-247420 .panel-head > :last-child {
   font-weight: 500; color: var(--fg-3);
   font-family: var(--ff-mono); letter-spacing: 0;
@@ -2185,7 +2258,7 @@
 .ds-247420 .cli {
   display: flex; align-items: center; gap: 14px;
   overflow-x: auto;
-  padding: 20px 24px;
+  padding: var(--space-3-5) var(--space-4);
   background: var(--ink); color: var(--paper);
   border-radius: var(--r-3);
   font-family: var(--ff-mono); font-size: var(--fs-lg);
@@ -2193,7 +2266,7 @@
 .ds-247420 .cli .prompt { color: var(--green-2); }
 .ds-247420 .cli .cmd    { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; color: var(--paper); }
 .ds-247420 .cli .copy   {
-  padding: 8px 16px; background: transparent; color: var(--paper);
+  padding: var(--space-2) var(--space-3); background: transparent; color: var(--paper);
   font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: var(--tr-caps);
   cursor: pointer; box-shadow: inset 0 0 0 1px var(--rule-strong);
   border-radius: var(--r-pill);
@@ -2234,7 +2307,7 @@
 .ds-247420 .ds-quickstart-cli { flex-direction: column; align-items: stretch; gap: var(--space-2); }
 .ds-247420 .ds-quickstart-copy {
   align-self: flex-end;
-  padding: 8px 16px; background: transparent; color: var(--paper);
+  padding: var(--space-2) var(--space-3); background: transparent; color: var(--paper);
   font-family: var(--ff-mono); font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: var(--tr-caps);
   cursor: pointer; box-shadow: inset 0 0 0 1px var(--rule-strong);
   border-radius: var(--r-pill); border: none;
@@ -3284,6 +3357,13 @@
   border-radius: var(--r-3); background: var(--bg);
   transition: border-color var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
 }
+/* Idle hover: a quiet pre-drag affordance (border firms up, faint tint) so a
+   pointer resting over the zone reads as "droppable" before a drag even
+   starts — distinct from and weaker than the .dragover treatment below. */
+.ds-247420 .ds-dropzone:hover {
+  border-color: var(--fg-3);
+  background: var(--bg-2);
+}
 .ds-247420 .ds-dropzone-inner {
   display: flex; align-items: center; justify-content: center;
   gap: var(--space-2); flex-wrap: wrap;
@@ -3305,6 +3385,17 @@
   0%, 100% { border-color: var(--accent); }
   50% { border-color: color-mix(in oklab, var(--accent) 45%, transparent); }
 }
+/* Drag-rejected: dragged payload fails a type/size guard (host sets this
+   class instead of .dragover once it inspects dataTransfer.types). --flame
+   keeps it visually distinct from the accent-toned dragover/hover states
+   and from the --warn upload-error tone used elsewhere in this file. */
+.ds-247420 .ds-dropzone.drag-rejected {
+  border-color: var(--flame);
+  background: color-mix(in oklab, var(--flame) 10%, var(--bg));
+  animation: none;
+}
+.ds-247420 .ds-dropzone.drag-rejected .ds-dropzone-glyph,
+.ds-247420 .ds-dropzone.drag-rejected .ds-dropzone-label { color: var(--flame); }
 /* Wrapper form (has children): no permanent chrome - the content renders as if
    the zone were not there, and the dashed affordance overlays it ONLY while a
    drag is in flight. */
@@ -3319,6 +3410,16 @@
   border-radius: var(--r-3);
 }
 .ds-247420 .ds-dropzone--wrap.dragover { animation: none; }
+.ds-247420 .ds-dropzone--wrap.drag-rejected > .ds-dropzone-inner {
+  display: flex; position: absolute; inset: 0; z-index: var(--z-raised);
+  margin: 0; padding: var(--space-3);
+  align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--bg) 84%, transparent);
+  outline: var(--bw-rule) dashed var(--flame); outline-offset: -6px;
+  border-radius: var(--r-3);
+}
+.ds-247420 .ds-dropzone--wrap.drag-rejected .ds-dropzone-glyph,
+.ds-247420 .ds-dropzone--wrap.drag-rejected .ds-dropzone-label { color: var(--flame); }
 /* Touch devices can never fire dragover — keep the pick-files affordance
    visible as a compact static row so upload stays reachable in wrap mode. */
 @media (hover: none) and (pointer: coarse) {
@@ -3490,6 +3591,7 @@
   background: var(--warn);
   border-color: var(--warn);
   color: var(--ink);
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) color-mix(in oklab, var(--ink) 25%, transparent);
 }
 .ds-247420 .btn-primary.danger:hover { filter: brightness(0.92); border-color: var(--warn); }
 
@@ -3867,6 +3969,13 @@
   min-width: 0;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
+/* Tail corner: the bubble edge nearest its own avatar (bottom-left for
+   'them', bottom-right for 'you') squares off slightly, matching bubble
+   position to the sender's avatar the way a speech-bubble tail would — a
+   consistent radius on all four corners reads as a generic card, not a
+   turn in a conversation. */
+.ds-247420 .chat-msg:not(.you) .chat-bubble { border-bottom-left-radius: var(--r-0); }
+.ds-247420 .chat-msg.you .chat-bubble { border-bottom-right-radius: var(--r-0); }
 .ds-247420 .chat-msg:hover .chat-bubble { transform: translateY(-1px); box-shadow: 0 2px 8px color-mix(in oklab, var(--fg) 6%, transparent); transition: transform var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease); }
 /* Own bubble — calm tinted lead, not a full electric fill (chat stays readable). */
 .ds-247420 .chat-msg.you .chat-bubble { background: var(--accent-tint); color: var(--fg); }
@@ -4305,6 +4414,163 @@
 .ds-247420 .aicat-meta .name { color: var(--mascot-deep, var(--mascot)); font-weight: 600; }
 
 /* ============================================================
+   Composer attachment-detected badge, context line, hint, toolbar,
+   note strip, elapsed counter, dragover state — all referenced from
+   composer.js / composer-affordances.js but previously had no CSS at
+   all (unstyled DOM nodes / plain text falling through to block
+   defaults).
+   ============================================================ */
+.ds-247420 .chat-composer-context {
+  display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-1);
+  width: 100%; order: -1;
+  padding: var(--space-1) var(--space-1) 0;
+  font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3);
+  letter-spacing: 0.01em;
+}
+.ds-247420 button.chat-composer-context {
+  background: transparent; border: 0; cursor: pointer; text-align: left;
+  border-radius: var(--r-0);
+}
+.ds-247420 button.chat-composer-context:hover { color: var(--fg-2); }
+.ds-247420 button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+.ds-247420 .chat-composer-context-sep { color: var(--fg-3); opacity: 0.6; }
+.ds-247420 .chat-composer-context-bit {
+  background: transparent; border: 0; padding: 0; margin: 0; cursor: pointer;
+  font: inherit; color: var(--fg-3); border-radius: var(--r-0);
+  transition: color var(--dur-snap, .15s) var(--ease, ease);
+}
+.ds-247420 .chat-composer-context-bit:hover { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 2px; }
+.ds-247420 .chat-composer-context-bit:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+.ds-247420 .chat-composer-context-text { color: var(--fg-3); }
+
+.ds-247420 .chat-composer-detected-badge {
+  display: flex; align-items: center; gap: var(--space-2);
+  width: 100%; order: -1;
+  padding: var(--space-1) var(--space-2-5);
+  margin: 0 0 var(--space-1);
+  background: color-mix(in oklab, var(--accent) 12%, var(--bg-2));
+  border: 1px solid color-mix(in oklab, var(--accent) 28%, transparent);
+  border-radius: var(--r-1);
+  font-size: var(--fs-xs); color: var(--fg);
+}
+.ds-247420 .chat-composer-detected-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-247420 .chat-composer-detected-dismiss {
+  flex-shrink: 0; width: 20px; height: 20px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; border: 0; cursor: pointer; border-radius: 50%;
+  color: var(--fg-3); font-family: var(--ff-mono); font-size: var(--fs-tiny); line-height: 1;
+  transition: background var(--dur-snap, .15s) var(--ease, ease), color var(--dur-snap, .15s) var(--ease, ease);
+}
+.ds-247420 .chat-composer-detected-dismiss:hover { background: color-mix(in oklab, var(--fg) 10%, transparent); color: var(--fg); }
+.ds-247420 .chat-composer-detected-dismiss:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+
+.ds-247420 .chat-composer-hint {
+  width: 100%; order: 2;
+  font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3);
+  padding: 0 var(--space-1);
+}
+
+.ds-247420 .chat-composer-toolbar {
+  display: flex; align-items: center; gap: var(--space-1);
+  flex-shrink: 0;
+}
+.ds-247420 .chat-composer-toolbar .composer-btn {
+  width: 32px; height: 32px; border-radius: var(--r-1);
+}
+@media (pointer: coarse) {
+  .ds-247420 .chat-composer-toolbar .composer-btn { width: 44px; height: 44px; }
+}
+
+.ds-247420 .chat-composer-note {
+  width: 100%; order: 3;
+  font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3);
+  padding: var(--space-1) var(--space-1) 0;
+}
+
+.ds-247420 .chat-composer-elapsed {
+  font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3);
+  flex-shrink: 0; padding: 0 var(--space-1);
+}
+
+.ds-247420 .chat-composer.dragover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 18%, transparent);
+  background: color-mix(in oklab, var(--accent) 4%, var(--bg));
+}
+
+/* ============================================================
+   EmojiPicker (ov-emoji-*) — an anchored popover with search input,
+   category tabs, and an emoji grid; previously entirely unstyled.
+   Search input mirrors .ds-search-input's tonal-fill treatment so it
+   reads consistently with the rest of the system's search fields.
+   ============================================================ */
+.ds-247420 .ov-emoji-root {
+  position: fixed;
+  display: flex; flex-direction: column; gap: var(--space-2);
+  width: 280px; max-height: 320px;
+  padding: var(--space-2-5);
+  background: var(--bg);
+  border: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
+  border-radius: var(--r-2);
+  box-shadow: var(--shadow-overlay, var(--shadow-3));
+  z-index: var(--z-dropdown, var(--z-raised));
+}
+.ds-247420 .ov-emoji-search {
+  width: 100%; box-sizing: border-box;
+  font: inherit; font-size: var(--fs-sm); color: var(--fg);
+  background: var(--bg-2); border: 0;
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule);
+  border-radius: var(--r-1);
+  height: var(--ctl-sm, 32px);
+  padding: 0 var(--space-2-5);
+  transition: box-shadow var(--dur-snap, .15s) var(--ease, ease);
+}
+.ds-247420 .ov-emoji-search::placeholder { color: var(--fg-3); }
+.ds-247420 .ov-emoji-search:focus-visible,
+.ds-247420 .ov-emoji-search:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--accent), 0 0 0 2px color-mix(in oklab, var(--accent) 18%, transparent);
+}
+.ds-247420 .ov-emoji-tabs {
+  display: flex; gap: var(--space-1);
+  border-bottom: 1px solid color-mix(in oklab, var(--fg) 10%, transparent);
+  padding-bottom: var(--space-1);
+}
+.ds-247420 .ov-emoji-tab {
+  flex: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 30px; font-size: var(--fs-sm);
+  background: transparent; border: 0; border-radius: var(--r-1);
+  cursor: pointer;
+  transition: background var(--dur-snap, .15s) var(--ease, ease);
+}
+.ds-247420 .ov-emoji-tab:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); }
+.ds-247420 .ov-emoji-tab[aria-selected="true"] { background: color-mix(in oklab, var(--accent) 16%, transparent); }
+.ds-247420 .ov-emoji-tab:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+.ds-247420 .ov-emoji-grid { overflow-y: auto; flex: 1; min-height: 0; scrollbar-width: thin; scrollbar-color: var(--bg-3) transparent; }
+.ds-247420 .ov-emoji-grid-inner {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-1);
+}
+.ds-247420 .ov-emoji-cell {
+  display: inline-flex; align-items: center; justify-content: center;
+  aspect-ratio: 1; font-size: var(--fs-lg); line-height: 1;
+  background: transparent; border: 0; border-radius: var(--r-1);
+  cursor: pointer;
+  transition: background var(--dur-snap, .15s) var(--ease, ease), transform 0.12s ease;
+}
+.ds-247420 .ov-emoji-cell:hover { background: color-mix(in oklab, var(--fg) 10%, transparent); transform: scale(1.12); }
+.ds-247420 .ov-emoji-cell:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; background: color-mix(in oklab, var(--fg) 10%, transparent); }
+.ds-247420 .ov-emoji-empty {
+  grid-column: 1 / -1;
+  text-align: center; color: var(--fg-3); font-size: var(--fs-xs);
+  padding: var(--space-3) 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-247420 .ov-emoji-cell { transition: background var(--dur-snap, .15s) var(--ease, ease); }
+  .ds-247420 .ov-emoji-cell:hover { transform: none; }
+}
+
+/* ============================================================
    Sidebar polish: hide zero-count badges; tonal active state;
    monospace count chips.
    ============================================================ */
@@ -4631,6 +4897,7 @@
 }
 .ds-247420 .ds-context-menu-item.danger {
   color: var(--warn);
+  box-shadow: inset 2px 0 0 var(--warn);
 }
 .ds-247420 .ds-context-menu-item.danger:hover {
   background: color-mix(in oklab, var(--warn) 12%, var(--bg));
@@ -4733,6 +5000,7 @@
 .ds-247420 .prose p { margin: 0 0 var(--space-4) 0; }
 .ds-247420 .prose p:last-child { margin-bottom: 0; }
 .ds-247420 .prose a { color: var(--accent-ink); text-decoration-color: var(--rule-strong); text-underline-offset: 0.15em; }
+.ds-247420 .prose a:visited { color: color-mix(in oklab, var(--accent-ink) 70%, var(--purple-2, var(--fg-3))); }
 .ds-247420 .prose a:hover { text-decoration-color: currentColor; }
 
 /* Rubber-stamp motif — a bordered, uppercase, letter-spaced badge with a
@@ -5586,9 +5854,22 @@
 /* Column resize handles: a thin keyboard-accessible separator pinned to the
    right edge of each chrome track; drag (or ArrowLeft/Right) writes a clamped
    inline --ws-*-w. */
-.ds-247420 .ws-resizer { grid-row: 1 / -1; align-self: stretch; justify-self: end; width: 8px; margin-right: -4px; z-index: var(--z-raised); cursor: col-resize; background: transparent; border: none; padding: 0; touch-action: none; }
-.ds-247420 .ws-resizer::after { content: ""; display: block; width: 2px; height: 100%; margin: 0 auto; background: transparent; transition: background var(--dur-snap) var(--ease); }
-.ds-247420 .ws-resizer:hover::after, .ds-247420 .ws-resizer:focus-visible::after { background: var(--accent); }
+.ds-247420 .ws-resizer { position: relative; grid-row: 1 / -1; align-self: stretch; justify-self: end; width: 8px; margin-right: -4px; z-index: var(--z-raised); cursor: col-resize; background: transparent; border: none; padding: 0; touch-action: none; display: flex; align-items: center; justify-content: center; }
+.ds-247420 .ws-resizer::after { content: ""; display: block; width: 2px; height: 100%; margin: 0 auto; background: var(--rule); opacity: 0.4; transition: background var(--dur-snap) var(--ease), opacity var(--dur-snap) var(--ease); }
+.ds-247420 .ws-resizer:hover::after, .ds-247420 .ws-resizer:focus-visible::after { background: var(--accent); opacity: 1; }
+/* Grip: a small pill of dots centered on the handle, visible at rest (low
+   contrast) so the resizer reads as a draggable affordance rather than an
+   invisible hit zone, then brightens to accent on hover/drag like the line. */
+.ds-247420 .ws-resizer::before {
+  content: ""; position: absolute; width: 4px; height: 20px; border-radius: var(--r-hair);
+  background-image: radial-gradient(circle, var(--fg-3) 1px, transparent 1px);
+  background-size: 4px 5px; background-repeat: repeat-y; background-position: center;
+  opacity: 0.5; transition: opacity var(--dur-snap) var(--ease), background-image var(--dur-snap) var(--ease);
+  pointer-events: none;
+}
+.ds-247420 .ws-resizer:hover::before, .ds-247420 .ws-resizer:focus-visible::before {
+  opacity: 1; background-image: radial-gradient(circle, var(--accent) 1px, transparent 1px);
+}
 .ds-247420 .ws-resizer:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
 .ds-247420 .ws-resizer.ws-resizer-rail { grid-column: 1; }
 .ds-247420 .ws-resizer.ws-resizer-sessions { grid-column: 2; }
@@ -5876,7 +6157,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .ds-247420 .ws-shell, .ds-247420 .ws-rail, .ds-247420 .ws-pane, .ds-247420 .ws-sessions, .ds-247420 .ws-scrim { transition: none; }
-  .ds-247420 .ws-resizer::after { transition: none; }
+  .ds-247420 .ws-resizer::after, .ds-247420 .ws-resizer::before { transition: none; }
 }
 
 /* ============================================================
@@ -10205,7 +10486,7 @@
 .ds-247420 .ds-session-agent { font-size: var(--fs-tiny); color: var(--fg-3); }
 /* New-activity cue is a hollow accent RING so it stays shape-distinct from the
    running live disc (a solid pulsing accent dot) for colour-blind / reduced-motion users. */
-.ds-247420 .ds-session-unread { width: 8px; height: 8px; border-radius: 50%; background: var(--fg-2); display: inline-block; }
+.ds-247420 .ds-session-unread { width: 8px; height: 8px; border-radius: 50%; background: transparent; box-shadow: inset 0 0 0 1.5px var(--accent); display: inline-block; flex: none; }
 .ds-247420 .ds-session-state { padding: var(--space-5) var(--space-3); text-align: center; color: var(--fg-3); font-size: var(--fs-sm); }
 .ds-247420 .ds-session-state-error { color: var(--flame); }
 

@@ -65,6 +65,10 @@
 .ds-icon-btn-base { width: 32px; height: 32px; }
 .ds-icon-btn-lg { width: 40px; height: 40px; }
 .ds-icon-btn-xl { width: 48px; height: 48px; }
+@media (pointer: coarse) {
+  .ds-icon-btn-xs { width: 32px; height: 32px; }
+  .ds-icon-btn-sm { width: 32px; height: 32px; }
+}
 .ds-icon-btn-ghost { background: transparent; }
 .ds-icon-btn-ghost:hover { background: var(--fg); color: var(--bg); }
 .ds-icon-btn-primary { background: var(--accent); color: var(--accent-fg); }

@@ -200,9 +200,22 @@
 /* Column resize handles: a thin keyboard-accessible separator pinned to the
    right edge of each chrome track; drag (or ArrowLeft/Right) writes a clamped
    inline --ws-*-w. */
-.ws-resizer { grid-row: 1 / -1; align-self: stretch; justify-self: end; width: 8px; margin-right: -4px; z-index: var(--z-raised); cursor: col-resize; background: transparent; border: none; padding: 0; touch-action: none; }
-.ws-resizer::after { content: ""; display: block; width: 2px; height: 100%; margin: 0 auto; background: transparent; transition: background var(--dur-snap) var(--ease); }
-.ws-resizer:hover::after, .ws-resizer:focus-visible::after { background: var(--accent); }
+.ws-resizer { position: relative; grid-row: 1 / -1; align-self: stretch; justify-self: end; width: 8px; margin-right: -4px; z-index: var(--z-raised); cursor: col-resize; background: transparent; border: none; padding: 0; touch-action: none; display: flex; align-items: center; justify-content: center; }
+.ws-resizer::after { content: ""; display: block; width: 2px; height: 100%; margin: 0 auto; background: var(--rule); opacity: 0.4; transition: background var(--dur-snap) var(--ease), opacity var(--dur-snap) var(--ease); }
+.ws-resizer:hover::after, .ws-resizer:focus-visible::after { background: var(--accent); opacity: 1; }
+/* Grip: a small pill of dots centered on the handle, visible at rest (low
+   contrast) so the resizer reads as a draggable affordance rather than an
+   invisible hit zone, then brightens to accent on hover/drag like the line. */
+.ws-resizer::before {
+  content: ""; position: absolute; width: 4px; height: 20px; border-radius: var(--r-hair);
+  background-image: radial-gradient(circle, var(--fg-3) 1px, transparent 1px);
+  background-size: 4px 5px; background-repeat: repeat-y; background-position: center;
+  opacity: 0.5; transition: opacity var(--dur-snap) var(--ease), background-image var(--dur-snap) var(--ease);
+  pointer-events: none;
+}
+.ws-resizer:hover::before, .ws-resizer:focus-visible::before {
+  opacity: 1; background-image: radial-gradient(circle, var(--accent) 1px, transparent 1px);
+}
 .ws-resizer:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
 .ws-resizer.ws-resizer-rail { grid-column: 1; }
 .ws-resizer.ws-resizer-sessions { grid-column: 2; }
@@ -490,6 +503,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .ws-shell, .ws-rail, .ws-pane, .ws-sessions, .ws-scrim { transition: none; }
-  .ws-resizer::after { transition: none; }
+  .ws-resizer::after, .ws-resizer::before { transition: none; }
 }
 

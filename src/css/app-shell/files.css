@@ -449,6 +449,13 @@
   border-radius: var(--r-3); background: var(--bg);
   transition: border-color var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
 }
+/* Idle hover: a quiet pre-drag affordance (border firms up, faint tint) so a
+   pointer resting over the zone reads as "droppable" before a drag even
+   starts — distinct from and weaker than the .dragover treatment below. */
+.ds-dropzone:hover {
+  border-color: var(--fg-3);
+  background: var(--bg-2);
+}
 .ds-dropzone-inner {
   display: flex; align-items: center; justify-content: center;
   gap: var(--space-2); flex-wrap: wrap;
@@ -470,6 +477,17 @@
   0%, 100% { border-color: var(--accent); }
   50% { border-color: color-mix(in oklab, var(--accent) 45%, transparent); }
 }
+/* Drag-rejected: dragged payload fails a type/size guard (host sets this
+   class instead of .dragover once it inspects dataTransfer.types). --flame
+   keeps it visually distinct from the accent-toned dragover/hover states
+   and from the --warn upload-error tone used elsewhere in this file. */
+.ds-dropzone.drag-rejected {
+  border-color: var(--flame);
+  background: color-mix(in oklab, var(--flame) 10%, var(--bg));
+  animation: none;
+}
+.ds-dropzone.drag-rejected .ds-dropzone-glyph,
+.ds-dropzone.drag-rejected .ds-dropzone-label { color: var(--flame); }
 /* Wrapper form (has children): no permanent chrome - the content renders as if
    the zone were not there, and the dashed affordance overlays it ONLY while a
    drag is in flight. */
@@ -484,6 +502,16 @@
   border-radius: var(--r-3);
 }
 .ds-dropzone--wrap.dragover { animation: none; }
+.ds-dropzone--wrap.drag-rejected > .ds-dropzone-inner {
+  display: flex; position: absolute; inset: 0; z-index: var(--z-raised);
+  margin: 0; padding: var(--space-3);
+  align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--bg) 84%, transparent);
+  outline: var(--bw-rule) dashed var(--flame); outline-offset: -6px;
+  border-radius: var(--r-3);
+}
+.ds-dropzone--wrap.drag-rejected .ds-dropzone-glyph,
+.ds-dropzone--wrap.drag-rejected .ds-dropzone-label { color: var(--flame); }
 /* Touch devices can never fire dragover — keep the pick-files affordance
    visible as a compact static row so upload stays reachable in wrap mode. */
 @media (hover: none) and (pointer: coarse) {

@@ -100,6 +100,13 @@
   min-width: 0;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
+/* Tail corner: the bubble edge nearest its own avatar (bottom-left for
+   'them', bottom-right for 'you') squares off slightly, matching bubble
+   position to the sender's avatar the way a speech-bubble tail would — a
+   consistent radius on all four corners reads as a generic card, not a
+   turn in a conversation. */
+.chat-msg:not(.you) .chat-bubble { border-bottom-left-radius: var(--r-0); }
+.chat-msg.you .chat-bubble { border-bottom-right-radius: var(--r-0); }
 .chat-msg:hover .chat-bubble { transform: translateY(-1px); box-shadow: 0 2px 8px color-mix(in oklab, var(--fg) 6%, transparent); transition: transform var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease); }
 /* Own bubble — calm tinted lead, not a full electric fill (chat stays readable). */
 .chat-msg.you .chat-bubble { background: var(--accent-tint); color: var(--fg); }
@@ -537,4 +544,161 @@
    under OS-dark, which is how the kits actually render — the author name
    fell back to the paper tone at 3.13:1 on ink. */
 .aicat-meta .name { color: var(--mascot-deep, var(--mascot)); font-weight: 600; }
+
+/* ============================================================
+   Composer attachment-detected badge, context line, hint, toolbar,
+   note strip, elapsed counter, dragover state — all referenced from
+   composer.js / composer-affordances.js but previously had no CSS at
+   all (unstyled DOM nodes / plain text falling through to block
+   defaults).
+   ============================================================ */
+.chat-composer-context {
+  display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-1);
+  width: 100%; order: -1;
+  padding: var(--space-1) var(--space-1) 0;
+  font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3);
+  letter-spacing: 0.01em;
+}
+button.chat-composer-context {
+  background: transparent; border: 0; cursor: pointer; text-align: left;
+  border-radius: var(--r-0);
+}
+button.chat-composer-context:hover { color: var(--fg-2); }
+button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+.chat-composer-context-sep { color: var(--fg-3); opacity: 0.6; }
+.chat-composer-context-bit {
+  background: transparent; border: 0; padding: 0; margin: 0; cursor: pointer;
+  font: inherit; color: var(--fg-3); border-radius: var(--r-0);
+  transition: color var(--dur-snap, .15s) var(--ease, ease);
+}
+.chat-composer-context-bit:hover { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 2px; }
+.chat-composer-context-bit:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+.chat-composer-context-text { color: var(--fg-3); }
+
+.chat-composer-detected-badge {
+  display: flex; align-items: center; gap: var(--space-2);
+  width: 100%; order: -1;
+  padding: var(--space-1) var(--space-2-5);
+  margin: 0 0 var(--space-1);
+  background: color-mix(in oklab, var(--accent) 12%, var(--bg-2));
+  border: 1px solid color-mix(in oklab, var(--accent) 28%, transparent);
+  border-radius: var(--r-1);
+  font-size: var(--fs-xs); color: var(--fg);
+}
+.chat-composer-detected-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-composer-detected-dismiss {
+  flex-shrink: 0; width: 20px; height: 20px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; border: 0; cursor: pointer; border-radius: 50%;
+  color: var(--fg-3); font-family: var(--ff-mono); font-size: var(--fs-tiny); line-height: 1;
+  transition: background var(--dur-snap, .15s) var(--ease, ease), color var(--dur-snap, .15s) var(--ease, ease);
+}
+.chat-composer-detected-dismiss:hover { background: color-mix(in oklab, var(--fg) 10%, transparent); color: var(--fg); }
+.chat-composer-detected-dismiss:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+
+.chat-composer-hint {
+  width: 100%; order: 2;
+  font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3);
+  padding: 0 var(--space-1);
+}
+
+.chat-composer-toolbar {
+  display: flex; align-items: center; gap: var(--space-1);
+  flex-shrink: 0;
+}
+.chat-composer-toolbar .composer-btn {
+  width: 32px; height: 32px; border-radius: var(--r-1);
+}
+@media (pointer: coarse) {
+  .chat-composer-toolbar .composer-btn { width: 44px; height: 44px; }
+}
+
+.chat-composer-note {
+  width: 100%; order: 3;
+  font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3);
+  padding: var(--space-1) var(--space-1) 0;
+}
+
+.chat-composer-elapsed {
+  font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3);
+  flex-shrink: 0; padding: 0 var(--space-1);
+}
+
+.chat-composer.dragover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 18%, transparent);
+  background: color-mix(in oklab, var(--accent) 4%, var(--bg));
+}
+
+/* ============================================================
+   EmojiPicker (ov-emoji-*) — an anchored popover with search input,
+   category tabs, and an emoji grid; previously entirely unstyled.
+   Search input mirrors .ds-search-input's tonal-fill treatment so it
+   reads consistently with the rest of the system's search fields.
+   ============================================================ */
+.ov-emoji-root {
+  position: fixed;
+  display: flex; flex-direction: column; gap: var(--space-2);
+  width: 280px; max-height: 320px;
+  padding: var(--space-2-5);
+  background: var(--bg);
+  border: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
+  border-radius: var(--r-2);
+  box-shadow: var(--shadow-overlay, var(--shadow-3));
+  z-index: var(--z-dropdown, var(--z-raised));
+}
+.ov-emoji-search {
+  width: 100%; box-sizing: border-box;
+  font: inherit; font-size: var(--fs-sm); color: var(--fg);
+  background: var(--bg-2); border: 0;
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule);
+  border-radius: var(--r-1);
+  height: var(--ctl-sm, 32px);
+  padding: 0 var(--space-2-5);
+  transition: box-shadow var(--dur-snap, .15s) var(--ease, ease);
+}
+.ov-emoji-search::placeholder { color: var(--fg-3); }
+.ov-emoji-search:focus-visible,
+.ov-emoji-search:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--accent), 0 0 0 2px color-mix(in oklab, var(--accent) 18%, transparent);
+}
+.ov-emoji-tabs {
+  display: flex; gap: var(--space-1);
+  border-bottom: 1px solid color-mix(in oklab, var(--fg) 10%, transparent);
+  padding-bottom: var(--space-1);
+}
+.ov-emoji-tab {
+  flex: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 30px; font-size: var(--fs-sm);
+  background: transparent; border: 0; border-radius: var(--r-1);
+  cursor: pointer;
+  transition: background var(--dur-snap, .15s) var(--ease, ease);
+}
+.ov-emoji-tab:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); }
+.ov-emoji-tab[aria-selected="true"] { background: color-mix(in oklab, var(--accent) 16%, transparent); }
+.ov-emoji-tab:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+.ov-emoji-grid { overflow-y: auto; flex: 1; min-height: 0; scrollbar-width: thin; scrollbar-color: var(--bg-3) transparent; }
+.ov-emoji-grid-inner {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-1);
+}
+.ov-emoji-cell {
+  display: inline-flex; align-items: center; justify-content: center;
+  aspect-ratio: 1; font-size: var(--fs-lg); line-height: 1;
+  background: transparent; border: 0; border-radius: var(--r-1);
+  cursor: pointer;
+  transition: background var(--dur-snap, .15s) var(--ease, ease), transform 0.12s ease;
+}
+.ov-emoji-cell:hover { background: color-mix(in oklab, var(--fg) 10%, transparent); transform: scale(1.12); }
+.ov-emoji-cell:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; background: color-mix(in oklab, var(--fg) 10%, transparent); }
+.ov-emoji-empty {
+  grid-column: 1 / -1;
+  text-align: center; color: var(--fg-3); font-size: var(--fs-xs);
+  padding: var(--space-3) 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ov-emoji-cell { transition: background var(--dur-snap, .15s) var(--ease, ease); }
+  .ov-emoji-cell:hover { transform: none; }
+}
 

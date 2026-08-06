@@ -2,6 +2,21 @@
 html, body { margin: 0; padding: 0; }
 button, input, select, textarea { font: inherit; }
 
+/* Global reduced-motion safety net: catches any component transition/animation
+   that lacks its own per-file prefers-reduced-motion override (most components
+   already opt out locally; this is the backstop for the rest, e.g.
+   plugins-config.css, catalog-theme.css, sidebar-misc.css, row-print.css,
+   topbar.css, primitives.css, git-status.css, panel-row.css). Scroll-snap
+   carousels handle scroll-behavior themselves and are unaffected. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 .skip-link {
   --skip-link-preflight-translate-clear: -100%;
   position: absolute;
