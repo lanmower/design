@@ -28,7 +28,6 @@ const SHEETS = [
     'editor-primitives.css',
     'gm-prose.css',
     'src/kits/os/app-panes.css',
-    'src/kits/os/launcher.css',
     'src/kits/os/theme.css',
 ];
 

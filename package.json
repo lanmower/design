@@ -1,6 +1,6 @@
 {
   "name": "anentrypoint-design",
-  "version": "0.0.489",
+  "version": "1.0.0",
   "description": "247420 design system SDK — webjsx + modified ripple-ui, single-file ESM bundle for reproducible use of the AnEntrypoint design.",
   "type": "module",
   "main": "./dist/247420.js",
@@ -62,14 +62,11 @@
     "./kits/os/freddie-dashboard.css": "./src/kits/os/freddie-dashboard.css",
     "./kits/os/freddie-dashboard.js": "./src/kits/os/freddie-dashboard.js",
     "./kits/os/icons.js": "./src/kits/os/icons.js",
-    "./kits/os/launcher.css": "./src/kits/os/launcher.css",
     "./kits/os/launcher.js": "./src/kits/os/launcher.js",
     "./kits/os/monitor-app.js": "./src/kits/os/monitor-app.js",
     "./kits/os/shell.js": "./src/kits/os/shell.js",
     "./kits/os/terminal-app.js": "./src/kits/os/terminal-app.js",
     "./kits/os/theme.css": "./src/kits/os/theme.css",
-    "./kits/os/validate.css": "./src/kits/os/validate.css",
-    "./kits/os/wm.css": "./src/kits/os/wm.css",
     "./kits/os/wm.js": "./src/kits/os/wm.js",
     "./kits/slides": {
       "import": "./src/kits/slides/index.js",
