@@ -8998,6 +8998,9 @@
   font-size: var(--fs-pico);
   font-weight: var(--fw-medium);
   overflow: hidden;
+  /* Depth over a flat solid-color disc: a hairline inset ring so avatars
+     read as a real surface element, not a wireframe placeholder. */
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg) 10%, transparent);
   transition: box-shadow var(--dur-snap) var(--ease);
 }
 .ds-247420 .cm-ch-voice-user-avatar img {
@@ -9133,6 +9136,7 @@
   font-size: var(--fs-xs);
   font-weight: var(--fw-medium);
   overflow: hidden;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg) 10%, transparent);
 }
 .ds-247420 .cm-user-avatar img {
   width: 100%;
@@ -9344,6 +9348,7 @@
   font-size: var(--fs-micro);
   font-weight: var(--fw-medium);
   overflow: hidden;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg) 10%, transparent);
 }
 .ds-247420 .cm-member-avatar img {
   width: 100%;
@@ -9405,6 +9410,7 @@
   font-size: var(--fs-lg);
   font-weight: var(--fw-medium);
   overflow: hidden;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg) 10%, transparent);
 }
 .ds-247420 .cm-voice-user-avatar img {
   width: 100%;
