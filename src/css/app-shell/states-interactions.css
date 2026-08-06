@@ -614,7 +614,7 @@ hr.rule-dotted { border-top: 2px dotted var(--rule-strong); }
   transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
 }
 .ds-search-clear:hover { background: var(--bg-2); color: var(--fg); }
-.ds-search-clear:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+.ds-search-clear:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
 .ds-field input:not(.input):focus-visible,
 .ds-field textarea:not(.input):focus-visible,
