@@ -361,12 +361,19 @@ body.canvas-host { background: transparent !important; }
    viewports (the shrink-to-fit bug undersized even the base 760px case). */
 .app-main.narrow { width: 100%; max-width: var(--measure-narrow); margin: 0 auto; }
 /* .narrow means "prose reading measure", not "shrink the whole shell on wide
-   screens" -- the fixed 760px floor read as narrow on any viewport above
-   ~1300px since the clamp below only widens the no-side case. Sidebar-present
-   narrow pages (docs, papers) get the same wide-viewport widening treatment,
-   just without the no-side variant's extra sidebar-width allowance. */
+   screens". The old clamp(760px, 46vw, 1000px) grew too slowly to track the
+   real available column: at 1920px viewport the .app-body grid's second
+   track (.app width minus --sidebar-width) is ~1556px, but 46vw=883px sat
+   well under the 1000px ceiling, leaving a ~340px dead gutter between the
+   sidebar and the centered narrow column on an ordinary desktop screen (not
+   just ultrawide) -- confirmed live via a real 1920x1080 CDP viewport, a
+   project page (#/p/<slug>). 62vw tracks the actual column growth far closer
+   (1920*0.62=1190px, much nearer the 1556px track than 883px was) while the
+   1200px ceiling still keeps prose from stretching into an unreadable
+   full-bleed line -- sidebar-present narrow pages read the same width class
+   as the no-side variant below instead of visibly starving next to it. */
 .app-body:not(.no-side) .app-main.narrow {
-  max-width: clamp(var(--measure-narrow), 46vw, 1000px);
+  max-width: clamp(var(--measure-narrow), 62vw, 1200px);
 }
 /* A shell with no sidebar has no competing column, so the prose clamp there was
    leaving the whole sidebar's worth of width empty -- 760px of content inside a
