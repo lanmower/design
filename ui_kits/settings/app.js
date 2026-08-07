@@ -2,7 +2,7 @@ import * as webjsx from 'webjsx';
 // Imported directly from owning submodules, not the ds/components.js barrel
 // -- see aicat/app.js for the measured rationale (200+ serial unbundled
 // module requests when every kit pulls the full 30+-submodule barrel).
-import { Topbar, Crumb, Status, Side, AppShell, Heading, Lede, Chip, Btn } from 'ds/components/shell.js';
+import { Topbar, Crumb, Status, Side, AppShell, Heading, Lede, Chip, Btn, Icon } from 'ds/components/shell.js';
 import { Panel, Row } from 'ds/components/content.js';
 import { Toggle as DsToggle, Field as DsField, useFormValidation } from 'ds/components/form-primitives.js';
 import { toast } from 'ds/components/editor-primitives.js';
@@ -43,12 +43,14 @@ const profileValidation = useFormValidation({
     email: [{ rule: 'required', message: 'email is required.' }, { rule: 'email', message: 'enter a valid email address.' }]
 });
 
+// Icon names resolve via ds's shared line-icon set (never literal ASCII
+// glyphs -- AGENTS.md bans decorative unicode chars in source).
 const sections = [
-    { id: 'profile',   label: 'profile',      glyph: '@' },
-    { id: 'theme',     label: 'theme',        glyph: '*' },
-    { id: 'notify',    label: 'notifications',glyph: '~' },
-    { id: 'api',       label: 'api keys',     glyph: '⌘' },
-    { id: 'danger',    label: 'danger zone',  glyph: '!' }
+    { id: 'profile',   label: 'profile',      icon: 'user' },
+    { id: 'theme',     label: 'theme',        icon: 'settings' },
+    { id: 'notify',    label: 'notifications',icon: 'megaphone' },
+    { id: 'api',       label: 'api keys',     icon: 'lock' },
+    { id: 'danger',    label: 'danger zone',  icon: 'warn' }
 ];
 
 // Draft management: auto-save to localStorage on every dirty change
@@ -317,7 +319,7 @@ function App() {
         side: Side({
             sections: [
                 { group: 'sections', items: sections.map((s) => ({
-                    glyph: s.glyph, label: s.label,
+                    glyph: Icon(s.icon, { size: 14 }), label: s.label,
                     href: '#' + s.id, active: state.section === s.id, key: s.id,
                     onClick: (e) => { e.preventDefault(); state.section = s.id; kit.render(); }
                 })) },

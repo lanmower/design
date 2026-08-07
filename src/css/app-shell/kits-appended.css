@@ -280,6 +280,10 @@
 }
 .ds-err-numeral {
   font-family: var(--ff-mono); font-size: clamp(56px, 20vw, 120px);
+  /* Shares the headline's weight (base.css h1: font-weight:600) so the two
+     most important elements on the page read as one weight relationship
+     instead of a thin numeral against a bold headline. */
+  font-weight: 600;
   line-height: 1; color: var(--panel-text-3); letter-spacing: -0.03em;
 }
 .ds-err-path {

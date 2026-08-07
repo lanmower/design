@@ -17,10 +17,10 @@
 .btn { background: var(--bg-2); color: var(--fg); border-color: var(--rule); }
 .btn:hover { background: var(--bg-3); color: var(--fg); transform: translateY(-1px); box-shadow: var(--shadow-1); }
 .btn-primary {
-  background: var(--green); color: var(--on-color);
+  background: var(--accent); color: var(--accent-fg);
   font-weight: 700;
 }
-.btn-primary:hover { background: var(--fg); color: var(--green); transform: translateY(-1px); box-shadow: var(--shadow-2); }
+.btn-primary:hover { background: var(--fg); color: var(--bg); transform: translateY(-1px); box-shadow: var(--shadow-2); }
 .btn-ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 2px var(--fg); }
 .btn-ghost:hover { background: color-mix(in oklab, var(--fg) 12%, transparent); transform: translateY(-1px); }
 .btn:active, .btn-primary:active, .btn-ghost:active { transform: translateY(1px); box-shadow: none; }

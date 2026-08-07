@@ -76,16 +76,21 @@ function ThreadError() {
         )
     ) });
 }
+// Room `count` is member count, not unread messages -- ariaLabel spells that
+// out explicitly (the visible badge alone reads as ambiguous when scanning
+// quickly, since it looks identical to an unread-count badge elsewhere in
+// the system). glyph uses Icon() (hash/dot) instead of literal '#'/'·' per
+// AGENTS.md's glyph ban -- applied where App() builds Side() items below.
 const rooms = [
-    { glyph: '#', label: 'general', count: 12, key: 'general' },
-    { glyph: '#', label: 'design', count: 4, key: 'design' },
-    { glyph: '#', label: 'releases', count: 1, key: 'releases' },
-    { glyph: '#', label: 'lore', count: 0, key: 'lore' }
+    { glyph: 'hash', label: 'general', count: 12, key: 'general' },
+    { glyph: 'hash', label: 'design', count: 4, key: 'design' },
+    { glyph: 'hash', label: 'releases', count: 1, key: 'releases' },
+    { glyph: 'hash', label: 'lore', count: 0, key: 'lore' }
 ];
 const dms = [
-    { glyph: '·', label: 'jordan', key: 'jr' },
-    { glyph: '·', label: 'mai', key: 'mk' },
-    { glyph: '·', label: 'aicat', key: 'aicat' }
+    { glyph: 'dot', label: 'jordan', key: 'jr' },
+    { glyph: 'dot', label: 'mai', key: 'mk' },
+    { glyph: 'dot', label: 'aicat', key: 'aicat' }
 ];
 
 const root = document.getElementById('root');
@@ -114,8 +119,15 @@ function App() {
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'chat' }),
         side: Side({
             sections: [
-                { group: 'rooms', items: rooms.map(r => ({ ...r, active: state.room === r.key, onClick: (e) => { e.preventDefault(); state.room = r.key; kit.render(); } })) },
-                { group: 'direct', items: dms.map(r => ({ ...r, active: state.room === r.key, onClick: (e) => { e.preventDefault(); state.room = r.key; kit.render(); } })) },
+                { group: 'rooms', items: rooms.map(r => ({
+                    ...r, glyph: Icon(r.glyph, { size: 14 }),
+                    // Explicit "N members" accessible name -- the bare count
+                    // badge alone (count-only, no unit) reads ambiguously as
+                    // an unread indicator when scanning quickly.
+                    ariaLabel: r.label + (r.count ? ', ' + r.count + ' members' : ''),
+                    active: state.room === r.key, onClick: (e) => { e.preventDefault(); state.room = r.key; kit.render(); }
+                })) },
+                { group: 'direct', items: dms.map(r => ({ ...r, glyph: Icon(r.glyph, { size: 14 }), active: state.room === r.key, onClick: (e) => { e.preventDefault(); state.room = r.key; kit.render(); } })) },
                 // Reachable state switcher for the thread.
                 { group: 'thread state', items: PHASES.map((p) => ({
                     glyph: h('span', { class: state.phase === p ? 'ds-dot ds-dot-on' : 'ds-dot ds-dot-off' }),
