@@ -226,11 +226,11 @@ export function renderWindow(opts = {}) {
         },
         setFocused(v) { applyFocused(el, v); },
         setMaximized(v) { applyMaximized(el, v); },
-        setMinimized(v) { applyMinimized(el, v); },
+        setMinimized(v) { animateMinimize(el, v); },
         setInstanceId(id) { if (id) el.dataset.instanceId = id; else delete el.dataset.instanceId; },
         setZIndex(z) { el.style.zIndex = String(z); },
         getBounds() { return { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight }; },
-        dispose() { if (closeArmTimer) clearTimeout(closeArmTimer); el.remove(); },
+        dispose() { if (closeArmTimer) clearTimeout(closeArmTimer); animateClose(el); },
     };
 }
 
@@ -252,3 +252,42 @@ function setBodyContent(host, body) {
 function applyFocused(el, v) { el.classList.toggle('wm-focused', !!v); }
 function applyMaximized(el, v) { el.classList.toggle('wm-max', !!v); }
 function applyMinimized(el, v) { el.classList.toggle('wm-min', !!v); }
+
+function reducedMotion() {
+    return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// wm.css's `.wm-win.wm-min{display:none}` cannot be CSS-transitioned (display
+// has no interpolable intermediate value), so a real minimize animation needs
+// the display swap deferred until a scale+fade transition actually finishes.
+// `.wm-minimizing`/`.wm-restoring` (theme.css) carry the transform+opacity
+// keyframes; this only sequences when `wm-min` itself flips. 220ms fallback
+// timer guards against a transitionend that never fires (element removed
+// mid-transition, browser tab backgrounded and rAF/transitions paused, etc.)
+// so a window can never get stuck invisible-but-not-display:none.
+function animateMinimize(el, v) {
+    if (reducedMotion()) { applyMinimized(el, v); return; }
+    if (v) {
+        el.classList.add('wm-minimizing');
+        const done = () => { el.classList.remove('wm-minimizing'); applyMinimized(el, true); };
+        el.addEventListener('transitionend', done, { once: true });
+        setTimeout(done, 220);
+    } else {
+        applyMinimized(el, false);
+        el.classList.add('wm-restoring');
+        setTimeout(() => el.classList.remove('wm-restoring'), 220);
+    }
+}
+
+// Same display-can't-transition problem as minimize, but for the terminal
+// close path: el.remove() used to happen synchronously, so a window vanished
+// instantly with no close animation at all (the literal gap named in the
+// "no animation on open/close" request). Fade+scale out, then remove.
+function animateClose(el) {
+    if (!el.isConnected) return;
+    if (reducedMotion()) { el.remove(); return; }
+    el.classList.add('wm-closing');
+    const done = () => el.remove();
+    el.addEventListener('transitionend', done, { once: true });
+    setTimeout(done, 220);
+}

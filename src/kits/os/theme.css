@@ -368,7 +368,63 @@ html, body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    /* Open/maximize/restore transitions: transform+opacity are interpolable
+     * (unlike wm-min's `display:none`, which cannot transition at all — a
+     * real minimize/restore animation needs wm.js to defer the display swap
+     * until this transition ends, tracked as its own follow-up). A freshly
+     * mounted .wm-win starts from CSS-animation-in via @starting-style so it
+     * scales/fades into place instead of snapping to full size, and every
+     * maximize/restore toggle (a real geometry change, not a display swap)
+     * eases instead of jumping. */
+    transition: opacity 160ms ease, transform 160ms cubic-bezier(0.2, 0.8, 0.3, 1), box-shadow 160ms ease;
 }
+@supports (transition-behavior: allow-discrete) {
+  .ds-247420 .wm-win {
+    transition: opacity 160ms ease, transform 160ms cubic-bezier(0.2, 0.8, 0.3, 1), box-shadow 160ms ease;
+    @starting-style {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-247420 .wm-win { transition: none; }
+}
+
+/* Minimize/restore/close: wm.js's animateMinimize()/animateClose() (wm.js)
+ * apply these classes BEFORE the real wm-min toggle / el.remove(), holding
+ * them for exactly the duration below so the display:none / DOM-removal
+ * that neither CSS nor `transition` can animate happens only after the
+ * visual scale+fade has actually played out. Direction: minimize collapses
+ * toward the taskbar (down+shrink); close shrinks in place; restore is the
+ * minimize keyframe in reverse. Not scoped to .ds-247420 -- these classes
+ * are always renderWindow()-authored, own their state fully. */
+.wm-win.wm-minimizing {
+  transition: opacity 200ms ease, transform 200ms cubic-bezier(0.4, 0, 1, 1);
+  opacity: 0;
+  transform: scale(0.85) translateY(24px);
+  pointer-events: none;
+}
+.wm-win.wm-restoring {
+  transition: opacity 200ms ease, transform 200ms cubic-bezier(0.2, 0.8, 0.3, 1);
+  animation: wm-restore-in 200ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+@keyframes wm-restore-in {
+  from { opacity: 0; transform: scale(0.85) translateY(24px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.wm-win.wm-closing {
+  transition: opacity 200ms ease, transform 200ms cubic-bezier(0.4, 0, 1, 1);
+  opacity: 0;
+  transform: scale(0.92);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wm-win.wm-minimizing, .wm-win.wm-restoring, .wm-win.wm-closing {
+    transition: none; animation: none; opacity: 1; transform: none;
+  }
+}
+
 .ds-247420 .wm-win.wm-focused {
     border-color: color-mix(in oklab, var(--os-fg) 28%, transparent);
     box-shadow: inset var(--space-1) 0 0 var(--os-accent), var(--shadow-3);
@@ -396,7 +452,12 @@ html, body {
     letter-spacing: 0.005em;
     text-align: center;
     font-weight: 600;
-    opacity: 0.65;
+    /* 0.72, not 0.65: measured live against the unfocused titlebar's actual
+     * background (rgb(77,77,82)) the opacity-blended effective contrast at
+     * 0.65 was 4.25:1 -- below WCAG AA's 4.5:1 floor for normal text. 0.72
+     * clears it with margin (~4.8:1) while staying visually dimmer than the
+     * focused window's full-opacity title. */
+    opacity: 0.72;
     transition: opacity 120ms ease;
     /* No text-transform here: the titlebar renders the window's own dynamic
      * title (renderWindow({title}) / setTitle(t) in wm.js) — a user- or
