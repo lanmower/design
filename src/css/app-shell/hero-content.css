@@ -435,7 +435,7 @@ table td.is-num, table th.is-num { text-align: right; font-variant-numeric: tabu
 /* live is a distinct hue from a plain "on" dot — see .chip.tone-live's
    comment for the success-vs-live rationale. */
 .ds-dot-live { color: var(--sky); }
-.ds-dot-live { color: var(--green-2); }
+.ds-dot-warn { color: var(--amber); }
 .ds-dot-idle { color: var(--fg-3); }
 
 /* ============================================================

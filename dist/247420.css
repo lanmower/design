@@ -1734,6 +1734,10 @@
 .ds-247420 .chip.tone-flame, .ds-247420 .chip.tone-error, .ds-247420 .chip.tone-miss {
   background: var(--flame); color: var(--on-color);
 }
+.ds-247420 .chip.tone-warn {
+  background: color-mix(in oklab, var(--amber) 22%, var(--bg));
+  color: var(--amber);
+}
 .ds-247420 .chip.tone-wip, .ds-247420 .chip.tone-neutral {
   background: var(--bg-3); color: var(--fg-2);
 }
@@ -2595,7 +2599,7 @@
 /* live is a distinct hue from a plain "on" dot — see .chip.tone-live's
    comment for the success-vs-live rationale. */
 .ds-247420 .ds-dot-live { color: var(--sky); }
-.ds-247420 .ds-dot-live { color: var(--green-2); }
+.ds-247420 .ds-dot-warn { color: var(--amber); }
 .ds-247420 .ds-dot-idle { color: var(--fg-3); }
 
 /* ============================================================
@@ -6350,6 +6354,19 @@
 .ds-247420 .ds-filter-pill:hover { background: var(--bg-3); color: var(--fg); }
 .ds-247420 .ds-filter-pill.active { background: var(--accent-tint); color: var(--fg); border-color: var(--accent); }
 .ds-247420 .ds-filter-pill:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+
+.ds-247420 .ds-filter-pill[class*="tone-"]::before {
+  content: '';
+  display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: var(--space-1);
+  background: currentColor;
+}
+.ds-247420 .ds-filter-pill.tone-accent  { color: var(--accent-ink); }
+.ds-247420 .ds-filter-pill.tone-warn    { color: var(--amber); }
+.ds-247420 .ds-filter-pill.tone-live    { color: var(--sky); }
+.ds-247420 .ds-filter-pill.tone-sun     { color: var(--sun); }
+.ds-247420 .ds-filter-pill.tone-success { color: var(--green-deep); }
+.ds-247420 .ds-filter-pill.tone-dim     { color: var(--fg-3); }
 
 /* Touch floor for the new small controls. */
 @media (pointer: coarse) {

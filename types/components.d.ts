@@ -267,7 +267,7 @@ export declare function Lede(props?: LedeProps): VNode;
  */
 export interface DotProps {
     /** @default 'on' */
-    tone?: 'on' | 'live' | (string & {});
+    tone?: 'on' | 'live' | 'warn' | (string & {});
 }
 export declare function Dot(props?: DotProps): VNode;
 

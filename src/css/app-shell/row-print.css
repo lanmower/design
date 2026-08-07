@@ -31,6 +31,19 @@
 .ds-filter-pill.active { background: var(--accent-tint); color: var(--fg); border-color: var(--accent); }
 .ds-filter-pill:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
 
+.ds-filter-pill[class*="tone-"]::before {
+  content: '';
+  display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  margin-right: var(--space-1);
+  background: currentColor;
+}
+.ds-filter-pill.tone-accent  { color: var(--accent-ink); }
+.ds-filter-pill.tone-warn    { color: var(--amber); }
+.ds-filter-pill.tone-live    { color: var(--sky); }
+.ds-filter-pill.tone-sun     { color: var(--sun); }
+.ds-filter-pill.tone-success { color: var(--green-deep); }
+.ds-filter-pill.tone-dim     { color: var(--fg-3); }
+
 /* Touch floor for the new small controls. */
 @media (pointer: coarse) {
   .row-act, .ds-filter-pill { min-height: 44px; }

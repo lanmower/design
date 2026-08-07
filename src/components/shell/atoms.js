@@ -158,8 +158,9 @@ export function Dot({ tone = 'on' }) {
     // top of ds-dot-on so a live-broadcast indicator is never visually
     // identical to a plain "this thing is on" status dot — same split
     // rationale as .chip.tone-live / .ds-badge.tone-live.
-    const cls = 'ds-dot ' + (isOn ? 'ds-dot-on' : 'ds-dot-off') + (tone === 'live' ? ' ds-dot-live' : '');
-    const statusLabel = tone === 'live' ? 'live status indicator' : (isOn ? 'on status indicator' : 'off status indicator');
+    const modifierCls = tone === 'live' ? ' ds-dot-live' : (tone === 'warn' ? ' ds-dot-warn' : '');
+    const cls = 'ds-dot ' + (tone === 'warn' ? 'ds-dot-off' : (isOn ? 'ds-dot-on' : 'ds-dot-off')) + modifierCls;
+    const statusLabel = tone === 'live' ? 'live status indicator' : (tone === 'warn' ? 'warning status indicator' : (isOn ? 'on status indicator' : 'off status indicator'));
     // Drawn as a CSS circle (.ds-dot) — no decorative text glyph.
     return h('span', { class: cls, role: 'img', 'aria-label': statusLabel });
 }

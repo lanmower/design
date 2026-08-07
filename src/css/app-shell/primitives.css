@@ -171,6 +171,10 @@
 .chip.tone-flame, .chip.tone-error, .chip.tone-miss {
   background: var(--flame); color: var(--on-color);
 }
+.chip.tone-warn {
+  background: color-mix(in oklab, var(--amber) 22%, var(--bg));
+  color: var(--amber);
+}
 .chip.tone-wip, .chip.tone-neutral {
   background: var(--bg-3); color: var(--fg-2);
 }
