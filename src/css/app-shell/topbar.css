@@ -79,6 +79,14 @@ body.canvas-host { background: transparent !important; }
 .app-chrome > .app-crumb > .crumb-right { margin-left: auto; }
 .app-topbar > .brand { flex: 0 0 auto; }
 .app-topbar > .app-search { flex: 1 1 auto; }
+/* SearchInput() passed directly as Topbar's search prop renders with no
+   Topbar-owned wrapper (see Topbar's isElement branch). Its own outer span
+   (.ds-search-input-wrap) is display:contents, so .ds-search-field becomes
+   the actual direct .app-topbar flex-item child — an inline-flex box that
+   otherwise shrinks to its content and starves the input's own width:100%
+   of anything to grow into, truncating the placeholder. Matches
+   .app-search's flex-basis above so both search-slot shapes size the same. */
+.app-topbar > .ds-search-field { flex: 1 1 auto; max-width: 360px; min-width: 0; }
 .app-topbar > nav { margin-left: auto; }
 /* Utility cluster grouping: the theme toggle sits after the repo-info nav
    links with no visual separation between the two groups, so the row read

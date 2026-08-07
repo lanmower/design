@@ -15,9 +15,18 @@ const h = webjsx.createElement;
 // call site having to remember to wire ThemeToggle() in by hand. Pass
 // `themeToggle: false` to opt a shell out (e.g. a kit that renders its own).
 export function Topbar({ brand = '247420', leaf = '', items = [], active = '', onNav, search, themeToggle = true } = {}) {
+    // `search` is either a plain placeholder string (Topbar renders the
+    // default uncontrolled input itself, and owns the icon below) or a
+    // caller-built VElement (has .type/.props — e.g. SearchInput(), a
+    // component that already renders its own icon + input + clear button).
+    // A VElement renders as-is with NO extra wrapper: SearchInput's own
+    // markup already covers the icon and the field, so wrapping it in
+    // Topbar's own '.app-search' icon+label previously doubled the search
+    // glyph (one from Topbar, one from inside SearchInput).
+    const isElement = search && typeof search === 'object' && 'type' in search;
     return h('header', { class: 'app-topbar', role: 'banner' },
         Brand({ name: brand, leaf }),
-        search ? h('label', { class: 'app-search' },
+        isElement ? search : (search ? h('label', { class: 'app-search' },
             // Line-icon, not the literal word "search" as a pseudo-glyph: the
             // text stand-in inherited .app-search .icon's 0.6 opacity, which
             // dropped --fg-3 to 3.74:1 on --bg-2 and failed AA as real text.
@@ -25,15 +34,8 @@ export function Topbar({ brand = '247420', leaf = '', items = [], active = '', o
             // contrast rule no longer applies to it and the affordance stops
             // depending on a colour value at all.
             h('span', { class: 'icon', 'aria-hidden': 'true' }, Icon('search', { size: 15 })),
-            // `search` is either a plain placeholder string (renders the
-            // default uncontrolled input) or a caller-built VElement (has
-            // .type/.props — e.g. a controlled <input> wired to app state)
-            // rendered as-is. Stringifying a VElement into placeholder/
-            // aria-label previously produced literal "[object Object]" text.
-            (search && typeof search === 'object' && 'type' in search)
-                ? search
-                : h('input', { type: 'search', name: 'q', placeholder: search, 'aria-label': `search ${search}` })
-        ) : null,
+            h('input', { type: 'search', name: 'q', placeholder: search, 'aria-label': `search ${search}` })
+        ) : null),
         h('nav', { 'aria-label': 'main navigation' }, ...items.map(([label, href]) => {
             const cleanLabel = String(label).replace(' ->', '');
             return h('a', {
