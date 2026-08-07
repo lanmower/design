@@ -143,16 +143,12 @@
   font-family: var(--ff-mono); font-size: var(--fs-xs);
   display: inline-flex; align-items: center; gap: 6px;
 }
-/* CSS-drawn disc mark on the compact theme toggle: keeps the control
-   legible when its text label is hidden (icon-only rail strip). Per-mode
-   fill gives the icon itself a distinct look for auto/light/dark, so state
-   reads without relying on the title tooltip alone. */
-.ds-theme-disc {
-  flex: 0 0 auto; width: 14px; height: 14px; border-radius: 50%;
-  border: var(--bw-hair) solid var(--fg-3);
-  /* auto: half-and-half, matches default (no data-mode) for safety */
-  background: linear-gradient(90deg, var(--fg-3) 0 50%, transparent 50% 100%);
-}
+/* CSS-drawn disc mark on the compact theme toggle: legibility fallback for
+   when BOTH the SVG glyph and text label are hidden (icon-only rail strip).
+   The glyph (.ds-theme-toggle-icon) already conveys mode whenever it is
+   visible, so the disc stays hidden alongside it and only shows in the
+   rail-collapsed state where responsive2-workspace.css hides the icon too. */
+.ds-theme-disc { display: none; }
 .ds-theme-disc[data-mode="auto"] {
   background: linear-gradient(90deg, var(--fg-3) 0 50%, transparent 50% 100%);
 }

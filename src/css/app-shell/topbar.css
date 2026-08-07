@@ -410,8 +410,12 @@ body.canvas-host { background: transparent !important; }
      1400-2200px viewport band (matches .ws-shell's 1920px ultrawide cap below)
      instead of freezing at 1400px and leaving >1000px dead margin on a 2560px+
      display. Row/prose measure caps (--measure-wide etc.) still own line-length
-     readability, so widening the shell itself does not create unreadable rows. */
-  .app { max-width: clamp(1400px, 92vw, 1920px); margin-left: auto; margin-right: auto; }
+     readability, so widening the shell itself does not create unreadable rows.
+     100vw (not 92vw): a stock 1920px monitor sat at 92vw = 1766px, leaving a
+     visible ~154px dead margin on the single most common desktop resolution —
+     the ceiling now reaches full width exactly at 1920px instead of falling
+     short of it. */
+  .app { max-width: clamp(1400px, 100vw, 1920px); margin-left: auto; margin-right: auto; }
   .app-main .chat,
   .app-main > .chat-area,
   .app-main > .main-content { max-width: none; margin: 0; width: 100%; }

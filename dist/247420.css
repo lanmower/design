@@ -1530,8 +1530,12 @@
      1400-2200px viewport band (matches .ws-shell's 1920px ultrawide cap below)
      instead of freezing at 1400px and leaving >1000px dead margin on a 2560px+
      display. Row/prose measure caps (--measure-wide etc.) still own line-length
-     readability, so widening the shell itself does not create unreadable rows. */
-  .ds-247420 .app { max-width: clamp(1400px, 92vw, 1920px); margin-left: auto; margin-right: auto; }
+     readability, so widening the shell itself does not create unreadable rows.
+     100vw (not 92vw): a stock 1920px monitor sat at 92vw = 1766px, leaving a
+     visible ~154px dead margin on the single most common desktop resolution —
+     the ceiling now reaches full width exactly at 1920px instead of falling
+     short of it. */
+  .ds-247420 .app { max-width: clamp(1400px, 100vw, 1920px); margin-left: auto; margin-right: auto; }
   .ds-247420 .app-main .chat,
   .ds-247420 .app-main > .chat-area,
   .ds-247420 .app-main > .main-content { max-width: none; margin: 0; width: 100%; }
@@ -4090,16 +4094,12 @@
   font-family: var(--ff-mono); font-size: var(--fs-xs);
   display: inline-flex; align-items: center; gap: 6px;
 }
-/* CSS-drawn disc mark on the compact theme toggle: keeps the control
-   legible when its text label is hidden (icon-only rail strip). Per-mode
-   fill gives the icon itself a distinct look for auto/light/dark, so state
-   reads without relying on the title tooltip alone. */
-.ds-247420 .ds-theme-disc {
-  flex: 0 0 auto; width: 14px; height: 14px; border-radius: 50%;
-  border: var(--bw-hair) solid var(--fg-3);
-  /* auto: half-and-half, matches default (no data-mode) for safety */
-  background: linear-gradient(90deg, var(--fg-3) 0 50%, transparent 50% 100%);
-}
+/* CSS-drawn disc mark on the compact theme toggle: legibility fallback for
+   when BOTH the SVG glyph and text label are hidden (icon-only rail strip).
+   The glyph (.ds-theme-toggle-icon) already conveys mode whenever it is
+   visible, so the disc stays hidden alongside it and only shows in the
+   rail-collapsed state where responsive2-workspace.css hides the icon too. */
+.ds-247420 .ds-theme-disc { display: none; }
 .ds-247420 .ds-theme-disc[data-mode="auto"] {
   background: linear-gradient(90deg, var(--fg-3) 0 50%, transparent 50% 100%);
 }
