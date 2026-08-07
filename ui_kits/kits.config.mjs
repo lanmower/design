@@ -32,7 +32,7 @@
 export const kits = [
   {
     id: 'aicat',
-    title: 'aicat',
+    title: 'AICat',
     description: 'aicat ui kit — ai assistant chat with cat persona, ascii portrait, thinking dots.',
     screenLabel: '07 AICat',
     htmlTheme: true,
@@ -59,7 +59,7 @@ export const kits = [
   },
   {
     id: 'gallery',
-    title: 'gallery',
+    title: 'Gallery',
     description: 'gallery ui kit — visual grid, lightbox, tonal cards.',
     screenLabel: '14 Gallery',
     htmlTheme: true,
@@ -72,7 +72,7 @@ export const kits = [
   },
   {
     id: 'search',
-    title: 'search',
+    title: 'Search',
     description: 'search ui kit — query bar, faceted filters, ranked results.',
     screenLabel: '12 Search',
     htmlTheme: true,
@@ -82,7 +82,7 @@ export const kits = [
   },
   {
     id: 'settings',
-    title: 'settings',
+    title: 'Settings',
     description: 'settings ui kit — sectioned forms, toggles, inputs, save bar.',
     screenLabel: '10 Settings',
     htmlTheme: true,
@@ -92,7 +92,7 @@ export const kits = [
   },
   {
     id: 'slide_deck',
-    title: 'slide deck',
+    title: 'Slide Deck',
     description: '16:9 slide deck template — keyboard nav, slide counter, SDK chrome.',
     screenLabel: '17 Slide Deck',
     htmlTheme: true,
@@ -102,7 +102,7 @@ export const kits = [
   },
   {
     id: 'system_primer',
-    title: 'system primer',
+    title: 'System Primer',
     description: 'design system showcase — palette swatches, type scale, primitives in one page.',
     screenLabel: '16 System Primer',
     htmlTheme: true,
@@ -112,7 +112,7 @@ export const kits = [
   },
   {
     id: 'terminal',
-    title: 'terminal',
+    title: 'Terminal',
     description: 'terminal ui kit — cli prompt, command lines, log viewer.',
     screenLabel: '09 Terminal',
     htmlTheme: true,
@@ -122,7 +122,7 @@ export const kits = [
   },
   {
     id: 'chat',
-    title: 'chat',
+    title: 'Chat',
     description: 'chat ui kit — message thread + composer, tonal pill bubbles, monospace meta.',
     screenLabel: '06 Chat',
     htmlTheme: false, // no data-theme attr, but DOES carry theme-color metas — unique combo, unlike community which omits both
@@ -135,7 +135,7 @@ export const kits = [
   },
   {
     id: 'gm_inspector',
-    title: 'gm inspector',
+    title: 'GM Inspector',
     description: 'gm inspector ui kit -- session list, process tree, deviations, PRD/mutable editors, query builder, built from AppShell + the data-density component family.',
     screenLabel: 'gm inspector',
     htmlTheme: true,
@@ -145,7 +145,7 @@ export const kits = [
   },
   {
     id: 'dashboard',
-    title: 'dashboard',
+    title: 'Dashboard',
     description: 'dashboard ui kit — kpis, tables, receipts, changelog, panels.',
     screenLabel: '08 Dashboard',
     htmlTheme: true,
@@ -155,7 +155,7 @@ export const kits = [
   },
   {
     id: 'signin',
-    title: 'signin',
+    title: 'Sign in',
     description: 'signin ui kit — authentication panel, providers, tone-on-tone form.',
     screenLabel: '11 Sign in',
     htmlTheme: true,
@@ -165,7 +165,7 @@ export const kits = [
   },
   {
     id: 'homepage',
-    title: 'homepage',
+    title: 'Homepage',
     description: 'landing surface for the 247420 collective — works, writing, manifesto.',
     screenLabel: '01 Homepage',
     htmlTheme: true,
@@ -198,7 +198,7 @@ export const kits = [
   },
   {
     id: 'file_browser',
-    title: 'file browser',
+    title: 'File Browser',
     description: 'file-browser surface — rails by file type, drop-zone upload, modal preview.',
     screenLabel: '08 File Browser',
     htmlTheme: true,
@@ -216,7 +216,7 @@ export const kits = [
   },
   {
     id: 'community',
-    title: 'community',
+    title: 'Community',
     description: 'community shell — server rail, channel sidebar, member list, voice strip.',
     screenLabel: '07 Community',
     htmlTheme: false, // no data-theme attr — one of two thin kits that omit it

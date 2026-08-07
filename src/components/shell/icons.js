@@ -92,7 +92,19 @@ export const ICON_PATHS = {
     cursor: '<path d="M5 3l14 8-6.5 1.5L11 20z"/>',
     // Password-visibility toggle — eye / eye-off pair.
     eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
-    'eye-off': '<path d="M2 12s3.5-7 10-7c1.7 0 3.2.4 4.5 1.1M22 12s-3.5 7-10 7c-1.7 0-3.2-.4-4.5-1.1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="m4 4 16 16"/>'
+    'eye-off': '<path d="M2 12s3.5-7 10-7c1.7 0 3.2.4 4.5 1.1M22 12s-3.5 7-10 7c-1.7 0-3.2-.4-4.5-1.1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="m4 4 16 16"/>',
+    // Auth-provider glyphs for the signin kit — generic provider-neutral
+    // shapes (not trademarked logo reproductions), so a real icon renders
+    // instead of a text-letter abbreviation per AGENTS.md icon policy.
+    // github: a rounded body + one circular "eye", a widely-recognized
+    // silhouette-family shape without tracing the actual brand mark.
+    github: '<path d="M12 3a8 8 0 0 0-2.5 15.6c.4.1.5-.2.5-.4v-1.7c-2.2.4-2.7-1-2.9-1.6-.1-.3-.5-1-1-1.2-.3-.1-.6-.4 0-.5.9-.1 1.5.8 1.7 1.1.7 1.1 1.7.8 2.1.6.1-.5.3-.8.6-1-2.2-.3-3.4-1.4-3.4-3.4 0-.8.3-1.5.7-2-.1-.3-.3-1.1.1-2.2 0 0 .8-.2 2.5.9a8 8 0 0 1 4.5 0c1.7-1.1 2.5-.9 2.5-.9.4 1.1.2 1.9.1 2.2.5.5.7 1.2.7 2 0 2-1.2 3.1-3.4 3.4.3.3.6.8.6 1.5v2.1c0 .2.1.5.5.4A8 8 0 0 0 12 3z"/>',
+    // google: provider-neutral "G-circle" — a plain ring with a break and a
+    // short spoke, evoking the four-color pinwheel mark's silhouette only.
+    google: '<circle cx="12" cy="12" r="8"/><path d="M12 12h6"/><path d="M12 8v4"/>',
+    // sso: shield-check, a common auth/identity glyph for a generic
+    // single-sign-on entry point.
+    sso: '<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/>'
 };
 
 // The single SVG attribute contract (viewBox/stroke/linecap…) shared by both

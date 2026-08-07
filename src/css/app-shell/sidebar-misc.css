@@ -2,6 +2,21 @@
    Sidebar polish: hide zero-count badges; tonal active state;
    monospace count chips.
    ============================================================ */
+/* Rail row rhythm: the sidebar rows (bins/labels) previously packed at
+   --space-hair (2px) margin-bottom while the main content column reads at
+   the --space-5/--space-3 outer/inner rhythm (AGENTS.md "panel rhythm").
+   Bumping the inter-row gap to --space-1-5 (5px) — still a tight, dense-app
+   value, but enough that adjacent rows no longer read as glued together —
+   and making it density-aware via [data-density] mirrors the existing
+   compact-density override pattern in files.css (.ds-file-grid[data-density]).
+   [data-density="compact"] keeps the old tighter feel for long rail lists;
+   [data-density="spacious"] opens it further. */
+.app-side a { margin-bottom: var(--space-1-5); }
+.app-side[data-density="compact"] a,
+.app-side-shell[data-density="compact"] .app-side a { margin-bottom: var(--space-hair); }
+.app-side[data-density="spacious"] a,
+.app-side-shell[data-density="spacious"] .app-side a { margin-bottom: var(--space-2); }
+
 .app-side .count {
   padding: 1px 8px; font-size: var(--fs-micro); font-weight: 700;
   font-family: var(--ff-mono); letter-spacing: 0.04em;

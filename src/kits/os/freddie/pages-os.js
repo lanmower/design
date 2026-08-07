@@ -14,7 +14,7 @@ export function makeOsPages(ctx) {
                 Kpi({ items: [[list.length, 'instances'], [activeId || '—', 'active']] }),
                 Panel({ title: 'instances', count: list.length, children: list.length === 0
                     ? EmptyState({ text: 'no instances', glyph: Icon('square') })
-                    : Table({ headers: ['id', 'active', 'shells', 'windows'],
+                    : Table({ headers: ['id', 'active', 'shells', 'windows'], striped: true,
                         rows: list.map(i => [i.id, i.id === activeId ? Icon('circle') : '', String((i.shells || []).length), String((i.windows || []).length)]) }) }),
             ];
         },
@@ -25,7 +25,7 @@ export function makeOsPages(ctx) {
                 Kpi({ items: [[wins.length, 'windows'], [focused ? (focused.id || focused.title || '?') : '—', 'focused']] }),
                 Panel({ title: 'windows', count: wins.length, children: wins.length === 0
                     ? EmptyState({ text: 'no windows open', glyph: Icon('square') })
-                    : Table({ headers: ['id', 'title', 'min', 'max', 'pos'],
+                    : Table({ headers: ['id', 'title', 'min', 'max', 'pos'], striped: true,
                         rows: wins.map(w => [w.id || '?', w.title || '', w.min ? Icon('circle') : '', w.max ? Icon('circle') : '',
                             (w.el ? `${w.el.offsetLeft},${w.el.offsetTop} ${w.el.offsetWidth}×${w.el.offsetHeight}` : '')]) }) }),
             ];

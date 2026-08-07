@@ -106,6 +106,16 @@ a.row:hover .ds-row-arrow { opacity: 1 }
   letter-spacing: 0.06em; color: var(--fg-3, #6b6b6b);
 }
 .ds-showcase-row { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); align-items: center; }
+/* Sets Danger apart from Primary/Default/Ghost in the button showcase row: an
+   extra left margin beyond the row's own gap, plus a hairline divider, so a
+   danger action never reads as just one more same-weight choice beside the
+   primary action. */
+.ds-showcase-btn-danger-group {
+  display: inline-flex; align-items: center;
+  margin-left: var(--space-3, 16px);
+  padding-left: var(--space-3, 16px);
+  border-left: 1px solid var(--rule, rgba(0,0,0,.12));
+}
 /* Card-grid layout (panel.layout === 'cards'): a browsable gallery of tiles
    instead of a dense text-row list, opt-in per panel via home.yaml's
    kits.layout: cards. */

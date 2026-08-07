@@ -92,7 +92,7 @@
 .ds-hero-accent { color: var(--accent-ink); font-weight: 700; }
 .ds-hero-actions {
   display: flex; gap: var(--space-2, 10px); flex-wrap: wrap;
-  justify-content: flex-start; margin-top: var(--space-hair, 4px);
+  justify-content: flex-start; margin-top: var(--space-4);
 }
 /* Hero CTA labels are content-driven (e.g. "GitHub", proper nouns from
    home.yaml) and the site's voice is deliberately all-lowercase everywhere
@@ -465,6 +465,17 @@ table td.is-num, table th.is-num { text-align: right; font-variant-numeric: tabu
   transform: translateY(-1px);
   box-shadow: var(--shadow-1, 0 2px 8px rgba(0,0,0,.12));
 }
+/* Number+caption stack, isolated from .kpi-foot below it. Previously the
+   number and label were plain block children of .kpi-card with the label's
+   own margin-top providing the gap — visually fine for a single card, but
+   across a row of four the caption's WRAPPED height (one line vs two, e.g.
+   "requests · 24h" vs "error rate · 5xx+4xx") pushed .kpi-foot down by a
+   different amount per card, so the deltas/sparklines never lined up on one
+   shared baseline. A dedicated flex column groups exactly the two elements
+   that must stay glued together, independent of whatever sits below. */
+.kpi-stack {
+  display: flex; flex-direction: column; align-items: flex-start;
+}
 .kpi-glyph {
   position: absolute;
   top: var(--space-2);
@@ -551,14 +562,36 @@ table td.is-num, table th.is-num { text-align: right; font-variant-numeric: tabu
   padding: var(--space-5);
   background: var(--bg-2);
   border-radius: var(--r-3);
+  /* Grid's default justify-items:stretch was silently stretching the submit
+   * button (a direct grid child, same as every input) to the full column
+   * width -- other primary buttons elsewhere (e.g. session-ui's "new
+   * session") are inline/compact by contrast, since they're not grid
+   * children. justify-self:start keeps inputs/textareas at their natural
+   * grid-stretched width (a form field SHOULD fill its column) while the
+   * submit button sizes to its own content, matching the compact convention
+   * used everywhere else primary buttons appear. */
 }
+.row-form > button[type="submit"] { justify-self: start; }
 .row-form input,
 .row-form textarea {
   font-family: inherit; font-size: var(--fs-sm);
   padding: 12px 16px;
-  background: var(--bg); color: var(--fg);
+  /* --bg here previously resolved to the SAME color as .row-form's own
+   * --bg-2 background in the dark theme, leaving only a 14%-opacity
+   * currentColor ring (var(--rule)) as the sole edge between an input and
+   * the panel behind it -- effectively invisible. --bg-3 (one step darker
+   * than the panel) plus a stronger border restores a real, panel-distinct
+   * field surface.
+   * LOAD-BEARING !important: `.row-form input` and states-interactions.css's
+   * bare `input[type="text"]:where(...)` rule are both (0,1,1) specificity
+   * (the :where() wrapper there is intentionally zero-specificity) --
+   * states-interactions.css @imports AFTER this file in app-shell.css, so on
+   * this exact tie it wins by source order and silently discarded these two
+   * declarations. Only !important beats that without restructuring the
+   * shared bare-input rule's own selector, which many other consumers rely on. */
+  background: var(--bg-3) !important; color: var(--fg);
   border: 0; border-radius: var(--r-2);
-  box-shadow: inset 0 0 0 1px var(--rule);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, currentColor 28%, transparent) !important;
 }
 .row-form input:focus-visible,
 .row-form textarea:focus-visible { box-shadow: var(--focus-ring-inset); }

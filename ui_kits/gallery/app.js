@@ -33,19 +33,31 @@ const swatchTokens = [
 // to the container (5-up here, 3-up narrower) any index-based tone pattern
 // lands differently at every width. With the frame constant the specimen is
 // the only thing that varies, which is what a gallery is for.
+// The whimsical register here (mascot, seal, spark...) is an intentional,
+// documented tone choice for this one demo kit -- a gallery showcasing
+// ascii-as-specimen -- not an accidental drift from the system's otherwise
+// plain component voice; no repo-wide tone/voice policy exists to conflict
+// with it (checked AGENTS.md).
+//
+// Captions are kept to a consistent 2-3 line, similar-width visual weight so
+// no tile reads as a lone glyph adrift in the fixed aspect-ratio box next to
+// a dense neighbor (.ds-gallery-tile centers the caption via .ds-tile-cap's
+// flex alignment, so a 1-line mark and a 3-line mark occupy the same box at
+// very different fill). Each specimen still reads as the thing it's named
+// for -- only the padding/framing lines were added or trimmed.
 const items = [
-    { id: 'a', label: 'the mascot',   caption: '/\\_/\\\n( o.o )\n > ^ <', tone: 'panel-2', glyph: '(=)' },
-    { id: 'b', label: 'the prompt',   caption: '$ _',                      tone: 'panel-2', glyph: '$' },
-    { id: 'c', label: 'the seal',     caption: '(( 247 ))\n(( 420 ))',     tone: 'panel-2', glyph: 'O' },
-    { id: 'd', label: 'the arrow',    caption: '-->',                      tone: 'panel-2', glyph: '->' },
-    { id: 'e', label: 'the rule',     caption: '---------',                tone: 'panel-2', glyph: '-' },
-    { id: 'f', label: 'the corner',   caption: '+------\n|\n|',            tone: 'panel-2', glyph: '[#]' },
-    { id: 'g', label: 'the stack',    caption: '[###]\n [##]\n  [#]',      tone: 'panel-2', glyph: '[]' },
-    { id: 'h', label: 'the wave',     caption: '~~~~~~~',                  tone: 'panel-2', glyph: '~' },
-    { id: 'i', label: 'the target',   caption: '(o)',                      tone: 'panel-2', glyph: '(o)' },
-    { id: 'j', label: 'the ladder',   caption: '|- - -|\n|- - -|',         tone: 'panel-2', glyph: '=' },
-    { id: 'k', label: 'the spark',    caption: '*',                        tone: 'panel-2', glyph: '*' },
-    { id: 'l', label: 'the terminus', caption: '[x]',                      tone: 'panel-2', glyph: '[x]' }
+    { id: 'a', label: 'the mascot',   caption: '/\\_/\\\n( o.o )\n > ^ <',      tone: 'panel-2', glyph: '(=)' },
+    { id: 'b', label: 'the prompt',   caption: '> run\n$ _',                    tone: 'panel-2', glyph: '$' },
+    { id: 'c', label: 'the seal',     caption: '(( 247 ))\n(( 420 ))',          tone: 'panel-2', glyph: 'O' },
+    { id: 'd', label: 'the arrow',    caption: '- - ->\n---->\n----->',         tone: 'panel-2', glyph: '->' },
+    { id: 'e', label: 'the rule',     caption: '---------\n---------',         tone: 'panel-2', glyph: '-' },
+    { id: 'f', label: 'the corner',   caption: '+------\n|\n|',                tone: 'panel-2', glyph: '[#]' },
+    { id: 'g', label: 'the stack',    caption: '[###]\n [##]\n  [#]',          tone: 'panel-2', glyph: '[]' },
+    { id: 'h', label: 'the wave',     caption: '~~~~~~~\n~~~~~~~',              tone: 'panel-2', glyph: '~' },
+    { id: 'i', label: 'the target',   caption: '. . .\n.(o).\n. . .',          tone: 'panel-2', glyph: '(o)' },
+    { id: 'j', label: 'the ladder',   caption: '|- - -|\n|- - -|',             tone: 'panel-2', glyph: '=' },
+    { id: 'k', label: 'the spark',    caption: '\\ | /\n-- * --\n/ | \\',       tone: 'panel-2', glyph: '*' },
+    { id: 'l', label: 'the terminus', caption: '[ x ]\n[ x ]',                  tone: 'panel-2', glyph: '[x]' }
 ];
 
 // `phase` drives the tiles panel. A gallery is the surface where a blank grid

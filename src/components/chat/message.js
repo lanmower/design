@@ -38,7 +38,7 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
         : (resolvedWho === 'you' ? 'u' : avatarInitial(name));
     const av = h('span', { class: 'chat-avatar' }, fallbackAvatar);
     let bodyNodes;
-    if (typing) bodyNodes = [h('div', { class: 'chat-bubble', key: 'typb' }, h('span', { class: 'chat-typing' }, h('span'), h('span'), h('span')))];
+    if (typing) bodyNodes = [h('div', { class: 'chat-bubble chat-bubble-typing', key: 'typb' }, h('span', { class: 'chat-typing' }, h('span'), h('span'), h('span')))];
     else if (parts && parts.length) bodyNodes = parts.map((p, i) => renderPart(p, i));
     else bodyNodes = [h('div', { class: 'chat-bubble', key: 't' }, ...renderInline(text || ''))];
     // A blinking caret at the stream head: while an assistant turn is streaming

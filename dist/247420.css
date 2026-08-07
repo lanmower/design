@@ -1200,7 +1200,23 @@
 .ds-247420 .app-topbar > .brand { flex: 0 0 auto; }
 .ds-247420 .app-topbar > .app-search { flex: 1 1 auto; }
 .ds-247420 .app-topbar > nav { margin-left: auto; }
-.ds-247420 .app-topbar > .app-topbar-theme { flex: 0 0 auto; }
+/* Utility cluster grouping: the theme toggle sits after the repo-info nav
+   links with no visual separation between the two groups, so the row read
+   as one undifferentiated strip of controls. A thin inset rule plus extra
+   left gap reads as "these are a distinct utility group", matching the
+   subtle divider already used between .app-status segments. */
+.ds-247420 .app-topbar > .app-topbar-theme {
+  flex: 0 0 auto;
+  margin-left: var(--space-2);
+  padding-left: var(--space-3);
+  position: relative;
+}
+.ds-247420 .app-topbar > .app-topbar-theme::before {
+  content: ''; position: absolute; left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 1px; height: 18px;
+  background: var(--rule-strong);
+}
 .ds-247420 .app-topbar nav { display: flex; gap: var(--space-1); font-size: var(--fs-sm); flex-wrap: wrap; }
 .ds-247420 .app-topbar nav a { flex: 0 0 auto; }
 .ds-247420 .app-topbar nav a {
@@ -1291,6 +1307,15 @@
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   min-width: 0; flex: 0 1 auto;
 }
+/* Ancestor trail segments previously had no rule of their own and simply
+   inherited .app-crumb's base --fg-3 — the same tone the separators sit on
+   top of (before their own 0.5 opacity dims them further). That leaves only
+   two visually distinct tiers in practice (dim separator, bold leaf) rather
+   than three, since the ancestor tone reads as "default text colour", not a
+   deliberate middle step. --fg-3 is the crumb bar's OWN base, so explicitly
+   restating it here is the anchor for the 3-tier read: separator (--fg-3 at
+   0.5 opacity, dimmest) < ancestor (--fg-3, mid) < leaf (--fg bold, brightest). */
+.ds-247420 .app-crumb > span:not(.sep):not(.leaf):not(.crumb-right) { color: var(--fg-3); }
 .ds-247420 .app-crumb .leaf { color: var(--fg); font-weight: 600; flex: 0 1 auto; }
 .ds-247420 .app-crumb .crumb-right { margin-left: auto; color: var(--fg-3); flex: 0 0 auto; }
 
@@ -1309,6 +1334,15 @@
 .ds-247420 .app-side-shell {
   background: var(--bg); overflow-y: auto; min-height: 0;
   scrollbar-width: thin; scrollbar-color: var(--rule-strong) transparent;
+  /* Bottom-edge fade: a rail longer than the viewport otherwise shows only
+     the thin scrollbar track as its sole "there is more below" cue. Mirrors
+     the horizontal fade already used by .os-instances (src/kits/os/theme.css)
+     for its own overflow edge, oriented top-to-bottom for this vertical
+     scroller. The top edge stays fully opaque (rows start flush under the
+     topbar with no need to hint upward scroll on initial load); only the
+     trailing 24px softens toward transparent. */
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to bottom, black calc(100% - 24px), transparent);
 }
 .ds-247420 .app-side-shell::-webkit-scrollbar { width: 8px; }
 .ds-247420 .app-side-shell::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: var(--r-pill, 999px); }
@@ -2256,7 +2290,7 @@
 .ds-247420 .ds-hero-accent { color: var(--accent-ink); font-weight: 700; }
 .ds-247420 .ds-hero-actions {
   display: flex; gap: var(--space-2, 10px); flex-wrap: wrap;
-  justify-content: flex-start; margin-top: var(--space-hair, 4px);
+  justify-content: flex-start; margin-top: var(--space-4);
 }
 /* Hero CTA labels are content-driven (e.g. "GitHub", proper nouns from
    home.yaml) and the site's voice is deliberately all-lowercase everywhere
@@ -2629,6 +2663,17 @@
   transform: translateY(-1px);
   box-shadow: var(--shadow-1, 0 2px 8px rgba(0,0,0,.12));
 }
+/* Number+caption stack, isolated from .kpi-foot below it. Previously the
+   number and label were plain block children of .kpi-card with the label's
+   own margin-top providing the gap — visually fine for a single card, but
+   across a row of four the caption's WRAPPED height (one line vs two, e.g.
+   "requests · 24h" vs "error rate · 5xx+4xx") pushed .kpi-foot down by a
+   different amount per card, so the deltas/sparklines never lined up on one
+   shared baseline. A dedicated flex column groups exactly the two elements
+   that must stay glued together, independent of whatever sits below. */
+.ds-247420 .kpi-stack {
+  display: flex; flex-direction: column; align-items: flex-start;
+}
 .ds-247420 .kpi-glyph {
   position: absolute;
   top: var(--space-2);
@@ -2715,14 +2760,36 @@
   padding: var(--space-5);
   background: var(--bg-2);
   border-radius: var(--r-3);
+  /* Grid's default justify-items:stretch was silently stretching the submit
+   * button (a direct grid child, same as every input) to the full column
+   * width -- other primary buttons elsewhere (e.g. session-ui's "new
+   * session") are inline/compact by contrast, since they're not grid
+   * children. justify-self:start keeps inputs/textareas at their natural
+   * grid-stretched width (a form field SHOULD fill its column) while the
+   * submit button sizes to its own content, matching the compact convention
+   * used everywhere else primary buttons appear. */
 }
+.ds-247420 .row-form > button[type="submit"] { justify-self: start; }
 .ds-247420 .row-form input,
 .ds-247420 .row-form textarea {
   font-family: inherit; font-size: var(--fs-sm);
   padding: 12px 16px;
-  background: var(--bg); color: var(--fg);
+  /* --bg here previously resolved to the SAME color as .row-form's own
+   * --bg-2 background in the dark theme, leaving only a 14%-opacity
+   * currentColor ring (var(--rule)) as the sole edge between an input and
+   * the panel behind it -- effectively invisible. --bg-3 (one step darker
+   * than the panel) plus a stronger border restores a real, panel-distinct
+   * field surface.
+   * LOAD-BEARING !important: `.row-form input` and states-interactions.css's
+   * bare `input[type="text"]:where(...)` rule are both (0,1,1) specificity
+   * (the :where() wrapper there is intentionally zero-specificity) --
+   * states-interactions.css @imports AFTER this file in app-shell.css, so on
+   * this exact tie it wins by source order and silently discarded these two
+   * declarations. Only !important beats that without restructuring the
+   * shared bare-input rule's own selector, which many other consumers rely on. */
+  background: var(--bg-3) !important; color: var(--fg);
   border: 0; border-radius: var(--r-2);
-  box-shadow: inset 0 0 0 1px var(--rule);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, currentColor 28%, transparent) !important;
 }
 .ds-247420 .row-form input:focus-visible,
 .ds-247420 .row-form textarea:focus-visible { box-shadow: var(--focus-ring-inset); }
@@ -4430,6 +4497,24 @@
 .ds-247420 .chat-reactions .rxn .n { font-family: var(--ff-mono); font-weight: 600; font-size: var(--fs-nano); color: var(--fg-2); }
 .ds-247420 .chat-reactions .rxn.you .n { color: var(--accent-ink); }
 
+/* Typing indicator renders through the same .chat-bubble container as a real
+   message, but must never read as a bubble holding actual content — no
+   border, no hover-lift shadow, no tail-corner cut; just a pill-shaped
+   borderless dot cluster, visually lighter than any card/bubble on the page. */
+/* Double-class selector (.chat-bubble.chat-bubble-typing) deliberately, not
+   bare .chat-bubble-typing: chat.css (loaded after app-shell.css on every
+   kit that links both) still carries a plain `.chat-bubble { background:
+   var(--bg-2) }` rule at the same (0,1,0) specificity, and cascade order
+   would let that later rule win over an equal-specificity selector here. */
+.ds-247420 .chat-bubble.chat-bubble-typing {
+  background: transparent;
+  padding: var(--space-2) var(--space-1);
+  border-radius: var(--r-pill);
+}
+.ds-247420 .chat-msg:hover .chat-bubble.chat-bubble-typing { transform: none; box-shadow: none; }
+.ds-247420 .chat-msg:not(.you) .chat-bubble.chat-bubble-typing,
+.ds-247420 .chat-msg.you .chat-bubble.chat-bubble-typing { border-bottom-left-radius: var(--r-pill); border-bottom-right-radius: var(--r-pill); }
+
 .ds-247420 .chat-typing { display: inline-flex; gap: var(--space-1); align-items: center; }
 .ds-247420 .chat-typing span {
   width: 8px; height: 8px; border-radius: 50%; background: var(--fg-3);
@@ -4744,6 +4829,21 @@
    Sidebar polish: hide zero-count badges; tonal active state;
    monospace count chips.
    ============================================================ */
+/* Rail row rhythm: the sidebar rows (bins/labels) previously packed at
+   --space-hair (2px) margin-bottom while the main content column reads at
+   the --space-5/--space-3 outer/inner rhythm (AGENTS.md "panel rhythm").
+   Bumping the inter-row gap to --space-1-5 (5px) — still a tight, dense-app
+   value, but enough that adjacent rows no longer read as glued together —
+   and making it density-aware via [data-density] mirrors the existing
+   compact-density override pattern in files.css (.ds-file-grid[data-density]).
+   [data-density="compact"] keeps the old tighter feel for long rail lists;
+   [data-density="spacious"] opens it further. */
+.ds-247420 .app-side a { margin-bottom: var(--space-1-5); }
+.ds-247420 .app-side[data-density="compact"] a,
+.ds-247420 .app-side-shell[data-density="compact"] .app-side a { margin-bottom: var(--space-hair); }
+.ds-247420 .app-side[data-density="spacious"] a,
+.ds-247420 .app-side-shell[data-density="spacious"] .app-side a { margin-bottom: var(--space-2); }
+
 .ds-247420 .app-side .count {
   padding: 1px 8px; font-size: var(--fs-micro); font-weight: 700;
   font-family: var(--ff-mono); letter-spacing: 0.04em;
@@ -7148,6 +7248,14 @@
   justify-content: flex-end; gap: var(--space-2); flex-wrap: wrap;
   padding: calc(var(--space-2-75) * var(--density)) calc(var(--space-3) * var(--density));
   background: var(--panel-2); border-radius: var(--r-1);
+  /* --panel-1 (this bar's parent .panel surface) and --panel-2 are adjacent
+     lightness steps that measure only ~1.1-1.5:1 apart (both themes) -- too
+     close to read as a distinct nesting depth by background tone alone.
+     A hairline border is the same edge-definition device .panel itself
+     already uses (see the top of this file) rather than a token-lightness
+     change, which would risk the fg-3-on-panel-2 text contrast that is
+     already right at its AA floor in the dark theme. */
+  border: var(--bw-hair) solid var(--rule);
   margin: calc(var(--space-5) * var(--density)) 0 var(--space-2);
   box-shadow: var(--shadow-2, var(--shadow-1));
 }
@@ -7193,13 +7301,37 @@
 /* .ds-auth-field-label joins the kit small-label voice above, no overrides. */
 .ds-247420 .ds-auth-field-input-row { position: relative; display: flex; align-items: center; }
 /* Reserves room for the absolutely-positioned toggle: its --space-1 inset plus
-   the --ds-icon-btn-sm 26px box, so the input text never sits under it. */
+   the --ds-icon-btn-sm 26px box, so the input text never sits under it. This
+   only holds at the pointer:fine 26px box size, though -- the coarse-pointer
+   touch-floor rule (states-interactions.css) grows .ds-icon-btn-sm to a
+   min-width/height of 44px without this padding following it, so on a
+   touchscreen the enlarged hit target actually overlapped 14px into the
+   typed password text (44 + 4 inset > 34 reserved). Reserve for the coarse
+   floor too, gated behind the same media query, so clearance holds at both
+   sizes instead of only the desktop one. */
 .ds-247420 .ds-auth-field-input-row .input { flex: 1 1 auto; padding-right: calc(26px + var(--space-2)); }
+@media (pointer: coarse) {
+  .ds-247420 .ds-auth-field-input-row .input { padding-right: calc(44px + var(--space-2)); }
+}
 .ds-247420 .ds-auth-pw-toggle { position: absolute; right: var(--space-1); }
 .ds-247420 .ds-auth-row-between { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
 .ds-247420 .ds-auth-remember { display: flex; align-items: center; gap: var(--space-1-75); cursor: pointer; }
+/* The native checkbox is already re-tinted site-wide via `accent-color:
+   var(--accent-ink)` in states-interactions.css (that rule's own comment
+   names this exact control) -- reused here rather than hand-drawing a new
+   checkbox component. What that global rule doesn't cover is size: the UA
+   default box renders at ~13px, which is under the 24px comfortable-tap
+   floor other controls in this row (the link text, the input fields) sit
+   above. Sized up on the existing --space-2-5 token, no new primitive. */
+.ds-247420 .ds-auth-remember input[type="checkbox"] { width: var(--space-2-5); height: var(--space-2-5); margin: 0; }
 .ds-247420 .ds-auth-remember-text { color: var(--panel-text-2); font-size: var(--fs-tiny); }
-.ds-247420 .ds-auth-forgot { font-size: var(--fs-tiny); }
+/* --accent-ink, not --accent, per the design system's text-vs-fill split
+   (AGENTS.md): --accent is a background/border-color lead only, --accent-ink
+   is the tone actually verified for text contrast. The link was previously
+   unstyled prose color at --fs-tiny, reading as inert grey next to the
+   checkbox label it shares a row with. */
+.ds-247420 .ds-auth-forgot { font-size: var(--fs-tiny); color: var(--accent-ink); font-weight: 500; }
+.ds-247420 .ds-auth-forgot:hover { text-decoration: underline; }
 /* Error and status share layout but not color: a color-only distinction
    between role="alert" (something is wrong) and role="status" (informational)
    fails WCAG 1.4.1, so each also carries a distinct ASCII marker via ::before —
@@ -7209,6 +7341,28 @@
 .ds-247420 .ds-auth-error::before { content: '[!]'; flex: none; }
 .ds-247420 .ds-auth-status { color: var(--panel-text-2); }
 .ds-247420 .ds-auth-status::before { content: '[i]'; flex: none; }
+/* The shared Divider() label defaults to --fs-tiny/--panel-text-3 (editor-
+   primitives.css), tuned for a dense editor toolbar rule -- inside the auth
+   form it sat at the same weight as fine print two rows below it and read
+   as barely-there rather than a section break between the password form and
+   the OAuth row. Scoped to this form only (never edit the shared component
+   sheet for one consumer): borrows the kit small-label voice above (mono,
+   --fs-nano, --tr-label, uppercase) at --panel-text-2 instead of the
+   dimmer -3 tier, plus the ::before/::after rule lines pushed to full
+   --panel-text opacity so the break itself, not just the label, is visible. */
+.ds-247420 .ds-auth-form .ds-ep-divider-labeled { margin: var(--space-1) 0; }
+.ds-247420 .ds-auth-form .ds-ep-divider-labeled::before,
+.ds-247420 .ds-auth-form .ds-ep-divider-labeled::after {
+  border-top-color: var(--panel-text-3);
+}
+.ds-247420 .ds-auth-form .ds-ep-divider-label {
+  font-family: var(--ff-mono);
+  font-size: var(--fs-nano);
+  font-weight: 600;
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--panel-text-2);
+}
 .ds-247420 .ds-auth-providers { display: flex; gap: var(--space-2); flex-wrap: wrap; }
 .ds-247420 .ds-auth-provider-btn { flex: 1 1 100px; min-width: 0; display: flex; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-2-5); }
 .ds-247420 .ds-auth-provider-btn--loading { opacity: 0.7; pointer-events: none; }
