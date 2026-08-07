@@ -12241,11 +12241,16 @@
        row), but a shorter number's smaller total width shifts its LEFT
        edge inward -- so the "stars" label drifts left/right per row even
        though nothing is actually misaligned at the anchor point. A fixed
-       min-width + right-align + tabular-nums turns that into a real
-       column: every tag reserves the same width, short numbers pad left
-       instead of shrinking the block, and equal-width digits keep the
-       numeric part itself steady inside that column. */
-    min-width: 9ch;
+       (not min-) width + right-align + tabular-nums turns that into a real
+       column: every tag reserves the SAME width regardless of its own text
+       length (min-width alone still let longer strings grow past the
+       floor, re-introducing drift for e.g. 5-digit vs 4-digit counts) --
+       13ch covers "184,966 stars" (the realistic 6-digit-star ceiling for
+       this dataset) with headroom; a longer string still wins over a hard
+       clip via ch-based overflow rather than truncating the count itself. */
+    width: 13ch;
+    overflow: hidden;
+    white-space: nowrap;
     text-align: right;
     font-variant-numeric: tabular-nums;
 }
