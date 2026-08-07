@@ -1342,6 +1342,12 @@
 .ds-247420 .app-side-shell {
   background: var(--bg); overflow-y: auto; min-height: 0;
   scrollbar-width: thin; scrollbar-color: var(--rule-strong) transparent;
+  /* A visible-only-while-scrolled thin scrollbar was the sole cue that this
+     and .app-main are two independent scroll regions -- easy to miss,
+     reading as a layout glitch (sidebar not moving) rather than an
+     intentional split view. A permanent hairline border reads at a glance
+     regardless of scroll/hover state. */
+  border-right: 1px solid var(--rule);
   /* Bottom-edge fade: a rail longer than the viewport otherwise shows only
      the thin scrollbar track as its sole "there is more below" cue. Mirrors
      the horizontal fade already used by .os-instances (src/kits/os/theme.css)
@@ -12167,6 +12173,14 @@
     border-radius: var(--r-1, 8px);
     cursor: pointer;
     color: var(--panel-text-2);
+    /* --ff-body (system-ui) falls back per-script to the OS's native CJK
+       font on a row with CJK text, and CJK glyphs commonly ship a taller
+       default line-height than Latin ones -- with no line-height set here,
+       a row's height was purely intrinsic to its own font metrics, so a CJK
+       row measured visibly taller than a plain-English row beside it. A
+       fixed line-height normalizes every row to the same height regardless
+       of script (2 is generous enough that CJK glyphs never clip). */
+    line-height: 2;
     transition: background var(--dur-snap, 80ms) var(--ease, ease), color var(--dur-snap, 80ms) var(--ease, ease);
 }
 .ds-247420 .ds-ep-tree-row:hover {
@@ -12192,6 +12206,19 @@
 .ds-247420 .ds-ep-tree-tag {
     flex-shrink: 0; padding-left: var(--space-1-75);
     font-size: 0.85em; color: var(--panel-text-3);
+    /* Numeric tags (star counts etc.) vary in digit/comma length row to row
+       ("607 stars" vs "184,966 stars"). Each tag's right edge already sits
+       flush against the row's right edge (flex-shrink:0 in a full-width
+       row), but a shorter number's smaller total width shifts its LEFT
+       edge inward -- so the "stars" label drifts left/right per row even
+       though nothing is actually misaligned at the anchor point. A fixed
+       min-width + right-align + tabular-nums turns that into a real
+       column: every tag reserves the same width, short numbers pad left
+       instead of shrinking the block, and equal-width digits keep the
+       numeric part itself steady inside that column. */
+    min-width: 9ch;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
 }
 .ds-247420 .ds-ep-tree-children { display: flex; flex-direction: column; }
 

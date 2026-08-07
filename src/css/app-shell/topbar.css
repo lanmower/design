@@ -222,6 +222,12 @@ body.canvas-host { background: transparent !important; }
 .app-side-shell {
   background: var(--bg); overflow-y: auto; min-height: 0;
   scrollbar-width: thin; scrollbar-color: var(--rule-strong) transparent;
+  /* A visible-only-while-scrolled thin scrollbar was the sole cue that this
+     and .app-main are two independent scroll regions -- easy to miss,
+     reading as a layout glitch (sidebar not moving) rather than an
+     intentional split view. A permanent hairline border reads at a glance
+     regardless of scroll/hover state. */
+  border-right: 1px solid var(--rule);
   /* Bottom-edge fade: a rail longer than the viewport otherwise shows only
      the thin scrollbar track as its sole "there is more below" cue. Mirrors
      the horizontal fade already used by .os-instances (src/kits/os/theme.css)
