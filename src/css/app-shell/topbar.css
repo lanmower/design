@@ -324,7 +324,13 @@ body.canvas-host { background: transparent !important; }
 }
 
 .app-main {
-  padding: var(--space-5) var(--pad-x) 0;
+  /* Bottom padding reserves clearance equal to the status bar's own height so
+     the last scrolled child never sits flush behind .app-status (a flex
+     sibling pinned below .app-main in the .app column, not a child of it).
+     --app-status-h-live tracks the bar's collapsed/expanded state (set by
+     the toggle in app-shell.js) and falls back to the full bar height when
+     unset (bar starts expanded / JS hasn't run yet). */
+  padding: var(--space-5) var(--pad-x) var(--app-status-h-live, var(--app-status-h));
   min-width: 0;
   /* Full-height flex column so a single flex:1 child (e.g. .chat) fills the
      region between crumb and status instead of floating at content height. */
@@ -472,6 +478,25 @@ body.canvas-host { background: transparent !important; }
    agent target) drop in priority order instead of breaking mid-word onto a
    second line. */
 .app-status { flex-wrap: nowrap; overflow: hidden; }
+
+/* Collapse control — the status bar permanently claims --app-status-h of
+   viewport on every page; this toggle lets it shrink to a thin reachable
+   strip instead. The bar itself stays a fixed-height flex child (never
+   display:none) so the toggle remains reachable to re-expand. */
+.app-status-toggle {
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; padding: 0; margin-right: var(--space-1);
+  background: transparent; border: none; color: var(--fg-3); cursor: pointer;
+  border-radius: var(--r-0);
+}
+.app-status-toggle:hover { color: var(--fg); background: var(--bg-3); }
+.app-status-toggle:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+.app-status.is-collapsed {
+  height: var(--space-4); min-height: var(--space-4);
+  overflow: hidden;
+}
+.app-status.is-collapsed .item,
+.app-status.is-collapsed .spread { display: none; }
 @media (max-width: 1100px) {
   .app-status .item:last-of-type:not(:only-of-type) { display: none; }
 }

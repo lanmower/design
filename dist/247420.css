@@ -1444,7 +1444,13 @@
 }
 
 .ds-247420 .app-main {
-  padding: var(--space-5) var(--pad-x) 0;
+  /* Bottom padding reserves clearance equal to the status bar's own height so
+     the last scrolled child never sits flush behind .app-status (a flex
+     sibling pinned below .app-main in the .app column, not a child of it).
+     --app-status-h-live tracks the bar's collapsed/expanded state (set by
+     the toggle in app-shell.js) and falls back to the full bar height when
+     unset (bar starts expanded / JS hasn't run yet). */
+  padding: var(--space-5) var(--pad-x) var(--app-status-h-live, var(--app-status-h));
   min-width: 0;
   /* Full-height flex column so a single flex:1 child (e.g. .chat) fills the
      region between crumb and status instead of floating at content height. */
@@ -1592,6 +1598,25 @@
    agent target) drop in priority order instead of breaking mid-word onto a
    second line. */
 .ds-247420 .app-status { flex-wrap: nowrap; overflow: hidden; }
+
+/* Collapse control — the status bar permanently claims --app-status-h of
+   viewport on every page; this toggle lets it shrink to a thin reachable
+   strip instead. The bar itself stays a fixed-height flex child (never
+   display:none) so the toggle remains reachable to re-expand. */
+.ds-247420 .app-status-toggle {
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; padding: 0; margin-right: var(--space-1);
+  background: transparent; border: none; color: var(--fg-3); cursor: pointer;
+  border-radius: var(--r-0);
+}
+.ds-247420 .app-status-toggle:hover { color: var(--fg); background: var(--bg-3); }
+.ds-247420 .app-status-toggle:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+.ds-247420 .app-status.is-collapsed {
+  height: var(--space-4); min-height: var(--space-4);
+  overflow: hidden;
+}
+.ds-247420 .app-status.is-collapsed .item,
+.ds-247420 .app-status.is-collapsed .spread { display: none; }
 @media (max-width: 1100px) {
   .ds-247420 .app-status .item:last-of-type:not(:only-of-type) { display: none; }
 }
@@ -1639,10 +1664,10 @@
 .ds-247420 .btn { background: var(--bg-2); color: var(--fg); border-color: var(--rule); }
 .ds-247420 .btn:hover { background: var(--bg-3); color: var(--fg); transform: translateY(-1px); box-shadow: var(--shadow-1); }
 .ds-247420 .btn-primary {
-  background: var(--green); color: var(--on-color);
+  background: var(--accent); color: var(--accent-fg);
   font-weight: 700;
 }
-.ds-247420 .btn-primary:hover { background: var(--fg); color: var(--green); transform: translateY(-1px); box-shadow: var(--shadow-2); }
+.ds-247420 .btn-primary:hover { background: var(--fg); color: var(--bg); transform: translateY(-1px); box-shadow: var(--shadow-2); }
 .ds-247420 .btn-ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 2px var(--fg); }
 .ds-247420 .btn-ghost:hover { background: color-mix(in oklab, var(--fg) 12%, transparent); transform: translateY(-1px); }
 .ds-247420 .btn:active, .ds-247420 .btn-primary:active, .ds-247420 .btn-ghost:active { transform: translateY(1px); box-shadow: none; }
@@ -7042,6 +7067,10 @@
 }
 .ds-247420 .ds-err-numeral {
   font-family: var(--ff-mono); font-size: clamp(56px, 20vw, 120px);
+  /* Shares the headline's weight (base.css h1: font-weight:600) so the two
+     most important elements on the page read as one weight relationship
+     instead of a thin numeral against a bold headline. */
+  font-weight: 600;
   line-height: 1; color: var(--panel-text-3); letter-spacing: -0.03em;
 }
 .ds-247420 .ds-err-path {

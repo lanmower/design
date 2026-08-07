@@ -9,16 +9,23 @@ const h = webjsx.createElement;
 
 const root = document.getElementById('root');
 
+// Error rate only reads as danger above this line -- ties the KPI's
+// red/green polarity to a real, stated signal instead of a bare stylistic
+// default (any positive delta = red).
+const ERROR_RATE_DANGER_PCT = 1;
+
 const kpis = [
     ['24,891', 'requests · 24h', { delta: '+12.4%', tone: 'up',   spark: [8, 11, 9, 14, 16, 15, 19, 22, 20, 24] }],
     ['184ms',  'avg latency · p50', { delta: '-6.1%', tone: 'up',  spark: [220, 210, 205, 198, 190, 188, 184, 186, 182, 184] }],
     // tone follows delta's own arithmetic sign (the arrow direction always
     // matches the figure: error rate rose, so the arrow points up), but this
-    // is a "lower is better" metric — a rising error rate is bad news, not
-    // good. `invert: true` flips the good/bad COLOR polarity (Kpi's contract)
-    // to red/danger while leaving the up-arrow alone, so the figure and its
-    // arrow never contradict each other but the color still reads as bad.
-    ['0.42%',  'error rate · 5xx+4xx', { delta: '+0.08%', tone: 'up', invert: true, spark: [0.2, 0.25, 0.3, 0.28, 0.35, 0.3, 0.38, 0.4, 0.36, 0.42] }],
+    // is a "lower is better" metric — a rising error rate isn't automatically
+    // bad news at any value, only above a documented threshold (1% — the
+    // level at which 5xx+4xx starts indicating a real reliability problem,
+    // not noise). At 0.42% the color stays neutral/good; `invert` only flips
+    // to red/danger once the figure itself crosses that line, so color
+    // communicates a real signal instead of "any positive delta is bad".
+    ['0.42%',  'error rate · 5xx+4xx', { delta: '+0.08%', tone: 'up', invert: 0.42 > ERROR_RATE_DANGER_PCT, spark: [0.2, 0.25, 0.3, 0.28, 0.35, 0.3, 0.38, 0.4, 0.36, 0.42] }],
     ['94.7%',  'cache hit · edge', { delta: '+1.2%', tone: 'up', spark: [90, 91, 92, 91, 93, 92, 94, 93, 95, 94.7] }]
 ];
 

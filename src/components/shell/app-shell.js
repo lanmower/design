@@ -151,8 +151,43 @@ export function Side({ sections = [] } = {}) {
     }));
 }
 
+// Collapse state persists per-origin so the choice survives navigation
+// between kit pages (the status bar is chrome, not per-page content).
+const STATUS_COLLAPSE_KEY = 'ds-status-collapsed';
+function isStatusCollapsed() {
+    try { return localStorage.getItem(STATUS_COLLAPSE_KEY) === '1'; } catch (_) { return false; }
+}
+function toggleStatusCollapsed(fromEl) {
+    const app = fromEl && fromEl.closest && fromEl.closest('.app');
+    const bar = app && app.querySelector('.app-status');
+    if (!bar) return;
+    const next = !bar.classList.contains('is-collapsed');
+    bar.classList.toggle('is-collapsed', next);
+    const btn = bar.querySelector('.app-status-toggle');
+    if (btn) btn.setAttribute('aria-expanded', next ? 'false' : 'true');
+    // .app-main's bottom padding mirrors the bar's real height via this var
+    // (set on .app, read by .app-main's padding-bottom) so collapsing frees
+    // the reserved clearance instead of leaving a dead gap.
+    if (app) app.style.setProperty('--app-status-h-live', next ? 'var(--space-4)' : 'var(--app-status-h)');
+    try { localStorage.setItem(STATUS_COLLAPSE_KEY, next ? '1' : '0'); } catch (_) { /* private mode: state just won't persist */ }
+}
+
 export function Status({ left = [], right = [] } = {}) {
-    return h('footer', { class: 'app-status', role: 'contentinfo' },
+    const collapsed = isStatusCollapsed();
+    // Sync .app-main's reserved clearance to the persisted collapse state on
+    // first render, matching what toggleStatusCollapsed sets on click -- the
+    // ref runs on mount, before paint, so there's no expanded-then-collapse flash.
+    const syncLiveVar = (el) => {
+        if (!el) return;
+        const app = el.closest('.app');
+        if (app) app.style.setProperty('--app-status-h-live', collapsed ? 'var(--space-4)' : 'var(--app-status-h)');
+    };
+    return h('footer', { class: 'app-status' + (collapsed ? ' is-collapsed' : ''), role: 'contentinfo', ref: syncLiveVar },
+        h('button', {
+            class: 'app-status-toggle', type: 'button',
+            'aria-label': 'toggle status bar', 'aria-expanded': collapsed ? 'false' : 'true',
+            onclick: (e) => toggleStatusCollapsed(e.currentTarget),
+        }, Icon(collapsed ? 'chevron-up' : 'chevron-down', { size: 12 })),
         ...left.map((t, i) => h('span', { key: 'l' + i, class: 'item' }, t)),
         h('span', { key: 'spread', class: 'spread', 'aria-hidden': 'true' }),
         ...right.map((t, i) => h('span', { key: 'r' + i, class: 'item' }, t))

@@ -94,7 +94,10 @@ function App() {
                 oninput: (e) => { state.q = e.target.value; kit.render(); }
             })
         }),
-        crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'search', right: state.phase === 'ready' ? rows.length + ' result' + (rows.length === 1 ? '' : 's') : state.phase }),
+        // Result count already surfaces once, in the 'results' panel header
+        // pill below -- the crumb only needs to speak when that panel isn't
+        // showing a count of its own (loading/error phases).
+        crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'search', right: state.phase === 'ready' ? null : state.phase }),
         side: Side({
             sections: [
                 { group: 'kind', items: kinds.map((k) => ({
