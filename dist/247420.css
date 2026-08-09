@@ -94,6 +94,12 @@
      thebird warm-paper preset (5.25:1) while staying visually a clear
      warm red. */
   --warn:        #C41C0C;
+  /* Paired foreground for --warn used as a FILL (a danger button background),
+     not as text-on-paper (--warn's own tuning above). --paper clears 5.97:1
+     on this --warn -- --warn was tuned dark specifically for the text-on-paper
+     direction, so re-using it for the opposite direction (paper text on this
+     as a fill) needs its own token, not a re-derivation of --warn itself. */
+  --warn-fg:     var(--paper);
   /* Syntax-token aliases: light values pass 4.5:1 on paper; the dark blocks
      restore the bright dark-tuned originals. Components reference ONLY these. */
   --code-string:  var(--green);
@@ -545,6 +551,10 @@
   /* warn/sky dark-tuned pairs (mirror flame/amber): the :root paper values
      (#E0241A / #3A6EFF) are too dark on ink; these clear AA 4.5:1 on --ink. */
   --warn:      #FF5A52;
+  /* Paired foreground for --warn-as-fill (see :root's --warn-fg comment) --
+     dark theme's --warn is the lighter tuned red, so its fill needs the dark
+     --ink text, the opposite pairing from :root. */
+  --warn-fg:   var(--ink);
   --sky:       #6E9BFF;
   /* Category/heritage dark-tuned pairs (same convention as flame/amber/warn/
      sky above): the :root values are the PAPER tones and go dark-on-dark here.
@@ -633,6 +643,7 @@
     --flame:     #FF5A1F;
     --amber:     #D9A93A;
     --warn:      #FF5A52;
+    --warn-fg:   var(--ink);
     --sky:       #6E9BFF;
     /* Mirrors the [data-theme="ink"] category retune above token-for-token —
        see that block for the measured before/after ratios. */
@@ -763,6 +774,7 @@
   --flame:     #ff7b72;
   --amber:     #d29922;
   --warn:      #ff7b72;
+  --warn-fg:   #0d1117;
   --sky:       #58a6ff;
   --mascot-deep: #ff7b72;
   --purple-2:  #d2a8ff;
@@ -1757,10 +1769,13 @@
 .ds-247420 .ds-icon-btn-ghost:hover { background: var(--fg); color: var(--bg); }
 .ds-247420 .ds-icon-btn-primary { background: var(--accent); color: var(--accent-fg); }
 .ds-247420 .ds-icon-btn-primary:hover { background: var(--fg); color: var(--accent-ink); }
-/* --ink, not --on-color: --on-color is a fixed #fff, which measures 3.07:1 on
-   --warn (#FF5A52) -- below the 4.5:1 AA floor. --ink measures 6.27:1. Same
-   fix as .btn-primary.danger in app-shell/files.css. */
-.ds-247420 .ds-icon-btn-danger { background: var(--warn); color: var(--ink); }
+/* --warn-fg (not a bare --ink/--on-color literal): --ink only clears AA
+   against dark theme's lighter --warn (#FF5A52, 6.27:1); light theme's
+   --warn is a darker red (#C41C0C) where --ink measures just 2.92:1, well
+   under the 4.5:1 floor. --warn-fg is the theme-paired token (light: paper
+   text 5.97:1, dark: ink text 6.27:1) -- same fix as .btn-primary.danger in
+   app-shell/files.css, which had this exact light-theme regression live. */
+.ds-247420 .ds-icon-btn-danger { background: var(--warn); color: var(--warn-fg); }
 .ds-247420 .ds-icon-btn-danger:hover { filter: brightness(0.92); }
 .ds-247420 .ds-icon-btn:active { transform: translateY(1px); }
 .ds-247420 .ds-icon-btn:disabled, .ds-247420 .ds-icon-btn.is-disabled {
@@ -1966,7 +1981,7 @@
 .ds-247420 .ds-tooltip[data-placement^="bottom"]::after { top: -3px; left: 50%; margin-left: -3px; }
 .ds-247420 .ds-tooltip[data-placement^="left"]::after   { right: -3px; top: 50%; margin-top: -3px; }
 .ds-247420 .ds-tooltip[data-placement^="right"]::after  { left: -3px; top: 50%; margin-top: -3px; }
-.ds-247420 .ds-tooltip.kind-danger { background: var(--warn); color: var(--ink); }
+.ds-247420 .ds-tooltip.kind-danger { background: var(--warn); color: var(--warn-fg); }
 .ds-247420 .ds-tooltip.kind-danger::after { background: var(--warn); }
 @media (prefers-reduced-motion: reduce) {
   .ds-247420 .ds-tooltip { transition: none; }
@@ -3943,8 +3958,8 @@
 .ds-247420 .btn-primary.danger {
   background: var(--warn);
   border-color: var(--warn);
-  color: var(--ink);
-  box-shadow: inset 0 0 0 var(--bw-hair, 1px) color-mix(in oklab, var(--ink) 25%, transparent);
+  color: var(--warn-fg);
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) color-mix(in oklab, var(--warn-fg) 25%, transparent);
   font-weight: 700;
   letter-spacing: 0.01em;
 }

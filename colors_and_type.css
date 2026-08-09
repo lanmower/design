@@ -92,6 +92,12 @@
      thebird warm-paper preset (5.25:1) while staying visually a clear
      warm red. */
   --warn:        #C41C0C;
+  /* Paired foreground for --warn used as a FILL (a danger button background),
+     not as text-on-paper (--warn's own tuning above). --paper clears 5.97:1
+     on this --warn -- --warn was tuned dark specifically for the text-on-paper
+     direction, so re-using it for the opposite direction (paper text on this
+     as a fill) needs its own token, not a re-derivation of --warn itself. */
+  --warn-fg:     var(--paper);
   /* Syntax-token aliases: light values pass 4.5:1 on paper; the dark blocks
      restore the bright dark-tuned originals. Components reference ONLY these. */
   --code-string:  var(--green);
@@ -543,6 +549,10 @@ select:focus-visible {
   /* warn/sky dark-tuned pairs (mirror flame/amber): the :root paper values
      (#E0241A / #3A6EFF) are too dark on ink; these clear AA 4.5:1 on --ink. */
   --warn:      #FF5A52;
+  /* Paired foreground for --warn-as-fill (see :root's --warn-fg comment) --
+     dark theme's --warn is the lighter tuned red, so its fill needs the dark
+     --ink text, the opposite pairing from :root. */
+  --warn-fg:   var(--ink);
   --sky:       #6E9BFF;
   /* Category/heritage dark-tuned pairs (same convention as flame/amber/warn/
      sky above): the :root values are the PAPER tones and go dark-on-dark here.
@@ -631,6 +641,7 @@ select:focus-visible {
     --flame:     #FF5A1F;
     --amber:     #D9A93A;
     --warn:      #FF5A52;
+    --warn-fg:   var(--ink);
     --sky:       #6E9BFF;
     /* Mirrors the [data-theme="ink"] category retune above token-for-token —
        see that block for the measured before/after ratios. */
@@ -761,6 +772,7 @@ select:focus-visible {
   --flame:     #ff7b72;
   --amber:     #d29922;
   --warn:      #ff7b72;
+  --warn-fg:   #0d1117;
   --sky:       #58a6ff;
   --mascot-deep: #ff7b72;
   --purple-2:  #d2a8ff;

@@ -99,10 +99,13 @@
 .ds-icon-btn-ghost:hover { background: var(--fg); color: var(--bg); }
 .ds-icon-btn-primary { background: var(--accent); color: var(--accent-fg); }
 .ds-icon-btn-primary:hover { background: var(--fg); color: var(--accent-ink); }
-/* --ink, not --on-color: --on-color is a fixed #fff, which measures 3.07:1 on
-   --warn (#FF5A52) -- below the 4.5:1 AA floor. --ink measures 6.27:1. Same
-   fix as .btn-primary.danger in app-shell/files.css. */
-.ds-icon-btn-danger { background: var(--warn); color: var(--ink); }
+/* --warn-fg (not a bare --ink/--on-color literal): --ink only clears AA
+   against dark theme's lighter --warn (#FF5A52, 6.27:1); light theme's
+   --warn is a darker red (#C41C0C) where --ink measures just 2.92:1, well
+   under the 4.5:1 floor. --warn-fg is the theme-paired token (light: paper
+   text 5.97:1, dark: ink text 6.27:1) -- same fix as .btn-primary.danger in
+   app-shell/files.css, which had this exact light-theme regression live. */
+.ds-icon-btn-danger { background: var(--warn); color: var(--warn-fg); }
 .ds-icon-btn-danger:hover { filter: brightness(0.92); }
 .ds-icon-btn:active { transform: translateY(1px); }
 .ds-icon-btn:disabled, .ds-icon-btn.is-disabled {
@@ -308,7 +311,7 @@
 .ds-tooltip[data-placement^="bottom"]::after { top: -3px; left: 50%; margin-left: -3px; }
 .ds-tooltip[data-placement^="left"]::after   { right: -3px; top: 50%; margin-top: -3px; }
 .ds-tooltip[data-placement^="right"]::after  { left: -3px; top: 50%; margin-top: -3px; }
-.ds-tooltip.kind-danger { background: var(--warn); color: var(--ink); }
+.ds-tooltip.kind-danger { background: var(--warn); color: var(--warn-fg); }
 .ds-tooltip.kind-danger::after { background: var(--warn); }
 @media (prefers-reduced-motion: reduce) {
   .ds-tooltip { transition: none; }
