@@ -220,7 +220,7 @@
   padding: var(--space-1) var(--space-2);
   background: var(--bg-2); border: var(--bw-hair) solid var(--rule); border-radius: var(--r-2);
 }
-.ds-bulkbar-count { font-size: var(--fs-sm); font-weight: 600; color: var(--fg-2); }
+.ds-bulkbar-count { font-size: var(--fs-sm); font-weight: var(--fw-medium, 500); color: var(--fg-2); }
 /* BulkBar is a toolbar (it even declares role=toolbar): compact rect buttons,
    quiet destructive outline - the app arm-confirms destructive bulk actions
    via ConfirmDialog, so the strip never needs a loud CTA. */
@@ -445,7 +445,7 @@
    design; dashed was this system's OTHER "drop target" vocabulary
    (.panel-docs, kits-appended.css) leaking in here by copy-paste. */
 .ds-dropzone {
-  border: var(--bw-rule) solid var(--rule);
+  border: var(--bw-hair) solid var(--rule);
   border-radius: var(--r-3); background: var(--bg);
   transition: border-color var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
 }

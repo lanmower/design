@@ -27,7 +27,7 @@
   width: 18px; height: 18px;
   border-radius: var(--r-pill);
   background: var(--bg-1);
-  border: var(--bw-rule) solid var(--accent);
+  border: var(--bw-hair) solid var(--accent);
   box-shadow: var(--shadow-1);
   transform: translate(-50%, -50%);
   pointer-events: none;

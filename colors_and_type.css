@@ -293,8 +293,8 @@
   --space-10:    192px;
 
   --density:     1;
-  --pad-y:       calc(var(--space-5) * var(--density));
-  --pad-x:       calc(var(--space-5) * var(--density));
+  --pad-y:       calc(var(--space-6) * var(--density));
+  --pad-x:       calc(var(--space-6) * var(--density));
   --gutter:      calc(var(--space-4) * var(--density));
 
   /* Borders — chunky or none */
@@ -433,7 +433,7 @@
      column growing without bound. */
   --stage-ultra: min(96%, 2100px);
 
-  --sidebar-width:           220px;
+  --sidebar-width:           256px;
   --sidebar-width-collapsed: 64px;
 
   /* Canonical breakpoint values — @media can't reference custom properties,

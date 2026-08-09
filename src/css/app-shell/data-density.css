@@ -158,7 +158,7 @@
 @media (max-width: 640px) {
   .ds-session-row-span { flex-basis: 100%; }
 }
-.ds-session-row-devcnt { color: var(--warn); font-weight: 600; }
+.ds-session-row-devcnt { color: var(--warn); font-weight: var(--fw-medium, 500); }
 .ds-session-row-span { font-size: var(--fs-micro); color: var(--fg-3); }
 
 /* DevRow */

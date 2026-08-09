@@ -10,7 +10,7 @@
   font-weight: 600;
   color: var(--fg);
   background: var(--bg-2);
-  border: var(--bw-rule) solid var(--rule);
+  border: var(--bw-hair) solid var(--rule);
   border-radius: var(--r-1);
   transition: border-color var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease), box-shadow var(--dur-snap) var(--ease);
 }

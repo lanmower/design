@@ -55,7 +55,7 @@
   width: 36px; height: 36px; flex-shrink: 0;
   border-radius: 50%; background: var(--bg-3); color: var(--fg);
   display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--ff-body); font-size: var(--fs-micro); font-weight: 600;
+  font-family: var(--ff-body); font-size: var(--fs-micro); font-weight: var(--fw-medium, 500);
   text-transform: lowercase; letter-spacing: 0.02em; user-select: none;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
   position: relative;
@@ -364,7 +364,7 @@
   font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3);
   padding: 0 var(--space-1-75); letter-spacing: 0.02em;
 }
-.chat-meta .who { font-weight: 600; color: var(--fg-2); }
+.chat-meta .who { font-weight: var(--fw-medium, 500); color: var(--fg-2); }
 .chat-meta .who::after { content: ' ·'; color: var(--fg-3); font-weight: 400; }
 .chat-meta .t { color: var(--fg-3); }
 .chat-meta .tick { color: var(--fg-3); margin-left: var(--space-hair); letter-spacing: -2px; font-family: var(--ff-body); }
@@ -390,7 +390,7 @@
   color: var(--accent-ink);
 }
 .chat-reactions .rxn .e { font-size: var(--fs-xs); line-height: 1; }
-.chat-reactions .rxn .n { font-family: var(--ff-mono); font-weight: 600; font-size: var(--fs-nano); color: var(--fg-2); }
+.chat-reactions .rxn .n { font-family: var(--ff-mono); font-weight: var(--fw-medium, 500); font-size: var(--fs-nano); color: var(--fg-2); }
 .chat-reactions .rxn.you .n { color: var(--accent-ink); }
 
 /* Typing indicator renders through the same .chat-bubble container as a real
@@ -562,7 +562,7 @@
    [data-theme="dark"],[data-theme="ink"] override missed data-theme="auto"
    under OS-dark, which is how the kits actually render — the author name
    fell back to the paper tone at 3.13:1 on ink. */
-.aicat-meta .name { color: var(--mascot-deep, var(--mascot)); font-weight: 600; }
+.aicat-meta .name { color: var(--mascot-deep, var(--mascot)); font-weight: var(--fw-medium, 500); }
 
 /* ============================================================
    Composer attachment-detected badge, context line, hint, toolbar,
