@@ -4847,6 +4847,23 @@
   text-align: center;
   margin: 0;
 }
+/* Reference's Projects/General sidebar switcher: a two-pill row sitting
+   above the tree, spaced off the tree below it like a real section header,
+   not flush against it. Tighter side padding than --pad-x (round 4 widened
+   that to 48px) -- two pills at natural width need more of the 256px rail
+   than a 48px-each-side gutter leaves, so this row alone uses --space-3 to
+   stay a single non-wrapping row like the reference, without touching the
+   shared --pad-x token every other sidebar section still uses. */
+.ds-247420 .aicat-side-tabs {
+  padding: var(--space-3) var(--space-3) var(--space-2);
+  flex-wrap: nowrap;
+}
+.ds-247420 .ds-side-empty-note {
+  padding: var(--space-2) var(--pad-x);
+  color: var(--fg-3);
+  font-size: var(--fs-sm);
+  margin: 0;
+}
 
 /* ============================================================
    Composer attachment-detected badge, context line, hint, toolbar,

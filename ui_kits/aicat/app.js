@@ -192,7 +192,12 @@ function timeNow() { const d = new Date(); return String(d.getHours()).padStart(
 // HISTORY row and the "say hi" suggestion chip both load WELCOME_MESSAGES.
 const state = {
     draft: '', thinking: false, mood: 'idle', phase: 'ready', lastFailedText: null,
-    messages: []
+    messages: [],
+    // Reference sidebar has a two-tab switcher above the project tree
+    // (Projects / General) -- 'general' is a reachable reference tab (empty
+    // placeholder state) rather than a second real section, since this kit
+    // has exactly one real conversation surface, not two.
+    sideTab: 'projects'
 };
 
 const root = document.getElementById('root');
@@ -230,59 +235,81 @@ function App() {
         // area as inline suggestion chips (see ChatSuggestions below) so the
         // sidebar reads as navigation, not a mixed nav+suggestions list.
         side: h('aside', { class: 'app-side', role: 'navigation', 'aria-label': 'sidebar navigation' },
-            Side({
-                sections: [
-                    { group: 'session', items: [
-                        { glyph: '+', label: 'new chat', key: 'new', onClick: (e) => {
-                            e.preventDefault();
-                            state.messages = [];
-                            kit.render();
-                            // Transient, non-blocking confirmation that the clear
-                            // happened — "history" in the same sidebar group implies
-                            // persistence, so a silent truncate reads as data loss
-                            // rather than an intentional action taking effect.
-                            const composerEl = root.querySelector('.chat-composer');
-                            if (composerEl) flashComposerNote(composerEl, 'chat cleared');
-                        } }
-                    ] }
-                ]
-            }),
-            // History as a two-level project-tree: one expandable parent row
-            // (native <details>, no bespoke expand/collapse JS needed) holding
-            // individual past-conversation child rows. `.app-side-group`
-            // reused for the outer chrome so heading rhythm matches Side()'s
-            // own groups; child rows reuse `.app-side a` link styling via the
-            // same anchor markup Side() emits, just nested one level deeper.
-            h('div', { class: 'app-side-group', role: 'group', 'aria-label': 'history' },
-                h('details', { class: 'ds-side-tree', open: true },
-                    h('summary', { class: 'ds-side-tree-summary' },
-                        h('span', { class: 'glyph', 'aria-hidden': 'true' }, '~'),
-                        h('span', {}, 'history'),
-                        h('span', { class: 'count', 'aria-hidden': 'true' }, String(HISTORY.length))
-                    ),
-                    h('div', { class: 'ds-side-tree-children' },
-                        ...HISTORY.map((item) => h('a', {
-                            key: item.k,
-                            href: '#',
-                            class: 'ds-side-tree-child',
-                            'aria-label': item.t,
-                            // Reopens the seeded demo conversation rather than
-                            // treating the row label as a fresh prompt to send —
-                            // it reads as "history", so clicking it should
-                            // rehydrate that past turn, not start a new one.
-                            onclick: (e) => {
+            // Two-tab switcher above the tree (reference: Projects / General)
+            // — reuses the existing .ds-filter-pill primitive already linked
+            // by this sheet (see the phase-toggle group below) rather than
+            // pulling in the heavier editor-tab-strip component for what is
+            // a plain two-way toggle. 'general' is a real, reachable tab
+            // (an empty-state placeholder), not a decoration.
+            h('div', { class: 'ds-filter-pills aicat-side-tabs', role: 'tablist', 'aria-label': 'sidebar section' },
+                h('button', {
+                    type: 'button', role: 'tab', 'aria-selected': state.sideTab === 'projects' ? 'true' : 'false',
+                    class: 'ds-filter-pill' + (state.sideTab === 'projects' ? ' active' : ''),
+                    onclick: () => { state.sideTab = 'projects'; kit.render(); }
+                }, 'Projects'),
+                h('button', {
+                    type: 'button', role: 'tab', 'aria-selected': state.sideTab === 'general' ? 'true' : 'false',
+                    class: 'ds-filter-pill' + (state.sideTab === 'general' ? ' active' : ''),
+                    onclick: () => { state.sideTab = 'general'; kit.render(); }
+                }, 'General')
+            ),
+            state.sideTab === 'general' ? h('div', { class: 'app-side-group', role: 'group', 'aria-label': 'general' },
+                h('p', { class: 'ds-side-empty-note' }, 'nothing here yet')
+            ) : [
+                Side({
+                    sections: [
+                        { group: 'session', items: [
+                            { glyph: '+', label: 'new chat', key: 'new', onClick: (e) => {
                                 e.preventDefault();
-                                if (state.thinking) return;
-                                state.messages = WELCOME_MESSAGES.map((m) => ({ ...m, time: timeNow() }));
+                                state.messages = [];
                                 kit.render();
-                            }
-                        },
-                            h('span', { class: 'glyph', 'aria-hidden': 'true' }, '·'),
-                            h('span', {}, truncateAtWord(item.t, 26))
-                        ))
+                                // Transient, non-blocking confirmation that the clear
+                                // happened — "history" in the same sidebar group implies
+                                // persistence, so a silent truncate reads as data loss
+                                // rather than an intentional action taking effect.
+                                const composerEl = root.querySelector('.chat-composer');
+                                if (composerEl) flashComposerNote(composerEl, 'chat cleared');
+                            } }
+                        ] }
+                    ]
+                }),
+                // History as a two-level project-tree: one expandable parent row
+                // (native <details>, no bespoke expand/collapse JS needed) holding
+                // individual past-conversation child rows. `.app-side-group`
+                // reused for the outer chrome so heading rhythm matches Side()'s
+                // own groups; child rows reuse `.app-side a` link styling via the
+                // same anchor markup Side() emits, just nested one level deeper.
+                h('div', { key: 'history-group', class: 'app-side-group', role: 'group', 'aria-label': 'history' },
+                    h('details', { class: 'ds-side-tree', open: true },
+                        h('summary', { class: 'ds-side-tree-summary' },
+                            h('span', { class: 'glyph', 'aria-hidden': 'true' }, '~'),
+                            h('span', {}, 'history'),
+                            h('span', { class: 'count', 'aria-hidden': 'true' }, String(HISTORY.length))
+                        ),
+                        h('div', { class: 'ds-side-tree-children' },
+                            ...HISTORY.map((item) => h('a', {
+                                key: item.k,
+                                href: '#',
+                                class: 'ds-side-tree-child',
+                                'aria-label': item.t,
+                                // Reopens the seeded demo conversation rather than
+                                // treating the row label as a fresh prompt to send —
+                                // it reads as "history", so clicking it should
+                                // rehydrate that past turn, not start a new one.
+                                onclick: (e) => {
+                                    e.preventDefault();
+                                    if (state.thinking) return;
+                                    state.messages = WELCOME_MESSAGES.map((m) => ({ ...m, time: timeNow() }));
+                                    kit.render();
+                                }
+                            },
+                                h('span', { class: 'glyph', 'aria-hidden': 'true' }, '·'),
+                                h('span', {}, truncateAtWord(item.t, 26))
+                            ))
+                        )
                     )
                 )
-            )
+            ]
         ),
         main: [
             state.phase === 'ready' && state.messages.length === 0 ? (
