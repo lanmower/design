@@ -208,11 +208,13 @@ a.row:hover .meta, .row[role="button"]:hover .meta { color: var(--accent-ink); t
 .row.active { background: color-mix(in oklab, var(--accent) 10%, var(--bg-2)); }
 .row.active::before { height: 64%; opacity: 1; background: var(--accent); }
 .row.active .title { color: var(--accent-ink); }
-/* The accent-tinted active background pushes --fg-3 (--ink-3) below AA 4.5:1
-   (measured 4.43:1 after the warm-paper retune) -- --fg-2 (--ink-2, 7.13:1 on
-   this mix) is the smallest token swap that clears it without touching the
-   base --ink-3/paper-2 pairing used everywhere else. */
-.row.active .ds-session-sub { color: var(--fg-2); }
+/* ConversationList rows use `ds-session-row`, not `row` -- CI's a11y-audit
+   caught --fg-3 (--ink-3) on `.ds-session-sub` failing AA (measured 4.43:1)
+   inside a rail-tinted row after the warm-paper retune. --fg-2 (--ink-2)
+   clears comfortably; scoped to `.ds-session-sub` specifically so plain rows
+   without a rail tone keep the lighter --fg-3 tone. */
+.ds-session-row.active .ds-session-sub,
+.ds-session-row[class*="rail-"] .ds-session-sub { color: var(--fg-2); }
 .row.row-state-disabled { opacity: 0.5; pointer-events: none; }
 .row.row-state-error { background: color-mix(in oklab, var(--flame) 10%, var(--bg-2)); }
 .row.row-state-error::before { height: 64%; opacity: 1; background: var(--flame); }
