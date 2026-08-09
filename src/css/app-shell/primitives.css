@@ -317,3 +317,31 @@
   .ds-tooltip { transition: none; }
 }
 
+/* -- Menubar -------------------------------------------------------------
+   Row of closed triggers (mirrors .ds-dp-trigger's affordance); without
+   this the wrapper and its item divs fall back to block-level UA defaults,
+   stacking the triggers vertically and rendering them as filled buttons
+   abutting any adjacent status text. */
+.ds-menubar { display: inline-flex; align-items: center; gap: var(--space-1); }
+.ds-menubar-item { display: inline-flex; }
+.ds-menubar-trigger {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: var(--space-1-5) var(--space-2-5);
+  border: 0;
+  border-radius: var(--r-2);
+  background: var(--bg-2);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: background-color var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+}
+.ds-menubar-trigger:hover { background: var(--bg-3); }
+.ds-menubar-trigger:focus-visible { box-shadow: var(--focus-ring-inset); outline: none; }
+.ds-menubar-trigger.is-open { background: var(--bg-3); }
+@media (prefers-reduced-motion: reduce) {
+  .ds-menubar-trigger { transition: none; }
+}
+

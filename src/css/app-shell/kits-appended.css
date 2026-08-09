@@ -388,7 +388,18 @@
 }
 .ds-prim-panel { padding: clamp(10px, 2.5vw, 14px) clamp(10px, 3vw, 18px); display: flex; flex-direction: column; gap: 18px; }
 .ds-prim-row { display: flex; gap: var(--space-2-5); flex-wrap: wrap; align-items: center; }
+/* collab overlay specimens (LiveCursorOverlay/RemoteSelectionRings/
+   RecentEditHighlightFlash) are `position:absolute; inset:0`, meant to
+   overlay their own demo row -- without a positioned ancestor closer than
+   the ancestor `.panel` (panel-row.css), they escape to cover the whole
+   panel including its title. Scope them to this row. */
+.ds-prim-row-collab { position: relative; min-height: 64px; }
 .ds-prim-label { flex: 0 0 64px; font-family: var(--ff-mono); font-size: var(--fs-nano); color: var(--fg-3); }
+/* Trailing status readouts (e.g. "none pressed yet") share .ds-prim-label's
+   type/color but are free-length prose, not the fixed-width leading row
+   label -- the shared 64px flex-basis wrapped them into a cramped 3-line
+   stack. Give status text room to sit on one line instead. */
+.ds-prim-label-status { flex: 0 1 auto; white-space: nowrap; }
 
 /* == appended: content-site == */
 /* Home landing wrappers (site/theme.mjs) — replace banned inline styles. */
@@ -475,8 +486,8 @@
    need a clearly larger interval between them than within them, or the whole
    form reads as one undifferentiated column. Margin-collapse-free (flow root
    siblings) — first/last are zeroed so the panel body sets the outer edge. */
-.ds-field-block { display: flex; flex-direction: column; gap: var(--space-1-75); margin: calc(var(--space-4) * var(--density)) 0 0; }
-.ds-settings-body > .ds-field-block:first-child { margin-top: 0; }
+.ds-field-block, .ds-field-wrap { display: flex; flex-direction: column; gap: var(--space-1-75); margin: calc(var(--space-4) * var(--density)) 0 0; }
+.ds-settings-body > .ds-field-block:first-child, .ds-settings-body > .ds-field-wrap:first-child { margin-top: 0; }
 /* Field width is a hint about expected input length. A name or handle stretched
    across a 1000px desktop column tells the user to type a paragraph and leaves
    the eye no left-to-right anchor; capping the control (not the row) keeps the
@@ -555,7 +566,7 @@
    then has to scroll. `auto` collapses when the pane is short, centres when tall. */
 .ds-auth-col { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: var(--space-2); margin: auto 0; min-width: 0; }
 /* 18px ceiling: no tier between --space-3 (16) and --space-3-5 (20). */
-.ds-auth-form { padding: clamp(var(--space-2-75), 3vw, 18px); display: flex; flex-direction: column; gap: var(--space-2-5); }
+.ds-auth-form { display: flex; flex-direction: column; gap: var(--space-2-5); }
 .ds-auth-sent { align-items: center; text-align: center; }
 /* 32px is an ICON size, not a type size: this is the confirmation mark above
    the "check your mail" copy, sized to the 440px auth column, and the --fs-*
@@ -762,18 +773,19 @@
 /* min-height is a floor, not the intended size — .chat-kit-page's flex-column
    splits leftover height between this (flex:1 1 0%, "leftover") and the
    pattern-notes panel below it (flex:0 1 auto, i.e. sized to its own content
-   first). On a short viewport the panel's natural content height can consume
-   the entire column budget, squeezing this flex-basis:0% sibling to a real,
-   rendered, fully-populated-with-messages 0px — the thread is never empty,
-   it is invisible. Inside .chat itself, .chat-head and .chat-composer are
-   also flex:0-ish naturally-sized siblings of .chat-thread (flex:1 1 0%,
-   chat-polish.css), so the floor has to clear their combined natural height
-   (~55px head + ~78px composer, chrome + gap) with real room left for the
-   thread to still show at least a couple of message bubbles rather than
-   collapsing to a sliver between them — 30vh was not enough on a short
-   viewport. It still grows past this floor via flex:1 whenever the column
-   has room. */
-.ds-chat-layout { display: flex; flex-direction: column; flex: 1; min-height: max(30vh, 420px); gap: var(--space-3); }
+   first). A hard px floor here (this used to read max(30vh, 420px)) can
+   exceed .chat-kit-page's own available height on a short/laptop viewport —
+   420px plus the panel's natural content height overflows the column
+   instead of yielding to it, so .chat-thread's internal overflow-y:auto
+   never engages and the last couple of messages are stranded below the
+   fold with no reachable scroll region (the thread is never empty, it is
+   invisible). min-height:0 here — same as .chat/.chat-thread already use —
+   lets flex:1 actually shrink this to whatever .chat-kit-page has left,
+   so .chat-thread (flex:1, min-height:0, overflow-y:auto) is the thing that
+   scrolls, not the page. It still grows past 0 via flex:1 whenever the
+   column has room, and 30vh remains the width->grid breakpoint's intent via
+   plain flex growth, not a floor that can outgrow its container. */
+.ds-chat-layout { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: var(--space-3); }
 .ds-chat-layout > .chat { min-width: 0; }
 .ds-chat-detail { display: none; }
 @media (min-width: 1100px) {
@@ -962,9 +974,14 @@
   color: var(--fg-3);
   line-height: 1.3;
 }
-/* Message body claims the full second line of the wrapping body row. */
+/* Message body claims the full second line of the wrapping body row. Capped
+   to a readable measure -- unlike .chat-bubble this is a flat list row, not
+   a two-sided bubble, but an uncapped prose line stretches the full pane
+   width (~970px), which reads as dead paper beside every short message
+   rather than an intentionally spacious flat list. */
 .ds-community-msg-text {
   flex: 1 0 100%;
+  max-width: 70ch;
   margin: 0;
   min-width: 0;
   color: var(--fg-2);

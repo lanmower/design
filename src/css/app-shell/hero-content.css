@@ -100,6 +100,16 @@
 @container (max-width: 900px) {
   .ds-hero { padding: var(--space-7) 0 var(--space-6); }
 }
+/* .ds-hero already supplies its own --space-8 (96px) trailing padding, same
+   "gap owned by one side only" pattern as * + .ds-section below. A .panel
+   right after it still added its own --space-6-scaled top margin PLUS its
+   panel-head top padding on top of that -- measured live, the stat block sat
+   ~138px from "currently shipping" (96 hero pad + panel's own lead) versus
+   the ~42px any other block gets ahead of a .panel, and well past the 96px
+   .ds-section itself uses for its "more space above than below" lead. Zero
+   the panel's own top margin here so the hero's trailing padding is the only
+   contributor, matching every other panel/section transition on the page. */
+.ds-hero + .panel { margin-top: 0; }
 .ds-chat-title { margin: 0; font-size: inherit; }
 
 /* ============================================================

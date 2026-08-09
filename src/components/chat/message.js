@@ -95,6 +95,12 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     if (time) metaItems.push(h('span', { class: 't', key: 'ti' }, time));
     if (tickNode) metaItems.push(tickNode);
     const meta = metaItems.length ? h('div', { class: 'chat-meta' }, ...metaItems) : null;
+    // Incoming turns show the name above the bubble, level with the avatar's
+    // top edge, so the two read as one identity unit -- the way the 'you'
+    // side already pairs its avatar with its own bubble. Placing meta after
+    // the bubble (as for 'you', where only time/receipt trail below) left an
+    // incoming message's name floating above the PREVIOUS message's bubble
+    // instead of its own, with a bare avatar disc stranded beside its bubble.
     // Per-message actions (copy / retry / edit) — a hover-revealed control row
     // below the bubble, the way Claude-Desktop surfaces message-level actions.
     // Each action is { label, icon, onClick, title }. Kept icon-only with an
@@ -132,7 +138,9 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     const roleLabel = isFlat
         ? h('div', { class: 'chat-role', key: '_role' }, resolvedWho === 'you' ? t('chat.roleYou', 'You') : (name || t('chat.roleAssistant', 'Assistant')))
         : null;
-    const stack = h('div', { class: 'chat-stack' }, roleLabel, ...bodyNodes, reactionRow, actionRow, meta);
+    const stack = resolvedWho === 'them'
+        ? h('div', { class: 'chat-stack' }, roleLabel, meta, ...bodyNodes, reactionRow, actionRow)
+        : h('div', { class: 'chat-stack' }, roleLabel, ...bodyNodes, reactionRow, actionRow, meta);
     // Centered roles (system/tool/thinking) skip the avatar column entirely so
     // the bubble owns the full row — the chrome reads as out-of-band signal,
     // not a participant turn.

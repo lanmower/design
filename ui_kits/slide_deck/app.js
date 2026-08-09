@@ -173,7 +173,11 @@ function App() {
         topbar: Topbar({
             brand: '247420',
             leaf: 'slide deck',
-            items: [['index', '../../'], ['system primer', '../system_primer/']]
+            items: [['index', '../../'], ['system primer', '../system_primer/']],
+            // This kit renders its own ThemeToggle in the PageHeader below —
+            // without this, both it and the Topbar's default toggle render,
+            // stacking two identical "theme: auto" pills.
+            themeToggle: false
         }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'slide deck' }),
         side: Side({

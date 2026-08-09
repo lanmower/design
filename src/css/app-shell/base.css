@@ -143,6 +143,15 @@ h3 + .lede, h3 + .t-lede,
   margin-top: var(--space-2);
 }
 
+/* .app-main.narrow widens well past prose measure on wide no-sidebar
+   viewports on purpose (topbar.css) so full-width siblings like .post-meta/
+   h1/.post-index use the room. .lede/.ds-prose keep their reading-measure
+   caps (38ch/--measure) but stayed left edge-anchored inside that wider
+   column, turning the freed width into one-sided dead whitespace on the
+   right of the article body instead of being absorbed as margin. */
+.app-main.narrow > .lede, .app-main.narrow > .t-lede,
+.app-main.narrow > .ds-prose { margin-left: auto; margin-right: auto; }
+
 .lede + .post-body, .t-lede + .post-body,
 .lede + .ds-prose, .t-lede + .ds-prose {
   margin-top: var(--space-4);

@@ -197,7 +197,7 @@ function PrimitivesPanel() {
                 Btn({ primary: true, children: 'primary', onClick: () => { primState.pressed = 'primary'; kit.render(); } }),
                 Btn({ children: 'default', onClick: () => { primState.pressed = 'default'; kit.render(); } }),
                 Btn({ ghost: true, children: 'ghost', onClick: () => { primState.pressed = 'ghost'; kit.render(); } }),
-                h('span', { class: 'ds-prim-label' },
+                h('span', { class: 'ds-prim-label ds-prim-label-status' },
                     primState.pressed ? 'last pressed: ' + primState.pressed : 'none pressed yet')
             ),
             h('div', { class: 'ds-prim-row' },
@@ -256,7 +256,7 @@ function RestylePanel() {
                     onOpenChange: (v) => { restyleState.datePickerOpen = v; kit.render(); },
                     placeholder: 'pick a date',
                 }),
-                h('span', { class: 'ds-prim-label' },
+                h('span', { class: 'ds-prim-label ds-prim-label-status' },
                     restyleState.datePickerValue ? formatDate(restyleState.datePickerValue) : 'none selected')
             )
         )
@@ -289,7 +289,7 @@ function BackfillPanel() {
                     placeholder: 'pick a range',
                     name: 'primer-drp',
                 }),
-                h('span', { class: 'ds-prim-label' },
+                h('span', { class: 'ds-prim-label ds-prim-label-status' },
                     moreState.rangeValue.from
                         ? formatDate(moreState.rangeValue.from) + ' -> ' + (moreState.rangeValue.to ? formatDate(moreState.rangeValue.to) : '...')
                         : 'none selected')
@@ -305,7 +305,7 @@ function BackfillPanel() {
                         { id: 'edit', label: 'edit', items: [{ id: 'copy', label: 'copy' }, { separator: true }, { id: 'del', label: 'delete', danger: true }], onSelect: (id) => { moreState.menuPicked = 'edit/' + id; kit.render(); } },
                     ],
                 }),
-                h('span', { class: 'ds-prim-label' },
+                h('span', { class: 'ds-prim-label ds-prim-label-status' },
                     moreState.menuPicked ? 'chose: ' + moreState.menuPicked : 'nothing chosen yet')
             ),
             h('div', { class: 'ds-prim-row' },
@@ -325,7 +325,7 @@ function BackfillPanel() {
                 PresenceBar({ users: COLLAB_USERS }),
                 AgentPresenceChip({ userId: 'u9', label: 'solo agent', color: 'var(--purple-2)', status: 'active' })
             ),
-            h('div', { class: 'ds-prim-row' },
+            h('div', { class: 'ds-prim-row ds-prim-row-collab' },
                 h('span', { class: 'ds-prim-label' }, 'collab overlays'), RowTag('fixture'),
                 // LiveCursorOverlay takes flat x/y, but the ring and flash
                 // overlays read a NESTED `rect` ({top,left,width,height}) --

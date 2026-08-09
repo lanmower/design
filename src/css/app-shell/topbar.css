@@ -380,6 +380,7 @@ body.canvas-host { background: transparent !important; }
 /* Full-height route children fill the region instead of scrolling the page. */
 .app-main > .chat,
 .app-main > .chat-area,
+.app-main > .chat-kit-page,
 .app-main > .ds-file-stage,
 .app-main > .ds-files-stack,
 .app-main > .grow { flex: 1 1 auto; min-height: 0; }
