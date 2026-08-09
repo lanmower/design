@@ -4690,7 +4690,11 @@
   /* The composer sits bg-on-bg: the 14% --rule hairline is ~1.3:1 on paper,
      leaving the primary input near-invisible at rest - use the strong rule. */
   border: var(--bw-hair) solid var(--rule-strong);
-  border-radius: var(--r-2);
+  /* --r-3 (14px), not --r-2 (10px): the reference composer's corners read
+     as a soft-rounded rectangle, not a tight card-radius box - --r-3 is the
+     largest token in the scale short of --r-pill (a stadium, wrong shape
+     entirely for a ~720px-wide multi-row box). */
+  border-radius: var(--r-3);
   /* A flat hairline box on a flat background is the single most-repeated
      "looks unfinished" tell in the chat surface - the one control the user
      types into every turn had no more visual weight than a settings card.
@@ -4816,6 +4820,32 @@
   margin-left: auto;
   margin-right: auto;
   padding-top: var(--space-6);
+}
+/* True empty-state canvas: matches the reference's near-empty page (a
+   short lead question directly above a bare composer, nothing else visible
+   until the first message lands) rather than centering the SAME bundled
+   block that also carries the identity strip / suggestions / docs fold --
+   margin:auto on that fuller block left too little spare height to move,
+   which is why an earlier attempt at this still read top-heavy. This
+   variant renders as its own minimal tree (see aicat/app.js), so centering
+   it here actually has room to work: .app-main's flex-column parent gives
+   this child top/bottom auto margins, and with only two short children the
+   block is small enough to visibly float in the middle of the viewport. */
+.ds-247420 .aicat-empty-canvas {
+  margin-top: auto;
+  margin-bottom: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+.ds-247420 .aicat-empty-lead {
+  font-family: var(--ff-display);
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-medium, 500);
+  color: var(--fg);
+  text-align: center;
+  margin: 0;
 }
 
 /* ============================================================
