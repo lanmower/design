@@ -1991,3 +1991,54 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
  * iframe 16px on every side; the browser pane is full-bleed. --- */
 /* (0,3,0) beats the generic `.app-pane` (0,1,0) prose padding on specificity. */
 .ds-247420 .app-pane.browser-app { padding: 0; }
+
+/* --- chat send-queue indicator + per-item cancel list (F2): a rapid
+ * double/triple send while a turn is busy queues silently with no undo
+ * beyond a fading count; clicking the indicator reveals queued texts with
+ * a per-row remove control. --- */
+.ds-247420 .tb-chat-queue-indicator-hidden { display: none; }
+.ds-247420 .tb-chat-queue-indicator {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--os-fg-dim, var(--panel-text-2));
+  padding: 2px 8px;
+  user-select: none;
+}
+.ds-247420 .tb-chat-queue-indicator:hover { color: var(--os-fg, var(--panel-text)); }
+.ds-247420 .tb-chat-queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 4px);
+  padding: var(--space-2, 8px);
+  margin: 0 8px 8px;
+  border-radius: var(--radius-2, 6px);
+  background: var(--panel-1, #1c1c1c);
+  border: 1px solid var(--panel-border, rgba(255,255,255,0.1));
+}
+.ds-247420 .tb-chat-queue-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2, 8px);
+}
+.ds-247420 .tb-chat-queue-row-text {
+  font-size: 12px;
+  color: var(--panel-text-2, var(--os-fg-dim));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.ds-247420 .tb-chat-queue-row-remove {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: var(--radius-1, 4px);
+  border: 1px solid var(--panel-border, rgba(255,255,255,0.15));
+  background: transparent;
+  color: var(--panel-text-2, var(--os-fg-dim));
+  cursor: pointer;
+}
+.ds-247420 .tb-chat-queue-row-remove:hover {
+  background: var(--panel-2, rgba(255,255,255,0.06));
+  color: var(--panel-text, var(--os-fg));
+}
