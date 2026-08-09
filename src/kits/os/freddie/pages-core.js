@@ -94,13 +94,24 @@ export function makeCorePages(ctx) {
         },
         async agents(h0) {
             const a = (typeof h0.pi.agents === 'function') ? await h0.pi.agents() : { count: 0, turns: 0, active: null };
+            const subagents = (h0.pi.subagents && typeof h0.pi.subagents.list === 'function') ? await h0.pi.subagents.list() : [];
+            const sorted = [...subagents].sort((x, y) => String(y.created_at || '').localeCompare(String(x.created_at || '')));
+            const rows = sorted.map(s => Row({
+                key: s.agent_id,
+                code: s.status === 'completed' ? Icon('circle-dot') : s.status === 'running' ? Icon('circle') : Icon('circle'),
+                title: `${s.agent_id}  [${s.status}]`,
+                meta: `${s.subagent_type || '?'} · depth ${s.depth ?? '?'} · ${s.description || (s.task || '').slice(0, 60)}`,
+            }));
             return [
-                Kpi({ items: [[a.count || 0, 'active'], [a.turns || 0, 'turns']] }),
+                Kpi({ items: [[a.count || 0, 'active'], [a.turns || 0, 'turns'], [subagents.length, 'subagents']] }),
                 Panel({ title: 'agent overview', children: Receipt({ rows: [
                     ['total turns', String(a.turns || 0)],
                     ['active session', a.active || '—'],
                     ['last activity', a.last_activity ? new Date(a.last_activity).toLocaleString() : '—'],
                 ] }) }),
+                Panel({ title: 'subagents (fan-out)', count: rows.length, children: rows.length === 0
+                    ? EmptyState({ text: 'no subagents yet — agent_swarm/delegate spawns appear here live', glyph: Icon('members') })
+                    : h('div', null, rows) }),
             ];
         },
         async logs(h0) {
