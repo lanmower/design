@@ -488,7 +488,7 @@ Segmented one-time-code / PIN entry.
 
 **Kind:** component
 
-**Signature:** `name` = `'aicat'`, `messages` = `[]`, `thinking`, `composer`, `status` = `'online · purring'`
+**Signature:** `name` = `'aicat'`, `messages` = `[]`, `thinking`, `composer`, `status` = `'online · purring'`, `header`
 
 ## `src/components/agent-chat.js`
 
