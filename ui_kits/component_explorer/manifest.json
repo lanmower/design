@@ -2238,6 +2238,11 @@
           "name": "status",
           "default": "'online · purring'",
           "alias": null
+        },
+        {
+          "name": "header",
+          "default": null,
+          "alias": null
         }
       ],
       "description": ""
