@@ -24,10 +24,17 @@
      color-mix()/oklch() derivation in this file keeps its formula and only
      the ROOT input changes -- see restyle-tokens-webjsx-toolkit-look and
      restyle-contrast-reverification-all-tokens for the swap rationale and
-     the re-verification this requires. */
-  --paper:       #FFFFFF;
-  --paper-2:     #F2F2F2;
-  --paper-3:     #E5E5E5;
+     the re-verification this requires.
+     Subtle warm off-white retune (2026-08): pure #FFFFFF read as stark/cold
+     against reference material using a warm off-white. Shift is deliberately
+     tiny -- a few points toward warm gray, not a cream -- to stay a safe,
+     low-risk change on a token used everywhere. Contrast re-verified against
+     every paired text tone: --ink 16.84:1, --ink-2 12.16:1, --ink-3 7.56:1 on
+     --paper (all far clear of AA 4.5:1); --ink-3 on --paper-2/--paper-3 also
+     re-measured at 6.87:1 / 6.04:1, both still clear. */
+  --paper:       #FDFBF7;
+  --paper-2:     #F2F0EC;
+  --paper-3:     #E5E2DC;
   --ink:         #1A1A1A;
   --ink-2:       #333338;
   --ink-3:       #525252; /* WCAG-verified 2026 restyle: npm run a11y caught 4.10:1 at #58585F against --paper-3 (#c6c5c5-equivalent surfaces); #525252 clears 4.54:1 there and 7.81:1 against pure paper */
