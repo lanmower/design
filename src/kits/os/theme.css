@@ -2000,30 +2000,30 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
 .ds-247420 .tb-chat-queue-indicator {
   cursor: pointer;
   font-size: 12px;
-  color: var(--os-fg-dim, var(--panel-text-2));
+  color: var(--panel-text-2);
   padding: 2px 8px;
   user-select: none;
 }
-.ds-247420 .tb-chat-queue-indicator:hover { color: var(--os-fg, var(--panel-text)); }
+.ds-247420 .tb-chat-queue-indicator:hover { color: var(--panel-text); }
 .ds-247420 .tb-chat-queue-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1, 4px);
-  padding: var(--space-2, 8px);
+  gap: var(--space-1);
+  padding: var(--space-2);
   margin: 0 8px 8px;
-  border-radius: var(--radius-2, 6px);
-  background: var(--panel-1, #1c1c1c);
-  border: 1px solid var(--panel-border, rgba(255,255,255,0.1));
+  border-radius: var(--r-2);
+  background: var(--panel-1);
+  border: 1px solid var(--panel-border);
 }
 .ds-247420 .tb-chat-queue-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-2, 8px);
+  gap: var(--space-2);
 }
 .ds-247420 .tb-chat-queue-row-text {
   font-size: 12px;
-  color: var(--panel-text-2, var(--os-fg-dim));
+  color: var(--panel-text-2);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2032,13 +2032,13 @@ html.ds-247420 { touch-action: pan-x pan-y; overscroll-behavior: none; -webkit-t
 .ds-247420 .tb-chat-queue-row-remove {
   font-size: 11px;
   padding: 2px 8px;
-  border-radius: var(--radius-1, 4px);
-  border: 1px solid var(--panel-border, rgba(255,255,255,0.15));
+  border-radius: var(--r-1);
+  border: 1px solid var(--panel-border);
   background: transparent;
-  color: var(--panel-text-2, var(--os-fg-dim));
+  color: var(--panel-text-2);
   cursor: pointer;
 }
 .ds-247420 .tb-chat-queue-row-remove:hover {
-  background: var(--panel-2, rgba(255,255,255,0.06));
-  color: var(--panel-text, var(--os-fg));
+  background: var(--panel-2);
+  color: var(--panel-text);
 }
