@@ -926,6 +926,7 @@ export interface AICatProps {
     composer?: any;
     /** @default 'online · purring' */
     status?: string;
+    header?: any;
 }
 export declare function AICat(props?: AICatProps): VNode;
 

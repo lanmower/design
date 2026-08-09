@@ -6,9 +6,9 @@ import * as webjsx from 'webjsx';
 // regardless of which names are actually imported -- measured live at 200+
 // serial module requests for this page alone. Importing straight from the
 // owning file keeps this kit's fetch graph proportional to what it renders.
-import { Topbar, Crumb, Side, AppShell, Status, Heading, Lede, Chip } from 'ds/components/shell.js';
+import { Topbar, Crumb, Side, AppShell, Status, Lede, Chip, Heading } from 'ds/components/shell.js';
 import { Panel } from 'ds/components/content.js';
-import { AICatPortrait, AICat, flashComposerNote, ChatComposer } from 'ds/components/chat.js';
+import { AICat, AICatPortrait, flashComposerNote, ChatComposer, ChatSuggestions } from 'ds/components/chat.js';
 import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
 
@@ -18,6 +18,19 @@ const FACES = {
     think:   ` /\\_/\\\n( -.- )\n > ? <`,
     pounce:  ` /\\_/\\\n( O.O )\n > ! <`
 };
+
+// Stub past-conversation rows so "history" reads as a project-tree group
+// (parent + nested children) rather than a bare count chip. Static/reference
+// data only — no persistence backing these in this kit.
+const HISTORY = [
+    { t: 'token sheet walkthrough', k: 'h0' },
+    { t: 'react greet component', k: 'h1' },
+    { t: 'prefers-reduced-motion notes', k: 'h2' },
+    { t: 'mascot svg export', k: 'h3' },
+    { t: 'config file attach', k: 'h4' },
+    { t: 'garbage collection joke', k: 'h5' },
+    { t: 'python prime sieve', k: 'h6' }
+];
 
 const PRESETS = [
     { q: 'show me a small react component', k: 'code-react' },
@@ -148,6 +161,22 @@ function liveStatus(s) {
     return s.mood === 'happy' ? 'online · purring' : 'online · idle';
 }
 
+// Folds the mascot identity (name + ASCII face, mood-driven) into the
+// transcript's own head row instead of a separate standalone portrait block
+// stacked above the chat panel — one section of vertical stacking removed
+// ahead of the composer, matching a hero-composer layout where the composer
+// is visible with no preceding avatar block. Reuses AICat's own `.chat-head`
+// row chrome (passed as its `header` prop) so this stays visually identical
+// to the thread head AICat renders by default, just with a face glyph added.
+function AICatPortraitHead({ mood, status }) {
+    return h('div', { class: 'chat-head aicat-portrait-head', role: 'banner' },
+        h('pre', { class: 'aicat-face aicat-face-inline', role: 'img', 'aria-label': 'aicat portrait' }, FACES[mood] || FACES.idle),
+        h('h2', { class: 'ds-chat-title' }, 'aicat'),
+        h('span', { class: 'sub', 'aria-label': `status: ${status}` }, ' · ' + status),
+        h('span', { class: 'spread' })
+    );
+}
+
 function timeNow() { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
 
 const state = {
@@ -188,55 +217,72 @@ function App() {
     return AppShell({
         topbar: Topbar({ brand: '247420', leaf: 'aicat', items: [['index', '../../'], ['chat', '../chat/'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'aicat' }),
-        side: Side({
-            sections: [
-                { group: 'session', items: [
-                    { glyph: '+', label: 'new chat', key: 'new', onClick: (e) => {
-                        e.preventDefault();
-                        state.messages = state.messages.slice(0, 2);
-                        kit.render();
-                        // Transient, non-blocking confirmation that the clear
-                        // happened — "history" in the same sidebar group implies
-                        // persistence, so a silent truncate reads as data loss
-                        // rather than an intentional action taking effect.
-                        const composerEl = root.querySelector('.chat-composer');
-                        if (composerEl) flashComposerNote(composerEl, 'chat cleared');
-                    } },
-                    { glyph: '~', label: 'history', count: 7, key: 'h' }
-                ] },
-                { group: 'try', items: PRESETS.map((p, i) => ({
-                    glyph: '·',
-                    label: truncateAtWord(p.q, 28),
-                    ariaLabel: p.q,
-                    key: 'p' + i,
-                    // Same guard send() itself now enforces (state.thinking),
-                    // applied at the click site too so a rapid double-click
-                    // never queues a second send() call while the first is
-                    // still resolving — mirrors the composer's own
-                    // disabled: state.thinking gating.
-                    onClick: (e) => { e.preventDefault(); if (!state.thinking) send(p.q); }
-                })) }
-            ]
-        }),
+        // Sidebar holds session/tree items only (new chat + a two-level
+        // history tree). Preset prompts moved into the composer/empty-state
+        // area as inline suggestion chips (see ChatSuggestions below) so the
+        // sidebar reads as navigation, not a mixed nav+suggestions list.
+        side: h('aside', { class: 'app-side', role: 'navigation', 'aria-label': 'sidebar navigation' },
+            Side({
+                sections: [
+                    { group: 'session', items: [
+                        { glyph: '+', label: 'new chat', key: 'new', onClick: (e) => {
+                            e.preventDefault();
+                            state.messages = state.messages.slice(0, 2);
+                            kit.render();
+                            // Transient, non-blocking confirmation that the clear
+                            // happened — "history" in the same sidebar group implies
+                            // persistence, so a silent truncate reads as data loss
+                            // rather than an intentional action taking effect.
+                            const composerEl = root.querySelector('.chat-composer');
+                            if (composerEl) flashComposerNote(composerEl, 'chat cleared');
+                        } }
+                    ] }
+                ]
+            }),
+            // History as a two-level project-tree: one expandable parent row
+            // (native <details>, no bespoke expand/collapse JS needed) holding
+            // individual past-conversation child rows. `.app-side-group`
+            // reused for the outer chrome so heading rhythm matches Side()'s
+            // own groups; child rows reuse `.app-side a` link styling via the
+            // same anchor markup Side() emits, just nested one level deeper.
+            h('div', { class: 'app-side-group', role: 'group', 'aria-label': 'history' },
+                h('details', { class: 'ds-side-tree', open: true },
+                    h('summary', { class: 'ds-side-tree-summary' },
+                        h('span', { class: 'glyph', 'aria-hidden': 'true' }, '~'),
+                        h('span', {}, 'history'),
+                        h('span', { class: 'count', 'aria-hidden': 'true' }, String(HISTORY.length))
+                    ),
+                    h('div', { class: 'ds-side-tree-children' },
+                        ...HISTORY.map((item) => h('a', {
+                            key: item.k,
+                            href: '#',
+                            class: 'ds-side-tree-child',
+                            'aria-label': item.t,
+                            onclick: (e) => { e.preventDefault(); if (!state.thinking) send(item.t); }
+                        },
+                            h('span', { class: 'glyph', 'aria-hidden': 'true' }, '·'),
+                            h('span', {}, truncateAtWord(item.t, 26))
+                        ))
+                    )
+                )
+            )
+        ),
         main: [
-            h('div', { class: 'ds-app-surface ds-section-pad' },
-                Heading({ level: 1, children: 'aicat' }),
-                Lede({ children: 'an ai assistant with a cat persona. she replies in text, code (highlighted), markdown, images, pdfs, file attachments, or link cards — depending on what you ask.' }),
-                // Identity only: who you're talking to (name, face, avatar) —
-                // static, no live/dynamic status wording here. AICatPortrait
-                // still accepts a `status` prop for other consumers, but this
-                // kit intentionally omits it so the ONE live status line lives
-                // in the thread head below, not duplicated up here.
-                AICatPortrait({
-                    name: 'aicat',
-                    face: FACES[state.mood] || FACES.idle
-                }),
+            h('div', { class: 'ds-app-surface ds-section-pad aicat-focus-col' },
+                // The transcript+composer is the dominant focal surface (a la
+                // a centered hero composer): it renders FIRST, in a centered
+                // max-width column (.aicat-focus-col, chat-polish.css), with
+                // the mascot identity folded into the thread's own head row
+                // (AICat's `header` prop) instead of a separate portrait
+                // block stacked above it. Heading/lede/docs/dev-controls are
+                // demoted below a fold so they no longer compete with it.
                 state.phase === 'loading' ? Panel({ title: 'restoring session', children: TranscriptSkeleton() })
                 : state.phase === 'error' ? Panel({ title: 'reply failed', children: TranscriptError() })
                 : state.phase === 'empty' ? Panel({ title: 'new session', children: TranscriptEmpty() })
                 : AICat({
                     name: 'aicat',
                     status: liveStatus(state),
+                    header: AICatPortraitHead({ mood: state.mood, status: liveStatus(state) }),
                     messages: state.messages, thinking: state.thinking,
                     composer: ChatComposer({
                         value: state.draft,
@@ -246,21 +292,28 @@ function App() {
                         onSend: send
                     })
                 }),
-                // Docs/annotation block — explains the interface above, so it
-                // gets `kind: 'docs'` (dashed border + tinted bg, see
-                // .panel-docs in kits-appended.css) instead of the plain
-                // `.panel` chrome the real chat surface uses above it. Without
-                // this the caption and the product it describes were
-                // visually identical cards back to back.
-                Panel({
-                    kind: 'docs',
-                    title: 'about this kit',
-                    children: h('div', { class: 'ds-pattern-notes' },
-                        h('p', {}, '· portrait swaps with mood — ', Chip({ tone: 'dim', children: 'idle' }), ' ', Chip({ tone: 'dim', children: 'think' }), ' ', Chip({ tone: 'accent', children: 'happy' }), '.'),
-                        h('p', {}, '· thinking-state appends a typing bubble, disables the composer, blocks pre-emptive multi-sends.'),
-                        h('p', {}, '· classifier in ', h('code', {}, 'classifyAndReply()'), ' is deterministic — wire it to your model, replies stay shaped as ', h('code', {}, '{parts:[…]}'), '.')
+                state.messages.length <= 2 ? ChatSuggestions({
+                    heading: 'or try one of these',
+                    suggestions: PRESETS.map((p) => ({
+                        id: p.k, label: truncateAtWord(p.q, 34),
+                        onPick: () => { if (!state.thinking) send(p.q); }
+                    }))
+                }) : null,
+                // Heading/lede/docs/dev-controls demoted below a fold: a
+                // first-time visitor's eye lands on the composer above, not a
+                // marketing headline stack, matching a hero-composer layout.
+                h('details', { class: 'ds-kit-controls' },
+                    h('summary', {}, 'about this kit'),
+                    h('div', { class: 'ds-kit-controls-body' },
+                        Heading({ level: 2, children: 'aicat' }),
+                        Lede({ children: 'an ai assistant with a cat persona. she replies in text, code (highlighted), markdown, images, pdfs, file attachments, or link cards — depending on what you ask.' }),
+                        h('div', { class: 'ds-pattern-notes' },
+                            h('p', {}, '· portrait swaps with mood — ', Chip({ tone: 'dim', children: 'idle' }), ' ', Chip({ tone: 'dim', children: 'think' }), ' ', Chip({ tone: 'accent', children: 'happy' }), '.'),
+                            h('p', {}, '· thinking-state appends a typing bubble, disables the composer, blocks pre-emptive multi-sends.'),
+                            h('p', {}, '· classifier in ', h('code', {}, 'classifyAndReply()'), ' is deterministic — wire it to your model, replies stay shaped as ', h('code', {}, '{parts:[…]}'), '.')
+                        )
                     )
-                }),
+                ),
                 // Dev/demo state toggles — reachable reference surface for the
                 // transcript's other phases (loading/empty/error), but NOT
                 // part of the "about this kit" documentation prose and not a

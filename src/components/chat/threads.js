@@ -91,7 +91,7 @@ export function AICatPortrait({ name = 'aicat', status, face } = {}) {
     );
 }
 
-export function AICat({ name = 'aicat', messages = [], thinking, composer, status = 'online · purring' } = {}) {
+export function AICat({ name = 'aicat', messages = [], thinking, composer, status = 'online · purring', header } = {}) {
     ensureCachesInit();
     const annotated = messages.map((m) =>
         m.who === 'them' ? { ...m, aicat: true, avatar: m.avatar || '=^.^=' } : m);
@@ -100,7 +100,7 @@ export function AICat({ name = 'aicat', messages = [], thinking, composer, statu
         : annotated;
     const threadRef = makeThreadAutoScroll(() => all.length);
     return h('div', { class: 'chat' },
-        h('div', { class: 'chat-head', role: 'banner' },
+        header || h('div', { class: 'chat-head', role: 'banner' },
             h('span', { class: 'dot', 'aria-hidden': 'true' }),
             h('h2', { class: 'ds-chat-title' }, name),
             h('span', { class: 'sub', 'aria-label': `status: ${status}` }, ' · ' + status),

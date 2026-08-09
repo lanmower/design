@@ -4798,6 +4798,26 @@
    fell back to the paper tone at 3.13:1 on ink. */
 .ds-247420 .aicat-meta .name { color: var(--mascot-deep, var(--mascot)); font-weight: var(--fw-medium, 500); }
 
+/* Mascot identity folded into AICat's own .chat-head row (passed as its
+   `header` prop) instead of a standalone .aicat-portrait block stacked above
+   the chat panel -- reuses the existing 32px .aicat-face circle, just placed
+   inline before the title instead of above the whole surface. */
+.ds-247420 .aicat-portrait-head { gap: var(--space-2-5); }
+.ds-247420 .aicat-face-inline { margin-right: var(--space-1); }
+
+/* Centers the transcript+composer as the page's dominant focal surface
+   (hero-composer framing): a bounded column with generous top margin so the
+   chat panel reads as the first thing the eye lands on, not one card in a
+   top-aligned marketing stack. Docs/heading content is demoted into
+   .ds-kit-controls below it (see kits-appended.css) so nothing above the
+   panel competes with it. */
+.ds-247420 .aicat-focus-col {
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: var(--space-6);
+}
+
 /* ============================================================
    Composer attachment-detected badge, context line, hint, toolbar,
    note strip, elapsed counter, dragover state — all referenced from
@@ -4983,6 +5003,50 @@
 .ds-247420 .app-side .count:empty { display: none; }
 .ds-247420 .app-side a .glyph { font-family: var(--ff-body); font-size: 13px; font-weight: 600; color: var(--fg-3); text-align: center; }
 .ds-247420 .app-side a.active .glyph { color: var(--accent-ink); }
+
+/* .ds-side-tree — two-level project-tree group (parent <details> + nested
+   child rows), the sidebar's hierarchy primitive. Sits alongside Side()'s
+   own flat .app-side-group rows but carries genuine nesting: a summary row
+   (parent) disclosing child conversation rows, closer to a project-tree
+   sidebar than a single flat list. */
+.ds-247420 .ds-side-tree { border: 0; }
+.ds-247420 .ds-side-tree-summary {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-1-5) var(--space-2);
+  border-radius: var(--r-1);
+  font-family: var(--ff-mono); font-size: var(--fs-sm); color: var(--fg-2);
+  cursor: pointer; list-style: none;
+}
+.ds-247420 .ds-side-tree-summary::-webkit-details-marker { display: none; }
+.ds-247420 .ds-side-tree-summary:hover { background: var(--bg-2); color: var(--fg); }
+.ds-247420 .ds-side-tree-summary:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+.ds-247420 .ds-side-tree-summary .glyph { font-family: var(--ff-body); font-size: 13px; font-weight: 600; color: var(--fg-3); }
+.ds-247420 .ds-side-tree-summary .count {
+  margin-left: auto; padding: 1px 8px; font-size: var(--fs-micro); font-weight: 700;
+  font-family: var(--ff-body); letter-spacing: 0.04em; min-width: 18px; text-align: center;
+  color: var(--fg-3); background: var(--bg-2); border-radius: var(--r-pill, 999px);
+}
+.ds-247420 .ds-side-tree-children {
+  display: flex; flex-direction: column;
+  padding-left: var(--space-4);
+  gap: var(--space-hair);
+}
+.ds-247420 .ds-side-tree-child {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--r-1);
+  font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3);
+  text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ds-247420 .ds-side-tree-child:hover, .ds-247420 .ds-side-tree-child:focus-visible { background: var(--bg-2); color: var(--fg); }
+.ds-247420 .ds-side-tree-child:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+.ds-247420 .ds-side-tree-child .glyph { font-family: var(--ff-body); color: var(--fg-3); }
 
 /* -- select primitive --------------------------------------------------- */
 .ds-247420 .ds-select {

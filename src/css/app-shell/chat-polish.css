@@ -564,6 +564,26 @@
    fell back to the paper tone at 3.13:1 on ink. */
 .aicat-meta .name { color: var(--mascot-deep, var(--mascot)); font-weight: var(--fw-medium, 500); }
 
+/* Mascot identity folded into AICat's own .chat-head row (passed as its
+   `header` prop) instead of a standalone .aicat-portrait block stacked above
+   the chat panel -- reuses the existing 32px .aicat-face circle, just placed
+   inline before the title instead of above the whole surface. */
+.aicat-portrait-head { gap: var(--space-2-5); }
+.aicat-face-inline { margin-right: var(--space-1); }
+
+/* Centers the transcript+composer as the page's dominant focal surface
+   (hero-composer framing): a bounded column with generous top margin so the
+   chat panel reads as the first thing the eye lands on, not one card in a
+   top-aligned marketing stack. Docs/heading content is demoted into
+   .ds-kit-controls below it (see kits-appended.css) so nothing above the
+   panel competes with it. */
+.aicat-focus-col {
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: var(--space-6);
+}
+
 /* ============================================================
    Composer attachment-detected badge, context line, hint, toolbar,
    note strip, elapsed counter, dragover state — all referenced from
