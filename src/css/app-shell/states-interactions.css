@@ -77,6 +77,9 @@ button:not(:disabled):hover,
   border-radius: 50%;
   animation: spinner-rotate 0.8s linear infinite;
 }
+@media (prefers-reduced-motion: reduce) {
+  .loading::after { animation: none; }
+}
 
 /* Error state.
    No !important: the only rule in the kit that also resets a matching element's
@@ -774,6 +777,9 @@ input[type="password"]:not(:placeholder-shown) + .input-clear {
   background-size: 200% 100%;
   animation: skeleton-load 1.5s infinite;
   border-radius: var(--r-2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
 }
 
 @keyframes skeleton-load {
