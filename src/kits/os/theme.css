@@ -361,6 +361,7 @@ html, body {
  * independent — replacing the `!important` wall that previously did the same
  * job by force. Do not un-scope these; the scope IS the override mechanism. */
 .ds-247420 .wm-win {
+    position: absolute;
     background: var(--os-bg-1);
     border: 1px solid color-mix(in oklab, var(--os-fg) 14%, transparent);
     border-radius: var(--radius-lg, var(--r-3));

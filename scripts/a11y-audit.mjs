@@ -67,7 +67,13 @@ function listKits() {
 }
 
 async function auditKit(kit) {
-    const url = `${BASE_URL}/ui_kits/${kit}/index.html`;
+    // Trailing slash, not `/index.html`: http-server 301s a direct
+    // `/index.html` request to the extensionless directory URL (no trailing
+    // slash), which then resolves this page's own relative `./app.js`/`<link>`
+    // one directory too high and silently serves a near-empty DOM — axe then
+    // audits nothing and reports a false-clean 0 violations. Witnessed live:
+    // `curl -sI .../os/index.html` -> `301 Location: /ui_kits/os/index`.
+    const url = `${BASE_URL}/ui_kits/${kit}/`;
     return withPage(url, async (page) => {
         await page.addScriptFile(axePath);
         // Serialised through returnByValue, so project down to plain data in
