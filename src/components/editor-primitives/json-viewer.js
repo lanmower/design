@@ -90,11 +90,12 @@ function jsonCopyButton(text) {
                 btn.classList.toggle('copied', ok);
                 setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1200);
             };
-            try {
-                navigator.clipboard.writeText(text).then(() => show('copied', true), () => show('failed', false));
-            } catch {
-                show('failed', false);
-            }
+            const fallback = () => {
+                try { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); show('copied', true); }
+                catch { show('failed', false); }
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => show('copied', true), fallback);
+            else fallback();
         },
     }, 'copy');
 }

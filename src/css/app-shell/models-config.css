@@ -52,7 +52,7 @@
   display: flex; align-items: center; gap: var(--space-2);
   margin-bottom: var(--space-2);
 }
-.ds-mc-detail-title { font-family: var(--ff-mono); font-size: var(--fs-base); font-weight: 700; }
+.ds-mc-detail-title { font-family: var(--ff-body); font-size: var(--fs-base); font-weight: 700; }
 
 .ds-mc-discovery-error {
   display: flex; align-items: center; gap: var(--space-1-75);

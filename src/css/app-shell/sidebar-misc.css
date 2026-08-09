@@ -19,12 +19,12 @@
 
 .app-side .count {
   padding: 1px 8px; font-size: var(--fs-micro); font-weight: 700;
-  font-family: var(--ff-mono); letter-spacing: 0.04em;
+  font-family: var(--ff-body); letter-spacing: 0.04em;
   min-width: 18px; text-align: center;
 }
 .app-side a:has(> .count:empty) > .count,
 .app-side .count:empty { display: none; }
-.app-side a .glyph { font-family: var(--ff-mono); font-size: 13px; font-weight: 600; color: var(--fg-3); text-align: center; }
+.app-side a .glyph { font-family: var(--ff-body); font-size: 13px; font-weight: 600; color: var(--fg-3); text-align: center; }
 .app-side a.active .glyph { color: var(--accent-ink); }
 
 /* -- select primitive --------------------------------------------------- */

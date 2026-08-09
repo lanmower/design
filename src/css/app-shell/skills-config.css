@@ -14,7 +14,7 @@
 .ds-skills-group-label {
   padding: var(--space-2) var(--space-2) 3px;
   font-size: var(--fs-micro); font-weight: 600; color: var(--fg-3);
-  text-transform: uppercase; letter-spacing: 0.06em;
+  letter-spacing: 0;
 }
 
 .ds-skills-description { font-size: var(--fs-sm); color: var(--fg-2); line-height: 1.5; }

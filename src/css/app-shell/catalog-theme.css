@@ -16,7 +16,7 @@
 .ds-catalog-side h1 { font-size: var(--fs-lg); margin: 0 0 var(--space-1); }
 .ds-catalog-side .subtitle { font-size: var(--fs-micro); color: var(--fg-3); margin: 0 0 var(--space-4); }
 .ds-catalog-side nav h4 {
-  font-size: var(--fs-micro); text-transform: uppercase; letter-spacing: var(--tr-label);
+  font-size: var(--fs-micro); letter-spacing: var(--tr-tight); font-weight: 600;
   color: var(--fg-3); margin: var(--space-3) 0 var(--space-1);
 }
 .ds-catalog-side nav a {

@@ -2,7 +2,7 @@ import * as webjsx from 'webjsx';
 // Imported directly from owning submodules, not the ds/components.js barrel
 // -- see aicat/app.js for the measured rationale (200+ serial unbundled
 // module requests when every kit pulls the full 30+-submodule barrel).
-import { Topbar, Crumb, Status, Side, AppShell, Heading, Lede, Chip, Btn } from 'ds/components/shell.js';
+import { Topbar, Crumb, Status, Side, AppShell, Heading, Lede, Chip, Btn, Icon } from 'ds/components/shell.js';
 import { Panel, Kpi, BarChart, Table, Receipt, Changelog, Row } from 'ds/components/content.js';
 import { mountKit } from 'ds/bootstrap.js';
 const h = webjsx.createElement;
@@ -45,12 +45,41 @@ const tableRows = [
     ['DELETE /api/cache',  '3',   '38ms',  '0',  'ok']
 ];
 
+// Copy affordance for the commit hash -- a bare hash is dead text where a
+// user expects to copy or open it. Self-contained (not importing the chat
+// module's copyToClipboardWithFeedback) since that lives behind chat.js's
+// full barrel and this kit has no other reason to pull it in.
+function fallbackCopy(text) {
+    const t = document.createElement('textarea');
+    t.value = text; document.body.appendChild(t); t.select();
+    document.execCommand('copy'); document.body.removeChild(t);
+}
+function copyCommit(e) {
+    const btn = e.currentTarget;
+    const text = btn.dataset.commit;
+    const done = () => {
+        btn.textContent = 'copied';
+        setTimeout(() => { btn.textContent = text; }, 1400);
+    };
+    // Falls back to execCommand whenever the async Clipboard API is either
+    // absent OR rejects (permission denied, an unfocused document -- a real
+    // failure mode, not just an old-browser one) -- the prior copy() helpers
+    // this was modeled on only fell back when navigator.clipboard didn't
+    // exist at all, silently doing nothing on a live rejection.
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, () => { try { fallbackCopy(text); done(); } catch { /* swallow: no copy mechanism available */ } });
+    } else {
+        try { fallbackCopy(text); done(); } catch { /* swallow: no copy mechanism available */ }
+    }
+}
+const COMMIT_HASH = '8799035';
 const receipt = [
     ['environment', 'production'],
     ['region',      'eu-west-1'],
     ['build',       'v0.4.12-7a3f9'],
     ['deployed',    '2026-05-10 14:22'],
-    ['commit',      '8799035'],
+    ['commit',      h('button', { type: 'button', class: 'btn-link', 'data-commit': COMMIT_HASH, 'aria-label': 'copy commit hash ' + COMMIT_HASH, onclick: copyCommit },
+        Icon('copy', { size: 12 }), COMMIT_HASH)],
     ['by',          'lanmower']
 ];
 
@@ -76,8 +105,9 @@ const events = [
 // happy path. FeedStateSwitcher (collapsed kit-controls drawer, end of main)
 // flips it, so each state is a real reachable surface in the kit, not dead
 // code behind a flag nobody sets.
-const state = { feed: 'ready' };
+const state = { feed: 'ready', density: 'comfy' };
 const FEED_STATES = ['ready', 'loading', 'empty', 'error'];
+const DENSITIES = ['comfy', 'tight'];
 
 // Loading placeholder for the events feed. Reuses the .ds-event-row-skeleton
 // primitive (app-shell/files.css) — the row shape it was cut for is the same
@@ -130,7 +160,7 @@ const feedCountOf = () => (state.feed === 'ready' ? events.length : 0);
 // so it reads as scaffolding you can open, not live panel content.
 function FeedStateSwitcher() {
     return h('details', { class: 'ds-kit-controls' },
-        h('summary', {}, 'kit controls — recent events reference state'),
+        h('summary', {}, 'kit controls — recent events reference state, panel density'),
         h('div', { class: 'ds-kit-controls-body' },
             h('div', { class: 'ds-btn-row', 'aria-label': 'events panel demo state' },
                 h('span', { class: 'eyebrow' }, 'demo:'),
@@ -141,6 +171,17 @@ function FeedStateSwitcher() {
                     'aria-label': 'show events panel ' + s + ' state',
                     onClick: () => { state.feed = s; kit.render(); },
                     children: s
+                }))
+            ),
+            h('div', { class: 'ds-btn-row', 'aria-label': 'panel density' },
+                h('span', { class: 'eyebrow' }, 'density:'),
+                ...DENSITIES.map((d) => Btn({
+                    key: 'ds-' + d,
+                    size: 'sm',
+                    variant: state.density === d ? 'primary' : 'ghost',
+                    'aria-label': 'switch to ' + d + ' panel density',
+                    onClick: () => { state.density = d; kit.render(); },
+                    children: d
                 }))
             )
         )
@@ -186,7 +227,7 @@ function App() {
             ]
         }),
         main: [
-            h('div', { class: 'ds-app-surface ds-section-pad' },
+            h('div', { class: 'ds-app-surface ds-section-pad', 'data-density': state.density === 'tight' ? 'compact' : 'comfortable' },
                 Heading({ level: 1, children: 'dashboard' }),
                 Lede({ children: 'kpis, tables, receipts, changelog — every content primitive in one operations surface.' }),
                 // Reading order: headline counters lead (the glance), then the
@@ -200,7 +241,7 @@ function App() {
                     // overflow-x:auto + tabindex/role="group" scroll container
                     // (table.js) — an outer .ds-scroll-x here nested a second,
                     // redundant scroll region with no purpose of its own.
-                    Panel({ id: 'p-endpoints', title: 'top endpoints', count: tableRows.length, class: 'ds-panel-flush', children: Table({ headers: tableHeaders, rows: tableRows }) })
+                    Panel({ id: 'p-endpoints', title: 'top endpoints', count: tableRows.length, class: 'ds-panel-flush', children: Table({ headers: tableHeaders, rows: tableRows, striped: true }) })
                 ),
                 // Three equal reference panels. A real 3-track grid, not
                 // percentage flex-basis: with basis+gap the three tracks

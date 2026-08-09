@@ -39,9 +39,14 @@ export function AgentEmptyState({ name, selectedAgent, suggestions, onSuggestion
                     'aria-label': 'copy install command for ' + c.agent, title: 'copy command',
                     onclick: (e) => {
                       const btn = e.currentTarget;
-                      navigator.clipboard && navigator.clipboard.writeText(c.command);
-                      btn.textContent = 'copied';
-                      setTimeout(() => { btn.textContent = 'copy'; }, 1200);
+                      const done = () => { btn.textContent = 'copied'; setTimeout(() => { btn.textContent = 'copy'; }, 1200); };
+                      // Falls back whenever the async Clipboard API is
+                      // absent OR its promise rejects (permission denied,
+                      // an unfocused document) instead of optimistically
+                      // claiming "copied" before the write is confirmed.
+                      const fallback = () => { try { const t = document.createElement('textarea'); t.value = c.command; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch { /* swallow: no copy mechanism available */ } };
+                      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(c.command).then(done, fallback);
+                      else fallback();
                     },
                   }, 'copy'))))
             : null,

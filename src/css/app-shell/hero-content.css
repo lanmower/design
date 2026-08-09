@@ -218,11 +218,15 @@
   border-radius: var(--r-3);
   font-family: var(--ff-mono); font-size: var(--fs-lg);
 }
-.cli .prompt { color: var(--green-2); }
+/* user-select:none (matching .ds-cli-row .prompt below) so selecting/copying
+   a command line grabs only the command text, not the prompt mark itself --
+   otherwise every copy-pasted line carries a leading '$ ' that has to be
+   stripped by hand before it can be re-run. */
+.cli .prompt { color: var(--green-2); user-select: none; }
 .cli .cmd    { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; color: var(--paper); }
 .cli .copy   {
   padding: var(--space-2) var(--space-3); background: transparent; color: var(--paper);
-  font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: var(--tr-caps);
+  font-size: var(--fs-tiny); letter-spacing: var(--tr-tight); font-weight: 500;
   cursor: pointer; box-shadow: inset 0 0 0 1px var(--rule-strong);
   border-radius: var(--r-pill);
 }
@@ -264,7 +268,7 @@
 .ds-quickstart-copy {
   align-self: flex-end;
   padding: var(--space-2) var(--space-3); background: transparent; color: var(--paper);
-  font-family: var(--ff-mono); font-size: var(--fs-tiny); text-transform: uppercase; letter-spacing: var(--tr-caps);
+  font-family: var(--ff-body); font-size: var(--fs-tiny); letter-spacing: var(--tr-tight); font-weight: 500;
   cursor: pointer; box-shadow: inset 0 0 0 1px var(--rule-strong);
   border-radius: var(--r-pill); border: none;
 }
@@ -431,7 +435,11 @@ table td.is-num, table th.is-num { text-align: right; font-variant-numeric: tabu
    ============================================================ */
 .ds-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; vertical-align: middle; }
 .ds-dot-on  { color: var(--green-2); }
-.ds-dot-off { color: var(--fg-3); }
+/* Off/idle reads as a HOLLOW ring (transparent fill, currentColor outline)
+   instead of a solid dot in a dimmer color -- filled-vs-outline is a shape
+   cue that survives grayscale/colorblind simulation, where a solid green dot
+   and a solid gray dot at the same size can look identical in luminance. */
+.ds-dot-off { color: var(--fg-3); background: transparent; box-shadow: inset 0 0 0 1.5px currentColor; }
 /* live is a distinct hue from a plain "on" dot — see .chip.tone-live's
    comment for the success-vs-live rationale. */
 .ds-dot-live { color: var(--sky); }
@@ -496,7 +504,7 @@ table td.is-num, table th.is-num { text-align: right; font-variant-numeric: tabu
 .kpi-card .lbl {
   font-size: var(--fs-xs); color: var(--fg-3);
   font-weight: 600; margin-top: 8px;
-  letter-spacing: var(--tr-caps); text-transform: uppercase;
+  letter-spacing: var(--tr-tight);
 }
 .kpi-foot {
   display: flex; align-items: center; justify-content: space-between;

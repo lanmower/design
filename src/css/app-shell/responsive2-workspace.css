@@ -245,11 +245,14 @@
 @media (prefers-reduced-motion: no-preference) {
   .ws-shell { transition: grid-template-columns var(--dur-base) var(--ease); }
 }
-/* Ultrawide: cap the shell so the 1fr content track doesn't stretch to
-   unreadable measures while the fixed side columns pin to their clamps. */
-@media (min-width: 1920px) {
-  .ws-shell { max-width: 1920px; margin-inline: auto; }
-}
+/* Ultrawide: .ws-shell itself stays full-width (fills the real screen edges
+   at any viewport, matching .app's own unbounded-width rule in topbar.css) --
+   only the 1fr content track's OWN inner measure is capped, so rail/sessions/
+   pane keep their fixed/clamped widths and only the middle content column's
+   text gets a readability ceiling, instead of the whole grid (and its side
+   columns) shrinking together and leaving dead margin on either side of the
+   shell. */
+.ws-content { max-width: var(--measure-wide, 1200px); margin-inline: auto; width: 100%; }
 
 /* Rail (left nav) */
 .ws-rail {

@@ -21,9 +21,18 @@
   font-weight: 700;
 }
 .btn-primary:hover { background: var(--fg); color: var(--bg); transform: translateY(-1px); box-shadow: var(--shadow-2); }
-.btn-ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 2px var(--fg); }
+.btn-ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 var(--bw-hair) var(--fg); }
 .btn-ghost:hover { background: color-mix(in oklab, var(--fg) 12%, transparent); transform: translateY(-1px); }
 .btn:active, .btn-primary:active, .btn-ghost:active { transform: translateY(1px); box-shadow: none; }
+/* Disabled state: --fg-3 (the tuned tertiary-text token, AA-clear against
+   every panel tier) instead of a blind opacity halving -- opacity multiplies
+   the SURROUNDING contrast too, so a light-on-dark button can drop under 3:1
+   even though "disabled" only needs to stay legible, not full-strength. */
+.btn:disabled, .btn-primary:disabled, .btn-ghost:disabled,
+.btn.is-disabled, .btn-primary.is-disabled, .btn-ghost.is-disabled {
+  background: var(--bg-2); color: var(--fg-3); border-color: var(--rule);
+  box-shadow: none; cursor: not-allowed; pointer-events: none;
+}
 .btn:focus-visible, .btn-primary:focus-visible, .btn-ghost:focus-visible, .ds-icon-btn:focus-visible {
   outline: var(--focus-w) solid var(--focus-color);
   outline-offset: var(--focus-offset);
@@ -32,6 +41,23 @@
 .btn-sm, .btn-sm.btn-primary, .btn-sm.btn-ghost {
   height: var(--ctl-sm); min-height: var(--ctl-sm);
   padding: 0 var(--space-2); font-size: var(--fs-tiny); gap: var(--space-1);
+}
+
+/* Link-styled button: an underline (not just color) is the affordance that
+   separates "this navigates" from "this triggers an action" -- .btn-ghost's
+   outline reads as a secondary ACTION button, not a link, at a glance. */
+.btn-link {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  background: none; border: none; box-shadow: none; padding: 0;
+  height: auto; min-height: 0;
+  font-family: var(--ff-body); font-weight: 600; font-size: var(--fs-sm);
+  color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px;
+  cursor: pointer;
+}
+.btn-link:hover { color: var(--fg); }
+.btn-link:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 .btn-lg, .btn-lg.btn-primary, .btn-lg.btn-ghost {
   height: var(--ctl-lg); min-height: var(--ctl-lg);

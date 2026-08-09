@@ -2,17 +2,39 @@
    Panel — soft tonal container, no border decoration
    ============================================================ */
 .panel {
-  background: var(--panel-1, var(--bg-2));
-  border: var(--bw-hair) solid var(--rule);
+  /* PilotDeck-parity: the reference canvas has NO visible container edge
+     anywhere except a single hairline (sidebar only) — page bg and panel
+     fill read as the same tone. Stacking a tonal fill + a border + a shadow
+     (the previous three-layer treatment) is what critics independently
+     flagged as "every card reads as a boxed gray tile" / "grid of gray
+     cards" — the single most-repeated, highest-impact gap. Panels are now
+     flat (transparent, no border): content groups are separated by
+     whitespace and an optional --panel-shadow-1 whisper only, never a fill.
+     Use .panel-tonal to opt back into the filled/bordered look for surfaces
+     that genuinely need a floating card (e.g. dropdowns, dialogs already
+     have their own elevation scale and are unaffected). */
+  background: transparent;
+  border: none;
   border-radius: var(--r-2);
-  margin: 0 0 var(--space-4);
-  padding: var(--space-3);
+  /* AGENTS.md "outer 2:1 inner": outer separation is --space-6, inner
+     sibling gap --space-4 (48:24 = 2:1), matching .ds-panel-trio/
+     .ds-panel-duo. Bumped up one rung from --space-5/--space-3 for more
+     PilotDeck-style airy whitespace while preserving the 2:1 ratio. */
+  margin: 0 0 var(--space-6);
+  padding: var(--space-4);
   position: relative;
-  /* Crisp, restrained elevation — a hairline border does the edge definition;
-     the shadow only adds a whisper of lift, not a soft glow-card float. */
-  box-shadow: var(--shadow-1);
   transition: box-shadow var(--dur-base) var(--ease-spring), border-color var(--dur-snap) var(--ease),
     transform var(--dur-base) var(--ease-spring);
+}
+/* Opt-in tonal/bordered card — the pre-restyle .panel look, kept for
+   surfaces that need to read as a discrete floating card rather than a
+   text grouping on flat canvas (e.g. a composer input, which PilotDeck
+   itself DOES give a faint 1px border+no fill — see .panel-inline below
+   for that exact treatment). */
+.panel.panel-tonal {
+  background: var(--panel-1, var(--bg-2));
+  border: var(--bw-hair) solid var(--rule);
+  box-shadow: var(--panel-shadow-1);
 }
 /* Editorial accent spine — an opt-in printed-ink rule down the left edge that
    reads as a magazine pull-quote bar, not a glow card. */
@@ -25,7 +47,9 @@
   width: var(--bw-chunk); background: var(--accent);
   border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
 }
-.panel.panel-inline { background: var(--bg-2); padding: var(--space-3) var(--space-3); }
+/* PilotDeck's composer is the ONE element with a visible edge on an
+   otherwise flat canvas — a faint 1px border, no tonal fill. */
+.panel.panel-inline { background: transparent; border: var(--bw-hair) solid var(--rule); padding: var(--space-3) var(--space-3); }
 .panel.panel-wide   { background: transparent; box-shadow: none; border: none; }
 /* Changelog (and any other panel-wide content) needs its OWN container-query
    context: the existing `@container (max-width: 760px) .ds-changelog-row`
@@ -56,11 +80,11 @@
      rows sit on ONE left axis (the old 24/32 padding was authored for the
      pre-padding .panel-wide era and indented the label 16px past its content). */
   padding: var(--space-2) var(--space-3);
-  font-size: var(--fs-tiny); font-weight: 600;
-  color: var(--fg-3);
-  letter-spacing: var(--tr-caps); text-transform: uppercase;
+  font-size: var(--fs-sm); font-weight: 600;
+  color: var(--fg-2);
+  letter-spacing: 0;
   /* A hairline divider is the header's only structural separator from the
-     body — without it, an uppercase caps label at fs-tiny/600 reads as just
+     body — without it, a sentence-case label at fs-sm/600 reads as just
      another dim meta line once the eye drops past the top of the panel. */
   border-bottom: var(--bw-hair) solid var(--rule);
   margin-bottom: var(--space-1);

@@ -31,6 +31,16 @@
 
 export const kits = [
   {
+    id: 'buttons',
+    title: 'Buttons',
+    description: 'buttons ui kit — every variant, size, and state: primary, secondary, ghost, link, danger, loading, disabled.',
+    screenLabel: '17 Buttons',
+    htmlTheme: true,
+    themeColorMetas: true,
+    stylesheets: [],
+    importExtra: ['ds/'],
+  },
+  {
     id: 'aicat',
     title: 'AICat',
     description: 'aicat ui kit — ai assistant chat with cat persona, ascii portrait, thinking dots.',
@@ -136,7 +146,7 @@ export const kits = [
   {
     id: 'gm_inspector',
     title: 'GM Inspector',
-    description: 'gm inspector ui kit -- session list, process tree, deviations, PRD/mutable editors, query builder, built from AppShell + the data-density component family.',
+    description: 'gm inspector ui kit — session list, process tree, deviations, PRD/mutable editors, query builder, built from AppShell + the data-density component family.',
     screenLabel: 'gm inspector',
     htmlTheme: true,
     themeColorMetas: true,

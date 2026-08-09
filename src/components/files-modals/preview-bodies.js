@@ -61,8 +61,12 @@ export function FilePreviewCode({ content = '', lang, filename, wrap, onWrapTogg
     const onCopy = (e) => {
         const btn = e.currentTarget;
         const done = () => { btn.textContent = 'copied'; btn.classList.add('is-copied'); setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('is-copied'); }, 1600); };
-        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(content).then(done).catch(() => {});
-        else { try { const t = document.createElement('textarea'); t.value = content; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch { /* swallow: legacy execCommand copy fallback unsupported, nothing more to try */ } }
+        const fallback = () => { try { const t = document.createElement('textarea'); t.value = content; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch { /* swallow: no copy mechanism available */ } };
+        // Falls back whenever the async Clipboard API is absent OR its
+        // promise rejects (permission denied, an unfocused document) --
+        // was previously only reached when navigator.clipboard didn't exist.
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(content).then(done, fallback);
+        else fallback();
     };
     const hasPreview = previewHtml != null && onModeChange;
     const activeMode = hasPreview ? (mode || 'source') : 'source';

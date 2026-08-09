@@ -55,7 +55,7 @@
   width: 36px; height: 36px; flex-shrink: 0;
   border-radius: 50%; background: var(--bg-3); color: var(--fg);
   display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--ff-mono); font-size: var(--fs-micro); font-weight: 600;
+  font-family: var(--ff-body); font-size: var(--fs-micro); font-weight: 600;
   text-transform: lowercase; letter-spacing: 0.02em; user-select: none;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
   position: relative;
@@ -355,7 +355,7 @@
 .chat-link .thumb,
 .chat-link img.thumb { width: 80px; height: 80px; border-radius: var(--r-0); object-fit: cover; background: var(--bg-3) center/cover no-repeat; }
 .chat-link .meta { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
-.chat-link .host { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3); text-transform: lowercase; }
+.chat-link .host { font-family: var(--ff-body); font-size: var(--fs-xs); color: var(--fg-3); text-transform: lowercase; }
 .chat-link .title { font-weight: 600; font-size: var(--fs-sm); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .chat-link .desc { font-size: var(--fs-xs); color: var(--fg-2); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
@@ -367,7 +367,7 @@
 .chat-meta .who { font-weight: 600; color: var(--fg-2); }
 .chat-meta .who::after { content: ' ·'; color: var(--fg-3); font-weight: 400; }
 .chat-meta .t { color: var(--fg-3); }
-.chat-meta .tick { color: var(--fg-3); margin-left: var(--space-hair); letter-spacing: -2px; font-family: var(--ff-mono); }
+.chat-meta .tick { color: var(--fg-3); margin-left: var(--space-hair); letter-spacing: -2px; font-family: var(--ff-body); }
 .chat-meta .tick.read { color: var(--accent-ink); }
 
 .chat-reactions {

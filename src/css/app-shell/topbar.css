@@ -302,9 +302,9 @@ body.canvas-host { background: transparent !important; }
   outline-offset: var(--focus-offset);
 }
 .app-side a.active {
-  color: var(--accent-fg);
-  background: var(--accent);
-  font-weight: 600;
+  color: var(--fg);
+  background: var(--bg-3);
+  font-weight: 500;
 }
 .app-side .count {
   background: color-mix(in oklab, var(--fg) 10%, transparent);
@@ -312,15 +312,16 @@ body.canvas-host { background: transparent !important; }
   padding: 3px 10px; font-size: var(--fs-micro); font-weight: 700;
   border-radius: var(--r-pill);
 }
-/* The lime active pill is the sidebar's one accent moment; its own count
-   chip rides the ink-on-accent pair instead of a second competing hue.
-   The bare --accent here is deliberate and is NOT the usual accent-as-text
-   defect: the chip's own background is --accent-fg (ink), so this is the
-   INVERTED pair -- lime on ink, which is the high-contrast direction. Only
-   accent-coloured text on a normal background needs --accent-ink. */
+/* Active state is a flat neutral highlight (--bg-3/--fg), not an accent
+   fill -- no hue, just a perceivable shade step up from the plain a[href]:hover
+   (--bg-2). --fg over --bg-3 is the same body-text pairing used everywhere
+   else in the sidebar, so it inherits that AA contrast for free instead of
+   depending on a per-[data-accent] retune. The count chip stays on its
+   default neutral pairing above; there is no accent-on-ink inversion to
+   double down on anymore. */
 .app-side a.active .count {
-  background: color-mix(in oklab, var(--accent-fg) 82%, transparent);
-  color: var(--accent);
+  background: color-mix(in oklab, var(--fg) 16%, transparent);
+  color: var(--fg-2);
 }
 
 .app-main {
@@ -426,30 +427,26 @@ body.canvas-host { background: transparent !important; }
 }
 
 @media (min-width: 1400px) {
-  /* Fluid ceiling, not a hard stop: scales from 1400px up to 1920px across the
-     1400-2200px viewport band (matches .ws-shell's 1920px ultrawide cap below)
-     instead of freezing at 1400px and leaving >1000px dead margin on a 2560px+
-     display. Row/prose measure caps (--measure-wide etc.) still own line-length
-     readability, so widening the shell itself does not create unreadable rows.
-     100vw (not 92vw): a stock 1920px monitor sat at 92vw = 1766px, leaving a
-     visible ~154px dead margin on the single most common desktop resolution —
-     the ceiling now reaches full width exactly at 1920px instead of falling
-     short of it. */
-  .app { max-width: clamp(1400px, 100vw, 1920px); margin-left: auto; margin-right: auto; }
+  /* No outer ceiling: .app tracks 100vw at every width, including past 1920px
+     and 2560px+ ultrawide displays, so the shell always fills the real screen
+     edges instead of leaving dead margin on either side. Row/prose measure
+     caps (--measure-wide, --stage-wide, 64ch, etc.) own line-length
+     readability independently of the shell's own width, so letting .app grow
+     unbounded does not create unreadable rows -- text still wraps at its own
+     cap; only the surrounding chrome (panels, sidebar, status bar) stretches
+     to use the extra space. Measured live at 2560px: the prior 1920px cap
+     left a symmetric 320px dead margin on each side (640px total) -- this was
+     the root cause of pages appearing to "shrink to content" rather than fill
+     the screen on wide monitors. */
+  .app { width: 100%; margin-left: auto; margin-right: auto; }
   .app-main .chat,
   .app-main > .chat-area,
   .app-main > .main-content { max-width: none; margin: 0; width: 100%; }
-  /* Status bar inherits the .app max-width cap above and stretches edge-to-edge
-     within it; no separate width constraint (which previously narrowed it). */
+  /* Status bar spans the full-width .app edge-to-edge; no separate width
+     constraint (which previously narrowed it). */
   .app-status { width: 100%; }
-  /* Cap row text measure inside the wide capped main (ultrawide readability). */
+  /* Cap row text measure inside the wide main (ultrawide readability). */
   .row .title, .row .sub { max-width: var(--measure-wide); }
-}
-/* Beyond 1920px the shell itself stops growing (matches .ws-shell's own cap) —
-   extra space becomes page margin rather than stretching sidebar/content grid
-   tracks to distances a pointer/eye shouldn't have to travel. */
-@media (min-width: 2200px) {
-  .app { max-width: 1920px; }
 }
 
 .app-status {

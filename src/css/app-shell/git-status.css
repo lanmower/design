@@ -20,7 +20,7 @@
 .ds-git-status-chip {
   display: inline-flex; align-items: center; justify-content: center;
   flex: 0 0 auto; width: 18px; height: 18px;
-  font-family: var(--ff-mono); font-size: var(--fs-micro); font-weight: 700;
+  font-family: var(--ff-body); font-size: var(--fs-micro); font-weight: 700;
   border-radius: var(--r-1);
 }
 .ds-git-status-chip.tone-add { color: var(--green-2); background: color-mix(in oklab, var(--green-2) 16%, transparent); }
@@ -38,7 +38,7 @@
   flex: 0 0 auto; font-size: var(--fs-micro); color: var(--fg-3);
   border: var(--bw-hair) solid var(--rule); border-radius: var(--r-1); padding: 1px 6px;
 }
-.ds-git-row-stats { flex: 0 0 auto; display: inline-flex; gap: 6px; font-family: var(--ff-mono); font-size: var(--fs-micro); }
+.ds-git-row-stats { flex: 0 0 auto; display: inline-flex; gap: 6px; font-family: var(--ff-body); font-size: var(--fs-micro); }
 .ds-git-stat-add { color: var(--green-2); }
 .ds-git-stat-del { color: var(--flame); }
 

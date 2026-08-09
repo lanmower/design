@@ -56,14 +56,27 @@ export function fileIconName(name) {
 // this extraction. Same behavior in every caller: try the async Clipboard
 // API, fall back to a hidden textarea + execCommand('copy') when unavailable,
 // flip the trigger button's own label/class to "copied" for ~1.6s either way.
+function execCommandCopy(text) {
+    const t = document.createElement('textarea');
+    t.value = text; document.body.appendChild(t); t.select();
+    document.execCommand('copy'); document.body.removeChild(t);
+}
 export function copyToClipboardWithFeedback(text, btn) {
     const done = () => {
         btn.textContent = 'copied';
         btn.classList.add('is-copied');
         setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('is-copied'); }, 1600);
     };
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(() => {});
-    else { try { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done(); } catch { /* swallow: legacy execCommand copy fallback unsupported, nothing more to try */ } }
+    // Falls back to execCommand whenever the async Clipboard API is either
+    // absent OR its promise rejects (permission denied, an unfocused
+    // document -- a real failure mode, not just an old-browser one). The
+    // prior version only fell back when navigator.clipboard didn't exist at
+    // all, so a live rejection silently did nothing -- no feedback, no copy.
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, () => { try { execCommandCopy(text); done(); } catch { /* swallow: no copy mechanism available */ } });
+    } else {
+        try { execCommandCopy(text); done(); } catch { /* swallow: no copy mechanism available */ }
+    }
 }
 
 // Inject a per-block copy button into every <pre> inside a rendered-markdown

@@ -65,7 +65,7 @@ export function Btn({ href, variant = 'default', size = 'md', children, onClick,
     // modifier that snaps height/padding/font to the --ctl-* ladder. Unknown
     // sizes fall back to md so a typo never drops the button's base styling.
     const sizeCls = size === 'sm' ? ' btn-sm' : (size === 'lg' ? ' btn-lg' : '');
-    const cls = (resolvedVariant === 'primary' ? 'btn-primary' : (resolvedVariant === 'ghost' ? 'btn-ghost' : (resolvedVariant === 'danger' ? 'btn-primary danger' : 'btn')))
+    const cls = (resolvedVariant === 'primary' ? 'btn-primary' : (resolvedVariant === 'ghost' ? 'btn-ghost' : (resolvedVariant === 'danger' ? 'btn-primary danger' : (resolvedVariant === 'link' ? 'btn-link' : 'btn'))))
         + sizeCls
         + (disabled ? ' is-disabled' : '')
         + (className ? ' ' + className : '');

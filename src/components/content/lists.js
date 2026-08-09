@@ -31,7 +31,7 @@ export function WorksList({ works = [], openedIndex = -1, onToggle }) {
                         h('p', { class: 'ds-work-body' }, w.body)
                     ),
                     h('div', { class: 'ds-work-actions' },
-                        Btn({ variant: 'primary', href: w.href || '#', children: 'open ->' }),
+                        Btn({ variant: 'primary', href: w.href || '#', 'aria-label': 'open ' + (w.title || 'project'), children: 'open ->' }),
                         Btn({ href: w.source || '#', children: 'source' })
                     )
                 ) : null

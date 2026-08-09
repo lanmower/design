@@ -43,6 +43,12 @@ export function Topbar({ brand = '247420', leaf = '', items = [], active = '', o
                 href,
                 class: active === cleanLabel ? 'active' : '',
                 'aria-current': active === cleanLabel ? 'page' : null,
+                // The visible label keeps its ' ->' ASCII arrow (sanctioned
+                // per AGENTS.md's icon policy), but a screen reader spelling
+                // that out literally ("source dash greater-than") is noise --
+                // aria-label gives the same cleaned text the active-state
+                // comparison already computes, read once, without the arrow.
+                'aria-label': cleanLabel !== String(label) ? cleanLabel : null,
                 onclick: (e) => {
                     if (!String(href).startsWith('http') && onNav) {
                         e.preventDefault();
