@@ -72,8 +72,19 @@ body.canvas-host { background: transparent !important; }
   -webkit-backdrop-filter: none; padding: 0; min-height: 0;
   flex: 1 1 auto;
 }
-.app-chrome > .app-crumb { order: 1; flex: 1 1 auto; }
-.app-chrome > .app-topbar { order: 2; flex: 0 0 auto; }
+.app-chrome > .app-crumb { order: 1; flex: 1 1 auto; min-width: 0; }
+/* flex:1 1 auto + min-width:0 (not the previous 0 0 auto): a merged
+ * chrome's topbar carries the search input, which has its own shrink
+ * basis (.ds-topbar-search, kits-appended.css) meant to yield space before
+ * the row wraps -- but a `0 0 auto` topbar box never shrinks itself, so the
+ * search input's flexibility was inert and the whole topbar instead
+ * dropped to a second line as one unit once combined crumb+topbar content
+ * exceeded the row (witnessed live on the search kit at 1280px: crumb
+ * 564px + topbar 596px overflowed a 1184px content box, wrapping the
+ * topbar under the crumb and reading as a broken sticky header). Letting
+ * the topbar itself shrink means the search input actually compresses
+ * first, keeping both bars on one line at realistic content widths. */
+.app-chrome > .app-topbar { order: 2; flex: 1 1 auto; min-width: 0; justify-content: flex-end; }
 .app-chrome > .app-topbar > .brand { display: none; }
 .app-chrome > .app-topbar > nav { margin-left: 0; }
 .app-chrome > .app-crumb > .crumb-right { margin-left: auto; }
