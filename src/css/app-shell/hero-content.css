@@ -182,14 +182,16 @@
 .ds-marquee-track {
   display: inline-flex; gap: var(--space-5);
   white-space: nowrap; will-change: transform;
-  animation: ds-marquee-run 28s linear infinite;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ds-marquee-track { animation: ds-marquee-run 28s linear infinite; }
+  .ds-marquee:hover .ds-marquee-track,
+  .ds-marquee:focus-within .ds-marquee-track,
+  .ds-marquee:active .ds-marquee-track { animation-play-state: paused; }
 }
 .ds-marquee-run { display: inline-flex; align-items: center; gap: var(--space-5); }
 .ds-marquee-item { display: inline-flex; align-items: center; gap: var(--space-5); }
 .ds-marquee-sep { color: var(--accent-ink); }
-.ds-marquee:hover .ds-marquee-track,
-.ds-marquee:focus-within .ds-marquee-track,
-.ds-marquee:active .ds-marquee-track { animation-play-state: paused; }
 @keyframes ds-marquee-run {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }

@@ -212,6 +212,16 @@ input[type="checkbox"], input[type="radio"] {
 }
 
 /* ------------------------------------------------------------
+   Focus-visible for controls with no other component sheet
+   -------------------------------------------------------------- */
+
+.ds-session-new:focus-visible,
+.agentchat-cwd-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring-inset);
+}
+
+/* ------------------------------------------------------------
    Context Menu Styles
    -------------------------------------------------------------- */
 

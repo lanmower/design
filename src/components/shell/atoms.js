@@ -145,7 +145,7 @@ export function Glyph({ children, color, size = 'base', label } = {}) {
 }
 
 export function Heading({ level = 1, children, style = '', class: className = '', 'aria-level': ariaLevel }) {
-    return h('h' + level, { class: className || null, style, 'aria-level': ariaLevel != null ? String(ariaLevel) : null }, children);
+    return h('h' + level, { class: className || null, style: style || null, 'aria-level': ariaLevel != null ? String(ariaLevel) : null }, children);
 }
 
 export function Lede({ children }) {

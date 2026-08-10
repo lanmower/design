@@ -256,7 +256,7 @@ export function mountCommunityApp(root, adapter = {}) {
                 // id + tabindex match AppShell()'s contract so the skip link
                 // above actually lands somewhere; this app builds its own shell
                 // and so inherited neither.
-                h('main', { class: 'app-main', id: 'app-main', tabindex: '0', onclick: () => { if (s.mobileMenuOpen && A.closeMobileMenu) A.closeMobileMenu(); } },
+                h('main', { class: 'app-main ds-app-surface', id: 'app-main', tabindex: '0', onclick: () => { if (s.mobileMenuOpen && A.closeMobileMenu) A.closeMobileMenu(); } },
                     // The channel name is the page title, but it lived only in
                     // the topbar brand span, leaving the document with no
                     // heading at all. sr-only because the topbar and chat-head

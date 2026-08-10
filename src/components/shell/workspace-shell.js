@@ -120,7 +120,7 @@ export function WorkspaceShell({ rail, sessions, main, pane, crumb, status, narr
                         onclick: (e) => toggleWsDrawer('pane', null, e.currentTarget),
                     }, Icon('page')) : null)
                 : null,
-            h('main', { class: 'ws-main' + (narrow ? ' narrow' : '') + (mainFlush ? ' ws-main--flush' : ''), id: 'ws-main', tabindex: '-1' },
+            h('main', { class: 'ws-main ds-app-surface' + (narrow ? ' narrow' : '') + (mainFlush ? ' ws-main--flush' : ''), id: 'ws-main', tabindex: '-1' },
                 ...(Array.isArray(main) ? main : [main])),
             status || null),
         // Optional right context pane. Its desktop collapse toggle now lives in

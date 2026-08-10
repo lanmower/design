@@ -164,7 +164,7 @@ function isStatusCollapsed() {
     try { return localStorage.getItem(STATUS_COLLAPSE_KEY) === '1'; } catch (_) { return false; }
 }
 function toggleStatusCollapsed(fromEl) {
-    const app = fromEl && fromEl.closest && fromEl.closest('.app');
+    const app = fromEl && fromEl.closest && fromEl.closest('.app, .ws-shell');
     const bar = app && app.querySelector('.app-status');
     if (!bar) return;
     const next = !bar.classList.contains('is-collapsed');
@@ -185,7 +185,7 @@ export function Status({ left = [], right = [] } = {}) {
     // ref runs on mount, before paint, so there's no expanded-then-collapse flash.
     const syncLiveVar = (el) => {
         if (!el) return;
-        const app = el.closest('.app');
+        const app = el.closest('.app, .ws-shell');
         if (app) app.style.setProperty('--app-status-h-live', collapsed ? 'var(--space-4)' : 'var(--app-status-h)');
     };
     return h('footer', { class: 'app-status' + (collapsed ? ' is-collapsed' : ''), role: 'contentinfo', ref: syncLiveVar },

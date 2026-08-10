@@ -111,7 +111,7 @@ function view(rerender) {
         }),
         crumb: Crumb({ leaf: selected.name, right: h('span', { class: 'dim' }, filteredCount + ' / ' + components.length + ' components') }),
         side: sideNode(rerender),
-        main: h('div', { class: 'ds-explorer-main' },
+        main: h('div', { class: 'ds-explorer-main ds-app-surface' },
             h('input', {
                 type: 'search', class: 'input ds-explorer-search',
                 placeholder: 'search ' + components.length + ' components…',

@@ -14,7 +14,7 @@ export function Panel({ title, count, right, style = '', class: className = '', 
     // a screen-reader heading-jump can actually find each section, not just
     // the page's single top-level h1.
     const headingTag = 'h' + headingLevel;
-    return h('div', { class: cls, style, ...(id ? { id } : {}) },
+    return h('div', { class: cls, style: style || null, ...(id ? { id } : {}) },
         title != null ? h('div', { class: 'panel-head' },
             h(headingTag, { class: 'panel-title' }, title),
             right != null ? right : (count != null ? h('span', { class: 'ds-badge' }, String(count)) : null)

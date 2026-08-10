@@ -795,7 +795,7 @@ select:focus-visible {
 }
 
 [data-theme="github-dark"] ::selection {
-  background: #0d2847;
+  background: color-mix(in oklab, var(--accent) 24%, var(--bg-2));
   color: var(--fg);
 }
 
