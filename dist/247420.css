@@ -1263,6 +1263,13 @@
   position: static; background: none; backdrop-filter: none;
   -webkit-backdrop-filter: none; padding: 0; min-height: 0;
   flex: 1 1 auto;
+  /* Standalone .app-topbar/.app-crumb each carry their own border-bottom for
+     when they're the lone sticky bar -- inside a merged .app-chrome that hairline
+     is still active on the CHILD box, which sits above the chrome's own bottom
+     edge (crumb+topbar rows are shorter than the chrome's full height once
+     padding/gap are added), painting a second, fainter line above the chrome's
+     real bottom border. Only .app-chrome should own the merged band's edge. */
+  border-bottom: none;
 }
 .ds-247420 .app-chrome > .app-crumb { order: 1; flex: 1 1 auto; min-width: 0; }
 /* flex:1 1 auto + min-width:0 (not the previous 0 0 auto): a merged
