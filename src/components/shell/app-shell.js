@@ -262,8 +262,21 @@ export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
     // "banner"/"navigation" region at all above <main>. <header role="banner">
     // names the brand+nav band; the app-side-shell aside below already exists
     // as a real <aside>, so this closes the missing landmark for the top band.
+    //
+    // `topbar` arrives here as Topbar()'s own already-rendered VElement, which
+    // is itself a `<header class="app-topbar" role="banner">`. Nesting that
+    // whole element inside another `<header class="app-chrome" role="banner">`
+    // produced two stacked <header> landmarks ("two title bars") instead of
+    // one — the merge only wrapped the topbar, it never actually unwrapped
+    // it. When folding with a crumb, pull topbar's own children out and drop
+    // its self-wrapping header + duplicate banner role so exactly one
+    // <header role="banner"> exists for the whole chrome band.
+    const topbarIsSelfWrappedHeader = topbar && topbar.type === 'header' && topbar.props && topbar.props.class === 'app-topbar';
+    const topbarContent = (crumb && topbarIsSelfWrappedHeader)
+        ? h('div', { class: 'app-topbar' }, ...(topbar.props.children || []))
+        : topbar;
     const chrome = (topbar && crumb)
-        ? h('header', { class: 'app-chrome', role: 'banner' }, topbar, crumb)
+        ? h('header', { class: 'app-chrome', role: 'banner' }, topbarContent, crumb)
         : (topbar || crumb) ? h('header', { class: 'app-chrome', role: 'banner' }, topbar || crumb) : null;
     return h('div', { class: 'app', ref: syncAppSide },
         h('a', { href: '#app-main', class: 'skip-link' }, 'skip to main content'),
