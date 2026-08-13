@@ -51,8 +51,19 @@ html.ds-247420 .ca-app > .app-body > .app-main {
 
 /* app topbar — mountCommunityApp's own sole chrome above the chat-head; had
    no rules anywhere (relying on raw flex defaults), which read as unaligned
-   default spacing rather than a designed header row. */
-html.ds-247420 .app-topbar {
+   default spacing rather than a designed header row.
+   Scoped under .ca-app: a bare `.app-topbar` selector here collided with the
+   main AppShell's own `.app-topbar` (src/css/app-shell/topbar.css) — same
+   class name, unrelated component. The main site's merged-chrome reset rule
+   (`.app-chrome > .app-topbar { padding: 0; background: none; }`) is
+   specificity (0,3,0); this block's un-scoped `.app-topbar` at (0,2,0)
+   shouldn't have beaten it, but the mirrored dist build re-scopes every
+   selector here to `.ds-247420.ds-247420` (0,4,0) to survive minification/
+   dedup, which DID beat it — showing up live as the homepage topbar
+   floating inset with a `--bg-2` card fill instead of flush. `.ca-app`
+   confines every rule in this file to the community-app widget's own DOM
+   subtree, the fix for both the source and its dist mirror. */
+html.ds-247420 .ca-app .app-topbar {
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -62,7 +73,7 @@ html.ds-247420 .app-topbar {
   background: var(--bg-2);
   border-bottom: 1px solid var(--panel-3, color-mix(in oklab, var(--fg) 10%, transparent));
 }
-html.ds-247420 .app-topbar .brand {
+html.ds-247420 .ca-app .app-topbar .brand {
   display: flex;
   align-items: baseline;
   gap: var(--space-1);
@@ -74,13 +85,13 @@ html.ds-247420 .app-topbar .brand {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-html.ds-247420 .app-topbar .brand .slash { color: var(--fg-3); }
-html.ds-247420 .app-topbar nav {
+html.ds-247420 .ca-app .app-topbar .brand .slash { color: var(--fg-3); }
+html.ds-247420 .ca-app .app-topbar nav {
   display: flex;
   align-items: center;
   gap: var(--space-2);
 }
-html.ds-247420 .app-topbar nav a {
+html.ds-247420 .ca-app .app-topbar nav a {
   color: var(--fg-2);
   font-size: var(--fs-tiny);
   text-decoration: none;
@@ -88,8 +99,8 @@ html.ds-247420 .app-topbar nav a {
   border-radius: var(--r-1);
   transition: background var(--dur-snap, .12s) var(--ease, ease), color var(--dur-snap, .12s) var(--ease, ease);
 }
-html.ds-247420 .app-topbar nav a:hover { color: var(--fg); background: color-mix(in oklab, var(--fg) 8%, transparent); }
-html.ds-247420 .app-topbar nav a:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 2px; }
+html.ds-247420 .ca-app .app-topbar nav a:hover { color: var(--fg); background: color-mix(in oklab, var(--fg) 8%, transparent); }
+html.ds-247420 .ca-app .app-topbar nav a:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 2px; }
 
 /* server + channel rail */
 html.ds-247420 .ca-rail {
