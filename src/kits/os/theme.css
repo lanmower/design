@@ -91,7 +91,16 @@
     --color-danger: var(--warn, #C41C0C);
 }
 
+/* .os-root/.wm-root are `position: fixed; inset: 0`, independent of body's
+ * box — but without this reset, body keeps the UA-default 8px margin and
+ * neither html nor body claims the full viewport height, leaving an
+ * unstyled sliver of page background around the fixed shell (the menubar/
+ * taskbar/titlebar and any native scrollbar visibly fail to line up with
+ * the page edge) and a spurious page-level scrollbar from the 8px overflow. */
 html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
     background: var(--os-bg-0);
     color: var(--os-fg);
     font-family: var(--os-font);
