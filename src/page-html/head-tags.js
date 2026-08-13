@@ -53,7 +53,8 @@ export function renderFaviconTags({ faviconHref, faviconGlyph }) {
 }
 
 export function renderCssLink({ cssHref }) {
+    // raw.githack.com, not jsDelivr — see scripts/build.mjs FONT_BASE comment.
     return cssHref
         ? `<link rel="stylesheet" href="${cssHref}">`
-        : `<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/AnEntrypoint/design@main/dist/247420.css">`;
+        : `<link rel="stylesheet" href="https://raw.githack.com/AnEntrypoint/design/main/dist/247420.css">`;
 }

@@ -210,7 +210,14 @@ if (fs.existsSync(fontsSrc)) {
     console.log('[247420] copied fonts:', fs.readdirSync(fontsDst).length, 'files');
 }
 
-const FONT_BASE = 'https://cdn.jsdelivr.net/gh/AnEntrypoint/design@main/dist/fonts/';
+// raw.githack.com, not jsDelivr: jsDelivr caches a GitHub @main branch
+// reference for up to 12h regardless of purge (confirmed by direct
+// investigation, 2026-08-13 — a purge forces a real edge cache MISS but
+// jsDelivr's own backend re-serves its still-stale resolution of what
+// commit "main" points to). githack fetches straight from GitHub with a
+// 60s max-age and was confirmed byte-identical to the GitHub source
+// immediately after a fix landed.
+const FONT_BASE = 'https://raw.githack.com/AnEntrypoint/design/main/dist/fonts/';
 raw = raw.replace(/url\(\.?\/?fonts\//g, `url(${FONT_BASE}`);
 
 // Prefix every selector with .ds-247420 so consumers add the class on a root
