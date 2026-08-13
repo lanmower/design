@@ -1,0 +1,89 @@
+name: refresh visual baselines
+
+# Captures visual-baselines/*.png on ubuntu-latest — the SAME platform ci.yml
+# checks them on — and commits the result.
+#
+# This exists because the baselines are compared byte-for-byte, so they are only
+# meaningful when captured on the checking platform. Recapturing on a developer
+# machine drifts nearly every type specimen on the runner (78 of 81 in one
+# recorded attempt, 87 of 87 in another) at sub-3% deltas with no layout change:
+# a font-rasterization difference, not a regression. That is why the check step
+# in ci.yml is report-only, and its comment names this workflow's approach as the
+# real fix.
+#
+# Manual dispatch only, never on push. A baseline refresh asserts "the new
+# rendering is correct", which is a human judgement — running it automatically
+# would silently absorb the next real visual regression into the baseline, i.e.
+# exactly the gate-that-cannot-fail this is meant to eliminate.
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Why the baselines are being refreshed (goes in the commit message)'
+        required: true
+        type: string
+
+# The default GITHUB_TOKEN is read-only for contents; committing needs write.
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # >= 22 for the global WebSocket used by scripts/cdp.mjs, same reason
+          # as ci.yml — it is what keeps the capture free of any
+          # puppeteer/playwright dependency (see AGENTS.md).
+          node-version: '22'
+
+      - name: Install deps
+        run: npm install --no-audit --no-fund
+
+      # The capture reads the built CSS/JS, so a stale dist would be captured
+      # instead of the current source.
+      - name: Build
+        run: npm run build
+
+      # Identical launch to ci.yml's, deliberately: the baselines are only valid
+      # for the exact rendering configuration that checks them, so the flags,
+      # the scrollbar suppression and the device scale factor must all match.
+      - name: Start static server and headless Chrome
+        run: |
+          npx --yes http-server . -p 8899 -s &
+          google-chrome --headless=new --disable-gpu --no-sandbox \
+            --remote-debugging-port=9333 --remote-debugging-address=127.0.0.1 \
+            --hide-scrollbars --force-device-scale-factor=1 about:blank &
+          npx --yes wait-on http://127.0.0.1:8899/preview/index.html http-get://127.0.0.1:9333/json/version
+
+      - name: Capture baselines
+        run: node scripts/visual-baseline.mjs update
+
+      # Proves the captured set is internally consistent before it is committed.
+      # A failure here means the capture itself is non-deterministic (an
+      # animation or a live timestamp bleeding into a screenshot), which must be
+      # fixed rather than committed as a baseline.
+      - name: Verify the fresh set matches itself
+        run: node scripts/visual-baseline.mjs check
+
+      - name: Commit
+        run: |
+          if git diff --quiet -- visual-baselines; then
+            echo "baselines already current for this platform -- nothing to commit"
+            exit 0
+          fi
+          git config user.name lanmower
+          git config user.email admin@coas.co.za
+          git add visual-baselines
+          git commit -m "chore(visual): refresh Linux-captured visual baselines
+
+          ${{ inputs.reason }}
+
+          Captured on ubuntu-latest by .github/workflows/visual-baselines.yml, so
+          the PNGs match the platform ci.yml checks them on. Verified with a
+          re-check in the same run before committing."
+          git push

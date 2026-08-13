@@ -1,0 +1,318 @@
+/* app-surfaces.css — agentgui application-surface styling.
+ *
+ * Owns every design decision for the agentgui consumer app's own surfaces
+ * (the bits the app composes around the flagship kit components): the project
+ * filter pills, the working-directory bar, the resume banner, the backend
+ * health chips, the settings two-column grid, the history empty state, the
+ * boot splash, the chat control cluster, and the cross-cutting base (scrollbar
+ * theming, focus rings, print). These previously lived as a hand-rolled inline
+ * <style> block in agentgui's index.html; the kit now owns them so NO design
+ * content lives in the consumer app.
+ *
+ * Every selector is written pre-scoped under `.ds-247420` (the consumer mounts
+ * on <html class="ds-247420">), so the build's selector-prefixer leaves them
+ * untouched rather than mis-compounding the `[attr]` / `*` / bare-element
+ * selectors. All colour/space/radius/font values read from kit tokens
+ * (colors_and_type.css) — there are no app-local colour fallbacks. */
+
+/* Visually-hidden but screen-reader-available (aria-live announcer, labels). */
+.ds-247420 .sr-only {
+  position: absolute !important; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+/* Base: full-height app root reading kit tokens. */
+.ds-247420, .ds-247420 body { margin: 0; height: 100%; }
+.ds-247420 body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--ff-display, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif);
+}
+/* #root, not #app: every kit in this repo mounts to <div id="root">
+   (every ui_kits index.html) -- #app never matches anything here and this rule
+   was silently inert, which is why WorkspaceShell's height:100% chain broke
+   (#root had no definite height to resolve against, so .ws-shell grew to
+   content height instead of the viewport, pushing the composer off-screen
+   on short viewports and reading as chat/composer overlap). */
+.ds-247420 #root { height: 100vh; height: 100dvh; }
+.ds-247420 #root > * { height: 100%; }
+
+/* Themed thin scrollbars — the native chrome scrollbar is chunky/light and
+   clashes with the dark theme on the history sidebar and settings column. */
+.ds-247420 * {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--fg) 22%, transparent) transparent;
+}
+.ds-247420 *::-webkit-scrollbar { width: 9px; height: 9px; }
+.ds-247420 *::-webkit-scrollbar-track { background: transparent; }
+.ds-247420 *::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--fg) 20%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.ds-247420 *::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--fg) 34%, transparent);
+  background-clip: padding-box;
+}
+
+/* We move focus to the page heading on tab change for AT users; suppress the
+   resulting outline box on those programmatically-focused elements. */
+.ds-247420 [data-prog-focus]:focus,
+.ds-247420 [data-prog-focus]:focus-visible { outline: none !important; box-shadow: none !important; }
+
+/* The connection-dot disc + pulse are the kit's canonical .status-dot-disc;
+   only the inline-flex wrapper layout stays here. */
+.ds-247420 .status-dot { display: inline-flex; align-items: center; gap: .4em; white-space: nowrap; }
+
+/* Resume banner. */
+.ds-247420 .resume-banner {
+  padding: .6em .8em;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: var(--r-1, 8px);
+  display: flex; justify-content: space-between; align-items: center; gap: .75em;
+  margin-bottom: .75em;
+}
+
+/* History action buttons. */
+.ds-247420 .history-actions { display: flex; gap: .5em; padding: 0 0 .75em 0; flex-wrap: wrap; }
+
+/* Empty / loading state. */
+.ds-247420 .empty-state { display: flex; gap: 8px; align-items: center; padding: .5em 0; white-space: normal; }
+.ds-247420 p.empty-state { text-align: left; padding: .6em 0; color: var(--fg-3); }
+
+/* Project filter pills. */
+.ds-247420 .pill-row { display: flex; flex-wrap: wrap; gap: .35em; padding: .35em 0; }
+.ds-247420 .pill {
+  cursor: pointer; padding: .25em .7em; border-radius: 999px;
+  border: 1px solid transparent; background: transparent;
+  font: inherit; color: inherit; line-height: 1.4;
+  transition: background-color .15s ease, border-color .15s ease;
+  min-height: 28px;
+}
+.ds-247420 .pill:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.ds-247420 .pill.pill-active {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.ds-247420 .pill:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+
+/* Subagent toggle (the control itself is the kit Checkbox). */
+.ds-247420 .subagent-toggle { padding: .4em 0; min-height: 32px; }
+
+.ds-247420 .field-error { color: var(--warn); }
+
+/* Boot splash: static text painted with the HTML, replaced by the first mount. */
+.ds-247420 .boot-splash { height: 100%; min-height: 60vh; display: flex; align-items: center; justify-content: center; color: var(--fg-3); font-size: .9rem; }
+
+/* Chat control cluster in the crumb bar: model picker, +new, status. */
+.ds-247420 .chat-controls { display: flex; align-items: center; gap: .6em; flex-wrap: wrap; }
+.ds-247420 .chat-controls > * { flex: 0 0 auto; }
+.ds-247420 .chat-controls select,
+.ds-247420 .chat-controls .select,
+.ds-247420 .chat-controls [role="combobox"] { min-width: 130px; max-width: 220px; }
+.ds-247420 .chat-controls .status-dot { white-space: nowrap; }
+
+/* Main content region layout: every tab is a min-height:0 scroll host; the
+   chat tab additionally flexes as a column so the thread fills the viewport. */
+.ds-247420 .agentgui-main { min-height: 0; }
+.ds-247420 .agentgui-main-chat { display: flex; flex-direction: column; flex: 1; }
+.ds-247420 .agentgui-main .ds-section { margin: 0 0 var(--space-4, 16px); }
+
+/* Tab-switch entrance: navTo() sets a per-tab modifier class
+   (agentgui-main-<tab>) on the SAME #agentgui-main DOM node every switch
+   (webjsx patches props on the existing element rather than replacing it).
+   A single shared animation-name bound to the constant .agentgui-main base
+   class would only ever fire once (on first mount) since a CSS animation
+   restarts only when the animation-name value itself changes or the
+   element is detached/reattached - the base class never changes. Each tab
+   gets its OWN animation-name (functionally identical keyframes, distinct
+   names) so switching from e.g. agentgui-main-chat to agentgui-main-history
+   genuinely changes which animation-name applies, which is what makes the
+   browser replay the entrance on every switch. Matches the existing motion
+   craft level of ds-alert-in/ds-card-in/agentchat-jump.show instead of every
+   full-page tab swap happening with zero transition. */
+@media (prefers-reduced-motion: no-preference) {
+  .ds-247420 .agentgui-main-chat { animation: ds-main-in-chat var(--dur-base) var(--ease); }
+  .ds-247420 .agentgui-main-history { animation: ds-main-in-history var(--dur-base) var(--ease); }
+  .ds-247420 .agentgui-main-files { animation: ds-main-in-files var(--dur-base) var(--ease); }
+  .ds-247420 .agentgui-main-live { animation: ds-main-in-live var(--dur-base) var(--ease); }
+  .ds-247420 .agentgui-main-settings { animation: ds-main-in-settings var(--dur-base) var(--ease); }
+}
+@keyframes ds-main-in-chat { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes ds-main-in-history { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes ds-main-in-files { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes ds-main-in-live { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes ds-main-in-settings { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* Readable backend health summary (replaces raw JSON dump). */
+.ds-247420 .health-summary { display: flex; flex-wrap: wrap; gap: .4em; margin: .6em 0; }
+.ds-247420 .health-chip {
+  font-family: var(--ff-mono, ui-monospace, monospace);
+  font-size: .8rem; padding: .15em .55em; border-radius: var(--r-1, 8px);
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+  color: var(--fg-2);
+  border: var(--bw-hair, 1px) solid color-mix(in srgb, var(--fg) 12%, transparent);
+}
+.ds-247420 .health-summary.health-ok .health-chip:first-child {
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+/* Standalone connection-status chip — same visual vocabulary as
+   .health-chip so a form's own connecting/connected/failed feedback reads
+   consistently with the healthSummary row beneath it, instead of one being
+   a colored chip and the other bare <p class="t-meta"> text. */
+.ds-247420 .ds-status-chip {
+  display: inline-flex; align-items: center; gap: .35em;
+  font-family: var(--ff-mono, ui-monospace, monospace);
+  font-size: .8rem; padding: .15em .55em; border-radius: var(--r-1, 8px);
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+  color: var(--fg-2);
+  border: var(--bw-hair, 1px) solid color-mix(in srgb, var(--fg) 12%, transparent);
+  margin: .4em 0;
+}
+.ds-247420 .ds-status-chip-ok {
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.ds-247420 .ds-status-chip-error {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+}
+
+/* Compact working-directory bar. */
+.ds-247420 .cwd-bar {
+  display: flex; align-items: center; gap: .5em; flex-wrap: wrap;
+  padding: .15em 0 .5em; font-size: .85rem;
+}
+.ds-247420 .cwd-bar-text {
+  font-family: var(--ff-mono, ui-monospace, monospace);
+  color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60vw;
+}
+.ds-247420 .cwd-bar-btn {
+  cursor: pointer; font: inherit; line-height: 1.3;
+  padding: .15em .55em; border-radius: var(--r-1, 8px);
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+  border: var(--bw-hair, 1px) solid color-mix(in srgb, var(--fg) 14%, transparent);
+  color: var(--fg-2);
+}
+.ds-247420 .cwd-bar-btn:hover { background: color-mix(in srgb, var(--fg) 14%, transparent); }
+.ds-247420 .cwd-bar-btn:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+
+/* History no-session empty state: natural height, no leftover void below. */
+.ds-247420 .history-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  gap: .4em; text-align: center; padding: var(--space-6, 40px) 0 var(--space-4, 16px); color: var(--fg-3);
+}
+.ds-247420 .history-empty-title { margin: 0; font-size: var(--fs-lg); color: var(--fg-2); }
+.ds-247420 .history-empty-sub { margin: 0; max-width: 42ch; }
+.ds-247420 .history-empty-hints { margin: var(--space-5, 24px) auto 0; max-width: 46ch; text-align: left; }
+
+/* Settings: two-column on wide screens (backend + agents). Grid gap is the
+   single source of rhythm between stacked Panels here - .panel's own
+   margin-bottom would stack on top of the gap (32px + 24px = 56px, a break
+   used nowhere else), so it's zeroed for direct grid children. */
+.ds-247420 .settings-grid {
+  display: grid; gap: var(--space-4, 16px);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+.ds-247420 .settings-grid > .panel { margin-bottom: 0; }
+.ds-247420 .agentgui-main-settings .settings-grid { margin-top: 0; }
+
+/* The kit Chat head computes its own zero-padded count and ignores our sub
+   prop; hide it (streaming state shows via the title + busy banner). */
+.ds-247420 .chat-head .sub { display: none; }
+
+/* Event-list row hover + search-result flash. */
+.ds-247420 .ds-event-list .row[role="button"]:hover { background: color-mix(in srgb, var(--fg) 5%, transparent); }
+/* Opt-in like every other animation in the kit: the flash is declared only
+   under no-preference, so a reduced-motion user gets the row without a 2s
+   pulsing highlight. It animates background rather than transform, so the
+   vestibular risk is low, but a repeating attention pull is still exactly the
+   kind of thing the preference exists to suppress. The row is located by the
+   scroll-into-view that accompanies it, so nothing is lost when it is absent. */
+@media (prefers-reduced-motion: no-preference) {
+  .ds-247420 .ds-event-list .row.event-flash { animation: agentgui-event-flash 2s ease-out; }
+}
+
+
+/* Generic interactive focus ring for app-emitted controls. */
+.ds-247420 button:focus-visible,
+.ds-247420 [tabindex]:focus-visible,
+.ds-247420 a:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+
+/* Settings-panel field spacing utilities (replace app.js inline style= margins). */
+.ds-247420 .agentgui-field-mb { margin: 0 0 .5em; }
+.ds-247420 .agentgui-field-my { margin: .5em 0; }
+
+@keyframes agentgui-event-flash {
+  0%   { background: color-mix(in srgb, var(--accent) 40%, transparent); }
+  100% { background: transparent; }
+}
+
+@media (min-width: 900px) {
+  .ds-247420 .settings-grid { grid-template-columns: minmax(0, 420px) minmax(0, 1fr); }
+}
+
+/* Tablet: keep the chat control cluster from wrapping the status dot alone. */
+@media (max-width: 900px) {
+  .ds-247420 .chat-controls select,
+  .ds-247420 .chat-controls .select,
+  .ds-247420 .chat-controls [role="combobox"] { min-width: 110px; max-width: 170px; }
+}
+
+/* Touch targets on small screens. */
+@media (max-width: 640px) {
+  .ds-247420 .pill { min-height: 36px; padding: .4em .8em; }
+  .ds-247420 .history-actions { gap: .75em; }
+  .ds-247420 .history-actions .btn, .ds-247420 .history-actions button { min-height: 44px; }
+  .ds-247420 .cwd-bar-text { max-width: 42vw; }
+  .ds-247420 .cwd-bar { gap: .3em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-247420 .ds-event-list .row.event-flash { animation: none; outline: 2px solid var(--accent-ink); }
+}
+
+@media print {
+  /* Re-assert the paper-tuned signal tokens so token-derived foregrounds
+     (status discs, error text, tool cards) print with light-theme colours
+     rather than the dark-theme-derived values inherited under auto-dark. */
+  .ds-247420 { --flame:#C53E00; --amber:#7C570F; --warn:#C41C0C; --sky:#3A6EFF; --bg:var(--paper); --fg:var(--ink); }
+  .ds-247420 #app { min-height: auto; display: block; height: auto; }
+  .ds-247420 .skip-link, .ds-247420 .status-dot, .ds-247420 .history-actions, .ds-247420 .chat-composer { display: none !important; }
+  .ds-247420 .app, .ds-247420 .app-main, .ds-247420 .panel, .ds-247420 .chat, .ds-247420 .chat-thread {
+    background: var(--paper) !important; color: var(--ink) !important; box-shadow: none !important;
+  }
+  /* Community surface: unclamp the fixed-height shell and hide the chrome so a
+     transcript prints as flowing pages instead of one clipped viewport. */
+  .ds-247420 .cm-shell { height: auto; overflow: visible; display: block; }
+  .ds-247420 .cm-server-rail, .ds-247420 .cm-channel-sidebar, .ds-247420 .cm-member-list,
+  .ds-247420 .cm-mobile-header, .ds-247420 .cm-voice-strip { display: none !important; }
+  .ds-247420 .cm-main, .ds-247420 .cm-channel-list { overflow: visible; height: auto; }
+}
+/* Freddie dashboard surface utilities — freddie src/web/index.html inline
+   styles migrated here so NO design content lives in the consumer app. */
+/* Cap raw-JSON/code dumps so unbounded payloads scroll instead of blowing
+   the page layout. */
+.ds-247420 .fd-pre { max-height: 60vh; overflow: auto; }
+/* Topbar leaf layout (sampler pill + theme toggle). */
+.ds-247420 .fd-topbar-leaf { display: inline-flex; gap: var(--space-2, 8px); align-items: center; }
+/* Ctrl+K search hint in the topbar. */
+.ds-247420 .fd-search-hint {
+  font-size: var(--fs-pico, 11px); opacity: 0.5;
+  padding: var(--space-1, 4px) var(--space-2, 8px);
+  border: 1px solid var(--rule, currentColor); border-radius: var(--r-0, 4px);
+  pointer-events: none;
+}
+/* Status bar items — inline flex with gap. */
+.ds-247420 .fd-status-item { display: inline-flex; align-items: center; gap: var(--space-1, 4px); }
+/* Page error display — scrollable pre block for stack traces. */
+.ds-247420 .fd-page-error { max-height: 60vh; overflow: auto; white-space: pre-wrap; word-break: break-all; }

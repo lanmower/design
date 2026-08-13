@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en" data-theme="auto" class="ds-247420"><head><meta charset="utf-8">
+<title>panel rows / 247420 preview</title><link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../app-shell.css">
+<style>
+body{padding:var(--space-3-5);background:var(--panel-0);color:var(--panel-text);}
+/* Specimen chrome only -- never ship these; the primitives under test are
+   .ds-panel-trio / .ds-panel-duo / .ds-panel-flush and they carry their own
+   spacing. A visible outline is the only way a reader can see where a track
+   actually ends, which is the whole point of this page. */
+.spec{outline:1px dashed var(--rule-strong);outline-offset:-1px;}
+.spec-note{margin:var(--space-5) 0 var(--space-2);}
+.spec-fill{padding:var(--space-3);}
+/* Nesting-depth specimen (below) -- depth 1/2 use the real --panel-1/--panel-2
+   surface tokens; depth 3 deliberately repeats --panel-2 (no --panel-3 token
+   exists) to demonstrate where the pattern breaks down. */
+.spec-nest{border:var(--bw-hair) solid var(--rule);border-radius:var(--r-2);padding:var(--space-3)}
+.spec-nest-1{background:var(--panel-1);margin-top:var(--space-3)}
+.spec-nest-2,.spec-nest-3{background:var(--panel-2)}
+.spec-nest-label{margin-bottom:var(--space-2)}
+.spec-nest-danger{color:var(--danger)}
+</style><script defer src="./motion-default.js"></script>
+</head><body>
+<div class="dateline"><span>247420 · PANEL ROWS · CONTAINER-QUERY</span><span class="spread"></span><span>TRIO / DUO / FLUSH</span></div>
+<div class="ds-demo-tokens-backlink tokens-backlink">tokens used here: panel, rule-strong, space — <a href="../preview/theme-map.html">tokens -&gt;</a></div>
+
+
+<h1 class="sr-only">Panel rows</h1>
+<main aria-label="Panel rows specimens"><p class="t-meta spec-note">
+  Resize the window. These step on CONTAINER width, not viewport width, so they
+  reflow when the panels are actually cramped rather than at a number that
+  ignores how much chrome the shell is holding. Trio steps 3 &rarr; 2 &rarr; 1;
+  duo steps 2 &rarr; 1.
+</p>
+
+<div class="t-label">.ds-panel-trio &mdash; three equal peers, stretched to a shared bottom edge</div>
+<div class="ds-panel-trio">
+  <div class="panel ds-panel-flush spec">
+    <div class="panel-head"><span>environment</span><span>6</span></div>
+    <div class="panel-body spec-fill">A set member. All three stretch, so a short
+      panel beside a tall one still shares its bottom edge and the row reads as
+      one band.</div>
+  </div>
+  <div class="panel ds-panel-flush spec">
+    <div class="panel-head"><span>recent events</span><span>5</span></div>
+    <div class="panel-body spec-fill">Short.</div>
+  </div>
+  <div class="panel ds-panel-flush spec">
+    <div class="panel-head"><span>changelog</span><span>3</span></div>
+    <div class="panel-body spec-fill">Real grid tracks, never percentage
+      flex-basis: three 33.33% spans plus two gaps exceed 100% and the last one
+      wraps onto its own row.</div>
+  </div>
+</div>
+
+<div class="t-label">.ds-panel-duo &mdash; a pair of different things, top-aligned</div>
+<div class="ds-panel-duo">
+  <div class="panel ds-panel-flush spec">
+    <div class="panel-head"><span>traffic by channel</span><span>4</span></div>
+    <div class="panel-body spec-fill">Deliberately NOT stretched. A duo pairs two
+      unlike things &mdash; a four-bar chart beside a five-row table &mdash; and
+      forcing a common height does not create equality, it just moves the shorter
+      panel's dead space inside its own body.</div>
+  </div>
+  <div class="panel ds-panel-flush spec">
+    <div class="panel-head"><span>top endpoints</span><span>5</span></div>
+    <div class="panel-body spec-fill">Each takes its natural height and they align
+      at the top, where the eye actually starts.</div>
+  </div>
+</div>
+
+<div class="t-label">.ds-panel-gap &mdash; outer rhythm, 2:1 against the inner sibling gap</div>
+<div class="panel ds-panel-gap spec">
+  <div class="panel-head"><span>first</span></div>
+  <div class="panel-body spec-fill">Outer separation is --space-5 and the gap
+    between siblings inside a panel body is --space-3, both density-scaled. The
+    ratio is what matters: if outer ever drops below inner, proximity starts
+    claiming that two unrelated panels belong together more tightly than two
+    rows inside one panel.</div>
+</div>
+<div class="panel ds-panel-gap spec">
+  <div class="panel-head"><span>second</span></div>
+  <div class="panel-body spec-fill">Set <code>data-density</code> to
+    <code>compact</code> or <code>spacious</code> on the root and both intervals
+    move together, holding the ratio.</div>
+</div>
+
+<div class="t-label">panel-on-panel &mdash; nesting depth limit</div>
+<div class="panel ds-panel-gap spec">
+  <div class="panel-head"><span>nesting depth</span></div>
+  <div class="panel-body spec-fill">The token ladder only defines two panel
+    surfaces above the page background: <code>--panel-1</code>
+    (<code>--bg-2</code>) and <code>--panel-2</code> (<code>--bg-3</code>).
+    That is a hard, deliberate ceiling of <strong>2 levels of nesting</strong>
+    (page &rarr; panel &rarr; panel-in-panel) &mdash; there is no
+    <code>--panel-3</code> step. A third nested level has nothing left to
+    escalate to, so it either repeats <code>--panel-2</code> (the nested
+    panel becomes visually indistinguishable from its parent, and the
+    hierarchy reads as flat) or falls back to a border-only treatment. Depth
+    3+ is where the pattern breaks down: if content needs a third visually
+    distinct layer, it should not be another nested panel &mdash; use a
+    modal/drawer/dialog surface instead, which resets the depth stack rather
+    than extending it.
+    <div class="spec-nest spec-nest-1">
+      <div class="t-micro spec-nest-label">DEPTH 1 &mdash; --panel-1 / --bg-2</div>
+      <div class="spec-nest spec-nest-2">
+        <div class="t-micro spec-nest-label">DEPTH 2 &mdash; --panel-2 / --bg-3, still legible against depth 1</div>
+        <div class="spec-nest spec-nest-3">
+          <div class="t-micro spec-nest-danger">DEPTH 3 &mdash; no --panel-3 token exists; this repeats --panel-2 and is visually indistinguishable from its parent. This is the breakdown point &mdash; stop nesting panels here and use a modal/drawer instead.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</main>
+</body></html>

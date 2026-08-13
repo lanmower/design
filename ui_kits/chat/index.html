@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en" class="ds-247420"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#247420" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#3A9A34" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+  <title>Chat / 247420</title>
+  <meta name="description" content="chat ui kit — message thread + composer, tonal pill bubbles, monospace meta.">
+  <link rel="canonical" href="https://anentrypoint.github.io/design/ui_kits/chat/">
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+  <link rel="stylesheet" href="../../colors_and_type.css">
+  <link rel="stylesheet" href="../../app-shell.css">
+  <link rel="stylesheet" href="../../chat.css">
+  <link rel="stylesheet" href="../../editor-primitives.css">
+<!-- Critical pre-stylesheet background: body's real background/color rule
+     lives in src/css/app-shell/base.css, one of ~30 sheets app-shell.css's
+     own @import barrel must fetch before it applies. On a cold cache that
+     barrel resolution can outlast the module script's first render, leaving
+     the UA default (often a stark white-on-transparent, or black under a
+     dark OS theme) visible until every sheet lands -- reported as "blank
+     page on first load, fine on reload" (reload = warm cache = barrel
+     resolves instantly). This mirrors site/theme.mjs's headExtra, which
+     solves the identical race for the SDK-consumer landing page; the two
+     raw hex pairs are deliberately kept in sync with each other (both trace
+     to --paper #FFFFFF / --ink #1A1A1A in colors_and_type.css) since neither
+     can reference a CSS custom property before that same stylesheet has
+     loaded. -->
+<style>
+html,body{background:#1A1A1A;color:#FFFFFF}
+@media (prefers-color-scheme: light){html,body{background:#FFFFFF;color:#1A1A1A}}
+/* Boot spinner: fills the pre-mount window with a visible loading cue instead
+   of a flat color flash. #root:empty means app.js hasn't appended real
+   content yet; the moment it does, this pseudo-element's selector stops
+   matching and the spinner disappears with no JS coordination needed.
+   Off-scale literals here, same as the background/color pair above and for
+   the identical reason: this block runs before colors_and_type.css has
+   loaded, so it cannot reference a --space-N/--r-N/color token yet. rgba()
+   over currentColor keeps the ring visible on both the dark and light
+   pre-paint background set two lines up without a second media query. */
+#root:empty{min-height:100vh;display:flex;align-items:center;justify-content:center}
+#root:empty::after{content:"";width:28px;height:28px;border-radius:50%;
+  border:3px solid rgba(127,127,127,.35);border-top-color:currentColor;
+  animation:ds-boot-spin .8s linear infinite}
+@media (prefers-reduced-motion: reduce){#root:empty::after{animation:none;opacity:.6}}
+@keyframes ds-boot-spin{to{transform:rotate(360deg)}}
+</style>
+<script type="importmap">
+{ "imports": {
+  "webjsx": "../../vendor/webjsx/index.js",
+  "webjsx/": "../../vendor/webjsx/",
+  "webjsx/jsx-runtime": "../../vendor/webjsx/jsx-runtime.js",
+  "ds/": "../../src/"
+} }
+</script>
+</head>
+<body data-screen-label="06 Chat">
+<div id="root"></div>
+<script type="module" src="./app.js"></script>
+</body></html>

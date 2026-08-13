@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en" data-theme="auto" class="ds-247420"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>editor primitives / 247420</title>
+  <meta name="description" content="rendered specimens of the editor-primitives family: Toolbar, Tabs, TreeView, PropertyGrid, SplitPanel, Dock, Grid, Collapse, Pager, JsonViewer, Dialog, Drawer, Toast.">
+  <link rel="stylesheet" href="../colors_and_type.css">
+  <link rel="stylesheet" href="../app-shell.css">
+  <link rel="stylesheet" href="../editor-primitives.css">
+  <style>body{padding:var(--space-4);background:var(--bg);color:var(--fg);font-family:var(--ff-body)}
+  .spec-page{max-width:var(--measure-wide);margin:0 auto}
+  h2{font-family:var(--ff-display);margin:var(--space-5) 0 var(--space-1)}
+  .spec-note{color:var(--fg-3);font-size:var(--fs-xs);margin:0 0 var(--space-2)}
+  section{margin-bottom:var(--space-4)}
+  /* Components that fill their container (SplitPanel, Dock, Drawer) need a
+     bounded box on a plain page, or they collapse to zero height. */
+  .spec-box{position:relative;height:180px;border-radius:var(--r-1);background:var(--bg-2);overflow:hidden}
+  .spec-pane{padding:var(--space-2);color:var(--fg-2);font-size:var(--fs-xs)}
+  .spec-stack{display:flex;flex-direction:column;gap:var(--space-2)}</style>
+<script type="importmap">
+{ "imports": {
+  "webjsx": "../vendor/webjsx/index.js",
+  "webjsx/": "../vendor/webjsx/",
+  "webjsx/jsx-runtime": "../vendor/webjsx/jsx-runtime.js"
+} }
+</script>
+</head>
+<body>
+<h1 class="sr-only">Editor primitives</h1>
+<main aria-label="Editor primitives specimens">
+<div class="ds-demo-label">247420 / editor primitives</div>
+<div class="ds-demo-tokens-backlink tokens-backlink">tokens used here: bg, ff, fg, fs, measure-wide, r, space — <a href="../preview/theme-map.html">tokens -&gt;</a></div>
+<div id="root"></div>
+<script type="module" src="./editor-primitives.js"></script>
+</main>
+</body></html>

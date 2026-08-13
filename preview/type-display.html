@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" data-theme="auto" class="ds-247420"><head><meta charset="utf-8">
+<title>type display / 247420 preview</title><link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../app-shell.css">
+<style>body{padding:var(--space-3-5);background:var(--panel-0);color:var(--panel-text);}
+.t-hero,.t-h1{overflow-wrap:anywhere;word-break:break-word;}
+/* 48px/32px are narrow-viewport CAPS on the fluid display tokens, and there is
+   no --fs-* rung they could use: every display tier (--fs-hero, --fs-h1) is a
+   clamp() whose own lower bound is what runs at this width, and the point of
+   this override is to come in BELOW that bound so the specimen's oversized
+   display type does not overflow a 640px screen. A fixed rung cannot express
+   "smaller than the token's own floor". Kept literal deliberately. */
+@media (max-width:640px){.t-hero{font-size:48px !important;}.t-h1{font-size:32px !important;}}</style><script defer src="./motion-default.js"></script>
+</head><body>
+<div class="dateline"><span>247420 · TYPE · DISPLAY</span><span class="spread"></span><span>SYSTEM SANS</span></div>
+<div class="ds-demo-tokens-backlink tokens-backlink">tokens used here: panel, space — <a href="../preview/theme-map.html">tokens -&gt;</a></div>
+
+<h1 class="sr-only">Type display</h1>
+<main aria-label="Type display specimens"><div style="margin-top:20px">
+  <div class="t-hero" style="font-size:96px">farts generally</div>
+  <div class="t-micro" style="margin-top:8px">HERO / 96px · system-ui · letter-spacing -0.02em</div>
+</div>
+<hr class="rule" style="margin-top:16px">
+<div style="margin-top:16px">
+  <div class="t-h1" style="font-size:56px">gm. it's 4:20 somewhere.</div>
+  <div class="t-micro" style="margin-top:8px">H1 / 56px</div>
+</div>
+</main>
+</body></html>

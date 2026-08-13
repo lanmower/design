@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en" data-theme="auto" class="ds-247420"><head><meta charset="utf-8">
+<title>manifesto preview</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../app-shell.css">
+<style>
+  body{padding:var(--space-4);background:var(--panel-0);color:var(--panel-text);}
+  /* gap:14px and padding:22px are off-scale ON PURPOSE, and both are load-
+     bearing for what this specimen demonstrates. The principle cards are a
+     fixed 2-up of large saturated colour fields; the card gutter and the inset
+     from the card edge to its text are tuned against each OTHER (22px inset
+     reading as roughly 1.5x the 14px gutter) so the colour fields separate
+     cleanly at a glance. Snapping either onto the 8pt rhythm — 16px gutter or
+     24px inset — collapses that ratio toward 1:1 and the two cards start
+     reading as one banded block, which is exactly the thing the page exists to
+     show is wrong. Not drift; do not "fix" these to --space-3/--space-4. */
+  .wrap{margin-top:var(--space-3);display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+  .prin{padding:22px;min-height:180px;border-radius:var(--r-3);display:flex;flex-direction:column;gap:var(--space-2-5);position:relative;overflow:hidden;}
+  .prin .num{font-family:var(--ff-mono);font-size:var(--fs-sm);font-weight:600;letter-spacing:0.12em;opacity:0.85;}
+  /* 30px is the UPPER BOUND of --fs-h3's clamp(22px, 2.4cqi, 30px), pinned as
+     a fixed value on purpose: these cards must render every principle at one
+     identical size regardless of card width, and a cqi-fluid token would size
+     each card's title to its own container, so the 2-up would show two
+     different title sizes side by side. A specimen demonstrating a scale must
+     not itself be fluid. Kept literal; it tracks --fs-h3's ceiling by hand. */
+  .prin .ttl{font-family:var(--ff-display);font-size:30px;font-weight:800;line-height:1.02;letter-spacing:-0.02em;}
+  .prin .sub{font-family:var(--ff-body);font-size:var(--fs-sm);font-weight:500;line-height:1.45;max-width:40ch;}
+  .prin .tag{display:inline-block;align-self:flex-start;font-family:var(--ff-mono);font-size:var(--fs-tiny);font-weight:600;letter-spacing:0.14em;text-transform:uppercase;padding:var(--space-1) var(--space-2-5);border-radius:var(--r-pill);margin-top:auto;}
+  /* Saturated bg -> always white text (readable in any theme) */
+  .p1{background:var(--green);color:var(--on-color);}
+  .p1 .tag{background:var(--on-color);color:var(--green);}
+  .p2{background:var(--purple);color:var(--on-color);}
+  .p2 .tag{background:var(--on-color);color:var(--purple);}
+  .p3{background:var(--sun);color:var(--ink);}
+  .p3 .tag{background:var(--ink);color:var(--sun);}
+  /* --mascot fails WCAG AA against --on-color (#fff, 3.51:1); --ink passes, same fix as .p3/--sun above */
+  .p4{background:var(--mascot);color:var(--ink);}
+  .p4 .tag{background:var(--ink);color:var(--mascot);}
+</style><script defer src="./motion-default.js"></script>
+</head><body>
+<div class="dateline"><span>247420 · MANIFESTO · 2018 -> FOREVER</span><span class="spread"></span><span>probably emerging</span></div>
+<div class="ds-demo-tokens-backlink tokens-backlink">tokens used here: ff, fs, green, ink, mascot, on-color, panel, purple — <a href="../preview/theme-map.html">tokens -&gt;</a></div>
+
+<h1 class="sr-only">Manifesto</h1>
+<main aria-label="Manifesto specimens"><div class="wrap">
+  <div class="prin p1">
+    <div class="num">01 //</div>
+    <div class="ttl">code is communication</div>
+    <div class="sub">talk is cheap. PRs are truth. the conversation happens in the review, not the marketing thread.</div>
+    <span class="tag">PRs are truth</span>
+  </div>
+  <div class="prin p2">
+    <div class="num">02 //</div>
+    <div class="ttl">community &gt; capital</div>
+    <div class="sub">we optimize for the people who show up — not the people who write checks.</div>
+    <span class="tag">show up</span>
+  </div>
+  <div class="prin p3">
+    <div class="num">03 //</div>
+    <div class="ttl">learn in public</div>
+    <div class="sub">ship broken code. iterate fast. improve in the open. the goal isn't perfection — it's movement.</div>
+    <span class="tag">broken on purpose</span>
+  </div>
+  <div class="prin p4">
+    <div class="num">04 //</div>
+    <div class="ttl">fun is a feature</div>
+    <div class="sub">if your agent isn't at least a little bit fun to work with, you've failed. this is a workshop, not a spreadsheet with extra steps.</div>
+    <span class="tag">fun is a feature</span>
+  </div>
+</div>
+<p class="t-meta" style="margin-top:16px;font-style:italic">"an entrypoint is just a beginning. what matters is what you build once you're through the door." — b0gie, TechShaman</p>
+</main>
+</body></html>

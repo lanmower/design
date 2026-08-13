@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" data-theme="auto" class="ds-247420"><head><meta charset="utf-8">
+<title>file viewer / 247420 preview</title><link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../app-shell.css">
+<style>body{padding:0;background:var(--panel-0);color:var(--panel-text);min-height:100vh}
+/* .ds-modal-backdrop is position:fixed with its own centering, so it no
+   longer depends on body's flex alignment -- kept simple now that the
+   dateline header sits above it in normal flow instead of body centering
+   everything including the header. */
+.fv-dateline{padding:var(--space-3-5) var(--space-3-5) 0}
+.fv-desc{padding:0 var(--space-3-5);margin-top:var(--space-1-75)}
+.fv-backdrop{position:relative;width:100%;height:100vh}</style>
+</head><body>
+<div class="dateline fv-dateline"><span>247420 · FILE-BROWSER · FILE-VIEWER</span><span class="spread"></span><span>MODAL · SYNTAX · ACTIONS</span></div>
+<div class="ds-demo-tokens-backlink tokens-backlink">tokens used here: panel, space — <a href="../preview/theme-map.html">tokens -&gt;</a></div>
+<div class="t-meta fv-desc">full-bleed preview modal for a single file — syntax-highlighted body, download/close actions in the head. 1 item.</div>
+<h1 class="sr-only">File viewer</h1>
+<main aria-label="File viewer specimens">
+<div class="ds-modal-backdrop fv-backdrop">
+  <div class="ds-modal ds-modal-preview">
+    <div class="ds-modal-head ds-preview-head" data-file-type="code">
+      <span class="ds-preview-name">FileRow.js</span>
+      <span class="ds-preview-meta">code · 4.3 KB · 2026.04.21</span>
+      <span class="ds-preview-actions">
+        <button class="ds-file-act" title="download" aria-label="download"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m5 12 7 7 7-7"/></svg></button>
+        <button class="ds-file-act" title="close" aria-label="close"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+      </span>
+    </div>
+    <div class="ds-preview-body" data-file-type="code">
+      <pre class="ds-preview-code lang-js"><code class="language-js">export function FileRow({ name, type, size, modified, onOpen }) {
+    return h('div', {
+        class: 'ds-file-row',
+        'data-file-type': type,
+        onclick: onOpen
+    },
+        FileIcon({ type }),
+        h('span', { class: 'title' }, name),
+        h('span', { class: 'meta' }, fmtFileSize(size))
+    );
+}</code></pre>
+    </div>
+  </div>
+</div>
+</main>
+<script src="../src/copy-code.js"></script>
+</body></html>

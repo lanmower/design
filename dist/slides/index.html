@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en" data-theme="auto" class="ds-247420"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#247420" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#3A9A34" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+  <title>deck / 247420</title>
+  <meta name="description" content="presentation deck template — title, content, quote, comparison, receipt, end.">
+  <meta name="author" content="247420 / AnEntrypoint">
+  <meta name="keywords" content="247420, anentrypoint, design system, webjsx, rippleui, creative collective">
+  <link rel="canonical" href="https://anentrypoint.github.io/design/slides/">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="deck / 247420">
+  <meta property="og:description" content="presentation deck template — title, content, quote, comparison, receipt, end.">
+  <meta property="og:url" content="https://anentrypoint.github.io/design/slides/">
+  <meta property="og:site_name" content="247420 / design">
+  <meta property="og:image" content="https://anentrypoint.github.io/design/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="247420 design system">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="deck / 247420">
+  <meta name="twitter:description" content="presentation deck template — title, content, quote, comparison, receipt, end.">
+  <meta name="twitter:image" content="https://anentrypoint.github.io/design/og-card.png">
+  <meta name="twitter:site" content="@AnEntrypoint">
+  <meta name="robots" content="index, follow">
+  <link rel="stylesheet" href="../colors_and_type.css">
+  <link rel="stylesheet" href="../app-shell.css">
+<style>
+  /* Slides consume panel tokens -> auto light/dark */
+  body { background: var(--panel-0); margin: 0; }
+  deck-stage { display: block; }
+  section {
+    background: var(--panel-1);
+    color: var(--panel-text);
+    padding: 96px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  /* Variant: elevated surface — deeper on light, lighter on dark */
+  section.s-elev { background: var(--panel-2); }
+  section.s-canvas { background: var(--panel-0); }
+  /* Variant: accent-filled slide — pairs bg with its contrast token
+     so light-theme (deep green) gets white text and dark-theme (mint)
+     gets ink text. Never hardcode #fff here — mint + white is invisible. */
+  section.s-accent {
+    background: var(--panel-accent);
+    color: var(--panel-accent-fg);
+  }
+  section.s-accent .s-label,
+  section.s-accent .s-footer,
+  section.s-accent .s-dateline { color: var(--panel-accent-fg); }
+
+  .s-dateline {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 24px;
+    font-family: var(--ff-mono);
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding-bottom: 12px;
+    color: var(--panel-text-2);
+  }
+  .s-dateline .spread { flex: 1; align-self: center; }
+
+  .s-hero {
+    font-family: var(--ff-display);
+    font-size: 240px;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    font-weight: 700;
+    color: var(--panel-text);
+  }
+  .s-h1 {
+    font-family: var(--ff-display);
+    font-size: 160px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    color: var(--panel-text);
+  }
+  .s-label {
+    font-family: var(--ff-mono);
+    font-size: 22px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--panel-accent);
+  }
+  .s-sub {
+    font-family: var(--ff-body);
+    font-size: 34px;
+    line-height: 1.4;
+    margin-top: 32px;
+    max-width: 32ch;
+    color: var(--panel-text-2);
+    font-weight: 400;
+  }
+  .s-footer {
+    font-family: var(--ff-mono);
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    display: flex;
+    justify-content: space-between;
+    padding-top: 12px;
+    color: var(--panel-text-2);
+  }
+  .s-quote {
+    font-family: var(--ff-display);
+    font-size: 120px;
+    line-height: 1.05;
+    font-style: italic;
+    max-width: 22ch;
+    letter-spacing: -0.02em;
+    color: var(--panel-text);
+  }
+
+  .cmp {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    min-height: 640px;
+  }
+  .cmp > div {
+    padding: 48px;
+    border-radius: 12px;
+    box-shadow: var(--panel-shadow);
+  }
+  .cmp .cmp-before { background: var(--panel-2); }
+  .cmp .cmp-after { background: var(--panel-accent); color: var(--panel-accent-fg); }
+  .cmp .cmp-l {
+    font-family: var(--ff-mono);
+    font-size: 22px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-bottom: 24px;
+    color: var(--panel-text-3);
+  }
+  .cmp .cmp-after .cmp-l { color: var(--panel-accent-fg); opacity: 0.8; }
+  .cmp .cmp-h {
+    font-family: var(--ff-display);
+    font-size: 96px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    color: var(--panel-text-3);
+    font-weight: 700;
+  }
+  .cmp .cmp-after .cmp-h { color: var(--panel-accent-fg); }
+  .cmp .cmp-p {
+    font-family: var(--ff-body);
+    font-size: 28px;
+    line-height: 1.45;
+    color: var(--panel-text-3);
+  }
+  .cmp .cmp-after .cmp-p { color: var(--panel-accent-fg); opacity: 0.92; }
+
+  .receipt {
+    font-family: var(--ff-mono);
+    font-size: 28px;
+    max-width: 900px;
+    background: var(--panel-2);
+    border-radius: 12px;
+    padding: 28px 36px;
+    box-shadow: var(--panel-shadow);
+  }
+  .receipt-row {
+    display: flex;
+    gap: 24px;
+    padding: 10px 0;
+    align-items: baseline;
+  }
+  .receipt-row > span:nth-child(1) {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 22px;
+    width: 320px;
+    flex-shrink: 0;
+    color: var(--panel-text-2);
+  }
+  .receipt-row > span:nth-child(2) {
+    flex: 1;
+    text-align: right;
+    color: var(--panel-text);
+  }
+</style>
+<script type="module" src="../src/kits/slides/deck-stage.js"></script>
+</head>
+<body>
+<deck-stage width="1920" height="1080">
+
+<section class="s-elev" data-label="Title">
+  <div class="s-dateline"><span>247420 · an entrypoint</span><span class="spread"></span><span>apr 20 · 2026 · live</span></div>
+  <div>
+    <div class="s-label" style="margin-bottom:24px">internal · do not circulate</div>
+    <div class="s-hero">we fart in its<br/>general direction.</div>
+    <div class="s-sub">a short presentation about what comes next, delivered at 4:20 sharp.</div>
+  </div>
+  <div class="s-footer"><span>deck 001</span><span>247420 / mmxxvi</span></div>
+</section>
+
+<section data-label="Section Intro">
+  <div class="s-dateline"><span>247420</span><span>01</span><span class="spread"></span><span>of 05</span></div>
+  <div>
+    <div class="s-label" style="margin-bottom:32px">chapter one</div>
+    <div class="s-h1">the problem<br/>with everything.</div>
+  </div>
+  <div class="s-footer"><span>chapter</span><span>the problem</span></div>
+</section>
+
+<section class="s-canvas" data-label="Big Quote">
+  <div class="s-dateline"><span>247420</span><span>quote</span><span class="spread"></span><span>overheard · 2am</span></div>
+  <div style="display:flex;align-items:center;height:100%">
+    <div>
+      <div style="font-family:var(--ff-display);font-size:240px;line-height:0.8;margin-bottom:-40px;color:var(--panel-accent)">&ldquo;</div>
+      <div class="s-quote">we make things. some of them work. a few become the future.</div>
+      <div class="s-label" style="margin-top:48px;color:var(--panel-text-3)">— the collective, probably</div>
+    </div>
+  </div>
+  <div class="s-footer"><span>quote</span><span>the collective</span></div>
+</section>
+
+<section class="s-elev" data-label="Receipt">
+  <div class="s-dateline"><span>247420</span><span>receipt · gm v0.4.1</span><span class="spread"></span><span>live</span></div>
+  <div>
+    <div class="s-label" style="margin-bottom:32px">by the numbers</div>
+    <div class="receipt">
+      <div class="receipt-row"><span>stars</span><span>3,124</span></div>
+      <div class="receipt-row"><span>weekly downloads</span><span>47k</span></div>
+      <div class="receipt-row"><span>avg session length</span><span>4h 20m (of course)</span></div>
+      <div class="receipt-row"><span>runtime dependencies</span><span>0</span></div>
+      <div class="receipt-row"><span>lines of code</span><span>1,847</span></div>
+      <div class="receipt-row"><span>people who get it</span><span>enough</span></div>
+    </div>
+  </div>
+  <div class="s-footer"><span>receipt</span><span>gm</span></div>
+</section>
+
+<section data-label="Comparison">
+  <div class="s-dateline"><span>247420</span><span>a vs b</span><span class="spread"></span><span>it's not close</span></div>
+  <div>
+    <div class="cmp">
+      <div class="cmp-before">
+        <div class="cmp-l">before</div>
+        <div class="cmp-h" style="text-decoration:line-through">gradient ripple-ui demo</div>
+        <div class="cmp-p">purple to blue. glass cards. emoji rows. a "supercharge your workflow" somewhere in the fold.</div>
+      </div>
+      <div class="cmp-after">
+        <div class="cmp-l">after</div>
+        <div class="cmp-h">layered surfaces.<br/>loud content.</div>
+        <div class="cmp-p">quiet chrome. monospace labels. you can read it on a phone in direct sunlight. it looks good in dark mode too.</div>
+      </div>
+    </div>
+  </div>
+  <div class="s-footer"><span>comparison</span><span>before / after</span></div>
+</section>
+
+<section class="s-accent" data-label="End">
+  <div class="s-dateline"><span>247420 · an entrypoint</span><span class="spread"></span><span>end · q&amp;a</span></div>
+  <div style="display:flex;align-items:center;height:100%">
+    <div>
+      <div class="s-hero" style="font-size:280px;color:var(--panel-accent-fg)">gm.</div>
+      <div style="font-family:var(--ff-mono);font-size:32px;margin-top:32px;color:var(--panel-accent-fg);opacity:0.85">questions? open a pr.</div>
+    </div>
+  </div>
+  <div class="s-footer"><span>fin</span><span>247420 / mmxxvi</span></div>
+</section>
+
+</deck-stage>
+</body></html>

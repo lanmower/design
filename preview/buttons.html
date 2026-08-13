@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en" data-theme="auto" class="ds-247420"><head><meta charset="utf-8">
+<title>247420 / components / buttons preview</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../app-shell.css">
+<style>body{padding:var(--space-4);background:var(--panel-0);color:var(--panel-text);}</style>
+<script defer src="./motion-default.js"></script>
+</head><!-- lint-dead-controls:allow — specimen markup: this page exists to show what the component LOOKS like in isolation, so its anchors have nowhere real to point. Not a navigable surface. -->
+<body>
+<h1 class="sr-only">Components</h1>
+<main aria-label="Components specimens">
+<div class="ds-demo-label" style="font-family:var(--ff-mono);text-transform:uppercase;letter-spacing:var(--tr-label);color:var(--fg-3)">247420 / components / buttons</div>
+<div class="ds-demo-tokens-backlink tokens-backlink">tokens used here: ff, fg, panel, space, tr — <a href="../preview/theme-map.html">tokens -&gt;</a></div>
+
+<!-- Variants — shared .ds-demo gallery cell (hairline box, flex-wrap, gap). -->
+<div class="ds-demo">
+  <button class="btn-primary">ship it -></button>
+  <button class="btn">read source</button>
+  <button class="btn-ghost">cancel</button>
+  <a href="#" class="btn">link as button</a> <!-- lint-dead-controls:allow specimen -->
+ <!-- lint-dead-controls:allow specimen -->
+</div>
+
+<div class="ds-demo">
+  <button class="btn-primary" disabled>disabled</button>
+  <button class="btn">
+    <span class="ds-dot" style="color:var(--panel-accent)"></span>
+    <span>with icon</span>
+  </button>
+</div>
+
+<!-- Real size ladder (sm/md/lg) — heights snap to --ctl-sm/md/lg, no inline
+     padding overrides. Every variant honours the size class. -->
+<div class="ds-demo">
+  <button class="btn btn-sm">small</button>
+  <button class="btn">medium</button>
+  <button class="btn btn-lg">large</button>
+  <button class="btn-primary btn-sm">sm primary</button>
+  <button class="btn-ghost btn-lg">lg ghost</button>
+</div>
+
+<div class="ds-demo-desc" style="font-family:var(--ff-mono);margin-top:var(--space-2)">primary · secondary · ghost — size ladder sm/md/lg on the --ctl-* height scale</div>
+
+<!-- Focus-state showcase: forces the :focus-visible ring on without needing to tab,
+     so viewers can see ring strength/offset/color directly. -->
+<div class="ds-demo-label" style="font-family:var(--ff-mono);text-transform:uppercase;letter-spacing:var(--tr-label);color:var(--fg-3);margin-top:var(--space-4)">247420 / components / buttons — keyboard focus</div>
+<div class="ds-demo">
+  <button class="btn-primary force-focus-visible">primary focused</button>
+  <button class="btn force-focus-visible">secondary focused</button>
+  <button class="btn-ghost force-focus-visible">ghost focused</button>
+  <a href="#" class="btn force-focus-visible">link focused</a> <!-- lint-dead-controls:allow specimen -->
+</div>
+<div class="ds-demo-desc" style="font-family:var(--ff-mono);margin-top:var(--space-2)">.force-focus-visible simulates :focus-visible so the ring is visible without tabbing — tab into any control above to see the real interaction.</div>
+<style>.force-focus-visible{outline:var(--focus-w,2px) solid var(--focus-color,var(--panel-accent));outline-offset:2px;}</style>
+</main>
+</body></html>

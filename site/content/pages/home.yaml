@@ -1,0 +1,193 @@
+id: home
+title: Home
+
+showcase:
+  heading: "Live components"
+  lede: "Not a screenshot — the same Btn, Chip, Badge, and Table components every kit page imports, rendered right here from the SDK you'd actually install."
+
+hero:
+  heading: "Design"
+  subheading: "The 247420 design system"
+  body: "A complete, tokens-driven component system for building consistent, accessible interfaces fast: 15 ready-to-ship kit surfaces, 25 live previews, a slide deck, and a full desktop-shell demo — plus a web component and an SDK. Every panel, row, and form control reads its color, radius, and spacing from one shared token file, so a single theme change updates every surface built on it at once. WCAG AA verified across all 21 kits, zero JavaScript bundler required."
+  badges:
+    - { label: "Design system" }
+    - { label: "Design tokens" }
+    - { label: "WCAG AA" }
+  ctas:
+    - { label: "GitHub", href: "https://github.com/AnEntrypoint/design", primary: true }
+    - { label: "247420", href: "https://247420.xyz" }
+
+sidebar:
+  fab:
+    label: "open"
+    glyph: "+"
+    href: "./ui_kits/homepage/"
+  # `count` here is a fallback only -- site/theme.mjs::withRealCounts()
+  # overwrites it at render time from the real kits/decks/previews/docs
+  # arrays below for any row whose href is in COUNT_SOURCE_BY_HREF, so a
+  # hand-typed number here can never drift out of sync with what the
+  # matching panel actually renders.
+  bins:
+    - { label: "Everything", href: "#all", active: true }
+    - { label: "Pinned",     href: "#kits" }
+    - { label: "Shipped",    href: "#previews" }
+    - { label: "Drafts",     href: "#decks" }
+  labels_group: "Labels"
+  labels:
+    - { label: "UI kits",  href: "#kits" }
+    - { label: "Decks",    href: "#decks" }
+    - { label: "Previews", href: "#previews" }
+    - { label: "Docs",     href: "#docs" }
+  more_group: "More"
+  more:
+    - { label: "Readme",  href: "https://github.com/AnEntrypoint/design/blob/main/README.md" }
+    - { label: "Skill",   href: "https://github.com/AnEntrypoint/design/blob/main/SKILL.md" }
+    - { label: "Tokens",  href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css" }
+    - { label: "Source",  href: "https://github.com/AnEntrypoint/design" }
+    - { label: "MIT license", href: "https://github.com/AnEntrypoint/design/blob/main/LICENSE" }
+
+tabs:
+  - { label: "Everything", href: "#all", active: true }
+  - { label: "Kits",       href: "#kits" }
+  - { label: "Decks",      href: "#decks" }
+  - { label: "Previews",   href: "#previews" }
+
+kits:
+  heading: "UI kits"
+  count: "15 surfaces"
+  layout: cards
+  items:
+    - { code: "01", title: "Homepage",     sub: "Marquee and works grid",                  desc: "An editorial banner over a quiet works-grid shell.",                href: "./ui_kits/homepage/" }
+    - { code: "02", title: "Project page", sub: "Hero, receipt, install, changelog",  desc: "A full case-study template for shipping a product story.",                      href: "./ui_kits/project_page/" }
+    - { code: "03", title: "Docs",         sub: "Long-form prose chrome",                desc: "Sidebar navigation, mono headings, and code blocks for documentation.",            href: "./ui_kits/docs/" }
+    - { code: "04", title: "Blog",         sub: "Dated index and reading view",            desc: "A dated post index with author bylines and a distraction-free reading view.",                            href: "./ui_kits/blog/" }
+    - { code: "05", title: "Chat",         sub: "Message thread and composer",             desc: "A message thread with pill bubbles, monospace timestamps, and a room sidebar.",   href: "./ui_kits/chat/" }
+    - { code: "06", title: "AICat",        sub: "AI assistant with a cat persona",         desc: "An animated ASCII cat portrait with thinking states and mood changes.",  href: "./ui_kits/aicat/" }
+    - { code: "07", title: "File browser", sub: "Type-aware rails, drop zone, preview",   desc: "Every file-row primitive wired to a static demo backed by fsbrowse.", href: "./ui_kits/file_browser/" }
+    - { code: "08", title: "Dashboard",    sub: "KPIs, tables, receipts, changelog",  desc: "KPIs, tables, and receipts tracked with a running changelog in one operations surface.", href: "./ui_kits/dashboard/" }
+    - { code: "09", title: "Terminal",     sub: "CLI prompt, command lines, log view", desc: "Five line kinds (comment, command, output, ok, warning) over a tonal log panel.", href: "./ui_kits/terminal/" }
+    - { code: "10", title: "Settings",     sub: "Sectioned forms, toggles, save bar",  desc: "Every input primitive: fields, segmented buttons, and a danger panel.", href: "./ui_kits/settings/" }
+    - { code: "11", title: "Sign in",      sub: "Auth providers and magic link",         desc: "A narrow, tone-on-tone auth form with no shadows and no spinners.", href: "./ui_kits/signin/" }
+    - { code: "12", title: "Search",       sub: "Topbar query, faceted filters, rows", desc: "Faceted results ranking, reusing the same RowLink primitive every list uses.", href: "./ui_kits/search/" }
+    - { code: "13", title: "404",          sub: "Empty-state hero, suggested routes",   desc: "An oversized mono code with three recovery calls to action.",      href: "./ui_kits/error_404/" }
+    - { code: "14", title: "Gallery",      sub: "Visual grid, tonal cards, lightbox",  desc: "Tiles on shared panel tokens that open into a matching lightbox.", href: "./ui_kits/gallery/" }
+    - { code: "15", title: "OS shell",     sub: "Menubar, window manager, taskbar", desc: "A runnable desktop-shell demo with its own window manager and app registry.", href: "./ui_kits/os/" }
+
+decks:
+  heading: "Decks"
+  items:
+    - { code: "01", title: "Deck template", sub: "16:9 stage with auto-fit", desc: "Title, lede, code, comparison, and manifesto slides.", href: "./slides/" }
+
+docs:
+  heading: "Docs"
+  items:
+    - { code: "md",  title: "Readme", sub: "Overview, manifesto, conventions",   desc: "Start here.",                          href: "https://github.com/AnEntrypoint/design/blob/main/README.md" }
+    - { code: "md",  title: "Skill",  sub: "Authoring rules for the agent",      desc: "Editorial zine surface modes.",    href: "https://github.com/AnEntrypoint/design/blob/main/SKILL.md" }
+    - { code: "css", title: "Tokens", sub: "Colors, type, panel surface tokens", desc: "Canonical source of truth.",           href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css" }
+    - { code: "md",  title: "Component props", sub: "Generated prop reference", desc: "Every exported component's signature and documented parameters.", href: "https://github.com/AnEntrypoint/design/blob/main/docs/component-props.md" }
+    - { code: "live", title: "Component explorer", sub: "Interactive, searchable, live-rendered", desc: "The same 271 components as the reference above, browsable with live specimens — no Storybook, no bundler.", href: "./ui_kits/component_explorer/" }
+    - { code: "md",  title: "Changelog", sub: "Release history", desc: "What shipped in each published version.", href: "https://github.com/AnEntrypoint/design/blob/main/CHANGELOG.md" }
+    - { code: "md",  title: "Accessibility", sub: "WCAG AA compliance, keyboard navigation", desc: "Contrast ratios, focus-visible tokens, ARIA conventions, and the live audit baseline.", href: "https://github.com/AnEntrypoint/design/blob/main/docs/accessibility.md" }
+    - { code: "md",  title: "Responsive breakpoints", sub: "The documented breakpoint scale in use", desc: "Verified mobile, tablet, and desktop behavior across kits.", href: "https://github.com/AnEntrypoint/design/blob/main/docs/responsive.md" }
+
+previews:
+  heading: "Previews"
+  base: "./preview/"
+  items:
+    - buttons
+    - colors-core
+    - colors-lore
+    - colors-semantic
+    - dateline
+    - dropzone
+    - file-grid
+    - file-row
+    - file-toolbar
+    - file-viewer
+    - header
+    - icons-unicode
+    - index-row
+    - inputs
+    - manifesto
+    - rules
+    - spacing
+    - stamps
+    - stamps-lore
+    - theme-ink
+    - type-display
+    - type-mono
+    - type-prose
+    - type-scale
+    - wordmarks
+
+file_browser:
+  heading: "File browser"
+  count: "primitives"
+  items:
+    - { code: "fb", title: "file_browser kit",   sub: "Drop, list, preview, dialogs",   desc: "The full surface, working with mock data.",  href: "./ui_kits/file_browser/", cta: "open ->" }
+    - { code: "fb", title: "FileRow",            sub: "Rail, icon, name, meta",      desc: "data-file-type drives the rail color — never apply rail-* manually.", href: "./preview/file-row.html", cta: "open ->" }
+    - { code: "fb", title: "FileGrid",           sub: "A stack of rows in a panel",       desc: "Directories sort first; the selected row gets the mint .active tone.", href: "./preview/file-grid.html", cta: "open ->" }
+    - { code: "fb", title: "DropZone",           sub: "Tonal upload target",            desc: "Swaps to --panel-select on dragover; preventDefault runs on document, not just the zone.", href: "./preview/dropzone.html", cta: "open ->" }
+    - { code: "fb", title: "FileViewer",         sub: "Modal preview, keyed head",     desc: "Head and body both carry data-file-type so rails propagate inside the modal.", href: "./preview/file-viewer.html", cta: "open ->" }
+    - { code: "fb", title: "FileToolbar",        sub: "Actions, breadcrumb, upload",  desc: "Left-aligned actions, right-aligned count; UploadProgress sits underneath.", href: "./preview/file-toolbar.html", cta: "open ->" }
+    - { code: "fb", title: "fsbrowse",           sub: "Express + busboy backend",       desc: "Canonical real-world wiring — same SDK, real filesystem operations.",     href: "https://github.com/AnEntrypoint/fsbrowse", cta: "source" }
+
+quickstart:
+  heading: "Quick start"
+  lines:
+    - { kind: "cmt", text: "# Install via importmap (no bundler)" }
+    - { kind: "cmd", text: "<script type='importmap'>{\"imports\":{\"anentrypoint-design\":\"https://cdn.jsdelivr.net/gh/AnEntrypoint/design@main/dist/247420.js\"}}</script>" }
+    - { kind: "cmt", text: "# Or clone the source" }
+    - { kind: "cmd", text: "git clone https://github.com/AnEntrypoint/design.git" }
+
+desktop_os:
+  heading: "Desktop OS shell"
+  count: "in-page window manager"
+  items:
+    - { code: "os", title: "Live demo",           sub: "menubar, apps drawer, side rail, taskbar, floating windows", desc: "a runnable desktop shell with its own window manager and a 2-app registry",   href: "./ui_kits/os/",   cta: "open ->" }
+    - { code: "os", title: "createDesktopShell",  sub: "menubar, apps launcher, taskbar, window manager",  desc: "mount any app registry into a draggable, resizable window manager",   href: "https://github.com/AnEntrypoint/design/blob/main/src/kits/os/shell.js",   cta: "shell.js" }
+    - { code: "os", title: "renderWindow / renderDock", sub: "pure paint-surface primitives",  desc: "the window chrome and dock rendering the shell composes, importable standalone", href: "https://github.com/AnEntrypoint/design/blob/main/src/kits/os/wm.js", cta: "wm.js" }
+    - { code: "os", title: "Icon set",            sub: "SVG glyphs for menubar and taskbar",                    desc: "home, apps, search, settings — used by the shell and exposed for apps",   href: "https://github.com/AnEntrypoint/design/blob/main/src/kits/os/icons.js",   cta: "icons.js" }
+    - { code: "os", title: "theme.css",           sub: "OS chrome tokens: menubar, launcher, window manager",          desc: "scoped CSS module loaded by the shell — keeps desktop visuals isolated",  href: "https://github.com/AnEntrypoint/design/blob/main/src/kits/os/theme.css", cta: "theme.css" }
+    - { code: "os", title: "Import path",         sub: "anentrypoint-design/kits/os",                         desc: "subpath export, no bundler needed — pulls icons, shell, and every app paint surface",    href: "https://github.com/AnEntrypoint/design/blob/main/package.json",          cta: "exports" }
+
+web_components:
+  heading: "Web components"
+  count: "1 element"
+  items:
+    - { code: "wc", title: "<ds-chat>",           sub: "Auto-registers when the SDK loads in a browser", desc: "Set el.messages = [...] or pass JSON via an attribute; listen for the 'send' event.",      href: "https://github.com/AnEntrypoint/design/blob/main/src/web-components/ds-chat.js", cta: "ds-chat.js" }
+    - { code: "wc", title: "registerChatElement", sub: "Manual register helper",                         desc: "Exported from the SDK root for SSR or late-mount, when customElements is gated. Custom-element auto-registration is opt-in, not forced on every consumer.",     href: "https://github.com/AnEntrypoint/design/blob/main/src/index.js",                  cta: "source" }
+
+api_exports:
+  heading: "Public API"
+  count: "SDK surface"
+  items:
+    - { code: "api", title: "h / applyDiff",                  sub: "webjsx createElement and diff",       desc: "Build vnodes with h(), render with applyDiff(root, [vnode]) — no JSX pragma needed.",       href: "https://github.com/AnEntrypoint/design/blob/main/src/index.js",      cta: "index.js" }
+    - { code: "api", title: "installStyles / scope",          sub: "ds-247420 CSS scope and bootstrap",   desc: "installStyles() injects the prefixed CSS; scope = '.ds-247420' for selector composition.",  href: "https://github.com/AnEntrypoint/design/blob/main/src/styles.js",     cta: "styles.js" }
+    - { code: "api", title: "loadCss",                        sub: "Fetch the bundled CSS string",      desc: "Useful for shadow roots or custom style-injection paths.",                                  href: "https://github.com/AnEntrypoint/design/blob/main/src/styles.js",     cta: "styles.js" }
+    - { code: "api", title: "mount / mountKit",               sub: "Shell and ui_kit bootstrap",       desc: "mount(root, viewFn) wires applyDiff and motion; mountKit({root,view,screen}) wires a full kit.",   href: "https://github.com/AnEntrypoint/design/blob/main/src/bootstrap.js",  cta: "bootstrap.js" }
+    - { code: "api", title: "registerDeckStage / getDeckStage", sub: "16:9 deck stage API",             desc: "Register custom deck stages and fetch the active stage for slide transitions.",             href: "https://github.com/AnEntrypoint/design/blob/main/src/deck-stage.js", cta: "deck-stage.js" }
+    - { code: "api", title: "renderMarkdown",                 sub: "marked v15 + DOMPurify, lazy-loaded", desc: "Lazily loads marked and DOMPurify from a CDN; the only XSS gate for chat HTML.",                 href: "https://github.com/AnEntrypoint/design/blob/main/src/markdown.js",   cta: "markdown.js" }
+    - { code: "api", title: "ensurePrism / highlightAllUnder", sub: "Prism core plus per-language",         desc: "Injects Prism on first use; a ref-callback highlights code inside any subtree.",         href: "https://github.com/AnEntrypoint/design/blob/main/src/highlight.js",  cta: "highlight.js" }
+    - { code: "api", title: "renderPageHtml",                 sub: "Static page HTML template",         desc: "Shared head/body wrapper for kit pages — meta tags, importmap, ds-247420 scope.",                href: "https://github.com/AnEntrypoint/design/blob/main/src/page-html.js",  cta: "page-html.js" }
+    - { code: "api", title: "components / motion / debug",    sub: "Namespaces from the default export", desc: "components.* are the C.* primitives; motion.animateTree; a debug registry at window.__debug.",  href: "https://github.com/AnEntrypoint/design/blob/main/src/components.js", cta: "components.js" }
+
+features:
+  heading: "Why teams choose 247420"
+  items:
+    - { name: "Clear visual hierarchy", desc: "Panel-on-panel layering keeps dense dashboards scannable — important content stays legible even in complex, data-heavy screens.", href: "https://github.com/AnEntrypoint/design/blob/main/src/css/app-shell/panel-row.css", cta: "panel-row.css" }
+    - { name: "Readable at a glance",   desc: "A disciplined type system reserves monospace for codes and labels and sans-serif for everything meant to be read, so interfaces stay legible under real workloads.", href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css", cta: "colors_and_type.css" }
+    - { name: "Instant status recognition", desc: "Color-coded indicator rails let users scan for status and category at a glance, without relying on borders that add visual noise.", href: "https://github.com/AnEntrypoint/design/blob/main/src/css/app-shell/panel-row.css#L126", cta: "panel-row.css" }
+    - { name: "Rebrand in minutes, not sprints", desc: "Every surface, type scale, and accent color is driven entirely by design tokens — retheme an entire product by editing one file, with zero component code changes.", href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css", cta: "colors_and_type.css" }
+    - { name: "Accessible by default", desc: "Every kit is WCAG AA verified (0 blocking violations across all 21 surfaces), with shared focus-visible tokens, skip links, and correct ARIA roles built into every component.", href: "https://github.com/AnEntrypoint/design/blob/main/docs/a11y-report.md", cta: "a11y-report.md" }
+
+status_left:
+  - "main"
+  - "utf-8"
+  - "lf"
+# theme.mjs overwrites this with the real published SDK version + live kit
+# count (15 surfaces, from home.kits.items.length) rather than the static
+# fallback strings below, which only render if that lookup ever fails.
+status_right:
+  - "anentrypoint-design"
+  - "14 kits"

@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en" class="ds-247420" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>design — design</title>
+
+<meta name="description" content="the visual paradigm. layered surfaces, monospace labels, loud content inside quiet chrome. consumed by every 247420 surface.">
+<meta name="keywords" content="design-system, tokens, 247420, anentrypoint">
+<meta name="author" content="247420 · a design system by AnEntrypoint">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<meta name="generator" content="anentrypoint-design">
+<link rel="canonical" href="https://anentrypoint.github.io/design">
+<meta property="og:type" content="website">
+<meta property="og:title" content="design">
+<meta property="og:description" content="the visual paradigm. layered surfaces, monospace labels, loud content inside quiet chrome. consumed by every 247420 surface.">
+<meta property="og:url" content="https://anentrypoint.github.io/design">
+<meta property="og:site_name" content="design">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://anentrypoint.github.io/design/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="design">
+<meta name="twitter:description" content="the visual paradigm. layered surfaces, monospace labels, loud content inside quiet chrome. consumed by every 247420 surface.">
+<meta name="twitter:site" content="@AnEntrypoint">
+<meta name="twitter:image" content="https://anentrypoint.github.io/design/og-card.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"design","url":"https://anentrypoint.github.io/design","description":"the visual paradigm. layered surfaces, monospace labels, loud content inside quiet chrome. consumed by every 247420 surface.","inLanguage":"en"}</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%C2%B7%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://unpkg.com/anentrypoint-design@latest/dist/247420.css">
+<script type="importmap">
+{ "imports": { "anentrypoint-design": "https://unpkg.com/anentrypoint-design@latest/dist/247420.js" } }
+</script>
+<style>
+.app-stage { width: 100%; max-width: var(--stage-wide, min(96%, 1600px)); margin-inline: auto; padding: var(--space-6, 48px) var(--space-4, 24px) var(--space-8, 96px); display: grid; gap: var(--space-6, 48px); box-sizing: border-box }
+/* Container-coupled, not viewport-coupled: .app-stage is a descendant of the
+   .app root, which declares container-type: inline-size (src/css/app-shell/base.css)
+   with nothing resetting containment in between (.app-body/.app-main are plain
+   blocks) — so @container here resolves against .app's real rendered width,
+   correct for embedded shells that have no useful viewport of their own. This
+   matches the hero and .app-body collapse rules, which were already @container. */
+@container (max-width: 768px) { .app-stage { padding: var(--space-4, 24px) var(--space-3, 16px) var(--space-6, 48px); gap: var(--space-5, 32px) } }
+/* Tier movements — the stage's uniform gap is deliberately overridden here.
+   Panels inside one tier sit tight (--space-3, 16px) because they are peers;
+   between tiers that reopens to --space-5 on top of the stage's own --space-6,
+   so the three movements read as distinct instead of one repeating slab. */
+.app-stage > .ds-tier { display: grid; gap: var(--space-3, 16px) }
+.app-stage > .ds-tier + .ds-tier { margin-top: var(--space-5, 32px) }
+.ds-tier-head { display: grid; gap: var(--space-2, 8px); margin-bottom: var(--space-1, 4px); justify-items: start }
+/* The tier label is an h2 so the three movements are real landmarks in the
+   accessibility tree; it keeps the .eyebrow voice, so the UA heading margin
+   and size are reset back onto the mono kicker scale. */
+.ds-tier-head > h2.eyebrow { margin: 0; font-size: var(--fs-tiny, 11px); line-height: 1.2 }
+.ds-tier-lede { margin: 0; max-width: var(--measure, 68ch); color: var(--fg-3); font-size: var(--fs-sm, 15px) }
+/* The lead tier carries the accent spine so the primary path is visible at a
+   squint; supporting tiers stay unmarked rather than competing. The head div
+   is the tier's first child, so the marker is an explicit class rather than a
+   positional :first-of-type, which would not match past it. */
+.ds-tier-lead { border-radius: 0 var(--r-2, 14px) var(--r-2, 14px) 0; padding-left: calc(var(--space-3, 16px) + var(--bw-chunk, 6px)); position: relative }
+.ds-tier-lead::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: var(--bw-chunk, 6px); background: var(--accent); border-radius: var(--bw-chunk, 6px) 0 0 var(--bw-chunk, 6px) }
+/* Tertiary tier reads at prose weight: quieter rows, no panel fill competition. */
+.ds-tier-read .panel { background: var(--panel-1, var(--bg)) }
+.ds-tier-read .row .meta { color: var(--fg-3) }
+.page-body > :first-child { margin-top: 0 }
+.page-body h1 { margin-top: 0 } .page-body h2 { margin-top: var(--space-5, 32px) } .page-body h3 { margin-top: var(--space-4, 24px) }
+.page-body > * + * { margin-top: var(--space-3, 16px) }
+.page-body pre { margin: var(--space-3, 16px) 0; background: var(--panel-2); padding: var(--space-3, 16px); border-radius: var(--r-1, 10px); overflow-x: auto }
+/* .app-stage owns inter-block rhythm via grid gap; sections/hero must not double it.
+   These selectors carry !important because this inline block loads before the
+   unpkg CSS bundle, which would otherwise win on load-order for equal specificity. */
+.ds-247420 .app-stage > .ds-hero { margin: 0 !important; padding: var(--space-4, 24px) 0 0 !important; max-width: none !important; gap: var(--space-4, 24px) !important }
+.ds-247420 .app-stage > .ds-section { margin: 0 !important }
+.app-stage .row + .row { margin-top: var(--space-1, 4px) }
+.app-stage .ds-section .row { margin-top: var(--space-2, 8px) }
+.app-stage .ds-section > p.ds-lede { margin: 0 0 var(--space-3, 16px); max-width: var(--measure, 68ch); color: var(--fg-2) }
+.row-benefit { font-style: italic; color: var(--fg-3); font-size: var(--fs-sm); margin-top: var(--space-1, 4px) }
+.ds-row-arrow { margin-left: auto; opacity: .5; transition: opacity var(--dur-snap, 80ms) var(--ease) }
+a.row:hover .ds-row-arrow { opacity: 1 }
+/* hero stat strip — all badges as a wrapping inline rhythm, not one empty panel */
+.ds-hero-stats { display: flex; flex-wrap: wrap; gap: var(--space-3, 16px) var(--space-5, 32px); margin-top: var(--space-2, 8px) }
+/* hero-content.css's .ds-hero-stat is styled for a vertical stacked list
+   (border-bottom row divider, meant to read top-to-bottom); this page renders
+   badges in a horizontal row instead (.ds-hero-stats above), where that same
+   border reads as an underlined tab strip -- an affordance for a set of
+   plain, non-interactive metadata chips. Reset both inherited properties so a
+   row of badges never borrows tab-bar chrome it did not opt into. */
+.ds-hero-stat { display: flex; align-items: baseline; gap: var(--space-2, 8px); border-bottom: none !important; padding-bottom: 0 !important }
+.ds-hero-stat-n { font-family: var(--ff-body); font-weight: 700; font-size: var(--fs-lg, 18px); color: var(--fg) }
+.ds-hero-stat-l { font-size: var(--fs-sm, 15px); color: var(--fg-3) }
+/* accent sits on its own line, muted, so it reads as a distinct aside instead
+   of running on from the hero body sentence. */
+.ds-hero-accent { display: block; margin-top: var(--space-2, 8px); color: var(--fg-3) }
+/* feature rows — single-column stack (the dashboard .row grid forces a 3-col
+   code/title/meta layout that mangles title+desc+benefit) */
+/* background uses a theme-neutral panel token (resolves per data-theme) so dark
+   mode doesn't flash a literal white card before/independent of the bundle.
+   Flat tonal fill only — no border-left rail accent (house style: no bespoke
+   tile chrome, no shadows, no borders; see ui_kits/gallery/app.js). */
+.ds-feature { padding: var(--space-3, 16px) var(--space-4, 24px); background: var(--panel-1, var(--bg)); border-radius: var(--r-2, 14px); display: grid; gap: var(--space-1, 4px) }
+.ds-feature + .ds-feature { margin-top: var(--space-2, 8px) }
+.ds-feature-title { font-weight: 600; font-size: var(--fs-lg, 18px); color: var(--fg) }
+.ds-feature-desc { font-size: var(--fs-sm, 15px); color: var(--fg-2); line-height: 1.5; overflow-wrap: anywhere }
+.ds-feature-benefit { font-style: italic; font-size: var(--fs-sm, 15px); color: var(--fg-3); margin-top: var(--space-1, 4px) }
+/* Real closing content instead of the page simply stopping after its last
+   panel — a tonal divider line, a copyright string, and the same external
+   links the topbar already carries (footer.js reuses data.navItems, so this
+   is never invented content). Sits inside .app-stage's own grid gap like
+   every other block, no extra margin needed. */
+.ds-page-footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: var(--space-3, 16px);
+  padding-top: var(--space-5, 32px);
+  margin-top: var(--space-3, 16px);
+  border-top: 1px solid var(--rule, var(--bg-3));
+  color: var(--fg-3); font-size: var(--fs-sm, 15px);
+}
+.ds-page-footer-links { display: flex; gap: var(--space-4, 24px) }
+.ds-page-footer-links a { color: var(--fg-3) }
+.ds-page-footer-links a:hover { color: var(--fg) }
+/* Live component showcase: a grid of cards, each holding a real mounted
+   specimen (not a screenshot) of the actual SDK components. */
+.ds-showcase-grid {
+  display: grid; gap: var(--space-3, 16px);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.ds-showcase-card {
+  padding: var(--space-3, 16px); background: var(--panel-1, var(--bg));
+  border-radius: var(--r-2, 14px); display: grid; gap: var(--space-2, 8px);
+}
+.ds-showcase-card--wide { grid-column: 1 / -1; }
+.ds-showcase-label {
+  font-size: var(--fs-tiny, 13px); font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--fg-3, #6b6b6b);
+}
+.ds-showcase-row { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); align-items: center; }
+/* Sets Danger apart from Primary/Default/Ghost in the button showcase row: an
+   extra left margin beyond the row's own gap, plus a hairline divider, so a
+   danger action never reads as just one more same-weight choice beside the
+   primary action. */
+.ds-showcase-btn-danger-group {
+  display: inline-flex; align-items: center;
+  margin-left: var(--space-3, 16px);
+  padding-left: var(--space-3, 16px);
+  border-left: 1px solid var(--rule, rgba(0,0,0,.12));
+}
+/* Card-grid layout (panel.layout === 'cards'): a browsable gallery of tiles
+   instead of a dense text-row list, opt-in per panel via home.yaml's
+   kits.layout: cards. */
+.ds-kit-card-grid {
+  display: grid; gap: var(--space-2, 8px);
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+.ds-kit-card {
+  display: grid; gap: var(--space-1, 4px); align-content: start;
+  padding: var(--space-3, 16px); background: var(--panel-1, var(--bg));
+  border-radius: var(--r-2, 14px); color: inherit; text-decoration: none;
+  transition: transform var(--dur-base, .18s) var(--ease, ease), box-shadow var(--dur-base, .18s) var(--ease, ease);
+  position: relative;
+}
+.ds-kit-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-1, 0 1px 2px rgba(0,0,0,.1)); }
+.ds-kit-card:focus-visible { outline: var(--focus-w, 2px) solid var(--focus-color, currentColor); outline-offset: var(--focus-offset, 2px); }
+.ds-kit-card-code {
+  font-family: var(--ff-mono, monospace); font-size: var(--fs-micro, 12px);
+  color: var(--fg-3, #6b6b6b);
+}
+.ds-kit-card-title { font-weight: 600; font-size: var(--fs-base, 16px); }
+.ds-kit-card-sub { font-size: var(--fs-sm, 15px); color: var(--fg-2, #444); }
+.ds-kit-card-arrow {
+  position: absolute; top: var(--space-3, 16px); right: var(--space-3, 16px);
+  color: var(--fg-3, #6b6b6b); font-size: var(--fs-sm, 15px);
+}
+</style>
+<script id="__site__" type="application/json">{"title":"design","slug":"index","siteName":"design","navItems":[["247420","https://247420.xyz"],["AnEntrypoint ->","https://github.com/AnEntrypoint"]],"theme":"auto","hero":{"heading":"Design","subheading":"The 247420 design system","body":"A complete, tokens-driven component system for building consistent, accessible interfaces fast: 15 ready-to-ship kit surfaces, 25 live previews, a slide deck, and a full desktop-shell demo — plus a web component and an SDK. Every panel, row, and form control reads its color, radius, and spacing from one shared token file, so a single theme change updates every surface built on it at once. WCAG AA verified across all 15 kits, zero JavaScript bundler required.","badges":[{"label":"Design system"},{"label":"Design tokens"},{"label":"WCAG AA"}],"ctas":[{"label":"GitHub","href":"https://github.com/AnEntrypoint/design","primary":true},{"label":"247420","href":"https://247420.xyz"}]},"sections":[],"examples":[],"bodyHtml":"","sidebar":{"sections":[{"group":"open","items":[{"glyph":"+","label":"open","href":"./ui_kits/homepage/"}]},{"group":"bins","items":[{"label":"Everything","href":"#all","active":true,"count":49},{"label":"Pinned","href":"#kits","count":15},{"label":"Shipped","href":"#previews","count":25},{"label":"Drafts","href":"#decks","count":1}]},{"group":"Labels","items":[{"label":"UI kits","href":"#kits","count":15},{"label":"Decks","href":"#decks","count":1},{"label":"Previews","href":"#previews","count":25},{"label":"Docs","href":"#docs","count":8}]},{"group":"More","items":[{"label":"Readme","href":"https://github.com/AnEntrypoint/design/blob/main/README.md"},{"label":"Skill","href":"https://github.com/AnEntrypoint/design/blob/main/SKILL.md"},{"label":"Tokens","href":"https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css"},{"label":"Source","href":"https://github.com/AnEntrypoint/design"},{"label":"MIT license","href":"https://github.com/AnEntrypoint/design/blob/main/LICENSE"}]}]},"marquee":{"items":["Open source","Design tokens","WCAG AA verified","No bundler required"],"sep":"/"},"showcase":{"heading":"Live components","lede":"Not a screenshot — the same Btn, Chip, Badge, and Table components every kit page imports, rendered right here from the SDK you'd actually install."},"panels":[{"id":"kits","title":"UI kits","count":"15 surfaces","items":[{"code":"","title":"Homepage","sub":"Marquee and works grid","meta":"open ->","href":"./ui_kits/homepage/"},{"code":"","title":"Project page","sub":"Hero, receipt, install, changelog","meta":"open ->","href":"./ui_kits/project_page/"},{"code":"","title":"Docs","sub":"Long-form prose chrome","meta":"open ->","href":"./ui_kits/docs/"},{"code":"","title":"Blog","sub":"Dated index and reading view","meta":"open ->","href":"./ui_kits/blog/"},{"code":"","title":"Chat","sub":"Message thread and composer","meta":"open ->","href":"./ui_kits/chat/"},{"code":"","title":"AICat","sub":"AI assistant with a cat persona","meta":"open ->","href":"./ui_kits/aicat/"},{"code":"","title":"File browser","sub":"Type-aware rails, drop zone, preview","meta":"open ->","href":"./ui_kits/file_browser/"},{"code":"","title":"Dashboard","sub":"KPIs, tables, receipts, changelog","meta":"open ->","href":"./ui_kits/dashboard/"},{"code":"","title":"Terminal","sub":"CLI prompt, command lines, log view","meta":"open ->","href":"./ui_kits/terminal/"},{"code":"","title":"Settings","sub":"Sectioned forms, toggles, save bar","meta":"open ->","href":"./ui_kits/settings/"},{"code":"","title":"Sign in","sub":"Auth providers and magic link","meta":"open ->","href":"./ui_kits/signin/"},{"code":"","title":"Search","sub":"Topbar query, faceted filters, rows","meta":"open ->","href":"./ui_kits/search/"},{"code":"","title":"404","sub":"Empty-state hero, suggested routes","meta":"open ->","href":"./ui_kits/error_404/"},{"code":"","title":"Gallery","sub":"Visual grid, tonal cards, lightbox","meta":"open ->","href":"./ui_kits/gallery/"},{"code":"","title":"OS shell","sub":"Menubar, window manager, taskbar","meta":"open ->","href":"./ui_kits/os/"}],"layout":"cards"},{"id":"file_browser","title":"File browser","count":"primitives","items":[{"code":"fb","title":"file_browser kit","sub":"Drop, list, preview, dialogs","meta":"open ->","href":"./ui_kits/file_browser/"},{"code":"fb","title":"FileRow","sub":"Rail, icon, name, meta","meta":"open ->","href":"./preview/file-row.html"},{"code":"fb","title":"FileGrid","sub":"A stack of rows in a panel","meta":"open ->","href":"./preview/file-grid.html"},{"code":"fb","title":"DropZone","sub":"Tonal upload target","meta":"open ->","href":"./preview/dropzone.html"},{"code":"fb","title":"FileViewer","sub":"Modal preview, keyed head","meta":"open ->","href":"./preview/file-viewer.html"},{"code":"fb","title":"FileToolbar","sub":"Actions, breadcrumb, upload","meta":"open ->","href":"./preview/file-toolbar.html"},{"code":"fb","title":"fsbrowse","sub":"Express + busboy backend","meta":"source","href":"https://github.com/AnEntrypoint/fsbrowse"}],"layout":null},{"id":"desktop_os","title":"Desktop OS shell","count":"in-page window manager","items":[{"code":"os","title":"Live demo","sub":"menubar, apps drawer, side rail, taskbar, floating windows","meta":"open ->","href":"./ui_kits/os/"},{"code":"os","title":"createDesktopShell","sub":"menubar, apps launcher, taskbar, window manager","meta":"shell.js","href":"https://github.com/AnEntrypoint/design/blob/main/src/kits/os/shell.js"},{"code":"os","title":"renderWindow / renderDock","sub":"pure paint-surface primitives","meta":"wm.js","href":"https://github.com/AnEntrypoint/design/blob/main/src/kits/os/wm.js"},{"code":"os","title":"Icon set","sub":"SVG glyphs for menubar and taskbar","meta":"icons.js","href":"https://github.com/AnEntrypoint/design/blob/main/src/kits/os/icons.js"},{"code":"os","title":"theme.css","sub":"OS chrome tokens: menubar, launcher, window manager","meta":"theme.css","href":"https://github.com/AnEntrypoint/design/blob/main/src/kits/os/theme.css"},{"code":"os","title":"Import path","sub":"anentrypoint-design/kits/os","meta":"exports","href":"https://github.com/AnEntrypoint/design/blob/main/package.json"}],"layout":null},{"id":"web_components","title":"Web components","count":"1 element","items":[{"code":"wc","title":"\u003cds-chat>","sub":"Auto-registers when the SDK loads in a browser","meta":"ds-chat.js","href":"https://github.com/AnEntrypoint/design/blob/main/src/web-components/ds-chat.js"},{"code":"wc","title":"registerChatElement","sub":"Manual register helper","meta":"source","href":"https://github.com/AnEntrypoint/design/blob/main/src/index.js"}],"layout":null},{"id":"api_exports","title":"Public API","count":"SDK surface","items":[{"code":"api","title":"h / applyDiff","sub":"webjsx createElement and diff","meta":"index.js","href":"https://github.com/AnEntrypoint/design/blob/main/src/index.js"},{"code":"api","title":"installStyles / scope","sub":"ds-247420 CSS scope and bootstrap","meta":"styles.js","href":"https://github.com/AnEntrypoint/design/blob/main/src/styles.js"},{"code":"api","title":"loadCss","sub":"Fetch the bundled CSS string","meta":"styles.js","href":"https://github.com/AnEntrypoint/design/blob/main/src/styles.js"},{"code":"api","title":"mount / mountKit","sub":"Shell and ui_kit bootstrap","meta":"bootstrap.js","href":"https://github.com/AnEntrypoint/design/blob/main/src/bootstrap.js"},{"code":"api","title":"registerDeckStage / getDeckStage","sub":"16:9 deck stage API","meta":"deck-stage.js","href":"https://github.com/AnEntrypoint/design/blob/main/src/deck-stage.js"},{"code":"api","title":"renderMarkdown","sub":"marked v15 + DOMPurify, lazy-loaded","meta":"markdown.js","href":"https://github.com/AnEntrypoint/design/blob/main/src/markdown.js"},{"code":"api","title":"ensurePrism / highlightAllUnder","sub":"Prism core plus per-language","meta":"highlight.js","href":"https://github.com/AnEntrypoint/design/blob/main/src/highlight.js"},{"code":"api","title":"renderPageHtml","sub":"Static page HTML template","meta":"page-html.js","href":"https://github.com/AnEntrypoint/design/blob/main/src/page-html.js"},{"code":"api","title":"components / motion / debug","sub":"Namespaces from the default export","meta":"components.js","href":"https://github.com/AnEntrypoint/design/blob/main/src/components.js"}],"layout":null},{"id":"decks","title":"Decks","count":1,"items":[{"code":"","title":"Deck template","sub":"16:9 stage with auto-fit","meta":"open ->","href":"./slides/"}],"layout":null},{"id":"docs","title":"Docs","count":8,"items":[{"code":"md","title":"Readme","sub":"Overview, manifesto, conventions","meta":"open ->","href":"https://github.com/AnEntrypoint/design/blob/main/README.md"},{"code":"md","title":"Skill","sub":"Authoring rules for the agent","meta":"open ->","href":"https://github.com/AnEntrypoint/design/blob/main/SKILL.md"},{"code":"css","title":"Tokens","sub":"Colors, type, panel surface tokens","meta":"open ->","href":"https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css"},{"code":"md","title":"Component props","sub":"Generated prop reference","meta":"open ->","href":"https://github.com/AnEntrypoint/design/blob/main/docs/component-props.md"},{"code":"live","title":"Component explorer","sub":"Interactive, searchable, live-rendered","meta":"open ->","href":"./ui_kits/component_explorer/"},{"code":"md","title":"Changelog","sub":"Release history","meta":"open ->","href":"https://github.com/AnEntrypoint/design/blob/main/CHANGELOG.md"},{"code":"md","title":"Accessibility","sub":"WCAG AA compliance, keyboard navigation","meta":"open ->","href":"https://github.com/AnEntrypoint/design/blob/main/docs/accessibility.md"},{"code":"md","title":"Responsive breakpoints","sub":"The documented breakpoint scale in use","meta":"open ->","href":"https://github.com/AnEntrypoint/design/blob/main/docs/responsive.md"}],"layout":null},{"id":"features","title":"Why teams choose 247420","count":5,"items":[{"code":"","title":"Clear visual hierarchy","sub":"Panel-on-panel layering keeps dense dashboards scannable — important content stays legible even in complex, data-heavy screens.","meta":"panel-row.css","href":"https://github.com/AnEntrypoint/design/blob/main/src/css/app-shell/panel-row.css"},{"code":"","title":"Readable at a glance","sub":"A disciplined type system reserves monospace for codes and labels and sans-serif for everything meant to be read, so interfaces stay legible under real workloads.","meta":"colors_and_type.css","href":"https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css"},{"code":"","title":"Instant status recognition","sub":"Color-coded indicator rails let users scan for status and category at a glance, without relying on borders that add visual noise.","meta":"panel-row.css","href":"https://github.com/AnEntrypoint/design/blob/main/src/css/app-shell/panel-row.css#L126"},{"code":"","title":"Rebrand in minutes, not sprints","sub":"Every surface, type scale, and accent color is driven entirely by design tokens — retheme an entire product by editing one file, with zero component code changes.","meta":"colors_and_type.css","href":"https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css"},{"code":"","title":"Accessible by default","sub":"Every kit is WCAG AA verified (0 blocking violations across all 15 surfaces), with shared focus-visible tokens, skip links, and correct ARIA roles built into every component.","meta":"a11y-report.md","href":"https://github.com/AnEntrypoint/design/blob/main/docs/a11y-report.md"}],"layout":null},{"id":"previews","title":"Previews","count":25,"items":[{"code":"","title":"buttons","sub":"preview · buttons.html","meta":"open ->","href":"./preview/buttons.html"},{"code":"","title":"colors core","sub":"preview · colors-core.html","meta":"open ->","href":"./preview/colors-core.html"},{"code":"","title":"colors lore","sub":"preview · colors-lore.html","meta":"open ->","href":"./preview/colors-lore.html"},{"code":"","title":"colors semantic","sub":"preview · colors-semantic.html","meta":"open ->","href":"./preview/colors-semantic.html"},{"code":"","title":"dateline","sub":"preview · dateline.html","meta":"open ->","href":"./preview/dateline.html"},{"code":"","title":"dropzone","sub":"preview · dropzone.html","meta":"open ->","href":"./preview/dropzone.html"},{"code":"","title":"file grid","sub":"preview · file-grid.html","meta":"open ->","href":"./preview/file-grid.html"},{"code":"","title":"file row","sub":"preview · file-row.html","meta":"open ->","href":"./preview/file-row.html"},{"code":"","title":"file toolbar","sub":"preview · file-toolbar.html","meta":"open ->","href":"./preview/file-toolbar.html"},{"code":"","title":"file viewer","sub":"preview · file-viewer.html","meta":"open ->","href":"./preview/file-viewer.html"},{"code":"","title":"header","sub":"preview · header.html","meta":"open ->","href":"./preview/header.html"},{"code":"","title":"icons unicode","sub":"preview · icons-unicode.html","meta":"open ->","href":"./preview/icons-unicode.html"},{"code":"","title":"index row","sub":"preview · index-row.html","meta":"open ->","href":"./preview/index-row.html"},{"code":"","title":"inputs","sub":"preview · inputs.html","meta":"open ->","href":"./preview/inputs.html"},{"code":"","title":"manifesto","sub":"preview · manifesto.html","meta":"open ->","href":"./preview/manifesto.html"},{"code":"","title":"rules","sub":"preview · rules.html","meta":"open ->","href":"./preview/rules.html"},{"code":"","title":"spacing","sub":"preview · spacing.html","meta":"open ->","href":"./preview/spacing.html"},{"code":"","title":"stamps","sub":"preview · stamps.html","meta":"open ->","href":"./preview/stamps.html"},{"code":"","title":"stamps lore","sub":"preview · stamps-lore.html","meta":"open ->","href":"./preview/stamps-lore.html"},{"code":"","title":"theme ink","sub":"preview · theme-ink.html","meta":"open ->","href":"./preview/theme-ink.html"},{"code":"","title":"type display","sub":"preview · type-display.html","meta":"open ->","href":"./preview/type-display.html"},{"code":"","title":"type mono","sub":"preview · type-mono.html","meta":"open ->","href":"./preview/type-mono.html"},{"code":"","title":"type prose","sub":"preview · type-prose.html","meta":"open ->","href":"./preview/type-prose.html"},{"code":"","title":"type scale","sub":"preview · type-scale.html","meta":"open ->","href":"./preview/type-scale.html"},{"code":"","title":"wordmarks","sub":"preview · wordmarks.html","meta":"open ->","href":"./preview/wordmarks.html"}]}],"quickstart":{"heading":"Quick start","lines":[{"kind":"cmt","text":"# Install via importmap (no bundler)"},{"kind":"cmd","text":"\u003cscript type='importmap'>{\"imports\":{\"anentrypoint-design\":\"https://unpkg.com/anentrypoint-design@latest/dist/247420.js\"}}\u003c/script>"},{"kind":"cmt","text":"# Or clone the source"},{"kind":"cmd","text":"git clone https://github.com/AnEntrypoint/design.git"}]},"statusLeft":["main","utf-8","lf"],"statusRight":["anentrypoint-design@latest","15 kits"],"seoAuthor":"247420 · a design system by AnEntrypoint"}</script>
+<style>html,body{margin:0;padding:0}body{background:var(--bg,#F6F5F1);color:var(--fg,#131318);font-family:var(--ff-body,system-ui,sans-serif)}</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { mount, components as C, h } from 'anentrypoint-design';
+let data;
+try {
+  data = JSON.parse(document.getElementById('__site__').textContent);
+} catch (e) {
+  console.error('[page-html] failed to parse #__site__ bootstrap data:', e);
+  document.getElementById('app').textContent = 'This page failed to load correctly. Please refresh, or contact support if the problem persists.';
+  throw e;
+}
+
+function heroNode(hero) {
+  if (!hero) return null;
+  const badges = Array.isArray(hero.badges) ? hero.badges.filter(Boolean) : [];
+  const badgeRow = badges.length
+    ? h('div', { class: 'ds-hero-stats' }, ...badges.map((b, i) =>
+        h('span', { key: i, class: 'ds-hero-stat' },
+          h('strong', { class: 'ds-hero-stat-n' }, String(b.label != null ? b.label : b)),
+          b.desc ? h('span', { class: 'ds-hero-stat-l' }, String(b.desc)) : null,
+        )))
+    : null;
+  return h('div', { class: 'ds-hero' },
+    hero.eyebrow ? h('span', { class: 'eyebrow' }, hero.eyebrow) : null,
+    h('h1', { class: 'ds-hero-title' }, hero.heading || hero.title || data.title),
+    (hero.body || hero.subheading) ? h('p', { class: 'ds-hero-body' },
+      hero.body || hero.subheading,
+      hero.accent ? h('span', { class: 'ds-hero-accent' }, ' ' + hero.accent) : null,
+    ) : null,
+    // Every hero CTA is a plain <a href> that navigates away from this page
+    // (GitHub, the portfolio site, ...), never an in-page action -- so the
+    // trailing arrow is appended here once, at the render layer, rather than
+    // hand-typed per label in content yaml where it could drift out of sync
+    // with the "navigates away = arrow" rule used elsewhere (row ctas,
+    // signin's in-page submit buttons).
+    Array.isArray(hero.ctas) && hero.ctas.length
+      ? h('div', { class: 'ds-hero-actions' }, ...hero.ctas.map((c, i) =>
+          h('a', { key: i, class: i === 0 ? 'btn btn-accent' : 'btn btn-ghost', href: c.href || '#' }, (c.label || c.cta || 'go') + ' ->')))
+      : null,
+    badgeRow,
+  );
+}
+
+function __esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+// A live, interactive strip of the actual SDK components (not a screenshot,
+// not a description) rendered directly below the hero -- "show, don't just
+// tell" concretely: real Btn/Chip/Badge/Table specimens, mounted from the
+// same C.* namespace every kit page uses, so what a visitor sees IS what a
+// consumer gets by importing the SDK.
+function showcaseNode(showcase) {
+  if (!showcase) return null;
+  const btnRow = h('div', { class: 'ds-showcase-row' },
+    C.Btn({ key: 'b1', variant: 'primary', children: 'Primary' }),
+    C.Btn({ key: 'b2', variant: 'default', children: 'Default' }),
+    C.Btn({ key: 'b3', variant: 'ghost', children: 'Ghost' }),
+    // .ds-showcase-btn-danger-group gives Danger its own visually separated
+    // cluster (extra leading gap + a hairline divider) instead of sitting in
+    // the same uniform-gap row as Primary -- two similarly-weighted filled
+    // buttons side by side otherwise compete for "the one action to take"
+    // with nothing marking Danger as the deliberately-set-apart one.
+    h('span', { key: 'b4-group', class: 'ds-showcase-btn-danger-group' },
+      C.Btn({ key: 'b4', variant: 'danger', children: 'Danger' })),
+  );
+  // Hue documents STATUS, not decoration: green = shipping/live, blue = pre-
+  // release/in-flux, purple = newly added. Badge (not a bespoke pill) carries
+  // the '0 violations' count so every status indicator in this row is one of
+  // the two real chip-family components, never a one-off styled span.
+  const chipRow = h('div', { class: 'ds-showcase-row' },
+    C.Chip({ key: 'c1', tone: 'green', children: 'Live' }),
+    C.Chip({ key: 'c2', tone: 'blue', children: 'Beta' }),
+    C.Chip({ key: 'c3', tone: 'purple', children: 'New' }),
+    C.Badge({ key: 'c4', tone: 'success', children: '0 violations' }),
+  );
+  const table = C.Table({
+    headers: ['Kit', 'Status', 'A11y'],
+    rows: [
+      ['chat', 'shipped', 'pass'],
+      ['dashboard', 'shipped', 'pass'],
+      ['os', 'shipped', 'pass'],
+    ],
+    compact: true,
+  });
+  return C.Section({
+    id: 'showcase',
+    title: showcase.heading || 'Live components',
+    children: [
+      showcase.lede ? h('p', { class: 'ds-lede' }, showcase.lede) : null,
+      h('div', { class: 'ds-showcase-grid' },
+        h('div', { key: 'btns', class: 'ds-showcase-card' },
+          h('span', { class: 'ds-showcase-label' }, 'Buttons'), btnRow),
+        h('div', { key: 'chips', class: 'ds-showcase-card' },
+          h('span', { class: 'ds-showcase-label' }, 'Chips & badges'), chipRow),
+        h('div', { key: 'table', class: 'ds-showcase-card ds-showcase-card--wide' },
+          h('span', { class: 'ds-showcase-label' }, 'Table'), table),
+      ),
+    ].filter(Boolean),
+  });
+}
+
+function sectionNode(sec, idx) {
+  const features = sec.features || sec.items || [];
+  const rows = features.map((f, i) => {
+    const kids = [h('div', { key: 't', class: 'ds-feature-title' }, String(f.name || ''))];
+    if (f.desc) kids.push(h('div', { key: 'd', class: 'ds-feature-desc', innerHTML: __esc(String(f.desc)).replace(/`([^`]+)`/g, '<code>$1</code>') }));
+    if (f.benefit) kids.push(h('div', { key: 'b', class: 'ds-feature-benefit' }, String(f.benefit)));
+    return h('div', { key: i, class: 'ds-feature' }, ...kids);
+  });
+  return C.Section({
+    id: sec.id || null,
+    title: sec.name || sec.title || sec.id,
+    children: [
+      sec.lede ? h('p', { class: 'ds-lede' }, sec.lede) : null,
+      ...rows,
+      sec.body && String(sec.body).trim() ? h('div', { class: 'page-body', innerHTML: __md(sec.body) }) : null,
+    ].filter(Boolean),
+  });
+}
+
+function examplesNode(examples) {
+  if (!examples || !examples.length) return null;
+  return C.Section({
+    title: 'explore',
+    children: examples.map((e, i) => {
+      const code = e.code == null ? '' : String(e.code).trim();
+      const kids = [];
+      if (code) kids.push(h('span', { key: 'c', class: 'code' }, code));
+      kids.push(h('span', { key: 't', class: 'title' }, String(e.label || e.name || e.href || '')));
+      if (e.desc) kids.push(h('span', { key: 'm', class: 'meta dim' }, ' — ' + e.desc));
+      kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, '->'));
+      return h('a', { key: i, class: 'row', href: e.href || '#' }, ...kids);
+    }),
+  });
+}
+
+// Category glyph per homepage panel id — the same line-icon vocabulary
+// icons.js already provides, so kits/previews/decks/docs read as distinct
+// categories at a glance instead of by text label alone. Falls back to no
+// icon for panel ids outside this table (e.g. one-off feature panels).
+const PANEL_ICON = {
+  kits: 'grid',
+  file_browser: 'folder',
+  desktop_os: 'square',
+  web_components: 'page',
+  api_exports: 'link',
+  decks: 'screen',
+  docs: 'file-text',
+  previews: 'eye',
+  features: 'info',
+};
+
+// Filter state for the kits search box above the "ui kits" panel. Reuses
+// ui_kits/search's own query-bar pattern (plain module-level state object,
+// mutated on input, driving a re-render) rather than inventing a second
+// filtering mechanism -- this homepage already ships that kit, so the
+// homepage's own kit listing gets the same affordance instead of being the
+// one surface on the site without a way to search kits by name.
+const kitsFilterState = { q: '' };
+
+function panelNode(panel, idx, rerender) {
+  let items = Array.isArray(panel.items) ? panel.items : [];
+  const isKits = panel.id === 'kits';
+  const q = isKits ? kitsFilterState.q.trim().toLowerCase() : '';
+  if (isKits && q) {
+    items = items.filter((it) => {
+      const hay = (String(it.title || it.name || '') + ' ' + String(it.sub || it.desc || '')).toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  const iconName = panel.id && PANEL_ICON[panel.id];
+  const titleText = panel.title || panel.name || '';
+  const titleNode = iconName && titleText
+    ? h('span', { class: 'ds-panel-title-glyph' }, C.Icon(iconName, { size: 15 }), h('span', {}, titleText))
+    : titleText;
+  const filterInput = isKits && rerender ? h('div', { class: 'ds-kits-filter' },
+    h('input', {
+      type: 'search', class: 'input ds-kits-filter-input',
+      placeholder: 'filter kits by name or description…',
+      value: kitsFilterState.q,
+      'aria-label': 'filter ui kits',
+      oninput: (e) => { kitsFilterState.q = e.target.value; rerender(); },
+    })) : null;
+  if (!items.length) {
+    if (isKits && q) {
+      return h('div', { class: 'ds-kits-panel-wrap' }, filterInput,
+        C.Panel({ id: panel.id || null, title: titleNode, count: 0, children:
+          h('div', { class: 'ds-empty-state' },
+            h('div', { class: 'ds-empty-state-glyph' }, '( )'),
+            h('p', { class: 'ds-empty-state-msg' }, 'no kits match ', h('code', {}, '"' + kitsFilterState.q.trim() + '"')),
+          ) }));
+    }
+    return filterInput ? h('div', { class: 'ds-kits-panel-wrap' }, filterInput) : null;
+  }
+  // Card-grid layout (panel.layout === 'cards'): each item gets its own
+  // visual tile with a code badge and a two-line title/sub stack, instead of
+  // a single-line text row -- the "show, don't just tell" request for a
+  // browsable gallery feel on the kits panel specifically, opt-in per panel
+  // so every other panel (docs, api_exports, etc) keeps its dense row list,
+  // which suits reference material better than a card grid would.
+  const rows = panel.layout === 'cards'
+    ? items.map((it, i) => {
+        const code = it.code == null ? '' : String(it.code).trim();
+        return h('a', { key: i, class: 'ds-kit-card', href: it.href || '#' },
+          code ? h('span', { key: 'c', class: 'ds-kit-card-code' }, code) : null,
+          h('span', { key: 't', class: 'ds-kit-card-title' }, String(it.title || it.name || '')),
+          (it.sub || it.desc) ? h('span', { key: 'm', class: 'ds-kit-card-sub' }, it.sub || it.desc) : null,
+          h('span', { key: 'a', class: 'ds-kit-card-arrow' }, it.meta || '->'),
+        );
+      })
+    : items.map((it, i) => {
+        const code = it.code == null ? '' : String(it.code).trim();
+        const kids = [];
+        if (code) kids.push(h('span', { key: 'c', class: 'code' }, code));
+        kids.push(h('span', { key: 't', class: 'title' }, String(it.title || it.name || '')));
+        if (it.sub || it.desc) kids.push(h('span', { key: 'm', class: 'meta dim' }, ' — ' + (it.sub || it.desc)));
+        kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, it.meta || '->'));
+        return h('a', { key: i, class: 'row', href: it.href || '#' }, ...kids);
+      });
+  const rowsWrapped = panel.layout === 'cards' ? h('div', { class: 'ds-kit-card-grid' }, ...rows) : rows;
+  const panelEl = C.Panel({ id: panel.id || null, title: titleNode, count: items.length, children: rowsWrapped });
+  return filterInput ? h('div', { class: 'ds-kits-panel-wrap' }, filterInput, panelEl) : panelEl;
+}
+
+function marqueeNode(marquee) {
+  if (!marquee || !Array.isArray(marquee.items) || !marquee.items.length) return null;
+  return C.Marquee ? C.Marquee({ items: marquee.items, sep: marquee.sep || '/' }) : null;
+}
+
+let __copyResetTimer = null;
+function copyQuickstart(text, btnEl) {
+  const done = (ok) => {
+    if (!btnEl) return;
+    btnEl.textContent = ok ? 'copied' : 'copy failed';
+    clearTimeout(__copyResetTimer);
+    __copyResetTimer = setTimeout(() => { btnEl.textContent = 'copy'; }, 1600);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => done(true), () => copyViaTextarea(text, done));
+  } else {
+    copyViaTextarea(text, done);
+  }
+}
+// Fallback for non-secure contexts / browsers without navigator.clipboard:
+// a hidden textarea + document.execCommand('copy'), the standard shim.
+function copyViaTextarea(text, done) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    done(ok);
+  } catch (_e) {
+    done(false);
+  }
+}
+
+function quickstartNode(quickstart) {
+  if (!quickstart || !Array.isArray(quickstart.lines) || !quickstart.lines.length) return null;
+  // A single .cli wrapper holding .ds-cli-row/.ds-cli-comment children, not
+  // one .cli per line -- hero-content.css's multi-line wrap rule
+  // (.cli:has(.ds-cli-row) { white-space: pre-wrap }) only fires when the
+  // rows live inside one shared .cli. One-.cli-per-line instead hit the
+  // single-line .cli .cmd { white-space: nowrap } rule, forcing horizontal
+  // scroll on any long line (e.g. the importmap script tag).
+  const lineNodes = quickstart.lines.map((l, i) => l.kind === 'cmt'
+    ? h('div', { key: 'q' + i, class: 'ds-cli-comment' }, l.text)
+    : h('div', { key: 'q' + i, class: 'ds-cli-row' },
+        h('span', { class: 'prompt' }, '$'),
+        h('span', { class: 'cmd' }, l.text)));
+  // Copy the whole snippet (comment lines included) as one paste-ready block,
+  // not just the command lines -- a reader copying "the quick start" expects
+  // what they see, not a silently filtered subset.
+  const fullText = quickstart.lines.map((l) => l.text).join('\n');
+  const copyBtn = h('button', {
+    type: 'button', class: 'copy ds-quickstart-copy',
+    'aria-label': 'copy quick start snippet',
+    onclick: (e) => copyQuickstart(fullText, e.currentTarget),
+  }, 'copy');
+  return C.Panel({
+    title: quickstart.heading || 'quick start',
+    children: h('div', { class: 'cli ds-quickstart-cli' }, h('div', { class: 'ds-cli-block' }, ...lineNodes), copyBtn),
+  });
+}
+
+function sideNode(sidebar) {
+  if (!sidebar || !Array.isArray(sidebar.sections) || !sidebar.sections.length || !C.Side) return null;
+  return C.Side({ sections: sidebar.sections });
+}
+
+// minimal client-side markdown renderer matching server-side renderer (idempotent for already-html bodies)
+function __slug(s) { return String(s || '').trim().toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-'); }
+function __md(md) {
+  const lines = String(md || '').split('\n');
+  const out = []; let inCode = false, inList = false;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const inl = (s) => s.replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  for (const line of lines) {
+    if (line.startsWith('```')) { if (inCode) { out.push('</pre>'); inCode = false; } else { out.push('<pre>'); inCode = true; } continue; }
+    if (inCode) { out.push(esc(line)); continue; }
+    if (line.startsWith('# ')) { const t = line.slice(2); out.push('<h1 id="' + __slug(t) + '">' + esc(t) + '</h1>'); }
+    else if (line.startsWith('## ')) { const t = line.slice(3); out.push('<h2 id="' + __slug(t) + '">' + esc(t) + '</h2>'); }
+    else if (line.startsWith('### ')) { const t = line.slice(4); out.push('<h3 id="' + __slug(t) + '">' + esc(t) + '</h3>'); }
+    else if (line.startsWith('- ')) { if (!inList) { out.push('<ul>'); inList = true; } out.push('<li>' + inl(esc(line.slice(2))) + '</li>'); }
+    else { if (inList) { out.push('</ul>'); inList = false; } if (line.trim()) out.push('<p>' + inl(esc(line)) + '</p>'); }
+  }
+  if (inList) out.push('</ul>');
+  if (inCode) out.push('</pre>');
+  return out.join('\n');
+}
+
+const bodyNode = data.bodyHtml ? C.Section({ children: h('div', { class: 'page-body', innerHTML: data.bodyHtml }) }) : null;
+
+// A real closing block: the page previously just stopped after its last
+// panel, leaving nothing but the app-stage's own bottom padding as unexplained
+// empty space. Reuses data already on the page (nav links, siteName, year) —
+// no invented content.
+function footerNode() {
+  const year = new Date().getFullYear();
+  const links = (data.navItems || []).filter(([, href]) => /^https?:/.test(String(href)));
+  // Names the actual maintaining entity, not just the project's numeric
+  // brand. This is a personal/community project (MIT, copyright holder
+  // "AnEntrypoint" per LICENSE) with no separate legal org behind it, so the
+  // footer says that plainly instead of leaving "247420" to stand in for an
+  // entity it isn't.
+  const entity = (data.seoAuthor || '247420 · a design system by AnEntrypoint').toLowerCase();
+  return h('footer', { class: 'ds-page-footer' },
+    h('span', { class: 'ds-page-footer-copy' }, String(year) + ' · ' + entity),
+    links.length ? h('nav', { class: 'ds-page-footer-links', 'aria-label': 'footer' },
+      ...links.map(([label, href], i) => h('a', { key: i, href }, String(label).replace(' ->', '')))
+    ) : null,
+  );
+}
+
+function tierNode(tier, children) {
+  const kids = children.filter(Boolean);
+  if (!kids.length) return null;
+  const labelId = 'tier-' + tier.key + '-label';
+  const head = h('div', { key: 'h', class: 'ds-tier-head' },
+    h('h2', { class: 'eyebrow', id: labelId }, tier.label),
+    tier.lede ? h('p', { class: 'ds-tier-lede' }, tier.lede) : null,
+  );
+  return h('section', { key: tier.key, class: 'ds-tier ds-tier-' + tier.key, id: tier.key, 'aria-labelledby': labelId }, head, ...kids);
+}
+
+const TIERS = [
+  { key: 'open', label: 'open', lede: 'browse and try the system running.', ids: ['kits', 'previews', 'decks'], extra: () => [examplesNode(data.examples)] },
+  { key: 'ships', label: 'ships', lede: 'what the package contains.', ids: ['file_browser', 'desktop_os', 'web_components', 'api_exports'], extra: () => [] },
+  { key: 'read', label: 'read', lede: 'understand the rules behind it.', ids: ['docs', 'features'], extra: () => [quickstartNode(data.quickstart)] },
+];
+
+// Builds the whole main-content tree fresh each render so the kits filter
+// (module-level kitsFilterState) can drive a real re-render via mount()'s
+// own returned render callback -- same reactive shape mountKit() gives every
+// other kit on the site, applied here to the static-page renderer.
+function buildMainChildren(rerender) {
+  const panelsById = new Map((data.panels || []).map((p) => [p.id || p.title || p.name || '', p]));
+  const takePanel = (id) => { const p = panelsById.get(id); if (p) panelsById.delete(id); return p ? panelNode(p, 0, rerender) : null; };
+
+  const tierNodes = TIERS.map((t) => {
+    const kids = [...t.ids.map(takePanel), ...t.extra()].filter(Boolean);
+    if (t.key === 'open' && kids.length) {
+      const lead = kids[0];
+      if (lead.props) lead.props.class = (lead.props.class || '') + ' ds-tier-lead';
+    }
+    return tierNode(t, kids);
+  });
+  const leftoverPanels = [...panelsById.values()].map((p) => panelNode(p, 0, rerender));
+
+  return [
+    heroNode(data.hero),
+    showcaseNode(data.showcase),
+    marqueeNode(data.marquee),
+    ...data.sections.map(sectionNode),
+    ...tierNodes,
+    ...leftoverPanels,
+    bodyNode,
+    footerNode(),
+  ].filter(Boolean);
+}
+
+mount(document.getElementById('app'), (rerender) => C.AppShell({
+  topbar: C.Topbar({ brand: data.siteName, items: data.navItems, active: data.title }),
+  crumb: C.Crumb({ leaf: data.title }),
+  side: sideNode(data.sidebar),
+  main: h('div', { class: 'app-stage' }, ...buildMainChildren(rerender)),
+  status: C.Status({
+    left: data.statusLeft || [data.siteName.toLowerCase(), data.slug],
+    right: data.statusRight || ['live'],
+  }),
+}));
+
+</script>
+</body>
+</html>

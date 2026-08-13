@@ -1,0 +1,55 @@
+name: Deploy GH Pages
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build with flatspace
+        run: npx --yes flatspace@latest build
+      - name: Copy static assets into dist
+        run: |
+          # Copy ui_kits and static asset directories
+          for d in ui_kits preview slides vendor src site; do
+            if [ -d "$d" ]; then
+              echo "Copying $d to dist/"
+              cp -R "$d" dist/
+            fi
+          done
+          # Copy static root files
+          for f in app-shell.css app-surfaces.css chat.css colors_and_type.css community.css community-app.css editor-primitives.css gm-prose.css marketing.css favicon.svg robots.txt sitemap.xml .nojekyll; do
+            if [ -e "$f" ]; then
+              echo "Copying $f to dist/"
+              cp -f "$f" dist/
+            fi
+          done
+          # List what was copied for verification
+          echo "Contents of dist:"
+          ls -la dist/ | head -20
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

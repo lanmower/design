@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en" data-theme="auto" class="ds-247420"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#247420" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#3A9A34" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+  <title>writing / 247420</title>
+  <meta name="description" content="long-form writing template — editorial type on layered panels.">
+  <meta name="author" content="247420 / AnEntrypoint">
+  <meta name="keywords" content="247420, anentrypoint, design system, webjsx, rippleui, creative collective">
+  <link rel="canonical" href="https://anentrypoint.github.io/design/ui_kits/blog/">
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="writing / 247420">
+  <meta property="og:description" content="long-form writing template — editorial type on layered panels.">
+  <meta property="og:url" content="https://anentrypoint.github.io/design/ui_kits/blog/">
+  <meta property="og:site_name" content="247420 / design">
+  <meta property="og:image" content="https://anentrypoint.github.io/design/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="247420 design system">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="writing / 247420">
+  <meta name="twitter:description" content="long-form writing template — editorial type on layered panels.">
+  <meta name="twitter:image" content="https://anentrypoint.github.io/design/og-card.png">
+  <meta name="twitter:site" content="@AnEntrypoint">
+  <meta name="robots" content="index, follow">
+  <link rel="stylesheet" href="../../colors_and_type.css">
+  <link rel="stylesheet" href="../../app-shell.css">
+<style>
+  .post-meta{display:flex;gap:var(--space-2-5);flex-wrap:wrap;margin-bottom:var(--space-4);font-family:var(--ff-mono);font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:0.08em;color:var(--panel-text-2);}
+  .post-meta .sep{color:var(--panel-text-3);}
+  /* padding right/left is 18px: off-scale between --space-3 (16px) and
+     --space-3-5 (20px), deliberately. A pull-quote's side inset is set against
+     the 62ch measure, not the 8pt rhythm — snapping to 16px lets the quote
+     text sit flush enough with body prose to stop reading as a quote, and 20px
+     over-indents it past the accent rule. Kept as a literal on purpose. */
+  blockquote{margin:var(--space-3-5) 0;padding:var(--space-2-75) 18px;background:var(--panel-1);border-radius:var(--r-1);font-size:var(--fs-sm);color:var(--panel-text);line-height:1.55;max-width:62ch;}
+  /* font-size is the GLYPH size of the decorative open-quote mark, matched to
+     the mark's optical weight beside 15px prose, not a type-ladder tier — the
+     same treatment lint-tokens.mjs gives icon sizes set via font-size. */
+  blockquote::before{content:'“';color:var(--panel-accent);font-family:var(--ff-display);font-size:28px;margin-right:var(--space-1-75);line-height:0;vertical-align:-4px;}
+  .post-body p{font-size:var(--fs-sm);line-height:1.7;max-width:62ch;color:var(--panel-text);}
+  /* --panel-accent is the FILL lime (~1.07:1 on paper — invisible as text).
+     Prose links must use the readable TEXT tone, which is exactly what
+     base.css's `.ds-prose a` already sets, so this rule only needs to not
+     fight it. Kept explicit so the intent survives the next edit. */
+  .post-body a{color:var(--accent-ink);}
+</style>
+
+</head>
+<body data-screen-label="04 Blog">
+<div class="app">
+  <!-- Matches what AppShell() emits for the JS-rendered kits. This page hand-
+       rolls the shell markup statically, so it does not inherit the skip link
+       and had no way past the header nav for a keyboard user. -->
+  <a href="#app-main" class="skip-link">skip to main content</a>
+  <header class="app-topbar">
+    <span class="brand">247420<span class="slash"> / </span>writing</span>
+    <nav>
+      <a href="../homepage/"><- homepage</a>
+      <a class="active" aria-current="page">lore</a>
+      <a class="is-unwritten" title="no posts under this tag yet">gm</a>
+      <a class="is-unwritten" title="no posts under this tag yet">manifesto</a>
+      <a class="is-unwritten" title="no posts under this tag yet">notes</a>
+    </nav>
+  </header>
+  <div class="app-crumb">
+    <span>247420</span><span class="sep">›</span>
+    <span>writing</span><span class="sep">›</span>
+    <span>lore</span><span class="sep">›</span>
+    <span class="leaf">we-were-here-first.md</span>
+  </div>
+  <div class="app-body no-side">
+    <main class="app-main narrow" id="app-main" tabindex="0">
+      <div class="post-meta">
+        <span>lore</span><span class="sep">·</span>
+        <span>apr 14 2026</span><span class="sep">·</span>
+        <span>8 min read</span><span class="sep">·</span>
+        <span><span class="chip accent">draft</span></span>
+      </div>
+      <h1>we were here first</h1>
+      <p class="lede">a short &amp; slightly smug history of the creative department of the internet.</p>
+      <div class="post-body ds-prose">
+        <p>there's a particular feeling — you know the one — of watching something you made five years ago get repackaged, re-skinned, and re-announced as if it were new. the web is a very long memory with a very short attention span, and 247420 has been, quietly, <em>around</em> for most of it.</p>
+        <p>this isn't a victory lap. it's a map. because if you're showing up to the party now, you should at least know who set the table.</p>
+        <blockquote>we don't know which ideas become the future. we just know most of them come from the same few rooms.</blockquote>
+        <p>the rooms have moved, from irc to forums to discord to whatever-this-is-now, but the pattern is consistent. a handful of people, each a little too weird to hold a normal job, trading prototypes at 2am, throwing away 90% of them, shipping the 10% that's too strange to ignore. that's the collective. that's always been the collective. <a href="https://github.com/AnEntrypoint/mutagen">adaptogen</a>, <code>gm</code>, zellous, and <a href="https://github.com/AnEntrypoint">the long list of things you've never heard of</a> all came out of the same 2am.</p>
+        <h2>so what's the actual point</h2>
+        <p>the point is: stop asking permission. ship the rough draft. document honestly. humor is load-bearing. and if you're reading this thinking "that's obvious" — good. you're home.</p>
+        <p class="ds-prose-endnote">end. reply by opening a pr. <a href="https://github.com/AnEntrypoint/design">source -></a></p>
+      </div>
+    </main>
+  </div>
+  <footer class="app-status">
+    <span class="item">main</span>
+    <span class="item">- markdown</span>
+    <span class="item">- 8 min</span>
+    <span class="spread"></span>
+    <span class="item">apr 14 2026</span>
+    <span class="item">- draft</span>
+  </footer>
+</div>
+</body></html>

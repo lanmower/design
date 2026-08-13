@@ -1,0 +1,144 @@
+{
+  "name": "anentrypoint-design",
+  "version": "1.0.34",
+  "description": "247420 design system SDK — webjsx + modified ripple-ui, single-file ESM bundle for reproducible use of the AnEntrypoint design.",
+  "type": "module",
+  "main": "./dist/247420.js",
+  "module": "./dist/247420.js",
+  "types": "./types/index.d.ts",
+  "sideEffects": [
+    "*.css",
+    "./src/index.js",
+    "./src/styles.js",
+    "./src/markdown-cache.js",
+    "./src/theme.js",
+    "./src/motion-toggle.js",
+    "./src/components/chat/stats.js",
+    "./src/web-components/freddie-chat.js",
+    "./dist/247420.js"
+  ],
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/247420.js",
+      "default": "./dist/247420.js"
+    },
+    "./css": "./dist/247420.css",
+    "./colors_and_type.css": "./colors_and_type.css",
+    "./app-shell.css": "./app-shell.css",
+    "./community.css": "./community.css",
+    "./page-html": {
+      "import": "./src/page-html.js",
+      "default": "./src/page-html.js"
+    },
+    "./src/page-html.js": "./src/page-html.js",
+    "./html-escape.js": "./src/html-escape.js",
+    "./components/shell.js": "./src/components/shell.js",
+    "./components/files.js": "./src/components/files.js",
+    "./components/files-modals.js": "./src/components/files-modals.js",
+    "./components/overlay-primitives.js": "./src/components/overlay-primitives.js",
+    "./components/git-status.js": "./src/components/git-status.js",
+    "./components/worktree-switcher.js": "./src/components/worktree-switcher.js",
+    "./web-components/ds-chat.js": "./src/web-components/ds-chat.js",
+    "./web-components/freddie-chat.js": "./src/web-components/freddie-chat.js",
+    "./lint": {
+      "import": "./src/lint.js",
+      "default": "./src/lint.js"
+    },
+    "./package.json": "./package.json",
+    "./kits/flatspace-theme": {
+      "import": "./src/kits/flatspace-theme/index.js",
+      "default": "./src/kits/flatspace-theme/index.js"
+    },
+    "./kits/flatspace-theme/html-utils.js": "./src/kits/flatspace-theme/html-utils.js",
+    "./kits/os": {
+      "import": "./src/kits/os/index.js",
+      "default": "./src/kits/os/index.js"
+    },
+    "./kits/os/about-app.js": "./src/kits/os/about-app.js",
+    "./kits/os/app-panes.css": "./src/kits/os/app-panes.css",
+    "./kits/os/browser-app.js": "./src/kits/os/browser-app.js",
+    "./kits/os/files-app.js": "./src/kits/os/files-app.js",
+    "./kits/os/freddie-dashboard.css": "./src/kits/os/freddie-dashboard.css",
+    "./kits/os/freddie-dashboard.js": "./src/kits/os/freddie-dashboard.js",
+    "./kits/os/icons.js": "./src/kits/os/icons.js",
+    "./kits/os/launcher.js": "./src/kits/os/launcher.js",
+    "./kits/os/monitor-app.js": "./src/kits/os/monitor-app.js",
+    "./kits/os/shell.js": "./src/kits/os/shell.js",
+    "./kits/os/terminal-app.js": "./src/kits/os/terminal-app.js",
+    "./kits/os/theme.css": "./src/kits/os/theme.css",
+    "./kits/os/wm.css": "./src/kits/os/wm.css",
+    "./kits/os/wm.js": "./src/kits/os/wm.js",
+    "./kits/slides": {
+      "import": "./src/kits/slides/index.js",
+      "default": "./src/kits/slides/index.js"
+    },
+    "./kits/slides/deck-stage.js": "./src/kits/slides/deck-stage.js",
+    "./kits/spoint": {
+      "import": "./src/kits/spoint/index.js",
+      "default": "./src/kits/spoint/index.js"
+    },
+    "./kits/spoint/*": "./src/kits/spoint/*"
+  },
+  "files": [
+    "dist",
+    "src",
+    "types",
+    "scripts/lint-glyphs.mjs",
+    "scripts/lint-null-children.mjs",
+    "scripts/lint-shared.mjs",
+    "scripts/lint-css.mjs",
+    "vendor/webjsx",
+    "colors_and_type.css",
+    "app-shell.css",
+    "chat.css",
+    "community.css",
+    "README.md"
+  ],
+  "scripts": {
+    "lint": "node scripts/lint.mjs",
+    "lint:css": "node scripts/lint-css.mjs",
+    "lint:tokens": "node scripts/lint-tokens.mjs",
+    "build": "node scripts/build.mjs",
+    "lint:null-children": "node scripts/lint-null-children.mjs",
+    "lint:classes": "node scripts/lint-classes.mjs",
+    "lint:ui-kits": "node scripts/generate-ui-kit-scaffolds.mjs --check",
+    "tokens": "node scripts/generate-tokens-json.mjs",
+    "tokens:css": "node scripts/generate-tokens-css.mjs",
+    "tokens:doc": "node scripts/generate-tokens-json.mjs && node scripts/generate-theme-tokens-doc.mjs",
+    "sitemap": "node scripts/generate-sitemap.mjs",
+    "docs:components": "node scripts/generate-component-docs.mjs",
+    "lint:component-docs": "node scripts/generate-component-docs.mjs --check",
+    "types:components": "node scripts/generate-component-types.mjs",
+    "lint:component-types": "node scripts/generate-component-types.mjs --check",
+    "manifest:components": "node scripts/generate-component-manifest.mjs",
+    "lint:component-manifest": "node scripts/generate-component-manifest.mjs --check",
+    "generate:ui-kits": "node scripts/generate-ui-kit-scaffolds.mjs",
+    "generate:preview-index": "node scripts/generate-preview-index.mjs",
+    "a11y": "node scripts/a11y-audit.mjs",
+    "a11y:baseline": "node scripts/a11y-audit.mjs --write-baseline",
+    "visual": "node scripts/visual-baseline.mjs check",
+    "visual:update": "node scripts/visual-baseline.mjs update",
+    "lint:dead-controls": "node scripts/lint-dead-controls.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnEntrypoint/Design.git"
+  },
+  "keywords": [
+    "247420",
+    "anentrypoint",
+    "design-system",
+    "webjsx",
+    "rippleui"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1",
+    "postcss": "^8.5.19",
+    "postcss-prefix-selector": "^2.1.1"
+  }
+}

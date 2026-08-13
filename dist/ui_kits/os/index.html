@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" data-theme="auto" class="ds-247420"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#247420" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#3A9A34" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+  <title>os / 247420</title>
+  <meta name="description" content="os ui kit — the desktop-shell chrome (menubar, apps drawer, side rail, taskbar, floating windows) that thebird's web OS renders through.">
+  <link rel="canonical" href="https://anentrypoint.github.io/design/ui_kits/os/">
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+  <link rel="stylesheet" href="../../colors_and_type.css">
+  <!-- wm.css must load BEFORE theme.css: theme.css's .wm-max/.wm-min rules are
+       overrides (border-radius, focus-band geometry, print) layered on top of
+       wm.css's base geometry (.wm-win.wm-max{width:100%!important}, .wm-win.wm-min
+       .wm-body{display:none}) -- theme.css alone has no bare base rule for either
+       state outside its @media print block. Without wm.css linked, maximize only
+       applies theme.css's partial override (height changes, width does not) and
+       minimize never hides the window body at all. -->
+  <link rel="stylesheet" href="../../src/kits/os/wm.css">
+  <link rel="stylesheet" href="../../src/kits/os/theme.css">
+  <link rel="stylesheet" href="../../src/kits/os/app-panes.css">
+<script type="importmap">
+{ "imports": {
+  "webjsx": "../../vendor/webjsx/index.js",
+  "webjsx/": "../../vendor/webjsx/",
+  "webjsx/jsx-runtime": "../../vendor/webjsx/jsx-runtime.js",
+  "ds/": "../../src/"
+} }
+</script>
+</head>
+<body data-screen-label="os">
+<div id="root"></div>
+<script type="module" src="./app.js"></script>
+</body></html>

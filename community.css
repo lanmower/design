@@ -1,0 +1,1724 @@
+/* ============================================================
+   247420 design system — community surface (Discord-style chat)
+   Tonal surfaces over borders. Indicator rails over hairlines.
+   All tokens sourced from colors_and_type.css.
+   ============================================================ */
+
+/* ============================================================
+   Small-label voice — the local composition of the house `.t-micro`
+   recipe (src/css/app-shell/base.css). This sheet is a standalone
+   published export consumed via its own <link>, so it cannot join the
+   `.t-micro` selector list; it composes by referencing the identical
+   token set instead. Every selector below that needs the label voice
+   JOINS this rule and declares only what it deliberately differs on —
+   never a second copy of these four declarations.
+   ============================================================ */
+.cm-vs-label,
+.vx-section-label,
+.vx-chip-tag {
+  font-family: var(--ff-mono);
+  font-size: var(--fs-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-label);
+  color: var(--fg-3);
+}
+
+/* ============================================================
+   Shell — top-level flex container for the community layout
+   ============================================================ */
+.cm-shell {
+  display: flex;
+  height: 100vh;
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  /* Notched devices: keep the rail and bottom chrome out of the unsafe zones. */
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--ff-body);
+  font-size: var(--fs-sm);
+}
+
+.cm-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  background: var(--bg);
+  position: relative;
+}
+
+/* ============================================================
+   Server rail — thin vertical column, leftmost
+   ============================================================ */
+.cm-server-rail {
+  flex: 0 0 72px;
+  width: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2-75) 0;
+  background: color-mix(in oklab, var(--bg) 70%, var(--ink));
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.cm-server-rail::-webkit-scrollbar { display: none; }
+
+.cm-server-icon {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-3);
+  background: var(--bg-2);
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ff-body);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--tr-tight);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    border-radius var(--dur-base) var(--ease),
+    background var(--dur-snap) var(--ease),
+    color var(--dur-snap) var(--ease),
+    transform var(--dur-snap) var(--ease);
+  user-select: none;
+}
+.cm-server-icon img,
+.cm-server-icon svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.cm-server-icon:hover {
+  border-radius: var(--r-2);
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+.cm-server-icon.active {
+  border-radius: var(--r-2);
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+.cm-server-pill {
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 8px;
+  background: var(--fg);
+  border-radius: 0 var(--r-0) var(--r-0) 0;
+  transition: height var(--dur-base) var(--ease);
+}
+.cm-server-icon:hover .cm-server-pill { height: 20px; }
+.cm-server-icon.active .cm-server-pill { height: 36px; background: var(--fg); }
+
+.cm-server-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 var(--space-1-5);
+  /* --ink, not --paper: --paper is a fixed near-white, which measures ~3:1 on
+     --warn (#FF5A52) -- below the 4.5:1 AA floor. --ink clears it (same fix
+     as .btn-primary.danger in app-shell/files.css). */
+  background: var(--warn);
+  color: var(--ink);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-bold);
+  border-radius: var(--r-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--bg) 70%, var(--ink));
+}
+
+.cm-server-back,
+.cm-server-add {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-3);
+  background: var(--bg-2);
+  color: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-regular);
+  cursor: pointer;
+  border: 0;
+  transition:
+    border-radius var(--dur-base) var(--ease),
+    background var(--dur-snap) var(--ease),
+    color var(--dur-snap) var(--ease);
+}
+.cm-server-back { color: var(--fg-2); }
+.cm-server-back:hover,
+.cm-server-add:hover {
+  border-radius: var(--r-2);
+  background: var(--green-2);
+  color: var(--paper);
+}
+
+.cm-server-sep {
+  width: 32px;
+  height: 2px;
+  background: color-mix(in oklab, var(--fg) 12%, transparent);
+  border-radius: var(--r-hair);
+  margin: var(--space-1) 0;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Channel sidebar — server name header + channel list
+   ============================================================ */
+.cm-channel-sidebar {
+  flex: 0 0 240px;
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bg-2);
+  position: relative;
+}
+
+.cm-server-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2-75) var(--space-3);
+  background: var(--bg-2);
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--fg) 8%, transparent);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-sm);
+  letter-spacing: -0.01em;
+  /* No cursor:pointer, no :hover background, no user-select:none. This is a
+     static <div> (community/navigation.js) with no handler and no role — it
+     just names the current server. Those three properties are the vocabulary
+     of a pressable control, so together they promised a menu that does not
+     exist: the pointer and the hover highlight both invited a click that
+     nothing answers. Restore them only alongside a real handler + role. */
+  flex-shrink: 0;
+}
+.cm-server-header-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cm-channel-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--space-2) 0 var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-hair);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--fg) 18%, transparent) transparent;
+}
+.cm-channel-list::-webkit-scrollbar { width: 8px; }
+.cm-channel-list::-webkit-scrollbar-track { background: transparent; }
+.cm-channel-list::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--fg) 18%, transparent);
+  border-radius: var(--r-0);
+}
+
+/* ============================================================
+   Channel category — collapsible group header
+   ============================================================ */
+.cm-channel-category {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-2-75);
+}
+.cm-channel-category:first-child { margin-top: var(--space-1); }
+
+.cm-category-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-family: var(--ff-body);
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-medium);
+  color: var(--fg-3);
+  letter-spacing: var(--tr-caps);
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--dur-snap) var(--ease);
+}
+.cm-category-header:hover { color: var(--fg); }
+.cm-category-header:hover .cm-cat-add { opacity: 1; }
+
+.cm-cat-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  font-size: var(--fs-pico);
+  transform: rotate(90deg);
+  transition: transform var(--dur-base) var(--ease);
+  flex-shrink: 0;
+}
+.cm-category-header.collapsed .cm-cat-arrow { transform: rotate(0deg); }
+
+.cm-cat-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Deliberately NOT the small-label voice: this is the `+` affordance sitting
+   inside .cm-category-header, which IS uppercase + tracked. The zeroed
+   letter-spacing and text-transform are resets of that inherited voice, not a
+   copy of it — a bare glyph must not be tracked apart or case-folded. */
+.cm-cat-extra {
+  font-family: var(--ff-mono);
+  font-size: var(--fs-micro);
+  color: var(--fg-3);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.cm-cat-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: var(--space-1);
+  border: 0;
+  background: transparent;
+  color: var(--fg-3);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  opacity: 0;
+  border-radius: var(--r-1);
+  transition: opacity var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease);
+}
+.cm-cat-add:hover {
+  color: var(--fg);
+  background: color-mix(in oklab, var(--fg) 8%, transparent);
+}
+.cm-cat-add:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+.cm-cat-channels {
+  display: flex;
+  flex-direction: column;
+  /* gap:1px is OFF-SCALE ON PURPOSE — channel rows are meant to read as one
+     near-continuous stack with only a hairline seam between them. --space-hair
+     (2px) doubles the seam and breaks the rows into visibly separate pills. */
+  gap: 1px;
+  padding: var(--space-hair) 0;
+}
+
+/* ============================================================
+   Channel item — pillish row with active rail and hover state
+   ============================================================ */
+.cm-channel-item-wrap {
+  position: relative;
+  padding: 0 var(--space-2);
+}
+
+.cm-channel-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1-75) var(--space-2);
+  border-radius: var(--r-1);
+  color: var(--fg-3);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background var(--dur-snap) var(--ease),
+    color var(--dur-snap) var(--ease);
+}
+.cm-channel-item:hover {
+  background: color-mix(in oklab, var(--fg) 6%, transparent);
+  color: var(--fg);
+}
+.cm-channel-item:hover .cm-ch-actions { opacity: 1; }
+
+.cm-channel-item.active {
+  background: color-mix(in oklab, var(--fg) 10%, transparent);
+  color: var(--fg);
+  font-weight: var(--fw-medium);
+}
+.cm-channel-item.active::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 var(--r-hair) var(--r-hair) 0;
+}
+
+.cm-channel-item.voice-active {
+  color: var(--green);
+}
+.cm-channel-item.voice-active .cm-ch-icon { color: var(--green); }
+.cm-channel-item.voice-active:hover {
+  background: color-mix(in oklab, var(--green) 12%, transparent);
+}
+
+.cm-channel-item.voice-connecting {
+  /* --sun measures 1.1-1.5:1 against every app background - amber is the
+     tuned text-safe warning tone used for this severity elsewhere. */
+  color: var(--amber);
+}
+
+.cm-ch-icon {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ff-mono);
+  font-size: var(--fs-sm);
+  color: var(--fg-3);
+  opacity: 0.85;
+}
+.cm-channel-item.active .cm-ch-icon { color: var(--fg-2); opacity: 1; }
+
+.cm-ch-spinner {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in oklab, var(--amber) 30%, transparent);
+  border-top-color: var(--amber);
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cm-ch-spinner {
+    animation: cm-spin var(--dur-slow) steps(8, end) infinite;
+    will-change: transform;
+    contain: layout;
+  }
+  @keyframes cm-spin {
+    to { transform: rotate(360deg); }
+  }
+}
+
+.cm-ch-icon.voice-active-badge {
+  color: var(--green);
+  text-shadow: 0 0 8px var(--green-2);
+}
+
+.cm-ch-voice-badge {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green-2);
+  flex-shrink: 0;
+  position: relative;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cm-ch-voice-badge {
+    animation: cm-voice-pulse 2s ease-in-out infinite;
+  }
+  @keyframes cm-voice-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+}
+
+.cm-ch-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-sm);
+}
+
+.cm-ch-badge {
+  flex-shrink: 0;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 var(--space-1-5);
+  /* --ink, not --paper: --paper is a fixed near-white, which measures ~3:1 on
+     --warn (#FF5A52) -- below the 4.5:1 AA floor. --ink clears it (same fix
+     as .btn-primary.danger in app-shell/files.css). */
+  background: var(--warn);
+  color: var(--ink);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-bold);
+  border-radius: var(--r-pill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.cm-ch-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-hair);
+  opacity: 0;
+  transition: opacity var(--dur-snap) var(--ease);
+  flex-shrink: 0;
+}
+.cm-channel-item.active .cm-ch-actions { opacity: 0.6; }
+
+.cm-ch-action-btn {
+  width: 28px;
+  height: 28px;
+  padding: var(--space-1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  color: var(--fg-3);
+  cursor: pointer;
+  border-radius: var(--r-1);
+  font-size: var(--fs-tiny);
+  transition: color var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease);
+}
+.cm-ch-action-btn:hover {
+  color: var(--fg);
+  background: color-mix(in oklab, var(--fg) 10%, transparent);
+}
+.cm-ch-action-btn:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+/* Voice users nested under a voice channel */
+.cm-ch-voice-users {
+  display: flex;
+  flex-direction: column;
+  /* gap:1px — same hairline-seam rationale as .cm-cat-channels above. */
+  gap: 1px;
+  padding: var(--space-hair) var(--space-2) var(--space-1) var(--space-5);
+}
+
+.cm-ch-voice-user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-half) var(--space-1-75);
+  border-radius: var(--r-1);
+  color: var(--fg-2);
+  font-size: var(--fs-xs);
+  cursor: pointer;
+  transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+}
+.cm-ch-voice-user:hover {
+  background: color-mix(in oklab, var(--fg) 6%, transparent);
+  color: var(--fg);
+}
+.cm-ch-voice-user.speaking {
+  color: var(--green);
+}
+.cm-ch-voice-user.speaking .cm-ch-voice-user-avatar {
+  box-shadow: 0 0 0 2px var(--green-2);
+}
+
+.cm-ch-voice-user-avatar {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--avatar-bg, var(--bg-3));
+  color: var(--avatar-fg, var(--fg-2));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-pico);
+  font-weight: var(--fw-medium);
+  overflow: hidden;
+  /* Depth over a flat solid-color disc: a hairline inset ring so avatars
+     read as a real surface element, not a wireframe placeholder. */
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg) 10%, transparent);
+  transition: box-shadow var(--dur-snap) var(--ease);
+}
+.cm-ch-voice-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cm-ch-voice-user-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   Voice strip — slots above user panel when in voice
+   ============================================================ */
+.cm-voice-strip {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2-5) var(--space-2-75);
+  background: color-mix(in oklab, var(--green) 18%, var(--bg-2));
+  color: var(--fg);
+  box-shadow: 0 -1px 0 color-mix(in oklab, var(--fg) 10%, transparent);
+  flex-shrink: 0;
+}
+.cm-voice-strip.open { display: flex; }
+
+/* Joins the small-label voice above. Deliberate overrides: --green (this is a
+   live-recording indicator, not neutral chrome) and weight 700 (it sits next to
+   a pulsing dot and must read as the loudest thing in the strip). */
+.cm-vs-label {
+  color: var(--green);
+  font-weight: var(--fw-bold);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-75);
+}
+.cm-vs-label::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green-2);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--green-2) 30%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cm-vs-label::before {
+    animation: cm-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes cm-pulse {
+    0%, 100% { box-shadow: 0 0 0 3px color-mix(in oklab, var(--green-2) 30%, transparent); }
+    50%      { box-shadow: 0 0 0 6px color-mix(in oklab, var(--green-2) 0%,  transparent); }
+  }
+}
+
+.cm-vs-channel {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cm-vs-status {
+  font-size: var(--fs-xs);
+  color: var(--fg-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-75);
+  flex-wrap: wrap;
+}
+
+.cm-vs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1-75);
+  height: 28px;
+  padding: 0 var(--space-2-5);
+  background: color-mix(in oklab, var(--fg) 10%, transparent);
+  color: var(--fg);
+  border: 0;
+  border-radius: var(--r-1);
+  font-family: var(--ff-body);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+}
+.cm-vs-btn:hover {
+  background: color-mix(in oklab, var(--fg) 18%, transparent);
+}
+.cm-vs-btn.danger {
+  /* --ink, not --paper: --paper is a fixed near-white, which measures ~3:1 on
+     --warn (#FF5A52) -- below the 4.5:1 AA floor. Same fix pattern as
+     .btn-primary.danger in app-shell/files.css. */
+  background: var(--warn);
+  color: var(--ink);
+}
+.cm-vs-btn.danger:hover {
+  background: color-mix(in oklab, var(--warn) 80%, var(--ink));
+}
+
+/* ============================================================
+   User panel — bottom of channel sidebar
+   ============================================================ */
+.cm-user-panel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  background: color-mix(in oklab, var(--fg) 5%, var(--bg-2));
+  flex-shrink: 0;
+}
+
+.cm-user-avatar {
+  position: relative;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--avatar-bg, var(--bg-3));
+  color: var(--avatar-fg, var(--fg-2));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg) 10%, transparent);
+}
+.cm-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cm-user-status-dot {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--green-2);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--fg) 5%, var(--bg-2));
+}
+
+.cm-user-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.cm-user-name {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Deliberately NOT the small-label voice: a user's handle/tag is content, not
+   chrome, so it stays sentence-case and untracked. Mono + micro + --fg-3 only. */
+.cm-user-tag {
+  font-family: var(--ff-mono);
+  font-size: var(--fs-micro);
+  color: var(--fg-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cm-user-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-hair);
+}
+
+.cm-user-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  color: var(--fg-2);
+  cursor: pointer;
+  border-radius: var(--r-1);
+  font-size: var(--fs-sm);
+  transition: color var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease);
+}
+.cm-user-btn:hover {
+  background: color-mix(in oklab, var(--fg) 10%, transparent);
+  color: var(--fg);
+}
+.cm-user-btn.muted {
+  color: var(--warn);
+}
+.cm-user-btn.deafened {
+  color: var(--warn);
+  background: color-mix(in oklab, var(--warn) 18%, transparent);
+}
+
+/* ============================================================
+   Chat header — top of main column
+   ============================================================ */
+.cm-chat-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  padding: var(--space-2-75) var(--space-3);
+  background: var(--bg);
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--fg) 8%, transparent);
+  flex-shrink: 0;
+  min-height: 48px;
+}
+
+.cm-chat-header-icon {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ff-mono);
+  font-size: var(--fs-lg);
+  color: var(--fg-3);
+}
+
+.cm-chat-header-name {
+  /* This is an <h1> (it is the visible title of the content column, and the
+     community kits otherwise rendered no heading at all). The rule already
+     pinned weight/size/colour, but a bare h1 also brings a UA block margin
+     that would break this flex row — so the margin is zeroed explicitly. */
+  margin: 0;
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-sm);
+  color: var(--fg);
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
+}
+
+.cm-chat-header-topic {
+  flex: 1;
+  min-width: 0;
+  padding-left: var(--space-2-75);
+  margin-left: var(--space-1);
+  border-left: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
+  color: var(--fg-3);
+  font-size: var(--fs-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cm-chat-header-toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Member list — right column
+   ============================================================ */
+.cm-member-list {
+  flex: 0 0 240px;
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-2);
+  padding: var(--space-3) 0;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--fg) 18%, transparent) transparent;
+  transition: width var(--dur-base) var(--ease), flex-basis var(--dur-base) var(--ease);
+  contain: layout style;
+}
+.cm-member-list:not(.open) {
+  width: 0;
+  flex-basis: 0;
+  padding: 0;
+  overflow: hidden;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateX(100%);
+}
+.cm-member-list::-webkit-scrollbar { width: 8px; }
+.cm-member-list::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--fg) 18%, transparent);
+  border-radius: var(--r-0);
+}
+
+.cm-member-category {
+  padding: var(--space-2-75) var(--space-3) var(--space-1-75);
+  font-family: var(--ff-body);
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-medium);
+  color: var(--fg-3);
+  letter-spacing: var(--tr-caps);
+  text-transform: uppercase;
+}
+
+.cm-member-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  padding: var(--space-1-75) var(--space-2-75);
+  margin: 0 var(--space-2);
+  border-radius: var(--r-1);
+  color: var(--fg-2);
+  cursor: pointer;
+  transition: background var(--dur-snap) var(--ease), color var(--dur-snap) var(--ease);
+  max-width: 100%;
+  min-width: 0;
+}
+.cm-member-item:hover {
+  background: color-mix(in oklab, var(--fg) 6%, transparent);
+  color: var(--fg);
+}
+
+.cm-member-avatar {
+  position: relative;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--avatar-bg, var(--bg-3));
+  color: var(--avatar-fg, var(--fg-2));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-medium);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg) 10%, transparent);
+}
+.cm-member-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cm-member-status {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--fg-3);
+  box-shadow: 0 0 0 2px var(--bg-2);
+}
+.cm-member-status.online {
+  background: var(--green-2);
+}
+
+.cm-member-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-sm);
+}
+
+/* ============================================================
+   Voice user (standalone, e.g. in voice stage area)
+   ============================================================ */
+.cm-voice-user {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1-75);
+  padding: var(--space-2-5);
+  border-radius: var(--r-2);
+  background: var(--bg-2);
+  transition: box-shadow var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease);
+}
+.cm-voice-user.speaking {
+  background: color-mix(in oklab, var(--green-2) 12%, var(--bg-2));
+  box-shadow: 0 0 0 2px var(--green-2);
+}
+
+.cm-voice-user-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--avatar-bg, var(--bg-3));
+  color: var(--avatar-fg, var(--fg-2));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-medium);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg) 10%, transparent);
+}
+.cm-voice-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.cm-voice-user.speaking .cm-voice-user-avatar {
+  box-shadow: 0 0 0 2px var(--green-2);
+}
+
+.cm-voice-user-name {
+  font-size: var(--fs-xs);
+  color: var(--fg);
+  font-weight: var(--fw-medium);
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* ============================================================
+   Responsive — collapse sidebars on narrow viewports
+   ============================================================ */
+@media (max-width: 900px) {
+  .cm-channel-sidebar {
+    position: absolute;
+    z-index: calc(var(--z-drawer) + 1);
+    top: 0;
+    left: 72px;
+    bottom: 0;
+    transform: translateX(-110%);
+    transition: transform var(--dur-base) var(--ease);
+    box-shadow: 2px 0 16px color-mix(in oklab, var(--ink) 30%, transparent);
+  }
+  .cm-channel-sidebar.open { transform: translateX(0); }
+  .cm-member-list { display: none; }
+  .cm-member-list.open {
+    display: flex;
+    position: absolute;
+    z-index: calc(var(--z-drawer) + 1);
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 240px;
+    flex-basis: 240px;
+    box-shadow: -2px 0 16px color-mix(in oklab, var(--ink) 30%, transparent);
+  }
+  .cm-chat-header-topic { display: none; }
+}
+
+/* Drawer scrim — dims the chat while a drawer overlays it on narrow screens.
+   Visual affordance only (pointer-events: none): tap-to-close needs a real
+   element + handler in CommunityShell, which lives outside this stylesheet. */
+@media (max-width: 900px) {
+  .cm-shell:has(.cm-channel-sidebar.open) .cm-main::before,
+  .cm-shell:has(.cm-member-list.open) .cm-main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-drawer);
+    background: color-mix(in oklab, var(--ink) 40%, transparent);
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .cm-server-rail {
+    flex: 0 0 56px;
+    width: 56px;
+  }
+  .cm-server-icon,
+  .cm-server-add,
+  .cm-server-back {
+    width: 44px;
+    height: 44px;
+    padding: var(--space-1);
+  }
+  .cm-channel-sidebar,
+  .cm-channel-sidebar.open {
+    left: 56px;
+    width: 80vw;
+    /* Use the width beside the 56px rail, not a 200px sliver. */
+    max-width: min(320px, calc(100vw - 56px));
+  }
+  .cm-ch-icon {
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* Touch target floors — applies on any coarse-pointer device (phones AND
+   touch tablets/laptops), not just narrow viewports. */
+@media (pointer: coarse) {
+  .cm-channel-item,
+  .cm-member-item { min-height: 44px; }
+  .cm-cat-add,
+  .cm-ch-action-btn,
+  .cm-user-btn,
+  .cm-vs-btn,
+  .cm-tp-new,
+  .cm-tp-close,
+  .cm-rb-cancel,
+  .cm-mh-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .cm-forum-search,
+  .cm-forum-sort,
+  .cm-forum-new { min-height: 44px; }
+}
+
+/* Ultrawide: clamp the message/forum/page column to a readable measure. */
+@media (min-width: 1600px) {
+  .cm-main > .chat,
+  .cm-forum-list,
+  .cm-page-body {
+    max-width: 110ch;
+    margin-inline: auto;
+    width: 100%;
+  }
+}
+
+/* No hover on touch: hover-revealed channel actions must stay reachable. */
+@media (hover: none) {
+  .cm-channel-item .cm-ch-actions { opacity: 0.6; }
+  .cm-category-header .cm-cat-add { opacity: 0.6; }
+}
+
+/* ---------- a11y polish: focus-visible coverage on community interactive elements ---------- */
+/* Every interactive surface with a :hover state must also have a :focus-visible state so
+   keyboard users get equivalent feedback. The selectors here mirror the existing :hover rules. */
+
+.cm-server-icon:focus-visible,
+.cm-server-back:focus-visible,
+.cm-server-add:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: 2px;
+  border-radius: var(--r-2);
+}
+
+.cm-channel-item:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: -2px;
+  border-radius: var(--r-1);
+}
+
+.cm-server-header:focus-visible,
+.cm-category-header:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: -2px;
+}
+
+.cm-member-item:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: -2px;
+  border-radius: var(--r-1);
+}
+
+.cm-vs-btn:focus-visible,
+.cm-user-btn:focus-visible {
+  outline: var(--focus-w) solid var(--focus-color);
+  outline-offset: 2px;
+  border-radius: var(--r-1);
+}
+
+/* ThreadPanel / Forum / Page interactive elements */
+.cm-tp-item:focus-visible,
+.cm-forum-item:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; border-radius: var(--r-1); }
+.cm-tp-new:focus-visible,
+.cm-tp-close:focus-visible,
+.cm-forum-new:focus-visible,
+.cm-forum-sort:focus-visible,
+.cm-page-edit:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 2px; border-radius: var(--r-1); }
+.cm-forum-search:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent-ink); }
+
+/* ---------- mobile header ---------- */
+.cm-mobile-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: calc(48px + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) max(var(--space-2), env(safe-area-inset-right)) 0 max(var(--space-2), env(safe-area-inset-left));
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--panel-3);
+}
+.cm-mh-btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--fg);
+  font-size: var(--fs-lg);
+  line-height: 1;
+  cursor: pointer;
+  border-radius: var(--r-1);
+}
+.cm-mh-btn:hover { background: var(--panel-3); }
+.cm-mh-btn:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 2px; }
+.cm-mh-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-mono, monospace);
+  font-weight: var(--fw-medium);
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- reply bar ---------- */
+.cm-reply-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  background: var(--bg-2);
+  /* Hairline, not a 3px accent bar. This is a transient status strip pinned
+     above the composer (role=status, "Replying to <author>"), not a card or a
+     callout — the tinted fill already carries the attachment. A chunky left
+     bar here was the generic accent-stripe tell; the real accent still lands
+     on .cm-rb-author. */
+  border-left: var(--bw-hair) solid var(--rule-strong);
+  font-size: var(--fs-xs);
+}
+.cm-rb-label { flex: none; color: var(--fg-2); }
+.cm-rb-author { color: var(--accent); font-weight: var(--fw-medium); }
+.cm-rb-preview {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--fg-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cm-rb-cancel {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  color: var(--fg-2);
+  font-size: var(--fs-tiny);
+  line-height: 1;
+  cursor: pointer;
+  border-radius: var(--r-1);
+}
+.cm-rb-cancel:hover { background: var(--panel-3); color: var(--fg); }
+.cm-rb-cancel:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px; }
+
+/* ---------- banner ---------- */
+.cm-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+}
+.cm-banner.clickable { cursor: pointer; }
+.cm-banner.clickable:hover { background: color-mix(in oklab, currentColor 10%, transparent); }
+.cm-banner-msg { flex: 1 1 auto; min-width: 0; }
+.cm-banner-action {
+  flex: none;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: var(--fw-semibold);
+  padding: var(--space-hair) var(--space-2);
+  border-radius: var(--r-1);
+  cursor: pointer;
+}
+.cm-banner-action:hover { background: color-mix(in oklab, currentColor 16%, transparent); }
+.cm-banner-action:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.cm-banner.tone-warning {
+  background: color-mix(in oklab, var(--flame) 18%, var(--bg));
+  color: var(--flame);
+}
+.cm-banner.tone-success {
+  background: color-mix(in oklab, var(--success) 18%, var(--bg));
+  color: var(--green);
+}
+.cm-banner.tone-error {
+  background: color-mix(in oklab, var(--danger) 18%, var(--bg));
+  color: var(--danger);
+}
+.cm-banner.tone-info {
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+/* ---------- prefers-reduced-motion: kill the transitions that were not previously guarded ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .cm-server-icon,
+  .cm-channel-item,
+  .cm-member-item,
+  .cm-vs-btn,
+  .cm-user-btn,
+  .cm-ch-spinner,
+  .cm-ch-voice-badge,
+  .vx-ptt,
+  .vx-ptt-glow,
+  .vx-vad-meter,
+  .vx-vad-fill {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   Voice surfaces (vx-*) — PTT, VAD meter, webcam, settings, queue
+   ============================================================ */
+
+.vx-ptt {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-width: 120px;
+  min-height: 120px;
+  padding: var(--space-3);
+  border: var(--bw-rule) solid var(--rule-strong);
+  border-radius: var(--r-pill);
+  background: var(--bg-2);
+  color: var(--fg);
+  font-family: var(--ff-body);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  transition: background var(--dur-base) var(--ease), border-color var(--dur-base) var(--ease), transform var(--dur-snap) var(--ease);
+  overflow: hidden;
+}
+.vx-ptt:hover { background: color-mix(in oklab, var(--fg) 8%, var(--bg-2)); }
+.vx-ptt:active { transform: scale(0.97); }
+.vx-ptt-icon { font-size: var(--fs-xl); line-height: 1; }
+.vx-ptt-label { font-size: var(--fs-tiny); letter-spacing: var(--tr-label); text-transform: uppercase; }
+.vx-ptt-glow {
+  position: absolute; inset: -4px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+}
+@media (max-height: 420px) {
+  /* Phone-in-landscape: topbar + chat-head + user-identity bar alone can
+     consume most of a ~320px-tall viewport, leaving no room for the fixed
+     120px .vx-ptt plus the voice grid above it -- shrink the PTT button so
+     both remain visible instead of the label clipping off-screen. */
+  .vx-ptt { min-width: 88px; min-height: 64px; padding: var(--space-2); }
+  .vx-ptt-icon { font-size: var(--fs-lg); }
+}
+.vx-ptt-recording, .vx-ptt-live {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
+}
+.vx-ptt-recording .vx-ptt-glow, .vx-ptt-live .vx-ptt-glow {
+  opacity: 1;
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 60%, transparent);
+  animation: vx-pulse 1.4s var(--ease) infinite;
+}
+.vx-ptt-vad {
+  border-color: var(--green-2);
+  background: color-mix(in oklab, var(--green) 16%, var(--bg-2));
+}
+@keyframes vx-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 55%, transparent); }
+  70% { box-shadow: 0 0 0 14px color-mix(in oklab, var(--accent) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 0%, transparent); }
+}
+
+.vx-vad { display: flex; flex-direction: column; gap: var(--space-1); width: 100%; }
+.vx-vad-track {
+  position: relative;
+  height: 12px;
+  border-radius: var(--r-pill);
+  background: var(--bg-3);
+  overflow: visible;
+}
+.vx-vad-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  border-radius: var(--r-pill);
+  background: var(--fg-3);
+  transition: width var(--dur-snap) linear;
+}
+.vx-vad-fill-over { background: var(--green); }
+.vx-vad-marker {
+  position: absolute; top: -3px; bottom: -3px;
+  width: var(--bw-rule);
+  background: var(--accent);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.vx-vad-range {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  margin: 0; opacity: 0;
+  cursor: pointer;
+}
+.vx-vad-readout {
+  display: flex; justify-content: space-between;
+  font-family: var(--ff-mono);
+  font-size: var(--fs-micro);
+  color: var(--fg-3);
+}
+
+.vx-cam { display: flex; flex-direction: column; gap: var(--space-2); }
+.vx-cam-stage {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  border-radius: var(--r-2);
+  overflow: hidden;
+  background: var(--bg-3);
+}
+.vx-cam-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vx-cam-placeholder {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: var(--space-2);
+  color: var(--fg-3);
+  font-size: var(--fs-sm);
+}
+.vx-cam-placeholder span:first-child { font-size: var(--fs-h3); }
+.vx-cam-controls { display: flex; gap: var(--space-2); align-items: center; }
+.vx-cam-controls .vx-select { flex: 1; }
+
+.vx-select {
+  appearance: none;
+  padding: var(--space-1) var(--space-2);
+  border: var(--bw-hair) solid var(--rule-strong);
+  border-radius: var(--r-1);
+  background: var(--bg-2);
+  color: var(--fg);
+  font-family: var(--ff-body);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+.vx-btn {
+  padding: var(--space-1) var(--space-3);
+  border: var(--bw-hair) solid var(--rule-strong);
+  border-radius: var(--r-1);
+  background: var(--bg-2);
+  color: var(--fg);
+  font-family: var(--ff-body);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  transition: background var(--dur-base) var(--ease);
+}
+.vx-btn:hover { background: var(--bg-4, var(--bg-3)); }
+.vx-btn-on, .vx-btn-primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+
+.vx-modal-backdrop {
+  position: fixed; inset: 0;
+  z-index: var(--z-modal);
+  display: flex; align-items: center; justify-content: center;
+  padding: var(--space-3);
+  background: color-mix(in oklab, var(--ink) 55%, transparent);
+}
+.vx-modal {
+  width: 100%; max-width: 440px;
+  max-height: 90vh;
+  max-height: 90dvh;
+  display: flex; flex-direction: column;
+  border-radius: var(--r-3);
+  background: var(--bg);
+  color: var(--fg);
+  box-shadow: var(--shadow-3);
+  overflow: hidden;
+}
+.vx-modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-3);
+  border-bottom: var(--bw-hair) solid var(--rule);
+}
+.vx-modal-title { margin: 0; font-size: var(--fs-lg); font-weight: var(--fw-semibold); }
+.vx-modal-x {
+  border: 0; background: transparent; color: var(--fg-3);
+  font-size: var(--fs-xl); line-height: 1; cursor: pointer; padding: 0 var(--space-1);
+}
+.vx-modal-x:hover { color: var(--fg); }
+.vx-modal-body { padding: var(--space-3); overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-3); }
+.vx-modal-foot {
+  display: flex; justify-content: flex-end; gap: var(--space-2);
+  padding: var(--space-3);
+  border-top: var(--bw-hair) solid var(--rule);
+}
+.vx-section { display: flex; flex-direction: column; gap: var(--space-2); }
+/* Joins the small-label voice above with no overrides — it IS the plain voice. */
+.vx-segmented { display: flex; gap: var(--space-1); }
+.vx-seg {
+  flex: 1;
+  padding: var(--space-1) var(--space-2);
+  border: var(--bw-hair) solid var(--rule-strong);
+  border-radius: var(--r-1);
+  background: var(--bg-2);
+  color: var(--fg);
+  font-family: var(--ff-body);
+  font-size: var(--fs-tiny);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--tr-caps);
+  cursor: pointer;
+}
+.vx-seg-on { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.vx-range-row { display: flex; align-items: center; gap: var(--space-2); }
+.vx-range { flex: 1; accent-color: var(--accent); cursor: pointer; }
+.vx-range-val { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-2); min-width: 56px; text-align: right; }
+.vx-toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: var(--fs-sm);
+}
+.vx-toggle { accent-color: var(--accent); width: 18px; height: 18px; cursor: pointer; }
+@media (pointer: coarse) {
+  .vx-toggle { width: 24px; height: 24px; }
+}
+
+.vx-queue {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-2);
+  border-radius: var(--r-2);
+  background: var(--bg-2);
+}
+.vx-queue-empty { justify-content: center; }
+.vx-queue-empty-text { color: var(--fg-3); font-size: var(--fs-tiny); font-family: var(--ff-mono); }
+.vx-queue-ctrls { display: flex; gap: var(--space-1); flex-shrink: 0; }
+.vx-queue-btn {
+  width: 32px; height: 32px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: var(--bw-hair) solid var(--rule-strong);
+  border-radius: var(--r-1);
+  background: var(--bg-3);
+  color: var(--fg);
+  cursor: pointer;
+  font-size: var(--fs-sm);
+}
+.vx-queue-btn:hover { background: var(--bg-4, var(--bg-2)); }
+.vx-queue-strip {
+  display: flex; gap: var(--space-2);
+  overflow-x: auto;
+  flex: 1;
+  padding-bottom: var(--space-hair);
+}
+.vx-chip {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  flex-shrink: 0;
+  padding: var(--space-1) var(--space-2);
+  border: var(--bw-hair) solid var(--rule);
+  border-radius: var(--r-pill);
+  background: var(--bg-3);
+  color: var(--fg);
+  font-size: var(--fs-tiny);
+  cursor: pointer;
+}
+.vx-chip:hover { background: var(--bg-4, var(--bg-2)); border-color: var(--rule-strong); }
+.vx-chip-current { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 16%, var(--bg-3)); }
+.vx-chip-live { border-color: var(--green-2); }
+.vx-chip-dot { width: 8px; height: 8px; border-radius: var(--r-pill); background: var(--fg-3); flex-shrink: 0; }
+.vx-chip-name { font-weight: var(--fw-medium); }
+.vx-chip-dur { font-family: var(--ff-mono); color: var(--fg-3); }
+/* Joins the small-label voice above. Deliberate overrides: --green + weight 700
+   because this is the "LIVE" badge on a session chip, same signal role as
+   .cm-vs-label. */
+.vx-chip-tag {
+  color: var(--green); font-weight: var(--fw-bold);
+}
+
+/* VoiceControls — vx-vc-* */
+.vx-vc {
+  display: flex; align-items: center; gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: var(--bg-2);
+  border-top: var(--bw-hair) solid var(--rule);
+}
+.vx-vc-btn {
+  width: 36px; height: 36px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: var(--bw-hair) solid var(--rule-strong);
+  border-radius: var(--r-1);
+  background: var(--bg-3); color: var(--fg);
+  cursor: pointer; font-size: var(--fs-body); line-height: 1;
+}
+.vx-vc-btn:hover { background: var(--bg-4, var(--bg-3)); }
+.vx-vc-on { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.vx-vc-disabled, .vx-vc-btn:disabled { opacity: .4; cursor: not-allowed; }
+.vx-vc-leave { margin-left: auto; background: var(--danger); color: var(--on-color); border-color: var(--danger); }
+.vx-vc-glyph { pointer-events: none; }
+
+/* ThreadPanel — cm-thread-panel / cm-tp-* */
+.cm-thread-panel {
+  display: flex; flex-direction: column;
+  flex: 0 0 300px; width: 300px; min-width: 0;
+  height: 100%; min-height: 0;
+  background: var(--bg-2); color: var(--fg);
+  border-left: var(--bw-hair) solid var(--rule);
+}
+@media (max-width: 900px) {
+  .cm-thread-panel {
+    position: absolute;
+    z-index: calc(var(--z-drawer) + 1);
+    top: 0; right: 0; bottom: 0;
+    height: auto;
+    width: min(320px, 90vw);
+    box-shadow: -2px 0 16px color-mix(in oklab, var(--ink) 30%, transparent);
+  }
+}
+.cm-tp-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-2); border-bottom: var(--bw-hair) solid var(--rule);
+}
+.cm-tp-title { font-weight: var(--fw-bold); font-size: var(--fs-xs); }
+.cm-tp-head-actions { display: flex; gap: var(--space-1); }
+.cm-tp-new, .cm-tp-close {
+  border: none; background: transparent; color: var(--fg-2, var(--fg));
+  cursor: pointer; font-size: var(--fs-body); width: 24px; height: 24px; border-radius: var(--r-1);
+}
+.cm-tp-new:hover, .cm-tp-close:hover { background: var(--bg-3); color: var(--fg); }
+.cm-tp-list { flex: 1; min-height: 0; overflow-y: auto; }
+.cm-tp-item {
+  position: relative; /* anchors .cm-tp-dot to the row, not the panel */
+  display: flex; flex-direction: column; gap: var(--space-hair);
+  width: 100%; text-align: left; cursor: pointer;
+  padding: var(--space-2); border: none; background: transparent;
+  border-bottom: var(--bw-hair) solid var(--rule);
+  color: var(--fg);
+}
+.cm-tp-item:hover { background: var(--bg-3); }
+.cm-tp-item.is-active { background: var(--bg-3); box-shadow: inset 3px 0 0 var(--accent); }
+.cm-tp-item.is-unread .cm-tp-item-title { font-weight: var(--fw-bold); }
+.cm-tp-dot { position: absolute; left: 4px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.cm-tp-item-title { font-size: var(--fs-xs); }
+.cm-tp-item-snippet { font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cm-tp-item-meta { display: flex; gap: var(--space-2); font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .7; }
+.cm-tp-empty, .cm-forum-empty, .cm-channel-empty, .cm-member-empty {
+  display: flex; flex-direction: column; align-items: center; gap: var(--space-2);
+  padding: var(--space-4) var(--space-3); text-align: center;
+  color: var(--fg-2, var(--fg)); opacity: .7; font-size: var(--fs-sm);
+}
+.cm-tp-empty svg, .cm-forum-empty svg, .cm-channel-empty svg, .cm-member-empty svg { opacity: .6; }
+
+/* Loading skeletons — cold-load placeholders for channel/member/thread/forum
+   lists. Same .ds-skel shimmer primitive as sessions.js/files.js so every
+   list surface in the kit uses one shimmer language, never a bare spinner. */
+.cm-channel-item-skeleton, .cm-member-item-skeleton {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-2); margin: var(--space-hair) var(--space-1);
+}
+.cm-channel-item-skeleton .ds-skel-icon, .cm-member-item-skeleton .ds-skel-icon {
+  width: 20px; height: 20px; border-radius: var(--r-round, 50%); flex: none; background: var(--bg-3);
+}
+.cm-channel-item-skeleton .ds-skel-title, .cm-member-item-skeleton .ds-skel-title {
+  height: 12px; width: 60%; border-radius: var(--r-1); background: var(--bg-3);
+}
+.cm-list-item-skeleton {
+  display: flex; flex-direction: column; gap: var(--space-1-75);
+  padding: var(--space-2) var(--space-3); border-bottom: var(--bw-hair) solid var(--rule);
+}
+.cm-list-item-skeleton .ds-skel-title { height: 12px; width: 55%; border-radius: var(--r-1); background: var(--bg-3); }
+.cm-list-item-skeleton .ds-skel-meta { height: 9px; width: 35%; border-radius: var(--r-1); background: var(--bg-3); }
+/* Self-contained shimmer keyframe: community.css ships standalone (the
+   community-app kit does not also load chat.css), so this cannot depend on
+   chat.css's ds-skel-shimmer definition even though the visual language and
+   token vocabulary match it exactly. */
+@media (prefers-reduced-motion: no-preference) {
+  .cm-channel-item-skeleton .ds-skel-icon, .cm-channel-item-skeleton .ds-skel-title,
+  .cm-member-item-skeleton .ds-skel-icon, .cm-member-item-skeleton .ds-skel-title,
+  .cm-list-item-skeleton .ds-skel-title, .cm-list-item-skeleton .ds-skel-meta {
+    animation: cm-skel-shimmer 1.3s ease-in-out infinite;
+    background: linear-gradient(90deg, var(--bg-3) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+    background-size: 200% 100%;
+  }
+}
+@keyframes cm-skel-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ForumView — cm-forum / cm-forum-* */
+.cm-forum { display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--bg-1, var(--bg-2)); color: var(--fg); }
+.cm-forum-toolbar { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; padding: var(--space-2); border-bottom: var(--bw-hair) solid var(--rule); }
+.cm-forum-search { flex: 1; padding: var(--space-1) var(--space-2); border: var(--bw-hair) solid var(--rule-strong); border-radius: var(--r-1); background: var(--bg-3); color: var(--fg); }
+.cm-forum-sort { padding: var(--space-1); border: var(--bw-hair) solid var(--rule-strong); border-radius: var(--r-1); background: var(--bg-3); color: var(--fg); }
+.cm-forum-new { padding: var(--space-1) var(--space-2); border: none; border-radius: var(--r-1); background: var(--accent); color: var(--accent-fg); cursor: pointer; }
+.cm-forum-list { flex: 1; min-height: 0; overflow-y: auto; }
+.cm-forum-item { display: flex; flex-direction: column; gap: var(--space-1); width: 100%; text-align: left; cursor: pointer; padding: var(--space-2) var(--space-3); border: none; background: transparent; border-bottom: var(--bw-hair) solid var(--rule); color: var(--fg); }
+.cm-forum-item:hover { background: var(--bg-3); }
+.cm-forum-item-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.cm-forum-item-title { font-weight: var(--fw-bold); font-size: var(--fs-xs); }
+.cm-forum-item-replies { font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .8; white-space: nowrap; }
+.cm-forum-item-snippet { font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .85; }
+.cm-forum-item-meta { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; font-size: var(--fs-micro); color: var(--fg-2, var(--fg)); opacity: .7; }
+.cm-forum-item-tags { display: inline-flex; gap: var(--space-1); }
+/* 1px vertical is OFF-SCALE ON PURPOSE — the tag is an inline chip inside the
+   forum meta row; --space-hair (2px) tips it past the row height. */
+.cm-forum-tag { padding: 1px var(--space-1-75); border-radius: var(--r-1); background: var(--bg-3); border: var(--bw-hair) solid var(--rule); }
+
+/* PageView — cm-page / cm-page-* */
+.cm-page { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow-y: auto; background: var(--bg-1, var(--bg-2)); color: var(--fg); }
+.cm-page-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: var(--space-3); border-bottom: var(--bw-hair) solid var(--rule); }
+.cm-page-head-title { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.cm-page-title { margin: 0; font-size: var(--fs-xl); font-weight: var(--fw-bold); }
+.cm-page-meta { display: flex; align-items: center; gap: var(--space-2); font-size: var(--fs-xs); color: var(--fg-2, var(--fg)); }
+.cm-page-author { font-weight: var(--fw-medium); }
+.cm-page-time { opacity: .75; }
+.cm-page-edit { padding: var(--space-1) var(--space-2); border: var(--bw-hair) solid var(--rule-strong); border-radius: var(--r-1); background: var(--bg-3); color: var(--fg); cursor: pointer; }
+.cm-page-body { padding: var(--space-3); line-height: 1.6; }
+.cm-page-empty { color: var(--fg-2, var(--fg)); opacity: .82; }
+
+/* ============================================================
+   freddie pages — layout for FREDDIE_PAGES renderers.
+   Scoped under .ds-247420 by the build prefixer. Tokens only.
+   ============================================================ */
+.fd-page-root { display: block; height: 100%; }
+.fd-page-inner { display: flex; flex-direction: column; gap: var(--space-3, 16px); padding: var(--space-3, 16px); max-width: 1100px; }
+.fd-page-inner > * { min-width: 0; }
+.fd-loading { display: flex; align-items: center; gap: var(--space-2, 10px); padding: var(--space-4, 24px); color: var(--fg-2, var(--fg)); }
+/* Base layout shared with .ds-empty-state (primitives.css); overrides padding
+   (--space-5, denser than the shared --space-6) and color for this context. */
+.fd-empty { padding: var(--space-5, 32px) var(--space-3, 16px); color: var(--fg-2, var(--fg)); }
+/* 28px is an ICON size (empty-state mark), not a type tier — the --fs-* ladder
+   tops out at --fs-xl (21px) before every remaining rung becomes a fluid
+   heading clamp, so neither substitutes without visibly resizing the mark.
+   --fs-2xl bridges that gap as a fixed 28px token. */
+.fd-empty-glyph { font-size: var(--fs-2xl); opacity: .55; line-height: 1; }
+.fd-pre { margin: 0; padding: var(--space-2, 10px); background: var(--bg-3, var(--panel-bg-2)); border: var(--bw-hair, 1px) solid var(--rule, var(--panel-accent)); border-radius: var(--r-1, 8px); overflow: auto; max-height: 460px; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; font-family: var(--font-mono, ui-monospace, monospace); font-size: var(--fs-micro); line-height: 1.5; }
+.fd-skill-body { max-height: 320px; }
+.fd-row-actions { display: inline-flex; gap: var(--space-1, 6px); align-items: center; }
+.fd-chat { display: flex; flex-direction: column; gap: var(--space-2, 10px); height: 100%; min-height: 0; }
+.fd-chat-thread { flex: 1 1 auto; min-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-2, 10px); padding: var(--space-2, 10px); }
+.fd-page-error { white-space: pre-wrap; overflow-wrap: anywhere; }
+/* Visually-hidden polite live region — announces async busy/done to SR users. */
+/* margin:-1px is OFF-SCALE ON PURPOSE — the canonical visually-hidden idiom;
+   the negative margin cancels the 1px box so the live region contributes zero
+   layout. A --space-* rung would reintroduce a measurable gap. */
+.fd-sr-live { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+/* page-level responsive: tighten padding on narrow viewports */
+@media (max-width: 640px) {
+  .fd-page-inner { padding: var(--space-2, 10px); gap: var(--space-2, 10px); }
+}

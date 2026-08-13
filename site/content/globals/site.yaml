@@ -1,0 +1,18 @@
+title: "design"
+tagline: "247420 design system"
+description: "the visual paradigm. layered surfaces, monospace labels, loud content inside quiet chrome. consumed by every 247420 surface."
+repo: "https://github.com/AnEntrypoint/design"
+url: "https://anentrypoint.github.io/design"
+year: 2026
+keywords:
+  - "design-system"
+  - "tokens"
+  - "247420"
+  - "anentrypoint"
+# Brand accent gradient — mirrors the canonical palette (--green → --green-2).
+# YAML is content config, not CSS, so it cannot use var(); keep in sync with colors_and_type.css.
+accent_from: "#247420"
+accent_to: "#3A9A34"
+glyph: "·"
+code: "072"
+category: "web"

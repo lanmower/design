@@ -1,0 +1,94 @@
+/* Host/join lobby kit styles. Scoped under .ds-247420 at build time.
+   Token-only colors (no raw literals) per the token-lint gate. */
+.sp-lobby {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  font-family: var(--ff-mono);
+}
+.sp-lobby-card {
+  position: relative;
+  width: min(360px, 88vw);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2-75);
+  padding: var(--space-4);
+  background: var(--bg-2);
+  border: 1px solid var(--bw-rule, var(--rule));
+  border-radius: var(--r-2, 10px);
+  color: var(--fg);
+  /* Short landscape phones: keep lower controls reachable inside the card. */
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.sp-lobby-title {
+  margin: 0;
+  font-family: var(--ff-display);
+  font-size: var(--fs-h3);
+}
+.sp-lobby-sub {
+  margin: 0;
+  color: var(--fg-3);
+  font-size: var(--fs-small, 12px);
+}
+.sp-lobby-btn {
+  appearance: none;
+  border: 1px solid var(--bw-rule, var(--rule));
+  background: var(--bg-3);
+  color: var(--fg);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-body);
+  padding: 10px 14px;
+  border-radius: var(--r-1, 8px);
+  cursor: pointer;
+}
+.sp-lobby-btn:hover { background: var(--bg-2); }
+.sp-lobby-btn:disabled { opacity: 0.6; cursor: default; }
+.sp-lobby-btn-primary {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
+}
+.sp-lobby-join { display: flex; gap: 8px; }
+.sp-lobby-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--bw-rule, var(--rule));
+  border-radius: var(--r-1, 8px);
+  padding: var(--space-2) var(--space-2-5);
+  font: var(--fs-body) var(--ff-mono);
+  outline: none;
+}
+.sp-lobby-input:focus-visible { border-color: var(--accent); box-shadow: var(--focus-ring-inset); }
+.sp-lobby-link { font-size: var(--fs-small, 11px); }
+.sp-lobby-code {
+  font-family: var(--ff-display);
+  font-size: var(--fs-h2);
+  letter-spacing: 0.12em;
+  text-align: center;
+  color: var(--accent);
+  padding: 8px;
+  background: var(--bg);
+  border-radius: var(--r-1, 8px);
+}
+.sp-lobby-err { min-height: 16px; color: var(--danger); font-size: var(--fs-small, 11px); }
+.sp-lobby-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--fg-3);
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+}

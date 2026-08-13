@@ -1,0 +1,72 @@
+name: Build and commit 247420 dist
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: dist-commit
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-commit:
+    if: "!contains(github.event.head_commit.message, '[skip dist]') && !startsWith(github.event.head_commit.message, 'chore(dist):')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install deps
+        run: npm install --no-audit --no-fund
+
+      - name: Build bundle
+        run: npm run build
+
+      - name: Commit built dist
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f dist
+          git commit -m "chore(dist): rebuild 247420 bundle [skip dist]" || echo "nothing to commit"
+          git push origin HEAD:main
+
+      - name: Confirm jsDelivr's GitHub CDN mode serves this commit
+        run: |
+          NEW_SHA=$(git rev-parse HEAD)
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            SERVED=$(curl -fsS "https://cdn.jsdelivr.net/gh/AnEntrypoint/design@${NEW_SHA}/dist/247420.js" | head -c 1 || echo "")
+            [ -n "$SERVED" ] && echo "jsDelivr serves commit $NEW_SHA" && exit 0
+            echo "jsDelivr not yet serving $NEW_SHA, waiting"
+            sleep 12
+          done
+          echo "dist committed but jsDelivr never served $NEW_SHA" >&2
+          exit 1
+
+      # The SHA-pinned URL above is immutable and always resolves to this exact
+      # commit, but every @main consumer of this SDK (this repo's own
+      # homepage included -- dist/index.html links @main, not a SHA) reads
+      # through jsDelivr's floating-branch cache, which does not reliably
+      # invalidate itself on a new commit: it flaps between the old and new
+      # content across requests seconds apart even after the branch tip
+      # moves, independent of the "serves this commit" check above (a SHA
+      # path is a distinct cache key jsDelivr never needs to invalidate).
+      # Explicitly purge the @main paths every push so those consumers pick
+      # up the new commit promptly instead of waiting out jsDelivr's own
+      # cache TTL (up to 7 days per the dist/247420.css Cache-Control header).
+      - name: Purge jsDelivr @main cache
+        run: |
+          for path in dist/247420.js dist/247420.css; do
+            curl -fsS "https://purge.jsdelivr.net/gh/AnEntrypoint/design@main/${path}" \
+              && echo "purged @main/${path}" \
+              || echo "purge request failed for @main/${path} (non-fatal)"
+          done

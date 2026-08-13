@@ -1,0 +1,8237 @@
+{
+  "generatedNote": "Generated from src/components.js + src/components/*.js via node scripts/generate-component-manifest.mjs. Do not hand-edit.",
+  "components": [
+    {
+      "name": "Brand",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "name",
+          "default": "'247420'",
+          "alias": null
+        },
+        {
+          "name": "leaf",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": "The wordmark used in Topbar/AppShell headers."
+    },
+    {
+      "name": "Chip",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "tone",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "size",
+          "default": "'md'",
+          "alias": null
+        },
+        {
+          "name": "tag",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onRemove",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": "A small pill/tag label."
+    },
+    {
+      "name": "Btn",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "href",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "variant",
+          "default": "'default'",
+          "alias": null
+        },
+        {
+          "name": "size",
+          "default": "'md'",
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClick",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "aria-label",
+          "default": null,
+          "alias": "ariaLabel"
+        },
+        {
+          "name": "primary",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "ghost",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "danger",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "disabled",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "class",
+          "default": null,
+          "alias": "className"
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": "The standard button/link factory. Renders an `<a>` when `href` is given, otherwise a `<button>`."
+    },
+    {
+      "name": "Glyph",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "color",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "size",
+          "default": "'base'",
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Icon",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "name, { size = 16 } = {}",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "IconButton",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "icon",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClick",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "title",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "size",
+          "default": "'base'",
+          "alias": null
+        },
+        {
+          "name": "variant",
+          "default": "'ghost'",
+          "alias": null
+        },
+        {
+          "name": "disabled",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Badge",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "variant",
+          "default": "'default'",
+          "alias": null
+        },
+        {
+          "name": "tone",
+          "default": "'neutral'",
+          "alias": null
+        },
+        {
+          "name": "size",
+          "default": "'md'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Pill",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "tone",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Topbar",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "brand",
+          "default": "'247420'",
+          "alias": null
+        },
+        {
+          "name": "leaf",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "active",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "onNav",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "search",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "themeToggle",
+          "default": "true",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Crumb",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "trail",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "leaf",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "right",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Side",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "sections",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Status",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "left",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "right",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "AppShell",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "topbar",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "crumb",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "side",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "main",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "status",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "narrow",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "WorkspaceShell",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "rail",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "sessions",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "main",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "pane",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "crumb",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "status",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "narrow",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "railCollapsed",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "paneCollapsed",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "railLabel",
+          "default": "'workspace navigation'",
+          "alias": null
+        },
+        {
+          "name": "paneLabel",
+          "default": "'context'",
+          "alias": null
+        },
+        {
+          "name": "stableFrame",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "mainFlush",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": "A Claude-Desktop / cowork three-(or four-)column app shell.  Pure stateless chrome (props in, vnode out). Collapse is DOM-class + a persisted flag, so the host does not have to thread collapse state through its own store. Visual styling lives in app-shell.css (.ws-*)."
+    },
+    {
+      "name": "WorkspaceRail",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "brand",
+          "default": "'247420'",
+          "alias": null
+        },
+        {
+          "name": "action",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "footer",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Heading",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "level",
+          "default": "1",
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "style",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "class",
+          "default": "''",
+          "alias": "className"
+        },
+        {
+          "name": "aria-level",
+          "default": null,
+          "alias": "ariaLevel"
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Lede",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Dot",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "tone",
+          "default": "'on'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Rail",
+      "file": "components/shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "tone",
+          "default": "'green'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Panel",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "count",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "right",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "style",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "class",
+          "default": "''",
+          "alias": "className"
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "kind",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "id",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "headingLevel",
+          "default": "2",
+          "alias": null
+        },
+        {
+          "name": "bodyAttrs",
+          "default": "{}",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Card",
+      "file": "components/content.js",
+      "kind": "const (alias)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "Panel",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Row",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "code",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "rank",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "title",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "sub",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "meta",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "active",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "state",
+          "default": "'default'",
+          "alias": null
+        },
+        {
+          "name": "onClick",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "style",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "href",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "kind",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "cols",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "leading",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "trailing",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "target",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "selected",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "rail",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "expanded",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "highlight",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "actions",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "detail",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "RowLink",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "code",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "title",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "sub",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "meta",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "href",
+          "default": "'#'",
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "target",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PanelFromItems",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "heading",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "keyPrefix",
+          "default": "'i'",
+          "alias": null
+        },
+        {
+          "name": "count",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "style",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "kind",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "emptyText",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Hero",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "eyebrow",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "title",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "body",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "accent",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "actions",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "badges",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "HeroFromPageData",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "hero",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Marquee",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "sep",
+          "default": "'/'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Install",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "cmd",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "copied",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onCopy",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "CliBlock",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "lines",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "heading",
+          "default": "'quick start'",
+          "alias": null
+        },
+        {
+          "name": "className",
+          "default": "''",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Receipt",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "rows",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "emptyText",
+          "default": "'nothing here yet'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Changelog",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "entries",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "emptyText",
+          "default": "'no changelog entries yet'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "WorksList",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "works",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "openedIndex",
+          "default": "-1",
+          "alias": null
+        },
+        {
+          "name": "onToggle",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "WritingList",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "posts",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Manifesto",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "paragraphs",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "maxWidth",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Section",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "eyebrow",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "id",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PageHeader",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "lede",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "eyebrow",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "right",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "compact",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "dense",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "id",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Kpi",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "emptyText",
+          "default": "'no metrics yet'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Sparkline",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "values",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "width",
+          "default": "72",
+          "alias": null
+        },
+        {
+          "name": "height",
+          "default": "24",
+          "alias": null
+        },
+        {
+          "name": "tone",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "BarChart",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "emptyText",
+          "default": "'no data yet'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Table",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "headers",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "rows",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onRowClick",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "emptyText",
+          "default": "'nothing here yet'",
+          "alias": null
+        },
+        {
+          "name": "rowLabels",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "striped",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "compact",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "sortable",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "sortKey",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "sortDir",
+          "default": "'asc'",
+          "alias": null
+        },
+        {
+          "name": "onSort",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "HealthTable",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "checks",
+          "default": "{}",
+          "alias": null
+        },
+        {
+          "name": "emptyText",
+          "default": "'no health data'",
+          "alias": null
+        },
+        {
+          "name": "okLabel",
+          "default": "'ok'",
+          "alias": null
+        },
+        {
+          "name": "missLabel",
+          "default": "'no'",
+          "alias": null
+        },
+        {
+          "name": "jsonTruncate",
+          "default": "60",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ProcessRegistryTable",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "processes",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "emptyText",
+          "default": "'no live processes'",
+          "alias": null
+        },
+        {
+          "name": "extraColumns",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "SearchInput",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "value",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "placeholder",
+          "default": "'search…'",
+          "alias": null
+        },
+        {
+          "name": "onInput",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSubmit",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": "'q'",
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "resultCount",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "TextField",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "value",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "type",
+          "default": "'text'",
+          "alias": null
+        },
+        {
+          "name": "placeholder",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "onInput",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "hint",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "multiline",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "rows",
+          "default": "4",
+          "alias": null
+        },
+        {
+          "name": "maxLength",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "min",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "max",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "error",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "title",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "size",
+          "default": "'md'",
+          "alias": null
+        },
+        {
+          "name": "aria-label",
+          "default": null,
+          "alias": "ariaLabel"
+        },
+        {
+          "name": "aria-invalid",
+          "default": null,
+          "alias": "ariaInvalid"
+        },
+        {
+          "name": "aria-describedby",
+          "default": null,
+          "alias": "ariaDescribedBy"
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Select",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "value",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "options",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "placeholder",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "hint",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "title",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "size",
+          "default": "'md'",
+          "alias": null
+        },
+        {
+          "name": "aria-label",
+          "default": null,
+          "alias": "ariaLabel"
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "EventList",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "items",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "events",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "emptyText",
+          "default": "'no events'",
+          "alias": null
+        },
+        {
+          "name": "rankPad",
+          "default": "3",
+          "alias": null
+        },
+        {
+          "name": "loading",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "loadingText",
+          "default": "'loading events…'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "HomeView",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "state",
+          "default": "{}",
+          "alias": null
+        },
+        {
+          "name": "onNav",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onToggleWork",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "works",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "posts",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "manifesto",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "currentlyShipping",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ProjectView",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "project",
+          "default": "{}",
+          "alias": null
+        },
+        {
+          "name": "copied",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onCopy",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Form",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "fields",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "submit",
+          "default": "'submit'",
+          "alias": null
+        },
+        {
+          "name": "onSubmit",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "columns",
+          "default": "1",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "InputOTP",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "length",
+          "default": "6",
+          "alias": null
+        },
+        {
+          "name": "value",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onComplete",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "disabled",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "error",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": "'code'",
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": "Segmented one-time-code / PIN entry."
+    },
+    {
+      "name": "Spinner",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "size",
+          "default": "'base'",
+          "alias": null
+        },
+        {
+          "name": "tone",
+          "default": "'accent'",
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": "'loading'",
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Skeleton",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "height",
+          "default": "'1em'",
+          "alias": null
+        },
+        {
+          "name": "width",
+          "default": "'100%'",
+          "alias": null
+        },
+        {
+          "name": "count",
+          "default": "1",
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": "'loading content'",
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Alert",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "kind",
+          "default": "'info'",
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDismiss",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "title",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "FilterPills",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "options",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "selected",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": "'filters'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Avatar",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "src",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "fallback",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "size",
+          "default": "'md'",
+          "alias": null
+        },
+        {
+          "name": "shape",
+          "default": "'circle'",
+          "alias": null
+        },
+        {
+          "name": "initialsCount",
+          "default": "1",
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "avatarInitial",
+      "file": "components/content.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "name, count = 1",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "fmtBytes",
+      "file": "components/chat.js",
+      "kind": "const",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "fmtFileSize",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "renderInline",
+      "file": "components/chat.js",
+      "kind": "const",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "sharedRenderInline",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "hasSelectionInside",
+      "file": "components/chat.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "el",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ChatMessage",
+      "file": "components/chat.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "role",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "who",
+          "default": "'them'",
+          "alias": null
+        },
+        {
+          "name": "avatar",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "text",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "parts",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "time",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "typing",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "aicat",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "reactions",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "receipt",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "streaming",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "actions",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "incomplete",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "stopped",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "flat",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "error",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onRetry",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onToggleReaction",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ChatComposer",
+      "file": "components/chat.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "value",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onInput",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSend",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onEmoji",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onCancel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "busy",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "placeholder",
+          "default": "'message…'",
+          "alias": null
+        },
+        {
+          "name": "disabled",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "disabledReason",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "context",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onPasteFiles",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDropFiles",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "streamingSince",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "detectAttachment",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "mentionFiles",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Chat",
+      "file": "components/chat.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": "'chat'",
+          "alias": null
+        },
+        {
+          "name": "sub",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "messages",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "composer",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "header",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "suggestions",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSuggestionClick",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "flashComposerNote",
+      "file": "components/chat.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "composerEl, text",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ChatSuggestions",
+      "file": "components/chat.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "heading",
+          "default": "'What can I help with?'",
+          "alias": null
+        },
+        {
+          "name": "subtext",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "suggestions",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "AICAT_FACE",
+      "file": "components/chat.js",
+      "kind": "const",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "` /\\\\_/\\\\\\n( o.o )\\n > ^ <`",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "AICatPortrait",
+      "file": "components/chat.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "name",
+          "default": "'aicat'",
+          "alias": null
+        },
+        {
+          "name": "status",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "face",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "AICat",
+      "file": "components/chat.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "name",
+          "default": "'aicat'",
+          "alias": null
+        },
+        {
+          "name": "messages",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "thinking",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "composer",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "status",
+          "default": "'online · purring'",
+          "alias": null
+        },
+        {
+          "name": "header",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "AgentChat",
+      "file": "components/agent-chat.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "props = {}",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "MESSAGE_CAP",
+      "file": "components/agent-chat.js",
+      "kind": "const",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "100",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ChatMinimap",
+      "file": "components/chat-minimap.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "messages",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "getThreadEl",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "getMessageEl",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "width",
+          "default": "CHAT_MINIMAP_WIDTH",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "CHAT_MINIMAP_WIDTH",
+      "file": "components/chat-minimap.js",
+      "kind": "const",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "36",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ConversationList",
+      "file": "components/sessions.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "sessions",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "selected",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "groups",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "search",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "caption",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onNew",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "newLabel",
+          "default": "'New chat'",
+          "alias": null
+        },
+        {
+          "name": "emptyText",
+          "default": "'No conversations yet'",
+          "alias": null
+        },
+        {
+          "name": "loading",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "error",
+          "default": "null",
+          "alias": null
+        },
+        {
+          "name": "loadingText",
+          "default": "'Loading conversations…'",
+          "alias": null
+        },
+        {
+          "name": "hasMore",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onLoadMore",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "loadMoreLabel",
+          "default": "'load more conversations'",
+          "alias": null
+        },
+        {
+          "name": "resultCount",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "tree",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "expanded",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onToggleExpand",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onRename",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "renaming",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onStartRename",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onCancelRename",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDelete",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "confirmingDelete",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onArmDelete",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onCancelDelete",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": "The Claude-Desktop \"Chats\" column. Sessions grouped by a caller-supplied group label, each row showing title/project, relative time, agent badge, and a running/new-event indicator. Selecting a row switches the active conversation.  another row's `sid` under that row (fork/branch tree), with an indent guide, a branch glyph, and a per-node collapse toggle. Ignored when `groups` is set (grouping and tree-nesting are mutually exclusive row layouts). `expanded`/ `onToggleExpand` are host-driven (kit stays stateless): a `sid` NOT present in the `expanded` Set renders collapsed once it has children. hover-revealed rename action (row becomes an inline text input while active). button click, before `onRename` commits; host flips `renaming` to this sid. delete action; clicking it arms an inline two-button confirm row (same height, no modal), mirroring SessionDashboard's arm-then-confirm stop control."
+    },
+    {
+      "name": "SessionCard",
+      "file": "components/sessions.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "session",
+          "default": "{}",
+          "alias": null
+        },
+        {
+          "name": "onStop",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onOpen",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onView",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "active",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "selectable",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "selected",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onToggleSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "density",
+          "default": "'comfortable'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "SessionDashboard",
+      "file": "components/sessions.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "sessions",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onStop",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onOpen",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onView",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onStopAll",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onStopSelected",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "confirmingStopAll",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "confirmingStopSelected",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onArmStopAll",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onArmStopSelected",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "sort",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "filter",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "errorsOnly",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onErrorsOnly",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "selectable",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "selected",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onToggleSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSelectAll",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClearSelection",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "activeSid",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "streamState",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "emptyText",
+          "default": "'No live sessions'",
+          "alias": null
+        },
+        {
+          "name": "emptyAction",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "offline",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "density",
+          "default": "'comfortable'",
+          "alias": null
+        }
+      ],
+      "description": "The live multi-session command center (\"Live\" dashboard).  The stop-all / stop-selected danger buttons are two-step (host-driven, the kit is stateless): the first click fires onArmStop* so the host flips confirming* true and re-renders; the armed button reads 'stop N sessions - press again' and only THAT click fires the real onStopAll/onStopSelected. Hosts that wire no onArmStop* keep the old single-click behavior."
+    },
+    {
+      "name": "SessionMeta",
+      "file": "components/sessions.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "fmtDuration",
+      "file": "components/sessions.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "ms",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "fmtTime",
+      "file": "components/sessions.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "t",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "fmtAgo",
+      "file": "components/sessions.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "t",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "AgentListSkeleton",
+      "file": "components/sessions.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "rows",
+          "default": "5",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ContextPane",
+      "file": "components/context-pane.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "agent",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "model",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "cwd",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "toolCount",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "usage",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "session",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "recentFiles",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSetCwd",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onOpenFile",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ContextMeter",
+      "file": "components/context-pane.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "used",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "total",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "segments",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ContextTreemap",
+      "file": "components/context-pane.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "width",
+          "default": "280",
+          "alias": null
+        },
+        {
+          "name": "height",
+          "default": "160",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ContextXRayPanel",
+      "file": "components/context-pane.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "segments",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "openId",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onOpenIdChange",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "SpreadsheetPreview",
+      "file": "components/spreadsheet-preview.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "workbook",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "activeSheet",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSheetChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "maxRows",
+          "default": "DEFAULT_MAX_ROWS",
+          "alias": null
+        },
+        {
+          "name": "maxCols",
+          "default": "DEFAULT_MAX_COLS",
+          "alias": null
+        },
+        {
+          "name": "truncated",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "loading",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "error",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "errorActionLabel",
+          "default": "'retry'",
+          "alias": null
+        },
+        {
+          "name": "onErrorAction",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "GitStatusPanel",
+      "file": "components/git-status.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "files",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onFileClick",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "emptyText",
+          "default": "'no changes'",
+          "alias": null
+        },
+        {
+          "name": "active",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "GitDiffView",
+      "file": "components/git-status.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "diff",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "filename",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "binary",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "WorktreeSwitcher",
+      "file": "components/worktree-switcher.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "worktrees",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "current",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSwitch",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onCreate",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "ariaLabel",
+          "default": "'switch worktree'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PluginsConfig",
+      "file": "components/plugins-config.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "plugins",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "selected",
+          "default": "null",
+          "alias": null
+        },
+        {
+          "name": "loading",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "error",
+          "default": "null",
+          "alias": null
+        },
+        {
+          "name": "busyName",
+          "default": "null",
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onToggle",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onReload",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "SkillsConfig",
+      "file": "components/skills-config.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "skills",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "selected",
+          "default": "null",
+          "alias": null
+        },
+        {
+          "name": "loading",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "error",
+          "default": "null",
+          "alias": null
+        },
+        {
+          "name": "busyName",
+          "default": "null",
+          "alias": null
+        },
+        {
+          "name": "query",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "onQuery",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onToggle",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ModelsConfig",
+      "file": "components/models-config.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "data",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "loading",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "error",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "selectedProviderId",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSelectProvider",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "selectedModel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSelectModel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onRefresh",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onRebuild",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "rebuilding",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "rebuildError",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "DEFAULT_PHASES",
+      "file": "components/data-density.js",
+      "kind": "const",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "['PLAN', 'EXECUTE', 'EMIT', 'VERIFY', 'CONSOLIDATE', 'COMPLETE']",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PhaseWalk",
+      "file": "components/data-density.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "phases",
+          "default": "DEFAULT_PHASES",
+          "alias": null
+        },
+        {
+          "name": "reached",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "gapKinds",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "TreeNode",
+      "file": "components/data-density.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "ts",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "kind",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "variant",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "phase",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "id",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "keyLabel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "reason",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "deviationLabel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "residuals",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "BarRow",
+      "file": "components/data-density.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "value",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "pct",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "tone",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "RateCell",
+      "file": "components/data-density.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "value",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "tone",
+          "default": "'neutral'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "StatTile",
+      "file": "components/data-density.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "val",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "lbl",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "cls",
+          "default": "''",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "StatsGrid",
+      "file": "components/data-density.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "SubGrid",
+      "file": "components/data-density.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "SessionRow",
+      "file": "components/data-density.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "sessId",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "phaseWalkProps",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "events",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "verbs",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "prd",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "muts",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "resid",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "deviations",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "firstTs",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "lastTs",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClick",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "DevRow",
+      "file": "components/data-density.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "ts",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "event",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "sess",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "operation",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "residuals",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "LiveLogEntry",
+      "file": "components/data-density.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "ts",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "sub",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "tone",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "event",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "preview",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "LiveLog",
+      "file": "components/data-density.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "entries",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "autoScroll",
+          "default": "true",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Progress",
+      "file": "components/data-density.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "value",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "max",
+          "default": "100",
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "fileGlyph",
+      "file": "components/files.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "type",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "fmtFileSize",
+      "file": "components/files.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "bytes",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "FileIcon",
+      "file": "components/files.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "type",
+          "default": "'other'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "FileRow",
+      "file": "components/files.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "type",
+          "default": "'other'",
+          "alias": null
+        },
+        {
+          "name": "size",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "modified",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "code",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onOpen",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onAction",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "active",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "permissions",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "locked",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "actions",
+          "default": "FILE_ROW_ACTIONS",
+          "alias": null
+        },
+        {
+          "name": "busy",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "selectable",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "selected",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onToggleSelect",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "FileGrid",
+      "file": "components/files.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "files",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onOpen",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onAction",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onUp",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "emptyText",
+          "default": "'No files here yet'",
+          "alias": null
+        },
+        {
+          "name": "emptyAction",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "sort",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "filter",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "loading",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "shown",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onShowMore",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "actions",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "busy",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "selectable",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "selected",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onToggleSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "marked",
+          "default": "selected",
+          "alias": null
+        },
+        {
+          "name": "onMark",
+          "default": "onToggleSelect",
+          "alias": null
+        },
+        {
+          "name": "onSelectAll",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClearSelection",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "density",
+          "default": "'list'",
+          "alias": null
+        },
+        {
+          "name": "onDensity",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "thumbUrl",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": "The directory listing.  `loading` and `busy` are NOT two spellings of one state -- they are the two halves of this SDK's standing distinction, and FileGrid is the component that takes both because it is the one place both are in play at once:  loading -- a DATA FETCH is in flight. Owns which SHAPE renders: with no rows yet it is a cold load and the whole grid is replaced by FileSkeleton; with rows already on screen it is a refresh and the existing rows stay mounted and dim (is-refreshing), because flashing a populated directory back to shimmer reads as data loss. busy    -- a USER ACTION is in flight (a rename/move/delete round-trip). Owns INTERACTIVITY, not shape: it is forwarded to each FileRow as `busy`, which disables that row's open + mutation controls so a second click cannot fire the same mutation twice.  A grid can be `busy` while not `loading` (a delete is posting, rows fully rendered) and `loading` while not `busy` (a plain refresh). Passing one for the other is a real bug, not a style choice, so they are deliberately not merged and neither is an alias of the other."
+    },
+    {
+      "name": "FileSkeleton",
+      "file": "components/files.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "rows",
+          "default": "12",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "sortFiles",
+      "file": "components/files.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "files = [], sort = 'name', dir = 'asc'",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "FileToolbar",
+      "file": "components/files.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "left",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "right",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "RootsPicker",
+      "file": "components/files.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "roots",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "selected",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": "'roots'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "DropZone",
+      "file": "components/files.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "dragover",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "rejected",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDrop",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDragOver",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDragLeave",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": "'drop files here'",
+          "alias": null
+        },
+        {
+          "name": "onPick",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "UploadProgress",
+      "file": "components/files.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onDismiss",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "EmptyState",
+      "file": "components/files.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "text",
+          "default": "'nothing here'",
+          "alias": null
+        },
+        {
+          "name": "glyph",
+          "default": "Icon('circle')",
+          "alias": null
+        },
+        {
+          "name": "action",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "BreadcrumbPath",
+      "file": "components/files.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "segments",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onNav",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "root",
+          "default": "'root'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "BulkBar",
+      "file": "components/files.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "count",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "noun",
+          "default": "'file'",
+          "alias": null
+        },
+        {
+          "name": "nounPlural",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "actions",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onClear",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "busy",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ConfirmDialog",
+      "file": "components/files-modals.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": "'Are you sure?'",
+          "alias": null
+        },
+        {
+          "name": "message",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "confirmLabel",
+          "default": "'confirm'",
+          "alias": null
+        },
+        {
+          "name": "cancelLabel",
+          "default": "'cancel'",
+          "alias": null
+        },
+        {
+          "name": "destructive",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onConfirm",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onCancel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "error",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "busy",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "busyLabel",
+          "default": "'working…'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PromptDialog",
+      "file": "components/files-modals.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": "'Enter a name'",
+          "alias": null
+        },
+        {
+          "name": "value",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "placeholder",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "confirmLabel",
+          "default": "'ok'",
+          "alias": null
+        },
+        {
+          "name": "cancelLabel",
+          "default": "'cancel'",
+          "alias": null
+        },
+        {
+          "name": "onConfirm",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onCancel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onInput",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "error",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "busy",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "busyLabel",
+          "default": "'working…'",
+          "alias": null
+        },
+        {
+          "name": "roots",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onPickRoot",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "CountdownDialog",
+      "file": "components/files-modals.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": "'Are you sure?'",
+          "alias": null
+        },
+        {
+          "name": "message",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "seconds",
+          "default": "10",
+          "alias": null
+        },
+        {
+          "name": "onExpire",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "actions",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "FilePreviewMedia",
+      "file": "components/files-modals.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "src",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "type",
+          "default": "'other'",
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "FilePreviewCode",
+      "file": "components/files-modals.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "content",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "lang",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "filename",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "wrap",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onWrapToggle",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "previewHtml",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "previewLabel",
+          "default": "'preview'",
+          "alias": null
+        },
+        {
+          "name": "mode",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onModeChange",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "FilePreviewText",
+      "file": "components/files-modals.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "content",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "truncated",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "FileViewer",
+      "file": "components/files-modals.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "file",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "body",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onAction",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onPrev",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onNext",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "FilePreviewPane",
+      "file": "components/files-modals.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "file",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "body",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onAction",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onPrev",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onNext",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Modal",
+      "file": "components/files-modals.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "kind",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "head",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "headClass",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "headAttrs",
+          "default": "{}",
+          "alias": null
+        },
+        {
+          "name": "body",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "bodyClass",
+          "default": "'ds-modal-body'",
+          "alias": null
+        },
+        {
+          "name": "bodyAttrs",
+          "default": "{}",
+          "alias": null
+        },
+        {
+          "name": "actions",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "busy",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "modalError",
+      "file": "components/files-modals.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "error",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ServerIcon",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "id",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "icon",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "active",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "badge",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClick",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ServerRail",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "servers",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "activeId",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onAdd",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ChannelItem",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "id",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "type",
+          "default": "'text'",
+          "alias": null
+        },
+        {
+          "name": "active",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "voiceActive",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "voiceConnecting",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "badge",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "draggable",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "actions",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "participants",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onClick",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onContext",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ChannelCategory",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "id",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "channels",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "collapsed",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "activeId",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onToggle",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onAddChannel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChannelClick",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChannelContext",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onContextMenu",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "extraButton",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "channelDraggable",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "VoiceUser",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "identity",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "speaking",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "color",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "UserPanel",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "tag",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "color",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "muted",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "deafened",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onMute",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDeafen",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSettings",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ChannelSidebar",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "serverName",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "channels",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "categories",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "activeId",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "collapsedCats",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChannelClick",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onCategoryToggle",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onAddChannel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChannelContext",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "userPanelProps",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "loading",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "MemberItem",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "identity",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "color",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "status",
+          "default": "'online'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "MemberList",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "categories",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "open",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "loading",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ChatHeader",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "icon",
+          "default": "'#'",
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "topic",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "toolbar",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "VoiceStrip",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "channelName",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "status",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "muted",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "deafened",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onMute",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDeafen",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onLeave",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "open",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "CommunityShell",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "serverRailProps",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "sidebarProps",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "memberListProps",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "voiceStripProps",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "MobileHeader",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "channelType",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "channelName",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onMenu",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onMembers",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ReplyBar",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "quotedMessage",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "quotedAuthor",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onCancel",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Banner",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "tone",
+          "default": "'info'",
+          "alias": null
+        },
+        {
+          "name": "message",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "visible",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "actionLabel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onAction",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClick",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ThreadPanel",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "threads",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "activeId",
+          "default": "null",
+          "alias": null
+        },
+        {
+          "name": "title",
+          "default": "'Threads'",
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onCreate",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "loading",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ForumView",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "posts",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onSearch",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSort",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onNewPost",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "loading",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PageView",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "html",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "author",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "updatedAt",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "isAdmin",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onEdit",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PttButton",
+      "file": "components/voice.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "state",
+          "default": "'idle'",
+          "alias": null
+        },
+        {
+          "name": "mode",
+          "default": "'ptt'",
+          "alias": null
+        },
+        {
+          "name": "onHoldStart",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onHoldEnd",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClick",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": "'Hold to talk'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "VadMeter",
+      "file": "components/voice.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "level",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "threshold",
+          "default": "0.5",
+          "alias": null
+        },
+        {
+          "name": "onThresholdChange",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "WebcamPreview",
+      "file": "components/voice.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "videoStream",
+          "default": "null",
+          "alias": null
+        },
+        {
+          "name": "resolution",
+          "default": "'640x480'",
+          "alias": null
+        },
+        {
+          "name": "fps",
+          "default": "30",
+          "alias": null
+        },
+        {
+          "name": "enabled",
+          "default": "true",
+          "alias": null
+        },
+        {
+          "name": "resolutions",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "fpsOptions",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onResolutionChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onFpsChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onToggle",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "VoiceSettingsModal",
+      "file": "components/voice.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "open",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "mode",
+          "default": "'ptt'",
+          "alias": null
+        },
+        {
+          "name": "inputId",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "outputId",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "inputDevices",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "outputDevices",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "vadThreshold",
+          "default": "0.5",
+          "alias": null
+        },
+        {
+          "name": "rnnoise",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "autoGain",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "forceTurn",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "bitrate",
+          "default": "64",
+          "alias": null
+        },
+        {
+          "name": "volume",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSave",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onCancel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "AudioQueue",
+      "file": "components/voice.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "segments",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "currentSegmentId",
+          "default": "null",
+          "alias": null
+        },
+        {
+          "name": "paused",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onReplay",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSkip",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onResume",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onPause",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "VoiceControls",
+      "file": "components/voice.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "muted",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "deafened",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "cameraOn",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "screenShareOn",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onMic",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDeafen",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onCamera",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onScreenShare",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSettings",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onLeave",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "playCompletionCue",
+      "file": "components/voice.js",
+      "kind": "component",
+      "props": [],
+      "description": ""
+    },
+    {
+      "name": "LiveCursorOverlay",
+      "file": "components/collab.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "cursors",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "RemoteSelectionRings",
+      "file": "components/collab.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "selections",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "RecentEditHighlightFlash",
+      "file": "components/collab.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "edits",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "AgentPresenceChip",
+      "file": "components/collab.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "userId",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "color",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "status",
+          "default": "'active'",
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PresenceBar",
+      "file": "components/collab.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "users",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ThemeToggle",
+      "file": "components/theme-toggle.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "compact",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Checkbox",
+      "file": "components/form-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "checked",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "indeterminate",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "disabled",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "hint",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "ariaLabel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "id",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Radio",
+      "file": "components/form-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "value",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "checked",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "disabled",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "hint",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "ariaLabel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "id",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "RadioGroup",
+      "file": "components/form-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "legend",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "value",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "options",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "orientation",
+          "default": "'vertical'",
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Toggle",
+      "file": "components/form-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "checked",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "disabled",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "hint",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "ariaLabel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "kind",
+          "default": "'switch'",
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "id",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Field",
+      "file": "components/form-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "hint",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "error",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "required",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "requiredMarker",
+          "default": "'*'",
+          "alias": null
+        },
+        {
+          "name": "htmlFor",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "useFormValidation",
+      "file": "components/form-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "schema = {}",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "focusFirstInvalidField",
+      "file": "components/form-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "errors, order, getEl",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Slider",
+      "file": "components/slider.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "value",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "min",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "max",
+          "default": "100",
+          "alias": null
+        },
+        {
+          "name": "step",
+          "default": "1",
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "disabled",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "hint",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": "A single-value range slider (track + fill + thumb) built on a real, invisible native `<input type=\"range\">` for keyboard/pointer/a11y semantics, matching the overlay approach voice/capture.js's VadMeter pioneered for its threshold handle."
+    },
+    {
+      "name": "Carousel",
+      "file": "components/carousel.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "renderItem",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "orientation",
+          "default": "'horizontal'",
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": "'carousel'",
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": "A scroll-snap content carousel with prev/next controls."
+    },
+    {
+      "name": "useDraggable",
+      "file": "components/interaction-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "el, { data, kind, onDragStart, onDragEnd } = {}",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "useDropTarget",
+      "file": "components/interaction-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "el, { accepts = [], onDrop, onDragOver } = {}",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "useNumberScrub",
+      "file": "components/interaction-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "el, { getValue, onChange, step = 0.01, threshold = 3 } = {}",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "usePointerDrag",
+      "file": "components/interaction-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "el, { onStart, onMove, onEnd, button = 0 } = {}",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Reorderable",
+      "file": "components/interaction-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "getKey",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "renderItem",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onReorder",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "axis",
+          "default": "'vertical'",
+          "alias": null
+        },
+        {
+          "name": "kind",
+          "default": "'reorder'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "useKeyboardShortcut",
+      "file": "components/interaction-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "map = {}, { scope = 'global', enabled = true } = {}",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "formatShortcut",
+      "file": "components/interaction-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "combo",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ShortcutHint",
+      "file": "components/interaction-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "combo",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "kind",
+          "default": "'kbd'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ShortcutList",
+      "file": "components/interaction-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "shortcuts",
+          "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "useKeyboardShortcutHelp",
+      "file": "components/interaction-primitives.js",
+      "kind": "component",
+      "props": [],
+      "description": ""
+    },
+    {
+      "name": "ShortcutHelpDialog",
+      "file": "components/interaction-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "open",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "registry",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "isMobileNow",
+      "file": "components/interaction-primitives.js",
+      "kind": "component",
+      "props": [],
+      "description": ""
+    },
+    {
+      "name": "onMobileChange",
+      "file": "components/interaction-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "cb",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Toolbar",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "leading",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "trailing",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "dense",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ToolbarRow",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "...actions",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Tabs",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "active",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "aria-label",
+          "default": null,
+          "alias": "ariaLabel"
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "scroll",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "TreeView",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "TreeItem",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "glyph",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "tag",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "depth",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "selected",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "expanded",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onToggle",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "hasChildren",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PropertyGrid",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PropertyField",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "hint",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "inline",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PropertyGridRow",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "InlineEditableField",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "value",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "placeholder",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onInput",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "error",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "multiline",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "rows",
+          "default": "3",
+          "alias": null
+        },
+        {
+          "name": "ariaLabel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "disabled",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Dock",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "top",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "left",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "right",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "bottom",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "center",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "IconButtonGroup",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "value",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "dense",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ResizeHandle",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "axis",
+          "default": "'horizontal'",
+          "alias": null
+        },
+        {
+          "name": "onResize",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "ariaLabel",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "SplitPanel",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "orientation",
+          "default": "'horizontal'",
+          "alias": null
+        },
+        {
+          "name": "initial",
+          "default": "'50%'",
+          "alias": null
+        },
+        {
+          "name": "min",
+          "default": "80",
+          "alias": null
+        },
+        {
+          "name": "max",
+          "default": "Infinity",
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ContextMenu",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "anchor",
+          "default": "{ x: 0, y: 0 }",
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "useContextMenu",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "targetEl, items, openCb",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Drawer",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "side",
+          "default": "'left'",
+          "alias": null
+        },
+        {
+          "name": "open",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "ariaLabel",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Dialog",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "open",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "actions",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "dismissible",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "ariaLabel",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "FocusTrap",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Toast",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "message",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "kind",
+          "default": "'info'",
+          "alias": null
+        },
+        {
+          "name": "duration",
+          "default": "3000",
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "toast",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "message",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "kind",
+          "default": "'info'",
+          "alias": null
+        },
+        {
+          "name": "duration",
+          "default": "3000",
+          "alias": null
+        },
+        {
+          "name": "actionLabel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onAction",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Pager",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "page",
+          "default": "1",
+          "alias": null
+        },
+        {
+          "name": "pageCount",
+          "default": "1",
+          "alias": null
+        },
+        {
+          "name": "onPage",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "total",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "itemLabel",
+          "default": "'items'",
+          "alias": null
+        },
+        {
+          "name": "numbered",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "siblingCount",
+          "default": "1",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "JsonViewer",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "value",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "emptyText",
+          "default": "'no data'",
+          "alias": null
+        },
+        {
+          "name": "maxHeight",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "mode",
+          "default": "'plain'",
+          "alias": null
+        },
+        {
+          "name": "copyable",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "treeDepth",
+          "default": "2",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Grid",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "gap",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "justify",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "align",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "GridItem",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "xs",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "sm",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "md",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "lg",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "xl",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Collapse",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "expanded",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onToggle",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "CollapseGroup",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "openId",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onOpenChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "accordion",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Divider",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "vertical",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "AspectRatio",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "ratio",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "useMediaQuery",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "query",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "BP_SM",
+      "file": "components/editor-primitives.js",
+      "kind": "const",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "480",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "BP_MD",
+      "file": "components/editor-primitives.js",
+      "kind": "const",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "768",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "BP_LG",
+      "file": "components/editor-primitives.js",
+      "kind": "const",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "1024",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "BP_XL",
+      "file": "components/editor-primitives.js",
+      "kind": "const",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "1440",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "InfoRow",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "value",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "InfoSection",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "rows",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "DiagnosticsPanel",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": "'Diagnostics'",
+          "alias": null
+        },
+        {
+          "name": "sections",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onRefresh",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "refreshing",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "BatchProgressLabel",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "label",
+          "default": "'Processing'",
+          "alias": null
+        },
+        {
+          "name": "done",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "total",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "key",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "formatBatchOutcome",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "succeeded",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "total",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "failedNames",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "maxNames",
+          "default": "3",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "runBatchSequential",
+      "file": "components/editor-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "items = [], fn, onProgress",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Tooltip",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "placement",
+          "default": "'top'",
+          "alias": null
+        },
+        {
+          "name": "delay",
+          "default": "350",
+          "alias": null
+        },
+        {
+          "name": "kind",
+          "default": "'default'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Popover",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "open",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "anchorEl",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "placement",
+          "default": "'bottom-start'",
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "ariaLabel",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Dropdown",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "trigger",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "placement",
+          "default": "'bottom-start'",
+          "alias": null
+        },
+        {
+          "name": "ariaLabel",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "useLongPress",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "targetEl, callback, { ms = 500 } = {}",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "useFloating",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "anchorEl, contentEl, { placement = 'bottom-start', offset = 8 } = {}",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "CommandPalette",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "open",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "EmojiPicker",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "open",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "anchorX",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "anchorY",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "query",
+          "default": "''",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "BootOverlay",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "progress",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "phase",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "errored",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "visible",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "SettingsPopover",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": "'Settings'",
+          "alias": null
+        },
+        {
+          "name": "open",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "anchorX",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "anchorY",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "sections",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "AuthModal",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "mode",
+          "default": "'extension'",
+          "alias": null
+        },
+        {
+          "name": "error",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "busy",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "open",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onModeChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onConnectExtension",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onGenerate",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onImport",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "VideoLightbox",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "src",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "open",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PermissionMenu",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "trigger",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "categories",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "approved",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onToggle",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onToggleAll",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "placement",
+          "default": "'bottom-start'",
+          "alias": null
+        },
+        {
+          "name": "ariaLabel",
+          "default": "'Permissions'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ApprovalPrompt",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "toolName",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "categoryLabel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "argsPreview",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDecision",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "autoFocusNote",
+          "default": "true",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "withBusy",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "btn, fn, busyLabel = '...'",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "MenuButton",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "trigger",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "items",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "selected",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onRetry",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "placement",
+          "default": "'bottom-start'",
+          "alias": null
+        },
+        {
+          "name": "ariaLabel",
+          "default": "'Menu'",
+          "alias": null
+        },
+        {
+          "name": "emptyText",
+          "default": "'No options available'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "HoverCard",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "trigger",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "content",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "open",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onOpenChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "openDelay",
+          "default": "700",
+          "alias": null
+        },
+        {
+          "name": "closeDelay",
+          "default": "300",
+          "alias": null
+        },
+        {
+          "name": "placement",
+          "default": "'top'",
+          "alias": null
+        },
+        {
+          "name": "ariaLabel",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Menubar",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "menus",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "openIndex",
+          "default": "null",
+          "alias": null
+        },
+        {
+          "name": "onOpenIndexChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "ariaLabel",
+          "default": "'Menu bar'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "FREDDIE_PAGES",
+      "file": "components/freddie.js",
+      "kind": "const",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "{",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "home",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "chat",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "voice",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "sessions",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "projects",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "agents",
+      "file": "components/freddie.js",
+      "kind": "const",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "s.agents || {}",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "analytics",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "models",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "cron",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "skills",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "config",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "env",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "tools",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "batch",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "gateway",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "chains",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "skillLabel",
+      "file": "components/freddie.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "input",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "getRecentPaths",
+      "file": "components/freddie.js",
+      "kind": "component",
+      "props": [],
+      "description": ""
+    },
+    {
+      "name": "saveRecentPath",
+      "file": "components/freddie.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "path",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "renderChatMessages",
+      "file": "components/freddie.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "messages = [], opts = {}",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "makePage",
+      "file": "components/freddie/runtime.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "setup, { initial = {} } = {}",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "api",
+      "file": "components/freddie/runtime.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "path, opts = {}",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "loadingState",
+      "file": "components/freddie/runtime.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "label = 'loading…'",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "errorState",
+      "file": "components/freddie/runtime.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "err, onRetry",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "emptyState",
+      "file": "components/freddie/runtime.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "text = 'nothing here yet', glyph = Icon('circle')",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "refreshError",
+      "file": "components/freddie/runtime.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "err",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "mountCommunityApp",
+      "file": "community-app.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "root, adapter = {}",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "Calendar",
+      "file": "components/calendar.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "mode",
+          "default": "'single'",
+          "alias": null
+        },
+        {
+          "name": "selected",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "month",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onMonthChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "minDate",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "maxDate",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "locale",
+          "default": "getLocale()",
+          "alias": null
+        }
+      ],
+      "description": "A month date-grid. Fully controlled: `selected`/`month` are owned by the caller, this component holds no selection state of its own."
+    },
+    {
+      "name": "DatePicker",
+      "file": "components/calendar.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "value",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "open",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onOpenChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "month",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onMonthChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "placeholder",
+          "default": "'Select date'",
+          "alias": null
+        },
+        {
+          "name": "minDate",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "maxDate",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": "'dp'",
+          "alias": null
+        },
+        {
+          "name": "locale",
+          "default": "getLocale()",
+          "alias": null
+        }
+      ],
+      "description": "Trigger button that opens a Popover hosting a single-mode Calendar."
+    },
+    {
+      "name": "DateRangePicker",
+      "file": "components/calendar.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "value",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "open",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onOpenChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "month",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onMonthChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "placeholder",
+          "default": "'Select dates'",
+          "alias": null
+        },
+        {
+          "name": "minDate",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "maxDate",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": "'drp'",
+          "alias": null
+        },
+        {
+          "name": "locale",
+          "default": "getLocale()",
+          "alias": null
+        }
+      ],
+      "description": "Trigger button that opens a Popover hosting a range-mode Calendar."
+    },
+    {
+      "name": "WEEKDAY_LABELS",
+      "file": "components/calendar.js",
+      "kind": "const",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "buildMonthGrid",
+      "file": "components/calendar.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "monthDate",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "formatDate",
+      "file": "components/calendar.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "d, locale",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "monthLabel",
+      "file": "components/calendar.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "monthDate, locale",
+          "positional": true
+        }
+      ],
+      "description": ""
+    }
+  ]
+}

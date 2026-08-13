@@ -1,0 +1,230 @@
+/* community-app.css — layout glue for mountCommunityApp (the full chat/community
+   app GUI). Reuses the canonical app/body/main classes from app-shell.css and
+   the community + voice component classes from community.css; this part only adds
+   the app-composition wrapper, the server+channel rail pills, the voice view grid,
+   and the category-color tokens the consumer avatars use. All scoped under
+   .ds-247420. Additive — defines only the ca- prefix, group, rail-empty, vx-view
+   classes plus the cat color tokens.
+
+   Relationship to community.css: this is NOT a fork of community.css's content
+   -- it is a small (~150-line), genuinely distinct app-shell WRAPPER around the
+   canonical, complete community surface. community.css (~1650 lines) owns every
+   .cm-* / .vx-* component (server rail, channel sidebar, chat header, member list,
+   voice PTT/VAD/webcam, thread panel, forum, page view) and is the canonical,
+   actively-referenced stylesheet -- it is the one listed in package.json's
+   `exports`/`files`, the one scripts/build.mjs and scripts/lint-tokens.mjs treat
+   as a first-class component sheet on its own, and the one THEME.md/
+   COMPONENT_API.md document as the load-order anchor
+   (colors_and_type.css -> app-shell.css -> community.css -> chat.css ->
+   editor-primitives.css -> community-app.css -> app-surfaces.css). This file
+   loads strictly AFTER community.css (see ui_kits/community-app/index.html) and
+   only adds the .ca-* composition shell + category-color tokens that
+   community.css deliberately has no opinion about -- it never redefines a
+   .cm-* / .vx-* rule community.css already owns. Canonical tokens/rules live in
+   community.css; only overrides/additions specific to mountCommunityApp's own
+   composition live here. */
+
+html.ds-247420 .ca-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+html.ds-247420 .ca-app > .app-body {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+html.ds-247420 .ca-app > .app-body > .app-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* app topbar — mountCommunityApp's own sole chrome above the chat-head; had
+   no rules anywhere (relying on raw flex defaults), which read as unaligned
+   default spacing rather than a designed header row. */
+html.ds-247420 .app-topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 48px;
+  flex-shrink: 0;
+  padding: 0 var(--space-3);
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--panel-3, color-mix(in oklab, var(--fg) 10%, transparent));
+}
+html.ds-247420 .app-topbar .brand {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  min-width: 0;
+  font-weight: var(--fw-medium, 500);
+  font-size: var(--fs-sm);
+  color: var(--fg);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+html.ds-247420 .app-topbar .brand .slash { color: var(--fg-3); }
+html.ds-247420 .app-topbar nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+html.ds-247420 .app-topbar nav a {
+  color: var(--fg-2);
+  font-size: var(--fs-tiny);
+  text-decoration: none;
+  padding: var(--space-1) var(--space-1-5);
+  border-radius: var(--r-1);
+  transition: background var(--dur-snap, .12s) var(--ease, ease), color var(--dur-snap, .12s) var(--ease, ease);
+}
+html.ds-247420 .app-topbar nav a:hover { color: var(--fg); background: color-mix(in oklab, var(--fg) 8%, transparent); }
+html.ds-247420 .app-topbar nav a:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 2px; }
+
+/* server + channel rail */
+html.ds-247420 .ca-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 220px;
+  min-width: 220px;
+  padding: 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-2, color-mix(in oklab, var(--bg) 92%, var(--fg)));
+  scrollbar-width: thin;
+}
+html.ds-247420 .ca-rail .group {
+  font-size: 11px;
+  font-weight: var(--fw-semibold, 600);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
+  padding: 10px 8px 4px;
+}
+html.ds-247420 .ca-rail .group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: var(--space-1, 4px);
+}
+html.ds-247420 .ca-rail .group-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--r-0);
+  background: transparent;
+  color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
+  cursor: pointer;
+}
+html.ds-247420 .ca-rail .group-add-btn:hover {
+  background: var(--bg-3, color-mix(in oklab, var(--fg) 8%, transparent));
+  color: var(--fg-2, color-mix(in oklab, var(--fg) 78%, transparent));
+}
+html.ds-247420 .ca-rail a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--r-0);
+  color: var(--fg-2, color-mix(in oklab, var(--fg) 78%, transparent));
+  text-decoration: none;
+  font-size: var(--fs-sm, 14px);
+  line-height: 1.2;
+  transition: background 0.1s, color 0.1s;
+}
+html.ds-247420 .ca-rail a:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
+html.ds-247420 .ca-rail a.active { background: color-mix(in oklab, var(--accent) 22%, transparent); color: var(--fg); }
+html.ds-247420 .ca-rail a .glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  flex-shrink: 0;
+  color: var(--fg-3, currentColor);
+}
+html.ds-247420 .ca-rail a > span:nth-child(2) { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.ds-247420 .ca-rail a .count {
+  flex-shrink: 0;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: var(--r-1);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 11px;
+  font-weight: var(--fw-semibold, 600);
+  text-align: center;
+}
+html.ds-247420 .ca-rail .rail-empty {
+  padding: 8px;
+  color: var(--fg-3, color-mix(in oklab, var(--fg) 50%, transparent));
+  font-size: var(--fs-sm, 14px);
+  font-style: italic;
+}
+
+/* voice channel view */
+html.ds-247420 .vx-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+html.ds-247420 .vx-view .vx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+  overflow-y: auto;
+  align-content: start;
+}
+
+/* ============================================================
+   Responsive — collapse the server+channel rail on narrow viewports.
+   community-app builds its own hand-rolled .ca-app/.app-body/.ca-rail tree
+   (not AppShell()), so it does not inherit AppShell's @container drawer CSS
+   (keyed off .app/.app-side-shell, which .ca-app/.ca-rail never establish).
+   Mirrors the .cm-channel-sidebar off-canvas idiom in community.css 1:1: same
+   breakpoint, same translateX(-110%) + .open reveal, same :has() scrim — so
+   the .ca-rail drawer driven by MobileHeader's hamburger (mobileMenuOpen in
+   the adapter snapshot) behaves identically to the community kit's sidebar.
+   ============================================================ */
+@media (max-width: 900px) {
+  html.ds-247420 .ca-rail {
+    position: absolute;
+    z-index: calc(var(--z-drawer) + 1);
+    top: 0; left: 0; bottom: 0;
+    width: 240px; min-width: 240px;
+    transform: translateX(-110%);
+    transition: transform var(--dur-base, 240ms) var(--ease, ease);
+    box-shadow: 2px 0 16px color-mix(in oklab, var(--ink, #000) 30%, transparent);
+  }
+  html.ds-247420 .ca-rail.open { transform: translateX(0); }
+  html.ds-247420 .ca-app:has(.ca-rail.open) .app-main {
+    position: relative;
+  }
+  html.ds-247420 .ca-app:has(.ca-rail.open) .app-main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-drawer);
+    background: color-mix(in oklab, var(--ink, #000) 40%, transparent);
+    pointer-events: none;
+  }
+}

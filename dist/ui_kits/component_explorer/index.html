@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" data-theme="auto" class="ds-247420"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#247420" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#3A9A34" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+  <title>component explorer / 247420</title>
+  <meta name="description" content="Interactive reference for all 271 exported SDK components — searchable, with live-rendered specimens where available. Buildless, same as every other kit here: no Storybook, no bundler.">
+  <link rel="canonical" href="https://anentrypoint.github.io/design/ui_kits/component_explorer/">
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+  <link rel="stylesheet" href="../../colors_and_type.css">
+  <link rel="stylesheet" href="../../app-shell.css">
+<style>
+  .ds-explorer-search { width: 100%; margin-bottom: var(--space-3); padding: var(--space-2) var(--space-3); }
+  .ds-explorer-detail-head { display: flex; align-items: baseline; gap: var(--space-2); margin-bottom: var(--space-2); }
+  .ds-explorer-detail-file { font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-3); }
+  .ds-explorer-live { padding: var(--space-3); background: var(--bg-2); border-radius: var(--r-2); margin: var(--space-3) 0; display: grid; gap: var(--space-2); }
+  .ds-explorer-specimen-row { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+  .ds-explorer-props-table { width: 100%; border-collapse: collapse; }
+  .ds-explorer-props-table th, .ds-explorer-props-table td { text-align: left; padding: var(--space-1-75) var(--space-2); border-bottom: 1px solid var(--rule); font-size: var(--fs-sm); }
+  .ds-explorer-props-table th { color: var(--fg-3); font-weight: 600; font-size: var(--fs-tiny); text-transform: uppercase; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "webjsx": "../../vendor/webjsx/index.js",
+  "webjsx/": "../../vendor/webjsx/",
+  "webjsx/jsx-runtime": "../../vendor/webjsx/jsx-runtime.js",
+  "ds/": "../../src/"
+} }
+</script>
+</head>
+<body data-screen-label="component explorer">
+<div id="root"></div>
+<script type="module" src="./app.js"></script>
+</body></html>

@@ -1,0 +1,39 @@
+import { ICON_PATHS } from '../../components/shell.js';
+
+// os-window-manager app icons. Concepts here (terminal/browser/canvas/monitor/
+// apps/xdisplay/tools/freddie) are OS-app glyphs with no equivalent in the
+// shared ICON_PATHS UI-icon set, so they keep their own path data — but every
+// entry renders through iconMarkup()'s attribute contract (viewBox 0 0 24 24,
+// stroke=currentColor, shared --ds-icon-stroke var) instead of a second
+// hardcoded stroke-width, so this module can't drift from the system's
+// visual weight. Where a concept already exists in ICON_PATHS (close/files/
+// validator/about/apps/home/chat), reuse that entry's path data directly.
+const OS_PATHS = {
+    terminal: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/>',
+    browser: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/>',
+    canvas: '<rect x="3" y="3" width="18" height="14" rx="2"/><path d="M3 17l6-5 4 3 5-4 3 2"/>',
+    files: ICON_PATHS.folder,
+    monitor: '<path d="M3 12l4-8 4 14 4-10 4 8 2-3"/>',
+    validator: ICON_PATHS.check,
+    about: ICON_PATHS.info,
+    apps: ICON_PATHS.grid,
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    home: ICON_PATHS.menu,
+    xdisplay: '<rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M8 21h8M12 17v4M9 9l6 4M15 9l-6 4"/>',
+    close: ICON_PATHS.x,
+    chat: ICON_PATHS.forum,
+    tools: '<path d="M14 7l3-3 3 3-3 3-3-3zM7 14l3 3-7 7-3-3 7-7zM5 7l3-3M14 14l6 6"/>',
+    freddie: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M8 12a4 4 0 008 0"/>',
+};
+
+// iconMarkup() only resolves names already registered in the shared
+// ICON_PATHS table; this module's names are private to the os kit, so each
+// entry is rendered against the identical attr contract iconMarkup() uses
+// (viewBox/stroke/linecap/--ds-icon-stroke) rather than forking a second
+// stroke-width constant.
+export const icons = Object.fromEntries(
+    Object.entries(OS_PATHS).map(([name, inner]) => [
+        name,
+        `<svg class="ds-icon ds-icon-${name}" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--ds-icon-stroke, 1.6)" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`
+    ])
+);

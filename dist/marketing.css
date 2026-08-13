@@ -1,0 +1,31 @@
+/* marketing.css — landing / docs site surface family (the agentgui flatspace
+ * site renderer composes these instead of carrying inline style= props). Every
+ * selector is written pre-scoped under `.ds-247420` so the build's selector-
+ * prefixer leaves it untouched (consumers mount on <html class="ds-247420">).
+ * All values read kit tokens — no hardcoded hex, no inline design in the app. */
+
+.ds-247420 .site-panel { margin: var(--space-2); max-width: 1100px; padding: var(--space-3, 16px); }
+
+/* Hero block */
+.ds-247420 .site-hero { padding: var(--space-4); }
+.ds-247420 .site-hero-h { margin: 0 0 var(--space-2); }
+.ds-247420 .site-hero-body { margin: var(--space-2) 0 var(--space-3); color: var(--fg-2); max-width: 64ch; }
+.ds-247420 .site-chip-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 0 0 var(--space-3); }
+.ds-247420 .site-cta-row { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+
+/* Quickstart CLI block — these .cli/.prompt/.cmd nodes were previously unstyled. */
+.ds-247420 .site-cli { padding: var(--space-3); background: var(--bg); border: var(--bw-hair, 1px) solid var(--rule); border-radius: var(--r-1); }
+.ds-247420 .site-cli .cli { display: flex; align-items: baseline; gap: var(--space-2); font-family: var(--ff-mono); font-size: var(--fs-sm); padding: 2px 0; }
+.ds-247420 .site-cli .prompt { color: var(--fg-3); user-select: none; flex: 0 0 auto; }
+.ds-247420 .site-cli .cmd { color: var(--fg); white-space: pre-wrap; word-break: break-word; }
+
+/* Embedded legacy doc (iframe wrapper). 180px = the page chrome (topbar +
+ * crumb + footer) sitting above the embed; dvh keeps it mobile-safe. */
+.ds-247420 .site-embed { width: 100%; height: calc(100dvh - 180px); min-height: 320px; border: 0; border-radius: var(--r-1); background: var(--bg-2); display: block; }
+
+/* Marketing footer family (the in-app .app-status strip suppresses content
+ * below 1100px; the site footer always shows its credits row). */
+.ds-247420 .site-footer { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); width: 100%; padding: var(--space-3) var(--space-4); font-family: var(--ff-body); font-size: var(--fs-sm); line-height: 1.4; color: var(--fg-3); border-top: 1px solid var(--rule); }
+.ds-247420 .site-footer .item { color: inherit; }
+.ds-247420 .site-footer .item:first-of-type { color: var(--accent); }
+.ds-247420 .site-footer .spread { flex: 1; }

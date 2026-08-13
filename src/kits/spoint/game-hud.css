@@ -1,0 +1,60 @@
+/* Game-HUD kit styles. Scoped under .ds-247420 at build time.
+   Colors from semantic tokens (no raw literals) per the token-lint gate. */
+.sp-hud { pointer-events: none; font-family: var(--ff-mono); }
+.sp-hud-crosshair {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: var(--fg);
+  text-shadow: 0 0 2px var(--bg);
+}
+.sp-hud-ammo {
+  position: fixed;
+  /* Fixed chrome clears notch/home-indicator on cutout devices. */
+  bottom: calc(50px + env(safe-area-inset-bottom, 0px));
+  right: calc(20px + env(safe-area-inset-right, 0px));
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--fg);
+  text-shadow: 0 0 4px var(--bg);
+}
+.sp-hud-ammo-reloading { color: var(--warn); }
+.sp-hud-health {
+  position: fixed;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 20px;
+  background: var(--bg-3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.sp-hud-health-fill {
+  height: 100%;
+  transition: width var(--dur-snap) var(--ease);
+}
+.sp-hud-hp-high { background: var(--success); }
+.sp-hud-hp-mid { background: var(--warn); }
+.sp-hud-hp-low { background: var(--danger); }
+.sp-hud-health-num {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  color: var(--fg);
+  font-size: 12px;
+  line-height: 20px;
+}
+.sp-hud-boost {
+  position: fixed;
+  top: 80px;
+  right: calc(20px + env(safe-area-inset-right, 0px));
+  padding: 8px 16px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-weight: bold;
+  border-radius: 6px;
+  font-size: 14px;
+}

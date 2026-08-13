@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en" data-theme="auto" class="ds-247420"><head><meta charset="utf-8">
+<title>colors core / 247420 preview</title><link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../app-shell.css">
+<style>
+  body{padding:var(--space-4);background:var(--panel-0);}
+  .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-2-75);margin-top:var(--space-3);}
+  .sw{padding:var(--space-3-5);min-height:140px;border-radius:var(--r-3);display:flex;flex-direction:column;justify-content:space-between;min-width:0;overflow:hidden;box-shadow:inset 0 0 0 1px var(--rule);}
+  .sw .name,.sw .hex,.sw .tok{overflow-wrap:anywhere;}
+  @media (max-width:640px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  /* 24px is the UPPER BOUND of --fs-h4's clamp(19px, 1.8cqi, 24px), pinned as
+     a fixed literal on purpose. The swatch names must all render at one
+     identical size so the four colour fields read as a set; --fs-h4 is
+     cqi-fluid, so each swatch would size its own name to its own container
+     width and a 4-up would show four different title sizes. Measured: the
+     token resolves to 23.04px here, not 24px. A specimen demonstrating the
+     palette must not wobble with container width. Kept literal deliberately. */
+  .sw .name{font-family:var(--ff-display);font-size:24px;font-weight:700;letter-spacing:-0.01em;}
+  .sw .hex{font-family:var(--ff-mono);font-size:var(--fs-sm);font-weight:500;}
+  /* opacity:0.7 blends toward whatever's UNDER the swatch, not a fixed
+     contrast ratio -- against a colored swatch fill it can land well below
+     the 4.5:1 the underlying text color already clears on its own. A solid
+     tier-3 text color keeps the caption at the token's own verified ratio
+     regardless of which swatch it sits on. */
+  .sw .tok{font-family:var(--ff-mono);font-size:var(--fs-tiny);text-transform:uppercase;letter-spacing:0.14em;color:var(--panel-text-2);}
+</style><script defer src="./motion-default.js"></script>
+</head><body>
+<div class="dateline"><span>247420 · COLORS · CORE</span><span class="spread"></span><span>04 SWATCHES</span></div>
+<div class="ds-demo-tokens-backlink tokens-backlink">tokens used here: ff, fs, green, panel, r, rule, space — <a href="../preview/theme-map.html">tokens -&gt;</a></div>
+
+<h1 class="sr-only">Colors core</h1>
+<main aria-label="Colors core specimens"><div class="grid">
+  <div class="sw" style="background:var(--panel-0);color:var(--panel-text)">
+    <div class="name">paper</div>
+    <div>
+      <div class="hex">var(--panel-0)</div>
+      <div class="tok">--paper · default bg</div>
+    </div>
+  </div>
+  <div class="sw" style="background:var(--panel-2);color:var(--panel-text)">
+    <div class="name">paper-2</div>
+    <div>
+      <div class="hex">var(--panel-2)</div>
+      <div class="tok">--cream-3 · hover / chips</div>
+    </div>
+  </div>
+  <div class="sw" style="background:var(--panel-text);color:var(--panel-0)">
+    <div class="name">ink</div>
+    <div>
+      <div class="hex">var(--panel-text)</div>
+      <div class="tok" style="color:inherit;opacity:0.8">--ink · warm near-black</div>
+    </div>
+  </div>
+  <div class="sw" style="background:var(--green);color:var(--panel-0)">
+    <div class="name">green</div>
+    <div>
+      <div class="hex">#247420</div>
+      <div class="tok" style="opacity:0.9">--green · primary accent</div>
+    </div>
+  </div>
+</div>
+<p class="t-meta" style="margin-top:16px">paper = default surface. paper-2 (cream-3) = hover/chip bg with real contrast against paper. ink = warm, not harsh. green = 247420, the primary accent.</p>
+</main>
+</body></html>

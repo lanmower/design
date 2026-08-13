@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en" data-theme="auto" class="ds-247420"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#247420" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#3A9A34" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+  <title>docs / 247420</title>
+  <meta name="description" content="technical documentation template — sidebar tree, markdown body, code blocks.">
+  <meta name="author" content="247420 / AnEntrypoint">
+  <meta name="keywords" content="247420, anentrypoint, design system, webjsx, rippleui, creative collective">
+  <link rel="canonical" href="https://anentrypoint.github.io/design/ui_kits/docs/">
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="docs / 247420">
+  <meta property="og:description" content="technical documentation template — sidebar tree, markdown body, code blocks.">
+  <meta property="og:url" content="https://anentrypoint.github.io/design/ui_kits/docs/">
+  <meta property="og:site_name" content="247420 / design">
+  <meta property="og:image" content="https://anentrypoint.github.io/design/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="247420 design system">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="docs / 247420">
+  <meta name="twitter:description" content="technical documentation template — sidebar tree, markdown body, code blocks.">
+  <meta name="twitter:image" content="https://anentrypoint.github.io/design/og-card.png">
+  <meta name="twitter:site" content="@AnEntrypoint">
+  <meta name="robots" content="index, follow">
+  <link rel="stylesheet" href="../../colors_and_type.css">
+  <link rel="stylesheet" href="../../app-shell.css">
+
+
+</head>
+<body data-screen-label="03 Docs">
+<div class="app">
+  <!-- Matches what AppShell() emits for the JS-rendered kits. This page hand-
+       rolls the shell markup statically, so it does not inherit the skip link
+       and had no way past the sidebar nav for a keyboard user. -->
+  <a href="#app-main" class="skip-link">skip to main content</a>
+  <header class="app-topbar">
+    <span class="brand">247420<span class="slash"> / </span>gm<span class="slash"> / </span>docs</span>
+    <nav>
+      <a href="../homepage/"><- all projects</a>
+      <a href="https://github.com/AnEntrypoint/gm#readme">readme</a>
+      <a class="active" aria-current="page">docs</a>
+      <a href="https://github.com/AnEntrypoint/gm">source -></a>
+    </nav>
+  </header>
+  <div class="app-crumb">
+    <span>247420</span><span class="sep">›</span>
+    <span>gm</span><span class="sep">›</span>
+    <span>docs</span><span class="sep">›</span>
+    <span class="leaf">introduction</span>
+  </div>
+  <button class="app-side-toggle" type="button" aria-label="toggle navigation" aria-expanded="false" aria-controls="app-side-shell" onclick="document.querySelector('.app-body').classList.toggle('side-open')">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="app-body">
+    <div class="app-side-scrim" aria-hidden="true" onclick="document.querySelector('.app-body').classList.remove('side-open')"></div>
+    <div class="app-side-shell" id="app-side-shell">
+    <aside class="app-side">
+      <div class="group">start</div>
+      <a href="#introduction" class="active"><span class="glyph">//</span><span>introduction</span></a>
+      <a href="#install"><span class="glyph">//</span><span>install</span></a>
+      <a href="#quickstart"><span class="glyph">//</span><span>quickstart</span></a>
+      <div class="group">concepts</div>
+      <a class="is-unwritten" title="not written yet"><span class="glyph">&gt;</span><span>states & transitions</span></a>
+      <a class="is-unwritten" title="not written yet"><span class="glyph">&gt;</span><span>the loop</span></a>
+      <a class="is-unwritten" title="not written yet"><span class="glyph">&gt;</span><span>tools</span></a>
+      <div class="group">reference</div>
+      <a class="is-unwritten" title="not written yet"><span class="glyph">&gt;</span><span>execute node.js</span></a>
+      <a class="is-unwritten" title="not written yet"><span class="glyph">&gt;</span><span>executedeno</span></a>
+      <a class="is-unwritten" title="not written yet"><span class="glyph">&gt;</span><span>astgrep_*</span></a>
+      <a class="is-unwritten" title="not written yet"><span class="glyph">&gt;</span><span>batch_execute</span></a>
+      <div class="group">misc</div>
+      <a href="#philosophy"><span class="glyph">//</span><span>philosophy</span></a>
+      <a href="https://github.com/AnEntrypoint/gm/blob/main/CHANGELOG.md"><span class="glyph">-&gt;</span><span>changelog</span></a>
+      <a href="https://github.com/AnEntrypoint/gm"><span class="glyph">-&gt;</span><span>source</span></a>
+    </aside>
+    </div>
+    <main class="app-main narrow" id="app-main" tabindex="0">
+      <div class="ds-prose">
+        <h1 id="introduction">introduction</h1>
+        <p class="lede">a state machine for coding agents. it thinks, so you don't have to (as much).</p>
+
+        <p>gm is what happens when you stop trying to make an llm "smart" and start giving it a scaffolding to be useful inside of. it's a small, deterministic runtime that says: <em>here is where you are, here are the transitions available, pick one.</em> that's the whole idea.</p>
+
+        <p>the rest of this document explains how to install it, how to wire it up, and how to stay out of its way.</p>
+
+        <h2 id="install">install</h2>
+        <p>one command. you've probably seen this kind of thing before.</p>
+        <pre><span class="c"># via claude code plugin marketplace</span>
+<span class="k">claude</span> plugin marketplace add AnEntrypoint/gm-cc
+<span class="k">claude</span> plugin install -s user gm@gm-cc</pre>
+      </div>
+
+      <div class="panel panel-inline-wide">
+        <div class="panel-head"><span>[!] note</span></div>
+        <div class="ds-pattern-notes">
+          if you're running <code>gm</code> without claude code, see the <code>execute node.js</code> reference (not written yet). you'll want bun 1.1+.
+        </div>
+      </div>
+
+      <div class="ds-prose">
+        <h2 id="quickstart">quickstart</h2>
+        <h3>the 30-second version</h3>
+        <p>start the repl, ask it to do something, watch it work. press <code>Ctrl</code>+<code>C</code> if it goes somewhere you didn't mean.</p>
+        <pre><span class="k">gm</span> start
+<span class="c">-> state: idle</span>
+<span class="c">-> tools available: 19</span>
+&gt; fix the failing test in src/router.ts
+<span class="c">-> state: reading</span>
+<span class="c">-> state: editing</span>
+<span class="c">-> state: verifying</span>
+<span class="c">-> state: done</span></pre>
+
+        <h2 id="philosophy">philosophy</h2>
+        <p>there is no philosophy. read the source.</p>
+      </div>
+    </main>
+  </div>
+  <footer class="app-status">
+    <span class="item">main</span>
+    <span class="item">- markdown</span>
+    <span class="item">- ln 1</span>
+    <span class="spread"></span>
+    <span class="item">gm · v0.4.1</span>
+    <span class="item">- docs</span>
+  </footer>
+</div>
+<script>
+// The breadcrumb leaf and sidebar active state are static markup with no JS
+// anywhere on this page, so they never track which section is actually in
+// view -- both stay pinned to whatever section happened to be marked active
+// at author time ("introduction"). Sync both to the nearest heading crossing
+// the viewport's top band, same pattern a router-driven page would use for
+// scroll-spy, without needing a router.
+(function () {
+  var sections = Array.prototype.slice.call(document.querySelectorAll('main h2[id], main h1[id]'));
+  var leaf = document.querySelector('.app-crumb .leaf');
+  var sideLinks = Array.prototype.slice.call(document.querySelectorAll('.app-side a[href^="#"]'));
+  if (!sections.length || !leaf) return;
+  var observer = new IntersectionObserver(function (entries) {
+    var visible = entries.filter(function (e) { return e.isIntersecting; });
+    if (!visible.length) return;
+    visible.sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+    var id = visible[0].target.id;
+    leaf.textContent = id;
+    sideLinks.forEach(function (a) { a.classList.toggle('active', a.getAttribute('href') === '#' + id); });
+  }, { rootMargin: '-10% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (s) { observer.observe(s); });
+})();
+</script>
+<script>
+// Per-block copy button for the static <pre> code samples, matching the
+// chat surface's injectCodeCopy affordance (chat-message-parts/inline.js) so
+// docs code reads consistently with chat/aicat code blocks -- but reimplemented
+// standalone here rather than importing the ds/ module graph for one function,
+// since this page carries no importmap/JS module dependency otherwise.
+(function () {
+  function copy(text, btn) {
+    function done() {
+      btn.textContent = 'copied';
+      btn.classList.add('is-copied');
+      setTimeout(function () { btn.textContent = 'copy'; btn.classList.remove('is-copied'); }, 1600);
+    }
+    function fallback() {
+      var t = document.createElement('textarea');
+      t.value = text; document.body.appendChild(t); t.select();
+      try { document.execCommand('copy'); done(); } catch (e) {}
+      document.body.removeChild(t);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else fallback();
+  }
+  Array.prototype.slice.call(document.querySelectorAll('.ds-prose pre')).forEach(function (pre) {
+    var shell = document.createElement('div');
+    shell.className = 'chat-code-block';
+    pre.parentNode.insertBefore(shell, pre);
+    shell.appendChild(pre);
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'chat-code-copy';
+    btn.setAttribute('aria-label', 'copy code');
+    btn.textContent = 'copy';
+    btn.addEventListener('click', function () { copy(pre.innerText, btn); });
+    shell.appendChild(btn);
+  });
+})();
+</script>
+</body></html>

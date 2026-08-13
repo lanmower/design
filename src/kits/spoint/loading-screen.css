@@ -1,0 +1,67 @@
+/* Loading-screen kit styles. Scoped under .ds-247420 at build time.
+   All colors reference design tokens (no raw literals) per the token-lint gate. */
+.sp-loading {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-top);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--ff-mono);
+  transition: opacity var(--dur-slow) var(--ease);
+}
+.sp-loading-fade { opacity: 0; pointer-events: none; }
+.sp-loading-container {
+  width: min(420px, 86vw);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.sp-loading-header h1 {
+  margin: 0;
+  font-family: var(--ff-display);
+  font-size: var(--fs-h2);
+  letter-spacing: 0.04em;
+}
+.sp-loading-label {
+  margin: 4px 0 0;
+  color: var(--fg-2);
+  font-size: var(--fs-body);
+}
+.sp-loading-bars { display: flex; flex-direction: column; gap: 10px; }
+.sp-loading-bar-row {
+  display: grid;
+  grid-template-columns: 88px 1fr 44px;
+  align-items: center;
+  gap: 10px;
+}
+.sp-loading-bar-name {
+  color: var(--fg-3);
+  font-size: var(--fs-small, 11px);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.sp-loading-bar-track {
+  height: 6px;
+  border-radius: var(--r-hair);
+  background: var(--bg-3);
+  overflow: hidden;
+}
+.sp-loading-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  transition: width var(--dur-base) var(--ease);
+}
+.sp-loading-bar-pct {
+  color: var(--fg-2);
+  font-size: var(--fs-small, 11px);
+  text-align: right;
+}
+.sp-loading-detail {
+  min-height: 16px;
+  color: var(--fg-3);
+  font-size: var(--fs-small, 11px);
+}

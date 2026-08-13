@@ -1,0 +1,88 @@
+id: freddie
+title: Freddie Dashboard Components
+template: home
+hero:
+  heading: freddie dashboard
+  subheading: full agent dashboard UI as SDK components
+  body: "all 14 freddie dashboard pages, from sessions and tools to chat, models, cron, config, env, skills, projects, agents, analytics, batch, and gateway, exported from anentrypoint-design and composable in any webjsx app."
+  badges:
+    - label: 14 page components
+    - label: webjsx
+    - label: no react
+  ctas:
+    - label: npm install
+      href: "#install"
+      variant: primary
+sections:
+  - heading: page components
+    lede: "each page is an async function receiving h0 (host object). pass your freddie host and render anywhere."
+    items:
+      - name: home
+        desc: kpi overview — sessions, tools, skills, uptime. entry point for the dashboard.
+        benefit: instant system health at a glance
+      - name: chat
+        desc: full agent chat with streaming SSE, tool-call disclosure, message history
+        benefit: talk to your agent from any surface
+      - name: sessions
+        desc: filterable session list with search, pagination, and per-session message drill-down
+        benefit: audit and replay every agent conversation
+      - name: tools
+        desc: searchable tool registry showing toolset, check status, required env
+        benefit: know exactly what your agent can do
+      - name: models
+        desc: provider probe panel — live model list per provider with one-click probe-all
+        benefit: see which LLM backends are reachable
+      - name: cron
+        desc: cron job manager — create, enable, disable, delete scheduled agent tasks
+        benefit: automate agent work on a schedule
+      - name: skills
+        desc: skill registry browser — namespace, description, source per skill
+        benefit: discover and extend agent capabilities
+      - name: config
+        desc: config editor — all config keys with inline save
+        benefit: tune agent behaviour without restarting
+      - name: env
+        desc: environment variable manager — list, set, delete provider keys and secrets
+        benefit: manage credentials in one place
+      - name: projects
+        desc: multi-project switcher — create isolated project workspaces, set active
+        benefit: run multiple agents with separate state
+      - name: agents
+        desc: agent overview — total agents, active count, recent activity
+        benefit: monitor agent fleet at a glance
+      - name: analytics
+        desc: session analytics — token usage, model distribution, cost estimates
+        benefit: track spend and throughput over time
+      - name: batch
+        desc: batch job runner — submit prompt lists, monitor progress, download results
+        benefit: run large-scale agent tasks in parallel
+      - name: gateway
+        desc: gateway platform panel — list connected platforms, status, send test messages
+        benefit: manage multi-platform message routing
+  - heading: usage
+    lede: "import named exports directly. each page receives h0 from your freddie host."
+    items:
+      - name: install
+        desc: "npm install anentrypoint-design"
+        benefit: one package for all dashboard UI
+      - name: import
+        desc: "import { home, chat, sessions, FREDDIE_PAGES } from 'anentrypoint-design';"
+        benefit: tree-shakeable named exports
+      - name: render
+        desc: "const body = await home(h0); mount(el, () => body);"
+        benefit: same render pattern as all SDK components
+examples:
+  heading: all exports
+  items:
+    - name: FREDDIE_PAGES
+      href: "#freddie-pages"
+      cta: object map of all 14 page functions
+    - name: skillLabel
+      href: "#helpers"
+      cta: format gm:skill-name to readable label
+    - name: renderChatMessages
+      href: "#helpers"
+      cta: render message array into DOM element
+    - name: getRecentPaths / saveRecentPath
+      href: "#helpers"
+      cta: localStorage recent-cwd helpers
