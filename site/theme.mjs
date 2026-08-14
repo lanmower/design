@@ -177,7 +177,7 @@ export default {
         url: site.url || '',
       },
       faviconGlyph: site.glyph || (site.title ? site.title.trim().charAt(0).toUpperCase() : '2'),
-      headExtra: `<style>html,body{margin:0;padding:0}body{background:var(--bg,#F6F5F1);color:var(--fg,#131318);font-family:var(--ff-body,system-ui,sans-serif)}</style>`,
+      headExtra: `<style>html,body{margin:0;padding:0}body{background:var(--bg,#FBF6EE);color:var(--fg,#251C12);font-family:var(--ff-body,system-ui,sans-serif)}</style>`,
     });
 
     return [{ path: 'index.html', html }];

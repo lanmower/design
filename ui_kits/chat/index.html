@@ -23,12 +23,12 @@
      resolves instantly). This mirrors site/theme.mjs's headExtra, which
      solves the identical race for the SDK-consumer landing page; the two
      raw hex pairs are deliberately kept in sync with each other (both trace
-     to --paper #FFFFFF / --ink #1A1A1A in colors_and_type.css) since neither
+     to --paper #FBF6EE / --ink #251C12 in colors_and_type.css) since neither
      can reference a CSS custom property before that same stylesheet has
      loaded. -->
 <style>
-html,body{background:#1A1A1A;color:#FFFFFF}
-@media (prefers-color-scheme: light){html,body{background:#FFFFFF;color:#1A1A1A}}
+html,body{background:#251C12;color:#FBF6EE}
+@media (prefers-color-scheme: light){html,body{background:#FBF6EE;color:#251C12}}
 /* Boot spinner: fills the pre-mount window with a visible loading cue instead
    of a flat color flash. #root:empty means app.js hasn't appended real
    content yet; the moment it does, this pseudo-element's selector stops

@@ -55,3 +55,55 @@ values moved.
   commit; this entry documents the process going forward and records the
   current snapshot (`tokenCount: 200`) as the baseline every future entry
   diffs against.
+
+- **2026-08-14 — "warm editorial" restyle: neutral grayscale → amber lead.**
+  Full visual redesign of the paper/ink/accent triad, replacing the
+  2026-07-30 shadcn-neutral grayscale identity with a warm cream/brown
+  editorial identity and a confident amber accent. The multi-hue category
+  palette (`--green`/`--purple`/`--mascot`/status tones) is untouched — only
+  the neutral paper/ink/accent triad changed, using the same root-token-cascade
+  mechanism as the prior restyle (change the root, every derived
+  `color-mix()`/`var()` consumer updates automatically).
+
+  **What changed** (old → new):
+  - `--paper` `#FDFBF7` → `#FBF6EE`
+  - `--paper-2` `#F2F0EC` → `#F1E9DA`
+  - `--paper-3` `#E5E2DC` → `#E3D6BF`
+  - `--ink` `#1A1A1A` → `#251C12`
+  - `--ink-2` `#333338` → `#3D3125`
+  - `--ink-3` `#525252` → `#5F5040`
+  - `--ink-3-dark` `#4D4D52` → `#5A4B3B`
+  - `--paper-3-dark` `#BEBEBE` → `#D8C9A8`
+  - `--acid` (accent fill) `#262626` → `#8A5A0A`
+  - `--acid-deep` (accent text) `#171717` → `#5C3B06`
+  - dark-theme `--accent`/`--accent-bright` (both the `[data-theme=ink/dark]`
+    block and its `[data-theme=auto]` media-query mirror, plus the
+    `[data-accent=acid]` override) `#BFBFBF` → `#E8A93E`
+  - `--ff-display` `system-ui, sans-serif` → `ui-serif, Georgia, "Times New
+    Roman", serif` (headings/hero only — `--ff-body`/`--ff-mono` unchanged,
+    still the no-web-font system stack)
+
+  **Why** — user-requested full visual redesign ("believe in yourself, change
+  everything" → scoped to visual identity, architecture/kits/content
+  structure kept intact per explicit instruction). Amber lead chosen as a
+  confident, distinct-from-both-priors direction (neither the retired
+  electric-lime "Acid Editorial" nor the outgoing neutral grayscale).
+
+  **Blast radius** — all 32 consumer files (component sheets + kit HTML)
+  re-verified: `npm run lint:tokens` clean (0 hardcoded-color violations,
+  `lint-dark-parity` confirms both dark blocks stayed in sync), `npm run a11y`
+  re-run live against all 23 kits — **0 blocking violations** (matches
+  pre-restyle baseline exactly; every contrast pair hand-computed via the
+  WCAG relative-luminance formula before landing, then confirmed by the real
+  axe-core audit). Also fixed 18 files' hardcoded pre-CSS-load FOUC-guard
+  hex literals (`ui_kits/*/index.html` + `_template` scaffold +
+  `site/theme.mjs`'s `headExtra`), which had drifted stale across *three*
+  palette generations (`#FFFFFF`/`#1A1A1A` — neither this restyle's values
+  nor even the prior shadcn-neutral restyle's) since `lint-tokens.mjs` only
+  scans `.css` files, not inline `<style>` blocks in `.html`.
+
+  `node scripts/generate-tokens-json.mjs && node
+  scripts/generate-theme-tokens-doc.mjs` re-run in this same commit; visual
+  baselines regenerated via `npm run visual:update` (a palette redesign is
+  expected to fail visual-regression checks against the old baseline by
+  design — regenerating them is the correct response, not a bug).

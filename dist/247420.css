@@ -18,40 +18,37 @@
   --tree-indent: 12px;
   --tree-base-indent: 6px;
 
-  /* Paper / Ink — RESTYLED to webjsx-toolkit's shadcn-neutral grayscale
-     palette (2026 restyle, replacing the prior "Acid Editorial" warm-paper/
-     electric-lime identity). Values below are HSL-equivalent-in-hex readings
-     of webjsx-toolkit's :root tokens (--background 0 0% 100%, --foreground
-     0 0% 10%, --muted 0 0% 95%, --border 0 0% 90%) so every downstream
-     color-mix()/oklch() derivation in this file keeps its formula and only
-     the ROOT input changes -- see restyle-tokens-webjsx-toolkit-look and
-     restyle-contrast-reverification-all-tokens for the swap rationale and
-     the re-verification this requires.
-     Subtle warm off-white retune (2026-08): pure #FFFFFF read as stark/cold
-     against reference material using a warm off-white. Shift is deliberately
-     tiny -- a few points toward warm gray, not a cream -- to stay a safe,
-     low-risk change on a token used everywhere. Contrast re-verified against
-     every paired text tone: --ink 16.84:1, --ink-2 12.16:1, --ink-3 7.56:1 on
+  /* Paper / Ink — RESTYLED to "warm editorial, amber lead" (2026-08 restyle,
+     replacing the shadcn-neutral grayscale identity from 2026-07-30, which
+     itself replaced the original "Acid Editorial" warm-paper/electric-lime
+     look). Warm cream paper, deep warm-brown ink, and an amber/ochre accent
+     (see --acid below) replace the neutral grayscale triad -- the multi-hue
+     category palette (green/purple/mascot/signals) is untouched, only the
+     paper/ink/accent neutral-vs-lead triad changes. Every downstream
+     color-mix()/var() derivation in this file keeps its formula; only these
+     ROOT values change, so the swap cascades through all 32 consumer files
+     automatically -- see restyle-warm-editorial-amber-root-tokens for the
+     full rationale and re-verification this required.
+     Contrast re-verified by hand (WCAG relative-luminance formula) against
+     every paired text tone: --ink 15.57:1, --ink-2 11.73:1, --ink-3 7.21:1 on
      --paper (all far clear of AA 4.5:1); --ink-3 on --paper-2/--paper-3 also
-     re-measured at 6.87:1 / 6.04:1, both still clear. */
-  --paper:       #FDFBF7;
-  --paper-2:     #F2F0EC;
-  --paper-3:     #E5E2DC;
-  --ink:         #1A1A1A;
-  --ink-2:       #333338;
-  --ink-3:       #525252; /* WCAG-verified 2026 restyle: npm run a11y caught 4.10:1 at #58585F against --paper-3 (#c6c5c5-equivalent surfaces); #525252 clears 4.54:1 there and 7.81:1 against pure paper */
-  --ink-3-dark:  #4D4D52; /* dark theme bg-3 (tier-3 surface) */
-  --paper-3-dark: #BEBEBE; /* dark theme fg-3 (tier-3 text); #9B9B9B cleared 4.52:1 against --ink-2 but --fg-3 also renders on --bg-3 (--ink-3-dark, #4D4D52, e.g. .chip.tone-dim), where it measured only 3.02:1. #BEBEBE clears 4.52:1 on --ink-3-dark, 6.76:1 on --ink-2, 9.36:1 on --ink. */
+     re-measured at 6.43:1 / 5.40:1, both still clear. */
+  --paper:       #FBF6EE;
+  --paper-2:     #F1E9DA;
+  --paper-3:     #E3D6BF;
+  --ink:         #251C12;
+  --ink-2:       #3D3125;
+  --ink-3:       #5F5040; /* re-verified 2026-08 warm-editorial restyle: 7.21:1 on --paper, 6.43:1 on --paper-2, 5.40:1 on --paper-3 -- all clear of AA 4.5:1 with margin */
+  --ink-3-dark:  #5A4B3B; /* dark theme bg-3 (tier-3 surface), warm-brown equivalent of the retired neutral --ink-3-dark */
+  --paper-3-dark: #D8C9A8; /* dark theme fg-3 (tier-3 text); re-verified against --ink-3-dark/--ink-2/--ink below */
 
-  /* Lore palette. --acid was the prior electric-lime lead; RESTYLED to a
-     neutral near-black accent matching webjsx-toolkit's grayscale --primary
-     (0 0% 15%), since the shadcn-neutral look has no saturated lead color at
-     all -- primary/accent are both neutral ink tones with hover-state
-     opacity, not a distinct hue. green/purple/mascot below stay as the
-     category/status palette (webjsx-toolkit has no opinion on multi-hue
-     category tagging, so these are kept rather than flattened). */
-  --acid:        #262626;
-  --acid-deep:   #171717; /* re-verify AA text tone under restyle-contrast-reverification-all-tokens */
+  /* Lore palette. --acid held the shadcn-neutral near-black accent (2026-07-30
+     restyle); RESTYLED again (2026-08, warm-editorial) to a confident amber/
+     ochre lead -- the identity's one saturated hue, everything else in this
+     triad staying warm-neutral. green/purple/mascot below stay as the
+     category/status palette, untouched by this restyle. */
+  --acid:        #8A5A0A; /* accent FILL -- 5.50:1 against --paper via --accent-fg on top */
+  --acid-deep:   #5C3B06; /* accent TEXT tone on --paper -- 9.37:1, re-verified 2026-08 warm-editorial restyle */
   --green:       #247420;
   --green-2:     #3A9A34;
   --green-deep:  #133F10;
@@ -203,8 +200,16 @@
      things that must read as floating (dialog/dropdown/tooltip/toast). */
   --panel-shadow-1: 0 1px 2px color-mix(in oklab, var(--fg) 4%, transparent);
 
-  /* Type — system-font stack, no custom web fonts loaded. */
-  --ff-display:  system-ui, sans-serif;
+  /* Type — system-font stack, no custom web fonts loaded (README's explicit
+     no-web-font principle: zero network font requests, zero FOUT risk).
+     RESTYLED 2026-08 (warm-editorial): --ff-display now leads with the
+     system UI-serif stack for headings/hero only, giving the identity an
+     editorial voice distinct from the body/UI text below it -- still a
+     same-machine system font, no @font-face, no network fetch. --ff-body and
+     --ff-mono are UNCHANGED (system-ui / ui-monospace): body copy and code
+     stay on the neutral, maximally-legible system stack per the README
+     principle; only the display/heading voice gets the editorial treatment. */
+  --ff-display:  ui-serif, Georgia, "Times New Roman", serif;
   --ff-narrow:   system-ui, sans-serif;
   --ff-body:     system-ui, sans-serif;
   --ff-mono:     ui-monospace, Menlo, Consolas, monospace;
@@ -541,16 +546,18 @@
   --panel-text:   var(--fg);
   --panel-text-2: var(--fg-2);
   --panel-text-3: var(--fg-3);
-  /* RESTYLED: webjsx-toolkit's dark --primary is a LIGHT neutral (0 0% 75%)
-     with a DARK --primary-foreground (0 0% 10%) -- the inverse of light mode,
-     matching shadcn's convention that dark-mode primary buttons read as a
-     light chip on the dark page, not a same-dark-as-bg chip. --accent no
-     longer aliases --acid here (a literal dark-on-dark 1.15:1 failure caught
-     by npm run a11y across every dark-rendered kit). */
-  --accent:    #BFBFBF;
+  /* RESTYLED 2026-08 (warm-editorial): dark-mode accent is a LIGHT amber chip
+     (#E8A93E, 8.12:1 on --ink both directions) with a DARK --ink foreground --
+     the inverse of light mode's dark-fill/light-text pairing, same convention
+     the prior shadcn-neutral restyle used (light chip on dark page, not a
+     same-dark-as-bg chip). --accent does not alias --acid here (--acid is
+     tuned for light-mode fill-with-light-text; dark mode needs its own
+     light-fill-with-dark-text direction, same reasoning as the retired
+     neutral restyle's own comment on this point). */
+  --accent:    #E8A93E;
   --accent-fg: var(--ink);
   --accent-ink: var(--paper);
-  --accent-bright: #BFBFBF;
+  --accent-bright: #E8A93E;
   --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
   --danger:    oklch(0.68 0.19 25);
   --flame:     #FF5A1F;
@@ -599,7 +606,7 @@
    file (green retune 7.48:1 on --ink, purple-2 retune 6.11:1 on --ink). */
 .ds-247420[data-theme="ink"][data-accent="acid"],
 .ds-247420[data-theme="dark"][data-accent="acid"] {
-  --accent: #BFBFBF; --accent-bright: #BFBFBF; --accent-fg: var(--ink); --accent-ink: var(--paper); --panel-accent: #BFBFBF;
+  --accent: #E8A93E; --accent-bright: #E8A93E; --accent-fg: var(--ink); --accent-ink: var(--paper); --panel-accent: #E8A93E;
 }
 .ds-247420[data-theme="ink"][data-accent="purple"],
 .ds-247420[data-theme="dark"][data-accent="purple"] {
@@ -641,10 +648,10 @@
     --panel-text:   var(--fg);
     --panel-text-2: var(--fg-2);
     --panel-text-3: var(--fg-3);
-    --accent:    #BFBFBF; /* mirrors [data-theme=ink/dark] retune above */
+    --accent:    #E8A93E; /* mirrors [data-theme=ink/dark] retune above */
     --accent-fg: var(--ink);
     --accent-ink: var(--paper);
-    --accent-bright: #BFBFBF;
+    --accent-bright: #E8A93E;
     --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
     --danger:    oklch(0.68 0.19 25);
     --flame:     #FF5A1F;
