@@ -8,7 +8,7 @@ showcase:
 hero:
   heading: "Design"
   subheading: "The 247420 design system"
-  body: "A complete, tokens-driven component system for building consistent, accessible interfaces fast: 15 ready-to-ship kit surfaces, 25 live previews, a slide deck, and a full desktop-shell demo — plus a web component and an SDK. Every panel, row, and form control reads its color, radius, and spacing from one shared token file, so a single theme change updates every surface built on it at once. WCAG AA verified across all 21 kits, zero JavaScript bundler required."
+  body: "A complete, tokens-driven component system for building consistent, accessible interfaces fast: 19 ready-to-ship kit surfaces, 30 live previews, a slide deck, and a full desktop-shell demo — plus a web component and an SDK. Every panel, row, and form control reads its color, radius, and spacing from one shared token file, so a single theme change updates every surface built on it at once. WCAG AA verified across all 23 kits, zero JavaScript bundler required."
   badges:
     - { label: "Design system" }
     - { label: "Design tokens" }
@@ -54,7 +54,7 @@ tabs:
 
 kits:
   heading: "UI kits"
-  count: "15 surfaces"
+  count: "19 surfaces"
   layout: cards
   items:
     - { code: "01", title: "Homepage",     sub: "Marquee and works grid",                  desc: "An editorial banner over a quiet works-grid shell.",                href: "./ui_kits/homepage/" }
@@ -72,6 +72,10 @@ kits:
     - { code: "13", title: "404",          sub: "Empty-state hero, suggested routes",   desc: "An oversized mono code with three recovery calls to action.",      href: "./ui_kits/error_404/" }
     - { code: "14", title: "Gallery",      sub: "Visual grid, tonal cards, lightbox",  desc: "Tiles on shared panel tokens that open into a matching lightbox.", href: "./ui_kits/gallery/" }
     - { code: "15", title: "OS shell",     sub: "Menubar, window manager, taskbar", desc: "A runnable desktop-shell demo with its own window manager and app registry.", href: "./ui_kits/os/" }
+    - { code: "16", title: "Buttons",      sub: "Every variant, size, and state",   desc: "Primary, secondary, ghost, link, and danger, plus loading and disabled states.", href: "./ui_kits/buttons/" }
+    - { code: "17", title: "Community",    sub: "Server rail, channels, members",   desc: "A Discord-style shell: server rail, channel sidebar, member list, voice strip.", href: "./ui_kits/community/" }
+    - { code: "18", title: "Community app", sub: "Full chat app, adapter-driven",   desc: "mountCommunityApp wired to an injected adapter -- the community shell as a working app.", href: "./ui_kits/community-app/" }
+    - { code: "19", title: "Workspace",    sub: "Desktop-class chat-agent product", desc: "The flagship surface: WorkspaceShell, ConversationList, AgentChat, SessionDashboard.", href: "./ui_kits/workspace/" }
 
 decks:
   heading: "Decks"
@@ -98,8 +102,11 @@ previews:
     - colors-core
     - colors-lore
     - colors-semantic
+    - content
+    - data-density
     - dateline
     - dropzone
+    - editor-primitives
     - file-grid
     - file-row
     - file-toolbar
@@ -109,11 +116,13 @@ previews:
     - index-row
     - inputs
     - manifesto
+    - panel-rows
     - rules
     - spacing
     - stamps
     - stamps-lore
     - theme-ink
+    - theme-map
     - type-display
     - type-mono
     - type-prose
@@ -179,15 +188,15 @@ features:
     - { name: "Readable at a glance",   desc: "A disciplined type system reserves monospace for codes and labels and sans-serif for everything meant to be read, so interfaces stay legible under real workloads.", href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css", cta: "colors_and_type.css" }
     - { name: "Instant status recognition", desc: "Color-coded indicator rails let users scan for status and category at a glance, without relying on borders that add visual noise.", href: "https://github.com/AnEntrypoint/design/blob/main/src/css/app-shell/panel-row.css#L126", cta: "panel-row.css" }
     - { name: "Rebrand in minutes, not sprints", desc: "Every surface, type scale, and accent color is driven entirely by design tokens — retheme an entire product by editing one file, with zero component code changes.", href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css", cta: "colors_and_type.css" }
-    - { name: "Accessible by default", desc: "Every kit is WCAG AA verified (0 blocking violations across all 21 surfaces), with shared focus-visible tokens, skip links, and correct ARIA roles built into every component.", href: "https://github.com/AnEntrypoint/design/blob/main/docs/a11y-report.md", cta: "a11y-report.md" }
+    - { name: "Accessible by default", desc: "Every kit is WCAG AA verified (0 blocking violations across all 23 surfaces), with shared focus-visible tokens, skip links, and correct ARIA roles built into every component.", href: "https://github.com/AnEntrypoint/design/blob/main/docs/a11y-report.md", cta: "a11y-report.md" }
 
 status_left:
   - "main"
   - "utf-8"
   - "lf"
 # theme.mjs overwrites this with the real published SDK version + live kit
-# count (15 surfaces, from home.kits.items.length) rather than the static
-# fallback strings below, which only render if that lookup ever fails.
+# count (from home.kits.items.length) rather than the static fallback
+# strings below, which only render if that lookup ever fails.
 status_right:
   - "anentrypoint-design"
-  - "14 kits"
+  - "19 kits"

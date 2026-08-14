@@ -46,6 +46,13 @@ jobs:
       - name: Component manifest up to date
         run: npm run lint:component-manifest
 
+      # package.json's "exports" map is generated from the real file tree by
+      # scripts/gen-exports.mjs (see its own header comment) -- this catches
+      # drift where a hand-edited exports entry points at a file that no
+      # longer exists, or a new public file was never added to the map.
+      - name: Package exports map up to date
+        run: npm run lint:exports
+
       - name: Build
         run: npm run build
 

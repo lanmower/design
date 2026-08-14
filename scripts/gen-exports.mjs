@@ -37,7 +37,7 @@ const exists = (rel) => fs.existsSync(path.join(root, rel));
 // be inferred from "the file exists on disk". Each is still verified below.
 // ---------------------------------------------------------------------------
 const ROOT_EXTRAS = {
-    '.': { import: './dist/247420.js', default: './dist/247420.js' },
+    '.': { types: './types/index.d.ts', import: './dist/247420.js', default: './dist/247420.js' },
     './css': './dist/247420.css',
     // Root CSS files deliberately published as standalone granular imports
     // (in addition to being folded into dist/247420.css). Everything else in
@@ -53,6 +53,9 @@ const ROOT_EXTRAS = {
     './components/shell.js': './src/components/shell.js',
     './components/files.js': './src/components/files.js',
     './components/files-modals.js': './src/components/files-modals.js',
+    './components/overlay-primitives.js': './src/components/overlay-primitives.js',
+    './components/git-status.js': './src/components/git-status.js',
+    './components/worktree-switcher.js': './src/components/worktree-switcher.js',
     './web-components/ds-chat.js': './src/web-components/ds-chat.js',
     './web-components/freddie-chat.js': './src/web-components/freddie-chat.js',
     './lint': { import: './src/lint.js', default: './src/lint.js' },
