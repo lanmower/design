@@ -163,12 +163,34 @@ const PANEL_ICON = {
 // filtering mechanism -- this homepage already ships that kit, so the
 // homepage's own kit listing gets the same affordance instead of being the
 // one surface on the site without a way to search kits by name.
-const kitsFilterState = { q: '' };
+const kitsFilterState = { q: '', category: 'all' };
+
+// Category pill row: filters by home.yaml's per-kit category field,
+// composing with (ANDed against) the free-text search above -- a user can
+// narrow by category AND type a name, not one or the other.
+function categoryPillsNode(categories, items, rerender) {
+  if (!Array.isArray(categories) || !categories.length) return null;
+  const counts = new Map();
+  for (const it of items) counts.set(it.category, (counts.get(it.category) || 0) + 1);
+  const pill = (key, label, count) => h('button', {
+    type: 'button',
+    class: 'ds-cat-pill' + (kitsFilterState.category === key ? ' is-active' : ''),
+    'aria-pressed': kitsFilterState.category === key ? 'true' : 'false',
+    onclick: () => { kitsFilterState.category = key; rerender(); },
+  }, label, h('span', { class: 'ds-cat-pill-count' }, String(count)));
+  return h('div', { class: 'ds-cat-pills', role: 'group', 'aria-label': 'filter kits by category' },
+    pill('all', 'All', items.length),
+    ...categories.map((c) => pill(c.key, c.label, counts.get(c.key) || 0)));
+}
 
 function panelNode(panel, idx, rerender) {
   let items = Array.isArray(panel.items) ? panel.items : [];
   const isKits = panel.id === 'kits';
+  const allKitsItems = items;
   const q = isKits ? kitsFilterState.q.trim().toLowerCase() : '';
+  if (isKits && kitsFilterState.category !== 'all') {
+    items = items.filter((it) => it.category === kitsFilterState.category);
+  }
   if (isKits && q) {
     items = items.filter((it) => {
       const hay = (String(it.title || it.name || '') + ' ' + String(it.sub || it.desc || '')).toLowerCase();
@@ -188,16 +210,20 @@ function panelNode(panel, idx, rerender) {
       'aria-label': 'filter ui kits',
       oninput: (e) => { kitsFilterState.q = e.target.value; rerender(); },
     })) : null;
+  const pillsNode = isKits && rerender ? categoryPillsNode(panel.categories, allKitsItems, rerender) : null;
   if (!items.length) {
-    if (isKits && q) {
-      return h('div', { class: 'ds-kits-panel-wrap' }, filterInput,
+    if (isKits && (q || kitsFilterState.category !== 'all')) {
+      const msg = q
+        ? h('p', { class: 'ds-empty-state-msg' }, 'no kits match ', h('code', {}, '"' + kitsFilterState.q.trim() + '"'))
+        : h('p', { class: 'ds-empty-state-msg' }, 'no kits in this category');
+      return h('div', { class: 'ds-kits-panel-wrap' }, pillsNode, filterInput,
         C.Panel({ id: panel.id || null, title: titleNode, count: 0, children:
           h('div', { class: 'ds-empty-state' },
             h('div', { class: 'ds-empty-state-glyph' }, '( )'),
-            h('p', { class: 'ds-empty-state-msg' }, 'no kits match ', h('code', {}, '"' + kitsFilterState.q.trim() + '"')),
+            msg,
           ) }));
     }
-    return filterInput ? h('div', { class: 'ds-kits-panel-wrap' }, filterInput) : null;
+    return (filterInput || pillsNode) ? h('div', { class: 'ds-kits-panel-wrap' }, pillsNode, filterInput) : null;
   }
   // Card-grid layout (panel.layout === 'cards'): each item gets its own
   // visual tile with a code badge and a two-line title/sub stack, instead of
@@ -226,7 +252,7 @@ function panelNode(panel, idx, rerender) {
       });
   const rowsWrapped = panel.layout === 'cards' ? h('div', { class: 'ds-kit-card-grid' }, ...rows) : rows;
   const panelEl = C.Panel({ id: panel.id || null, title: titleNode, count: items.length, children: rowsWrapped });
-  return filterInput ? h('div', { class: 'ds-kits-panel-wrap' }, filterInput, panelEl) : panelEl;
+  return (filterInput || pillsNode) ? h('div', { class: 'ds-kits-panel-wrap' }, pillsNode, filterInput, panelEl) : panelEl;
 }
 
 function marqueeNode(marquee) {
@@ -403,14 +429,68 @@ function buildMainChildren(rerender) {
 // nav visible on their own.
 const crumbNode = data.slug !== 'index' ? C.Crumb({ trail: [data.siteName], leaf: data.title }) : null;
 
-mount(document.getElementById('app'), (rerender) => C.AppShell({
-  topbar: C.Topbar({ brand: data.siteName, items: data.navItems, active: data.title }),
-  crumb: crumbNode,
-  side: sideNode(data.sidebar),
-  main: h('div', { class: 'app-stage' }, ...buildMainChildren(rerender)),
-  status: C.Status({
-    left: data.statusLeft || [data.siteName.toLowerCase(), data.slug],
-    right: data.statusRight || ['live'],
-  }),
-}));
+// Global Cmd+K / Ctrl+K / '/' command palette. Flattens every panel already
+// built for the page (kits, previews, docs, decks, etc. -- data.panels
+// already carries them all uniformly, see buildMainChildren's panelsById
+// map above) into one searchable list, grouped by panel title. Reuses the
+// existing C.CommandPalette (src/components/overlay-primitives/
+// command-palette.js) as-is -- same component the chat composer's @-mention
+// picker already uses -- never a second search implementation.
+const paletteState = { open: false };
+function paletteItems() {
+  const out = [];
+  for (const p of data.panels || []) {
+    const group = p.title || p.name || '';
+    for (const it of p.items || []) {
+      const label = it.title || it.name;
+      if (!label || !it.href) continue;
+      out.push({ label, group, hint: it.sub || it.desc || '', href: it.href });
+    }
+  }
+  return out;
+}
+function paletteNode(rerender) {
+  if (!paletteState.open) return null;
+  return C.CommandPalette({
+    open: true,
+    items: paletteItems(),
+    onSelect: (it) => { paletteState.open = false; if (it.href) window.location.href = it.href; },
+    onClose: () => { paletteState.open = false; rerender(); },
+  });
+}
+// '/' opens the palette only when no input/textarea/contenteditable already
+// has focus (so the '/' character can still be typed into the kits filter
+// box, a form field, etc.) -- Cmd+K/Ctrl+K always opens regardless of focus,
+// matching every other app that reserves that chord globally.
+function onGlobalKeydown(e, rerender) {
+  const meta = e.metaKey || e.ctrlKey;
+  if (meta && (e.key === 'k' || e.key === 'K')) {
+    e.preventDefault(); paletteState.open = true; rerender(); return;
+  }
+  if (e.key === '/' && !paletteState.open) {
+    const el = document.activeElement;
+    const isEditable = el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+    if (!isEditable) { e.preventDefault(); paletteState.open = true; rerender(); }
+  }
+}
+
+mount(document.getElementById('app'), (rerender) => {
+  if (!mount._paletteKeyBound) {
+    mount._paletteKeyBound = true;
+    document.addEventListener('keydown', (e) => onGlobalKeydown(e, rerender));
+  }
+  return h('div', {},
+    C.AppShell({
+      topbar: C.Topbar({ brand: data.siteName, items: data.navItems, active: data.title }),
+      crumb: crumbNode,
+      side: sideNode(data.sidebar),
+      main: h('div', { class: 'app-stage' }, ...buildMainChildren(rerender)),
+      status: C.Status({
+        left: data.statusLeft || [data.siteName.toLowerCase(), data.slug],
+        right: data.statusRight || ['live'],
+      }),
+    }),
+    paletteNode(rerender)
+  );
+});
 `;

@@ -27,17 +27,20 @@ sidebar:
   # arrays below for any row whose href is in COUNT_SOURCE_BY_HREF, so a
   # hand-typed number here can never drift out of sync with what the
   # matching panel actually renders.
+  #
+  # Previously two groups (bins: Everything/Pinned/Shipped/Drafts, labels:
+  # UI kits/Decks/Previews/Docs) pointed at the same 3 anchors (#kits,
+  # #previews, #decks) under different, unexplained metaphorical names --
+  # "Pinned" and "UI kits" both meant #kits with no stated difference, and
+  # "bins" never even covered #docs (only "labels" did). Consolidated into
+  # one group with literal, self-explaining labels: every real destination
+  # appears exactly once.
   bins:
     - { label: "Everything", href: "#all", active: true }
-    - { label: "Pinned",     href: "#kits" }
-    - { label: "Shipped",    href: "#previews" }
-    - { label: "Drafts",     href: "#decks" }
-  labels_group: "Labels"
-  labels:
-    - { label: "UI kits",  href: "#kits" }
-    - { label: "Decks",    href: "#decks" }
-    - { label: "Previews", href: "#previews" }
-    - { label: "Docs",     href: "#docs" }
+    - { label: "UI kits",    href: "#kits" }
+    - { label: "Decks",      href: "#decks" }
+    - { label: "Previews",   href: "#previews" }
+    - { label: "Docs",       href: "#docs" }
   more_group: "More"
   more:
     - { label: "Readme",  href: "https://github.com/AnEntrypoint/design/blob/main/README.md" }
@@ -56,26 +59,32 @@ kits:
   heading: "UI kits"
   count: "19 surfaces"
   layout: cards
+  categories:
+    - { key: "ai-chat",    label: "AI & Chat" }
+    - { key: "devtools",   label: "Devtools" }
+    - { key: "dashboards", label: "Dashboards" }
+    - { key: "apps",       label: "Apps" }
+    - { key: "shells",     label: "Shells" }
   items:
-    - { code: "01", title: "Homepage",     sub: "Marquee and works grid",                  desc: "An editorial banner over a quiet works-grid shell.",                href: "./ui_kits/homepage/" }
-    - { code: "02", title: "Project page", sub: "Hero, receipt, install, changelog",  desc: "A full case-study template for shipping a product story.",                      href: "./ui_kits/project_page/" }
-    - { code: "03", title: "Docs",         sub: "Long-form prose chrome",                desc: "Sidebar navigation, mono headings, and code blocks for documentation.",            href: "./ui_kits/docs/" }
-    - { code: "04", title: "Blog",         sub: "Dated index and reading view",            desc: "A dated post index with author bylines and a distraction-free reading view.",                            href: "./ui_kits/blog/" }
-    - { code: "05", title: "Chat",         sub: "Message thread and composer",             desc: "A message thread with pill bubbles, monospace timestamps, and a room sidebar.",   href: "./ui_kits/chat/" }
-    - { code: "06", title: "AICat",        sub: "AI assistant with a cat persona",         desc: "An animated ASCII cat portrait with thinking states and mood changes.",  href: "./ui_kits/aicat/" }
-    - { code: "07", title: "File browser", sub: "Type-aware rails, drop zone, preview",   desc: "Every file-row primitive wired to a static demo backed by fsbrowse.", href: "./ui_kits/file_browser/" }
-    - { code: "08", title: "Dashboard",    sub: "KPIs, tables, receipts, changelog",  desc: "KPIs, tables, and receipts tracked with a running changelog in one operations surface.", href: "./ui_kits/dashboard/" }
-    - { code: "09", title: "Terminal",     sub: "CLI prompt, command lines, log view", desc: "Five line kinds (comment, command, output, ok, warning) over a tonal log panel.", href: "./ui_kits/terminal/" }
-    - { code: "10", title: "Settings",     sub: "Sectioned forms, toggles, save bar",  desc: "Every input primitive: fields, segmented buttons, and a danger panel.", href: "./ui_kits/settings/" }
-    - { code: "11", title: "Sign in",      sub: "Auth providers and magic link",         desc: "A narrow, tone-on-tone auth form with no shadows and no spinners.", href: "./ui_kits/signin/" }
-    - { code: "12", title: "Search",       sub: "Topbar query, faceted filters, rows", desc: "Faceted results ranking, reusing the same RowLink primitive every list uses.", href: "./ui_kits/search/" }
-    - { code: "13", title: "404",          sub: "Empty-state hero, suggested routes",   desc: "An oversized mono code with three recovery calls to action.",      href: "./ui_kits/error_404/" }
-    - { code: "14", title: "Gallery",      sub: "Visual grid, tonal cards, lightbox",  desc: "Tiles on shared panel tokens that open into a matching lightbox.", href: "./ui_kits/gallery/" }
-    - { code: "15", title: "OS shell",     sub: "Menubar, window manager, taskbar", desc: "A runnable desktop-shell demo with its own window manager and app registry.", href: "./ui_kits/os/" }
-    - { code: "16", title: "Buttons",      sub: "Every variant, size, and state",   desc: "Primary, secondary, ghost, link, and danger, plus loading and disabled states.", href: "./ui_kits/buttons/" }
-    - { code: "17", title: "Community",    sub: "Server rail, channels, members",   desc: "A Discord-style shell: server rail, channel sidebar, member list, voice strip.", href: "./ui_kits/community/" }
-    - { code: "18", title: "Community app", sub: "Full chat app, adapter-driven",   desc: "mountCommunityApp wired to an injected adapter -- the community shell as a working app.", href: "./ui_kits/community-app/" }
-    - { code: "19", title: "Workspace",    sub: "Desktop-class chat-agent product", desc: "The flagship surface: WorkspaceShell, ConversationList, AgentChat, SessionDashboard.", href: "./ui_kits/workspace/" }
+    - { code: "01", title: "Homepage",     sub: "Marquee and works grid",                  desc: "An editorial banner over a quiet works-grid shell.",                href: "./ui_kits/homepage/", category: "apps" }
+    - { code: "02", title: "Project page", sub: "Hero, receipt, install, changelog",  desc: "A full case-study template for shipping a product story.",                      href: "./ui_kits/project_page/", category: "apps" }
+    - { code: "03", title: "Docs",         sub: "Long-form prose chrome",                desc: "Sidebar navigation, mono headings, and code blocks for documentation.",            href: "./ui_kits/docs/", category: "apps" }
+    - { code: "04", title: "Blog",         sub: "Dated index and reading view",            desc: "A dated post index with author bylines and a distraction-free reading view.",                            href: "./ui_kits/blog/", category: "apps" }
+    - { code: "05", title: "Chat",         sub: "Message thread and composer",             desc: "A message thread with pill bubbles, monospace timestamps, and a room sidebar.",   href: "./ui_kits/chat/", category: "ai-chat" }
+    - { code: "06", title: "AICat",        sub: "AI assistant with a cat persona",         desc: "An animated ASCII cat portrait with thinking states and mood changes.",  href: "./ui_kits/aicat/", category: "ai-chat" }
+    - { code: "07", title: "File browser", sub: "Type-aware rails, drop zone, preview",   desc: "Every file-row primitive wired to a static demo backed by fsbrowse.", href: "./ui_kits/file_browser/", category: "devtools" }
+    - { code: "08", title: "Dashboard",    sub: "KPIs, tables, receipts, changelog",  desc: "KPIs, tables, and receipts tracked with a running changelog in one operations surface.", href: "./ui_kits/dashboard/", category: "dashboards" }
+    - { code: "09", title: "Terminal",     sub: "CLI prompt, command lines, log view", desc: "Five line kinds (comment, command, output, ok, warning) over a tonal log panel.", href: "./ui_kits/terminal/", category: "devtools" }
+    - { code: "10", title: "Settings",     sub: "Sectioned forms, toggles, save bar",  desc: "Every input primitive: fields, segmented buttons, and a danger panel.", href: "./ui_kits/settings/", category: "dashboards" }
+    - { code: "11", title: "Sign in",      sub: "Auth providers and magic link",         desc: "A narrow, tone-on-tone auth form with no shadows and no spinners.", href: "./ui_kits/signin/", category: "apps" }
+    - { code: "12", title: "Search",       sub: "Topbar query, faceted filters, rows", desc: "Faceted results ranking, reusing the same RowLink primitive every list uses.", href: "./ui_kits/search/", category: "devtools" }
+    - { code: "13", title: "404",          sub: "Empty-state hero, suggested routes",   desc: "An oversized mono code with three recovery calls to action.",      href: "./ui_kits/error_404/", category: "apps" }
+    - { code: "14", title: "Gallery",      sub: "Visual grid, tonal cards, lightbox",  desc: "Tiles on shared panel tokens that open into a matching lightbox.", href: "./ui_kits/gallery/", category: "apps" }
+    - { code: "15", title: "OS shell",     sub: "Menubar, window manager, taskbar", desc: "A runnable desktop-shell demo with its own window manager and app registry.", href: "./ui_kits/os/", category: "shells" }
+    - { code: "16", title: "Buttons",      sub: "Every variant, size, and state",   desc: "Primary, secondary, ghost, link, and danger, plus loading and disabled states.", href: "./ui_kits/buttons/", category: "devtools" }
+    - { code: "17", title: "Community",    sub: "Server rail, channels, members",   desc: "A Discord-style shell: server rail, channel sidebar, member list, voice strip.", href: "./ui_kits/community/", category: "ai-chat" }
+    - { code: "18", title: "Community app", sub: "Full chat app, adapter-driven",   desc: "mountCommunityApp wired to an injected adapter -- the community shell as a working app.", href: "./ui_kits/community-app/", category: "ai-chat" }
+    - { code: "19", title: "Workspace",    sub: "Desktop-class chat-agent product", desc: "The flagship surface: WorkspaceShell, ConversationList, AgentChat, SessionDashboard.", href: "./ui_kits/workspace/", category: "ai-chat" }
 
 decks:
   heading: "Decks"

@@ -2538,6 +2538,29 @@
 .ds-247420 .ds-kits-panel-wrap { display: flex; flex-direction: column; gap: var(--space-2, 10px); }
 .ds-247420 .ds-kits-filter { display: flex; }
 .ds-247420 .ds-kits-filter-input { width: 100%; max-width: 32ch; }
+/* Category pill row above the kits grid — same tonal-surface convention as
+   .chip (primitives.css), never a bespoke color. Active state fills with
+   --accent/--accent-fg (the same pairing .btn-primary already uses) rather
+   than inventing a new "selected" hue. */
+.ds-247420 .ds-cat-pills { display: flex; flex-wrap: wrap; gap: var(--space-1-75); }
+.ds-247420 .ds-cat-pill {
+  display: inline-flex; align-items: center; gap: var(--space-1-75);
+  padding: var(--space-1) var(--space-2-5);
+  background: var(--bg-2); color: var(--fg-2);
+  border: none; border-radius: var(--r-pill);
+  font-family: var(--ff-body); font-size: var(--fs-tiny); font-weight: 500;
+  cursor: pointer;
+  transition: background var(--dur-base) var(--ease), color var(--dur-base) var(--ease);
+}
+.ds-247420 .ds-cat-pill:hover { background: var(--bg-3); }
+.ds-247420 .ds-cat-pill.is-active { background: var(--accent); color: var(--accent-fg); }
+.ds-247420 .ds-cat-pill-count {
+  font-family: var(--ff-mono); font-size: var(--fs-nano);
+  opacity: 0.7;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-247420 .ds-cat-pill { transition: none; }
+}
 /* Below this width the aside card's own internal rhythm (stat rows still
    stacked vertically at full width) is already correct for a narrow column —
    no separate breakpoint override needed now that .ds-hero is always a

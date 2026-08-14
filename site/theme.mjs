@@ -19,6 +19,9 @@ function rows(items) {
     sub: it.sub || it.desc || '',
     meta: it.cta || it.meta || 'open ->',
     href: it.href || '#',
+    // Passed through untouched for panels that carry a category taxonomy
+    // (currently only kits) -- undefined on every other panel, harmless.
+    category: it.category,
   }));
 }
 
@@ -30,6 +33,9 @@ function panel(section, id, itemsKey = 'items') {
     count: section.count || section[itemsKey].length,
     items: rows(section[itemsKey]),
     layout: section.layout || null,
+    // Category pill definitions (key+label), only present on kits today --
+    // undefined elsewhere, the client renders no pill row without it.
+    categories: section.categories || null,
   };
 }
 
