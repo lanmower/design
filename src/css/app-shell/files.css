@@ -101,7 +101,7 @@
    state stays legible via the tint alone; border-color stays transparent so
    the base rule's promise holds for every row, active or not. */
 .ds-file-row.active { background: var(--accent-tint); }
-.ds-file-row[data-file-type="dir"]      { border-left-width: 3px; border-left-color: var(--accent); }
+.ds-file-row[data-file-type="dir"]      { background: color-mix(in oklab, var(--accent) 5%, var(--bg)); }
 .ds-file-row[data-file-type="image"],
 .ds-file-row[data-file-type="video"],
 .ds-file-row[data-file-type="audio"],

@@ -71,11 +71,10 @@
    shimmered). The dead .ds-file-grid-loading rule + unused ds-skeleton-shimmer
    keyframe were removed; only the inner .ds-skel children animate. */
 
-/* Drag-to-move drop target highlight on a directory row. */
+/* Drag-to-move drop target highlight on a directory row -- RESTYLED:
+   borderless, the tonal --accent-tint fill alone carries the feedback. */
 .ds-file-row.ds-drop-target {
-  border-color: var(--accent);
   background: var(--accent-tint);
-  box-shadow: inset 0 0 0 1px var(--accent);
 }
 .ds-file-row[draggable="true"] { cursor: grab; }
 .ds-file-row[draggable="true"]:active { cursor: grabbing; }

@@ -431,7 +431,6 @@
 .tabs[role="tablist"] a.active {
   color: var(--accent-ink);
   background: color-mix(in oklab, var(--accent) 16%, transparent);
-  box-shadow: inset 0 -2px 0 0 var(--accent);
   font-weight: 600;
 }
 .ds-quickstart {
@@ -858,11 +857,11 @@
 .ds-sheet-preview-tab {
   flex-shrink: 0; background: none; border: none; cursor: pointer;
   padding: var(--space-1-5, 5px) var(--space-2-5, 10px);
-  font: inherit; color: var(--fg-3); border-bottom: 2px solid transparent;
+  font: inherit; color: var(--fg-3);
 }
 .ds-sheet-preview-tab:hover { color: var(--fg); }
 .ds-sheet-preview-tab:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
-.ds-sheet-preview-tab.is-active { color: var(--fg); border-bottom-color: var(--accent-ink, var(--accent)); }
+.ds-sheet-preview-tab.is-active { color: var(--fg); font-weight: 600; background: var(--bg-2); border-radius: var(--r-1, 6px); }
 .ds-sheet-preview-truncated {
   font-size: var(--fs-tiny, 12px); color: var(--fg-3);
   padding: var(--space-1, 4px) var(--space-2, 8px);

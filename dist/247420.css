@@ -1361,13 +1361,13 @@
   outline: var(--focus-w) solid var(--focus-color);
   outline-offset: var(--focus-offset);
 }
-/* Active tab reads as a subtle tinted pill with an accent underline rather than
-   an oversized filled oval that sits taller than its inactive siblings and reads
-   as misaligned. Same height as the inactive links — only the tint + underline
-   change. */
+/* RESTYLED: borderless per explicit user request -- the active tab used to
+   carry an inset box-shadow underline; that decorative line is gone. Active
+   state is now conveyed by text color + weight alone (--accent-ink, 600),
+   consistent with tonal-surfaces-over-borders and readable without relying
+   on any drawn line. */
 .ds-247420 .app-topbar nav a.active {
   color: var(--accent-ink);
-  box-shadow: inset 0 -2px 0 0 var(--accent);
   font-weight: 600;
 }
 
@@ -1377,7 +1377,6 @@
   letter-spacing: var(--tr-tight);
 }
 /* The wordmark separator printed in the electric lead — the brand tell. */
-.ds-247420 .brand .slash { color: var(--accent-ink); font-weight: 700; margin: 0 3px; }
 
 .ds-247420 .app-search {
   display: inline-flex; align-items: center; gap: var(--space-2-5);
@@ -1648,9 +1647,15 @@
    on a 2560px ultrawide the old fixed value left over half the shell as dead
    side margin. 1400px ceiling keeps prose measure sane (nobody wants a
    2400px-wide paragraph) while letting non-prose content (index rows, meta)
-   actually use the extra room. */
+   actually use the extra room. 60vw sat below the 1016px floor on every
+   viewport under ~1693px, so ordinary desktop widths (1440, 1536) always
+   resolved to the bare floor -- a live CDP measurement at 1440x900 found a
+   ~424px dead gutter (212px each side) around the blog's narrow column,
+   read by users as "not filling the page". 74vw crosses the floor around
+   1373px so real desktop widths actually grow past it, same reasoning as
+   the sidebar variant above. */
 .ds-247420 .app-body.no-side .app-main.narrow {
-  max-width: clamp(calc(var(--measure-narrow) + var(--sidebar-width)), 60vw, 1400px);
+  max-width: clamp(calc(var(--measure-narrow) + var(--sidebar-width)), 74vw, 1400px);
 }
 /* Article-body heading rhythm and lede spacing, consumed by flatspace-rendered
    long-form pages (docs, papers) that drop headings/panels directly into .app-main. */
@@ -2305,29 +2310,21 @@
   flex-basis: 100%;
   grid-column: 1 / -1;
 }
-.ds-247420 .row::before {
-  content: '';
-  position: absolute; left: 7px; top: 0; bottom: 0; width: 3px;
-  margin: auto 0;
-  height: 0;                 /* collapsed by default; reveals from centre */
-  background: var(--rule-strong);
-  border-radius: var(--r-pill);
-  opacity: 0;
-  transition: height var(--dur-base) var(--ease), opacity var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease);
-}
+/* RESTYLED: borderless per explicit user request -- the left-edge indicator
+   rail (.row::before, plus every rail-tone / active / error variant of it) is gone.
+   Status/active/error state is now conveyed by tonal background alone
+   (already the case for .active/.row-state-error below); the screen-reader
+   status word Row() already emits alongside the rail is untouched, so
+   assistive tech loses nothing. */
 /* A clickable row (onClick -> role=button, or a link row) is interactive, so it
    carries a pointer cursor; without this the click affordance is invisible. */
 .ds-247420 .row[role="button"], .ds-247420 a.row { cursor: pointer; }
-/* Hover reveals the rail (grows from centre) only on interactive rows — a static
-   row should not signal an affordance it does not have. */
 .ds-247420 .row[role="button"]:hover, .ds-247420 a.row:hover { background: var(--bg-2); }
-.ds-247420 .row[role="button"]:hover::before, .ds-247420 a.row:hover::before { height: 56%; opacity: 1; }
 /* Editorial hover-reveal — the row's meta (cta) slides toward the lead accent
-   and nudges right, the printed-index "open ->" affordance. */
+   and nudges right, the printed-index "open" affordance. */
 .ds-247420 .row .meta { transition: color var(--dur-base) var(--ease), transform var(--dur-base) var(--ease-spring); }
 .ds-247420 a.row:hover .meta, .ds-247420 .row[role="button"]:hover .meta { color: var(--accent-ink); transform: translateX(3px); }
 .ds-247420 .row.active { background: color-mix(in oklab, var(--accent) 10%, var(--bg-2)); }
-.ds-247420 .row.active::before { height: 64%; opacity: 1; background: var(--accent); }
 .ds-247420 .row.active .title { color: var(--accent-ink); }
 /* ConversationList rows use `ds-session-row`, not `row` -- CI's a11y-audit
    caught --fg-3 (--ink-3) on `.ds-session-sub` failing AA (measured 4.43:1)
@@ -2338,21 +2335,8 @@
 .ds-247420 .ds-session-row[class*="rail-"] .ds-session-sub { color: var(--fg-2); }
 .ds-247420 .row.row-state-disabled { opacity: 0.5; pointer-events: none; }
 .ds-247420 .row.row-state-error { background: color-mix(in oklab, var(--flame) 10%, var(--bg-2)); }
-.ds-247420 .row.row-state-error::before { height: 64%; opacity: 1; background: var(--flame); }
-/* rail tones — a persistent status colour on the leading rail (the ::before
-   bar). Always shown (a status indicator, not a hover affordance). Active/error
-   still win via their own rules below in source order. */
-.ds-247420 .row.rail-green::before,
-.ds-247420 .row.rail-purple::before,
-.ds-247420 .row.rail-flame::before { height: 56%; opacity: 1; }
-.ds-247420 .row.rail-green::before  { background: var(--accent-ink); }
-.ds-247420 .row.rail-purple::before { background: var(--purple-2); }
-.ds-247420 .row.rail-flame::before  { background: var(--flame); }
-/* Differentiate the rail by SHAPE, not hue alone (color-blind safety): error
-   reads as a taller solid bar, subagent as a dashed/gapped fill, ok stays the
-   short solid bar. Paired with the sr-only status word emitted by Row(). */
-.ds-247420 .row.rail-flame::before  { height: 64%; }
-.ds-247420 .row.rail-purple::before { background: repeating-linear-gradient(var(--purple-2) 0 4px, transparent 4px 7px); }
+.ds-247420 .row.rail-purple { background: color-mix(in oklab, var(--purple-2) 8%, var(--bg-2)); }
+.ds-247420 .row.rail-flame { background: color-mix(in oklab, var(--flame) 10%, var(--bg-2)); }
 .ds-247420 .row-grid { /* explicit grid-template-columns set inline */ }
 /* A row with no leading code/index drops the empty first column so the title
    takes the full width instead of wrapping in the narrow code gutter. */
@@ -3539,7 +3523,7 @@
    state stays legible via the tint alone; border-color stays transparent so
    the base rule's promise holds for every row, active or not. */
 .ds-247420 .ds-file-row.active { background: var(--accent-tint); }
-.ds-247420 .ds-file-row[data-file-type="dir"]      { border-left-width: 3px; border-left-color: var(--accent); }
+.ds-247420 .ds-file-row[data-file-type="dir"]      { background: color-mix(in oklab, var(--accent) 5%, var(--bg)); }
 .ds-247420 .ds-file-row[data-file-type="image"],
 .ds-247420 .ds-file-row[data-file-type="video"],
 .ds-247420 .ds-file-row[data-file-type="audio"],
@@ -4335,11 +4319,10 @@
    shimmered). The dead .ds-file-grid-loading rule + unused ds-skeleton-shimmer
    keyframe were removed; only the inner .ds-skel children animate. */
 
-/* Drag-to-move drop target highlight on a directory row. */
+/* Drag-to-move drop target highlight on a directory row -- RESTYLED:
+   borderless, the tonal --accent-tint fill alone carries the feedback. */
 .ds-247420 .ds-file-row.ds-drop-target {
-  border-color: var(--accent);
   background: var(--accent-tint);
-  box-shadow: inset 0 0 0 1px var(--accent);
 }
 .ds-247420 .ds-file-row[draggable="true"] { cursor: grab; }
 .ds-247420 .ds-file-row[draggable="true"]:active { cursor: grabbing; }
@@ -6748,7 +6731,7 @@
 }
 .ds-247420 .ws-rail-item:hover { background: var(--bg-3); color: var(--fg); }
 .ds-247420 .ws-rail-item:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
-.ds-247420 .ws-rail-item.active { background: var(--accent-tint); color: var(--fg); box-shadow: inset 2px 0 0 var(--accent); }
+.ds-247420 .ws-rail-item.active { background: var(--accent-tint); color: var(--fg); }
 .ds-247420 .ws-rail-item-label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
 /* Shape/color come from the shared .ds-badge component (see app-shell/primitives.css);
    this class is now just the rail-item layout hook (spacing, collapsed-state targeting). */
@@ -7712,7 +7695,6 @@
 .ds-247420 .tabs[role="tablist"] a.active {
   color: var(--accent-ink);
   background: color-mix(in oklab, var(--accent) 16%, transparent);
-  box-shadow: inset 0 -2px 0 0 var(--accent);
   font-weight: 600;
 }
 .ds-247420 .ds-quickstart {
@@ -8139,11 +8121,11 @@
 .ds-247420 .ds-sheet-preview-tab {
   flex-shrink: 0; background: none; border: none; cursor: pointer;
   padding: var(--space-1-5, 5px) var(--space-2-5, 10px);
-  font: inherit; color: var(--fg-3); border-bottom: 2px solid transparent;
+  font: inherit; color: var(--fg-3);
 }
 .ds-247420 .ds-sheet-preview-tab:hover { color: var(--fg); }
 .ds-247420 .ds-sheet-preview-tab:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
-.ds-247420 .ds-sheet-preview-tab.is-active { color: var(--fg); border-bottom-color: var(--accent-ink, var(--accent)); }
+.ds-247420 .ds-sheet-preview-tab.is-active { color: var(--fg); font-weight: 600; background: var(--bg-2); border-radius: var(--r-1, 6px); }
 .ds-247420 .ds-sheet-preview-truncated {
   font-size: var(--fs-tiny, 12px); color: var(--fg-3);
   padding: var(--space-1, 4px) var(--space-2, 8px);

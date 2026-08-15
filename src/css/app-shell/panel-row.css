@@ -184,29 +184,21 @@ a.row:hover, button.row:hover, .row[role="button"]:hover {
   flex-basis: 100%;
   grid-column: 1 / -1;
 }
-.row::before {
-  content: '';
-  position: absolute; left: 7px; top: 0; bottom: 0; width: 3px;
-  margin: auto 0;
-  height: 0;                 /* collapsed by default; reveals from centre */
-  background: var(--rule-strong);
-  border-radius: var(--r-pill);
-  opacity: 0;
-  transition: height var(--dur-base) var(--ease), opacity var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease);
-}
+/* RESTYLED: borderless per explicit user request -- the left-edge indicator
+   rail (.row::before, plus every rail-tone / active / error variant of it) is gone.
+   Status/active/error state is now conveyed by tonal background alone
+   (already the case for .active/.row-state-error below); the screen-reader
+   status word Row() already emits alongside the rail is untouched, so
+   assistive tech loses nothing. */
 /* A clickable row (onClick -> role=button, or a link row) is interactive, so it
    carries a pointer cursor; without this the click affordance is invisible. */
 .row[role="button"], a.row { cursor: pointer; }
-/* Hover reveals the rail (grows from centre) only on interactive rows — a static
-   row should not signal an affordance it does not have. */
 .row[role="button"]:hover, a.row:hover { background: var(--bg-2); }
-.row[role="button"]:hover::before, a.row:hover::before { height: 56%; opacity: 1; }
 /* Editorial hover-reveal — the row's meta (cta) slides toward the lead accent
-   and nudges right, the printed-index "open ->" affordance. */
+   and nudges right, the printed-index "open" affordance. */
 .row .meta { transition: color var(--dur-base) var(--ease), transform var(--dur-base) var(--ease-spring); }
 a.row:hover .meta, .row[role="button"]:hover .meta { color: var(--accent-ink); transform: translateX(3px); }
 .row.active { background: color-mix(in oklab, var(--accent) 10%, var(--bg-2)); }
-.row.active::before { height: 64%; opacity: 1; background: var(--accent); }
 .row.active .title { color: var(--accent-ink); }
 /* ConversationList rows use `ds-session-row`, not `row` -- CI's a11y-audit
    caught --fg-3 (--ink-3) on `.ds-session-sub` failing AA (measured 4.43:1)
@@ -217,21 +209,8 @@ a.row:hover .meta, .row[role="button"]:hover .meta { color: var(--accent-ink); t
 .ds-session-row[class*="rail-"] .ds-session-sub { color: var(--fg-2); }
 .row.row-state-disabled { opacity: 0.5; pointer-events: none; }
 .row.row-state-error { background: color-mix(in oklab, var(--flame) 10%, var(--bg-2)); }
-.row.row-state-error::before { height: 64%; opacity: 1; background: var(--flame); }
-/* rail tones — a persistent status colour on the leading rail (the ::before
-   bar). Always shown (a status indicator, not a hover affordance). Active/error
-   still win via their own rules below in source order. */
-.row.rail-green::before,
-.row.rail-purple::before,
-.row.rail-flame::before { height: 56%; opacity: 1; }
-.row.rail-green::before  { background: var(--accent-ink); }
-.row.rail-purple::before { background: var(--purple-2); }
-.row.rail-flame::before  { background: var(--flame); }
-/* Differentiate the rail by SHAPE, not hue alone (color-blind safety): error
-   reads as a taller solid bar, subagent as a dashed/gapped fill, ok stays the
-   short solid bar. Paired with the sr-only status word emitted by Row(). */
-.row.rail-flame::before  { height: 64%; }
-.row.rail-purple::before { background: repeating-linear-gradient(var(--purple-2) 0 4px, transparent 4px 7px); }
+.row.rail-purple { background: color-mix(in oklab, var(--purple-2) 8%, var(--bg-2)); }
+.row.rail-flame { background: color-mix(in oklab, var(--flame) 10%, var(--bg-2)); }
 .row-grid { /* explicit grid-template-columns set inline */ }
 /* A row with no leading code/index drops the empty first column so the title
    takes the full width instead of wrapping in the narrow code gutter. */

@@ -343,27 +343,6 @@ function __md(md) {
 
 const bodyNode = data.bodyHtml ? C.Section({ children: h('div', { class: 'page-body', innerHTML: data.bodyHtml }) }) : null;
 
-// A real closing block: the page previously just stopped after its last
-// panel, leaving nothing but the app-stage's own bottom padding as unexplained
-// empty space. Reuses data already on the page (nav links, siteName, year) —
-// no invented content.
-function footerNode() {
-  const year = new Date().getFullYear();
-  const links = (data.navItems || []).filter(([, href]) => /^https?:/.test(String(href)));
-  // Names the actual maintaining entity, not just the project's numeric
-  // brand. This is a personal/community project (MIT, copyright holder
-  // "AnEntrypoint" per LICENSE) with no separate legal org behind it, so the
-  // footer says that plainly instead of leaving "247420" to stand in for an
-  // entity it isn't.
-  const entity = (data.seoAuthor || '247420 · a design system by AnEntrypoint').toLowerCase();
-  return h('footer', { class: 'ds-page-footer' },
-    h('span', { class: 'ds-page-footer-copy' }, String(year) + ' · ' + entity),
-    links.length ? h('nav', { class: 'ds-page-footer-links', 'aria-label': 'footer' },
-      ...links.map(([label, href], i) => h('a', { key: i, href }, String(label).replace(' ->', '')))
-    ) : null,
-  );
-}
-
 function tierNode(tier, children) {
   const kids = children.filter(Boolean);
   if (!kids.length) return null;
@@ -407,7 +386,6 @@ function buildMainChildren(rerender) {
     ...tierNodes,
     ...leftoverPanels,
     bodyNode,
-    footerNode(),
   ].filter(Boolean);
 }
 
