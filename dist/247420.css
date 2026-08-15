@@ -1076,7 +1076,18 @@
    caps (38ch/--measure) but stayed left edge-anchored inside that wider
    column, turning the freed width into one-sided dead whitespace on the
    right of the article body instead of being absorbed as margin. */
-.ds-247420 .app-main.narrow > .lede, .ds-247420 .app-main.narrow > .t-lede, .ds-247420 .app-main.narrow > .ds-prose { margin-left: auto; margin-right: auto; }
+.ds-247420 .app-main.narrow > .lede, .ds-247420 .app-main.narrow > .t-lede, .ds-247420 .app-main.narrow > .ds-prose {
+  margin-left: auto; margin-right: auto;
+  /* .app-main is a column flex container -- an auto cross-axis margin on a
+     flex item disables stretch per spec (align-self resolves to start
+     instead), so without an explicit width these fell back to shrink-to-fit
+     content instead of filling out to their own max-width. Live-measured:
+     .ds-prose's max-width resolved to 802.96px but its rendered width was
+     only 706.5px on a page whose .app-main was 811.6px wide -- the auto
+     margins were centering a content-sized box, not clamping a full-width
+     one. width:100% restores fill-then-cap. */
+  width: 100%;
+}
 
 .ds-247420 .lede + .post-body, .ds-247420 .t-lede + .post-body, .ds-247420 .lede + .ds-prose, .ds-247420 .t-lede + .ds-prose {
   margin-top: var(--space-4);
