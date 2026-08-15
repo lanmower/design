@@ -421,7 +421,11 @@
   --z-tooltip:  1000;
   --z-top:      1100;
 
-  --measure:     68ch;
+  /* 68ch measured ~700px at the doc/blog kits' body size -- narrow enough
+     that code blocks (pre/.c spans) wrapped constantly and the column read
+     as cramped against the wide app-main it sits in. 78ch stays inside the
+     accepted 60-80ch prose range but gives real breathing room. */
+  --measure:     78ch;
   --measure-wide:   940px;
   --measure-narrow: 760px;
   /* Page-stage ceiling — independent of --measure-wide (which stays the

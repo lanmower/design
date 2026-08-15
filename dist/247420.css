@@ -423,7 +423,11 @@
   --z-tooltip:  1000;
   --z-top:      1100;
 
-  --measure:     68ch;
+  /* 68ch measured ~700px at the doc/blog kits' body size -- narrow enough
+     that code blocks (pre/.c spans) wrapped constantly and the column read
+     as cramped against the wide app-main it sits in. 78ch stays inside the
+     accepted 60-80ch prose range but gives real breathing room. */
+  --measure:     78ch;
   --measure-wide:   940px;
   --measure-narrow: 760px;
   /* Page-stage ceiling — independent of --measure-wide (which stays the
@@ -4864,9 +4868,12 @@
 .ds-247420 .chat-composer {
   display: flex; align-items: flex-end; flex-wrap: wrap; gap: var(--space-2);
   padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
-  background: var(--bg);
-  /* The composer sits bg-on-bg: the 14% --rule hairline is ~1.3:1 on paper,
-     leaving the primary input near-invisible at rest - use the strong rule. */
+  /* bg-2, not bg: even with the strong-rule border below, a flat bg-on-bg
+     fill at 28% border alpha still read as "unstyled until clicked" -- the
+     one interactive surface on the page needs to look like a distinct
+     input at rest, not just gain a ring on focus. A tonal fill makes that
+     legible without waiting for :focus-within. */
+  background: var(--bg-2);
   border: var(--bw-hair) solid var(--rule-strong);
   /* --r-3 (14px), not --r-2 (10px): the reference composer's corners read
      as a soft-rounded rectangle, not a tight card-radius box - --r-3 is the
@@ -4883,6 +4890,7 @@
   transition: border-color var(--dur-snap) var(--ease), box-shadow var(--dur-snap) var(--ease);
 }
 .ds-247420 .chat-composer:focus-within {
+  background: var(--bg);
   border-color: var(--accent);
   box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 18%, transparent);
 }
