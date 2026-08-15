@@ -14,7 +14,7 @@ const navItems = [
     ['works', '#works'],
     ['writing', '#writing'],
     ['manifesto', '#manifesto'],
-    ['source ->', 'https://github.com/AnEntrypoint']
+    ['source', 'https://github.com/AnEntrypoint']
 ];
 
 const shipping = [
@@ -176,7 +176,7 @@ function App() {
             Section({ id: 'manifesto', title: 'manifesto · rough draft',
                 children: Manifesto({ paragraphs: manifesto }) })
         ],
-        // 'source ->' already lives in the topbar nav (navItems above) — a
+        // 'source' already lives in the topbar nav (navItems above) — a
         // second identical link in the status bar added nothing but a
         // duplicate destination, so the right cluster is dropped rather than
         // repeating either that link or the phase already shown on the left.

@@ -143,7 +143,7 @@ function App() {
     );
 
     return h('div', { class: 'ds-community-page' },
-        Topbar({ brand: '247420', leaf: 'community', items: [['index', '../../'], ['chat', '../chat/'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
+        Topbar({ brand: '247420', leaf: 'community', items: [['index', '../../'], ['chat', '../chat/'], ['source', 'https://github.com/AnEntrypoint/design']] }),
         Crumb({ trail: ['247420', 'kits'], leaf: 'community' }),
         CommunityShell({
             serverRailProps: {

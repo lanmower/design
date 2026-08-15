@@ -18,42 +18,41 @@
   --tree-indent: 12px;
   --tree-base-indent: 6px;
 
-  /* Paper / Ink — RESTYLED to "warm editorial, amber lead" (2026-08 restyle,
-     replacing the shadcn-neutral grayscale identity from 2026-07-30, which
-     itself replaced the original "Acid Editorial" warm-paper/electric-lime
-     look). Warm cream paper, deep warm-brown ink, and an amber/ochre accent
-     (see --acid below) replace the neutral grayscale triad -- the multi-hue
-     category palette (green/purple/mascot/signals) is untouched, only the
-     paper/ink/accent neutral-vs-lead triad changes. Every downstream
-     color-mix()/var() derivation in this file keeps its formula; only these
-     ROOT values change, so the swap cascades through all 32 consumer files
-     automatically -- see restyle-warm-editorial-amber-root-tokens for the
-     full rationale and re-verification this required.
-     Contrast re-verified by hand (WCAG relative-luminance formula) against
-     every paired text tone: --ink 15.57:1, --ink-2 11.73:1, --ink-3 7.21:1 on
-     --paper (all far clear of AA 4.5:1); --ink-3 on --paper-2/--paper-3 also
-     re-measured at 6.43:1 / 5.40:1, both still clear. */
-  --paper:       #FBF6EE;
-  --paper-2:     #F1E9DA;
-  --paper-3:     #E3D6BF;
-  --ink:         #251C12;
-  --ink-2:       #3D3125;
-  --ink-3:       #5F5040; /* re-verified 2026-08 warm-editorial restyle: 7.21:1 on --paper, 6.43:1 on --paper-2, 5.40:1 on --paper-3 -- all clear of AA 4.5:1 with margin */
-  --ink-3-dark:  #5A4B3B; /* dark theme bg-3 (tier-3 surface), warm-brown equivalent of the retired neutral --ink-3-dark */
-  --paper-3-dark: #D8C9A8; /* dark theme fg-3 (tier-3 text); re-verified against --ink-3-dark/--ink-2/--ink below */
+  /* Paper / Ink — RESTYLED (2026-08b) back to true neutral grayscale,
+     replacing the brief "warm editorial, amber lead" identity (2026-08a,
+     warm cream/brown/amber) which itself replaced the 2026-07-30
+     shadcn-neutral grayscale identity. User rejected warm-brown outright
+     ("brown is lame") and asked for a pure neutral base so the brand duo
+     below is the only color in the system. Every downstream color-mix()/
+     var() derivation in this file keeps its formula; only these ROOT values
+     change, cascading through all 32 consumer files automatically.
+     Contrast re-verified by hand (WCAG relative-luminance formula): --ink
+     17.40:1, --ink-2 12.63:1, --ink-3 7.00:1 on --paper (all far clear of AA
+     4.5:1); --ink-3 on --paper-2/--paper-3 also re-measured at 6.42:1 /
+     5.56:1, both still clear. */
+  --paper:       #FFFFFF;
+  --paper-2:     #F5F5F5;
+  --paper-3:     #E5E5E5;
+  --ink:         #1A1A1A;
+  --ink-2:       #333333;
+  --ink-3:       #595959; /* re-verified 2026-08b neutral restyle: 7.00:1 on --paper, 6.42:1 on --paper-2, 5.56:1 on --paper-3 -- all clear of AA 4.5:1 with margin */
+  --ink-3-dark:  #4D4D4D; /* dark theme bg-3 (tier-3 surface), neutral equivalent */
+  --paper-3-dark: #BFBFBF; /* dark theme fg-3 (tier-3 text); re-verified against --ink-3-dark/--ink-2/--ink below */
 
-  /* Lore palette. --acid held the shadcn-neutral near-black accent (2026-07-30
-     restyle); RESTYLED again (2026-08, warm-editorial) to a confident amber/
-     ochre lead -- the identity's one saturated hue, everything else in this
-     triad staying warm-neutral. green/purple/mascot below stay as the
-     category/status palette, untouched by this restyle. */
-  --acid:        #8A5A0A; /* accent FILL -- 5.50:1 against --paper via --accent-fg on top */
-  --acid-deep:   #5C3B06; /* accent TEXT tone on --paper -- 9.37:1, re-verified 2026-08 warm-editorial restyle */
+  /* Lore palette. --acid held the shadcn-neutral near-black accent
+     (2026-07-30), then a warm amber lead (2026-08a) -- RESTYLED again
+     (2026-08b) to the project's own brand codename read as a color: #247420
+     (green). --purple below is retuned to #420247, the codename's digit
+     reversal, as the deliberate secondary lead -- the two together ARE the
+     new identity, not an arbitrary accent choice. mascot/signals stay as
+     the category/status palette, untouched by this restyle. */
+  --acid:        #247420; /* accent FILL -- 5.84:1 against --paper via --accent-fg (white) on top */
+  --acid-deep:   #133F10; /* accent TEXT tone on --paper -- 12.03:1 */
   --green:       #247420;
   --green-2:     #3A9A34;
   --green-deep:  #133F10;
   --green-tint:  #D7E4C2;
-  --purple:      #3A0140;
+  --purple:      #420247; /* the brand codename's digit reversal, the identity's secondary lead -- 15.77:1 on --paper */
   --purple-2:    #7F18A4;
   --purple-deep: #220026;
   --purple-tint: #E2CFE4;
@@ -202,14 +201,13 @@
 
   /* Type — system-font stack, no custom web fonts loaded (README's explicit
      no-web-font principle: zero network font requests, zero FOUT risk).
-     RESTYLED 2026-08 (warm-editorial): --ff-display now leads with the
-     system UI-serif stack for headings/hero only, giving the identity an
-     editorial voice distinct from the body/UI text below it -- still a
-     same-machine system font, no @font-face, no network fetch. --ff-body and
-     --ff-mono are UNCHANGED (system-ui / ui-monospace): body copy and code
-     stay on the neutral, maximally-legible system stack per the README
-     principle; only the display/heading voice gets the editorial treatment. */
-  --ff-display:  ui-serif, Georgia, "Times New Roman", serif;
+     RESTYLED 2026-08b: --ff-display no longer forks to a serif stack (that
+     was the prior warm-editorial identity's one deliberate exception,
+     explicitly rejected by the user -- "we dont like any fonts, and we dont
+     like any serifs"). One system sans-serif stack for every text role;
+     headings differentiate from body purely by the fs/fw scale tokens and
+     weight, never by font-family. */
+  --ff-display:  system-ui, sans-serif;
   --ff-narrow:   system-ui, sans-serif;
   --ff-body:     system-ui, sans-serif;
   --ff-mono:     ui-monospace, Menlo, Consolas, monospace;
@@ -546,18 +544,18 @@
   --panel-text:   var(--fg);
   --panel-text-2: var(--fg-2);
   --panel-text-3: var(--fg-3);
-  /* RESTYLED 2026-08 (warm-editorial): dark-mode accent is a LIGHT amber chip
-     (#E8A93E, 8.12:1 on --ink both directions) with a DARK --ink foreground --
-     the inverse of light mode's dark-fill/light-text pairing, same convention
-     the prior shadcn-neutral restyle used (light chip on dark page, not a
+  /* RESTYLED 2026-08b (green/purple lead): dark-mode accent is a LIGHT green
+     chip (#5CBF52, already verified elsewhere in this file at 7.48:1+ on ink
+     surfaces -- reused rather than inventing a new hex) with a DARK --ink
+     foreground -- the inverse of light mode's dark-fill/light-text pairing,
+     same convention every prior restyle used (light chip on dark page, not a
      same-dark-as-bg chip). --accent does not alias --acid here (--acid is
      tuned for light-mode fill-with-light-text; dark mode needs its own
-     light-fill-with-dark-text direction, same reasoning as the retired
-     neutral restyle's own comment on this point). */
-  --accent:    #E8A93E;
+     light-fill-with-dark-text direction). */
+  --accent:    #5CBF52;
   --accent-fg: var(--ink);
   --accent-ink: var(--paper);
-  --accent-bright: #E8A93E;
+  --accent-bright: #5CBF52;
   --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
   --danger:    oklch(0.68 0.19 25);
   --flame:     #FF5A1F;
@@ -606,7 +604,7 @@
    file (green retune 7.48:1 on --ink, purple-2 retune 6.11:1 on --ink). */
 .ds-247420[data-theme="ink"][data-accent="acid"],
 .ds-247420[data-theme="dark"][data-accent="acid"] {
-  --accent: #E8A93E; --accent-bright: #E8A93E; --accent-fg: var(--ink); --accent-ink: var(--paper); --panel-accent: #E8A93E;
+  --accent: #5CBF52; --accent-bright: #5CBF52; --accent-fg: var(--ink); --accent-ink: var(--paper); --panel-accent: #5CBF52;
 }
 .ds-247420[data-theme="ink"][data-accent="purple"],
 .ds-247420[data-theme="dark"][data-accent="purple"] {
@@ -648,10 +646,10 @@
     --panel-text:   var(--fg);
     --panel-text-2: var(--fg-2);
     --panel-text-3: var(--fg-3);
-    --accent:    #E8A93E; /* mirrors [data-theme=ink/dark] retune above */
+    --accent:    #5CBF52; /* mirrors [data-theme=ink/dark] retune above */
     --accent-fg: var(--ink);
     --accent-ink: var(--paper);
-    --accent-bright: #E8A93E;
+    --accent-bright: #5CBF52;
     --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
     --danger:    oklch(0.68 0.19 25);
     --flame:     #FF5A1F;
@@ -1217,6 +1215,24 @@
 .ds-247420 .fd-root .app { width: 100%; height: 100%; min-height: 0; flex: 1 1 auto; }
 .ds-247420 .fd-root .app-body { min-width: 0; }
 
+/* Opt-in for long-form/marketing content pages (e.g. a lore/article page)
+   mounted in this same shell -- the default .app is a HARD height:100dvh
+   clamp so its two children (.app-side-shell/.app-main) can each own
+   independent internal scroll (the correct split-scroll architecture for
+   dashboard-style kits like chat/dashboard/os, see .app-side-shell's own
+   comment). A page whose content is simply longer than the viewport and
+   should scroll as one normal document -- not clip at the fold -- opts in
+   with .app-doc-scroll: height becomes min-height only, so .app (and every
+   flex descendant relying on min-height:0 to cap its own height) can grow
+   past 100dvh instead of clipping. Consumers set this by adding the class
+   to whatever element carries .app (see AnEntrypoint/design#viewport-clamp
+   for the reproduction this fixes -- a 247420.xyz content route clipped at
+   exactly the viewport height with the rest of the page unreachable). */
+.ds-247420 .app.app-doc-scroll { height: auto; min-height: 100dvh; overflow: visible; }
+.ds-247420 .app-doc-scroll .app-body { min-height: auto; }
+.ds-247420 .app-doc-scroll .app-main,
+.ds-247420 .app-doc-scroll .app-side-shell { overflow-y: visible; min-height: auto; height: auto; }
+
 /* Full-bleed canvas host (e.g. a game/3D viewport that fills the page behind the
    shell): the shell's opaque var(--bg) would paint OVER the canvas and hide it.
    Mark the host with `canvas-host` to make the shell surfaces transparent so the
@@ -1436,14 +1452,16 @@
    scroll. Thin always-visible scrollbar tracks make each region's own scroll
    ownership legible without changing the (correct) two-region architecture. */
 .ds-247420 .app-side-shell {
-  background: var(--bg); overflow-y: auto; min-height: 0;
+  /* RESTYLED: a lone border-right (removed below) read as an accidental
+     floating line rather than deliberate framing, since the sidebar's
+     background was identical to the page's and nothing else on the page had
+     a matching border for visual balance. A tonal-surface fill (--bg-2, one
+     step off the page background) makes the split-scroll boundary legible
+     the same way every other panel/card edge in this system already is --
+     via a fill difference, not a hairline -- consistent with the
+     tonal-surfaces-over-borders principle instead of contradicting it. */
+  background: var(--bg-2); overflow-y: auto; min-height: 0;
   scrollbar-width: thin; scrollbar-color: var(--rule-strong) transparent;
-  /* A visible-only-while-scrolled thin scrollbar was the sole cue that this
-     and .app-main are two independent scroll regions -- easy to miss,
-     reading as a layout glitch (sidebar not moving) rather than an
-     intentional split view. A permanent hairline border reads at a glance
-     regardless of scroll/hover state. */
-  border-right: 1px solid var(--rule);
   /* Bottom-edge fade: a rail longer than the viewport otherwise shows only
      the thin scrollbar track as its sole "there is more below" cue. Mirrors
      the horizontal fade already used by .os-instances (src/kits/os/theme.css)
@@ -4901,7 +4919,14 @@
   /* 1.5 is the value that actually renders (a later polish block used to
      re-declare it; the sizing block now states the truth). */
   line-height: 1.5; resize: none;
-  min-height: 28px; max-height: 200px;
+  /* min-height must clear one real rendered line (fs-sm 15px * line-height
+     1.5 = 22.5px) PLUS the vertical padding (space-2 top+bottom = 16px) =
+     ~39px -- the previous 28px value was under that, so scrollHeight always
+     exceeded clientHeight even on an EMPTY textarea, permanently showing a
+     scrollbar-track sliver at rest (live-measured: offsetWidth-clientWidth
+     was 10px on an empty composer). 40px clears the real content height with
+     a hair of margin. */
+  min-height: 40px; max-height: 200px;
   box-sizing: border-box;
   /* Always auto, not focus-only: a capped-height composer that loses focus
      while scrolled must still show its scrollbar - otherwise once the field
@@ -6533,6 +6558,13 @@
   .ds-247420 .app { height: 100dvh; min-height: 0; overflow: hidden; }
   /* Embedded shell (freddie WM window) fills its container, not the viewport. */
   .ds-247420 .fd-root .app { height: 100%; overflow: visible; }
+  /* Document-scroll opt-out (see topbar.css's .app-doc-scroll for the full
+     rationale) -- this desktop media query is the ACTUAL enforcement point
+     for the split-scroll clamp (it reapplies height:100dvh+overflow:hidden
+     unconditionally, after topbar.css's own .app rule), so the opt-out must
+     win here too, not just in topbar.css, or a long-form page stays clipped
+     at every desktop width. */
+  .ds-247420 .app.app-doc-scroll { height: auto; min-height: 100dvh; overflow: visible; }
   .ds-247420 .app-body { min-height: 0; flex: 1 1 auto; }
   /* scrollbar-gutter mirrors .app-main's own (topbar.css) — without it the
      thumb draws flush against the sidebar's nav text with zero breathing
@@ -6540,6 +6572,8 @@
      anchored to the shell's own edge. */
   .ds-247420 .app-side-shell { overflow-y: auto; overflow-x: hidden; min-height: 0; scrollbar-gutter: stable; }
   .ds-247420 .app-main { overflow-y: auto; min-height: 0; }
+  .ds-247420 .app-doc-scroll .app-side-shell,
+  .ds-247420 .app-doc-scroll .app-main { overflow-y: visible; min-height: auto; }
 }
 
 /* Mobile (≤480) status bar compact; hide tail item */

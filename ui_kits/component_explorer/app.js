@@ -107,7 +107,7 @@ function view(rerender) {
     return AppShell({
         topbar: Topbar({
             brand: '247420', leaf: 'component explorer',
-            items: [['back to design ->', '../../']],
+            items: [['back to design', '../../']],
         }),
         crumb: Crumb({ leaf: selected.name, right: h('span', { class: 'dim' }, filteredCount + ' / ' + components.length + ' components') }),
         side: sideNode(rerender),

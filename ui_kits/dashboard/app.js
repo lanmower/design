@@ -191,7 +191,7 @@ function FeedStateSwitcher() {
 function App() {
     const feedCount = feedCountOf();
     return AppShell({
-        topbar: Topbar({ brand: '247420', leaf: 'dashboard', items: [['index', '../../'], ['docs', '../docs/'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
+        topbar: Topbar({ brand: '247420', leaf: 'dashboard', items: [['index', '../../'], ['docs', '../docs/'], ['source', 'https://github.com/AnEntrypoint/design']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'dashboard' }),
         side: Side({
             sections: [

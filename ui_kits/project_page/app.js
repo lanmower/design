@@ -113,7 +113,7 @@ function App() {
             items: [
                 ['<- all projects', '../homepage/'],
                 ...projectNavItems,
-                ['source ->', 'https://github.com/AnEntrypoint']
+                ['source', 'https://github.com/AnEntrypoint']
             ]
         }),
         crumb: Crumb({

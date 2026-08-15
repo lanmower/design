@@ -115,7 +115,7 @@ function send(text) {
 
 function App() {
     return AppShell({
-        topbar: Topbar({ brand: '247420', leaf: 'chat', items: [['index', '../../'], ['aicat', '../aicat/'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
+        topbar: Topbar({ brand: '247420', leaf: 'chat', items: [['index', '../../'], ['aicat', '../aicat/'], ['source', 'https://github.com/AnEntrypoint/design']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'chat' }),
         side: Side({
             sections: [

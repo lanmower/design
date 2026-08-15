@@ -228,7 +228,7 @@ function send(text) {
 
 function App() {
     return AppShell({
-        topbar: Topbar({ brand: '247420', leaf: 'aicat', items: [['index', '../../'], ['chat', '../chat/'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
+        topbar: Topbar({ brand: '247420', leaf: 'aicat', items: [['index', '../../'], ['chat', '../chat/'], ['source', 'https://github.com/AnEntrypoint/design']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'aicat' }),
         // Sidebar holds session/tree items only (new chat + a two-level
         // history tree). Preset prompts moved into the composer/empty-state

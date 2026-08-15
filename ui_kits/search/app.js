@@ -88,7 +88,7 @@ function App() {
     return AppShell({
         topbar: Topbar({
             brand: '247420', leaf: 'search',
-            items: [['index', '../../'], ['source ->', 'https://github.com/AnEntrypoint/design']],
+            items: [['index', '../../'], ['source', 'https://github.com/AnEntrypoint/design']],
             search: h('input', {
                 class: 'input ds-topbar-search', value: state.q, placeholder: 'search kits, previews, docs, api…',
                 oninput: (e) => { state.q = e.target.value; kit.render(); }
@@ -128,7 +128,7 @@ function App() {
                 state.phase === 'loading' ? Panel({ title: 'searching', class: 'ds-panel-gap', children: ResultsSkeleton() })
                 : state.phase === 'error' ? Panel({ title: 'results unavailable', class: 'ds-panel-gap', children: ResultsError() })
                 : rows.length ? Panel({ title: 'results', count: rows.length, class: 'ds-panel-gap', children:
-                    rows.map((r, i) => RowLink({ key: 'r' + r.code + i, code: r.code, title: r.title, sub: r.sub, meta: r.kind + ' ->', href: r.href }))
+                    rows.map((r, i) => RowLink({ key: 'r' + r.code + i, code: r.code, title: r.title, sub: r.sub, meta: r.kind, href: r.href }))
                 }) : Panel({ title: 'no results', class: 'ds-panel-gap', children: h('div', { class: 'ds-empty-state' },
                     h('div', { class: 'ds-empty-state-glyph' }, '( )'),
                     h('p', { class: 'ds-empty-state-msg' }, 'no matches for ', h('code', {}, '"' + state.q + '"')),

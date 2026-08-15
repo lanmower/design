@@ -495,7 +495,14 @@
   /* 1.5 is the value that actually renders (a later polish block used to
      re-declare it; the sizing block now states the truth). */
   line-height: 1.5; resize: none;
-  min-height: 28px; max-height: 200px;
+  /* min-height must clear one real rendered line (fs-sm 15px * line-height
+     1.5 = 22.5px) PLUS the vertical padding (space-2 top+bottom = 16px) =
+     ~39px -- the previous 28px value was under that, so scrollHeight always
+     exceeded clientHeight even on an EMPTY textarea, permanently showing a
+     scrollbar-track sliver at rest (live-measured: offsetWidth-clientWidth
+     was 10px on an empty composer). 40px clears the real content height with
+     a hair of margin. */
+  min-height: 40px; max-height: 200px;
   box-sizing: border-box;
   /* Always auto, not focus-only: a capped-height composer that loses focus
      while scrolled must still show its scrollbar - otherwise once the field

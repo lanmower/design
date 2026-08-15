@@ -142,12 +142,12 @@ file_browser:
   heading: "File browser"
   count: "primitives"
   items:
-    - { code: "fb", title: "file_browser kit",   sub: "Drop, list, preview, dialogs",   desc: "The full surface, working with mock data.",  href: "./ui_kits/file_browser/", cta: "open ->" }
-    - { code: "fb", title: "FileRow",            sub: "Rail, icon, name, meta",      desc: "data-file-type drives the rail color — never apply rail-* manually.", href: "./preview/file-row.html", cta: "open ->" }
-    - { code: "fb", title: "FileGrid",           sub: "A stack of rows in a panel",       desc: "Directories sort first; the selected row gets the mint .active tone.", href: "./preview/file-grid.html", cta: "open ->" }
-    - { code: "fb", title: "DropZone",           sub: "Tonal upload target",            desc: "Swaps to --panel-select on dragover; preventDefault runs on document, not just the zone.", href: "./preview/dropzone.html", cta: "open ->" }
-    - { code: "fb", title: "FileViewer",         sub: "Modal preview, keyed head",     desc: "Head and body both carry data-file-type so rails propagate inside the modal.", href: "./preview/file-viewer.html", cta: "open ->" }
-    - { code: "fb", title: "FileToolbar",        sub: "Actions, breadcrumb, upload",  desc: "Left-aligned actions, right-aligned count; UploadProgress sits underneath.", href: "./preview/file-toolbar.html", cta: "open ->" }
+    - { code: "fb", title: "file_browser kit",   sub: "Drop, list, preview, dialogs",   desc: "The full surface, working with mock data.",  href: "./ui_kits/file_browser/", cta: "open" }
+    - { code: "fb", title: "FileRow",            sub: "Rail, icon, name, meta",      desc: "data-file-type drives the rail color — never apply rail-* manually.", href: "./preview/file-row.html", cta: "open" }
+    - { code: "fb", title: "FileGrid",           sub: "A stack of rows in a panel",       desc: "Directories sort first; the selected row gets the mint .active tone.", href: "./preview/file-grid.html", cta: "open" }
+    - { code: "fb", title: "DropZone",           sub: "Tonal upload target",            desc: "Swaps to --panel-select on dragover; preventDefault runs on document, not just the zone.", href: "./preview/dropzone.html", cta: "open" }
+    - { code: "fb", title: "FileViewer",         sub: "Modal preview, keyed head",     desc: "Head and body both carry data-file-type so rails propagate inside the modal.", href: "./preview/file-viewer.html", cta: "open" }
+    - { code: "fb", title: "FileToolbar",        sub: "Actions, breadcrumb, upload",  desc: "Left-aligned actions, right-aligned count; UploadProgress sits underneath.", href: "./preview/file-toolbar.html", cta: "open" }
     - { code: "fb", title: "fsbrowse",           sub: "Express + busboy backend",       desc: "Canonical real-world wiring — same SDK, real filesystem operations.",     href: "https://github.com/AnEntrypoint/fsbrowse", cta: "source" }
 
 quickstart:
@@ -162,7 +162,7 @@ desktop_os:
   heading: "Desktop OS shell"
   count: "in-page window manager"
   items:
-    - { code: "os", title: "Live demo",           sub: "menubar, apps drawer, side rail, taskbar, floating windows", desc: "a runnable desktop shell with its own window manager and a 2-app registry",   href: "./ui_kits/os/",   cta: "open ->" }
+    - { code: "os", title: "Live demo",           sub: "menubar, apps drawer, side rail, taskbar, floating windows", desc: "a runnable desktop shell with its own window manager and a 2-app registry",   href: "./ui_kits/os/",   cta: "open" }
     - { code: "os", title: "createDesktopShell",  sub: "menubar, apps launcher, taskbar, window manager",  desc: "mount any app registry into a draggable, resizable window manager",   href: "https://github.com/AnEntrypoint/design/blob/main/src/kits/os/shell.js",   cta: "shell.js" }
     - { code: "os", title: "renderWindow / renderDock", sub: "pure paint-surface primitives",  desc: "the window chrome and dock rendering the shell composes, importable standalone", href: "https://github.com/AnEntrypoint/design/blob/main/src/kits/os/wm.js", cta: "wm.js" }
     - { code: "os", title: "Icon set",            sub: "SVG glyphs for menubar and taskbar",                    desc: "home, apps, search, settings — used by the shell and exposed for apps",   href: "https://github.com/AnEntrypoint/design/blob/main/src/kits/os/icons.js",   cta: "icons.js" }

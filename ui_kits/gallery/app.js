@@ -203,7 +203,7 @@ function Lightbox() {
 
 function App() {
     return AppShell({
-        topbar: Topbar({ brand: '247420', leaf: 'gallery', items: [['index', '../../'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
+        topbar: Topbar({ brand: '247420', leaf: 'gallery', items: [['index', '../../'], ['source', 'https://github.com/AnEntrypoint/design']] }),
         // Tile count already shows once, in the 'tiles' panel header pill
         // below -- avoid the same number rendered twice on one screen.
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'gallery', right: state.phase === 'ready' ? null : state.phase }),

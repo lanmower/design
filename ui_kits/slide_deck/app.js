@@ -159,12 +159,12 @@ function Controls() {
         h('button', {
             class: 'btn', disabled: atStart, 'aria-disabled': atStart ? 'true' : null,
             onclick: () => { if (state.i > 0) { state.i--; kit.render(); } }
-        }, '<- prev'),
+        }, 'prev'),
         h('span', { class: 'ds-deck-count' }, (state.i + 1) + ' / ' + slides.length),
         h('button', {
             class: 'btn', disabled: atEnd, 'aria-disabled': atEnd ? 'true' : null,
             onclick: () => { if (state.i < slides.length - 1) { state.i++; kit.render(); } }
-        }, 'next ->')
+        }, 'next')
     );
 }
 

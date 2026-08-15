@@ -191,7 +191,7 @@ function DevBody() {
 
 function App() {
     return AppShell({
-        topbar: Topbar({ brand: '247420', leaf: 'gm inspector', items: [['index', '../../'], ['docs', '../docs/'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
+        topbar: Topbar({ brand: '247420', leaf: 'gm inspector', items: [['index', '../../'], ['docs', '../docs/'], ['source', 'https://github.com/AnEntrypoint/design']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'gm_inspector' }),
         side: Side({
             sections: [

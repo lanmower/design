@@ -107,3 +107,60 @@ values moved.
   baselines regenerated via `npm run visual:update` (a palette redesign is
   expected to fail visual-regression checks against the old baseline by
   design — regenerating them is the correct response, not a bug).
+
+- **2026-08-15 — "green/purple lead" restyle: warm editorial → neutral +
+  brand-code accent duo; serif display dropped.** User explicitly rejected
+  the prior warm-editorial identity ("we dont like any fonts, and we dont
+  like any serifs, and brown is lame") and asked for the project's own
+  brand codename read as colors: `#247420` and its digit reversal
+  `#420247`. Neutral paper/ink returns to true grayscale (the identity's
+  only color is now the accent duo, not a warm-tinted neutral).
+
+  **What changed** (old → new):
+  - `--paper` `#FBF6EE` → `#FFFFFF`
+  - `--paper-2` `#F1E9DA` → `#F5F5F5`
+  - `--paper-3` `#E3D6BF` → `#E5E5E5`
+  - `--ink` `#251C12` → `#1A1A1A`
+  - `--ink-2` `#3D3125` → `#333333`
+  - `--ink-3` `#5F5040` → `#595959`
+  - `--ink-3-dark` `#5A4B3B` → `#4D4D4D`
+  - `--paper-3-dark` `#D8C9A8` → `#BFBFBF`
+  - `--acid` (accent fill) `#8A5A0A` → `#247420` (the brand codename)
+  - `--acid-deep` (accent text) `#5C3B06` → `#133F10`
+  - `--purple` `#3A0140` → `#420247` (the codename's digit reversal, the
+    identity's deliberate secondary lead)
+  - dark-theme `--accent`/`--accent-bright` (both the `[data-theme=ink/dark]`
+    block, its `[data-theme=auto]` mirror, and the `[data-accent=acid]`
+    override) `#E8A93E` → `#5CBF52` (a light green already verified
+    elsewhere in this file, reused rather than inventing a new hex)
+  - `--ff-display` `ui-serif, Georgia, "Times New Roman", serif` →
+    `system-ui, sans-serif` — collapsed to the same stack as `--ff-body`;
+    headings now differentiate purely by size/weight, never font-family
+
+  **Why** — direct user rejection of the prior identity's serif and
+  warm-brown choices, with an explicit, specific replacement direction
+  (the brand codename's two color readings).
+
+  **Blast radius** — re-verified via the WCAG relative-luminance formula
+  before landing, then confirmed live: `npm run a11y` — 23/23 kits, 0
+  blocking violations. All 18 FOUC-guard files (fixed in the prior restyle)
+  updated to the new neutral pair. Visual baselines (87 PNGs) regenerated
+  and `npm run visual` passes clean. Also fixed, same pass (unrelated to
+  the palette but discovered live-debugging user-reported issues): a
+  hard `height:100dvh` viewport clamp (`.app` in `src/css/app-shell/
+  topbar.css` and its `@media (min-width:901px)` re-application in
+  `responsive2-workspace.css`) that clipped long-form consumer content
+  pages at exactly the viewport height with no scroll — fixed via an
+  opt-in `.app-doc-scroll` modifier class (compound-selector specificity,
+  `.app.app-doc-scroll`, required to reliably win over the base `.app`
+  rule); a lone `border-right` on `.app-side-shell` that read as an
+  accidental floating line (replaced with a `--bg-2` tonal fill,
+  consistent with tonal-surfaces-over-borders); an empty/single-line
+  `.chat-composer textarea` permanently showing a scrollbar-track sliver
+  (its `min-height:28px` was less than the real rendered line-box height
+  of ~39px, so `scrollHeight` always exceeded `clientHeight` even with no
+  content — corrected to `40px`); and every hardcoded `"open ->"`/
+  `"source ->"`-style trailing arrow glyph across `site/theme.mjs`,
+  `src/page-html/client-script.js`, `site/content/pages/home.yaml`,
+  `site/content/globals/navigation.yaml`, and 14 individual
+  `ui_kits/*/app.js` files, removed per explicit user request.

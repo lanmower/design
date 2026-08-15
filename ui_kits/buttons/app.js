@@ -73,7 +73,7 @@ function ConfirmPairRow() {
 
 function App() {
     return AppShell({
-        topbar: Topbar({ brand: '247420', leaf: 'buttons', items: [['index', '../../'], ['source ->', 'https://github.com/AnEntrypoint/design']] }),
+        topbar: Topbar({ brand: '247420', leaf: 'buttons', items: [['index', '../../'], ['source', 'https://github.com/AnEntrypoint/design']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'buttons' }),
         main: [
             h('div', { class: 'ds-app-surface ds-section-pad' },

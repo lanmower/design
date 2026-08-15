@@ -35,15 +35,9 @@ function heroNode(hero) {
       hero.body || hero.subheading,
       hero.accent ? h('span', { class: 'ds-hero-accent' }, ' ' + hero.accent) : null,
     ) : null,
-    // Every hero CTA is a plain <a href> that navigates away from this page
-    // (GitHub, the portfolio site, ...), never an in-page action -- so the
-    // trailing arrow is appended here once, at the render layer, rather than
-    // hand-typed per label in content yaml where it could drift out of sync
-    // with the "navigates away = arrow" rule used elsewhere (row ctas,
-    // signin's in-page submit buttons).
     Array.isArray(hero.ctas) && hero.ctas.length
       ? h('div', { class: 'ds-hero-actions' }, ...hero.ctas.map((c, i) =>
-          h('a', { key: i, class: i === 0 ? 'btn btn-accent' : 'btn btn-ghost', href: c.href || '#' }, (c.label || c.cta || 'go') + ' ->')))
+          h('a', { key: i, class: i === 0 ? 'btn btn-accent' : 'btn btn-ghost', href: c.href || '#' }, c.label || c.cta || 'go')))
       : null,
     badgeRow,
   );
@@ -135,7 +129,7 @@ function examplesNode(examples) {
       if (code) kids.push(h('span', { key: 'c', class: 'code' }, code));
       kids.push(h('span', { key: 't', class: 'title' }, String(e.label || e.name || e.href || '')));
       if (e.desc) kids.push(h('span', { key: 'm', class: 'meta dim' }, ' — ' + e.desc));
-      kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, '->'));
+      kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, 'open'));
       return h('a', { key: i, class: 'row', href: e.href || '#' }, ...kids);
     }),
   });
@@ -238,7 +232,7 @@ function panelNode(panel, idx, rerender) {
           code ? h('span', { key: 'c', class: 'ds-kit-card-code' }, code) : null,
           h('span', { key: 't', class: 'ds-kit-card-title' }, String(it.title || it.name || '')),
           (it.sub || it.desc) ? h('span', { key: 'm', class: 'ds-kit-card-sub' }, it.sub || it.desc) : null,
-          h('span', { key: 'a', class: 'ds-kit-card-arrow' }, it.meta || '->'),
+          h('span', { key: 'a', class: 'ds-kit-card-arrow' }, it.meta || 'open'),
         );
       })
     : items.map((it, i) => {
@@ -247,7 +241,7 @@ function panelNode(panel, idx, rerender) {
         if (code) kids.push(h('span', { key: 'c', class: 'code' }, code));
         kids.push(h('span', { key: 't', class: 'title' }, String(it.title || it.name || '')));
         if (it.sub || it.desc) kids.push(h('span', { key: 'm', class: 'meta dim' }, ' — ' + (it.sub || it.desc)));
-        kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, it.meta || '->'));
+        kids.push(h('span', { key: 'a', class: 'ds-row-arrow' }, it.meta || 'open'));
         return h('a', { key: i, class: 'row', href: it.href || '#' }, ...kids);
       });
   const rowsWrapped = panel.layout === 'cards' ? h('div', { class: 'ds-kit-card-grid' }, ...rows) : rows;

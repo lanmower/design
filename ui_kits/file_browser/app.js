@@ -233,7 +233,7 @@ function App() {
                     ['design', '../../'],
                     ['home', '../homepage/'],
                     ['docs', '../docs/'],
-                    ['source ->', 'https://github.com/AnEntrypoint/Design']
+                    ['source', 'https://github.com/AnEntrypoint/Design']
                 ]
             }),
             crumb: Crumb({ trail: ['247420', 'ui kits'], leaf: 'file browser' }),

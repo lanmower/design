@@ -37,6 +37,24 @@
 .fd-root .app { width: 100%; height: 100%; min-height: 0; flex: 1 1 auto; }
 .fd-root .app-body { min-width: 0; }
 
+/* Opt-in for long-form/marketing content pages (e.g. a lore/article page)
+   mounted in this same shell -- the default .app is a HARD height:100dvh
+   clamp so its two children (.app-side-shell/.app-main) can each own
+   independent internal scroll (the correct split-scroll architecture for
+   dashboard-style kits like chat/dashboard/os, see .app-side-shell's own
+   comment). A page whose content is simply longer than the viewport and
+   should scroll as one normal document -- not clip at the fold -- opts in
+   with .app-doc-scroll: height becomes min-height only, so .app (and every
+   flex descendant relying on min-height:0 to cap its own height) can grow
+   past 100dvh instead of clipping. Consumers set this by adding the class
+   to whatever element carries .app (see AnEntrypoint/design#viewport-clamp
+   for the reproduction this fixes -- a 247420.xyz content route clipped at
+   exactly the viewport height with the rest of the page unreachable). */
+.app.app-doc-scroll { height: auto; min-height: 100dvh; overflow: visible; }
+.app-doc-scroll .app-body { min-height: auto; }
+.app-doc-scroll .app-main,
+.app-doc-scroll .app-side-shell { overflow-y: visible; min-height: auto; height: auto; }
+
 /* Full-bleed canvas host (e.g. a game/3D viewport that fills the page behind the
    shell): the shell's opaque var(--bg) would paint OVER the canvas and hide it.
    Mark the host with `canvas-host` to make the shell surfaces transparent so the
@@ -256,14 +274,16 @@ body.canvas-host { background: transparent !important; }
    scroll. Thin always-visible scrollbar tracks make each region's own scroll
    ownership legible without changing the (correct) two-region architecture. */
 .app-side-shell {
-  background: var(--bg); overflow-y: auto; min-height: 0;
+  /* RESTYLED: a lone border-right (removed below) read as an accidental
+     floating line rather than deliberate framing, since the sidebar's
+     background was identical to the page's and nothing else on the page had
+     a matching border for visual balance. A tonal-surface fill (--bg-2, one
+     step off the page background) makes the split-scroll boundary legible
+     the same way every other panel/card edge in this system already is --
+     via a fill difference, not a hairline -- consistent with the
+     tonal-surfaces-over-borders principle instead of contradicting it. */
+  background: var(--bg-2); overflow-y: auto; min-height: 0;
   scrollbar-width: thin; scrollbar-color: var(--rule-strong) transparent;
-  /* A visible-only-while-scrolled thin scrollbar was the sole cue that this
-     and .app-main are two independent scroll regions -- easy to miss,
-     reading as a layout glitch (sidebar not moving) rather than an
-     intentional split view. A permanent hairline border reads at a glance
-     regardless of scroll/hover state. */
-  border-right: 1px solid var(--rule);
   /* Bottom-edge fade: a rail longer than the viewport otherwise shows only
      the thin scrollbar track as its sole "there is more below" cue. Mirrors
      the horizontal fade already used by .os-instances (src/kits/os/theme.css)

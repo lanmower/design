@@ -125,6 +125,13 @@
   .app { height: 100dvh; min-height: 0; overflow: hidden; }
   /* Embedded shell (freddie WM window) fills its container, not the viewport. */
   .fd-root .app { height: 100%; overflow: visible; }
+  /* Document-scroll opt-out (see topbar.css's .app-doc-scroll for the full
+     rationale) -- this desktop media query is the ACTUAL enforcement point
+     for the split-scroll clamp (it reapplies height:100dvh+overflow:hidden
+     unconditionally, after topbar.css's own .app rule), so the opt-out must
+     win here too, not just in topbar.css, or a long-form page stays clipped
+     at every desktop width. */
+  .app.app-doc-scroll { height: auto; min-height: 100dvh; overflow: visible; }
   .app-body { min-height: 0; flex: 1 1 auto; }
   /* scrollbar-gutter mirrors .app-main's own (topbar.css) — without it the
      thumb draws flush against the sidebar's nav text with zero breathing
@@ -132,6 +139,8 @@
      anchored to the shell's own edge. */
   .app-side-shell { overflow-y: auto; overflow-x: hidden; min-height: 0; scrollbar-gutter: stable; }
   .app-main { overflow-y: auto; min-height: 0; }
+  .app-doc-scroll .app-side-shell,
+  .app-doc-scroll .app-main { overflow-y: visible; min-height: auto; }
 }
 
 /* Mobile (≤480) status bar compact; hide tail item */

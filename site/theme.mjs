@@ -17,7 +17,7 @@ function rows(items) {
     code: it.code && !isOrdinal(it.code) ? it.code : '',
     title: it.title || it.name,
     sub: it.sub || it.desc || '',
-    meta: it.cta || it.meta || 'open ->',
+    meta: it.cta || it.meta || 'open',
     href: it.href || '#',
     // Passed through untouched for panels that carry a category taxonomy
     // (currently only kits) -- undefined on every other panel, harmless.
@@ -139,7 +139,7 @@ export default {
           code: '',
           title: String(name).replace(/-/g, ' '),
           sub: 'preview · ' + name + '.html',
-          meta: 'open ->',
+          meta: 'open',
           href: base + name + '.html',
         })),
       });
@@ -183,7 +183,7 @@ export default {
         url: site.url || '',
       },
       faviconGlyph: site.glyph || (site.title ? site.title.trim().charAt(0).toUpperCase() : '2'),
-      headExtra: `<style>html,body{margin:0;padding:0}body{background:var(--bg,#FBF6EE);color:var(--fg,#251C12);font-family:var(--ff-body,system-ui,sans-serif)}</style>`,
+      headExtra: `<style>html,body{margin:0;padding:0}body{background:var(--bg,#FFFFFF);color:var(--fg,#1A1A1A);font-family:var(--ff-body,system-ui,sans-serif)}</style>`,
     });
 
     return [{ path: 'index.html', html }];
