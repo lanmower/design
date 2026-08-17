@@ -99,7 +99,7 @@ ${seoTags}
 ${faviconTags}
 ${cssLink}
 <script type="importmap">
-{ "imports": { "anentrypoint-design": "https://raw.githack.com/AnEntrypoint/design/main/dist/247420.js" } }
+{ "imports": { "anentrypoint-design": "https://cdn.jsdelivr.net/gh/AnEntrypoint/design@main/dist/247420.js" } }
 </script>
 <style>
 ${PAGE_INLINE_STYLES}
