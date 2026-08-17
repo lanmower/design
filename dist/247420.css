@@ -1651,7 +1651,7 @@
    full-bleed line -- sidebar-present narrow pages read the same width class
    as the no-side variant below instead of visibly starving next to it. */
 .ds-247420 .app-body:not(.no-side) .app-main.narrow {
-  max-width: clamp(var(--measure-narrow), 62vw, 1200px);
+  max-width: clamp(var(--measure-narrow), 70vw, 1440px);
 }
 /* A shell with no sidebar has no competing column, so the prose clamp there was
    leaving the whole sidebar's worth of width empty -- 760px of content inside a
@@ -1670,7 +1670,7 @@
    1373px so real desktop widths actually grow past it, same reasoning as
    the sidebar variant above. */
 .ds-247420 .app-body.no-side .app-main.narrow {
-  max-width: clamp(calc(var(--measure-narrow) + var(--sidebar-width)), 74vw, 1400px);
+  max-width: clamp(calc(var(--measure-narrow) + var(--sidebar-width)), 84vw, 1680px);
 }
 /* Article-body heading rhythm and lede spacing, consumed by flatspace-rendered
    long-form pages (docs, papers) that drop headings/panels directly into .app-main. */
