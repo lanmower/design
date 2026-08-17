@@ -29,6 +29,7 @@
   align-items: flex-start;
   column-gap: var(--article-toc-gutter-nonrhythm);
   gap: var(--article-toc-gutter-nonrhythm);
+  width: 100%;
   max-width: calc(var(--article-toc-rail-w) + var(--article-toc-gutter-nonrhythm) + var(--measure));
   margin-left: auto;
   margin-right: auto;
