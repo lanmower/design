@@ -177,7 +177,7 @@ ${a?`<meta property="og:image" content="${a}">`:""}
 <meta name="twitter:description" content="${d}">
 ${i?`<meta name="twitter:site" content="${i}">`:""}
 ${a?`<meta name="twitter:image" content="${a}">`:""}`;if(n.ldJson!==!1&&(n.description||r)){let m=JSON.stringify({"@context":"https://schema.org","@type":"WebSite",name:e,url:n.url||"",description:n.description||"",inLanguage:n.lang||"en"}).replace(/</g,"\\u003c");p+=`
-<script type="application/ld+json">${m}<\/script>`}return p}function zf({faviconHref:e,faviconGlyph:t}){return e?`<link rel="icon" href="${qe(e)}">`:t?`<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E${encodeURIComponent(t)}%3C/text%3E%3C/svg%3E">`:""}function Nf({cssHref:e}){return e?`<link rel="stylesheet" href="${e}">`:'<link rel="stylesheet" href="https://raw.githack.com/AnEntrypoint/design/main/dist/247420.css">'}var Pf=`
+<script type="application/ld+json">${m}<\/script>`}return p}function zf({faviconHref:e,faviconGlyph:t}){return e?`<link rel="icon" href="${qe(e)}">`:t?`<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E${encodeURIComponent(t)}%3C/text%3E%3C/svg%3E">`:""}function Nf({cssHref:e}){return e?`<link rel="stylesheet" href="${e}">`:'<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/AnEntrypoint/design@main/dist/247420.css">'}var Pf=`
 .app-stage { width: 100%; max-width: var(--stage-wide, min(96%, 1600px)); margin-inline: auto; padding: var(--space-6, 48px) var(--space-4, 24px) var(--space-8, 96px); display: grid; gap: var(--space-6, 48px); box-sizing: border-box }
 /* Container-coupled, not viewport-coupled: .app-stage is a descendant of the
    .app root, which declares container-type: inline-size (src/css/app-shell/base.css)
@@ -782,7 +782,7 @@ ${q}
 ${O}
 ${R}
 <script type="importmap">
-{ "imports": { "anentrypoint-design": "https://raw.githack.com/AnEntrypoint/design/main/dist/247420.js" } }
+{ "imports": { "anentrypoint-design": "https://cdn.jsdelivr.net/gh/AnEntrypoint/design@main/dist/247420.js" } }
 <\/script>
 <style>
 ${Pf}
