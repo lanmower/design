@@ -28,6 +28,7 @@
 //     goHome(), openServers(), memberMenu(id, name, x, y),
 //     replaySegment(id), skipSegment(), pauseQueue(), resumeQueue(),
 //     setInput(v), startReply(msg), cancelReply(), deleteMessage(id),
+//     attachFiles(fileList)  // optional; when present, composer shows a paperclip button opening a native file picker
 //     reactToMessage(id, authorUserId, emoji)  // optional; emoji defaults ('+') when omitted from the trigger
 //     createChannel()  // optional; when present + canManage, rail shows a "+" next to "rooms"
 //   }
@@ -227,6 +228,7 @@ export function mountCommunityApp(root, adapter = {}) {
                 placeholder: rt ? 'reply to ' + (rt.username || 'User') + '…' : 'message #' + (ch.name || 'general') + '…',
                 onInput: (v) => A.setInput && A.setInput(v),
                 onSend: (v) => { const t = (v || '').trim(); if (t) A.send && A.send(t, rt ? { replyTo: rt } : undefined); },
+                onAttach: A.attachFiles ? (files) => A.attachFiles(files) : null,
             })),
         });
     };

@@ -452,7 +452,7 @@ Segmented one-time-code / PIN entry.
 
 **Kind:** component
 
-**Signature:** `value`, `onInput`, `onSend`, `onEmoji`, `onCancel`, `busy`, `placeholder` = `'message…'`, `disabled`, `disabledReason`, `label`, `context`, `onPasteFiles`, `onDropFiles`, `streamingSince`, `detectAttachment`, `mentionFiles`
+**Signature:** `value`, `onInput`, `onSend`, `onEmoji`, `onCancel`, `busy`, `placeholder` = `'message…'`, `disabled`, `disabledReason`, `label`, `context`, `onPasteFiles`, `onDropFiles`, `onAttach`, `streamingSince`, `detectAttachment`, `mentionFiles`
 
 ### Chat
 
@@ -1077,7 +1077,7 @@ The directory listing.  `loading` and `busy` are NOT two spellings of one state 
 
 **Kind:** component
 
-**Signature:** `muted` = `false`, `deafened` = `false`, `cameraOn` = `false`, `screenShareOn` = `false`, `onMic`, `onDeafen`, `onCamera`, `onScreenShare`, `onSettings`, `onLeave`
+**Signature:** `muted` = `false`, `deafened` = `false`, `cameraOn` = `false`, `screenShareOn` = `false`, `collapsed` = `false`, `onMic`, `onDeafen`, `onCamera`, `onScreenShare`, `onSettings`, `onLeave`, `onReturn`
 
 ### playCompletionCue
 

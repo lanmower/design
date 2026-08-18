@@ -866,6 +866,7 @@ export interface ChatComposerProps {
     context?: any;
     onPasteFiles?: (...args: any[]) => any;
     onDropFiles?: (...args: any[]) => any;
+    onAttach?: (...args: any[]) => any;
     streamingSince?: any;
     detectAttachment?: any;
     mentionFiles?: any;
