@@ -128,6 +128,12 @@ html.ds-247420 .ca-rail-servers {
   scrollbar-width: none;
   border-right: 1px solid var(--panel-3, color-mix(in oklab, var(--fg) 10%, transparent));
 }
+/* stoat's ServerList (entryContainer, ServerList.tsx:363-390) keeps the
+   avatar's own radius FIXED and signals hover/active with a separate
+   left-edge pill indicator (::before, 4px radius, 0->16px height on hover,
+   ->32px when selected) instead of morphing the avatar's shape -- match
+   that pattern here (--r-0, this repo's 4px rung) rather than the previous
+   shrink-on-hover radius morph, which had no stoat equivalent. */
 html.ds-247420 .ca-rail-servers a {
   position: relative;
   display: flex;
@@ -141,10 +147,24 @@ html.ds-247420 .ca-rail-servers a {
   text-decoration: none;
   font-size: var(--fs-sm, 14px);
   font-weight: var(--fw-semibold, 600);
-  transition: background 0.1s, color 0.1s, border-radius 0.1s;
+  transition: background 0.1s, color 0.1s;
 }
-html.ds-247420 .ca-rail-servers a:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); border-radius: var(--r-1); }
-html.ds-247420 .ca-rail-servers a.active { background: color-mix(in oklab, var(--accent) 22%, transparent); color: var(--fg); border-radius: var(--r-1); }
+html.ds-247420 .ca-rail-servers a::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  width: 4px;
+  height: 0;
+  border-radius: var(--r-0);
+  background: var(--fg);
+  transform: translateY(-50%);
+  transition: height var(--dur-snap, .12s) var(--ease, ease);
+}
+html.ds-247420 .ca-rail-servers a:hover::before { height: 16px; }
+html.ds-247420 .ca-rail-servers a.active::before { height: 32px; }
+html.ds-247420 .ca-rail-servers a:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); }
+html.ds-247420 .ca-rail-servers a.active { background: color-mix(in oklab, var(--accent) 22%, transparent); color: var(--fg); }
 /* icon-only: hide the name label + unread badge text that railServerPill
    still renders (kept in markup for a11y/aria-label parity), the glyph disc
    alone carries the row at this width. */
