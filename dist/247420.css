@@ -11300,6 +11300,19 @@
 /* Per-message hover-revealed action row (copy / retry / edit). */
 .ds-247420 .chat-msg-actions { display: flex; gap: var(--space-hair); margin-top: var(--space-half); opacity: 0; transition: opacity var(--dur-snap, .12s) var(--ease, ease); }
 .ds-247420 .chat-msg:hover .chat-msg-actions, .ds-247420 .chat-msg:focus-within .chat-msg-actions { opacity: 1; }
+
+/* Flat (community) rows float the action pill at the top-right corner,
+   matching stoat's MessageToolbar (top:-18px; right:16px; box-shadow pill)
+   instead of sitting in normal flow below the bubble. */
+.ds-247420 .chat-msg.chat-msg-flat { position: relative; }
+.ds-247420 .chat-msg-actions.chat-msg-actions-float {
+  position: absolute; top: calc(-1 * var(--space-3)); right: var(--space-2);
+  margin-top: 0; padding: var(--space-hair); gap: 0;
+  background: var(--bg-2); border-radius: var(--r-1, 8px);
+  box-shadow: var(--shadow-1); z-index: var(--z-raised);
+}
+.ds-247420 .chat-msg-actions-float .chat-msg-action { min-width: 26px; }
+.ds-247420 .chat-msg-actions-float .chat-msg-action-label { display: none; }
 .ds-247420 .chat-msg-action {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--space-1);
   min-width: 26px; height: 26px; padding: 0 var(--space-1-75); cursor: pointer;
@@ -14596,6 +14609,25 @@
   line-height: 16px;
   text-align: center;
 }
+/* create/join + explore actions at the foot of the icon strip (stoat's
+   ServerList.tsx:307-323) -- reuse the same pill geometry as a server icon
+   but a hairline divider marks them as actions, not servers. */
+.ds-247420.ds-247420 .ca-rail-server-add,
+.ds-247420.ds-247420 .ca-rail-server-explore {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-2);
+  color: var(--fg-2, color-mix(in oklab, var(--fg) 78%, transparent));
+  text-decoration: none;
+  transition: background 0.1s, color 0.1s;
+}
+.ds-247420.ds-247420 .ca-rail-server-add { margin-top: 6px; border-top: 1px solid var(--panel-3, color-mix(in oklab, var(--fg) 10%, transparent)); padding-top: 6px; }
+.ds-247420.ds-247420 .ca-rail-server-add:hover,
+.ds-247420.ds-247420 .ca-rail-server-explore:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
 /* auto-width channel column — stoat's ServerSidebar/MemberSidebar both read
    var(--layout-width-channel-sidebar); this repo mirrors that with one
    token (--ca-channel-column-width) so the member list can match it. */
