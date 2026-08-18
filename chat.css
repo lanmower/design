@@ -1252,6 +1252,11 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
    dump a one-sided dead gutter (claude.ai/code centers the thread). Padding
    scales through --density so data-density=compact tightens the thread. */
 .chat-msg-flat { display: block; max-width: var(--measure); margin-inline: auto; padding: calc(var(--space-3) * var(--density, 1)) var(--space-4); margin-block: 0; background: none; border-radius: var(--r-2); }
+/* .chat-msg.you's row-reverse is a messenger-bubble convention (own turns
+   flip to the right); a flat message-row list (stoat/Discord/Revolt
+   convention) keeps every row's avatar on the same left edge regardless of
+   author, so this override wins back the base .chat-msg row direction. */
+.chat-msg-flat.you { flex-direction: row; }
 .chat-msg-flat.them { background: color-mix(in oklab, var(--fg) 3%, transparent); }
 .chat-msg-flat.you { background: none; }
 .chat-msg-flat .chat-stack { max-width: var(--measure); width: 100%; margin: 0; align-items: stretch; }
