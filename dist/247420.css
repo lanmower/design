@@ -445,6 +445,15 @@
   --sidebar-width:           256px;
   --sidebar-width-collapsed: 64px;
 
+  /* Shared width for mountCommunityApp's channel column AND community.css's
+     .cm-member-list -- stoat's for-web MemberSidebar/ServerSidebar both read
+     one var(--layout-width-channel-sidebar) so the two side columns stay in
+     sync from a single source of truth; this token mirrors that instead of
+     two independently hardcoded pixel widths (previously .ca-rail at 220px,
+     .cm-member-list at 240px -- unrelated numbers, no shared intent). */
+  --ca-rail-icon-width:       var(--size-lg, 56px);
+  --ca-channel-column-width:  220px;
+
   /* Canonical breakpoint values — @media can't reference custom properties,
      so these are documented here (not tokenized) for consistency across
      responsive.css/responsive2-workspace.css/hero-content.css:
@@ -9407,8 +9416,8 @@
    Channel sidebar — server name header + channel list
    ============================================================ */
 .ds-247420 .cm-channel-sidebar {
-  flex: 0 0 240px;
-  width: 240px;
+  flex: 0 0 var(--ca-channel-column-width, 220px);
+  width: var(--ca-channel-column-width, 220px);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -10059,8 +10068,8 @@
    Member list — right column
    ============================================================ */
 .ds-247420 .cm-member-list {
-  flex: 0 0 240px;
-  width: 240px;
+  flex: 0 0 var(--ca-channel-column-width, 220px);
+  width: var(--ca-channel-column-width, 220px);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -12203,7 +12212,20 @@
 /* Center the flat turn at the reading measure so a wide content column does not
    dump a one-sided dead gutter (claude.ai/code centers the thread). Padding
    scales through --density so data-density=compact tightens the thread. */
-.ds-247420 .chat-msg-flat { display: block; max-width: var(--measure); margin-inline: auto; padding: calc(var(--space-3) * var(--density, 1)) var(--space-4); margin-block: 0; background: none; border-radius: var(--r-2); }
+/* width: 100% (not shrink-to-content) so every row spans the full thread
+   regardless of message length -- the inner .chat-stack still caps at
+   --measure for a readable line length, but the ROW itself (background tint,
+   click target) must stay full-width or short messages visually indent from
+   both edges instead of sitting flush like every other row (a Discord/
+   stoat/Revolt row-list convention; the claude.ai/code source this variant
+   was built for is a single-column reading surface where shrink-to-content
+   doesn't matter). */
+.ds-247420 .chat-msg-flat { display: block; width: 100%; max-width: var(--measure); margin-inline: auto; padding: calc(var(--space-3) * var(--density, 1)) var(--space-4); margin-block: 0; background: none; border-radius: var(--r-2); }
+/* .chat-msg.you's row-reverse is a messenger-bubble convention (own turns
+   flip to the right); a flat message-row list (stoat/Discord/Revolt
+   convention) keeps every row's avatar on the same left edge regardless of
+   author, so this override wins back the base .chat-msg row direction. */
+.ds-247420 .chat-msg-flat.you { flex-direction: row; }
 .ds-247420 .chat-msg-flat.them { background: color-mix(in oklab, var(--fg) 3%, transparent); }
 .ds-247420 .chat-msg-flat.you { background: none; }
 .ds-247420 .chat-msg-flat .chat-stack { max-width: var(--measure); width: 100%; margin: 0; align-items: stretch; }
@@ -14492,20 +14514,82 @@
 .ds-247420.ds-247420 .ca-app .app-topbar nav a:hover { color: var(--fg); background: color-mix(in oklab, var(--fg) 8%, transparent); }
 .ds-247420.ds-247420 .ca-app .app-topbar nav a:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 2px; }
 
-/* server + channel rail */
+/* server + channel rail. --ca-channel-column-width is defined in
+   colors_and_type.css (loaded first) so community.css's .cm-member-list can
+   also consume it -- see that token's own comment for why. */
 .ds-247420.ds-247420 .ca-rail {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+  background: var(--bg-2, color-mix(in oklab, var(--bg) 92%, var(--fg)));
+}
+/* narrow icon-only strip — stoat's ServerList is a fixed 56px column,
+   visually distinct from the channel list beside it (see ServerList.tsx). */
+.ds-247420.ds-247420 .ca-rail-servers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: var(--ca-rail-icon-width);
+  min-width: var(--ca-rail-icon-width);
+  padding: 8px 6px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  border-right: 1px solid var(--panel-3, color-mix(in oklab, var(--fg) 10%, transparent));
+}
+.ds-247420.ds-247420 .ca-rail-servers a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--r-2);
+  color: var(--fg-2, color-mix(in oklab, var(--fg) 78%, transparent));
+  text-decoration: none;
+  font-size: var(--fs-sm, 14px);
+  font-weight: var(--fw-semibold, 600);
+  transition: background 0.1s, color 0.1s, border-radius 0.1s;
+}
+.ds-247420.ds-247420 .ca-rail-servers a:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); border-radius: var(--r-1); }
+.ds-247420.ds-247420 .ca-rail-servers a.active { background: color-mix(in oklab, var(--accent) 22%, transparent); color: var(--fg); border-radius: var(--r-1); }
+/* icon-only: hide the name label + unread badge text that railServerPill
+   still renders (kept in markup for a11y/aria-label parity), the glyph disc
+   alone carries the row at this width. */
+.ds-247420.ds-247420 .ca-rail-servers a > span:nth-child(2) { display: none; }
+.ds-247420.ds-247420 .ca-rail-servers a .count {
+  position: absolute;
+  transform: translate(10px, -10px);
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--r-1);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 10px;
+  font-weight: var(--fw-semibold, 600);
+  line-height: 16px;
+  text-align: center;
+}
+/* auto-width channel column — stoat's ServerSidebar/MemberSidebar both read
+   var(--layout-width-channel-sidebar); this repo mirrors that with one
+   token (--ca-channel-column-width) so the member list can match it. */
+.ds-247420.ds-247420 .ca-rail-channels {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  width: 220px;
-  min-width: 220px;
+  width: var(--ca-channel-column-width);
+  min-width: var(--ca-channel-column-width);
   padding: 8px;
   overflow-y: auto;
   overflow-x: hidden;
-  background: var(--bg-2, color-mix(in oklab, var(--bg) 92%, var(--fg)));
   scrollbar-width: thin;
 }
-.ds-247420.ds-247420 .ca-rail .group {
+.ds-247420.ds-247420 .ca-rail-channels .group {
   font-size: 11px;
   font-weight: var(--fw-semibold, 600);
   letter-spacing: 0.04em;
@@ -14513,13 +14597,13 @@
   color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
   padding: 10px 8px 4px;
 }
-.ds-247420.ds-247420 .ca-rail .group-header {
+.ds-247420.ds-247420 .ca-rail-channels .group-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding-right: var(--space-1, 4px);
 }
-.ds-247420.ds-247420 .ca-rail .group-add-btn {
+.ds-247420.ds-247420 .ca-rail-channels .group-add-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -14532,11 +14616,11 @@
   color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
   cursor: pointer;
 }
-.ds-247420.ds-247420 .ca-rail .group-add-btn:hover {
+.ds-247420.ds-247420 .ca-rail-channels .group-add-btn:hover {
   background: var(--bg-3, color-mix(in oklab, var(--fg) 8%, transparent));
   color: var(--fg-2, color-mix(in oklab, var(--fg) 78%, transparent));
 }
-.ds-247420.ds-247420 .ca-rail a {
+.ds-247420.ds-247420 .ca-rail-channels a {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -14548,9 +14632,9 @@
   line-height: 1.2;
   transition: background 0.1s, color 0.1s;
 }
-.ds-247420.ds-247420 .ca-rail a:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
-.ds-247420.ds-247420 .ca-rail a.active { background: color-mix(in oklab, var(--accent) 22%, transparent); color: var(--fg); }
-.ds-247420.ds-247420 .ca-rail a .glyph {
+.ds-247420.ds-247420 .ca-rail-channels a:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
+.ds-247420.ds-247420 .ca-rail-channels a.active { background: color-mix(in oklab, var(--accent) 22%, transparent); color: var(--fg); }
+.ds-247420.ds-247420 .ca-rail-channels a .glyph {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -14558,8 +14642,8 @@
   flex-shrink: 0;
   color: var(--fg-3, currentColor);
 }
-.ds-247420.ds-247420 .ca-rail a > span:nth-child(2) { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ds-247420.ds-247420 .ca-rail a .count {
+.ds-247420.ds-247420 .ca-rail-channels a > span:nth-child(2) { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-247420.ds-247420 .ca-rail-channels a .count {
   flex-shrink: 0;
   min-width: 18px;
   padding: 0 5px;
@@ -14570,7 +14654,7 @@
   font-weight: var(--fw-semibold, 600);
   text-align: center;
 }
-.ds-247420.ds-247420 .ca-rail .rail-empty {
+.ds-247420.ds-247420 .ca-rail-channels .rail-empty {
   padding: 8px;
   color: var(--fg-3, color-mix(in oklab, var(--fg) 50%, transparent));
   font-size: var(--fs-sm, 14px);
