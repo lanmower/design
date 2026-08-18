@@ -443,6 +443,15 @@
   --sidebar-width:           256px;
   --sidebar-width-collapsed: 64px;
 
+  /* Shared width for mountCommunityApp's channel column AND community.css's
+     .cm-member-list -- stoat's for-web MemberSidebar/ServerSidebar both read
+     one var(--layout-width-channel-sidebar) so the two side columns stay in
+     sync from a single source of truth; this token mirrors that instead of
+     two independently hardcoded pixel widths (previously .ca-rail at 220px,
+     .cm-member-list at 240px -- unrelated numbers, no shared intent). */
+  --ca-rail-icon-width:       var(--size-lg, 56px);
+  --ca-channel-column-width:  220px;
+
   /* Canonical breakpoint values — @media can't reference custom properties,
      so these are documented here (not tokenized) for consistency across
      responsive.css/responsive2-workspace.css/hero-content.css:

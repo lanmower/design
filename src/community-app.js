@@ -74,7 +74,22 @@ export function mountCommunityApp(root, adapter = {}) {
     let emoji = { open: false, x: 0, y: 0, onSelect: null };
     let palette = { open: false, items: [], onSelect: null };
 
-    const railView = (s) => {
+    // Split into two columns matching stoat's for-web layout (ServerList: a
+    // fixed-width icon-only rail, separate from ServerSidebar/MemberSidebar's
+    // auto-width text column) instead of one combined list mixing server
+    // icons and channel names. Rendered as two siblings inside the same
+    // .ca-rail element (see view()) so the mobile drawer/adapter contract
+    // (mobileMenuOpen, .open) stays on one node -- only the internal layout
+    // changes, not the adapter-facing shape.
+    const railServersView = (s) => {
+        const servers = s.servers || [];
+        if (!servers.length) return null;
+        return h('div', { class: 'ca-rail-servers' },
+            railServerPill({ name: 'home', _home: true }, s),
+            ...servers.map(sv => railServerPill(sv, s)));
+    };
+
+    const railChannelsView = (s) => {
         const out = [];
         const channels = [...(s.channels || [])].sort((a, b) => (a.position || 0) - (b.position || 0));
         const text = channels.filter(c => c.type !== 'voice' && c.type !== 'threaded');
@@ -93,12 +108,7 @@ export function mountCommunityApp(root, adapter = {}) {
             out.push(h('div', { class: 'group' }, 'voice'));
             for (const c of voice) out.push(railPill(c, cur, true, s));
         }
-        if (servers.length) {
-            out.push(h('div', { class: 'group' }, 'servers'));
-            out.push(railServerPill({ name: 'home', _home: true }, s));
-            for (const sv of servers) out.push(railServerPill(sv, s));
-        }
-        return h('div', {}, ...out);
+        return h('div', { class: 'ca-rail-channels' }, ...out);
     };
 
     const groupHeader = (label, s) => h('div', { class: 'group group-header' },
@@ -252,7 +262,7 @@ export function mountCommunityApp(root, adapter = {}) {
             Banner({ tone: 'warning', message: 'No relay connected. Reconnecting…', visible: s.isConnected === false }),
             Banner({ tone: 'success', visible: !!showVoiceBanner, message: showVoiceBanner ? ('In voice: ' + (s.voiceChannelName || '') + ' — click to return') : '', actionLabel: 'Leave', onAction: (e) => { if (e && e.stopPropagation) e.stopPropagation(); A.leaveVoice && A.leaveVoice(); }, onClick: () => A.returnToVoice && A.returnToVoice() }),
             h('div', { class: 'app-body' + (s.mobileMenuOpen ? ' ca-rail-open' : '') },
-                h('aside', { class: 'app-side ca-rail' + (s.mobileMenuOpen ? ' open' : '') }, railView(s)),
+                h('aside', { class: 'app-side ca-rail' + (s.mobileMenuOpen ? ' open' : '') }, railServersView(s), railChannelsView(s)),
                 // id + tabindex match AppShell()'s contract so the skip link
                 // above actually lands somewhere; this app builds its own shell
                 // and so inherited neither.
