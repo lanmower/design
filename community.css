@@ -1581,6 +1581,7 @@
 .vx-vc-on { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
 .vx-vc-disabled, .vx-vc-btn:disabled { opacity: .4; cursor: not-allowed; }
 .vx-vc-leave { margin-left: auto; background: var(--danger); color: var(--on-color); border-color: var(--danger); }
+.vx-vc-return { width: 28px; height: 28px; }
 .vx-vc-glyph { pointer-events: none; }
 
 /* ThreadPanel — cm-thread-panel / cm-tp-* */

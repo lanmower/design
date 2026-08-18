@@ -10810,6 +10810,7 @@
 .ds-247420 .vx-vc-on { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
 .ds-247420 .vx-vc-disabled, .ds-247420 .vx-vc-btn:disabled { opacity: .4; cursor: not-allowed; }
 .ds-247420 .vx-vc-leave { margin-left: auto; background: var(--danger); color: var(--on-color); border-color: var(--danger); }
+.ds-247420 .vx-vc-return { width: 28px; height: 28px; }
 .ds-247420 .vx-vc-glyph { pointer-events: none; }
 
 /* ThreadPanel — cm-thread-panel / cm-tp-* */
