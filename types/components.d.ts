@@ -1864,6 +1864,9 @@ export interface VoiceUserProps {
     identity?: any;
     speaking?: any;
     color?: any;
+    muted?: any;
+    camera?: any;
+    videoEl?: any;
 }
 export declare function VoiceUser(props?: VoiceUserProps): VNode;
 
