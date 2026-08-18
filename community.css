@@ -187,8 +187,8 @@
    Channel sidebar — server name header + channel list
    ============================================================ */
 .cm-channel-sidebar {
-  flex: 0 0 240px;
-  width: 240px;
+  flex: 0 0 var(--ca-channel-column-width, 220px);
+  width: var(--ca-channel-column-width, 220px);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -839,8 +839,8 @@
    Member list — right column
    ============================================================ */
 .cm-member-list {
-  flex: 0 0 240px;
-  width: 240px;
+  flex: 0 0 var(--ca-channel-column-width, 220px);
+  width: var(--ca-channel-column-width, 220px);
   display: flex;
   flex-direction: column;
   min-height: 0;

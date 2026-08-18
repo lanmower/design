@@ -102,20 +102,82 @@ html.ds-247420 .ca-app .app-topbar nav a {
 html.ds-247420 .ca-app .app-topbar nav a:hover { color: var(--fg); background: color-mix(in oklab, var(--fg) 8%, transparent); }
 html.ds-247420 .ca-app .app-topbar nav a:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 2px; }
 
-/* server + channel rail */
+/* server + channel rail. --ca-channel-column-width is defined in
+   colors_and_type.css (loaded first) so community.css's .cm-member-list can
+   also consume it -- see that token's own comment for why. */
 html.ds-247420 .ca-rail {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+  background: var(--bg-2, color-mix(in oklab, var(--bg) 92%, var(--fg)));
+}
+/* narrow icon-only strip — stoat's ServerList is a fixed 56px column,
+   visually distinct from the channel list beside it (see ServerList.tsx). */
+html.ds-247420 .ca-rail-servers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: var(--ca-rail-icon-width);
+  min-width: var(--ca-rail-icon-width);
+  padding: 8px 6px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  border-right: 1px solid var(--panel-3, color-mix(in oklab, var(--fg) 10%, transparent));
+}
+html.ds-247420 .ca-rail-servers a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--r-2);
+  color: var(--fg-2, color-mix(in oklab, var(--fg) 78%, transparent));
+  text-decoration: none;
+  font-size: var(--fs-sm, 14px);
+  font-weight: var(--fw-semibold, 600);
+  transition: background 0.1s, color 0.1s, border-radius 0.1s;
+}
+html.ds-247420 .ca-rail-servers a:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); border-radius: var(--r-1); }
+html.ds-247420 .ca-rail-servers a.active { background: color-mix(in oklab, var(--accent) 22%, transparent); color: var(--fg); border-radius: var(--r-1); }
+/* icon-only: hide the name label + unread badge text that railServerPill
+   still renders (kept in markup for a11y/aria-label parity), the glyph disc
+   alone carries the row at this width. */
+html.ds-247420 .ca-rail-servers a > span:nth-child(2) { display: none; }
+html.ds-247420 .ca-rail-servers a .count {
+  position: absolute;
+  transform: translate(10px, -10px);
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--r-1);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 10px;
+  font-weight: var(--fw-semibold, 600);
+  line-height: 16px;
+  text-align: center;
+}
+/* auto-width channel column — stoat's ServerSidebar/MemberSidebar both read
+   var(--layout-width-channel-sidebar); this repo mirrors that with one
+   token (--ca-channel-column-width) so the member list can match it. */
+html.ds-247420 .ca-rail-channels {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  width: 220px;
-  min-width: 220px;
+  width: var(--ca-channel-column-width);
+  min-width: var(--ca-channel-column-width);
   padding: 8px;
   overflow-y: auto;
   overflow-x: hidden;
-  background: var(--bg-2, color-mix(in oklab, var(--bg) 92%, var(--fg)));
   scrollbar-width: thin;
 }
-html.ds-247420 .ca-rail .group {
+html.ds-247420 .ca-rail-channels .group {
   font-size: 11px;
   font-weight: var(--fw-semibold, 600);
   letter-spacing: 0.04em;
@@ -123,13 +185,13 @@ html.ds-247420 .ca-rail .group {
   color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
   padding: 10px 8px 4px;
 }
-html.ds-247420 .ca-rail .group-header {
+html.ds-247420 .ca-rail-channels .group-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding-right: var(--space-1, 4px);
 }
-html.ds-247420 .ca-rail .group-add-btn {
+html.ds-247420 .ca-rail-channels .group-add-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,11 +204,11 @@ html.ds-247420 .ca-rail .group-add-btn {
   color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
   cursor: pointer;
 }
-html.ds-247420 .ca-rail .group-add-btn:hover {
+html.ds-247420 .ca-rail-channels .group-add-btn:hover {
   background: var(--bg-3, color-mix(in oklab, var(--fg) 8%, transparent));
   color: var(--fg-2, color-mix(in oklab, var(--fg) 78%, transparent));
 }
-html.ds-247420 .ca-rail a {
+html.ds-247420 .ca-rail-channels a {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -158,9 +220,9 @@ html.ds-247420 .ca-rail a {
   line-height: 1.2;
   transition: background 0.1s, color 0.1s;
 }
-html.ds-247420 .ca-rail a:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
-html.ds-247420 .ca-rail a.active { background: color-mix(in oklab, var(--accent) 22%, transparent); color: var(--fg); }
-html.ds-247420 .ca-rail a .glyph {
+html.ds-247420 .ca-rail-channels a:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
+html.ds-247420 .ca-rail-channels a.active { background: color-mix(in oklab, var(--accent) 22%, transparent); color: var(--fg); }
+html.ds-247420 .ca-rail-channels a .glyph {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -168,8 +230,8 @@ html.ds-247420 .ca-rail a .glyph {
   flex-shrink: 0;
   color: var(--fg-3, currentColor);
 }
-html.ds-247420 .ca-rail a > span:nth-child(2) { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-html.ds-247420 .ca-rail a .count {
+html.ds-247420 .ca-rail-channels a > span:nth-child(2) { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.ds-247420 .ca-rail-channels a .count {
   flex-shrink: 0;
   min-width: 18px;
   padding: 0 5px;
@@ -180,7 +242,7 @@ html.ds-247420 .ca-rail a .count {
   font-weight: var(--fw-semibold, 600);
   text-align: center;
 }
-html.ds-247420 .ca-rail .rail-empty {
+html.ds-247420 .ca-rail-channels .rail-empty {
   padding: 8px;
   color: var(--fg-3, color-mix(in oklab, var(--fg) 50%, transparent));
   font-size: var(--fs-sm, 14px);
