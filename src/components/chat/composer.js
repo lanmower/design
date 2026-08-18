@@ -17,12 +17,14 @@ const h = webjsx.createElement;
 // filtered EmojiPicker without requiring the toolbar button or Ctrl+;.
 const EMOJI_TRIGGER_RE = /(?:^|\s)(:([a-zA-Z0-9_+-]{0,24}))$/;
 
-export function ChatComposer({ value, onInput, onSend, onEmoji, onCancel, busy, placeholder = 'message…', disabled, disabledReason, label, context, onPasteFiles, onDropFiles, streamingSince, detectAttachment, mentionFiles }) {
+export function ChatComposer({ value, onInput, onSend, onEmoji, onCancel, busy, placeholder = 'message…', disabled, disabledReason, label, context, onPasteFiles, onDropFiles, onAttach, streamingSince, detectAttachment, mentionFiles }) {
     // Keep a handle to the live textarea so send() reads the actual DOM value
     // (not the possibly-lagging `value` prop) and so we can sync the DOM value
     // only when it genuinely differs — re-applying `value` on every parent
     // re-render otherwise resets the caret and drops fast keystrokes.
     let taEl = null;
+    let attachEl = null;
+    const attachRef = (el) => { if (el) attachEl = el; };
     const send = () => {
         const v = ((taEl && taEl.value) || value || '').trim();
         if (!v || disabled) return;
@@ -245,6 +247,9 @@ export function ChatComposer({ value, onInput, onSend, onEmoji, onCancel, busy, 
         h('div', { class: 'chat-composer-hint' }, isCoarsePointer() ? 'Tap Send to send' : 'Enter to send · Shift+Enter for a new line'),
         (busy && streamingSince) ? ChatComposerElapsed({ streamingSince }) : null,
         h('div', { class: 'chat-composer-toolbar' },
+            onAttach ? h('input', { ref: attachRef, type: 'file', multiple: true, class: 'chat-composer-attach-input',
+                onchange: (e) => { const files = e.target.files; if (files && files.length) onAttach(files); e.target.value = ''; } }) : null,
+            onAttach ? h('button', { type: 'button', class: 'composer-btn', onclick: (e) => { e.preventDefault(); if (attachEl) attachEl.click(); }, 'aria-label': 'attach file', title: 'attach file' }, Icon('paperclip')) : null,
             onEmoji ? h('button', { type: 'button', class: 'composer-btn', onclick: (e) => { e.preventDefault(); onEmoji(e); }, 'aria-label': 'emoji picker', title: 'emoji picker (Ctrl+;)' }, Icon('smile')) : null,
             busy && onCancel
                 ? h('button', { type: 'button', class: 'send cancel', onclick: (e) => { e.preventDefault(); onCancel(e); }, 'aria-label': 'stop generating', title: 'stop generating (Esc)' }, Icon('square'))
