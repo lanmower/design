@@ -51,11 +51,14 @@ export function UserPanel({ name, tag, color, muted, deafened, onMute, onDeafen,
     );
 }
 
+const MEMBER_STATUS_CLASS = { online: 'online', idle: 'idle', busy: 'busy', focus: 'status-focus' };
+
 export function MemberItem({ identity, name, color, status = 'online' } = {}) {
     const initial = avatarInitial(name || identity);
+    const statusClass = MEMBER_STATUS_CLASS[status];
     return h('div', { class: 'cm-member-item' },
         h('div', { class: 'cm-member-avatar', style: avatarStyle(color) },
-            h('span', { class: 'cm-member-status' + (status === 'online' ? ' online' : '') }),
+            h('span', { class: 'cm-member-status' + (statusClass ? ' ' + statusClass : '') }),
             initial
         ),
         h('span', { class: 'cm-member-name' }, name || identity)

@@ -10152,6 +10152,15 @@
 .ds-247420 .cm-member-status.online {
   background: var(--green-2);
 }
+.ds-247420 .cm-member-status.idle {
+  background: var(--amber);
+}
+.ds-247420 .cm-member-status.busy {
+  background: var(--flame);
+}
+.ds-247420 .cm-member-status.status-focus {
+  background: var(--sky);
+}
 
 .ds-247420 .cm-member-name {
   flex: 1;
