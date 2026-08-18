@@ -10181,21 +10181,65 @@
 }
 
 /* ============================================================
-   Voice user (standalone, e.g. in voice stage area)
+   Voice tile (stoat for-web's 16:9 ParticipantTile shape): video/avatar
+   fills the tile, a bottom overlay carries name + status icons, and an
+   outline glow (never a background tint) marks the speaking participant --
+   matches stoat's outlineColor-on-speaking treatment rather than a filled
+   highlight, so many simultaneously-speaking tiles in a dense grid stay
+   readable instead of washing the grid in one flat color.
    ============================================================ */
-.ds-247420 .cm-voice-user {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-1-75);
-  padding: var(--space-2-5);
+.ds-247420 .cm-voice-tile {
+  position: relative;
+  display: grid;
+  aspect-ratio: 16 / 9;
   border-radius: var(--r-2);
-  background: var(--bg-2);
-  transition: box-shadow var(--dur-snap) var(--ease), background var(--dur-snap) var(--ease);
+  background: var(--bg-3);
+  overflow: hidden;
+  outline: 3px solid transparent;
+  outline-offset: -3px;
+  transition: outline-color var(--dur-snap) var(--ease);
 }
-.ds-247420 .cm-voice-user.speaking {
-  background: color-mix(in oklab, var(--green-2) 12%, var(--bg-2));
-  box-shadow: 0 0 0 2px var(--green-2);
+.ds-247420 .cm-voice-tile.speaking {
+  outline-color: var(--green-2);
+}
+
+.ds-247420 .cm-voice-tile-avatar-wrap {
+  grid-area: 1 / 1;
+  display: grid;
+  place-items: center;
+}
+.ds-247420 .cm-voice-tile-video {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.ds-247420 .cm-voice-tile-video video, .ds-247420 .cm-voice-tile-video canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.ds-247420 .cm-voice-tile-overlay {
+  grid-area: 1 / 1;
+  align-self: end;
+  z-index: var(--z-raised);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-2) var(--space-2-5);
+  background: linear-gradient(to top, color-mix(in oklab, var(--ink, #000) 55%, transparent), transparent);
+}
+
+.ds-247420 .cm-voice-tile-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+  color: var(--paper, #fff);
 }
 
 .ds-247420 .cm-voice-user-avatar {
@@ -10218,19 +10262,15 @@
   object-fit: cover;
   display: block;
 }
-.ds-247420 .cm-voice-user.speaking .cm-voice-user-avatar {
-  box-shadow: 0 0 0 2px var(--green-2);
-}
 
 .ds-247420 .cm-voice-user-name {
   font-size: var(--fs-xs);
-  color: var(--fg);
+  color: var(--paper, #fff);
   font-weight: var(--fw-medium);
-  max-width: 100px;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  text-align: center;
 }
 
 /* ============================================================
@@ -14726,14 +14766,18 @@
   overflow: hidden;
 }
 .ds-247420.ds-247420 .vx-view .vx-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: safe center;
+  align-content: safe center;
   gap: 12px;
   flex: 1;
   min-height: 0;
   padding: 16px;
   overflow-y: auto;
-  align-content: start;
+}
+.ds-247420.ds-247420 .vx-view .vx-grid .cm-voice-tile {
+  width: min(280px, 100%);
 }
 
 /* ============================================================

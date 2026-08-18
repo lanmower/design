@@ -297,14 +297,18 @@ html.ds-247420 .vx-view {
   overflow: hidden;
 }
 html.ds-247420 .vx-view .vx-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: safe center;
+  align-content: safe center;
   gap: 12px;
   flex: 1;
   min-height: 0;
   padding: 16px;
   overflow-y: auto;
-  align-content: start;
+}
+html.ds-247420 .vx-view .vx-grid .cm-voice-tile {
+  width: min(280px, 100%);
 }
 
 /* ============================================================

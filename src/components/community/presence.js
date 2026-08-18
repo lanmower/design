@@ -13,11 +13,26 @@ function avatarStyle(color) {
     return fg ? `--avatar-bg:${color};--avatar-fg:${fg}` : `--avatar-bg:${color}`;
 }
 
-export function VoiceUser({ identity, speaking, color } = {}) {
+// 16:9 participant tile (stoat for-web's ParticipantTile shape): video fills
+// the tile when a camera track is present, otherwise a centered avatar; a
+// bottom overlay carries the name plus mic/camera status glyphs, and an
+// outline glow marks the currently-speaking participant. `videoEl` is an
+// already-attached <video>/<canvas> element the consumer owns (this
+// component never touches media APIs) — omit it to fall back to avatar-only.
+export function VoiceUser({ identity, speaking, color, muted, camera, videoEl } = {}) {
     const initial = avatarInitial(identity);
-    return h('div', { class: 'cm-voice-user' + (speaking ? ' speaking' : '') },
-        h('div', { class: 'cm-voice-user-avatar', style: avatarStyle(color) }, initial),
-        h('span', { class: 'cm-voice-user-name' }, identity)
+    const hasVideo = !!(camera && videoEl);
+    return h('div', { class: 'cm-voice-tile' + (speaking ? ' speaking' : '') + (hasVideo ? ' has-video' : '') },
+        hasVideo
+            ? h('div', { class: 'cm-voice-tile-video' }, videoEl)
+            : h('div', { class: 'cm-voice-tile-avatar-wrap' },
+                h('div', { class: 'cm-voice-user-avatar', style: avatarStyle(color) }, initial)),
+        h('div', { class: 'cm-voice-tile-overlay' },
+            h('span', { class: 'cm-voice-user-name' }, identity),
+            h('span', { class: 'cm-voice-tile-icons' },
+                muted ? Icon('mic-off', { size: 14 }) : null,
+                camera === false ? Icon('camera-off', { size: 14 }) : null)
+        )
     );
 }
 
