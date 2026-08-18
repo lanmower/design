@@ -187,7 +187,7 @@ export function mountCommunityApp(root, adapter = {}) {
                 // implying certain content removal.
                 isYou ? { label: 'delete', title: 'request deletion (relays may not honor it; other clients may have already cached this message)', icon: 'trash', onClick: () => A.deleteMessage && A.deleteMessage(m.id) } : null,
             ].filter(Boolean);
-            return { key: m.id || ('m' + i), who: isYou ? 'you' : 'them', name: isYou ? null : username, avatar: initial(username), time: formatTime(m.timestamp), parts: partsFromMessage(m), reactions, onToggleReaction: A.reactToMessage ? (emoji) => A.reactToMessage(m.id, m.userId, emoji) : null, actions: msgActions, receipt: isYou && m.read ? 'read' : (isYou && m.delivered ? 'delivered' : null) };
+            return { key: m.id || ('m' + i), who: isYou ? 'you' : 'them', flat: true, name: username, avatar: initial(username), time: formatTime(m.timestamp), parts: partsFromMessage(m), reactions, onToggleReaction: A.reactToMessage ? (emoji) => A.reactToMessage(m.id, m.userId, emoji) : null, actions: msgActions, receipt: isYou && m.read ? 'read' : (isYou && m.delivered ? 'delivered' : null) };
         });
     };
 
