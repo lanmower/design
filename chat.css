@@ -1251,7 +1251,15 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 /* Center the flat turn at the reading measure so a wide content column does not
    dump a one-sided dead gutter (claude.ai/code centers the thread). Padding
    scales through --density so data-density=compact tightens the thread. */
-.chat-msg-flat { display: block; max-width: var(--measure); margin-inline: auto; padding: calc(var(--space-3) * var(--density, 1)) var(--space-4); margin-block: 0; background: none; border-radius: var(--r-2); }
+/* width: 100% (not shrink-to-content) so every row spans the full thread
+   regardless of message length -- the inner .chat-stack still caps at
+   --measure for a readable line length, but the ROW itself (background tint,
+   click target) must stay full-width or short messages visually indent from
+   both edges instead of sitting flush like every other row (a Discord/
+   stoat/Revolt row-list convention; the claude.ai/code source this variant
+   was built for is a single-column reading surface where shrink-to-content
+   doesn't matter). */
+.chat-msg-flat { display: block; width: 100%; max-width: var(--measure); margin-inline: auto; padding: calc(var(--space-3) * var(--density, 1)) var(--space-4); margin-block: 0; background: none; border-radius: var(--r-2); }
 /* .chat-msg.you's row-reverse is a messenger-bubble convention (own turns
    flip to the right); a flat message-row list (stoat/Discord/Revolt
    convention) keeps every row's avatar on the same left edge regardless of
