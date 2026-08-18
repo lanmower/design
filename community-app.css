@@ -183,6 +183,25 @@ html.ds-247420 .ca-rail-servers a .count {
   line-height: 16px;
   text-align: center;
 }
+/* create/join + explore actions at the foot of the icon strip (stoat's
+   ServerList.tsx:307-323) -- reuse the same pill geometry as a server icon
+   but a hairline divider marks them as actions, not servers. */
+html.ds-247420 .ca-rail-server-add,
+html.ds-247420 .ca-rail-server-explore {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-2);
+  color: var(--fg-2, color-mix(in oklab, var(--fg) 78%, transparent));
+  text-decoration: none;
+  transition: background 0.1s, color 0.1s;
+}
+html.ds-247420 .ca-rail-server-add { margin-top: 6px; border-top: 1px solid var(--panel-3, color-mix(in oklab, var(--fg) 10%, transparent)); padding-top: 6px; }
+html.ds-247420 .ca-rail-server-add:hover,
+html.ds-247420 .ca-rail-server-explore:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
 /* auto-width channel column — stoat's ServerSidebar/MemberSidebar both read
    var(--layout-width-channel-sidebar); this repo mirrors that with one
    token (--ca-channel-column-width) so the member list can match it. */

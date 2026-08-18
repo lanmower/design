@@ -105,8 +105,13 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     // below the bubble, the way Claude-Desktop surfaces message-level actions.
     // Each action is { label, icon, onClick, title }. Kept icon-only with an
     // accessible name; no decorative glyphs (the Icon set is line-SVG).
+    // stoat's MessageToolbar (packages/client .../messaging/elements/MessageToolbar.tsx)
+    // floats the action pill at the message's top-right corner instead of a
+    // row below the bubble. Flat (community) rows opt into that placement via
+    // .chat-msg-actions-float; the messenger-bubble layout keeps the original
+    // below-bubble row so its spacing/box-shadow story is unaffected.
     const actionRow = (actions && actions.length)
-        ? h('div', { class: 'chat-msg-actions', role: 'group', 'aria-label': 'message actions' },
+        ? h('div', { class: 'chat-msg-actions' + (isFlat ? ' chat-msg-actions-float' : ''), role: 'group', 'aria-label': 'message actions' },
             ...actions.filter(Boolean).map((a, i) => h('button', {
                 key: 'ma' + i, type: 'button', class: 'chat-msg-action',
                 title: a.title || a.label, 'aria-label': a.label || a.title,

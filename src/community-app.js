@@ -81,12 +81,23 @@ export function mountCommunityApp(root, adapter = {}) {
     // .ca-rail element (see view()) so the mobile drawer/adapter contract
     // (mobileMenuOpen, .open) stays on one node -- only the internal layout
     // changes, not the adapter-facing shape.
+    // stoat's ServerList (src/interface/navigation/servers/ServerList.tsx)
+    // ends the icon strip with a "+" create/join-server action and a compass
+    // explore/discover action below the server list -- both optional here
+    // since not every adapter offers server discovery (e.g. zellous today).
+    const railServerAdd = (s) => (A.createOrJoinServer)
+        ? h('a', { href: '#', class: 'ca-rail-server-add', title: 'Create or join a server', 'aria-label': 'create or join a server', onclick: (e) => { e.preventDefault(); A.createOrJoinServer(); } }, Icon('plus', { size: 15 }))
+        : null;
+    const railServerExplore = (s) => (A.explore)
+        ? h('a', { href: '#', class: 'ca-rail-server-explore', title: 'Find new servers to join', 'aria-label': 'find new servers to join', onclick: (e) => { e.preventDefault(); A.explore(); } }, Icon('compass', { size: 15 }))
+        : null;
     const railServersView = (s) => {
         const servers = s.servers || [];
-        if (!servers.length) return null;
+        if (!servers.length && !A.createOrJoinServer) return null;
         return h('div', { class: 'ca-rail-servers' },
             railServerPill({ name: 'home', _home: true }, s),
-            ...servers.map(sv => railServerPill(sv, s)));
+            ...servers.map(sv => railServerPill(sv, s)),
+            railServerAdd(s), railServerExplore(s));
     };
 
     const railChannelsView = (s) => {
