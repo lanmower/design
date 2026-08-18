@@ -2166,12 +2166,15 @@ export interface VoiceControlsProps {
     cameraOn?: boolean;
     /** @default false */
     screenShareOn?: boolean;
+    /** @default false */
+    collapsed?: boolean;
     onMic?: (...args: any[]) => any;
     onDeafen?: (...args: any[]) => any;
     onCamera?: (...args: any[]) => any;
     onScreenShare?: (...args: any[]) => any;
     onSettings?: (...args: any[]) => any;
     onLeave?: (...args: any[]) => any;
+    onReturn?: (...args: any[]) => any;
 }
 export declare function VoiceControls(props?: VoiceControlsProps): VNode;
 

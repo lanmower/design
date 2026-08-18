@@ -27,6 +27,7 @@ export const ICON_PATHS = {
     smile: '<circle cx="12" cy="12" r="9"/><path d="M8 14a4 4 0 0 0 8 0"/><path d="M9 9h.01M15 9h.01"/>',
     'more-horizontal': '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
     'arrow-up': '<path d="M12 19V5M5 12l7-7 7 7"/>',
+    'arrow-top-left': '<path d="M19 19 5 5"/><path d="M5 13V5h8"/>',
     send: '<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>',
     hash: '<path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/>',
     megaphone: '<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 8a4 4 0 0 1 0 8M18 5a8 8 0 0 1 0 14"/>',
