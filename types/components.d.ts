@@ -6,7 +6,7 @@
 // signature change; `npm run lint:component-types` fails CI when this
 // file is stale.
 //
-// 271 exported symbols across 30 source files.
+// 276 exported symbols across 30 source files.
 
 /** A webjsx virtual node, as returned by every component in this SDK. */
 export type VNode = any;
@@ -842,6 +842,7 @@ export interface ChatMessageProps {
     incomplete?: any;
     stopped?: any;
     flat?: any;
+    tail?: any;
     error?: any;
     onRetry?: (...args: any[]) => any;
     onToggleReaction?: (...args: any[]) => any;
@@ -2188,6 +2189,60 @@ export declare function VoiceControls(props?: VoiceControlsProps): VNode;
 export interface playCompletionCueProps {}
 
 export declare function playCompletionCue(props?: playCompletionCueProps): VNode;
+
+export declare function SettingsRowGroup(children?: any): VNode;
+
+/**
+ * Props for {@link SettingsSection} (src/components/voice.js).
+ */
+export interface SettingsSectionProps {
+    title?: any;
+    children?: any;
+}
+export declare function SettingsSection(props?: SettingsSectionProps): VNode;
+
+/**
+ * Props for {@link SettingsRow} (src/components/voice.js).
+ */
+export interface SettingsRowProps {
+    /** @default 'blank' */
+    icon?: string;
+    label?: any;
+    description?: any;
+    action?: any;
+    onClick?: (...args: any[]) => any;
+}
+export declare function SettingsRow(props?: SettingsRowProps): VNode;
+
+/**
+ * Props for {@link SettingsRowToggle} (src/components/voice.js).
+ */
+export interface SettingsRowToggleProps {
+    /** @default 'blank' */
+    icon?: string;
+    label?: any;
+    description?: any;
+    /** @default false */
+    checked?: boolean;
+    onToggle?: (...args: any[]) => any;
+}
+export declare function SettingsRowToggle(props?: SettingsRowToggleProps): VNode;
+
+/**
+ * Props for {@link SettingsRowSelect} (src/components/voice.js).
+ */
+export interface SettingsRowSelectProps {
+    /** @default 'blank' */
+    icon?: string;
+    label?: any;
+    description?: any;
+    value?: any;
+    /** @default [] */
+    options?: any[];
+    onChange?: (...args: any[]) => any;
+    ariaLabel?: any;
+}
+export declare function SettingsRowSelect(props?: SettingsRowSelectProps): VNode;
 
 // ---- src/components/collab.js ----------------------------------------
 

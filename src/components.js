@@ -77,7 +77,8 @@ export {
 
 export {
     PttButton, VadMeter, WebcamPreview, VoiceSettingsModal, AudioQueue, VoiceControls,
-    playCompletionCue
+    playCompletionCue,
+    SettingsRowGroup, SettingsSection, SettingsRow, SettingsRowToggle, SettingsRowSelect
 } from './components/voice.js';
 
 export {
