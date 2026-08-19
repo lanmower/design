@@ -17,11 +17,13 @@
 
 import * as webjsx from '../../../vendor/webjsx/index.js';
 import { makePage, api, loadingState, emptyState } from './runtime.js';
-import { Table, PageHeader, Select } from '../content.js';
+import { Table, PageHeader } from '../content.js';
 import { Chip } from '../shell.js';
 import { formatTime } from '../../locale.js';
 import { queueMessage, watchReconnect, isOnline } from '../../idb-outbox.js';
 import { AgentChat } from '../agent-chat.js';
+import { WorkspaceShell, WorkspaceRail } from '../shell/workspace-shell.js';
+import { ConversationList } from '../sessions/conversation-list.js';
 import { section, noteAlert } from './shared.js';
 
 const h = webjsx.createElement;
@@ -247,38 +249,52 @@ export const chat = makePage((ctx) => {
 
     return () => {
         const st = s();
-        return h('div', { class: 'fd-chat' },
-            h('div', { class: 'fd-chat-picker' },
-                st.sessions.length ? Select({
-                    value: st.sessionId || '',
-                    placeholder: 'new conversation',
-                    'aria-label': 'switch conversation',
-                    options: st.sessions.map(row => ({ value: row.id, label: (row.title || '(untitled)').slice(0, 60) + (row.needsInput ? ' — needs input' : '') })),
-                    onChange: switchSession,
-                }) : null,
-                h('label', { class: 'fd-chat-attach', title: 'attach files to the next message' },
-                    'attach',
-                    h('input', { type: 'file', multiple: true, style: 'display:none', onchange: (e) => { attachFiles(e.target.files); e.target.value = ''; } })),
-                ...st.staged.map((f, i) => h('span', { key: 'st' + i, class: 'fd-chat-staged' },
-                    f.name,
-                    h('button', { type: 'button', class: 'fd-chat-staged-x', 'aria-label': 'remove ' + f.name, onclick: () => { st.staged = st.staged.filter((_, j) => j !== i); ctx.rerender(); } }, '×')))),
-            AgentChat({
-                messages: st.messages,
-                busy: st.busy,
-                draft: st.draft,
-                status: st.busy ? 'streaming…' : (st.conn === 'open' ? 'ready' : 'connecting…'),
-                agentName: 'freddie',
-                placeholder: st.busy ? 'queue a follow-up… (or stop)' : 'message…',
-                showMinimap: true,
-                banners: st.error ? [noteAlert({ kind: 'error', msg: st.error })] : [],
-                onInput: (v) => { st.draft = v; },
-                onSend: send,
-                onStop: stop,
-                onNewChat: () => {
+        const attachRow = h('div', { class: 'fd-chat-attach-row' },
+            h('label', { class: 'fd-chat-attach', title: 'attach files to the next message' },
+                'attach',
+                h('input', { type: 'file', multiple: true, style: 'display:none', onchange: (e) => { attachFiles(e.target.files); e.target.value = ''; } })),
+            ...st.staged.map((f, i) => h('span', { key: 'st' + i, class: 'fd-chat-staged' },
+                f.name,
+                h('button', { type: 'button', class: 'fd-chat-staged-x', 'aria-label': 'remove ' + f.name, onclick: () => { st.staged = st.staged.filter((_, j) => j !== i); ctx.rerender(); } }, '×'))));
+        return WorkspaceShell({
+            stableFrame: true,
+            rail: WorkspaceRail({
+                brand: 'freddie',
+                action: { label: 'Dashboard', icon: 'grid', onClick: () => { location.hash = '#fd-home'; } },
+                items: [{ key: 'chat', label: 'Chat', icon: 'forum', active: true }],
+            }),
+            sessions: ConversationList({
+                sessions: st.sessions.map(row => ({ sid: row.id, title: row.title, time: row.time, rail: row.needsInput ? 'flame' : null })),
+                selected: st.sessionId,
+                onSelect: (row) => switchSession(row.sid),
+                onNew: () => {
                     try { st.ws && st.ws.close(); } catch { /* already closed */ }
                     ctx.set({ messages: [], draft: '', error: null, sessionId: null, ws: null, conn: 'closed' });
                 },
-            }));
+                newLabel: 'New chat',
+                emptyText: 'No conversations yet',
+            }),
+            main: [
+                attachRow,
+                AgentChat({
+                    messages: st.messages,
+                    busy: st.busy,
+                    draft: st.draft,
+                    status: st.busy ? 'streaming…' : (st.conn === 'open' ? 'ready' : 'connecting…'),
+                    agentName: 'freddie',
+                    placeholder: st.busy ? 'queue a follow-up… (or stop)' : 'message…',
+                    showMinimap: true,
+                    banners: st.error ? [noteAlert({ kind: 'error', msg: st.error })] : [],
+                    onInput: (v) => { st.draft = v; },
+                    onSend: send,
+                    onStop: stop,
+                    onNewChat: () => {
+                        try { st.ws && st.ws.close(); } catch { /* already closed */ }
+                        ctx.set({ messages: [], draft: '', error: null, sessionId: null, ws: null, conn: 'closed' });
+                    },
+                }),
+            ],
+        });
     };
 });
 
