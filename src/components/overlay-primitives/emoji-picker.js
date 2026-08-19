@@ -44,7 +44,7 @@ const ALL_EMOJI = EMOJI_CATEGORIES.flatMap((c) => c.emoji);
 export function EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose, query = '' } = {}) {
     if (!open) return null;
     let cat = EMOJI_CATEGORIES[0].id;
-    let rootEl = null, gridEl = null, searchEl = null;
+    let rootEl = null, gridEl = null, searchEl = null, previewEl = null;
     // Internal search state, seeded from the `query` prop so a consumer that
     // already knows the typed ':smile' trigger text (e.g. a composer keydown
     // handler) can still pre-fill it — but typing in the picker's own input
@@ -52,6 +52,13 @@ export function EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose,
     // into `query`) is the primary path now.
     let search = query || '';
     const close = () => onClose && onClose();
+
+    const showPreview = (ch, name) => {
+        if (!previewEl) return;
+        webjsx.applyDiff(previewEl, h('div', { class: 'ov-emoji-preview' },
+            h('span', { class: 'ov-emoji-preview-glyph' }, ch || ''),
+            h('span', { class: 'ov-emoji-preview-name' }, name || '')));
+    };
 
     const renderGrid = () => {
         if (!gridEl) return;
@@ -63,6 +70,8 @@ export function EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose,
             cells.length ? cells.map(([ch, name]) => h('button', {
                 type: 'button', class: 'ov-emoji-cell', 'aria-label': name || ch, title: name || ch,
                 onclick: () => { if (onSelect) onSelect(ch); },
+                onmouseenter: () => showPreview(ch, name),
+                onfocus: () => showPreview(ch, name),
             }, ch)) : h('div', { class: 'ov-emoji-empty' }, 'no emoji found')));
     };
 
@@ -110,6 +119,7 @@ export function EmojiPicker({ open, anchorX = 0, anchorY = 0, onSelect, onClose,
         h('div', {
             class: 'ov-emoji-grid', id: 'ov-emoji-panel', role: 'tabpanel',
             'aria-label': EMOJI_CATEGORIES.find(c => c.id === cat)?.label || EMOJI_CATEGORIES[0].label,
-            ref: (el) => { if (!el) return; gridEl = el; queueMicrotask(renderGrid); } })
+            ref: (el) => { if (!el) return; gridEl = el; queueMicrotask(renderGrid); } }),
+        h('div', { class: 'ov-emoji-preview', ref: (el) => { previewEl = el; } })
     );
 }

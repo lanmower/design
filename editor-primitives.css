@@ -743,7 +743,7 @@
 }
 .ds-ep-ctxmenu-item {
     display: flex; align-items: center; gap: var(--space-2);
-    padding: var(--space-2) var(--space-2-5);
+    padding: var(--space-2) var(--space-3);
     background: transparent; border: 0;
     color: inherit; font: inherit; text-align: left;
     border-radius: var(--r-1, 8px);
@@ -751,12 +751,12 @@
 }
 .ds-ep-ctxmenu-item:hover:not(.disabled),
 .ds-ep-ctxmenu-item:focus-visible {
-    background: var(--panel-2, var(--rule));
+    background: color-mix(in oklab, var(--fg) 8%, transparent);
 }
 .ds-ep-ctxmenu-item.danger { color: var(--danger); }
 .ds-ep-ctxmenu-item.disabled { opacity: 0.45; cursor: not-allowed; }
 .ds-ep-ctxmenu-icon { width: 16px; display: inline-flex; justify-content: center; }
-.ds-ep-ctxmenu-sep { height: 1px; background: var(--rule); margin: var(--space-1) var(--space-1-75); }
+.ds-ep-ctxmenu-sep { height: 1px; background: var(--rule); margin: var(--space-1) 0; }
 
 /* ---------------------------------------------------------------
    Drawer
@@ -1119,7 +1119,8 @@
     overscroll-behavior: contain;
 }
 @media (prefers-reduced-motion: no-preference) {
-    .ds-popover { transition: opacity 140ms ease, transform 140ms ease; }
+    .ds-popover { transition: opacity 140ms ease, transform 140ms var(--ease-out-strong); }
+    .ds-popover.is-entering { opacity: 0; transform: translateY(-4px); }
 }
 
 /* ---------------------------------------------------------------
@@ -1375,7 +1376,7 @@
     display: flex; flex-direction: column;
     background: var(--bg-2); color: var(--fg);
     border: 1px solid var(--rule);
-    border-radius: var(--r-2, 14px);
+    border-radius: var(--r-3, 14px);
     box-shadow: var(--shadow-3);
     outline: none; overflow: hidden;
 }
@@ -1401,7 +1402,7 @@
 .ov-emoji-tab[aria-selected="true"] { border-bottom-color: var(--accent); background: var(--bg-2); }
 .ov-emoji-tab:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
 .ov-emoji-grid { overflow: auto; max-height: 220px; padding: var(--space-2, 8px); }
-.ov-emoji-grid-inner { display: grid; grid-template-columns: repeat(8, 1fr); gap: var(--space-1, 4px); }
+.ov-emoji-grid-inner { display: grid; grid-template-columns: repeat(9, 1fr); gap: var(--space-1, 4px); }
 .ov-emoji-cell {
     appearance: none; border: 0; background: transparent;
     aspect-ratio: 1; font-size: var(--fs-lg, 18px);
@@ -1415,6 +1416,15 @@
     background: color-mix(in oklab, var(--accent) 18%, transparent);
     outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px;
 }
+.ov-emoji-preview {
+    flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
+    gap: var(--space-2); min-height: 36px;
+    padding: var(--space-1) var(--space-2);
+    border-top: 1px solid var(--rule);
+    font-size: var(--fs-sm, 13px); color: var(--fg-3);
+}
+.ov-emoji-preview-glyph { font-size: var(--fs-lg, 18px); flex-shrink: 0; }
+.ov-emoji-preview-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ---------------------------------------------------------------
    BootOverlay (ov-boot)
