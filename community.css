@@ -1239,6 +1239,14 @@
   }
   .cm-chat-header-topic { display: none; }
 }
+/* The global reduced-motion neutralizer (base.css) squashes transition-duration
+   but not transition-delay -- without this, the member-list drawer's closed
+   state keeps `visibility:visible` for the original --dur-base delay after its
+   transform has already snapped off-screen, leaving it briefly focusable/
+   interactive-shaped while visually gone. */
+@media (max-width: 900px) and (prefers-reduced-motion: reduce) {
+  .cm-member-list { transition-delay: 0s, 0s; }
+}
 
 /* Drawer scrim — dims the chat while a drawer overlays it on narrow screens.
    Visual affordance only (pointer-events: none): tap-to-close needs a real
