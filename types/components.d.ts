@@ -842,6 +842,7 @@ export interface ChatMessageProps {
     incomplete?: any;
     stopped?: any;
     flat?: any;
+    tail?: any;
     error?: any;
     onRetry?: (...args: any[]) => any;
     onToggleReaction?: (...args: any[]) => any;

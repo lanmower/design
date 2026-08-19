@@ -61,10 +61,30 @@ export function Chat({ title = 'chat', sub, messages = [], composer, header, sug
                                 typeof s === 'string' ? s : (s.label || s.text || s.prompt))))
                         : null)
                 : null,
-            ...messages.map((m, i) => ChatMessage({ ...m, key: m.key != null ? m.key : i }))
+            ...messages.map((m, i) => ChatMessage({ ...m, tail: m.tail != null ? m.tail : isConsecutive(messages, i), key: m.key != null ? m.key : i }))
         ),
         composer || null
     );
+}
+
+// stoat/for-web's MessageContainer collapses the avatar+name header when a
+// message shares its author with the immediately-preceding one (its own
+// `tail` prop), tightening --message-group-spacing instead of the full
+// between-groups gap. Only flat-mode messages carry an avatar/name header
+// worth collapsing; messenger-bubble mode already pairs an avatar per turn.
+function isConsecutive(messages, i) {
+    if (i === 0) return false;
+    const prev = messages[i - 1];
+    const cur = messages[i];
+    if (!cur || !cur.flat) return false;
+    if (!prev || !prev.flat) return false;
+    const prevWho = prev.role ? (prev.role === 'user' ? 'you' : prev.role === 'assistant' ? 'them' : prev.role) : (prev.who || 'them');
+    const curWho = cur.role ? (cur.role === 'user' ? 'you' : cur.role === 'assistant' ? 'them' : cur.role) : (cur.who || 'them');
+    if (prevWho === 'system' || prevWho === 'tool' || prevWho === 'thinking') return false;
+    if (curWho === 'system' || curWho === 'tool' || curWho === 'thinking') return false;
+    if (prevWho !== curWho) return false;
+    if (curWho === 'them' && (prev.name || '') !== (cur.name || '')) return false;
+    return true;
 }
 
 export const AICAT_FACE = ` /\\_/\\\n( o.o )\n > ^ <`;

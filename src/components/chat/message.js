@@ -13,7 +13,7 @@ import { countMessage, renderPart } from './stats.js';
 
 const h = webjsx.createElement;
 
-export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name, streaming, actions, incomplete, stopped, flat, error, onRetry, onToggleReaction }) {
+export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name, streaming, actions, incomplete, stopped, flat, tail, error, onRetry, onToggleReaction }) {
     countMessage();
     // Support legacy 'who' prop, prefer 'role' with mapping:
     //   'user'      -> 'you'   (right-aligned, accent bubble)
@@ -32,7 +32,8 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     // label above the content and a faint assistant background, instead of the
     // messenger avatar-disc + colored-bubble layout (kept for the chat demo).
     const isFlat = flat && !isCentered;
-    const cls = 'chat-msg ' + resolvedWho + (aicat && resolvedWho === 'them' ? ' aicat' : '') + (isCentered ? ' centered' : '') + (isFlat ? ' chat-msg-flat' : '');
+    const isTail = isFlat && !!tail;
+    const cls = 'chat-msg ' + resolvedWho + (aicat && resolvedWho === 'them' ? ' aicat' : '') + (isCentered ? ' centered' : '') + (isFlat ? ' chat-msg-flat' : '') + (isTail ? ' chat-msg-tail' : '');
     const fallbackAvatar = avatar != null
         ? avatar
         : (resolvedWho === 'you' ? 'u' : avatarInitial(name));
@@ -91,7 +92,7 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
         ? h('span', { class: 'tick' + (receipt === 'read' ? ' read' : ''), role: 'img', 'aria-label': receipt === 'read' ? 'message read' : 'message sent' }, Icon(receipt === 'read' ? 'check-check' : 'check', { size: 14 }))
         : null;
     const metaItems = [];
-    if (name && resolvedWho === 'them') metaItems.push(h('span', { class: 'who', key: 'w' }, name));
+    if (name && resolvedWho === 'them' && !isTail) metaItems.push(h('span', { class: 'who', key: 'w' }, name));
     if (time) metaItems.push(h('span', { class: 't', key: 'ti' }, time));
     if (tickNode) metaItems.push(tickNode);
     const meta = metaItems.length ? h('div', { class: 'chat-meta' }, ...metaItems) : null;
@@ -140,7 +141,7 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
         : null;
     // Flat layout leads the turn with a small role label (You / agent name)
     // above the content, the way claude.ai/code titles each turn.
-    const roleLabel = isFlat
+    const roleLabel = isFlat && !isTail
         ? h('div', { class: 'chat-role', key: '_role' }, resolvedWho === 'you' ? t('chat.roleYou', 'You') : (name || t('chat.roleAssistant', 'Assistant')))
         : null;
     const stack = resolvedWho === 'them'
