@@ -72,7 +72,12 @@ export {
     MemberItem, MemberList, UserCard,
     ChatHeader, VoiceStrip, CommunityShell,
     MobileHeader, ReplyBar, Banner,
-    ThreadPanel, ForumView, PageView
+    ThreadPanel, ForumView, PageView,
+    RoleRow, RoleList, RoleEditor, BanList, InviteList,
+    WebhookList, WebhookListItem, WebhookEditor,
+    RoleTabs, PermissionRow, PermissionSection, PermissionsEditor, PermissionsOverview,
+    EmojiManagerGrid,
+    SearchBar, SearchResults, SearchResultMessage, SearchResultEntity
 } from './components/community.js';
 
 export {

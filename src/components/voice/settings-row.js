@@ -48,6 +48,23 @@ export function SettingsRowToggle({ icon = 'blank', label, description, checked 
     });
 }
 
+// SettingsRowTriState — cycles allow -> deny -> neutral (null) -> allow,
+// same row shell as SettingsRow/SettingsRowToggle, with a distinct
+// icon+color per state instead of a checkbox.
+export function SettingsRowTriState({ icon = 'blank', label, description, value = null, onChange } = {}) {
+    const next = value === 'allow' ? 'deny' : value === 'deny' ? null : 'allow';
+    const stateLabel = value === 'allow' ? 'Allow' : value === 'deny' ? 'Deny' : 'Neutral';
+    const stateIcon = value === 'allow' ? 'check' : value === 'deny' ? 'x' : 'minus';
+    return SettingsRow({
+        icon, label, description,
+        onClick: () => onChange && onChange(next),
+        action: h('span', {
+            class: 'vx-stg-tristate vx-stg-tristate-' + (value || 'neutral'),
+            role: 'button', 'aria-label': `${label}: ${stateLabel}`,
+        }, Icon(stateIcon, { size: 14 })),
+    });
+}
+
 export function SettingsRowSelect({ icon = 'blank', label, description, value, options = [], onChange, ariaLabel } = {}) {
     const active = options.find(o => o.value === value);
     return SettingsRow({

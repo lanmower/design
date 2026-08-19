@@ -114,7 +114,20 @@ export const ICON_PATHS = {
     google: '<circle cx="12" cy="12" r="8"/><path d="M12 12h6"/><path d="M12 8v4"/>',
     // sso: shield-check, a common auth/identity glyph for a generic
     // single-sign-on entry point.
-    sso: '<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/>'
+    sso: '<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/>',
+    // Tri-state permission-neutral glyph — a bare horizontal dash.
+    minus: '<path d="M5 12h14"/>',
+    // Role-shield glyph (permissions overview role rows) — undecorated
+    // outline, distinct from `sso`'s shield-check auth mark.
+    shield: '<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>',
+    // Everyone/default-permissions glyph — a globe (meridian ellipse pair).
+    globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.5 4 5.7 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.7-4-9s1.5-6.5 4-9z"/>',
+    // Generic image-URL field glyph.
+    image: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/>',
+    // Webhook create affordance glyph — cloud, matching stoat for-web's
+    // BiSolidCloud "Create Webhook" action icon.
+    cloud: '<path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.6-1.8A4 4 0 0 0 6.5 16"/>',
+    edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>'
 };
 
 // The single SVG attribute contract (viewBox/stroke/linecap…) shared by both
