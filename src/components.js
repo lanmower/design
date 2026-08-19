@@ -124,7 +124,7 @@ export {
 
 export {
     Tooltip, Popover, Dropdown, useLongPress, useFloating,
-    CommandPalette, EmojiPicker, BootOverlay, SettingsPopover,
+    CommandPalette, MentionAutocomplete, EmojiPicker, BootOverlay, SettingsPopover,
     AuthModal, VideoLightbox, PermissionMenu, ApprovalPrompt, withBusy,
     MenuButton,
     HoverCard, Menubar

@@ -17,6 +17,7 @@ import { useRovingMenu } from './overlay-primitives/roving-menu.js';
 import { Dropdown, PermissionMenu, MenuButton } from './overlay-primitives/menus.js';
 import { ApprovalPrompt } from './overlay-primitives/approval-prompt.js';
 import { CommandPalette } from './overlay-primitives/command-palette.js';
+import { MentionAutocomplete } from './overlay-primitives/mention-autocomplete.js';
 import { EmojiPicker } from './overlay-primitives/emoji-picker.js';
 import { SettingsPopover } from './overlay-primitives/settings-popover.js';
 import { AuthModal } from './overlay-primitives/auth-modal.js';
@@ -32,6 +33,7 @@ export {
     Dropdown, PermissionMenu, MenuButton,
     ApprovalPrompt,
     CommandPalette,
+    MentionAutocomplete,
     EmojiPicker,
     SettingsPopover,
     AuthModal,

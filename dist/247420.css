@@ -10200,7 +10200,7 @@
   padding: var(--space-3) 0;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklab, var(--fg) 18%, transparent) transparent;
-  transition: width var(--dur-base) var(--ease), flex-basis var(--dur-base) var(--ease);
+  transition: width var(--dur-base) var(--ease), flex-basis var(--dur-base) var(--ease), transform var(--dur-base) var(--ease-drawer);
   contain: layout style;
 }
 .ds-247420 .cm-member-list:not(.open) {
@@ -10561,13 +10561,15 @@
     left: 72px;
     bottom: 0;
     transform: translateX(-110%);
-    transition: transform var(--dur-base) var(--ease);
+    transition: transform var(--dur-base) var(--ease-drawer);
     box-shadow: 2px 0 16px color-mix(in oklab, var(--ink) 30%, transparent);
   }
   .ds-247420 .cm-channel-sidebar.open { transform: translateX(0); }
-  .ds-247420 .cm-member-list { display: none; }
-  .ds-247420 .cm-member-list.open {
-    display: flex;
+  /* display:none -> flex can't itself animate, so the member-list drawer
+     stays mounted (visibility, not display) and slides via transform, same
+     mechanism + --ease-drawer token as the left channel-sidebar drawer
+     above -- previously this popped in/out with zero motion. */
+  .ds-247420 .cm-member-list {
     position: absolute;
     z-index: calc(var(--z-drawer) + 1);
     top: 0;
@@ -10575,7 +10577,15 @@
     bottom: 0;
     width: 240px;
     flex-basis: 240px;
+    transform: translateX(110%);
+    visibility: hidden;
+    transition: transform var(--dur-base) var(--ease-drawer), visibility 0s linear var(--dur-base);
     box-shadow: -2px 0 16px color-mix(in oklab, var(--ink) 30%, transparent);
+  }
+  .ds-247420 .cm-member-list.open {
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform var(--dur-base) var(--ease-drawer);
   }
   .ds-247420 .cm-chat-header-topic { display: none; }
 }
@@ -14309,8 +14319,10 @@
     position: fixed; inset: 0;
     z-index: var(--z-modal);
     background: color-mix(in oklab, var(--fg) 32%, transparent);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
     display: flex; align-items: flex-start; justify-content: center;
     padding: 12vh var(--space-3, 16px) var(--space-3, 16px);
+    animation: ov-cmd-backdrop-in var(--dur-base, 160ms) var(--ease, ease) both;
 }
 .ds-247420 .ov-cmd-panel {
     width: min(560px, 100%);
@@ -14321,6 +14333,12 @@
     border-radius: var(--r-2, 14px);
     box-shadow: var(--shadow-3);
     overflow: hidden;
+    animation: ov-cmd-panel-in var(--dur-base, 160ms) var(--ease-spring, ease) both;
+}
+@keyframes ov-cmd-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ov-cmd-panel-in { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+    .ds-247420 .ov-cmd-backdrop, .ds-247420 .ov-cmd-panel { animation: none; }
 }
 .ds-247420 .ov-cmd-input {
     appearance: none; border: 0;
@@ -14356,6 +14374,51 @@
 }
 .ds-247420 .ov-cmd-item.is-active .ov-cmd-hint { color: var(--accent-fg); }
 .ds-247420 .ov-cmd-empty { padding: var(--space-4, 24px); text-align: center; color: var(--fg-3); }
+
+/* ---------------------------------------------------------------
+   MentionAutocomplete (ov-mention) — @user / #channel dropdown shown
+   above/below the composer while typing a trigger char. Anchored to the
+   composer caret by the consumer (inline left/top, same pattern as
+   EmojiPicker's ov-emoji-root), so this rung is z-dropdown, not z-modal.
+   --------------------------------------------------------------- */
+.ds-247420 .ov-mention-list {
+    position: fixed; left: 0; top: 0;
+    z-index: var(--z-dropdown);
+    width: min(320px, 90vw);
+    max-height: 240px;
+    overflow: auto;
+    padding: var(--space-1, 4px);
+    background: var(--bg-2); color: var(--fg);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-2, 12px);
+    box-shadow: var(--shadow-3);
+    animation: ov-mention-in var(--dur-fast, 120ms) var(--ease, ease) both;
+}
+@keyframes ov-mention-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .ds-247420 .ov-mention-list { animation: none; } }
+.ds-247420 .ov-mention-item {
+    display: flex; align-items: center; gap: var(--space-2, 8px);
+    width: 100%; min-height: 36px;
+    padding: var(--space-1, 4px) var(--space-2, 8px);
+    background: transparent; border: 0;
+    color: var(--fg); font: inherit; text-align: left;
+    border-radius: var(--r-1, 8px); cursor: pointer;
+}
+.ds-247420 .ov-mention-item:hover { background: var(--panel-2, var(--rule)); }
+.ds-247420 .ov-mention-item.is-active { background: color-mix(in oklab, var(--accent) 16%, transparent); }
+.ds-247420 .ov-mention-avatar {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+    object-fit: cover;
+}
+.ds-247420 .ov-mention-avatar-fallback {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--bg-3); color: var(--fg-2);
+    font-size: var(--fs-tiny, 11px); font-weight: var(--fw-medium);
+}
+.ds-247420 .ov-mention-glyph { width: 18px; display: inline-flex; justify-content: center; flex-shrink: 0; color: var(--fg-3); }
+.ds-247420 .ov-mention-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; background: var(--fg-3); }
+.ds-247420 .ov-mention-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-247420 .ov-mention-sub { flex-shrink: 0; color: var(--fg-3); font-size: var(--fs-tiny, 12px); }
 
 /* ---------------------------------------------------------------
    EmojiPicker (ov-emoji)

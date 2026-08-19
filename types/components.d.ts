@@ -6,7 +6,7 @@
 // signature change; `npm run lint:component-types` fails CI when this
 // file is stale.
 //
-// 277 exported symbols across 30 source files.
+// 278 exported symbols across 30 source files.
 
 /** A webjsx virtual node, as returned by every component in this SDK. */
 export type VNode = any;
@@ -3033,6 +3033,22 @@ export interface CommandPaletteProps {
     onClose?: (...args: any[]) => any;
 }
 export declare function CommandPalette(props?: CommandPaletteProps): VNode;
+
+/**
+ * Props for {@link MentionAutocomplete} (src/components/overlay-primitives.js).
+ */
+export interface MentionAutocompleteProps {
+    open?: any;
+    /** @default 'user' */
+    kind?: 'user' | 'channel' | 'role' | 'emoji' | (string & {});
+    /** @default [] */
+    matches?: any[];
+    /** @default 0 */
+    selection?: number;
+    onSelect?: (...args: any[]) => any;
+    onHover?: (...args: any[]) => any;
+}
+export declare function MentionAutocomplete(props?: MentionAutocompleteProps): VNode;
 
 /**
  * Props for {@link EmojiPicker} (src/components/overlay-primitives.js).

@@ -850,7 +850,7 @@
   padding: var(--space-3) 0;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklab, var(--fg) 18%, transparent) transparent;
-  transition: width var(--dur-base) var(--ease), flex-basis var(--dur-base) var(--ease);
+  transition: width var(--dur-base) var(--ease), flex-basis var(--dur-base) var(--ease), transform var(--dur-base) var(--ease-drawer);
   contain: layout style;
 }
 .cm-member-list:not(.open) {
@@ -1211,13 +1211,15 @@
     left: 72px;
     bottom: 0;
     transform: translateX(-110%);
-    transition: transform var(--dur-base) var(--ease);
+    transition: transform var(--dur-base) var(--ease-drawer);
     box-shadow: 2px 0 16px color-mix(in oklab, var(--ink) 30%, transparent);
   }
   .cm-channel-sidebar.open { transform: translateX(0); }
-  .cm-member-list { display: none; }
-  .cm-member-list.open {
-    display: flex;
+  /* display:none -> flex can't itself animate, so the member-list drawer
+     stays mounted (visibility, not display) and slides via transform, same
+     mechanism + --ease-drawer token as the left channel-sidebar drawer
+     above -- previously this popped in/out with zero motion. */
+  .cm-member-list {
     position: absolute;
     z-index: calc(var(--z-drawer) + 1);
     top: 0;
@@ -1225,7 +1227,15 @@
     bottom: 0;
     width: 240px;
     flex-basis: 240px;
+    transform: translateX(110%);
+    visibility: hidden;
+    transition: transform var(--dur-base) var(--ease-drawer), visibility 0s linear var(--dur-base);
     box-shadow: -2px 0 16px color-mix(in oklab, var(--ink) 30%, transparent);
+  }
+  .cm-member-list.open {
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform var(--dur-base) var(--ease-drawer);
   }
   .cm-chat-header-topic { display: none; }
 }
