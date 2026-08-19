@@ -68,15 +68,69 @@ export function UserPanel({ name, tag, color, muted, deafened, onMute, onDeafen,
 
 const MEMBER_STATUS_CLASS = { online: 'online', idle: 'idle', busy: 'busy', focus: 'status-focus' };
 
-export function MemberItem({ identity, name, color, status = 'online' } = {}) {
+export function MemberItem({ identity, name, color, nameColor, status = 'online', onClick } = {}) {
     const initial = avatarInitial(name || identity);
     const statusClass = MEMBER_STATUS_CLASS[status];
-    return h('div', { class: 'cm-member-item' },
+    return h('div', {
+        class: 'cm-member-item', tabindex: onClick ? '0' : undefined, role: onClick ? 'button' : undefined,
+        onclick: onClick, onkeydown: onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(e); } } : undefined,
+    },
         h('div', { class: 'cm-member-avatar', style: avatarStyle(color) },
             h('span', { class: 'cm-member-status' + (statusClass ? ' ' + statusClass : '') }),
             initial
         ),
-        h('span', { class: 'cm-member-name' }, name || identity)
+        h('span', { class: 'cm-member-name', style: nameColor ? `color:${nameColor}` : null }, name || identity)
+    );
+}
+
+// UserCard — stoat for-web's profile popout shape: a banner strip (color or
+// image) with the avatar overlapping its bottom edge, then name/status,
+// then optional bio/roles/joined-date sections stacked below. Sized for a
+// popover/hovercard body, not a full modal.
+export function UserCard({ identity, name, color, bannerUrl, status = 'online', statusLabel, bio, roles = [], joinedAt, joinedServerAt, serverName, actions = [] } = {}) {
+    const initial = avatarInitial(name || identity);
+    const statusClass = MEMBER_STATUS_CLASS[status];
+    const fmt = (ts) => {
+        if (!ts) return null;
+        const d = ts instanceof Date ? ts : new Date(ts);
+        if (isNaN(d.getTime())) return null;
+        return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    };
+    const joined = fmt(joinedAt);
+    const joinedServer = fmt(joinedServerAt);
+    return h('div', { class: 'cm-user-card', role: 'dialog', 'aria-label': (name || identity || 'user') + ' profile' },
+        h('div', {
+            class: 'cm-uc-banner',
+            style: bannerUrl ? `background-image:linear-gradient(rgba(0,0,0,.2),rgba(0,0,0,.55)),url('${bannerUrl}')` : avatarStyle(color),
+        },
+            h('div', { class: 'cm-uc-avatar-wrap' },
+                h('div', { class: 'cm-uc-avatar', style: avatarStyle(color) },
+                    initial,
+                    h('span', { class: 'cm-uc-status' + (statusClass ? ' ' + statusClass : '') })
+                )
+            )
+        ),
+        h('div', { class: 'cm-uc-body' },
+            h('div', { class: 'cm-uc-name' }, name || identity),
+            h('div', { class: 'cm-uc-status-label' }, statusLabel || status || ''),
+            bio ? h('div', { class: 'cm-uc-section' },
+                h('div', { class: 'cm-uc-section-title' }, 'about'),
+                h('div', { class: 'cm-uc-bio' }, bio)) : null,
+            roles.length ? h('div', { class: 'cm-uc-section' },
+                h('div', { class: 'cm-uc-section-title' }, 'roles'),
+                h('div', { class: 'cm-uc-roles' },
+                    ...roles.map((r, i) => h('span', { class: 'cm-uc-role', key: r.id || i },
+                        h('span', { class: 'cm-uc-role-dot', style: `background:${r.color || 'var(--fg-3)'}` }),
+                        r.name)))) : null,
+            (joined || joinedServer) ? h('div', { class: 'cm-uc-section' },
+                h('div', { class: 'cm-uc-section-title' }, 'joined'),
+                joined ? h('div', { class: 'cm-uc-joined-row' }, Icon('calendar', { size: 14 }), h('span', {}, 'stoat — ' + joined)) : null,
+                joinedServer ? h('div', { class: 'cm-uc-joined-row' }, Icon('calendar', { size: 14 }), h('span', {}, (serverName || 'server') + ' — ' + joinedServer)) : null) : null,
+            actions.length ? h('div', { class: 'cm-uc-actions' },
+                ...actions.map((a, i) => h('button', {
+                    type: 'button', class: 'cm-uc-action-btn' + (a.danger ? ' danger' : ''), key: a.id || i, onclick: a.onClick,
+                }, a.label))) : null
+        )
     );
 }
 
@@ -88,7 +142,7 @@ function MemberListSkeleton({ rows = 6 } = {}) {
             h('span', { class: 'ds-skel ds-skel-icon' }), h('span', { class: 'ds-skel ds-skel-title' }))));
 }
 
-export function MemberList({ categories = [], open, loading = false } = {}) {
+export function MemberList({ categories = [], open, loading = false, onSelectMember } = {}) {
     if (loading) return MemberListSkeleton();
     const total = categories.reduce((n, cat) => n + (cat.members ? cat.members.length : 0), 0);
     return h('div', { class: 'cm-member-list' + (open ? ' open' : '') },
@@ -99,7 +153,10 @@ export function MemberList({ categories = [], open, loading = false } = {}) {
             : null,
         ...categories.flatMap(cat => [
             h('div', { class: 'cm-member-category', key: cat.label }, `${cat.label} — ${cat.members.length}`),
-            ...cat.members.map((m, i) => MemberItem({ ...m, key: m.identity || i }))
+            ...cat.members.map((m, i) => MemberItem({
+                ...m, key: m.identity || i,
+                onClick: onSelectMember ? (e) => onSelectMember(m, e) : undefined,
+            }))
         ])
     );
 }

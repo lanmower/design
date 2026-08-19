@@ -69,7 +69,7 @@ export {
     ServerIcon, ServerRail,
     ChannelItem, ChannelCategory,
     VoiceUser, UserPanel, ChannelSidebar,
-    MemberItem, MemberList,
+    MemberItem, MemberList, UserCard,
     ChatHeader, VoiceStrip, CommunityShell,
     MobileHeader, ReplyBar, Banner,
     ThreadPanel, ForumView, PageView

@@ -952,6 +952,162 @@
 }
 
 /* ============================================================
+   UserCard -- stoat for-web's profile popout (ProfileCard/ProfileBanner):
+   a banner strip with the avatar overlapping its bottom edge, then
+   name/status, then optional bio/roles/joined-date sections. Rendered
+   inside the shared Dialog primitive (community-app.js's UserCardOverlay),
+   so this owns only the card's internal layout, not backdrop/focus-trap.
+   ============================================================ */
+.cm-user-card {
+  width: min(320px, 100%);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-1);
+  border-radius: var(--r-2);
+  overflow: hidden;
+}
+
+.cm-uc-banner {
+  position: relative;
+  height: 80px;
+  background-color: var(--bg-3);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 var(--space-4);
+}
+
+.cm-uc-avatar-wrap {
+  transform: translateY(50%);
+}
+
+.cm-uc-avatar {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--avatar-bg, var(--bg-3));
+  color: var(--avatar-fg, var(--fg-2));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-medium);
+  box-shadow: 0 0 0 4px var(--bg-1);
+}
+
+.cm-uc-status {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--presence-invisible);
+  box-shadow: 0 0 0 3px var(--bg-1);
+}
+.cm-uc-status.online { background: var(--presence-online); }
+.cm-uc-status.idle { background: var(--presence-idle); }
+.cm-uc-status.busy { background: var(--presence-busy); }
+.cm-uc-status.status-focus { background: var(--presence-focus); }
+
+.cm-uc-body {
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.cm-uc-name {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  color: var(--fg);
+}
+
+.cm-uc-status-label {
+  margin-top: calc(-1 * var(--space-2));
+  font-size: var(--fs-sm);
+  color: var(--fg-3);
+}
+
+.cm-uc-section {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-75);
+}
+
+.cm-uc-section-title {
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-medium);
+  color: var(--fg-3);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-caps);
+}
+
+.cm-uc-bio {
+  font-size: var(--fs-sm);
+  color: var(--fg-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.cm-uc-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.cm-uc-role {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-75);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--r-1);
+  background: color-mix(in oklab, var(--fg) 6%, transparent);
+  font-size: var(--fs-sm);
+  color: var(--fg-2);
+}
+
+.cm-uc-role-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 8px;
+}
+
+.cm-uc-joined-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-75);
+  font-size: var(--fs-sm);
+  color: var(--fg-2);
+}
+
+.cm-uc-actions {
+  display: flex;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--rule);
+}
+
+.cm-uc-action-btn {
+  flex: 1;
+  padding: var(--space-1-75) var(--space-2-5);
+  border-radius: var(--r-1);
+  border: 0;
+  background: color-mix(in oklab, var(--fg) 8%, transparent);
+  color: var(--fg);
+  font: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+.cm-uc-action-btn:hover { background: color-mix(in oklab, var(--fg) 14%, transparent); }
+.cm-uc-action-btn.danger { color: var(--danger); }
+
+/* ============================================================
    Voice tile (stoat for-web's 16:9 ParticipantTile shape): video/avatar
    fills the tile, a bottom overlay carries name + status icons, and an
    outline glow (never a background tint) marks the speaking participant --
