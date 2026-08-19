@@ -2,7 +2,7 @@
 
 Generated from `src/components.js`'s real export barrel + each symbol's real definition in `src/components/*.js`, via `node scripts/generate-component-docs.mjs`. Do not hand-edit -- re-run after any component signature or JSDoc change.
 
-271 exported symbols across 30 source files.
+299 exported symbols across 30 source files.
 
 ---
 
@@ -446,7 +446,7 @@ Segmented one-time-code / PIN entry.
 
 **Kind:** component
 
-**Signature:** `role`, `who` = `'them'`, `avatar`, `text`, `parts`, `time`, `typing`, `key`, `aicat`, `reactions`, `receipt`, `name`, `streaming`, `actions`, `incomplete`, `stopped`, `flat`, `error`, `onRetry`, `onToggleReaction`
+**Signature:** `role`, `who` = `'them'`, `avatar`, `text`, `parts`, `time`, `typing`, `key`, `aicat`, `reactions`, `receipt`, `name`, `streaming`, `actions`, `incomplete`, `stopped`, `flat`, `tail`, `error`, `onRetry`, `onToggleReaction`, `onAddReaction`
 
 ### ChatComposer
 
@@ -471,6 +471,12 @@ Segmented one-time-code / PIN entry.
 **Kind:** component
 
 **Signature:** `heading` = `'What can I help with?'`, `subtext` = `''`, `suggestions` = `[]`
+
+### TypingIndicator
+
+**Kind:** component
+
+**Signature:** `users`
 
 ### AICAT_FACE
 
@@ -961,7 +967,7 @@ The directory listing.  `loading` and `busy` are NOT two spellings of one state 
 
 **Kind:** component
 
-**Signature:** `identity`, `speaking`, `color`
+**Signature:** `identity`, `speaking`, `color`, `muted`, `camera`, `videoEl`
 
 ### UserPanel
 
@@ -979,13 +985,19 @@ The directory listing.  `loading` and `busy` are NOT two spellings of one state 
 
 **Kind:** component
 
-**Signature:** `identity`, `name`, `color`, `status` = `'online'`
+**Signature:** `identity`, `name`, `color`, `nameColor`, `status` = `'online'`, `onClick`
 
 ### MemberList
 
 **Kind:** component
 
-**Signature:** `categories` = `[]`, `open`, `loading` = `false`
+**Signature:** `categories` = `[]`, `open`, `loading` = `false`, `onSelectMember`
+
+### UserCard
+
+**Kind:** component
+
+**Signature:** `identity`, `name`, `color`, `bannerUrl`, `status` = `'online'`, `statusLabel`, `bio`, `roles` = `[]`, `joinedAt`, `joinedServerAt`, `serverName`, `actions` = `[]`
 
 ### ChatHeader
 
@@ -1041,6 +1053,114 @@ The directory listing.  `loading` and `busy` are NOT two spellings of one state 
 
 **Signature:** `title` = `''`, `html` = `''`, `author` = `''`, `updatedAt` = `0`, `isAdmin` = `false`, `onEdit`
 
+### RoleRow
+
+**Kind:** component
+
+**Signature:** `id`, `name`, `color`, `memberCount`, `draggable` = `true`, `onClick`, `onDragStart`, `onDragOver`, `onDrop`
+
+### RoleList
+
+**Kind:** component
+
+**Signature:** `roles` = `[]`, `onSelectRole`, `onReorder`, `onAddRole`, `saving` = `false`
+
+### RoleEditor
+
+**Kind:** component
+
+**Signature:** `role` = `{}`, `permissions` = `{}`, `permissionGroups`, `onChangeName`, `onChangeColor`, `onChangeHoist`, `onChangeMentionable`, `onChangePermission`, `onCopyId`, `onDelete`, `onSave`, `onReset`, `dirty` = `false`, `saving` = `false`
+
+### BanList
+
+**Kind:** component
+
+**Signature:** `bans` = `[]`, `filterName` = `''`, `filterReason` = `''`, `onFilterName`, `onFilterReason`, `onUnban`, `loading` = `false`
+
+### InviteList
+
+**Kind:** component
+
+**Signature:** `invites` = `[]`, `onCreate`, `canCreate` = `true`, `onCopy`, `onRevoke`, `loading` = `false`
+
+### WebhookList
+
+**Kind:** component
+
+**Signature:** `webhooks` = `[]`, `onCreate`, `onEdit`, `onDelete`, `busy` = `false`
+
+### WebhookListItem
+
+**Kind:** component
+
+**Signature:** `name`, `avatarUrl`, `color`, `description`, `onEdit`, `onDelete`
+
+### WebhookEditor
+
+**Kind:** component
+
+**Signature:** `name` = `''`, `avatarUrl` = `''`, `url` = `''`, `onNameChange`, `onAvatarChange`, `onCopyUrl`, `onSave`, `onDelete`, `saving` = `false`
+
+### RoleTabs
+
+**Kind:** component
+
+**Signature:** `roles` = `[]`, `activeId`, `onSelect`
+
+### PermissionRow
+
+**Kind:** component
+
+**Signature:** `title`, `description`, `value`, `onCycle`
+
+### PermissionSection
+
+**Kind:** component
+
+**Signature:** `heading`, `permissions` = `[]`, `values` = `{}`, `onChange`
+
+### PermissionsEditor
+
+**Kind:** component
+
+**Signature:** `roles` = `[]`, `activeRoleId`, `onSelectRole`, `sections` = `[]`, `values` = `{}`, `onChange`, `dirty` = `false`, `saving` = `false`, `onSave`, `onReset`
+
+### PermissionsOverview
+
+**Kind:** component
+
+**Signature:** `roles` = `[]`, `overrideRoleIds` = `[]`, `onSelectDefault`, `onSelectRole`
+
+### EmojiManagerGrid
+
+**Kind:** component
+
+**Signature:** `emoji` = `[]`, `onUpload`, `onDelete`, `dragOver` = `false`, `onDragOver`, `onDragLeave`, `onDrop`, `busy` = `false`
+
+### SearchBar
+
+**Kind:** component
+
+**Signature:** `value` = `''`, `placeholder` = `'Search…'`, `onChange`, `onClear`, `onSubmit`, `autofocus` = `false`
+
+### SearchResults
+
+**Kind:** component
+
+**Signature:** `query` = `''`, `groups` = `[]`, `busy` = `false`, `emptyText` = `'No results'`
+
+### SearchResultMessage
+
+**Kind:** component
+
+**Signature:** `author`, `avatarColor`, `text`, `time`, `channelName`, `query`, `onClick`
+
+### SearchResultEntity
+
+**Kind:** component
+
+**Signature:** `kind` = `'channel'`, `name`, `icon`, `color`, `subtitle`, `onClick`
+
 ## `src/components/voice.js`
 
 ### PttButton
@@ -1084,6 +1204,36 @@ The directory listing.  `loading` and `busy` are NOT two spellings of one state 
 **Kind:** component
 
 **Signature:** _(no props)_
+
+### SettingsRowGroup
+
+**Kind:** component
+
+**Signature:** `children` _(positional arg)_
+
+### SettingsSection
+
+**Kind:** component
+
+**Signature:** `title`, `children`
+
+### SettingsRow
+
+**Kind:** component
+
+**Signature:** `icon` = `'blank'`, `label`, `description`, `action`, `onClick`
+
+### SettingsRowToggle
+
+**Kind:** component
+
+**Signature:** `icon` = `'blank'`, `label`, `description`, `checked` = `false`, `onToggle`
+
+### SettingsRowSelect
+
+**Kind:** component
+
+**Signature:** `icon` = `'blank'`, `label`, `description`, `value`, `options` = `[]`, `onChange`, `ariaLabel`
 
 ## `src/components/collab.js`
 
@@ -1569,6 +1719,12 @@ A scroll-snap content carousel with prev/next controls.
 
 **Signature:** `open`, `items` = `[]`, `onSelect`, `onClose`
 
+### MentionAutocomplete
+
+**Kind:** component
+
+**Signature:** `open`, `kind` = `'user'`, `matches` = `[]`, `selection` = `0`, `onSelect`, `onHover`
+
 ### EmojiPicker
 
 **Kind:** component
@@ -1587,6 +1743,12 @@ A scroll-snap content carousel with prev/next controls.
 
 **Signature:** `title` = `'Settings'`, `open`, `anchorX` = `0`, `anchorY` = `0`, `sections` = `[]`, `onClose`
 
+### SettingsShell
+
+**Kind:** component
+
+**Signature:** `title` = `'Settings'`, `open`, `groups` = `[]`, `activeId`, `onSelect`, `onClose`, `children`
+
 ### AuthModal
 
 **Kind:** component
@@ -1598,6 +1760,12 @@ A scroll-snap content carousel with prev/next controls.
 **Kind:** component
 
 **Signature:** `src`, `label` = `''`, `open` = `false`, `onClose`
+
+### ImageLightbox
+
+**Kind:** component
+
+**Signature:** `src`, `alt` = `''`, `label` = `''`, `open` = `false`, `onClose`
 
 ### PermissionMenu
 
