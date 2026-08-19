@@ -41,6 +41,24 @@ const root = path.resolve(__dirname, '..');
 // its CSS through the real stylesheets and has no inline <style> to scan.
 const SCAN_DIRS = ['preview', 'ui_kits'].map((d) => path.join(root, d));
 
+// Extra scan roots a consuming project registers via DS_LINT_EXTRA_JS_DIRS
+// (comma-separated, absolute or cwd-relative paths). This repo's own scan set
+// (SCAN_DIRS above) covers only ground inside anentrypoint-design itself; a
+// project consuming the design system as a submodule (e.g. casey's dashboard
+// SPA at src/dashboard/public) has its own inline-CSS-bypass surface that no
+// lint-tokens.mjs COMPONENT_SHEETS entry and no SCAN_DIRS entry here can ever
+// reach, because both are hardcoded to this repo's own tree. Without this,
+// the design system's own lint gate reports green over a consumer's entire
+// dashboard while that dashboard accumulates the exact class of violation
+// this file exists to catch -- same coverage-hole shape as the @import
+// barrel and the shipped-but-unscanned sheets documented in lint-tokens.mjs,
+// just crossing a repo boundary instead of a file boundary.
+function extraJsScanDirs() {
+    const raw = process.env.DS_LINT_EXTRA_JS_DIRS;
+    if (!raw) return [];
+    return raw.split(',').map((s) => s.trim()).filter(Boolean).map((d) => path.resolve(process.cwd(), d));
+}
+
 // ---------------------------------------------------------------------------
 // Extraction
 // ---------------------------------------------------------------------------
@@ -124,6 +142,35 @@ export function inlineStyleFiles() {
         .sort();
 }
 
+// Same collection pattern, scoped to a consumer's extra JS roots (see
+// extraJsScanDirs). Paths outside `root` cannot be path.relative()'d back to
+// it the way inlineStyleFiles does, so these stay absolute end-to-end and the
+// violation report below prints them as such.
+export function inlineStyleJsFiles() {
+    const dirs = extraJsScanDirs();
+    if (!dirs.length) return [];
+    return walkManyDirs(dirs, new Set(['.js', '.mjs']), { skipDirs: new Set(['node_modules', 'vendor', 'dist']) })
+        .sort();
+}
+
+// A JS file has no <style> block; the equivalent bypass is a plain CSS-
+// declaration-list string assigned straight to `.style.cssText` (a bare
+// property-list, never a full rule with a selector -- `dispatch-picker.js`'s
+// `el.style.cssText = 'width:100%;background:var(--panel);...'` is exactly
+// this shape). Masking mirrors extractStyleBlocks: everything except the
+// quoted string body becomes blank, byte length and line count preserved, so
+// SCANNERS below can run over it unmodified and line numbers stay exact.
+export function extractCssTextAssignments(js) {
+    const out = blank(js);
+    const re = /\.style\.cssText\s*=\s*(['"`])((?:\\.|(?!\1)[^\\])*)\1/g;
+    let m;
+    while ((m = re.exec(js)) !== null) {
+        const start = m.index + m[0].indexOf(m[1]) + 1;
+        out = out.slice(0, start) + m[2] + out.slice(start + m[2].length);
+    }
+    return out;
+}
+
 // The four scanners, sharing one driver. Each mirrors its .css counterpart in
 // lint-tokens.mjs exactly — same regex, same var()-fallback and calc() exemptions
 // — because a literal is no more acceptable inside a <style> block than inside a
@@ -173,6 +220,18 @@ export function findInlineCssViolations() {
             });
         }
     }
+    for (const abs of inlineStyleJsFiles()) {
+        const src = fs.readFileSync(abs, 'utf8');
+        const rawLines = src.split(/\r?\n/);
+        const css = stripThemableLiterals(stripComments(extractCssTextAssignments(src)));
+        for (const { key, re, pre } of SCANNERS) {
+            pre(css).split(/\r?\n/).forEach((code, i) => {
+                if (re.test(code) && !isAllowed(abs, rawLines[i])) {
+                    violations.push(`${abs}:${i + 1}: [${key}] ${rawLines[i].trim()}`);
+                }
+            });
+        }
+    }
     return violations.sort();
 }
 
@@ -205,12 +264,15 @@ const BASELINE_FILE = path.join(root, 'scripts', 'lint-inline-css.baseline.json'
 
 export function lintInlineCssOrThrow() {
     const files = inlineStyleFiles();
+    const jsFiles = inlineStyleJsFiles();
     ratchetOrThrow({
         label: 'lint-inline-css',
         flag: '--write-inline-css-baseline',
         baselineFile: BASELINE_FILE,
         violations: findInlineCssViolations(),
-        scope: `${files.length} HTML files with inline <style>`,
+        scope: jsFiles.length
+            ? `${files.length} HTML files with inline <style>, ${jsFiles.length} JS files with style.cssText`
+            : `${files.length} HTML files with inline <style>`,
         noun: 'raw color/radius/spacing/font-size literal(s) inside inline <style> blocks bypassing the token scales in colors_and_type.css',
         fix: 'Use the token (var(--space-N) / var(--fs-N) / var(--r-N) / a color token) — an inline <style> block is ordinary CSS and gets no exemption for living in an HTML file. If the value is genuinely off-scale because the page is a SPECIMEN demonstrating that exact value (a swatch box dimension, a deliberately off-ladder type size), leave the literal and add a comment at the site saying so, and re-freeze the baseline DOWNWARD to whatever you reached.',
     });
