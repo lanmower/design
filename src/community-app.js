@@ -42,10 +42,10 @@ import { register } from './debug.js';
 import { Chat, ChatComposer } from './components/chat.js';
 import {
     ServerRail, ChannelItem, MemberList, MobileHeader,
-    UserPanel, VoiceStrip, VoiceUser, ThreadPanel, ForumView, PageView, Banner,
+    UserPanel, VoiceStrip, VoiceUser, ThreadPanel, ForumView, PageView, Banner, UserCard,
 } from './components/community.js';
 import { VoiceControls, VoiceSettingsModal, AudioQueue, PttButton, VadMeter, WebcamPreview } from './components/voice.js';
-import { ContextMenu } from './components/editor-primitives.js';
+import { ContextMenu, Dialog } from './components/editor-primitives.js';
 import { EmojiPicker, CommandPalette, AuthModal, BootOverlay, SettingsPopover, VideoLightbox } from './components/overlay-primitives.js';
 
 const h = webjsx.createElement;
@@ -56,6 +56,25 @@ const h = webjsx.createElement;
 // for a live voice room. 'send' (paper-plane) reads distinctly as
 // one-way/outbound at a glance and shares no silhouette with 'speaker'.
 const CHANNEL_ICON = { voice: 'speaker', forum: 'forum', threaded: 'thread', announcement: 'send', page: 'page', text: 'hash' };
+
+// Wraps UserCard in the shared Dialog primitive (focus-trap, Escape,
+// backdrop-dismiss) so clicking a member in MemberList opens a real profile
+// popout -- stoat for-web's ProfileCard/ProfileBanner surface, previously
+// entirely absent (the rail had no click affordance at all).
+function UserCardOverlay({ member, onClose } = {}) {
+    if (!member) return null;
+    return Dialog({
+        open: true, onClose, dismissible: true,
+        ariaLabel: (member.name || member.identity || 'user') + ' profile',
+        children: UserCard({
+            identity: member.identity, name: member.name, color: member.color,
+            bannerUrl: member.bannerUrl, status: member.status, statusLabel: member.statusLabel,
+            bio: member.bio, roles: member.roles, joinedAt: member.joinedAt,
+            joinedServerAt: member.joinedServerAt, serverName: member.serverName,
+            actions: member.actions,
+        }),
+    });
+}
 
 export function mountCommunityApp(root, adapter = {}) {
     if (!root) throw new Error('mountCommunityApp: root required');
@@ -74,6 +93,7 @@ export function mountCommunityApp(root, adapter = {}) {
     let ctx = { open: false, x: 0, y: 0, items: [] };
     let emoji = { open: false, x: 0, y: 0, onSelect: null };
     let palette = { open: false, items: [], onSelect: null };
+    let card = { open: false, member: null };
 
     // Split into two columns matching stoat's for-web layout (ServerList: a
     // fixed-width icon-only rail, separate from ServerSidebar/MemberSidebar's
@@ -209,7 +229,13 @@ export function mountCommunityApp(root, adapter = {}) {
                 // implying certain content removal.
                 isYou ? { label: 'delete', title: 'request deletion (relays may not honor it; other clients may have already cached this message)', icon: 'trash', onClick: () => A.deleteMessage && A.deleteMessage(m.id) } : null,
             ].filter(Boolean);
-            return { key: m.id || ('m' + i), who: isYou ? 'you' : 'them', flat: true, name: username, avatar: initial(username), time: formatTime(m.timestamp), parts: partsFromMessage(m), reactions, onToggleReaction: A.reactToMessage ? (emoji) => A.reactToMessage(m.id, m.userId, emoji) : null, actions: msgActions, receipt: isYou && m.read ? 'read' : (isYou && m.delivered ? 'delivered' : null) };
+            const openReactPicker = (e) => {
+                if (!A.reactToMessage) return;
+                const rect = e && e.currentTarget && e.currentTarget.getBoundingClientRect ? e.currentTarget.getBoundingClientRect() : null;
+                if (api.emojiPicker) api.emojiPicker.show(rect ? rect.left : 200, rect ? rect.bottom + 4 : 200, (em) => A.reactToMessage(m.id, m.userId, em));
+                else A.reactToMessage(m.id, m.userId);
+            };
+            return { key: m.id || ('m' + i), who: isYou ? 'you' : 'them', flat: true, name: username, avatar: initial(username), time: formatTime(m.timestamp), parts: partsFromMessage(m), reactions, onToggleReaction: A.reactToMessage ? (emoji) => A.reactToMessage(m.id, m.userId, emoji) : null, onAddReaction: A.reactToMessage ? openReactPicker : null, actions: msgActions, receipt: isYou && m.read ? 'read' : (isYou && m.delivered ? 'delivered' : null) };
         });
     };
 
@@ -289,10 +315,14 @@ export function mountCommunityApp(root, adapter = {}) {
                     UserPanel({ name: (s.currentUser && (s.currentUser.displayName || s.currentUser.username || s.currentUser.name)) || 'You', tag: s.currentUser && s.currentUser.tag, color: avatarColor(s.userId), muted: !!s.micMuted, deafened: !!s.voiceDeafened, onMute: () => A.toggleMic && A.toggleMic(), onDeafen: () => A.toggleDeafen && A.toggleDeafen(), onSettings: () => A.openSettings && A.openSettings() }),
                     bodyMain,
                 ),
-                MemberList({ categories: s.memberCategories || [], open: !!s.memberListOpen }),
+                MemberList({
+                    categories: s.memberCategories || [], open: !!s.memberListOpen,
+                    onSelectMember: (m) => { card = { open: true, member: m }; render(); },
+                }),
             ),
             // overlays
             ctx.open ? ContextMenu({ items: ctx.items, anchor: { x: ctx.x, y: ctx.y }, onClose: () => { ctx = { ...ctx, open: false }; render(); } }) : null,
+            card.open ? UserCardOverlay({ member: card.member, onClose: () => { card = { ...card, open: false }; render(); } }) : null,
             emoji.open ? EmojiPicker({ open: true, anchorX: emoji.x, anchorY: emoji.y, onSelect: (em) => { try { emoji.onSelect && emoji.onSelect(em); } catch (_) { /* swallow: consumer onSelect callback must not break overlay close/re-render */ } emoji = { ...emoji, open: false }; render(); }, onClose: () => { emoji = { ...emoji, open: false }; render(); } }) : null,
             palette.open ? CommandPalette({ open: true, items: palette.items, onSelect: (it) => { try { palette.onSelect && palette.onSelect(it); } catch (_) { /* swallow: consumer onSelect callback must not break overlay close/re-render */ } palette = { ...palette, open: false }; render(); }, onClose: () => { palette = { ...palette, open: false }; render(); } }) : null,
             // global overlays (visibility driven by adapter snapshot)

@@ -398,6 +398,100 @@
 .chat-reactions .rxn .n { font-family: var(--ff-mono); font-weight: var(--fw-medium, 500); font-size: var(--fs-nano); color: var(--fg-2); }
 .chat-reactions .rxn.you .n { color: var(--accent-ink); }
 
+/* Per-message action row: `actions` (react/reply/edit/delete/more) had zero
+   CSS anywhere in this file, so the hover toolbar rendered as an unstyled
+   inline row of buttons pinned to page flow — reference behaviour is a
+   floating pill, revealed on hover/focus-within, that never displaces
+   surrounding message layout. Messenger-bubble layout keeps the original
+   below-bubble strip (.chat-msg-actions without -float); flat/community
+   rows opt into the floating pill via .chat-msg-actions-float. */
+.chat-msg-actions {
+  display: flex; align-items: center; gap: var(--space-hair);
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--dur-snap, .12s) var(--ease, ease);
+}
+.chat-msg:hover .chat-msg-actions,
+.chat-msg:focus-within .chat-msg-actions,
+.chat-msg-actions:focus-within {
+  opacity: 1; pointer-events: auto;
+}
+.chat-msg-action {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  padding: var(--space-1); border: 0; border-radius: var(--r-1);
+  background: transparent; color: var(--fg-3); cursor: pointer;
+  font-family: var(--ff-mono); font-size: var(--fs-nano);
+  transition: background var(--dur-snap, .12s) var(--ease, ease), color var(--dur-snap, .12s) var(--ease, ease);
+}
+.chat-msg-action:hover { background: var(--bg-3); color: var(--fg); }
+.chat-msg-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.chat-msg-action.is-copied { color: var(--accent-ink); }
+.chat-msg-action-label { display: none; }
+
+/* Floating pill: matches for-web's MessageToolbar (top-right corner of the
+   message, overlapping the bubble, one contiguous chip) rather than a strip
+   living in normal flow below the content. */
+.chat-msg-actions-float {
+  position: absolute; top: -14px; right: var(--space-2-75);
+  background: var(--bg-2); border: var(--bw-hair) solid var(--rule);
+  border-radius: var(--r-1); box-shadow: var(--shadow-1);
+  padding: var(--space-hair);
+  z-index: var(--z-raised);
+}
+.chat-msg.you .chat-msg-actions-float { right: auto; left: var(--space-2-75); }
+
+/* Out-of-band turn notices (stopped / incomplete / error+retry). */
+.chat-msg-notice {
+  font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3);
+  padding: var(--space-1) var(--space-2); margin-top: var(--space-hair);
+  display: flex; align-items: center; gap: var(--space-2);
+}
+.chat-msg-notice.is-error { color: var(--flame); }
+.chat-msg-retry-btn {
+  border: var(--bw-hair) solid var(--rule-strong); background: transparent;
+  color: inherit; border-radius: var(--r-1); padding: var(--space-hair) var(--space-2);
+  font-family: var(--ff-mono); font-size: var(--fs-nano); cursor: pointer;
+}
+.chat-msg-retry-btn:hover { background: var(--bg-3); }
+
+/* Flat-layout role label (You / agent name) above the turn content. */
+.chat-role {
+  font-family: var(--ff-mono); font-size: var(--fs-nano); color: var(--fg-3);
+  text-transform: lowercase; letter-spacing: 0.02em;
+}
+
+/* Reply-preview bar above the composer: reference is a tinted pill row
+   naming who is being replied to plus a dismiss control — this had zero
+   CSS and rendered as a bare unstyled block above the composer. */
+.cm-composer-wrap { display: flex; flex-direction: column; gap: var(--space-1); }
+.cm-reply-preview {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+  padding: var(--space-1-75) var(--space-2-75);
+  background: color-mix(in oklab, var(--accent) 10%, var(--bg-2));
+  border: var(--bw-hair) solid color-mix(in oklab, var(--accent) 30%, transparent);
+  border-radius: var(--r-2);
+  font-family: var(--ff-mono); font-size: var(--fs-xs);
+}
+.cm-reply-preview-label { color: var(--fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cm-reply-preview-close {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; flex-shrink: 0;
+  border: 0; border-radius: var(--r-1); background: transparent; color: var(--fg-3); cursor: pointer;
+}
+.cm-reply-preview-close:hover { background: var(--bg-3); color: var(--fg); }
+.cm-reply-preview-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* Add-reaction (+) affordance: for-web shows a low-opacity + chip at the end
+   of the reaction row that brightens on hover of the whole row, opening the
+   emoji picker. This kit's reaction row previously stopped at rendering
+   existing reactions with no way to add a new one from the row itself. */
+.chat-reactions .chat-rxn-add {
+  opacity: 0; justify-content: center;
+  background: var(--bg-3); border-style: dashed;
+  width: 28px; padding: var(--space-hair);
+}
+.chat-reactions:hover .chat-rxn-add,
+.chat-reactions .chat-rxn-add:focus-visible { opacity: 1; }
+
 /* Typing indicator renders through the same .chat-bubble container as a real
    message, but must never read as a bubble holding actual content — no
    border, no hover-lift shadow, no tail-corner cut; just a pill-shaped
