@@ -4856,6 +4856,100 @@
 .ds-247420 .chat-reactions .rxn .n { font-family: var(--ff-mono); font-weight: var(--fw-medium, 500); font-size: var(--fs-nano); color: var(--fg-2); }
 .ds-247420 .chat-reactions .rxn.you .n { color: var(--accent-ink); }
 
+/* Per-message action row: `actions` (react/reply/edit/delete/more) had zero
+   CSS anywhere in this file, so the hover toolbar rendered as an unstyled
+   inline row of buttons pinned to page flow — reference behaviour is a
+   floating pill, revealed on hover/focus-within, that never displaces
+   surrounding message layout. Messenger-bubble layout keeps the original
+   below-bubble strip (.chat-msg-actions without -float); flat/community
+   rows opt into the floating pill via .chat-msg-actions-float. */
+.ds-247420 .chat-msg-actions {
+  display: flex; align-items: center; gap: var(--space-hair);
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--dur-snap, .12s) var(--ease, ease);
+}
+.ds-247420 .chat-msg:hover .chat-msg-actions,
+.ds-247420 .chat-msg:focus-within .chat-msg-actions,
+.ds-247420 .chat-msg-actions:focus-within {
+  opacity: 1; pointer-events: auto;
+}
+.ds-247420 .chat-msg-action {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  padding: var(--space-1); border: 0; border-radius: var(--r-1);
+  background: transparent; color: var(--fg-3); cursor: pointer;
+  font-family: var(--ff-mono); font-size: var(--fs-nano);
+  transition: background var(--dur-snap, .12s) var(--ease, ease), color var(--dur-snap, .12s) var(--ease, ease);
+}
+.ds-247420 .chat-msg-action:hover { background: var(--bg-3); color: var(--fg); }
+.ds-247420 .chat-msg-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ds-247420 .chat-msg-action.is-copied { color: var(--accent-ink); }
+.ds-247420 .chat-msg-action-label { display: none; }
+
+/* Floating pill: matches for-web's MessageToolbar (top-right corner of the
+   message, overlapping the bubble, one contiguous chip) rather than a strip
+   living in normal flow below the content. */
+.ds-247420 .chat-msg-actions-float {
+  position: absolute; top: -14px; right: var(--space-2-75);
+  background: var(--bg-2); border: var(--bw-hair) solid var(--rule);
+  border-radius: var(--r-1); box-shadow: var(--shadow-1);
+  padding: var(--space-hair);
+  z-index: var(--z-raised);
+}
+.ds-247420 .chat-msg.you .chat-msg-actions-float { right: auto; left: var(--space-2-75); }
+
+/* Out-of-band turn notices (stopped / incomplete / error+retry). */
+.ds-247420 .chat-msg-notice {
+  font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3);
+  padding: var(--space-1) var(--space-2); margin-top: var(--space-hair);
+  display: flex; align-items: center; gap: var(--space-2);
+}
+.ds-247420 .chat-msg-notice.is-error { color: var(--flame); }
+.ds-247420 .chat-msg-retry-btn {
+  border: var(--bw-hair) solid var(--rule-strong); background: transparent;
+  color: inherit; border-radius: var(--r-1); padding: var(--space-hair) var(--space-2);
+  font-family: var(--ff-mono); font-size: var(--fs-nano); cursor: pointer;
+}
+.ds-247420 .chat-msg-retry-btn:hover { background: var(--bg-3); }
+
+/* Flat-layout role label (You / agent name) above the turn content. */
+.ds-247420 .chat-role {
+  font-family: var(--ff-mono); font-size: var(--fs-nano); color: var(--fg-3);
+  text-transform: lowercase; letter-spacing: 0.02em;
+}
+
+/* Reply-preview bar above the composer: reference is a tinted pill row
+   naming who is being replied to plus a dismiss control — this had zero
+   CSS and rendered as a bare unstyled block above the composer. */
+.ds-247420 .cm-composer-wrap { display: flex; flex-direction: column; gap: var(--space-1); }
+.ds-247420 .cm-reply-preview {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+  padding: var(--space-1-75) var(--space-2-75);
+  background: color-mix(in oklab, var(--accent) 10%, var(--bg-2));
+  border: var(--bw-hair) solid color-mix(in oklab, var(--accent) 30%, transparent);
+  border-radius: var(--r-2);
+  font-family: var(--ff-mono); font-size: var(--fs-xs);
+}
+.ds-247420 .cm-reply-preview-label { color: var(--fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-247420 .cm-reply-preview-close {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; flex-shrink: 0;
+  border: 0; border-radius: var(--r-1); background: transparent; color: var(--fg-3); cursor: pointer;
+}
+.ds-247420 .cm-reply-preview-close:hover { background: var(--bg-3); color: var(--fg); }
+.ds-247420 .cm-reply-preview-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* Add-reaction (+) affordance: for-web shows a low-opacity + chip at the end
+   of the reaction row that brightens on hover of the whole row, opening the
+   emoji picker. This kit's reaction row previously stopped at rendering
+   existing reactions with no way to add a new one from the row itself. */
+.ds-247420 .chat-reactions .chat-rxn-add {
+  opacity: 0; justify-content: center;
+  background: var(--bg-3); border-style: dashed;
+  width: 28px; padding: var(--space-hair);
+}
+.ds-247420 .chat-reactions:hover .chat-rxn-add,
+.ds-247420 .chat-reactions .chat-rxn-add:focus-visible { opacity: 1; }
+
 /* Typing indicator renders through the same .chat-bubble container as a real
    message, but must never read as a bubble holding actual content — no
    border, no hover-lift shadow, no tail-corner cut; just a pill-shaped
@@ -13485,7 +13579,7 @@
 }
 .ds-247420 .ds-ep-ctxmenu-item {
     display: flex; align-items: center; gap: var(--space-2);
-    padding: var(--space-2) var(--space-2-5);
+    padding: var(--space-2) var(--space-3);
     background: transparent; border: 0;
     color: inherit; font: inherit; text-align: left;
     border-radius: var(--r-1, 8px);
@@ -13493,12 +13587,12 @@
 }
 .ds-247420 .ds-ep-ctxmenu-item:hover:not(.disabled),
 .ds-247420 .ds-ep-ctxmenu-item:focus-visible {
-    background: var(--panel-2, var(--rule));
+    background: color-mix(in oklab, var(--fg) 8%, transparent);
 }
 .ds-247420 .ds-ep-ctxmenu-item.danger { color: var(--danger); }
 .ds-247420 .ds-ep-ctxmenu-item.disabled { opacity: 0.45; cursor: not-allowed; }
 .ds-247420 .ds-ep-ctxmenu-icon { width: 16px; display: inline-flex; justify-content: center; }
-.ds-247420 .ds-ep-ctxmenu-sep { height: 1px; background: var(--rule); margin: var(--space-1) var(--space-1-75); }
+.ds-247420 .ds-ep-ctxmenu-sep { height: 1px; background: var(--rule); margin: var(--space-1) 0; }
 
 /* ---------------------------------------------------------------
    Drawer
@@ -13861,7 +13955,8 @@
     overscroll-behavior: contain;
 }
 @media (prefers-reduced-motion: no-preference) {
-    .ds-247420 .ds-popover { transition: opacity 140ms ease, transform 140ms ease; }
+    .ds-247420 .ds-popover { transition: opacity 140ms ease, transform 140ms var(--ease-out-strong); }
+    .ds-247420 .ds-popover.is-entering { opacity: 0; transform: translateY(-4px); }
 }
 
 /* ---------------------------------------------------------------
@@ -14117,7 +14212,7 @@
     display: flex; flex-direction: column;
     background: var(--bg-2); color: var(--fg);
     border: 1px solid var(--rule);
-    border-radius: var(--r-2, 14px);
+    border-radius: var(--r-3, 14px);
     box-shadow: var(--shadow-3);
     outline: none; overflow: hidden;
 }
@@ -14143,7 +14238,7 @@
 .ds-247420 .ov-emoji-tab[aria-selected="true"] { border-bottom-color: var(--accent); background: var(--bg-2); }
 .ds-247420 .ov-emoji-tab:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
 .ds-247420 .ov-emoji-grid { overflow: auto; max-height: 220px; padding: var(--space-2, 8px); }
-.ds-247420 .ov-emoji-grid-inner { display: grid; grid-template-columns: repeat(8, 1fr); gap: var(--space-1, 4px); }
+.ds-247420 .ov-emoji-grid-inner { display: grid; grid-template-columns: repeat(9, 1fr); gap: var(--space-1, 4px); }
 .ds-247420 .ov-emoji-cell {
     appearance: none; border: 0; background: transparent;
     aspect-ratio: 1; font-size: var(--fs-lg, 18px);
@@ -14157,6 +14252,15 @@
     background: color-mix(in oklab, var(--accent) 18%, transparent);
     outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px;
 }
+.ds-247420 .ov-emoji-preview {
+    flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
+    gap: var(--space-2); min-height: 36px;
+    padding: var(--space-1) var(--space-2);
+    border-top: 1px solid var(--rule);
+    font-size: var(--fs-sm, 13px); color: var(--fg-3);
+}
+.ds-247420 .ov-emoji-preview-glyph { font-size: var(--fs-lg, 18px); flex-shrink: 0; }
+.ds-247420 .ov-emoji-preview-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ---------------------------------------------------------------
    BootOverlay (ov-boot)
