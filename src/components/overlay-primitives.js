@@ -20,8 +20,9 @@ import { CommandPalette } from './overlay-primitives/command-palette.js';
 import { MentionAutocomplete } from './overlay-primitives/mention-autocomplete.js';
 import { EmojiPicker } from './overlay-primitives/emoji-picker.js';
 import { SettingsPopover } from './overlay-primitives/settings-popover.js';
+import { SettingsShell } from './overlay-primitives/settings-shell.js';
 import { AuthModal } from './overlay-primitives/auth-modal.js';
-import { BootOverlay, VideoLightbox } from './overlay-primitives/full-screen.js';
+import { BootOverlay, VideoLightbox, ImageLightbox } from './overlay-primitives/full-screen.js';
 import { HoverCard } from './overlay-primitives/hover-card.js';
 import { Menubar } from './overlay-primitives/menubar.js';
 
@@ -36,8 +37,9 @@ export {
     MentionAutocomplete,
     EmojiPicker,
     SettingsPopover,
+    SettingsShell,
     AuthModal,
-    BootOverlay, VideoLightbox,
+    BootOverlay, VideoLightbox, ImageLightbox,
     HoverCard,
     Menubar,
 };

@@ -15,6 +15,7 @@
 //     voiceParticipants, micMuted, voiceDeafened,
 //     audioQueueItems, audioQueueCurrentId, audioQueuePaused,
 //     showAuthModal, settingsOpen, voiceSettingsOpen, replyTarget,
+//     typingUsers,     // [{id,name,avatar,color}] rendered as an overlapping-avatar bar above the composer
 //     mobileMenuOpen,  // drives the .ca-rail off-canvas drawer on narrow shells
 //     canManage,       // gates the rail's "+ create channel" affordance
 //     forumPosts,      // ch.type==='forum': [{id,title,snippet,author,time,replyCount,tags?}]
@@ -39,14 +40,14 @@
 import * as webjsx from '../vendor/webjsx/index.js';
 import { Icon } from './components/shell.js';
 import { register } from './debug.js';
-import { Chat, ChatComposer } from './components/chat.js';
+import { Chat, ChatComposer, TypingIndicator } from './components/chat.js';
 import {
     ServerRail, ChannelItem, MemberList, MobileHeader,
     UserPanel, VoiceStrip, VoiceUser, ThreadPanel, ForumView, PageView, Banner, UserCard,
 } from './components/community.js';
 import { VoiceControls, VoiceSettingsModal, AudioQueue, PttButton, VadMeter, WebcamPreview } from './components/voice.js';
 import { ContextMenu, Dialog } from './components/editor-primitives.js';
-import { EmojiPicker, CommandPalette, AuthModal, BootOverlay, SettingsPopover, VideoLightbox } from './components/overlay-primitives.js';
+import { EmojiPicker, CommandPalette, AuthModal, BootOverlay, SettingsPopover, VideoLightbox, ImageLightbox } from './components/overlay-primitives.js';
 
 const h = webjsx.createElement;
 
@@ -109,6 +110,11 @@ export function mountCommunityApp(root, adapter = {}) {
     let palette = { open: false, items: [], onSelect: null };
     let card = { open: false, member: null };
     let dropAnywhere = { active: false, count: 0, fileCount: 0 };
+    // Chat image embeds had no in-app expand — clicking one only opened a new
+    // browser tab. This mirrors the existing s.videoLightbox adapter-driven
+    // pattern but is owned locally since no adapter action is needed: the
+    // click has all the data (src/alt) already in hand from the message part.
+    let imageLightbox = { open: false, src: null, alt: '' };
 
     // Split into two columns matching stoat's for-web layout (ServerList: a
     // fixed-width icon-only rail, separate from ServerSidebar/MemberSidebar's
@@ -262,9 +268,10 @@ export function mountCommunityApp(root, adapter = {}) {
             h('span', { class: 'cm-reply-preview-label' }, 'Replying to ' + (rt.username || 'User')),
             h('button', { type: 'button', class: 'cm-reply-preview-close', 'aria-label': 'cancel reply', title: 'cancel reply', onclick: (e) => { e.preventDefault(); A.cancelReply && A.cancelReply(); } }, Icon('x', { size: 14 }))
         ) : null;
+        const typingBar = TypingIndicator({ users: s.typingUsers || [] });
         return Chat({
             title: ch.name || 'general', sub, messages: mapMessages(s), header: null,
-            composer: h('div', { class: 'cm-composer-wrap' }, replyPreview, ChatComposer({
+            composer: h('div', { class: 'cm-composer-wrap' }, replyPreview, typingBar, ChatComposer({
                 value: s.chatInputValue || '',
                 placeholder: rt ? 'reply to ' + (rt.username || 'User') + '…' : 'message #' + (ch.name || 'general') + '…',
                 onInput: (v) => A.setInput && A.setInput(v),
@@ -319,6 +326,21 @@ export function mountCommunityApp(root, adapter = {}) {
                 if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) A.attachFiles(e.dataTransfer.files);
                 render();
             },
+            // Delegated click-to-expand for chat image embeds: the .chat-image
+            // anchor (chat-message-parts/renderers.js) still opens a new tab as
+            // its href fallback for no-JS/middle-click/open-in-new-tab, but a
+            // plain left click intercepts into the in-app lightbox instead —
+            // same "progressive enhancement over a real href" pattern already
+            // used for the composer-context-bit buttons above.
+            onclick: (e) => {
+                const a = e.target.closest && e.target.closest('.chat-image');
+                if (!a || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                const img = a.querySelector('img');
+                if (!img) return;
+                e.preventDefault();
+                imageLightbox = { open: true, src: img.getAttribute('src'), alt: img.getAttribute('alt') || '' };
+                render();
+            },
         },
             DropAnywhereOverlay({ active: dropAnywhere.active, fileCount: dropAnywhere.fileCount }),
             // Same skip-link contract AppShell() provides. This app builds its
@@ -369,6 +391,7 @@ export function mountCommunityApp(root, adapter = {}) {
             s.settingsOpen ? SettingsPopover({ open: true, anchorX: (s.settingsAnchor && s.settingsAnchor.x) || 0, anchorY: (s.settingsAnchor && s.settingsAnchor.y) || 0, sections: s.settingsSections || [], onClose: () => A.openSettings && A.openSettings() }) : null,
             s.voiceSettingsOpen ? VoiceSettingsModal({ open: true, mode: s.voiceMode || 'ptt', inputId: s.inputDeviceId, outputId: s.outputDeviceId, inputDevices: s.inputDevices || [], outputDevices: s.outputDevices || [], vadThreshold: s.vadThreshold, rnnoise: !!s.rnnoiseEnabled, autoGain: !!s.autoGainEnabled, forceTurn: !!s.forceTurnEnabled, bitrate: s.voiceBitrate, volume: s.masterVolume, onChange: (p) => A.voiceSettingsChange && A.voiceSettingsChange(p), onSave: () => A.voiceSettingsSave && A.voiceSettingsSave(), onCancel: () => A.voiceSettingsClose && A.voiceSettingsClose(), onClose: () => A.voiceSettingsClose && A.voiceSettingsClose() }) : null,
             s.videoLightbox && s.videoLightbox.open ? VideoLightbox({ open: true, src: s.videoLightbox.src, label: s.videoLightbox.label, onClose: () => A.closeVideoLightbox && A.closeVideoLightbox() }) : null,
+            imageLightbox.open ? ImageLightbox({ open: true, src: imageLightbox.src, alt: imageLightbox.alt, onClose: () => { imageLightbox = { open: false, src: null, alt: '' }; render(); } }) : null,
             (s.audioQueueItems && s.audioQueueItems.length) ? AudioQueue({ segments: s.audioQueueItems, currentSegmentId: s.audioQueueCurrentId, paused: !!s.audioQueuePaused, onReplay: (id) => A.replaySegment && A.replaySegment(id), onSkip: () => A.skipSegment && A.skipSegment(), onResume: () => A.resumeQueue && A.resumeQueue(), onPause: () => A.pauseQueue && A.pauseQueue() }) : null,
             s.threadPanelOpen ? ThreadPanel({ threads: s.threads || [], activeId: s.activeThreadId, onSelect: (id) => A.selectThread && A.selectThread(id), onCreate: () => A.createThread && A.createThread(), onClose: () => A.closeThreadPanel && A.closeThreadPanel() }) : null,
         );

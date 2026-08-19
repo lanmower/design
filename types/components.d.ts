@@ -6,7 +6,7 @@
 // signature change; `npm run lint:component-types` fails CI when this
 // file is stale.
 //
-// 278 exported symbols across 30 source files.
+// 281 exported symbols across 30 source files.
 
 /** A webjsx virtual node, as returned by every component in this SDK. */
 export type VNode = any;
@@ -905,6 +905,14 @@ export interface ChatSuggestionsProps {
     suggestions?: any[];
 }
 export declare function ChatSuggestions(props?: ChatSuggestionsProps): VNode;
+
+/**
+ * Props for {@link TypingIndicator} (src/components/chat.js).
+ */
+export interface TypingIndicatorProps {
+    users?: any;
+}
+export declare function TypingIndicator(props?: TypingIndicatorProps): VNode;
 
 export declare const AICAT_FACE: any;
 
@@ -3099,6 +3107,22 @@ export interface SettingsPopoverProps {
 export declare function SettingsPopover(props?: SettingsPopoverProps): VNode;
 
 /**
+ * Props for {@link SettingsShell} (src/components/overlay-primitives.js).
+ */
+export interface SettingsShellProps {
+    /** @default 'Settings' */
+    title?: string;
+    open?: any;
+    /** @default [] */
+    groups?: any[];
+    activeId?: any;
+    onSelect?: (...args: any[]) => any;
+    onClose?: (...args: any[]) => any;
+    children?: any;
+}
+export declare function SettingsShell(props?: SettingsShellProps): VNode;
+
+/**
  * Props for {@link AuthModal} (src/components/overlay-primitives.js).
  */
 export interface AuthModalProps {
@@ -3130,6 +3154,21 @@ export interface VideoLightboxProps {
     onClose?: (...args: any[]) => any;
 }
 export declare function VideoLightbox(props?: VideoLightboxProps): VNode;
+
+/**
+ * Props for {@link ImageLightbox} (src/components/overlay-primitives.js).
+ */
+export interface ImageLightboxProps {
+    src?: any;
+    /** @default '' */
+    alt?: string;
+    /** @default '' */
+    label?: string;
+    /** @default false */
+    open?: boolean;
+    onClose?: (...args: any[]) => any;
+}
+export declare function ImageLightbox(props?: ImageLightboxProps): VNode;
 
 /**
  * Props for {@link PermissionMenu} (src/components/overlay-primitives.js).

@@ -4739,9 +4739,80 @@
 .ds-247420 .chat-image:hover {
   border-color: var(--rule);
 }
-.ds-247420 .chat-image img { display: block; width: 100%; height: auto; max-height: 360px; object-fit: cover; }
+.ds-247420 .chat-image { position: relative; }
+.ds-247420 .chat-image img {
+  display: block; width: 100%; height: auto; max-height: 360px; object-fit: cover;
+  transition: transform var(--dur-base, .16s) var(--ease, ease);
+}
+.ds-247420 .chat-image:hover img { transform: scale(1.03); }
+/* Hover-zoom cue (magnifier glyph, center-pinned, fades in) signalling the
+   embed is click-to-expand — for-web's image embeds carry an equivalent
+   affordance; this kit's previously had none, just a bare href-out anchor. */
+.ds-247420 .chat-image::after {
+  content: '';
+  position: absolute; inset: 0; margin: auto; width: 32px; height: 32px;
+  background: color-mix(in oklab, var(--ink) 55%, transparent);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity var(--dur-snap, .12s) var(--ease, ease);
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3Cpath d='M11 8v6M8 11h6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: center;
+}
+.ds-247420 .chat-image:hover::after { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .ds-247420 .chat-image img { transition: none; }
+  .ds-247420 .chat-image:hover img { transform: none; }
+}
 .ds-247420 .chat-image .cap,
 .ds-247420 .chat-image .caption { display: block; padding: var(--space-2) var(--space-2-75); font-size: var(--fs-xs); color: var(--fg-3); font-family: var(--ff-mono); }
+
+/* Full-screen lightbox shell (VideoLightbox + ImageLightbox share this) —
+   previously entirely unstyled: .ov-lightbox-backdrop rendered as an
+   unpositioned block, so opening either lightbox showed the video/image
+   inline in normal page flow instead of as a full-screen overlay, with no
+   open/close transition at all. */
+.ds-247420 .ov-lightbox-backdrop {
+  position: fixed; inset: 0; z-index: var(--z-modal);
+  display: flex; align-items: center; justify-content: center;
+  background: color-mix(in oklab, var(--ink) 88%, transparent);
+  padding: var(--space-5);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ds-247420 .ov-lightbox-backdrop { animation: ov-lightbox-fade-in var(--dur-base, .16s) var(--ease, ease); }
+  @keyframes ov-lightbox-fade-in { from { opacity: 0; } to { opacity: 1; } }
+}
+.ds-247420 .ov-lightbox-stage {
+  position: relative; max-width: min(90vw, 1100px); max-height: 90vh;
+  display: flex; flex-direction: column; align-items: center; gap: var(--space-2);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ds-247420 .ov-lightbox-scale-in { animation: ov-lightbox-scale-in var(--dur-slow, .28s) var(--ease-spring); }
+  @keyframes ov-lightbox-scale-in {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
+  }
+}
+.ds-247420 .ov-lightbox-video,
+.ds-247420 .ov-lightbox-image {
+  max-width: 100%; max-height: 80vh; border-radius: var(--r-2);
+  box-shadow: var(--shadow-2, var(--shadow-1));
+}
+.ds-247420 .ov-lightbox-label {
+  color: var(--paper); font-size: var(--fs-sm); font-family: var(--ff-mono);
+  text-align: center; opacity: .85;
+}
+.ds-247420 .ov-lightbox-x {
+  position: absolute; top: var(--space-3); right: var(--space-3);
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: color-mix(in oklab, var(--ink) 60%, transparent);
+  color: var(--paper); border: 0; cursor: pointer;
+  transition: background var(--dur-snap, .12s) var(--ease, ease), transform var(--dur-snap, .08s) var(--ease-spring);
+}
+.ds-247420 .ov-lightbox-x:hover { background: color-mix(in oklab, var(--ink) 80%, transparent); }
+.ds-247420 .ov-lightbox-x:active { transform: scale(0.88); }
+.ds-247420 .ov-lightbox-x:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .ds-247420 .chat-msg.you .chat-file,
 .ds-247420 .chat-msg .chat-file,
@@ -4846,6 +4917,10 @@
   position: relative;
 }
 .ds-247420 .chat-reactions .rxn:hover { background: var(--bg-3); transform: scale(1.06); }
+.ds-247420 .chat-reactions .rxn:active {
+  transform: scale(0.92);
+  transition: transform var(--dur-snap, .08s) var(--ease-spring);
+}
 .ds-247420 .chat-reactions .rxn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .ds-247420 .chat-reactions .rxn.you {
   background: color-mix(in oklab, var(--accent) 18%, var(--bg-2));
@@ -4878,9 +4953,10 @@
   padding: var(--space-1); border: 0; border-radius: var(--r-1);
   background: transparent; color: var(--fg-3); cursor: pointer;
   font-family: var(--ff-mono); font-size: var(--fs-nano);
-  transition: background var(--dur-snap, .12s) var(--ease, ease), color var(--dur-snap, .12s) var(--ease, ease);
+  transition: background var(--dur-snap, .12s) var(--ease, ease), color var(--dur-snap, .12s) var(--ease, ease), transform var(--dur-snap, .08s) var(--ease-spring);
 }
 .ds-247420 .chat-msg-action:hover { background: var(--bg-3); color: var(--fg); }
+.ds-247420 .chat-msg-action:active { transform: scale(0.88); }
 .ds-247420 .chat-msg-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .ds-247420 .chat-msg-action.is-copied { color: var(--accent-ink); }
 .ds-247420 .chat-msg-action-label { display: none; }
@@ -4986,6 +5062,37 @@
   }
 }
 
+/* TypingIndicator — stoat for-web's overlapping-avatar-stack bar above the
+   composer (distinct from .chat-typing's in-bubble thinking dots above: this
+   is "X is typing…" for OTHER users, not the assistant's own turn). Fades in
+   on mount so a burst of typing-start events never pops in as a hard cut. */
+.ds-247420 .chat-typing-bar {
+  display: flex; align-items: center; gap: var(--space-2);
+  min-height: 26px; padding: 0 var(--space-3);
+  color: var(--fg-2); font-size: var(--fs-xs);
+  user-select: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ds-247420 .chat-typing-bar { animation: chat-typing-bar-in var(--dur-base, .16s) var(--ease, ease); }
+  @keyframes chat-typing-bar-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+.ds-247420 .chat-typing-avatars { display: flex; flex-shrink: 0; height: fit-content; }
+.ds-247420 .chat-typing-avatar {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 15px; height: 15px; border-radius: 50%;
+  background: var(--accent); color: var(--accent-fg);
+  font-size: 8px; font-weight: var(--fw-medium, 500);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 0.5px color-mix(in oklab, var(--fg) 12%, transparent);
+}
+.ds-247420 .chat-typing-avatar:not(:first-child) { margin-inline-start: -6px; }
+.ds-247420 .chat-typing-bar-label {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   @keyframes chat-fade-in {
     from { opacity: 0; transform: translateY(8px); }
@@ -5074,7 +5181,7 @@
   border: 0; cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  transition: background var(--dur-snap, .15s) var(--ease, ease);
+  transition: background var(--dur-snap, .15s) var(--ease, ease), transform var(--dur-snap, .08s) var(--ease-spring);
 }
 .ds-247420 .chat-composer .send:disabled { opacity: .5; cursor: not-allowed; }
 /* Ghost icon buttons in the toolbar (attach / emoji / more). Size + radius are
@@ -5085,11 +5192,12 @@
   border: 0; cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  transition: background var(--dur-snap, .15s) var(--ease, ease), color var(--dur-snap, .15s) var(--ease, ease);
+  transition: background var(--dur-snap, .15s) var(--ease, ease), color var(--dur-snap, .15s) var(--ease, ease), transform var(--dur-snap, .08s) var(--ease-spring);
 }
 .ds-247420 .composer-btn:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
+.ds-247420 .composer-btn:active { transform: scale(0.88); }
 .ds-247420 .chat-composer .send:hover { filter: brightness(0.92); }
-.ds-247420 .chat-composer .send:active { filter: brightness(0.94); }
+.ds-247420 .chat-composer .send:active { filter: brightness(0.94); transform: scale(0.92); }
 .ds-247420 .chat-composer .send:focus-visible,
 .ds-247420 .composer-btn:focus-visible {
   outline: var(--focus-w) solid var(--focus-color);
@@ -5102,7 +5210,16 @@
   .ds-247420 .chat-composer,
   .ds-247420 .chat-composer textarea,
   .ds-247420 .chat-composer .send,
-  .ds-247420 .composer-btn { transition: none; }
+  .ds-247420 .composer-btn,
+  .ds-247420 .chat-msg-action,
+  .ds-247420 .chat-reactions .rxn {
+    transition: none;
+  }
+  .ds-247420 .chat-composer .send:active,
+  .ds-247420 .composer-btn:active,
+  .ds-247420 .chat-msg-action:active,
+  .ds-247420 .chat-reactions .rxn:active,
+  .ds-247420 .chat-reactions .rxn:hover { transform: none; }
 }
 
 .ds-247420 .aicat-portrait { display: inline-flex; align-items: center; gap: var(--space-2-5); padding: var(--space-1) 0; }
@@ -10588,6 +10705,14 @@
     transition: transform var(--dur-base) var(--ease-drawer);
   }
   .ds-247420 .cm-chat-header-topic { display: none; }
+}
+/* The global reduced-motion neutralizer (base.css) squashes transition-duration
+   but not transition-delay -- without this, the member-list drawer's closed
+   state keeps `visibility:visible` for the original --dur-base delay after its
+   transform has already snapped off-screen, leaving it briefly focusable/
+   interactive-shaped while visually gone. */
+@media (max-width: 900px) and (prefers-reduced-motion: reduce) {
+  .ds-247420 .cm-member-list { transition-delay: 0s, 0s; }
 }
 
 /* Drawer scrim — dims the chat while a drawer overlays it on narrow screens.

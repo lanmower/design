@@ -21,7 +21,7 @@ export {
 
 export {
     fmtBytes, renderInline, hasSelectionInside,
-    ChatMessage, ChatComposer, Chat, flashComposerNote, ChatSuggestions,
+    ChatMessage, ChatComposer, Chat, flashComposerNote, ChatSuggestions, TypingIndicator,
     AICAT_FACE, AICatPortrait, AICat
 } from './components/chat.js';
 
@@ -124,8 +124,8 @@ export {
 
 export {
     Tooltip, Popover, Dropdown, useLongPress, useFloating,
-    CommandPalette, MentionAutocomplete, EmojiPicker, BootOverlay, SettingsPopover,
-    AuthModal, VideoLightbox, PermissionMenu, ApprovalPrompt, withBusy,
+    CommandPalette, MentionAutocomplete, EmojiPicker, BootOverlay, SettingsPopover, SettingsShell,
+    AuthModal, VideoLightbox, ImageLightbox, PermissionMenu, ApprovalPrompt, withBusy,
     MenuButton,
     HoverCard, Menubar
 } from './components/overlay-primitives.js';
