@@ -15236,6 +15236,28 @@
   border: 1px solid var(--rule, currentColor); border-radius: var(--r-0, 4px);
   pointer-events: none;
 }
+/* Chat page attach affordance, sitting above AgentChat inside WorkspaceShell's
+   main column (freddie's #/chat page). */
+.ds-247420 .fd-chat-attach-row {
+  display: flex; align-items: center; gap: var(--space-2, 8px); flex-wrap: wrap;
+  padding: var(--space-2, 8px) var(--space-3, 12px);
+}
+.ds-247420 .fd-chat-attach {
+  font-size: var(--fs-pico, 11px); cursor: pointer; opacity: 0.7;
+  padding: var(--space-1, 4px) var(--space-2, 8px);
+  border: 1px solid var(--rule, currentColor); border-radius: var(--r-0, 4px);
+}
+.ds-247420 .fd-chat-attach:hover { opacity: 1; }
+.ds-247420 .fd-chat-staged {
+  display: inline-flex; align-items: center; gap: var(--space-1, 4px);
+  font-size: var(--fs-pico, 11px);
+  padding: var(--space-1, 4px) var(--space-2, 8px);
+  border: 1px solid var(--rule, currentColor); border-radius: var(--r-0, 4px);
+}
+.ds-247420 .fd-chat-staged-x {
+  cursor: pointer; border: none; background: none; color: inherit;
+  font-size: var(--fs-pico, 11px); line-height: 1; padding: 0;
+}
 /* Status bar items — inline flex with gap. */
 .ds-247420 .fd-status-item { display: inline-flex; align-items: center; gap: var(--space-1, 4px); }
 /* Page error display — scrollable pre block for stack traces. */
