@@ -344,3 +344,38 @@ html.ds-247420 .vx-view .vx-grid .cm-voice-tile {
     pointer-events: none;
   }
 }
+
+/* Full-surface drag-anywhere drop overlay -- stoat for-web's
+   FileDropAnywhereCollector shape (dim scrim + centered dashed-border
+   affordance), gated on adapter.actions.attachFiles existing at all. */
+html.ds-247420 .ca-drop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  background: color-mix(in oklab, var(--ink, #000) 55%, transparent);
+  pointer-events: none;
+}
+html.ds-247420 .ca-drop-overlay-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-5);
+  border: 2px dashed var(--accent);
+  border-radius: var(--r-3);
+  background: color-mix(in oklab, var(--accent-tint) 60%, var(--bg));
+  color: var(--accent-ink);
+}
+html.ds-247420 .ca-drop-overlay-label {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+@media (prefers-reduced-motion: no-preference) {
+  html.ds-247420 .ca-drop-overlay-inner { animation: ca-drop-overlay-pulse 1.1s var(--ease) infinite; }
+}
+@keyframes ca-drop-overlay-pulse {
+  0%, 100% { border-color: var(--accent); }
+  50% { border-color: color-mix(in oklab, var(--accent) 45%, transparent); }
+}

@@ -1318,6 +1318,25 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
    prose; any larger vertical pad makes the tinted box overlap the lines above and
    below. Horizontal is on the scale. */
 .chat-tick { font-family: var(--ff-mono); font-size: .92em; background: color-mix(in oklab, var(--fg) 10%, transparent); padding: 1px var(--space-1-75); border-radius: var(--r-1); }
+/* ||text|| spoiler (renderInline + markdown.js's marked extension both tag
+   <span class=chat-spoiler>) — stoat for-web's RenderSpoiler: opaque/blurred
+   until clicked, then stays revealed (no re-hide on leave). */
+.chat-spoiler {
+  border-radius: var(--r-1);
+  padding: 0 var(--space-1-75);
+  cursor: pointer;
+  user-select: none;
+  color: transparent;
+  background: color-mix(in oklab, var(--fg) 55%, transparent);
+}
+.chat-spoiler * { opacity: 0; pointer-events: none; }
+.chat-spoiler.is-revealed {
+  cursor: text;
+  user-select: text;
+  color: inherit;
+  background: color-mix(in oklab, var(--fg) 10%, transparent);
+}
+.chat-spoiler.is-revealed * { opacity: 1; pointer-events: auto; }
 /* Structured tool/code output earns more width than running prose (claude.ai/code
    lets diffs/tables break out wider than the reading measure). A flat turn that
    contains a tool card or code block widens itself AND its stack past --measure;

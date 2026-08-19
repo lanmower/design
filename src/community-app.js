@@ -76,6 +76,20 @@ function UserCardOverlay({ member, onClose } = {}) {
     });
 }
 
+// stoat for-web's FileDropAnywhereCollector: a drag over ANY part of the app
+// (not just the composer) raises a full-surface overlay so the drop target is
+// obvious. Rendered only while active; the count-based enter/leave tracking
+// mirrors that component's own approach to surviving bubbled dragenter/
+// dragleave pairs across child element boundaries.
+function DropAnywhereOverlay({ active, fileCount } = {}) {
+    if (!active) return null;
+    return h('div', { class: 'ca-drop-overlay', role: 'status', 'aria-live': 'polite' },
+        h('div', { class: 'ca-drop-overlay-inner' },
+            Icon('arrow-up', { size: 32 }),
+            h('span', { class: 'ca-drop-overlay-label' },
+                fileCount > 1 ? `drop ${fileCount} files` : 'drop file')));
+}
+
 export function mountCommunityApp(root, adapter = {}) {
     if (!root) throw new Error('mountCommunityApp: root required');
     const get = typeof adapter.get === 'function' ? adapter.get : () => ({});
@@ -94,6 +108,7 @@ export function mountCommunityApp(root, adapter = {}) {
     let emoji = { open: false, x: 0, y: 0, onSelect: null };
     let palette = { open: false, items: [], onSelect: null };
     let card = { open: false, member: null };
+    let dropAnywhere = { active: false, count: 0, fileCount: 0 };
 
     // Split into two columns matching stoat's for-web layout (ServerList: a
     // fixed-width icon-only rail, separate from ServerSidebar/MemberSidebar's
@@ -282,7 +297,30 @@ export function mountCommunityApp(root, adapter = {}) {
             : ch.type === 'page' ? PageView({ title: ch.name, html: s.pageHtml || '', author: s.pageAuthor || '', updatedAt: s.pageUpdatedAt || 0, isAdmin: !!s.canManage, onEdit: () => A.editPage && A.editPage() })
             : chatView(s);
         const showVoiceBanner = s.voiceConnected && s.voiceChannelName && !(inVoiceChannel && s.voiceChannelName === ch.name);
-        return h('div', { class: 'ca-app' },
+        return h('div', {
+            class: 'ca-app',
+            ondragenter: (e) => {
+                if (!A.attachFiles) return;
+                e.preventDefault();
+                dropAnywhere = { active: true, count: dropAnywhere.count + 1, fileCount: e.dataTransfer ? e.dataTransfer.items.length : 0 };
+                render();
+            },
+            ondragover: (e) => { if (A.attachFiles) e.preventDefault(); },
+            ondragleave: (e) => {
+                if (!A.attachFiles || !dropAnywhere.active) return;
+                const count = dropAnywhere.count - 1;
+                dropAnywhere = count > 0 ? { ...dropAnywhere, count } : { active: false, count: 0, fileCount: 0 };
+                render();
+            },
+            ondrop: (e) => {
+                if (!A.attachFiles) return;
+                e.preventDefault();
+                dropAnywhere = { active: false, count: 0, fileCount: 0 };
+                if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) A.attachFiles(e.dataTransfer.files);
+                render();
+            },
+        },
+            DropAnywhereOverlay({ active: dropAnywhere.active, fileCount: dropAnywhere.fileCount }),
             // Same skip-link contract AppShell() provides. This app builds its
             // own chrome, so without this a keyboard user had to tab through
             // the whole topbar nav and channel rail to reach the messages.
