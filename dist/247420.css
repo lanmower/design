@@ -12409,12 +12409,6 @@
    fill does not appear to crowd the text. Expressing it as a --space-* rung
    would make it a visible step rather than the sub-perceptual nudge intended. */
 .ds-247420 .chat-msg-flat.them { padding-block: calc(var(--space-3) * var(--density, 1) + 2px); }
-/* Consecutive same-author turns (stoat/for-web MessageContainer's `tail`
-   variant, Container.tsx): drop from the full inter-group gap to a hairline
-   pad so the run reads as one block, matching for-web's 2px 0 tail row vs
-   its 12px messageGroupSpacing default between distinct author groups. */
-.ds-247420 .chat-msg-flat.chat-msg-tail,
-.ds-247420 .chat-msg-flat.chat-msg-tail.them { padding-block: var(--space-half, 2px); }
 /* Inline backtick code (renderInline tags <code class=chat-tick>) - was a dead
    class relying on the generic .chat-bubble code rule, so notices / non-bubble
    surfaces got unstyled monospace. Self-style it regardless of container. */
