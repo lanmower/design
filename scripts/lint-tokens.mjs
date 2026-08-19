@@ -60,6 +60,20 @@ const COMPONENT_SHEETS = [
     'src/css/app-shell/skills-config.css',
 ];
 
+// Extra standalone .css files a consuming project registers via
+// DS_LINT_EXTRA_CSS_FILES (comma-separated, absolute or cwd-relative paths).
+// COMPONENT_SHEETS above and its @import expansion cover only this repo's own
+// tree; a consumer's own stylesheets (e.g. casey's src/dashboard/public/*.css)
+// sit entirely outside that graph, so no @import from any barrel here can
+// ever reach them. Listed directly rather than expanded through @import,
+// since a consumer's sheet is a leaf the consumer's own build already
+// resolves, not part of this repo's barrel graph.
+function extraCssFiles() {
+    const raw = process.env.DS_LINT_EXTRA_CSS_FILES;
+    if (!raw) return [];
+    return raw.split(',').map((s) => s.trim()).filter(Boolean).map((f) => path.resolve(process.cwd(), f));
+}
+
 // Directories whose EVERY .css file must end up in the expanded scan set.
 // This is the anti-regression guard for the class of bug where a new split
 // sheet is dropped into src/css/app-shell/ but never wired into the root
@@ -105,6 +119,12 @@ export function expandSheets() {
         for (const t of importTargets(key, src)) visit(t);
     };
     for (const rel of COMPONENT_SHEETS) visit(rel);
+    for (const abs of extraCssFiles()) {
+        if (seen.has(abs)) continue;
+        seen.add(abs);
+        if (!fs.existsSync(abs)) { console.warn('[lint-tokens] missing extra sheet:', abs); continue; }
+        order.push(abs);
+    }
 
     // Coverage guard — every .css in a FULL_COVERAGE_DIRS directory must have
     // been reached by the expansion above.
@@ -126,6 +146,15 @@ export function expandSheets() {
 
     _expandedCache = order;
     return order;
+}
+
+// Resolves a scan-set entry to an absolute path. Every entry produced by
+// expandSheets() from COMPONENT_SHEETS/@import is repo-relative; every entry
+// contributed by extraCssFiles() is already absolute (it lives outside root
+// entirely, so there is no repo-relative form). path.isAbsolute() tells the
+// two apart without needing a separate marker on each entry.
+export function resolveSheet(rel) {
+    return path.isAbsolute(rel) ? rel : path.join(root, rel);
 }
 
 // The token source — allowed to define raw values (that IS its job).
@@ -319,7 +348,7 @@ export function stripThemableLiterals(code) {
 export function findTokenViolations() {
     const violations = [];
     for (const rel of expandSheets()) {
-        const file = path.join(root, rel);
+        const file = resolveSheet(rel);
         if (!fs.existsSync(file)) { console.warn('[lint-tokens] missing:', rel); continue; }
         const src = fs.readFileSync(file, 'utf8');
         const codeLines = stripThemableLiterals(stripComments(src)).split(/\r?\n/);
@@ -343,7 +372,7 @@ export function findTokenViolations() {
 export function findRadiusViolations() {
     const violations = [];
     for (const rel of expandSheets()) {
-        const file = path.join(root, rel);
+        const file = resolveSheet(rel);
         if (!fs.existsSync(file)) continue;
         const src = fs.readFileSync(file, 'utf8');
         // var(--r-N, <fallback>px) fallback literals are exempt — same reasoning
@@ -390,7 +419,7 @@ export function findRadiusViolations() {
 export function findSpacingViolations() {
     const violations = [];
     for (const rel of expandSheets()) {
-        const file = path.join(root, rel);
+        const file = resolveSheet(rel);
         if (!fs.existsSync(file)) continue;
         const src = fs.readFileSync(file, 'utf8');
         // var(--space-N, <fallback>px) fallback literals are exempt — same
@@ -426,7 +455,7 @@ export function findSpacingViolations() {
 export function findFontSizeViolations() {
     const violations = [];
     for (const rel of expandSheets()) {
-        const file = path.join(root, rel);
+        const file = resolveSheet(rel);
         if (!fs.existsSync(file)) continue;
         const src = fs.readFileSync(file, 'utf8');
         // var(--fs-N, <fallback>px) fallback literals are exempt — same
@@ -465,7 +494,7 @@ export function findFontSizeViolations() {
 export function findZIndexViolations() {
     const violations = [];
     for (const rel of expandSheets()) {
-        const file = path.join(root, rel);
+        const file = resolveSheet(rel);
         if (!fs.existsSync(file)) continue;
         const src = fs.readFileSync(file, 'utf8');
         // var(--z-N, <fallback>) fallbacks exempt, same reasoning as every
@@ -492,7 +521,7 @@ export function findZIndexViolations() {
 export function findTransitionAllViolations() {
     const violations = [];
     for (const rel of expandSheets()) {
-        const file = path.join(root, rel);
+        const file = resolveSheet(rel);
         if (!fs.existsSync(file)) continue;
         const src = fs.readFileSync(file, 'utf8');
         const codeLines = stripComments(src).split(/\r?\n/);
@@ -518,7 +547,7 @@ export function findTransitionAllViolations() {
 export function findImportantViolations() {
     const violations = [];
     for (const rel of expandSheets()) {
-        const file = path.join(root, rel);
+        const file = resolveSheet(rel);
         if (!fs.existsSync(file)) continue;
         const src = fs.readFileSync(file, 'utf8');
         const codeLines = stripComments(src).split(/\r?\n/);
