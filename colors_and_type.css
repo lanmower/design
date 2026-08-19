@@ -116,6 +116,20 @@
   --success:     var(--green-2);
   --live:        var(--green);
 
+  /* Presence/status dots — ported verbatim from stoat for-web's brand
+     presence palette (stoatWebTheme.ts). Non-text UI fills (small status
+     dots), so these carry stoat's own saturated values directly rather than
+     the AA-text-contrast-derived --green-2/--amber/--flame/--sky signal
+     tones above, which are tuned for readability as TEXT on --paper/--ink
+     and land far off stoat's actual dot hues (measured delta up to 140 in
+     RGB Euclidean distance for --amber vs stoat idle). Same values in both
+     themes: a presence dot's identity should not shift with light/dark. */
+  --presence-online:    #3ABF7E;
+  --presence-idle:      #F39F00;
+  --presence-busy:      #F84848;
+  --presence-focus:     #4799F0;
+  --presence-invisible: #A5A5A5;
+
   /* Semantic surfaces */
   --bg:          var(--paper);
   --bg-2:        var(--paper-2);
@@ -132,10 +146,24 @@
      0 0% 100%) -- verified via npm run a11y after the initial restyle caught
      this exact dark-on-dark 1.15:1 failure across every kit's .btn-primary/
      .active nav item, both of which read --accent-fg as their text color. */
-  --accent:      var(--acid);
-  --accent-fg:   var(--paper);
-  --accent-ink:  var(--acid-deep);
-  --accent-bright: var(--acid); /* base value so var(--accent-bright) never falls back empty; ink + [data-accent] retune it */
+  /* Brand accent identity — ported from stoat for-web's default M3 source
+     color (m3Accent #5470ec, materialTheme.ts) through this repo's own HCT
+     tone engine (src/theme/dynamic-accent.js), at the SAME fixed M3
+     TonalSpot role tones that engine already guarantees contrast at
+     (LIGHT_TONES.primary T40 / onPrimary T100). Computed once (hue 293.4°,
+     chroma clamped to the engine's own MAX_CHROMA 48) and pasted as literal
+     hex rather than left to run at load time, matching how every other
+     token in this file is a static value, not a runtime computation --
+     the JS engine itself stays reserved for its existing per-server/
+     per-subtree scoped-override role (--dyn-accent*), never document-wide.
+     Verified 6.42:1 (--accent-ink on --paper) / 6.02:1 (fill/onPrimary
+     pair), both clear of AA 4.5:1. Replaces the prior --acid (dark-neutral
+     shadcn) lead for the document-wide accent identity; --acid itself is
+     untouched (still consumed directly by [data-accent="acid"]). */
+  --accent:      #4D58A7;
+  --accent-fg:   #F6F7FF;
+  --accent-ink:  #001759;
+  --accent-bright: #4D58A7; /* base value so var(--accent-bright) never falls back empty; ink + [data-accent] retune it */
   /* Blends --accent-ink (the readable/darker ink variant), not the raw
      --accent fill, so light-theme active states clear contrast against --bg;
      dark/ink and auto-dark restate the prior --accent-based value explicitly
@@ -555,18 +583,17 @@ select:focus-visible {
   --panel-text:   var(--fg);
   --panel-text-2: var(--fg-2);
   --panel-text-3: var(--fg-3);
-  /* RESTYLED 2026-08b (green/purple lead): dark-mode accent is a LIGHT green
-     chip (#5CBF52, already verified elsewhere in this file at 7.48:1+ on ink
-     surfaces -- reused rather than inventing a new hex) with a DARK --ink
-     foreground -- the inverse of light mode's dark-fill/light-text pairing,
-     same convention every prior restyle used (light chip on dark page, not a
-     same-dark-as-bg chip). --accent does not alias --acid here (--acid is
-     tuned for light-mode fill-with-light-text; dark mode needs its own
-     light-fill-with-dark-text direction). */
-  --accent:    #5CBF52;
-  --accent-fg: var(--ink);
-  --accent-ink: var(--paper);
-  --accent-bright: #5CBF52;
+  /* Dark-mode brand accent — same for-web HCT source (#5470ec) as the
+     :root light block above, rendered at the engine's DARK_TONES.primary
+     T80/onPrimary T20 instead of LIGHT_TONES, per src/theme/dynamic-accent.js's
+     own light/dark role split. Light chip on dark page (T80 is high-L*), dark
+     --ink-toned foreground on top -- same fill/text-direction convention every
+     prior restyle used here. Verified 7.45:1 (fill/onPrimary), 9.90:1
+     (--accent-ink on --ink). Replaces the prior #5CBF52 green dark-mode lead. */
+  --accent:    #BCBEFF;
+  --accent-fg: #0B2B72;
+  --accent-ink: #E8E9FF;
+  --accent-bright: #BCBEFF;
   --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
   --danger:    oklch(0.68 0.19 25);
   --flame:     #FF5A1F;
@@ -657,10 +684,10 @@ select:focus-visible {
     --panel-text:   var(--fg);
     --panel-text-2: var(--fg-2);
     --panel-text-3: var(--fg-3);
-    --accent:    #5CBF52; /* mirrors [data-theme=ink/dark] retune above */
-    --accent-fg: var(--ink);
-    --accent-ink: var(--paper);
-    --accent-bright: #5CBF52;
+    --accent:    #BCBEFF; /* mirrors [data-theme=ink/dark] for-web-HCT retune above */
+    --accent-fg: #0B2B72;
+    --accent-ink: #E8E9FF;
+    --accent-bright: #BCBEFF;
     --accent-tint: color-mix(in oklab, var(--accent) 30%, var(--bg));
     --danger:    oklch(0.68 0.19 25);
     --flame:     #FF5A1F;
@@ -749,7 +776,7 @@ select:focus-visible {
   color-scheme: light;
   --bg: var(--paper); --bg-2: var(--paper-2); --bg-3: var(--paper-3);
   --fg: var(--ink);   --fg-2: var(--ink-2);   --fg-3: var(--ink-3);
-  --accent: var(--acid); --accent-fg: var(--paper); --accent-ink: var(--acid-deep);
+  --accent: #4D58A7; --accent-fg: #F6F7FF; --accent-ink: #001759;
   --accent-tint: color-mix(in oklab, var(--accent-ink) 22%, var(--bg));
   /* A paper island under a dark ancestor must not inherit the dark signal pair. */
   --flame: #C53E00; --amber: #7C570F; --warn: #C41C0C; --sky: #3A6EFF;
