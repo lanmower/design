@@ -6,7 +6,7 @@
 // signature change; `npm run lint:component-types` fails CI when this
 // file is stale.
 //
-// 276 exported symbols across 30 source files.
+// 277 exported symbols across 30 source files.
 
 /** A webjsx virtual node, as returned by every component in this SDK. */
 export type VNode = any;
@@ -846,6 +846,7 @@ export interface ChatMessageProps {
     error?: any;
     onRetry?: (...args: any[]) => any;
     onToggleReaction?: (...args: any[]) => any;
+    onAddReaction?: (...args: any[]) => any;
 }
 export declare function ChatMessage(props?: ChatMessageProps): VNode;
 
@@ -1914,8 +1915,10 @@ export interface MemberItemProps {
     identity?: any;
     name?: any;
     color?: any;
+    nameColor?: any;
     /** @default 'online' */
     status?: string;
+    onClick?: (...args: any[]) => any;
 }
 export declare function MemberItem(props?: MemberItemProps): VNode;
 
@@ -1928,8 +1931,31 @@ export interface MemberListProps {
     open?: any;
     /** @default false */
     loading?: boolean;
+    onSelectMember?: (...args: any[]) => any;
 }
 export declare function MemberList(props?: MemberListProps): VNode;
+
+/**
+ * Props for {@link UserCard} (src/components/community.js).
+ */
+export interface UserCardProps {
+    identity?: any;
+    name?: any;
+    color?: any;
+    bannerUrl?: any;
+    /** @default 'online' */
+    status?: string;
+    statusLabel?: any;
+    bio?: any;
+    /** @default [] */
+    roles?: any[];
+    joinedAt?: any;
+    joinedServerAt?: any;
+    serverName?: any;
+    /** @default [] */
+    actions?: any[];
+}
+export declare function UserCard(props?: UserCardProps): VNode;
 
 /**
  * Props for {@link ChatHeader} (src/components/community.js).
