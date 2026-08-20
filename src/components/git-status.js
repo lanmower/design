@@ -151,12 +151,18 @@ export function GitDiffView({ diff = '', filename, binary = false } = {}) {
         if (!el) return;
         try { highlightAllUnder(el); } catch { /* swallow: progressive enhancement only */ }
     };
+    // A caller with no backend binary-detection (freddie's gui-git plugin
+    // does not report one) still lands here with raw git output -- git's own
+    // porcelain marks a binary-diffed file as a single "Binary files a/x and
+    // b/x differ" line with no hunks, so detect that shape here rather than
+    // requiring every caller to wire an explicit `binary` prop through.
+    const looksBinary = binary || /^Binary files .+ differ/m.test(diff);
     if (!hunks.length) {
         // A binary changed file produces no unified diff at all - saying
         // "no diff to show" reads as "nothing changed", which is wrong and
         // misleading; name the real reason instead.
         return h('div', { class: 'ds-git-diff-empty', role: 'status' },
-            binary ? 'binary file, diff not shown' : 'no diff to show');
+            looksBinary ? 'binary file, diff not shown' : 'no diff to show');
     }
     return h('div', { class: 'ds-git-diff', ref: highlightRef },
         filename ? h('div', { class: 'ds-git-diff-head' }, h('span', { class: 'name' }, filename)) : null,
