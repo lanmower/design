@@ -743,7 +743,7 @@
 }
 .ds-ep-ctxmenu-item {
     display: flex; align-items: center; gap: var(--space-2);
-    padding: var(--space-2) var(--space-2-5);
+    padding: var(--space-2) var(--space-3);
     background: transparent; border: 0;
     color: inherit; font: inherit; text-align: left;
     border-radius: var(--r-1, 8px);
@@ -751,12 +751,12 @@
 }
 .ds-ep-ctxmenu-item:hover:not(.disabled),
 .ds-ep-ctxmenu-item:focus-visible {
-    background: var(--panel-2, var(--rule));
+    background: color-mix(in oklab, var(--fg) 8%, transparent);
 }
 .ds-ep-ctxmenu-item.danger { color: var(--danger); }
 .ds-ep-ctxmenu-item.disabled { opacity: 0.45; cursor: not-allowed; }
 .ds-ep-ctxmenu-icon { width: 16px; display: inline-flex; justify-content: center; }
-.ds-ep-ctxmenu-sep { height: 1px; background: var(--rule); margin: var(--space-1) var(--space-1-75); }
+.ds-ep-ctxmenu-sep { height: 1px; background: var(--rule); margin: var(--space-1) 0; }
 
 /* ---------------------------------------------------------------
    Drawer
@@ -1119,7 +1119,8 @@
     overscroll-behavior: contain;
 }
 @media (prefers-reduced-motion: no-preference) {
-    .ds-popover { transition: opacity 140ms ease, transform 140ms ease; }
+    .ds-popover { transition: opacity 140ms ease, transform 140ms var(--ease-out-strong); }
+    .ds-popover.is-entering { opacity: 0; transform: translateY(-4px); }
 }
 
 /* ---------------------------------------------------------------
@@ -1316,8 +1317,10 @@
     position: fixed; inset: 0;
     z-index: var(--z-modal);
     background: color-mix(in oklab, var(--fg) 32%, transparent);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
     display: flex; align-items: flex-start; justify-content: center;
     padding: 12vh var(--space-3, 16px) var(--space-3, 16px);
+    animation: ov-cmd-backdrop-in var(--dur-base, 160ms) var(--ease, ease) both;
 }
 .ov-cmd-panel {
     width: min(560px, 100%);
@@ -1328,6 +1331,12 @@
     border-radius: var(--r-2, 14px);
     box-shadow: var(--shadow-3);
     overflow: hidden;
+    animation: ov-cmd-panel-in var(--dur-base, 160ms) var(--ease-spring, ease) both;
+}
+@keyframes ov-cmd-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ov-cmd-panel-in { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+    .ov-cmd-backdrop, .ov-cmd-panel { animation: none; }
 }
 .ov-cmd-input {
     appearance: none; border: 0;
@@ -1365,6 +1374,51 @@
 .ov-cmd-empty { padding: var(--space-4, 24px); text-align: center; color: var(--fg-3); }
 
 /* ---------------------------------------------------------------
+   MentionAutocomplete (ov-mention) — @user / #channel dropdown shown
+   above/below the composer while typing a trigger char. Anchored to the
+   composer caret by the consumer (inline left/top, same pattern as
+   EmojiPicker's ov-emoji-root), so this rung is z-dropdown, not z-modal.
+   --------------------------------------------------------------- */
+.ov-mention-list {
+    position: fixed; left: 0; top: 0;
+    z-index: var(--z-dropdown);
+    width: min(320px, 90vw);
+    max-height: 240px;
+    overflow: auto;
+    padding: var(--space-1, 4px);
+    background: var(--bg-2); color: var(--fg);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-2, 12px);
+    box-shadow: var(--shadow-3);
+    animation: ov-mention-in var(--dur-fast, 120ms) var(--ease, ease) both;
+}
+@keyframes ov-mention-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .ov-mention-list { animation: none; } }
+.ov-mention-item {
+    display: flex; align-items: center; gap: var(--space-2, 8px);
+    width: 100%; min-height: 36px;
+    padding: var(--space-1, 4px) var(--space-2, 8px);
+    background: transparent; border: 0;
+    color: var(--fg); font: inherit; text-align: left;
+    border-radius: var(--r-1, 8px); cursor: pointer;
+}
+.ov-mention-item:hover { background: var(--panel-2, var(--rule)); }
+.ov-mention-item.is-active { background: color-mix(in oklab, var(--accent) 16%, transparent); }
+.ov-mention-avatar {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+    object-fit: cover;
+}
+.ov-mention-avatar-fallback {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--bg-3); color: var(--fg-2);
+    font-size: var(--fs-tiny, 11px); font-weight: var(--fw-medium);
+}
+.ov-mention-glyph { width: 18px; display: inline-flex; justify-content: center; flex-shrink: 0; color: var(--fg-3); }
+.ov-mention-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; background: var(--fg-3); }
+.ov-mention-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ov-mention-sub { flex-shrink: 0; color: var(--fg-3); font-size: var(--fs-tiny, 12px); }
+
+/* ---------------------------------------------------------------
    EmojiPicker (ov-emoji)
    --------------------------------------------------------------- */
 .ov-emoji-root {
@@ -1375,7 +1429,7 @@
     display: flex; flex-direction: column;
     background: var(--bg-2); color: var(--fg);
     border: 1px solid var(--rule);
-    border-radius: var(--r-2, 14px);
+    border-radius: var(--r-3, 14px);
     box-shadow: var(--shadow-3);
     outline: none; overflow: hidden;
 }
@@ -1401,7 +1455,7 @@
 .ov-emoji-tab[aria-selected="true"] { border-bottom-color: var(--accent); background: var(--bg-2); }
 .ov-emoji-tab:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
 .ov-emoji-grid { overflow: auto; max-height: 220px; padding: var(--space-2, 8px); }
-.ov-emoji-grid-inner { display: grid; grid-template-columns: repeat(8, 1fr); gap: var(--space-1, 4px); }
+.ov-emoji-grid-inner { display: grid; grid-template-columns: repeat(9, 1fr); gap: var(--space-1, 4px); }
 .ov-emoji-cell {
     appearance: none; border: 0; background: transparent;
     aspect-ratio: 1; font-size: var(--fs-lg, 18px);
@@ -1415,6 +1469,15 @@
     background: color-mix(in oklab, var(--accent) 18%, transparent);
     outline: var(--focus-w) solid var(--focus-color); outline-offset: 1px;
 }
+.ov-emoji-preview {
+    flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
+    gap: var(--space-2); min-height: 36px;
+    padding: var(--space-1) var(--space-2);
+    border-top: 1px solid var(--rule);
+    font-size: var(--fs-sm, 13px); color: var(--fg-3);
+}
+.ov-emoji-preview-glyph { font-size: var(--fs-lg, 18px); flex-shrink: 0; }
+.ov-emoji-preview-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ---------------------------------------------------------------
    BootOverlay (ov-boot)
@@ -1513,6 +1576,90 @@ input.ov-set-control[type="range"] { padding: 0; accent-color: var(--accent); }
     background: var(--accent); color: var(--accent-fg);
     border: 0; border-radius: var(--r-1, 8px);
     padding: var(--space-2, 8px); font: inherit;
+}
+
+/* ---------------------------------------------------------------
+   SettingsShell (ov-stgs) — full-screen two-pane settings surface:
+   category sidebar + breadcrumb-titled content pane. Blocking rung
+   (z-modal), unlike the anchored ov-set-* quick popover above.
+   --------------------------------------------------------------- */
+.ov-stgs-root {
+    position: fixed; inset: 0; z-index: var(--z-modal);
+    display: flex;
+    background: var(--bg); color: var(--fg);
+    outline: none;
+}
+.ov-stgs-sidebar {
+    flex: 0 0 260px; width: 260px;
+    display: flex; flex-direction: column;
+    gap: var(--space-4, 20px);
+    padding: var(--space-4, 20px) var(--space-3, 16px);
+    overflow-y: auto;
+    background: var(--bg-2);
+    border-right: 1px solid var(--rule);
+}
+.ov-stgs-sidebar-title {
+    font-size: var(--fs-lg); font-weight: var(--fw-semibold);
+    padding: 0 var(--space-2, 8px);
+}
+.ov-stgs-group { display: flex; flex-direction: column; gap: var(--space-1, 4px); }
+.ov-stgs-group-title {
+    padding: var(--space-2, 8px) var(--space-2, 8px) var(--space-1, 4px);
+    font-size: var(--fs-micro, 11px); text-transform: uppercase;
+    letter-spacing: var(--tr-caps); color: var(--fg-3);
+}
+.ov-stgs-item {
+    display: flex; align-items: center; gap: var(--space-2, 8px);
+    width: 100%; min-height: 40px;
+    padding: var(--space-1-75, 7px) var(--space-2, 8px);
+    appearance: none; background: transparent; border: 0; border-radius: var(--r-1, 8px);
+    color: var(--fg-2); font: inherit; font-weight: var(--fw-medium); text-align: left; cursor: pointer;
+}
+.ov-stgs-item:hover { background: color-mix(in oklab, var(--fg) 6%, transparent); color: var(--fg); }
+.ov-stgs-item:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: -2px; }
+.ov-stgs-item.is-active { background: color-mix(in oklab, var(--accent) 16%, transparent); color: var(--fg); }
+.ov-stgs-item-icon { flex-shrink: 0; display: inline-flex; }
+.ov-stgs-item-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ov-stgs-content {
+    flex: 1 1 auto; min-width: 0;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+}
+.ov-stgs-content-head {
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--space-3, 16px);
+    padding: var(--space-4, 20px) var(--space-5, 24px);
+    border-bottom: 1px solid var(--rule);
+}
+.ov-stgs-crumb { font-size: var(--fs-lg); font-weight: var(--fw-semibold); }
+.ov-stgs-close {
+    flex-shrink: 0; appearance: none; cursor: pointer;
+    width: 36px; height: 36px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--bg-3); color: var(--fg-2);
+    border: 0; border-radius: var(--r-pill);
+}
+.ov-stgs-close:hover { color: var(--fg); background: color-mix(in oklab, var(--fg) 10%, var(--bg-3)); }
+.ov-stgs-close:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: 2px; }
+.ov-stgs-content-body {
+    flex: 1 1 auto; overflow-y: auto;
+    padding: var(--space-5, 24px);
+    max-width: 640px;
+}
+@media (max-width: 768px) {
+    .ov-stgs-root { flex-direction: column; }
+    .ov-stgs-sidebar {
+        flex: 1 1 auto; width: 100%;
+        border-right: 0; border-bottom: 1px solid var(--rule);
+    }
+    .ov-stgs-content { position: absolute; inset: 0; background: var(--bg); }
+    .ov-stgs-root:not(:has(.ov-stgs-item.is-active)) .ov-stgs-content { display: none; }
+    .ov-stgs-content-body { max-width: none; }
+}
+@media (pointer: coarse) {
+    .ov-stgs-item { min-height: 44px; }
+    .ov-stgs-close { width: 44px; height: 44px; }
 }
 
 /* AuthModal — ov-auth-* */

@@ -43,3 +43,25 @@ export function VideoLightbox({ src, label = '', open = false, onClose } = {}) {
         )
     );
 }
+
+// ImageLightbox — fullscreen image viewer, same backdrop-dismiss/Escape
+// contract as VideoLightbox (shares .ov-lightbox-backdrop/-x/-stage/-label),
+// with an .ov-lightbox-scale-in mount transition so a click on a chat image
+// embed expands rather than cutting straight to the full-screen view.
+export function ImageLightbox({ src, alt = '', label = '', open = false, onClose } = {}) {
+    if (!open || !src) return null;
+    const close = () => onClose && onClose();
+    return h('div', {
+        class: 'ov-lightbox-backdrop', role: 'dialog', 'aria-modal': 'true', 'aria-label': label || alt || 'Image',
+        tabindex: '-1',
+        onkeydown: (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } },
+        ref: (el) => { if (el && !el._ovLb) { el._ovLb = true; setTimeout(() => el.focus(), 0); } },
+        onmousedown: (e) => { if (e.target === e.currentTarget) close(); },
+    },
+        h('button', { type: 'button', class: 'ov-lightbox-x', 'aria-label': 'close', onclick: close }, Icon('x')),
+        h('div', { class: 'ov-lightbox-stage ov-lightbox-scale-in' },
+            h('img', { class: 'ov-lightbox-image', src, alt: alt || label || 'expanded image' }),
+            label ? h('div', { class: 'ov-lightbox-label' }, label) : null
+        )
+    );
+}

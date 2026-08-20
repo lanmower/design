@@ -17,11 +17,13 @@
 
 import * as webjsx from '../../../vendor/webjsx/index.js';
 import { makePage, api, loadingState, emptyState } from './runtime.js';
-import { Table, PageHeader, Select } from '../content.js';
+import { Table, PageHeader } from '../content.js';
 import { Chip } from '../shell.js';
 import { formatTime } from '../../locale.js';
 import { queueMessage, watchReconnect, isOnline } from '../../idb-outbox.js';
 import { AgentChat } from '../agent-chat.js';
+import { WorkspaceShell, WorkspaceRail } from '../shell/workspace-shell.js';
+import { ConversationList } from '../sessions/conversation-list.js';
 import { section, noteAlert } from './shared.js';
 
 const h = webjsx.createElement;
@@ -86,13 +88,24 @@ function applyEnvelope(msgs, env, sendApprove) {
 }
 
 export const chat = makePage((ctx) => {
-    Object.assign(ctx.state, { loading: false, messages: [], draft: '', busy: false, error: null, sessionId: null, ws: null, conn: 'closed', sessions: [], staged: [] });
+    Object.assign(ctx.state, { loading: false, messages: [], draft: '', busy: false, error: null, sessionId: null, ws: null, conn: 'closed', sessions: [], staged: [], workspaceFiles: [], stagedFiles: [], searchOpen: false, searchQuery: '' });
     let unmounted = false;
 
     // Session picker (kimi web's sessions sidebar, compact form): recent
     // conversations from /api/sessions, needsInput badges included. Picking
     // one reconnects the WS under that id and rebuilds from server replay.
     api('/api/sessions').then(rows => { ctx.state.sessions = Array.isArray(rows) ? rows : []; ctx.rerender(); }).catch(() => { /* swallow: picker degrades to new-chat-only */ });
+
+    // @-mention file autocomplete (kimi web parity): workspace file list for
+    // the active session's cwd, feeding AgentChat's existing mentionFiles prop.
+    // Re-fetched on session switch since each session may have a different cwd.
+    function loadWorkspaceFiles(sid) {
+        if (!sid) { ctx.state.workspaceFiles = []; return; }
+        api('/api/sessions/' + encodeURIComponent(sid) + '/workspace-files').then(r => {
+            ctx.state.workspaceFiles = (r && Array.isArray(r.files)) ? r.files : [];
+            ctx.rerender();
+        }).catch(() => { /* swallow: mention autocomplete degrades to no suggestions */ });
+    }
 
     // File upload (kimi web parity): files are staged to disk via the gui-agent
     // endpoint and ride the next prompt frame as path references — the agent
@@ -108,7 +121,20 @@ export const chat = makePage((ctx) => {
                 if (r && r.path) { st.staged = [...st.staged, { name: r.name || file.name, path: r.path }]; }
             } catch (e) { ctx.set({ error: 'upload failed: ' + (e && e.message || e) }); }
         }
+        loadStagedFiles(st.sessionId);
         ctx.rerender();
+    }
+
+    // Staged (uploaded) files, read half of the same store attachFiles writes
+    // to — GET /api/sessions/:id/staged-files (plugins/gui/gui-agent), listed
+    // in the pane with a download link per file (kimi web session-files-panel
+    // parity: upload, see it listed, download it back).
+    function loadStagedFiles(sid) {
+        if (!sid) { ctx.state.stagedFiles = []; return; }
+        api('/api/sessions/' + encodeURIComponent(sid) + '/staged-files').then(r => {
+            ctx.state.stagedFiles = (r && Array.isArray(r.files)) ? r.files : [];
+            ctx.rerender();
+        }).catch(() => { /* swallow: panel degrades to empty */ });
     }
 
     function switchSession(id) {
@@ -117,6 +143,8 @@ export const chat = makePage((ctx) => {
         try { st.ws && st.ws.close(); } catch { /* already closed */ }
         ctx.set({ sessionId: id, messages: [], ws: null, conn: 'closed', busy: false, error: null });
         ensureWs();
+        loadWorkspaceFiles(id);
+        loadStagedFiles(id);
     }
 
     // Offline outbox: a prompt sent while genuinely offline queues to
@@ -130,8 +158,22 @@ export const chat = makePage((ctx) => {
         ctx.rerender();
     }
     watchReconnect('chat', sendQueuedToServer);
+
+    // Cmd/Ctrl+F opens the in-conversation search overlay instead of the
+    // browser's own find-in-page (kimi web message-search-dialog parity) —
+    // distinct from the existing Cmd+K command palette (a different surface).
+    const onKeydown = (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
+            e.preventDefault();
+            ctx.state.searchOpen = true;
+            ctx.rerender();
+        }
+    };
+    document.addEventListener('keydown', onKeydown);
+
     ctx.onCleanup(() => {
         unmounted = true;
+        document.removeEventListener('keydown', onKeydown);
         try { ctx.state.ws && ctx.state.ws.close(); } catch { /* already closed */ }
     });
 
@@ -245,40 +287,121 @@ export const chat = makePage((ctx) => {
         ctx.rerender();
     }
 
+    // Session files panel (kimi web parity): read-only listing of the active
+    // session's workspace files, reusing the same workspaceFiles state the
+    // composer's @-mention feature already fetches — one fetch, two consumers.
+    function sessionFilesPanel() {
+        const st = s();
+        if (!st.sessionId) return h('div', { class: 'fd-session-files fd-session-files-empty' }, 'No session selected.');
+        const staged = st.stagedFiles.length ? h('div', { key: 'staged', class: 'fd-session-files-section' },
+            h('div', { class: 'fd-session-files-head' }, 'attached (' + st.stagedFiles.length + ')'),
+            h('ul', { class: 'fd-session-files-list' },
+                ...st.stagedFiles.map(f => h('li', { key: 'sf-' + f.name, class: 'fd-session-files-row' },
+                    h('a', { href: '/api/sessions/' + encodeURIComponent(st.sessionId) + '/staged-files/' + encodeURIComponent(f.name), download: f.name, title: f.name }, f.name))))) : null;
+        const workspace = st.workspaceFiles.length ? h('div', { key: 'ws', class: 'fd-session-files-section' },
+            h('div', { class: 'fd-session-files-head' }, 'workspace (' + st.workspaceFiles.length + ')'),
+            h('ul', { class: 'fd-session-files-list' },
+                ...st.workspaceFiles.map(f => h('li', { key: 'wf-' + f, class: 'fd-session-files-row', title: f }, f)))) : null;
+        if (!staged && !workspace) return h('div', { class: 'fd-session-files fd-session-files-empty' }, 'No files in this session\'s workspace.');
+        return h('div', { class: 'fd-session-files' }, staged, workspace);
+    }
+
+    // In-conversation message search (kimi web message-search-dialog parity):
+    // Cmd/Ctrl+F while the chat page is focused opens a client-side filter over
+    // the currently loaded thread (st.messages is already the full replay for
+    // this session — no new endpoint needed, unlike GET /api/search which is
+    // global-across-sessions and serves a different surface). Enter jumps to
+    // (scrolls + flashes) the next match; Escape closes.
+    function messageSearchMatches() {
+        const st = s();
+        const q = st.searchQuery.trim().toLowerCase();
+        if (!q) return [];
+        // Indices into st.messages, not ids — ChatMessage (design/src/components/
+        // chat/message.js) renders no per-message DOM id, but its root .chat-msg
+        // nodes land in the SAME order as st.messages, so position is the stable
+        // join key between the two.
+        const out = [];
+        st.messages.forEach((m, i) => { if ((m.content || '').toLowerCase().includes(q)) out.push(i); });
+        return out;
+    }
+    function scrollToMessage(index) {
+        const nodes = document.querySelectorAll('.chat-msg');
+        const el = nodes[index];
+        if (!el) return;
+        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        el.classList.add('fd-msg-flash');
+        setTimeout(() => el.classList.remove('fd-msg-flash'), 900);
+    }
+    function messageSearchOverlay() {
+        const st = s();
+        if (!st.searchOpen) return null;
+        const matches = messageSearchMatches();
+        return h('div', { class: 'fd-msg-search', role: 'search' },
+            h('input', {
+                class: 'fd-msg-search-input', type: 'text', placeholder: 'search this conversation…',
+                value: st.searchQuery, autofocus: true,
+                oninput: (e) => { st.searchQuery = e.target.value; ctx.rerender(); },
+                onkeydown: (e) => {
+                    if (e.key === 'Escape') { e.preventDefault(); st.searchOpen = false; st.searchQuery = ''; ctx.rerender(); }
+                    else if (e.key === 'Enter' && matches.length) { e.preventDefault(); scrollToMessage(matches[0]); }
+                },
+            }),
+            h('span', { class: 'fd-msg-search-count' }, st.searchQuery ? (matches.length + ' match' + (matches.length === 1 ? '' : 'es')) : ''),
+            h('button', { type: 'button', class: 'fd-msg-search-close', 'aria-label': 'close search', onclick: () => { st.searchOpen = false; st.searchQuery = ''; ctx.rerender(); } }, '×'));
+    }
+
     return () => {
         const st = s();
-        return h('div', { class: 'fd-chat' },
-            h('div', { class: 'fd-chat-picker' },
-                st.sessions.length ? Select({
-                    value: st.sessionId || '',
-                    placeholder: 'new conversation',
-                    'aria-label': 'switch conversation',
-                    options: st.sessions.map(row => ({ value: row.id, label: (row.title || '(untitled)').slice(0, 60) + (row.needsInput ? ' — needs input' : '') })),
-                    onChange: switchSession,
-                }) : null,
-                h('label', { class: 'fd-chat-attach', title: 'attach files to the next message' },
-                    'attach',
-                    h('input', { type: 'file', multiple: true, style: 'display:none', onchange: (e) => { attachFiles(e.target.files); e.target.value = ''; } })),
-                ...st.staged.map((f, i) => h('span', { key: 'st' + i, class: 'fd-chat-staged' },
-                    f.name,
-                    h('button', { type: 'button', class: 'fd-chat-staged-x', 'aria-label': 'remove ' + f.name, onclick: () => { st.staged = st.staged.filter((_, j) => j !== i); ctx.rerender(); } }, '×')))),
-            AgentChat({
-                messages: st.messages,
-                busy: st.busy,
-                draft: st.draft,
-                status: st.busy ? 'streaming…' : (st.conn === 'open' ? 'ready' : 'connecting…'),
-                agentName: 'freddie',
-                placeholder: st.busy ? 'queue a follow-up… (or stop)' : 'message…',
-                showMinimap: true,
-                banners: st.error ? [noteAlert({ kind: 'error', msg: st.error })] : [],
-                onInput: (v) => { st.draft = v; },
-                onSend: send,
-                onStop: stop,
-                onNewChat: () => {
+        const attachRow = h('div', { class: 'fd-chat-attach-row' },
+            h('label', { class: 'fd-chat-attach', title: 'attach files to the next message' },
+                'attach',
+                h('input', { type: 'file', multiple: true, style: 'display:none', onchange: (e) => { attachFiles(e.target.files); e.target.value = ''; } })),
+            ...st.staged.map((f, i) => h('span', { key: 'st' + i, class: 'fd-chat-staged' },
+                f.name,
+                h('button', { type: 'button', class: 'fd-chat-staged-x', 'aria-label': 'remove ' + f.name, onclick: () => { st.staged = st.staged.filter((_, j) => j !== i); ctx.rerender(); } }, '×'))));
+        return WorkspaceShell({
+            stableFrame: true,
+            rail: WorkspaceRail({
+                brand: 'freddie',
+                action: { label: 'Dashboard', icon: 'grid', onClick: () => { location.hash = '#fd-home'; } },
+                items: [{ key: 'chat', label: 'Chat', icon: 'forum', active: true }],
+            }),
+            sessions: ConversationList({
+                sessions: st.sessions.map(row => ({ sid: row.id, title: row.title, time: row.time, rail: row.needsInput ? 'flame' : null })),
+                selected: st.sessionId,
+                onSelect: (row) => switchSession(row.sid),
+                onNew: () => {
                     try { st.ws && st.ws.close(); } catch { /* already closed */ }
                     ctx.set({ messages: [], draft: '', error: null, sessionId: null, ws: null, conn: 'closed' });
                 },
-            }));
+                newLabel: 'New chat',
+                emptyText: 'No conversations yet',
+            }),
+            main: [
+                messageSearchOverlay(),
+                attachRow,
+                AgentChat({
+                    messages: st.messages,
+                    busy: st.busy,
+                    draft: st.draft,
+                    status: st.busy ? 'streaming…' : (st.conn === 'open' ? 'ready' : 'connecting…'),
+                    agentName: 'freddie',
+                    placeholder: st.busy ? 'queue a follow-up… (or stop)' : 'message…',
+                    mentionFiles: st.workspaceFiles,
+                    showMinimap: true,
+                    banners: st.error ? [noteAlert({ kind: 'error', msg: st.error })] : [],
+                    onInput: (v) => { st.draft = v; },
+                    onSend: send,
+                    onStop: stop,
+                    onNewChat: () => {
+                        try { st.ws && st.ws.close(); } catch { /* already closed */ }
+                        ctx.set({ messages: [], draft: '', error: null, sessionId: null, ws: null, conn: 'closed' });
+                    },
+                }),
+            ],
+            pane: sessionFilesPanel(),
+            paneLabel: 'session files',
+        });
     };
 });
 

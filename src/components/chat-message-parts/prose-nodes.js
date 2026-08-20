@@ -23,9 +23,29 @@ const scheduleIdle = typeof requestIdleCallback === 'function'
     ? (fn) => requestIdleCallback(fn, { timeout: 500 })
     : (fn) => setTimeout(fn, 0);
 
+// Delegated click/keydown reveal for .chat-spoiler spans injected by the
+// marked spoiler extension (markdown.js) -- DOMPurify strips inline
+// on*="" attributes, so the reveal is wired here once per bubble instead of
+// inline in the sanitized HTML. Stays revealed once clicked (no re-hide),
+// matching stoat for-web's RenderSpoiler.
+function wireSpoilerReveal(el) {
+    if (!el || el.dataset.spoilerWired === '1') return;
+    el.dataset.spoilerWired = '1';
+    el.addEventListener('click', (e) => {
+        const target = e.target.closest('.chat-spoiler');
+        if (target && el.contains(target)) target.classList.add('is-revealed');
+    });
+    el.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        const target = e.target.closest('.chat-spoiler');
+        if (target && el.contains(target)) { e.preventDefault(); target.classList.add('is-revealed'); }
+    });
+}
+
 export function MdNode(p) {
     const refSink = (el) => {
         if (!el) return;
+        wireSpoilerReveal(el);
         // Version the per-element source key with a degraded marker: a bubble
         // rendered while the markdown loader was down re-renders (real markdown)
         // once the loader recovers, instead of staying plain-escaped forever.

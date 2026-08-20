@@ -55,6 +55,7 @@ const PHASES = ['empty', 'loading', 'ready', 'error'];
 
 const SAMPLE_MESSAGES = [
     { id: 'm1', userId: 'jordan', username: 'jordan', content: 'shipped the community adapter contract. mock lives in the kit, real one lives in the consumer.', timestamp: Date.now() - 600000, delivered: true },
+    { id: 'm1b', userId: 'jordan', username: 'jordan', content: 'no backend anywhere in this kit -- state.js + a Set of subscribers is the whole store.', timestamp: Date.now() - 590000, delivered: true },
     { id: 'm2', userId: 'mai', username: 'mai', content: 'so the kit never talks to a backend at all?', timestamp: Date.now() - 480000, delivered: true },
     { id: 'm3', userId: 'you', username: 'you', content: 'right -- it only has to satisfy get/subscribe/actions.', timestamp: Date.now() - 300000, delivered: true },
 ];

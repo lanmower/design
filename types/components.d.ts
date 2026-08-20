@@ -6,7 +6,7 @@
 // signature change; `npm run lint:component-types` fails CI when this
 // file is stale.
 //
-// 271 exported symbols across 30 source files.
+// 299 exported symbols across 30 source files.
 
 /** A webjsx virtual node, as returned by every component in this SDK. */
 export type VNode = any;
@@ -833,6 +833,7 @@ export interface ChatMessageProps {
     time?: any;
     typing?: any;
     key?: string | number;
+    id?: any;
     aicat?: any;
     reactions?: any;
     receipt?: any;
@@ -842,9 +843,11 @@ export interface ChatMessageProps {
     incomplete?: any;
     stopped?: any;
     flat?: any;
+    tail?: any;
     error?: any;
     onRetry?: (...args: any[]) => any;
     onToggleReaction?: (...args: any[]) => any;
+    onAddReaction?: (...args: any[]) => any;
 }
 export declare function ChatMessage(props?: ChatMessageProps): VNode;
 
@@ -903,6 +906,14 @@ export interface ChatSuggestionsProps {
     suggestions?: any[];
 }
 export declare function ChatSuggestions(props?: ChatSuggestionsProps): VNode;
+
+/**
+ * Props for {@link TypingIndicator} (src/components/chat.js).
+ */
+export interface TypingIndicatorProps {
+    users?: any;
+}
+export declare function TypingIndicator(props?: TypingIndicatorProps): VNode;
 
 export declare const AICAT_FACE: any;
 
@@ -1913,8 +1924,10 @@ export interface MemberItemProps {
     identity?: any;
     name?: any;
     color?: any;
+    nameColor?: any;
     /** @default 'online' */
     status?: string;
+    onClick?: (...args: any[]) => any;
 }
 export declare function MemberItem(props?: MemberItemProps): VNode;
 
@@ -1927,8 +1940,31 @@ export interface MemberListProps {
     open?: any;
     /** @default false */
     loading?: boolean;
+    onSelectMember?: (...args: any[]) => any;
 }
 export declare function MemberList(props?: MemberListProps): VNode;
+
+/**
+ * Props for {@link UserCard} (src/components/community.js).
+ */
+export interface UserCardProps {
+    identity?: any;
+    name?: any;
+    color?: any;
+    bannerUrl?: any;
+    /** @default 'online' */
+    status?: string;
+    statusLabel?: any;
+    bio?: any;
+    /** @default [] */
+    roles?: any[];
+    joinedAt?: any;
+    joinedServerAt?: any;
+    serverName?: any;
+    /** @default [] */
+    actions?: any[];
+}
+export declare function UserCard(props?: UserCardProps): VNode;
 
 /**
  * Props for {@link ChatHeader} (src/components/community.js).
@@ -2056,6 +2092,290 @@ export interface PageViewProps {
     onEdit?: (...args: any[]) => any;
 }
 export declare function PageView(props?: PageViewProps): VNode;
+
+/**
+ * Props for {@link RoleRow} (src/components/community.js).
+ */
+export interface RoleRowProps {
+    id?: any;
+    name?: any;
+    color?: any;
+    memberCount?: any;
+    /** @default true */
+    draggable?: boolean;
+    onClick?: (...args: any[]) => any;
+    onDragStart?: (...args: any[]) => any;
+    onDragOver?: (...args: any[]) => any;
+    onDrop?: (...args: any[]) => any;
+}
+export declare function RoleRow(props?: RoleRowProps): VNode;
+
+/**
+ * Props for {@link RoleList} (src/components/community.js).
+ */
+export interface RoleListProps {
+    /** @default [] */
+    roles?: any[];
+    onSelectRole?: (...args: any[]) => any;
+    onReorder?: (...args: any[]) => any;
+    onAddRole?: (...args: any[]) => any;
+    /** @default false */
+    saving?: boolean;
+}
+export declare function RoleList(props?: RoleListProps): VNode;
+
+/**
+ * Props for {@link RoleEditor} (src/components/community.js).
+ */
+export interface RoleEditorProps {
+    /** @default {} */
+    role?: Record<string, any>;
+    /** @default {} */
+    permissions?: Record<string, any>;
+    permissionGroups?: any;
+    onChangeName?: (...args: any[]) => any;
+    onChangeColor?: (...args: any[]) => any;
+    onChangeHoist?: (...args: any[]) => any;
+    onChangeMentionable?: (...args: any[]) => any;
+    onChangePermission?: (...args: any[]) => any;
+    onCopyId?: (...args: any[]) => any;
+    onDelete?: (...args: any[]) => any;
+    onSave?: (...args: any[]) => any;
+    onReset?: (...args: any[]) => any;
+    /** @default false */
+    dirty?: boolean;
+    /** @default false */
+    saving?: boolean;
+}
+export declare function RoleEditor(props?: RoleEditorProps): VNode;
+
+/**
+ * Props for {@link BanList} (src/components/community.js).
+ */
+export interface BanListProps {
+    /** @default [] */
+    bans?: any[];
+    /** @default '' */
+    filterName?: string;
+    /** @default '' */
+    filterReason?: string;
+    onFilterName?: (...args: any[]) => any;
+    onFilterReason?: (...args: any[]) => any;
+    onUnban?: (...args: any[]) => any;
+    /** @default false */
+    loading?: boolean;
+}
+export declare function BanList(props?: BanListProps): VNode;
+
+/**
+ * Props for {@link InviteList} (src/components/community.js).
+ */
+export interface InviteListProps {
+    /** @default [] */
+    invites?: any[];
+    onCreate?: (...args: any[]) => any;
+    /** @default true */
+    canCreate?: boolean;
+    onCopy?: (...args: any[]) => any;
+    onRevoke?: (...args: any[]) => any;
+    /** @default false */
+    loading?: boolean;
+}
+export declare function InviteList(props?: InviteListProps): VNode;
+
+/**
+ * Props for {@link WebhookList} (src/components/community.js).
+ */
+export interface WebhookListProps {
+    /** @default [] */
+    webhooks?: any[];
+    onCreate?: (...args: any[]) => any;
+    onEdit?: (...args: any[]) => any;
+    onDelete?: (...args: any[]) => any;
+    /** @default false */
+    busy?: boolean;
+}
+export declare function WebhookList(props?: WebhookListProps): VNode;
+
+/**
+ * Props for {@link WebhookListItem} (src/components/community.js).
+ */
+export interface WebhookListItemProps {
+    name?: any;
+    avatarUrl?: any;
+    color?: any;
+    description?: any;
+    onEdit?: (...args: any[]) => any;
+    onDelete?: (...args: any[]) => any;
+}
+export declare function WebhookListItem(props?: WebhookListItemProps): VNode;
+
+/**
+ * Props for {@link WebhookEditor} (src/components/community.js).
+ */
+export interface WebhookEditorProps {
+    /** @default '' */
+    name?: string;
+    /** @default '' */
+    avatarUrl?: string;
+    /** @default '' */
+    url?: string;
+    onNameChange?: (...args: any[]) => any;
+    onAvatarChange?: (...args: any[]) => any;
+    onCopyUrl?: (...args: any[]) => any;
+    onSave?: (...args: any[]) => any;
+    onDelete?: (...args: any[]) => any;
+    /** @default false */
+    saving?: boolean;
+}
+export declare function WebhookEditor(props?: WebhookEditorProps): VNode;
+
+/**
+ * Props for {@link RoleTabs} (src/components/community.js).
+ */
+export interface RoleTabsProps {
+    /** @default [] */
+    roles?: any[];
+    activeId?: any;
+    onSelect?: (...args: any[]) => any;
+}
+export declare function RoleTabs(props?: RoleTabsProps): VNode;
+
+/**
+ * Props for {@link PermissionRow} (src/components/community.js).
+ */
+export interface PermissionRowProps {
+    title?: any;
+    description?: any;
+    value?: any;
+    onCycle?: (...args: any[]) => any;
+}
+export declare function PermissionRow(props?: PermissionRowProps): VNode;
+
+/**
+ * Props for {@link PermissionSection} (src/components/community.js).
+ */
+export interface PermissionSectionProps {
+    heading?: any;
+    /** @default [] */
+    permissions?: any[];
+    /** @default {} */
+    values?: Record<string, any>;
+    onChange?: (...args: any[]) => any;
+}
+export declare function PermissionSection(props?: PermissionSectionProps): VNode;
+
+/**
+ * Props for {@link PermissionsEditor} (src/components/community.js).
+ */
+export interface PermissionsEditorProps {
+    /** @default [] */
+    roles?: any[];
+    activeRoleId?: any;
+    onSelectRole?: (...args: any[]) => any;
+    /** @default [] */
+    sections?: any[];
+    /** @default {} */
+    values?: Record<string, any>;
+    onChange?: (...args: any[]) => any;
+    /** @default false */
+    dirty?: boolean;
+    /** @default false */
+    saving?: boolean;
+    onSave?: (...args: any[]) => any;
+    onReset?: (...args: any[]) => any;
+}
+export declare function PermissionsEditor(props?: PermissionsEditorProps): VNode;
+
+/**
+ * Props for {@link PermissionsOverview} (src/components/community.js).
+ */
+export interface PermissionsOverviewProps {
+    /** @default [] */
+    roles?: any[];
+    /** @default [] */
+    overrideRoleIds?: any[];
+    onSelectDefault?: (...args: any[]) => any;
+    onSelectRole?: (...args: any[]) => any;
+}
+export declare function PermissionsOverview(props?: PermissionsOverviewProps): VNode;
+
+/**
+ * Props for {@link EmojiManagerGrid} (src/components/community.js).
+ */
+export interface EmojiManagerGridProps {
+    /** @default [] */
+    emoji?: any[];
+    onUpload?: (...args: any[]) => any;
+    onDelete?: (...args: any[]) => any;
+    /** @default false */
+    dragOver?: boolean;
+    onDragOver?: (...args: any[]) => any;
+    onDragLeave?: (...args: any[]) => any;
+    onDrop?: (...args: any[]) => any;
+    /** @default false */
+    busy?: boolean;
+}
+export declare function EmojiManagerGrid(props?: EmojiManagerGridProps): VNode;
+
+/**
+ * Props for {@link SearchBar} (src/components/community.js).
+ */
+export interface SearchBarProps {
+    /** @default '' */
+    value?: string;
+    /** @default 'Search…' */
+    placeholder?: string;
+    onChange?: (...args: any[]) => any;
+    onClear?: (...args: any[]) => any;
+    onSubmit?: (...args: any[]) => any;
+    /** @default false */
+    autofocus?: boolean;
+}
+export declare function SearchBar(props?: SearchBarProps): VNode;
+
+/**
+ * Props for {@link SearchResults} (src/components/community.js).
+ */
+export interface SearchResultsProps {
+    /** @default '' */
+    query?: string;
+    /** @default [] */
+    groups?: any[];
+    /** @default false */
+    busy?: boolean;
+    /** @default 'No results' */
+    emptyText?: string;
+}
+export declare function SearchResults(props?: SearchResultsProps): VNode;
+
+/**
+ * Props for {@link SearchResultMessage} (src/components/community.js).
+ */
+export interface SearchResultMessageProps {
+    author?: any;
+    avatarColor?: any;
+    text?: any;
+    time?: any;
+    channelName?: any;
+    query?: any;
+    onClick?: (...args: any[]) => any;
+}
+export declare function SearchResultMessage(props?: SearchResultMessageProps): VNode;
+
+/**
+ * Props for {@link SearchResultEntity} (src/components/community.js).
+ */
+export interface SearchResultEntityProps {
+    /** @default 'channel' */
+    kind?: 'channel' | 'user' | 'voice' | (string & {});
+    name?: any;
+    icon?: any;
+    color?: any;
+    subtitle?: any;
+    onClick?: (...args: any[]) => any;
+}
+export declare function SearchResultEntity(props?: SearchResultEntityProps): VNode;
 
 // ---- src/components/voice.js -----------------------------------------
 
@@ -2188,6 +2508,60 @@ export declare function VoiceControls(props?: VoiceControlsProps): VNode;
 export interface playCompletionCueProps {}
 
 export declare function playCompletionCue(props?: playCompletionCueProps): VNode;
+
+export declare function SettingsRowGroup(children?: any): VNode;
+
+/**
+ * Props for {@link SettingsSection} (src/components/voice.js).
+ */
+export interface SettingsSectionProps {
+    title?: any;
+    children?: any;
+}
+export declare function SettingsSection(props?: SettingsSectionProps): VNode;
+
+/**
+ * Props for {@link SettingsRow} (src/components/voice.js).
+ */
+export interface SettingsRowProps {
+    /** @default 'blank' */
+    icon?: string;
+    label?: any;
+    description?: any;
+    action?: any;
+    onClick?: (...args: any[]) => any;
+}
+export declare function SettingsRow(props?: SettingsRowProps): VNode;
+
+/**
+ * Props for {@link SettingsRowToggle} (src/components/voice.js).
+ */
+export interface SettingsRowToggleProps {
+    /** @default 'blank' */
+    icon?: string;
+    label?: any;
+    description?: any;
+    /** @default false */
+    checked?: boolean;
+    onToggle?: (...args: any[]) => any;
+}
+export declare function SettingsRowToggle(props?: SettingsRowToggleProps): VNode;
+
+/**
+ * Props for {@link SettingsRowSelect} (src/components/voice.js).
+ */
+export interface SettingsRowSelectProps {
+    /** @default 'blank' */
+    icon?: string;
+    label?: any;
+    description?: any;
+    value?: any;
+    /** @default [] */
+    options?: any[];
+    onChange?: (...args: any[]) => any;
+    ariaLabel?: any;
+}
+export declare function SettingsRowSelect(props?: SettingsRowSelectProps): VNode;
 
 // ---- src/components/collab.js ----------------------------------------
 
@@ -2954,6 +3328,22 @@ export interface CommandPaletteProps {
 export declare function CommandPalette(props?: CommandPaletteProps): VNode;
 
 /**
+ * Props for {@link MentionAutocomplete} (src/components/overlay-primitives.js).
+ */
+export interface MentionAutocompleteProps {
+    open?: any;
+    /** @default 'user' */
+    kind?: 'user' | 'channel' | 'role' | 'emoji' | (string & {});
+    /** @default [] */
+    matches?: any[];
+    /** @default 0 */
+    selection?: number;
+    onSelect?: (...args: any[]) => any;
+    onHover?: (...args: any[]) => any;
+}
+export declare function MentionAutocomplete(props?: MentionAutocompleteProps): VNode;
+
+/**
  * Props for {@link EmojiPicker} (src/components/overlay-primitives.js).
  */
 export interface EmojiPickerProps {
@@ -3002,6 +3392,22 @@ export interface SettingsPopoverProps {
 export declare function SettingsPopover(props?: SettingsPopoverProps): VNode;
 
 /**
+ * Props for {@link SettingsShell} (src/components/overlay-primitives.js).
+ */
+export interface SettingsShellProps {
+    /** @default 'Settings' */
+    title?: string;
+    open?: any;
+    /** @default [] */
+    groups?: any[];
+    activeId?: any;
+    onSelect?: (...args: any[]) => any;
+    onClose?: (...args: any[]) => any;
+    children?: any;
+}
+export declare function SettingsShell(props?: SettingsShellProps): VNode;
+
+/**
  * Props for {@link AuthModal} (src/components/overlay-primitives.js).
  */
 export interface AuthModalProps {
@@ -3033,6 +3439,21 @@ export interface VideoLightboxProps {
     onClose?: (...args: any[]) => any;
 }
 export declare function VideoLightbox(props?: VideoLightboxProps): VNode;
+
+/**
+ * Props for {@link ImageLightbox} (src/components/overlay-primitives.js).
+ */
+export interface ImageLightboxProps {
+    src?: any;
+    /** @default '' */
+    alt?: string;
+    /** @default '' */
+    label?: string;
+    /** @default false */
+    open?: boolean;
+    onClose?: (...args: any[]) => any;
+}
+export declare function ImageLightbox(props?: ImageLightboxProps): VNode;
 
 /**
  * Props for {@link PermissionMenu} (src/components/overlay-primitives.js).

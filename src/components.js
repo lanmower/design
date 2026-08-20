@@ -21,7 +21,7 @@ export {
 
 export {
     fmtBytes, renderInline, hasSelectionInside,
-    ChatMessage, ChatComposer, Chat, flashComposerNote, ChatSuggestions,
+    ChatMessage, ChatComposer, Chat, flashComposerNote, ChatSuggestions, TypingIndicator,
     AICAT_FACE, AICatPortrait, AICat
 } from './components/chat.js';
 
@@ -69,15 +69,21 @@ export {
     ServerIcon, ServerRail,
     ChannelItem, ChannelCategory,
     VoiceUser, UserPanel, ChannelSidebar,
-    MemberItem, MemberList,
+    MemberItem, MemberList, UserCard,
     ChatHeader, VoiceStrip, CommunityShell,
     MobileHeader, ReplyBar, Banner,
-    ThreadPanel, ForumView, PageView
+    ThreadPanel, ForumView, PageView,
+    RoleRow, RoleList, RoleEditor, BanList, InviteList,
+    WebhookList, WebhookListItem, WebhookEditor,
+    RoleTabs, PermissionRow, PermissionSection, PermissionsEditor, PermissionsOverview,
+    EmojiManagerGrid,
+    SearchBar, SearchResults, SearchResultMessage, SearchResultEntity
 } from './components/community.js';
 
 export {
     PttButton, VadMeter, WebcamPreview, VoiceSettingsModal, AudioQueue, VoiceControls,
-    playCompletionCue
+    playCompletionCue,
+    SettingsRowGroup, SettingsSection, SettingsRow, SettingsRowToggle, SettingsRowSelect
 } from './components/voice.js';
 
 export {
@@ -123,8 +129,8 @@ export {
 
 export {
     Tooltip, Popover, Dropdown, useLongPress, useFloating,
-    CommandPalette, EmojiPicker, BootOverlay, SettingsPopover,
-    AuthModal, VideoLightbox, PermissionMenu, ApprovalPrompt, withBusy,
+    CommandPalette, MentionAutocomplete, EmojiPicker, BootOverlay, SettingsPopover, SettingsShell,
+    AuthModal, VideoLightbox, ImageLightbox, PermissionMenu, ApprovalPrompt, withBusy,
     MenuButton,
     HoverCard, Menubar
 } from './components/overlay-primitives.js';

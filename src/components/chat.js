@@ -11,7 +11,7 @@ import { safeUrl as sharedSafeUrl, renderInline as sharedRenderInline, injectCod
 import { hasSelectionInside, makeThreadAutoScroll } from './chat/thread-scroll.js';
 import { ChatMessage } from './chat/message.js';
 import { ChatComposer } from './chat/composer.js';
-import { flashComposerNote } from './chat/composer-affordances.js';
+import { flashComposerNote, TypingIndicator } from './chat/composer-affordances.js';
 import { Chat, AICat, AICatPortrait, ChatSuggestions, AICAT_FACE } from './chat/threads.js';
 // Imported for its side effect: registers the 'chat' snapshot into the single
 // window.__debug registry at module load, exactly as this file did before the
@@ -42,6 +42,6 @@ export const injectCodeCopy = sharedInjectCodeCopy;
 export {
     hasSelectionInside, makeThreadAutoScroll,
     ChatMessage,
-    ChatComposer, flashComposerNote,
+    ChatComposer, flashComposerNote, TypingIndicator,
     Chat, AICat, AICatPortrait, ChatSuggestions, AICAT_FACE,
 };

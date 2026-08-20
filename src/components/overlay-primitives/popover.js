@@ -26,6 +26,11 @@ export function Popover({ open, anchorEl, onClose, placement = 'bottom-start', c
     document.body.appendChild(el);
     webjsx.applyDiff(el, h('div', { class: 'ds-popover-inner' }, ...kids(children)));
     const floating = useFloating(anchorEl, el, { placement, offset: FLOAT_OFFSET_POPOVER });
+    // Real entrance transform: start offset pre-paint, settle to place on the
+    // next frame — .ds-popover's transition already declares `transform`,
+    // but with no differing start/end value nothing actually animated.
+    el.classList.add('is-entering');
+    requestAnimationFrame(() => { requestAnimationFrame(() => el.classList.remove('is-entering')); });
     const close = () => onClose && onClose();
     const onDown = (e) => { if (el.contains(e.target) || anchorEl.contains(e.target)) return; close(); };
     const onKey = (e) => {

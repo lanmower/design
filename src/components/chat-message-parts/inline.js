@@ -19,11 +19,27 @@ export function safeUrl(url) {
     return /^(https?|mailto|tel)$/i.test(scheme) ? s : null;
 }
 
+// Click-to-reveal spoiler span: hidden by default (||text|| markdown syntax,
+// stoat for-web's RenderSpoiler), stays revealed once clicked (no re-hide on
+// leave, matching the reference). A direct classList toggle in the handler
+// (not a re-render) matches injectCodeCopy's own click-mutates-DOM idiom.
+function spoilerToggle(e) {
+    e.currentTarget.classList.add('is-revealed');
+}
+function renderSpoilerSpan(key, text) {
+    return h('span', {
+        key, class: 'chat-spoiler', tabindex: '0', role: 'button',
+        'aria-label': 'spoiler, click to reveal',
+        onclick: spoilerToggle,
+        onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); spoilerToggle(e); } },
+    }, text);
+}
+
 // Inline-only markdown subset; safe for chat bubbles.
 export function renderInline(text) {
     if (text == null) return [];
     const out = [];
-    const re = /(\*\*([^*]+)\*\*|\*([^*]+)\*|`([^`]+)`|\[([^\]]+)\]\(([^)]+)\))/g;
+    const re = /(\*\*([^*]+)\*\*|\*([^*]+)\*|`([^`]+)`|\[([^\]]+)\]\(([^)]+)\)|\|\|([^|]+)\|\|)/g;
     let last = 0; let m; let i = 0;
     const push = (n) => out.push(n);
     while ((m = re.exec(text)) !== null) {
@@ -38,6 +54,7 @@ export function renderInline(text) {
             if (safe) push(h('a', { key: 's' + i, href: safe, target: '_blank', rel: 'noopener noreferrer' }, m[5]));
             else push(h('span', { key: 's' + i }, m[5]));
         }
+        else if (m[7] != null) push(renderSpoilerSpan('s' + i, m[7]));
         last = m.index + m[0].length; i += 1;
     }
     if (last < text.length) push(h('span', { key: 's' + i + 'a' }, text.slice(last)));

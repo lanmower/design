@@ -281,9 +281,80 @@
 .chat-image:hover {
   border-color: var(--rule);
 }
-.chat-image img { display: block; width: 100%; height: auto; max-height: 360px; object-fit: cover; }
+.chat-image { position: relative; }
+.chat-image img {
+  display: block; width: 100%; height: auto; max-height: 360px; object-fit: cover;
+  transition: transform var(--dur-base, .16s) var(--ease, ease);
+}
+.chat-image:hover img { transform: scale(1.03); }
+/* Hover-zoom cue (magnifier glyph, center-pinned, fades in) signalling the
+   embed is click-to-expand — for-web's image embeds carry an equivalent
+   affordance; this kit's previously had none, just a bare href-out anchor. */
+.chat-image::after {
+  content: '';
+  position: absolute; inset: 0; margin: auto; width: 32px; height: 32px;
+  background: color-mix(in oklab, var(--ink) 55%, transparent);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity var(--dur-snap, .12s) var(--ease, ease);
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3Cpath d='M11 8v6M8 11h6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: center;
+}
+.chat-image:hover::after { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .chat-image img { transition: none; }
+  .chat-image:hover img { transform: none; }
+}
 .chat-image .cap,
 .chat-image .caption { display: block; padding: var(--space-2) var(--space-2-75); font-size: var(--fs-xs); color: var(--fg-3); font-family: var(--ff-mono); }
+
+/* Full-screen lightbox shell (VideoLightbox + ImageLightbox share this) —
+   previously entirely unstyled: .ov-lightbox-backdrop rendered as an
+   unpositioned block, so opening either lightbox showed the video/image
+   inline in normal page flow instead of as a full-screen overlay, with no
+   open/close transition at all. */
+.ov-lightbox-backdrop {
+  position: fixed; inset: 0; z-index: var(--z-modal);
+  display: flex; align-items: center; justify-content: center;
+  background: color-mix(in oklab, var(--ink) 88%, transparent);
+  padding: var(--space-5);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ov-lightbox-backdrop { animation: ov-lightbox-fade-in var(--dur-base, .16s) var(--ease, ease); }
+  @keyframes ov-lightbox-fade-in { from { opacity: 0; } to { opacity: 1; } }
+}
+.ov-lightbox-stage {
+  position: relative; max-width: min(90vw, 1100px); max-height: 90vh;
+  display: flex; flex-direction: column; align-items: center; gap: var(--space-2);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ov-lightbox-scale-in { animation: ov-lightbox-scale-in var(--dur-slow, .28s) var(--ease-spring); }
+  @keyframes ov-lightbox-scale-in {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
+  }
+}
+.ov-lightbox-video,
+.ov-lightbox-image {
+  max-width: 100%; max-height: 80vh; border-radius: var(--r-2);
+  box-shadow: var(--shadow-2, var(--shadow-1));
+}
+.ov-lightbox-label {
+  color: var(--paper); font-size: var(--fs-sm); font-family: var(--ff-mono);
+  text-align: center; opacity: .85;
+}
+.ov-lightbox-x {
+  position: absolute; top: var(--space-3); right: var(--space-3);
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: color-mix(in oklab, var(--ink) 60%, transparent);
+  color: var(--paper); border: 0; cursor: pointer;
+  transition: background var(--dur-snap, .12s) var(--ease, ease), transform var(--dur-snap, .08s) var(--ease-spring);
+}
+.ov-lightbox-x:hover { background: color-mix(in oklab, var(--ink) 80%, transparent); }
+.ov-lightbox-x:active { transform: scale(0.88); }
+.ov-lightbox-x:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .chat-msg.you .chat-file,
 .chat-msg .chat-file,
@@ -388,6 +459,10 @@
   position: relative;
 }
 .chat-reactions .rxn:hover { background: var(--bg-3); transform: scale(1.06); }
+.chat-reactions .rxn:active {
+  transform: scale(0.92);
+  transition: transform var(--dur-snap, .08s) var(--ease-spring);
+}
 .chat-reactions .rxn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .chat-reactions .rxn.you {
   background: color-mix(in oklab, var(--accent) 18%, var(--bg-2));
@@ -397,6 +472,101 @@
 .chat-reactions .rxn .e { font-size: var(--fs-xs); line-height: 1; }
 .chat-reactions .rxn .n { font-family: var(--ff-mono); font-weight: var(--fw-medium, 500); font-size: var(--fs-nano); color: var(--fg-2); }
 .chat-reactions .rxn.you .n { color: var(--accent-ink); }
+
+/* Per-message action row: `actions` (react/reply/edit/delete/more) had zero
+   CSS anywhere in this file, so the hover toolbar rendered as an unstyled
+   inline row of buttons pinned to page flow — reference behaviour is a
+   floating pill, revealed on hover/focus-within, that never displaces
+   surrounding message layout. Messenger-bubble layout keeps the original
+   below-bubble strip (.chat-msg-actions without -float); flat/community
+   rows opt into the floating pill via .chat-msg-actions-float. */
+.chat-msg-actions {
+  display: flex; align-items: center; gap: var(--space-hair);
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--dur-snap, .12s) var(--ease, ease);
+}
+.chat-msg:hover .chat-msg-actions,
+.chat-msg:focus-within .chat-msg-actions,
+.chat-msg-actions:focus-within {
+  opacity: 1; pointer-events: auto;
+}
+.chat-msg-action {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  padding: var(--space-1); border: 0; border-radius: var(--r-1);
+  background: transparent; color: var(--fg-3); cursor: pointer;
+  font-family: var(--ff-mono); font-size: var(--fs-nano);
+  transition: background var(--dur-snap, .12s) var(--ease, ease), color var(--dur-snap, .12s) var(--ease, ease), transform var(--dur-snap, .08s) var(--ease-spring);
+}
+.chat-msg-action:hover { background: var(--bg-3); color: var(--fg); }
+.chat-msg-action:active { transform: scale(0.88); }
+.chat-msg-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.chat-msg-action.is-copied { color: var(--accent-ink); }
+.chat-msg-action-label { display: none; }
+
+/* Floating pill: matches for-web's MessageToolbar (top-right corner of the
+   message, overlapping the bubble, one contiguous chip) rather than a strip
+   living in normal flow below the content. */
+.chat-msg-actions-float {
+  position: absolute; top: -14px; right: var(--space-2-75);
+  background: var(--bg-2); border: var(--bw-hair) solid var(--rule);
+  border-radius: var(--r-1); box-shadow: var(--shadow-1);
+  padding: var(--space-hair);
+  z-index: var(--z-raised);
+}
+.chat-msg.you .chat-msg-actions-float { right: auto; left: var(--space-2-75); }
+
+/* Out-of-band turn notices (stopped / incomplete / error+retry). */
+.chat-msg-notice {
+  font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--fg-3);
+  padding: var(--space-1) var(--space-2); margin-top: var(--space-hair);
+  display: flex; align-items: center; gap: var(--space-2);
+}
+.chat-msg-notice.is-error { color: var(--flame); }
+.chat-msg-retry-btn {
+  border: var(--bw-hair) solid var(--rule-strong); background: transparent;
+  color: inherit; border-radius: var(--r-1); padding: var(--space-hair) var(--space-2);
+  font-family: var(--ff-mono); font-size: var(--fs-nano); cursor: pointer;
+}
+.chat-msg-retry-btn:hover { background: var(--bg-3); }
+
+/* Flat-layout role label (You / agent name) above the turn content. */
+.chat-role {
+  font-family: var(--ff-mono); font-size: var(--fs-nano); color: var(--fg-3);
+  text-transform: lowercase; letter-spacing: 0.02em;
+}
+
+/* Reply-preview bar above the composer: reference is a tinted pill row
+   naming who is being replied to plus a dismiss control — this had zero
+   CSS and rendered as a bare unstyled block above the composer. */
+.cm-composer-wrap { display: flex; flex-direction: column; gap: var(--space-1); }
+.cm-reply-preview {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+  padding: var(--space-1-75) var(--space-2-75);
+  background: color-mix(in oklab, var(--accent) 10%, var(--bg-2));
+  border: var(--bw-hair) solid color-mix(in oklab, var(--accent) 30%, transparent);
+  border-radius: var(--r-2);
+  font-family: var(--ff-mono); font-size: var(--fs-xs);
+}
+.cm-reply-preview-label { color: var(--fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cm-reply-preview-close {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; flex-shrink: 0;
+  border: 0; border-radius: var(--r-1); background: transparent; color: var(--fg-3); cursor: pointer;
+}
+.cm-reply-preview-close:hover { background: var(--bg-3); color: var(--fg); }
+.cm-reply-preview-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* Add-reaction (+) affordance: for-web shows a low-opacity + chip at the end
+   of the reaction row that brightens on hover of the whole row, opening the
+   emoji picker. This kit's reaction row previously stopped at rendering
+   existing reactions with no way to add a new one from the row itself. */
+.chat-reactions .chat-rxn-add {
+  opacity: 0; justify-content: center;
+  background: var(--bg-3); border-style: dashed;
+  width: 28px; padding: var(--space-hair);
+}
+.chat-reactions:hover .chat-rxn-add,
+.chat-reactions .chat-rxn-add:focus-visible { opacity: 1; }
 
 /* Typing indicator renders through the same .chat-bubble container as a real
    message, but must never read as a bubble holding actual content — no
@@ -432,6 +602,37 @@
     0%, 60%, 100% { transform: translateY(0); opacity: 0.55; }
     30% { transform: translateY(-5px); opacity: 1; }
   }
+}
+
+/* TypingIndicator — stoat for-web's overlapping-avatar-stack bar above the
+   composer (distinct from .chat-typing's in-bubble thinking dots above: this
+   is "X is typing…" for OTHER users, not the assistant's own turn). Fades in
+   on mount so a burst of typing-start events never pops in as a hard cut. */
+.chat-typing-bar {
+  display: flex; align-items: center; gap: var(--space-2);
+  min-height: 26px; padding: 0 var(--space-3);
+  color: var(--fg-2); font-size: var(--fs-xs);
+  user-select: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .chat-typing-bar { animation: chat-typing-bar-in var(--dur-base, .16s) var(--ease, ease); }
+  @keyframes chat-typing-bar-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+.chat-typing-avatars { display: flex; flex-shrink: 0; height: fit-content; }
+.chat-typing-avatar {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 15px; height: 15px; border-radius: 50%;
+  background: var(--accent); color: var(--accent-fg);
+  font-size: 8px; font-weight: var(--fw-medium, 500);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 0.5px color-mix(in oklab, var(--fg) 12%, transparent);
+}
+.chat-typing-avatar:not(:first-child) { margin-inline-start: -6px; }
+.chat-typing-bar-label {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -522,7 +723,7 @@
   border: 0; cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  transition: background var(--dur-snap, .15s) var(--ease, ease);
+  transition: background var(--dur-snap, .15s) var(--ease, ease), transform var(--dur-snap, .08s) var(--ease-spring);
 }
 .chat-composer .send:disabled { opacity: .5; cursor: not-allowed; }
 /* Ghost icon buttons in the toolbar (attach / emoji / more). Size + radius are
@@ -533,11 +734,12 @@
   border: 0; cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  transition: background var(--dur-snap, .15s) var(--ease, ease), color var(--dur-snap, .15s) var(--ease, ease);
+  transition: background var(--dur-snap, .15s) var(--ease, ease), color var(--dur-snap, .15s) var(--ease, ease), transform var(--dur-snap, .08s) var(--ease-spring);
 }
 .composer-btn:hover { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
+.composer-btn:active { transform: scale(0.88); }
 .chat-composer .send:hover { filter: brightness(0.92); }
-.chat-composer .send:active { filter: brightness(0.94); }
+.chat-composer .send:active { filter: brightness(0.94); transform: scale(0.92); }
 .chat-composer .send:focus-visible,
 .composer-btn:focus-visible {
   outline: var(--focus-w) solid var(--focus-color);
@@ -550,7 +752,16 @@
   .chat-composer,
   .chat-composer textarea,
   .chat-composer .send,
-  .composer-btn { transition: none; }
+  .composer-btn,
+  .chat-msg-action,
+  .chat-reactions .rxn {
+    transition: none;
+  }
+  .chat-composer .send:active,
+  .composer-btn:active,
+  .chat-msg-action:active,
+  .chat-reactions .rxn:active,
+  .chat-reactions .rxn:hover { transform: none; }
 }
 
 .aicat-portrait { display: inline-flex; align-items: center; gap: var(--space-2-5); padding: var(--space-1) 0; }

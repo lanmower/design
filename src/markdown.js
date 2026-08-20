@@ -69,6 +69,23 @@ export async function ensureReady() {
             // dynamic import yet hand back a shape with no .parse/.sanitize.
             if (!marked || typeof marked.parse !== 'function') throw new Error('marked module missing parse()');
             if (!purify || typeof purify.sanitize !== 'function') throw new Error('DOMPurify module missing sanitize()');
+            // ||text|| click-to-reveal spoiler (stoat for-web's remarkSpoiler),
+            // ported as a marked inline tokenizer extension rather than string
+            // surgery on the parsed HTML -- the interactive class/attrs land on
+            // the same span shape renderInline's own spoiler uses.
+            marked.use({
+                extensions: [{
+                    name: 'spoiler',
+                    level: 'inline',
+                    start(src) { return src.match(/\|\|/)?.index; },
+                    tokenizer(src) {
+                        const match = /^\|\|([^|]+)\|\|/.exec(src);
+                        if (!match) return undefined;
+                        return { type: 'spoiler', raw: match[0], text: match[1].trim(), tokens: this.lexer.inlineTokens(match[1].trim()) };
+                    },
+                    renderer(token) { return `<span class="chat-spoiler" tabindex="0" role="button" aria-label="spoiler, click to reveal">${this.parser.parseInline(token.tokens)}</span>`; },
+                }],
+            });
             _marked = marked;
             _purify = purify;
             _failedAt = 0;

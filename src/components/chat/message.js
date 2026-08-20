@@ -13,7 +13,7 @@ import { countMessage, renderPart } from './stats.js';
 
 const h = webjsx.createElement;
 
-export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name, streaming, actions, incomplete, stopped, flat, error, onRetry, onToggleReaction }) {
+export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, id, aicat, reactions, receipt, name, streaming, actions, incomplete, stopped, flat, tail, error, onRetry, onToggleReaction, onAddReaction }) {
     countMessage();
     // Support legacy 'who' prop, prefer 'role' with mapping:
     //   'user'      -> 'you'   (right-aligned, accent bubble)
@@ -32,7 +32,8 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     // label above the content and a faint assistant background, instead of the
     // messenger avatar-disc + colored-bubble layout (kept for the chat demo).
     const isFlat = flat && !isCentered;
-    const cls = 'chat-msg ' + resolvedWho + (aicat && resolvedWho === 'them' ? ' aicat' : '') + (isCentered ? ' centered' : '') + (isFlat ? ' chat-msg-flat' : '');
+    const isTail = isFlat && !!tail;
+    const cls = 'chat-msg ' + resolvedWho + (aicat && resolvedWho === 'them' ? ' aicat' : '') + (isCentered ? ' centered' : '') + (isFlat ? ' chat-msg-flat' : '') + (isTail ? ' chat-msg-tail' : '');
     const fallbackAvatar = avatar != null
         ? avatar
         : (resolvedWho === 'you' ? 'u' : avatarInitial(name));
@@ -69,7 +70,19 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
             type: 'button', class: 'chat-msg-retry-btn',
             onclick: (e) => { e.preventDefault(); onRetry(e); },
         }, 'retry') : null)];
-    const reactionRow = reactions && reactions.length
+    const hasReactions = reactions && reactions.length;
+    // The add-reaction (+) chip renders whenever a handler is wired, even
+    // with zero existing reactions — for-web's Reactions row stays present
+    // (low-opacity + only) so there is always a hover affordance to react
+    // first, not just to add to an existing reaction.
+    const addReactionBtn = onAddReaction
+        ? h('button', {
+            type: 'button', class: 'rxn chat-rxn-add', key: 'r-add',
+            'aria-label': 'add reaction', title: 'add reaction',
+            onclick: (e) => { e.preventDefault(); onAddReaction(e); },
+        }, h('span', { class: 'e' }, '+'))
+        : null;
+    const reactionRow = (hasReactions || addReactionBtn)
         ? h('div', { class: 'chat-reactions' },
             // A bare <span> has no role, so it can carry no accessible name —
             // an aria-label here was silently DISCARDED and the whole reaction
@@ -77,7 +90,7 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
             // text. So the visible label/count stay in the accessibility tree
             // as content, and an .sr-only span supplies just the wording the
             // visuals imply but do not spell out.
-            ...reactions.map((r, i) => h('button', {
+            ...(hasReactions ? reactions.map((r, i) => h('button', {
                 type: 'button', class: 'rxn' + (r.you ? ' you' : ''), key: 'r' + i,
                 'aria-pressed': String(!!r.you),
                 title: (r.you ? 'remove your ' : 'add ') + r.emoji + ' reaction',
@@ -85,13 +98,14 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
             },
                 h('span', { class: 'e' }, r.emoji),
                 h('span', { class: 'n' }, String(r.count)),
-                h('span', { class: 'sr-only' }, ` ${String(r.count) === '1' ? 'reaction' : 'reactions'}${r.you ? ', you reacted' : ''}`))))
+                h('span', { class: 'sr-only' }, ` ${String(r.count) === '1' ? 'reaction' : 'reactions'}${r.you ? ', you reacted' : ''}`))) : []),
+            addReactionBtn)
         : null;
     const tickNode = resolvedWho === 'you' && receipt
         ? h('span', { class: 'tick' + (receipt === 'read' ? ' read' : ''), role: 'img', 'aria-label': receipt === 'read' ? 'message read' : 'message sent' }, Icon(receipt === 'read' ? 'check-check' : 'check', { size: 14 }))
         : null;
     const metaItems = [];
-    if (name && resolvedWho === 'them') metaItems.push(h('span', { class: 'who', key: 'w' }, name));
+    if (name && resolvedWho === 'them' && !isTail) metaItems.push(h('span', { class: 'who', key: 'w' }, name));
     if (time) metaItems.push(h('span', { class: 't', key: 'ti' }, time));
     if (tickNode) metaItems.push(tickNode);
     const meta = metaItems.length ? h('div', { class: 'chat-meta' }, ...metaItems) : null;
@@ -140,7 +154,7 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
         : null;
     // Flat layout leads the turn with a small role label (You / agent name)
     // above the content, the way claude.ai/code titles each turn.
-    const roleLabel = isFlat
+    const roleLabel = isFlat && !isTail
         ? h('div', { class: 'chat-role', key: '_role' }, resolvedWho === 'you' ? t('chat.roleYou', 'You') : (name || t('chat.roleAssistant', 'Assistant')))
         : null;
     const stack = resolvedWho === 'them'
@@ -149,8 +163,8 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     // Centered roles (system/tool/thinking) skip the avatar column entirely so
     // the bubble owns the full row — the chrome reads as out-of-band signal,
     // not a participant turn.
-    if (isCentered) return h('div', { key, class: cls }, stack);
+    if (isCentered) return h('div', { key, id, class: cls }, stack);
     // Flat turns drop the avatar column entirely (full-width content).
-    if (isFlat) return h('div', { key, class: cls }, stack);
-    return h('div', { key, class: cls }, resolvedWho === 'you' ? stack : av, resolvedWho === 'you' ? av : stack);
+    if (isFlat) return h('div', { key, id, class: cls }, stack);
+    return h('div', { key, id, class: cls }, resolvedWho === 'you' ? stack : av, resolvedWho === 'you' ? av : stack);
 }

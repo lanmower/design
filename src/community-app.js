@@ -15,6 +15,7 @@
 //     voiceParticipants, micMuted, voiceDeafened,
 //     audioQueueItems, audioQueueCurrentId, audioQueuePaused,
 //     showAuthModal, settingsOpen, voiceSettingsOpen, replyTarget,
+//     typingUsers,     // [{id,name,avatar,color}] rendered as an overlapping-avatar bar above the composer
 //     mobileMenuOpen,  // drives the .ca-rail off-canvas drawer on narrow shells
 //     canManage,       // gates the rail's "+ create channel" affordance
 //     forumPosts,      // ch.type==='forum': [{id,title,snippet,author,time,replyCount,tags?}]
@@ -39,14 +40,14 @@
 import * as webjsx from '../vendor/webjsx/index.js';
 import { Icon } from './components/shell.js';
 import { register } from './debug.js';
-import { Chat, ChatComposer } from './components/chat.js';
+import { Chat, ChatComposer, TypingIndicator } from './components/chat.js';
 import {
     ServerRail, ChannelItem, MemberList, MobileHeader,
-    UserPanel, VoiceStrip, VoiceUser, ThreadPanel, ForumView, PageView, Banner,
+    UserPanel, VoiceStrip, VoiceUser, ThreadPanel, ForumView, PageView, Banner, UserCard,
 } from './components/community.js';
 import { VoiceControls, VoiceSettingsModal, AudioQueue, PttButton, VadMeter, WebcamPreview } from './components/voice.js';
-import { ContextMenu } from './components/editor-primitives.js';
-import { EmojiPicker, CommandPalette, AuthModal, BootOverlay, SettingsPopover, VideoLightbox } from './components/overlay-primitives.js';
+import { ContextMenu, Dialog } from './components/editor-primitives.js';
+import { EmojiPicker, CommandPalette, AuthModal, BootOverlay, SettingsPopover, VideoLightbox, ImageLightbox } from './components/overlay-primitives.js';
 
 const h = webjsx.createElement;
 
@@ -56,6 +57,39 @@ const h = webjsx.createElement;
 // for a live voice room. 'send' (paper-plane) reads distinctly as
 // one-way/outbound at a glance and shares no silhouette with 'speaker'.
 const CHANNEL_ICON = { voice: 'speaker', forum: 'forum', threaded: 'thread', announcement: 'send', page: 'page', text: 'hash' };
+
+// Wraps UserCard in the shared Dialog primitive (focus-trap, Escape,
+// backdrop-dismiss) so clicking a member in MemberList opens a real profile
+// popout -- stoat for-web's ProfileCard/ProfileBanner surface, previously
+// entirely absent (the rail had no click affordance at all).
+function UserCardOverlay({ member, onClose } = {}) {
+    if (!member) return null;
+    return Dialog({
+        open: true, onClose, dismissible: true,
+        ariaLabel: (member.name || member.identity || 'user') + ' profile',
+        children: UserCard({
+            identity: member.identity, name: member.name, color: member.color,
+            bannerUrl: member.bannerUrl, status: member.status, statusLabel: member.statusLabel,
+            bio: member.bio, roles: member.roles, joinedAt: member.joinedAt,
+            joinedServerAt: member.joinedServerAt, serverName: member.serverName,
+            actions: member.actions,
+        }),
+    });
+}
+
+// stoat for-web's FileDropAnywhereCollector: a drag over ANY part of the app
+// (not just the composer) raises a full-surface overlay so the drop target is
+// obvious. Rendered only while active; the count-based enter/leave tracking
+// mirrors that component's own approach to surviving bubbled dragenter/
+// dragleave pairs across child element boundaries.
+function DropAnywhereOverlay({ active, fileCount } = {}) {
+    if (!active) return null;
+    return h('div', { class: 'ca-drop-overlay', role: 'status', 'aria-live': 'polite' },
+        h('div', { class: 'ca-drop-overlay-inner' },
+            Icon('arrow-up', { size: 32 }),
+            h('span', { class: 'ca-drop-overlay-label' },
+                fileCount > 1 ? `drop ${fileCount} files` : 'drop file')));
+}
 
 export function mountCommunityApp(root, adapter = {}) {
     if (!root) throw new Error('mountCommunityApp: root required');
@@ -74,6 +108,13 @@ export function mountCommunityApp(root, adapter = {}) {
     let ctx = { open: false, x: 0, y: 0, items: [] };
     let emoji = { open: false, x: 0, y: 0, onSelect: null };
     let palette = { open: false, items: [], onSelect: null };
+    let card = { open: false, member: null };
+    let dropAnywhere = { active: false, count: 0, fileCount: 0 };
+    // Chat image embeds had no in-app expand — clicking one only opened a new
+    // browser tab. This mirrors the existing s.videoLightbox adapter-driven
+    // pattern but is owned locally since no adapter action is needed: the
+    // click has all the data (src/alt) already in hand from the message part.
+    let imageLightbox = { open: false, src: null, alt: '' };
 
     // Split into two columns matching stoat's for-web layout (ServerList: a
     // fixed-width icon-only rail, separate from ServerSidebar/MemberSidebar's
@@ -209,7 +250,13 @@ export function mountCommunityApp(root, adapter = {}) {
                 // implying certain content removal.
                 isYou ? { label: 'delete', title: 'request deletion (relays may not honor it; other clients may have already cached this message)', icon: 'trash', onClick: () => A.deleteMessage && A.deleteMessage(m.id) } : null,
             ].filter(Boolean);
-            return { key: m.id || ('m' + i), who: isYou ? 'you' : 'them', flat: true, name: username, avatar: initial(username), time: formatTime(m.timestamp), parts: partsFromMessage(m), reactions, onToggleReaction: A.reactToMessage ? (emoji) => A.reactToMessage(m.id, m.userId, emoji) : null, actions: msgActions, receipt: isYou && m.read ? 'read' : (isYou && m.delivered ? 'delivered' : null) };
+            const openReactPicker = (e) => {
+                if (!A.reactToMessage) return;
+                const rect = e && e.currentTarget && e.currentTarget.getBoundingClientRect ? e.currentTarget.getBoundingClientRect() : null;
+                if (api.emojiPicker) api.emojiPicker.show(rect ? rect.left : 200, rect ? rect.bottom + 4 : 200, (em) => A.reactToMessage(m.id, m.userId, em));
+                else A.reactToMessage(m.id, m.userId);
+            };
+            return { key: m.id || ('m' + i), who: isYou ? 'you' : 'them', flat: true, name: username, avatar: initial(username), time: formatTime(m.timestamp), parts: partsFromMessage(m), reactions, onToggleReaction: A.reactToMessage ? (emoji) => A.reactToMessage(m.id, m.userId, emoji) : null, onAddReaction: A.reactToMessage ? openReactPicker : null, actions: msgActions, receipt: isYou && m.read ? 'read' : (isYou && m.delivered ? 'delivered' : null) };
         });
     };
 
@@ -221,9 +268,10 @@ export function mountCommunityApp(root, adapter = {}) {
             h('span', { class: 'cm-reply-preview-label' }, 'Replying to ' + (rt.username || 'User')),
             h('button', { type: 'button', class: 'cm-reply-preview-close', 'aria-label': 'cancel reply', title: 'cancel reply', onclick: (e) => { e.preventDefault(); A.cancelReply && A.cancelReply(); } }, Icon('x', { size: 14 }))
         ) : null;
+        const typingBar = TypingIndicator({ users: s.typingUsers || [] });
         return Chat({
             title: ch.name || 'general', sub, messages: mapMessages(s), header: null,
-            composer: h('div', { class: 'cm-composer-wrap' }, replyPreview, ChatComposer({
+            composer: h('div', { class: 'cm-composer-wrap' }, replyPreview, typingBar, ChatComposer({
                 value: s.chatInputValue || '',
                 placeholder: rt ? 'reply to ' + (rt.username || 'User') + '…' : 'message #' + (ch.name || 'general') + '…',
                 onInput: (v) => A.setInput && A.setInput(v),
@@ -256,7 +304,45 @@ export function mountCommunityApp(root, adapter = {}) {
             : ch.type === 'page' ? PageView({ title: ch.name, html: s.pageHtml || '', author: s.pageAuthor || '', updatedAt: s.pageUpdatedAt || 0, isAdmin: !!s.canManage, onEdit: () => A.editPage && A.editPage() })
             : chatView(s);
         const showVoiceBanner = s.voiceConnected && s.voiceChannelName && !(inVoiceChannel && s.voiceChannelName === ch.name);
-        return h('div', { class: 'ca-app' },
+        return h('div', {
+            class: 'ca-app',
+            ondragenter: (e) => {
+                if (!A.attachFiles) return;
+                e.preventDefault();
+                dropAnywhere = { active: true, count: dropAnywhere.count + 1, fileCount: e.dataTransfer ? e.dataTransfer.items.length : 0 };
+                render();
+            },
+            ondragover: (e) => { if (A.attachFiles) e.preventDefault(); },
+            ondragleave: (e) => {
+                if (!A.attachFiles || !dropAnywhere.active) return;
+                const count = dropAnywhere.count - 1;
+                dropAnywhere = count > 0 ? { ...dropAnywhere, count } : { active: false, count: 0, fileCount: 0 };
+                render();
+            },
+            ondrop: (e) => {
+                if (!A.attachFiles) return;
+                e.preventDefault();
+                dropAnywhere = { active: false, count: 0, fileCount: 0 };
+                if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) A.attachFiles(e.dataTransfer.files);
+                render();
+            },
+            // Delegated click-to-expand for chat image embeds: the .chat-image
+            // anchor (chat-message-parts/renderers.js) still opens a new tab as
+            // its href fallback for no-JS/middle-click/open-in-new-tab, but a
+            // plain left click intercepts into the in-app lightbox instead —
+            // same "progressive enhancement over a real href" pattern already
+            // used for the composer-context-bit buttons above.
+            onclick: (e) => {
+                const a = e.target.closest && e.target.closest('.chat-image');
+                if (!a || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                const img = a.querySelector('img');
+                if (!img) return;
+                e.preventDefault();
+                imageLightbox = { open: true, src: img.getAttribute('src'), alt: img.getAttribute('alt') || '' };
+                render();
+            },
+        },
+            DropAnywhereOverlay({ active: dropAnywhere.active, fileCount: dropAnywhere.fileCount }),
             // Same skip-link contract AppShell() provides. This app builds its
             // own chrome, so without this a keyboard user had to tab through
             // the whole topbar nav and channel rail to reach the messages.
@@ -289,10 +375,14 @@ export function mountCommunityApp(root, adapter = {}) {
                     UserPanel({ name: (s.currentUser && (s.currentUser.displayName || s.currentUser.username || s.currentUser.name)) || 'You', tag: s.currentUser && s.currentUser.tag, color: avatarColor(s.userId), muted: !!s.micMuted, deafened: !!s.voiceDeafened, onMute: () => A.toggleMic && A.toggleMic(), onDeafen: () => A.toggleDeafen && A.toggleDeafen(), onSettings: () => A.openSettings && A.openSettings() }),
                     bodyMain,
                 ),
-                MemberList({ categories: s.memberCategories || [], open: !!s.memberListOpen }),
+                MemberList({
+                    categories: s.memberCategories || [], open: !!s.memberListOpen,
+                    onSelectMember: (m) => { card = { open: true, member: m }; render(); },
+                }),
             ),
             // overlays
             ctx.open ? ContextMenu({ items: ctx.items, anchor: { x: ctx.x, y: ctx.y }, onClose: () => { ctx = { ...ctx, open: false }; render(); } }) : null,
+            card.open ? UserCardOverlay({ member: card.member, onClose: () => { card = { ...card, open: false }; render(); } }) : null,
             emoji.open ? EmojiPicker({ open: true, anchorX: emoji.x, anchorY: emoji.y, onSelect: (em) => { try { emoji.onSelect && emoji.onSelect(em); } catch (_) { /* swallow: consumer onSelect callback must not break overlay close/re-render */ } emoji = { ...emoji, open: false }; render(); }, onClose: () => { emoji = { ...emoji, open: false }; render(); } }) : null,
             palette.open ? CommandPalette({ open: true, items: palette.items, onSelect: (it) => { try { palette.onSelect && palette.onSelect(it); } catch (_) { /* swallow: consumer onSelect callback must not break overlay close/re-render */ } palette = { ...palette, open: false }; render(); }, onClose: () => { palette = { ...palette, open: false }; render(); } }) : null,
             // global overlays (visibility driven by adapter snapshot)
@@ -301,6 +391,7 @@ export function mountCommunityApp(root, adapter = {}) {
             s.settingsOpen ? SettingsPopover({ open: true, anchorX: (s.settingsAnchor && s.settingsAnchor.x) || 0, anchorY: (s.settingsAnchor && s.settingsAnchor.y) || 0, sections: s.settingsSections || [], onClose: () => A.openSettings && A.openSettings() }) : null,
             s.voiceSettingsOpen ? VoiceSettingsModal({ open: true, mode: s.voiceMode || 'ptt', inputId: s.inputDeviceId, outputId: s.outputDeviceId, inputDevices: s.inputDevices || [], outputDevices: s.outputDevices || [], vadThreshold: s.vadThreshold, rnnoise: !!s.rnnoiseEnabled, autoGain: !!s.autoGainEnabled, forceTurn: !!s.forceTurnEnabled, bitrate: s.voiceBitrate, volume: s.masterVolume, onChange: (p) => A.voiceSettingsChange && A.voiceSettingsChange(p), onSave: () => A.voiceSettingsSave && A.voiceSettingsSave(), onCancel: () => A.voiceSettingsClose && A.voiceSettingsClose(), onClose: () => A.voiceSettingsClose && A.voiceSettingsClose() }) : null,
             s.videoLightbox && s.videoLightbox.open ? VideoLightbox({ open: true, src: s.videoLightbox.src, label: s.videoLightbox.label, onClose: () => A.closeVideoLightbox && A.closeVideoLightbox() }) : null,
+            imageLightbox.open ? ImageLightbox({ open: true, src: imageLightbox.src, alt: imageLightbox.alt, onClose: () => { imageLightbox = { open: false, src: null, alt: '' }; render(); } }) : null,
             (s.audioQueueItems && s.audioQueueItems.length) ? AudioQueue({ segments: s.audioQueueItems, currentSegmentId: s.audioQueueCurrentId, paused: !!s.audioQueuePaused, onReplay: (id) => A.replaySegment && A.replaySegment(id), onSkip: () => A.skipSegment && A.skipSegment(), onResume: () => A.resumeQueue && A.resumeQueue(), onPause: () => A.pauseQueue && A.pauseQueue() }) : null,
             s.threadPanelOpen ? ThreadPanel({ threads: s.threads || [], activeId: s.activeThreadId, onSelect: (id) => A.selectThread && A.selectThread(id), onCreate: () => A.createThread && A.createThread(), onClose: () => A.closeThreadPanel && A.closeThreadPanel() }) : null,
         );
