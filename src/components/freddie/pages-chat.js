@@ -88,13 +88,24 @@ function applyEnvelope(msgs, env, sendApprove) {
 }
 
 export const chat = makePage((ctx) => {
-    Object.assign(ctx.state, { loading: false, messages: [], draft: '', busy: false, error: null, sessionId: null, ws: null, conn: 'closed', sessions: [], staged: [] });
+    Object.assign(ctx.state, { loading: false, messages: [], draft: '', busy: false, error: null, sessionId: null, ws: null, conn: 'closed', sessions: [], staged: [], workspaceFiles: [] });
     let unmounted = false;
 
     // Session picker (kimi web's sessions sidebar, compact form): recent
     // conversations from /api/sessions, needsInput badges included. Picking
     // one reconnects the WS under that id and rebuilds from server replay.
     api('/api/sessions').then(rows => { ctx.state.sessions = Array.isArray(rows) ? rows : []; ctx.rerender(); }).catch(() => { /* swallow: picker degrades to new-chat-only */ });
+
+    // @-mention file autocomplete (kimi web parity): workspace file list for
+    // the active session's cwd, feeding AgentChat's existing mentionFiles prop.
+    // Re-fetched on session switch since each session may have a different cwd.
+    function loadWorkspaceFiles(sid) {
+        if (!sid) { ctx.state.workspaceFiles = []; return; }
+        api('/api/sessions/' + encodeURIComponent(sid) + '/workspace-files').then(r => {
+            ctx.state.workspaceFiles = (r && Array.isArray(r.files)) ? r.files : [];
+            ctx.rerender();
+        }).catch(() => { /* swallow: mention autocomplete degrades to no suggestions */ });
+    }
 
     // File upload (kimi web parity): files are staged to disk via the gui-agent
     // endpoint and ride the next prompt frame as path references — the agent
@@ -119,6 +130,7 @@ export const chat = makePage((ctx) => {
         try { st.ws && st.ws.close(); } catch { /* already closed */ }
         ctx.set({ sessionId: id, messages: [], ws: null, conn: 'closed', busy: false, error: null });
         ensureWs();
+        loadWorkspaceFiles(id);
     }
 
     // Offline outbox: a prompt sent while genuinely offline queues to
@@ -283,6 +295,7 @@ export const chat = makePage((ctx) => {
                     status: st.busy ? 'streaming…' : (st.conn === 'open' ? 'ready' : 'connecting…'),
                     agentName: 'freddie',
                     placeholder: st.busy ? 'queue a follow-up… (or stop)' : 'message…',
+                    mentionFiles: st.workspaceFiles,
                     showMinimap: true,
                     banners: st.error ? [noteAlert({ kind: 'error', msg: st.error })] : [],
                     onInput: (v) => { st.draft = v; },
