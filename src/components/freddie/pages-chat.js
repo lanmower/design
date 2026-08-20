@@ -259,6 +259,19 @@ export const chat = makePage((ctx) => {
         ctx.rerender();
     }
 
+    // Session files panel (kimi web parity): read-only listing of the active
+    // session's workspace files, reusing the same workspaceFiles state the
+    // composer's @-mention feature already fetches — one fetch, two consumers.
+    function sessionFilesPanel() {
+        const st = s();
+        if (!st.sessionId) return h('div', { class: 'fd-session-files fd-session-files-empty' }, 'No session selected.');
+        if (!st.workspaceFiles.length) return h('div', { class: 'fd-session-files fd-session-files-empty' }, 'No files in this session\'s workspace.');
+        return h('div', { class: 'fd-session-files' },
+            h('div', { class: 'fd-session-files-head' }, st.workspaceFiles.length + ' file' + (st.workspaceFiles.length === 1 ? '' : 's')),
+            h('ul', { class: 'fd-session-files-list' },
+                ...st.workspaceFiles.map(f => h('li', { key: f, class: 'fd-session-files-row', title: f }, f))));
+    }
+
     return () => {
         const st = s();
         const attachRow = h('div', { class: 'fd-chat-attach-row' },
@@ -307,6 +320,8 @@ export const chat = makePage((ctx) => {
                     },
                 }),
             ],
+            pane: sessionFilesPanel(),
+            paneLabel: 'session files',
         });
     };
 });
