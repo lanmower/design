@@ -42,7 +42,6 @@ export declare function getDeckStage(...args: any[]): any;
 export declare class Router { constructor(...args: any[]); [key: string]: any; }
 export declare function createRouter(...args: any[]): any;
 export declare const motion: Record<string, any>;
-export declare const debug: Record<string, any>;
 export declare function mountKit(...args: any[]): any;
 export declare function renderMarkdown(...args: any[]): Promise<any>;
 export declare function ensureMarkdownReady(...args: any[]): any;

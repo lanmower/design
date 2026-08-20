@@ -99,11 +99,15 @@ export const projects = makePage((ctx) => {
 
 export const git = makePage((ctx) => {
     Object.assign(ctx.state, { cwd: null, status: null, log: null, worktrees: null, diff: null, activeFile: null, diffLoading: false, note: null });
-    async function load() {
+    async function load(explicitCwd) {
         try {
             const proj = await api('/api/projects').catch(() => null);
             const active = proj && proj.active;
-            const cwd = (active && typeof active === 'object' ? active.path : null) || ctx.state.cwd || '';
+            // explicitCwd (a worktree the user just switched to) outranks the
+            // active project's own path -- without it, load() always snapped
+            // back to the active project on every call, so onSwitch below could
+            // set ctx.state.cwd but the very next load() silently undid it.
+            const cwd = explicitCwd || (active && typeof active === 'object' ? active.path : null) || ctx.state.cwd || '';
             const qs = '?cwd=' + encodeURIComponent(cwd);
             const [status, log, worktrees] = await Promise.all([
                 api('/api/git/status' + qs).catch((e) => ({ _err: e })),
@@ -153,7 +157,12 @@ export const git = makePage((ctx) => {
                 WorktreeSwitcher({
                     worktrees: Array.isArray(worktrees) ? worktrees : [],
                     current,
-                    onSwitch: () => {},
+                    // No backend "switch active worktree" verb exists (gui-worktree
+                    // is list/create/delete only) — switching here means pointing
+                    // this page's own git calls at the picked worktree's cwd, the
+                    // same client-side cwd override `load()`/`openDiff()` already
+                    // thread through every /api/git/* and /api/worktree call.
+                    onSwitch: (wt) => { ctx.set({ activeFile: null, diff: null }); load(wt.path); },
                     onCreate: () => ctx.set({ showWtForm: !s.showWtForm }),
                 }),
                 s.showWtForm ? h('div', { class: 'fd-row-actions' },

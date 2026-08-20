@@ -1674,6 +1674,14 @@
    width:100% restores fill-then-cap for every .narrow page, not just wide
    viewports (the shrink-to-fit bug undersized even the base 760px case). */
 .ds-247420 .app-main.narrow { width: 100%; max-width: var(--measure-narrow); margin: 0 auto; }
+/* fullBleed pages (a live chat surface managing its own internal scroll and
+   height) own their own edge-to-edge layout -- the shell's own padding and
+   scroll ownership would otherwise fight the page's internal flex-fill and
+   double-scroll it. Zeroing padding here also removes the reserved
+   --app-status-h-live bottom clearance; a fullBleed page is expected to sit
+   flush against the status bar, not float above a padding gap. */
+.ds-247420 .app-main.full-bleed { padding: 0; overflow: hidden; }
+.ds-247420 .app-main.full-bleed > * { flex: 1 1 auto; min-height: 0; }
 /* .narrow means "prose reading measure", not "shrink the whole shell on wide
    screens". The old clamp(760px, 46vw, 1000px) grew too slowly to track the
    real available column: at 1920px viewport the .app-body grid's second

@@ -6,7 +6,7 @@
 // signature change; `npm run lint:component-types` fails CI when this
 // file is stale.
 //
-// 299 exported symbols across 30 source files.
+// 309 exported symbols across 31 source files.
 
 /** A webjsx virtual node, as returned by every component in this SDK. */
 export type VNode = any;
@@ -188,6 +188,7 @@ export interface AppShellProps {
     main?: any;
     status?: any;
     narrow?: any;
+    fullBleed?: any;
 }
 export declare function AppShell(props?: AppShellProps): VNode;
 
@@ -3059,7 +3060,7 @@ export declare function FocusTrap(props?: FocusTrapProps): VNode;
 export interface ToastProps {
     message?: any;
     /** @default 'info' */
-    kind?: string;
+    kind?: 'info' | 'error' | (string & {});
     /** @default 3000 */
     duration?: number;
     onClose?: (...args: any[]) => any;
@@ -3072,7 +3073,7 @@ export declare function Toast(props?: ToastProps): VNode;
 export interface toastProps {
     message?: any;
     /** @default 'info' */
-    kind?: string;
+    kind?: 'info' | 'error' | (string & {});
     /** @default 3000 */
     duration?: number;
     actionLabel?: any;
@@ -3563,6 +3564,8 @@ export declare const cron: (...args: any[]) => VNode;
 
 export declare const skills: (...args: any[]) => VNode;
 
+export declare const plugins: (...args: any[]) => VNode;
+
 export declare const config: (...args: any[]) => VNode;
 
 export declare const env: (...args: any[]) => VNode;
@@ -3574,6 +3577,16 @@ export declare const batch: (...args: any[]) => VNode;
 export declare const gateway: (...args: any[]) => VNode;
 
 export declare const chains: (...args: any[]) => VNode;
+
+export declare const machines: (...args: any[]) => VNode;
+
+export declare const health: (...args: any[]) => VNode;
+
+export declare const logs: (...args: any[]) => VNode;
+
+export declare const debug: (...args: any[]) => VNode;
+
+export declare const git: (...args: any[]) => VNode;
 
 export declare function skillLabel(input?: any): VNode;
 
@@ -3601,6 +3614,57 @@ export declare function errorState(err?: any, onRetry?: any): VNode;
 export declare function emptyState(text?: any, glyph?: any): VNode;
 
 export declare function refreshError(err?: any): VNode;
+
+// ---- src/components/dashboard-shell.js -------------------------------
+
+/**
+ * Props for {@link renderDashboardShell} (src/components/dashboard-shell.js).
+ */
+export interface renderDashboardShellProps {
+    /** @default 'home' */
+    active?: string;
+    /** @default null */
+    body?: any;
+    /** @default [] */
+    routeGroups?: any[];
+    onNavigate?: (...args: any[]) => any;
+    /** @default { ok: 0, bad: 0, total: 0, error: false } */
+    sampler?: Record<string, any>;
+    /** @default false */
+    degraded?: boolean;
+    /** @default null */
+    error?: any;
+    /** @default 'default' */
+    project?: string;
+    /** @default 0 */
+    toolsCount?: number;
+    /** @default 0 */
+    skillsCount?: number;
+    /** @default '' */
+    ts?: string;
+    /** @default false */
+    fullBleed?: boolean;
+}
+export declare function renderDashboardShell(props?: renderDashboardShellProps): VNode;
+
+export declare function buildNavPaletteActions(routes?: any, arg1?: any): VNode;
+
+/**
+ * Props for {@link openCommandPalette} (src/components/dashboard-shell.js).
+ */
+export interface openCommandPaletteProps {
+    /** @default [] */
+    actions?: any[];
+    onSelect?: (...args: any[]) => any;
+}
+export declare function openCommandPalette(props?: openCommandPaletteProps): VNode;
+
+/**
+ * Props for {@link closeCommandPalette} (src/components/dashboard-shell.js).
+ */
+export interface closeCommandPaletteProps {}
+
+export declare function closeCommandPalette(props?: closeCommandPaletteProps): VNode;
 
 // ---- src/community-app.js --------------------------------------------
 

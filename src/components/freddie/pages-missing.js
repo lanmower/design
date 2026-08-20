@@ -1,148 +1,234 @@
-// Freddie pages for sidebar routes that don't yet have dedicated page modules.
-// Each page is a minimal but functional renderer over the existing /api/* endpoints.
-// These fill the gap between sidebar links and the FREDDIE_PAGES registry.
+// Freddie pages for sidebar routes that don't have their own dedicated
+// module. `auth`/`settings`/`session-tree` genuinely duplicate a fuller page
+// elsewhere (env/config/sessions) and now re-export those directly rather
+// than carrying a second, weaker implementation of the same data source —
+// see pages-config.js (env, config) and pages-workspace.js (sessions).
 
+import * as webjsx from '../../../vendor/webjsx/index.js';
 import { makePage, api, loadingState, errorState, emptyState } from './runtime.js';
-import { Table, PageHeader, Kpi } from '../content.js';
-import { section, truncSpan, TRUNC_TITLE } from './shared.js';
+import { Table, PageHeader, TextField, Select } from '../content.js';
+import { Btn, Icon } from '../shell.js';
+import { ThemeToggle } from '../theme-toggle.js';
+import { applyAccent, getAccent, applyDensity, getDensity, onThemeChange } from '../../theme.js';
+import { FileGrid } from '../files.js';
+import { BreadcrumbPath } from '../files/chrome.js';
+import { FileViewer } from '../files-modals/preview-containers.js';
+import { FilePreviewText, FilePreviewMedia } from '../files-modals/preview-bodies.js';
+import { section, noteAlert, truncSpan, TRUNC_SUB } from './shared.js';
+
+const h = webjsx.createElement;
+
+export { env as auth, config as settings } from './pages-config.js';
+export { sessions as sessionTree } from './pages-workspace.js';
 
 // ---- terminal ---------------------------------------------------------------
-// Backend: GET /api/terminal (if available) — shows terminal sessions list
+// Backend: GET /api/terminal/status (cwd) + POST /api/terminal/exec (run a command)
 
 export const terminal = makePage((ctx) => {
-    async function load() { try { ctx.set({ loading: false, data: await api('/api/terminal').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
+    Object.assign(ctx.state, { cwd: null, cmd: '', busy: false, history: [] });
+    async function load() {
+        try {
+            const status = await api('/api/terminal/status');
+            ctx.set({ loading: false, cwd: status.cwd || null, error: null });
+        } catch (e) { ctx.set({ loading: false, error: e }); }
+    }
+    async function run() {
+        const command = (ctx.state.cmd || '').trim();
+        if (!command || ctx.state.busy) return;
+        ctx.set({ busy: true });
+        try {
+            const res = await api('/api/terminal/exec', { method: 'POST', body: { command, cwd: ctx.state.cwd } });
+            ctx.state.history = [{ command, ...res }, ...ctx.state.history].slice(0, 50);
+            ctx.set({ cmd: '' });
+        } catch (e) {
+            ctx.state.history = [{ command, stdout: '', stderr: String(e.message || e), exitCode: 1, cwd: ctx.state.cwd }, ...ctx.state.history].slice(0, 50);
+            ctx.set({});
+        }
+        ctx.set({ busy: false });
+    }
     load();
     return () => {
         const s = ctx.state;
         if (s.loading) return loadingState('loading terminal…');
-        if (s.error && !s.data) return errorState(s.error, load);
+        if (s.error) return errorState(s.error, load);
         return [
-            PageHeader({ title: 'terminal', lede: 'terminal sessions' }),
-            s.data ? section('sessions', Table({ headers: ['id', 'status'], rows: (Array.isArray(s.data) ? s.data : []).map(t => [t.id || '—', t.status || '—']) }))
-                : emptyState('terminal endpoint not available'),
-        ];
+            PageHeader({ title: 'terminal', lede: s.cwd || 'active project' }),
+            section('run a command',
+                h('div', { class: 'fd-row-actions' },
+                    TextField({ label: 'command', value: s.cmd, placeholder: 'e.g. npm test', 'aria-label': 'shell command',
+                        onInput: (v) => { s.cmd = v; } }),
+                    Btn({ variant: 'primary', disabled: s.busy || !s.cmd.trim(), children: s.busy ? 'running…' : 'run', onClick: run }))),
+            section('history',
+                s.history.length ? s.history.map((h_, i) => h('div', { key: i, class: 'fd-terminal-run' },
+                    h('div', { class: 'fd-terminal-cmd' },
+                        h('code', {}, '$ ' + h_.command),
+                        h('span', { class: h_.exitCode ? 'dim tone-error' : 'dim tone-ok' }, 'exit ' + (h_.exitCode ?? 0))),
+                    h_.stdout ? h('pre', { class: 'fd-pre' }, h_.stdout) : null,
+                    h_.stderr ? h('pre', { class: 'fd-pre fd-page-error' }, h_.stderr) : null,
+                )) : emptyState('no commands run yet')),
+        ].filter(Boolean);
     };
 });
 
-// ---- files ----------------------------------------------------------------
-// Backend: GET /api/files?path=... — file browser
+// ---- files ------------------------------------------------------------------
+// Backend: GET /api/files/tree?path=... (directory listing) + GET
+// /api/files/read?path=... (file content). Built on the SDK's own file-browser
+// kit (FileGrid/BreadcrumbPath/FileViewer/FilePreview*) rather than a bespoke
+// table, per this SDK's "consumers must not duplicate components inline" rule
+// — those primitives already existed here, unused by this page until now.
+
+function splitPath(p) {
+    const norm = String(p || '').replace(/\\/g, '/');
+    const leadingSlash = norm.startsWith('/');
+    const parts = norm.split('/').filter(Boolean);
+    return { leadingSlash, parts };
+}
+function pathAt(info, count) {
+    const kept = info.parts.slice(0, count);
+    const body = kept.join('/');
+    return info.leadingSlash ? '/' + body : body;
+}
 
 export const files = makePage((ctx) => {
-    async function load() { try { ctx.set({ loading: false, data: await api('/api/files').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
+    Object.assign(ctx.state, { dirPath: null, entries: [], openFile: null, fileBody: null, fileLoading: false, note: null });
+    async function load(path) {
+        ctx.set({ loading: true });
+        try {
+            const res = await api('/api/files/tree' + (path ? '?path=' + encodeURIComponent(path) : ''));
+            ctx.set({ loading: false, dirPath: res.path, entries: Array.isArray(res.tree) ? res.tree : [], error: null });
+        } catch (e) { ctx.set({ loading: false, error: e }); }
+    }
+    async function openEntry(entry) {
+        const info = splitPath(ctx.state.dirPath);
+        const childPath = (ctx.state.dirPath ? ctx.state.dirPath.replace(/[\\/]+$/, '') : pathAt(info, info.parts.length)) + '/' + entry.name;
+        if (entry.type === 'dir') { load(childPath); return; }
+        ctx.set({ fileLoading: true, openFile: { name: entry.name, type: entry.type, size: entry.size, modified: entry.modified, path: childPath } });
+        try {
+            const res = await api('/api/files/read?path=' + encodeURIComponent(childPath));
+            ctx.set({ fileLoading: false, fileBody: res });
+        } catch (e) { ctx.set({ fileLoading: false, note: { kind: 'error', msg: String(e.message || e) }, openFile: null }); }
+    }
+    function goUp() {
+        const info = splitPath(ctx.state.dirPath);
+        if (info.parts.length <= 1) return;
+        load(pathAt(info, info.parts.length - 1));
+    }
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState('loading files…');
-        if (s.error && !s.data) return errorState(s.error, load);
+        if (s.loading && !s.entries.length) return loadingState('loading files…');
+        if (s.error && !s.dirPath) return errorState(s.error, () => load());
+        const info = splitPath(s.dirPath);
+        const segments = info.leadingSlash ? info.parts : info.parts.slice(1);
+        const rootCount = info.leadingSlash ? 0 : 1;
+        const rootLabel = info.leadingSlash ? '/' : (info.parts[0] || '/');
+        const files_ = s.entries.map(e => ({ name: e.name, type: e.type, size: e.size, modified: e.modified }));
+        const viewerBody = s.fileBody && s.fileBody.type === 'image'
+            ? FilePreviewMedia({ src: s.fileBody.content, type: 'image', name: s.openFile && s.openFile.name })
+            : s.fileBody && s.fileBody.type === 'text'
+                ? FilePreviewText({ content: s.fileBody.content, truncated: s.fileBody.truncated })
+                : s.fileBody && s.fileBody.type === 'binary'
+                    ? h('div', { class: 'fd-empty' }, 'binary file — preview not available')
+                    : null;
         return [
-            PageHeader({ title: 'files', lede: 'file browser' }),
-            s.data ? section('files', Table({ headers: ['path', 'size', 'type'], rows: (Array.isArray(s.data) ? s.data : []).map(f => [f.path || '—', f.size ?? '—', f.type || '—']) }))
-                : emptyState('files endpoint not available'),
-        ];
+            PageHeader({ title: 'files', lede: s.dirPath || 'active project' }),
+            noteAlert(s.note),
+            BreadcrumbPath({ segments, root: rootLabel, onNav: (i) => load(pathAt(info, rootCount + i)) }),
+            FileGrid({
+                files: files_, loading: s.loading,
+                onOpen: openEntry,
+                onUp: goUp,
+                emptyText: 'empty directory',
+            }),
+            (s.openFile || s.fileLoading) ? FileViewer({
+                file: s.openFile,
+                body: s.fileLoading ? loadingState('loading file…') : (viewerBody || emptyState('nothing to preview')),
+                onClose: () => ctx.set({ openFile: null, fileBody: null }),
+            }) : null,
+        ].filter(Boolean);
     };
 });
 
-// ---- auth -----------------------------------------------------------------
-// Backend: GET /api/auth — per-provider key status
+// ---- theme ------------------------------------------------------------------
+// A real, interactive theme/accent/density picker over the SDK's own theme
+// controller — previously a read-only table with no way to actually change
+// anything, duplicating ThemeToggle's compact control in the topbar without
+// its interactivity.
 
-export const auth = makePage((ctx) => {
-    async function load() { try { ctx.set({ loading: false, data: await api('/api/auth').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
-    load();
-    return () => {
-        const s = ctx.state;
-        if (s.loading) return loadingState('loading auth…');
-        if (s.error && !s.data) return errorState(s.error, load);
-        const providers = s.data || [];
-        return [
-            PageHeader({ title: 'auth', lede: 'API keys & credentials' }),
-            providers.length
-                ? section('providers', Table({ headers: ['provider', 'status'], rows: providers.map(p => [p.provider || p.key || '—', p.set ? 'configured' : 'not set']) }))
-                : emptyState('no providers configured'),
-        ];
-    };
-});
-
-// ---- settings --------------------------------------------------------------
-// Backend: GET /api/config — configuration values
-
-export const settings = makePage((ctx) => {
-    async function load() { try { ctx.set({ loading: false, data: await api('/api/config').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
-    load();
-    return () => {
-        const s = ctx.state;
-        if (s.loading) return loadingState('loading settings…');
-        if (s.error && !s.data) return errorState(s.error, load);
-        const entries = s.data ? Object.entries(s.data) : [];
-        return [
-            PageHeader({ title: 'settings', lede: 'configuration' }),
-            entries.length
-                ? section('config', Table({ headers: ['key', 'value'], rows: entries.map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : String(v)]) }))
-                : emptyState('no config values'),
-        ];
-    };
-});
-
-// ---- theme ----------------------------------------------------------------
-// Client-side only: theme preference selector
+const ACCENTS = ['default', 'green', 'purple', 'mascot'];
+const DENSITIES = ['compact', 'comfortable', 'spacious'];
 
 export const themePage = makePage((ctx) => {
+    const unsubscribe = onThemeChange(() => ctx.rerender());
+    ctx.onCleanup(unsubscribe);
     return () => {
+        const accent = getAccent() || 'default';
+        const density = getDensity() || 'compact';
         return [
-            PageHeader({ title: 'theme', lede: 'theme preference' }),
-            section('current', Table({ headers: ['setting', 'value'], rows: [
-                ['theme', (typeof window !== 'undefined' && document.documentElement.getAttribute('data-theme')) || 'github-dark'],
-                ['density', (typeof window !== 'undefined' && document.documentElement.getAttribute('data-density')) || 'compact'],
-                ['accent', (typeof window !== 'undefined' && document.documentElement.getAttribute('data-accent')) || 'default'],
-            ] })),
+            PageHeader({ title: 'theme', lede: 'appearance preferences' }),
+            section('theme', ThemeToggle()),
+            section('accent', Select({
+                label: 'accent', value: accent, options: ACCENTS,
+                onChange: (v) => applyAccent(v === 'default' ? null : v),
+            })),
+            section('density', Select({
+                label: 'density', value: density, options: DENSITIES,
+                onChange: (v) => applyDensity(v),
+            })),
         ];
     };
 });
 
-// ---- worktree --------------------------------------------------------------
-// Backend: GET /api/worktree — git worktrees
+// ---- worktree ----------------------------------------------------------------
+// Backend: GET /api/worktree — git worktrees for the active project. A
+// read-only listing (the interactive switch+create flow lives on the `git`
+// page, which shares its cwd with the active project's git state); this view
+// is the plain "what worktrees exist" reference reachable from its own nav
+// entry.
 
 export const worktree = makePage((ctx) => {
-    async function load() { try { ctx.set({ loading: false, data: await api('/api/worktree').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
+    async function load() {
+        try { ctx.set({ loading: false, data: await api('/api/worktree'), error: null }); }
+        catch (e) { ctx.set({ loading: false, error: e }); }
+    }
     load();
     return () => {
         const s = ctx.state;
         if (s.loading) return loadingState('loading worktrees…');
         if (s.error && !s.data) return errorState(s.error, load);
-        const trees = Array.isArray(s.data) ? s.data : [];
+        const trees = Array.isArray(s.data) ? s.data : (s.data && s.data.worktrees) || [];
         return [
-            PageHeader({ title: 'worktrees', lede: 'git worktrees' }),
+            PageHeader({ title: 'worktrees', lede: trees.length + ' worktrees' }),
             trees.length
-                ? section('worktrees', Table({ headers: ['path', 'branch', 'hash'], rows: trees.map(t => [t.path || '—', t.branch || '—', t.hash || '—']) }))
+                ? section('worktrees', Table({ headers: ['path', 'branch', 'hash'], rows: trees.map(t => [t.path || '—', t.branch || '—', (t.hash || '').slice(0, 8) || '—']) }))
                 : emptyState('no worktrees'),
         ];
     };
 });
 
-// ---- session-tree ----------------------------------------------------------
-// Backend: GET /api/sessions?tree=1 — session tree
-
-export const sessionTree = makePage((ctx) => {
-    async function load() { try { ctx.set({ loading: false, data: await api('/api/sessions?tree=1').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
-    load();
-    return () => {
-        const s = ctx.state;
-        if (s.loading) return loadingState('loading session tree…');
-        if (s.error && !s.data) return errorState(s.error, load);
-        const sessions = Array.isArray(s.data) ? s.data : [];
-        return [
-            PageHeader({ title: 'session tree', lede: 'session hierarchy' }),
-            sessions.length
-                ? section('sessions', Table({ headers: ['id', 'title', 'parent'], rows: sessions.slice(0, 20).map(x => [x.id || '—', truncSpan(x.title || x.id, TRUNC_TITLE), x.parent_id || '—']) }))
-                : emptyState('no sessions'),
-        ];
-    };
-});
-
-// ---- notifications ---------------------------------------------------------
-// Backend: GET /api/notifications — notification list
+// ---- notifications -----------------------------------------------------------
+// Backend: GET /api/notifications + POST /api/notifications/:id/dismiss +
+// POST /api/notifications/dismiss-all — the dismiss actions exist server-side
+// but were entirely unwired; this page previously only ever read the list.
 
 export const notifications = makePage((ctx) => {
-    async function load() { try { ctx.set({ loading: false, data: await api('/api/notifications').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
+    Object.assign(ctx.state, { busy: null });
+    async function load() {
+        try { ctx.set({ loading: false, data: await api('/api/notifications'), error: null }); }
+        catch (e) { ctx.set({ loading: false, error: e }); }
+    }
+    async function dismiss(id) {
+        ctx.set({ busy: id });
+        try { await api('/api/notifications/' + encodeURIComponent(id) + '/dismiss', { method: 'POST' }); await load(); }
+        catch (e) { ctx.set({ error: e }); }
+        ctx.set({ busy: null });
+    }
+    async function dismissAll() {
+        ctx.set({ busy: 'all' });
+        try { await api('/api/notifications/dismiss-all', { method: 'POST' }); await load(); }
+        catch (e) { ctx.set({ error: e }); }
+        ctx.set({ busy: null });
+    }
     load();
     return () => {
         const s = ctx.state;
@@ -150,10 +236,17 @@ export const notifications = makePage((ctx) => {
         if (s.error && !s.data) return errorState(s.error, load);
         const items = Array.isArray(s.data) ? s.data : [];
         return [
-            PageHeader({ title: 'notifications', lede: 'alerts & notices' }),
+            PageHeader({
+                title: 'notifications', lede: items.length + ' notifications',
+                right: items.length ? Btn({ disabled: s.busy === 'all', children: s.busy === 'all' ? 'dismissing…' : 'dismiss all', onClick: dismissAll }) : null,
+            }),
             items.length
-                ? section('notifications', Table({ headers: ['type', 'message', 'time'], rows: items.map(n => [n.type || '—', truncSpan(n.message || '', 100), n.time || '—']) }))
+                ? section('notifications', ...items.map((n, i) => h('div', { key: i, class: 'fd-row-actions' },
+                    h('span', {}, '[' + (n.type || '—') + '] '),
+                    truncSpan(n.message || '', TRUNC_SUB),
+                    h('span', { class: 'dim' }, n.time || ''),
+                    Btn({ size: 'sm', disabled: s.busy === n.id, children: s.busy === n.id ? '…' : Icon('x'), 'aria-label': 'dismiss', onClick: () => dismiss(n.id) }))))
                 : emptyState('no notifications'),
-        ];
+        ].filter(Boolean);
     };
 });

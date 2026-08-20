@@ -138,13 +138,19 @@ export {
 export {
     FREDDIE_PAGES,
     home, chat, voice, sessions, projects, agents, analytics,
-    models, cron, skills, config, env, tools, batch, gateway, chains,
+    models, cron, skills, plugins, config, env, tools, batch, gateway, chains,
+    machines, health, logs, debug, git,
     skillLabel, getRecentPaths, saveRecentPath, renderChatMessages
 } from './components/freddie.js';
 
 export {
     makePage, api, loadingState, errorState, emptyState, refreshError
 } from './components/freddie/runtime.js';
+
+export {
+    renderDashboardShell, buildNavPaletteActions,
+    openCommandPalette, closeCommandPalette
+} from './components/dashboard-shell.js';
 
 export { mountCommunityApp } from './community-app.js';
 

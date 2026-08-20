@@ -6,10 +6,16 @@ import * as webjsx from '../../../vendor/webjsx/index.js';
 const h = webjsx.createElement;
 
 export function Toast({ message, kind = 'info', duration = 3000, onClose } = {}) {
+    // An error toast is assertive so a screen reader interrupts and announces
+    // it immediately, matching every other error surface in this SDK
+    // (TextField's own error span uses role=alert too) -- 'status'/'polite'
+    // (still correct for info/success) queues behind whatever the user is
+    // already doing, which is wrong for a failure that just happened.
+    const isError = kind === 'error';
     return h('div', {
         class: 'ds-ep-toast kind-' + kind,
-        role: 'status',
-        'aria-live': 'polite',
+        role: isError ? 'alert' : 'status',
+        'aria-live': isError ? 'assertive' : 'polite',
         ref: (el) => {
             if (!el || el._dsToast) return;
             el._dsToast = true;
@@ -31,10 +37,11 @@ function ensureToastHost() {
 export function toast({ message, kind = 'info', duration = 3000, actionLabel, onAction } = {}) {
     const host = ensureToastHost();
     if (!host) return () => {};
+    const isError = kind === 'error';
     const el = document.createElement('div');
     el.className = 'ds-ep-toast kind-' + kind;
-    el.setAttribute('role', 'status');
-    el.setAttribute('aria-live', 'polite');
+    el.setAttribute('role', isError ? 'alert' : 'status');
+    el.setAttribute('aria-live', isError ? 'assertive' : 'polite');
     const text = document.createElement('span');
     text.className = 'ds-ep-toast-msg';
     text.textContent = message;
