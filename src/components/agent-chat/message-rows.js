@@ -109,6 +109,7 @@ export function buildMessageRows({ messages, msgStart, lastIdx, busy, name, avat
     }
     return ChatMessage({
       key: m.id || String(i),
+      id: m.id ? 'msg-' + m.id : undefined,
       role: isAssistant ? 'assistant' : 'user',
       // Claude-Code-web layout: flat full-width turns (no avatar disc, no colored
       // bubble), distinguished by a role label + a faint assistant background.

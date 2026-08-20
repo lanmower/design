@@ -13,7 +13,7 @@ import { countMessage, renderPart } from './stats.js';
 
 const h = webjsx.createElement;
 
-export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, aicat, reactions, receipt, name, streaming, actions, incomplete, stopped, flat, tail, error, onRetry, onToggleReaction, onAddReaction }) {
+export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typing, key, id, aicat, reactions, receipt, name, streaming, actions, incomplete, stopped, flat, tail, error, onRetry, onToggleReaction, onAddReaction }) {
     countMessage();
     // Support legacy 'who' prop, prefer 'role' with mapping:
     //   'user'      -> 'you'   (right-aligned, accent bubble)
@@ -163,8 +163,8 @@ export function ChatMessage({ role, who = 'them', avatar, text, parts, time, typ
     // Centered roles (system/tool/thinking) skip the avatar column entirely so
     // the bubble owns the full row — the chrome reads as out-of-band signal,
     // not a participant turn.
-    if (isCentered) return h('div', { key, class: cls }, stack);
+    if (isCentered) return h('div', { key, id, class: cls }, stack);
     // Flat turns drop the avatar column entirely (full-width content).
-    if (isFlat) return h('div', { key, class: cls }, stack);
-    return h('div', { key, class: cls }, resolvedWho === 'you' ? stack : av, resolvedWho === 'you' ? av : stack);
+    if (isFlat) return h('div', { key, id, class: cls }, stack);
+    return h('div', { key, id, class: cls }, resolvedWho === 'you' ? stack : av, resolvedWho === 'you' ? av : stack);
 }
