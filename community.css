@@ -941,15 +941,6 @@
 .cm-member-status.status-focus {
   background: var(--presence-focus);
 }
-.cm-member-status.idle {
-  background: var(--amber);
-}
-.cm-member-status.busy {
-  background: var(--flame);
-}
-.cm-member-status.status-focus {
-  background: var(--sky);
-}
 
 .cm-member-name {
   flex: 1;
