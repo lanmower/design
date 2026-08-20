@@ -380,6 +380,11 @@
           "name": "narrow",
           "default": null,
           "alias": null
+        },
+        {
+          "name": "fullBleed",
+          "default": null,
+          "alias": null
         }
       ],
       "description": ""
@@ -8929,6 +8934,19 @@
       "description": ""
     },
     {
+      "name": "plugins",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
       "name": "config",
       "file": "components/freddie.js",
       "kind": "const (factory-wrapped)",
@@ -8995,6 +9013,71 @@
     },
     {
       "name": "chains",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "machines",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "health",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "logs",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "debug",
+      "file": "components/freddie.js",
+      "kind": "const (factory-wrapped)",
+      "props": [
+        {
+          "name": "(value)",
+          "default": "makePage((ctx) => {",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "git",
       "file": "components/freddie.js",
       "kind": "const (factory-wrapped)",
       "props": [
@@ -9119,6 +9202,111 @@
           "positional": true
         }
       ],
+      "description": ""
+    },
+    {
+      "name": "renderDashboardShell",
+      "file": "components/dashboard-shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "active",
+          "default": "'home'",
+          "alias": null
+        },
+        {
+          "name": "body",
+          "default": "null",
+          "alias": null
+        },
+        {
+          "name": "routeGroups",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onNavigate",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "sampler",
+          "default": "{ ok: 0, bad: 0, total: 0, error: false }",
+          "alias": null
+        },
+        {
+          "name": "degraded",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "error",
+          "default": "null",
+          "alias": null
+        },
+        {
+          "name": "project",
+          "default": "'default'",
+          "alias": null
+        },
+        {
+          "name": "toolsCount",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "skillsCount",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "ts",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "fullBleed",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "buildNavPaletteActions",
+      "file": "components/dashboard-shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "routes = [], { onNavigate } = {}",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "openCommandPalette",
+      "file": "components/dashboard-shell.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "actions",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "closeCommandPalette",
+      "file": "components/dashboard-shell.js",
+      "kind": "component",
+      "props": [],
       "description": ""
     },
     {

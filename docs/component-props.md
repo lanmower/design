@@ -2,7 +2,7 @@
 
 Generated from `src/components.js`'s real export barrel + each symbol's real definition in `src/components/*.js`, via `node scripts/generate-component-docs.mjs`. Do not hand-edit -- re-run after any component signature or JSDoc change.
 
-299 exported symbols across 30 source files.
+309 exported symbols across 31 source files.
 
 ---
 
@@ -127,7 +127,7 @@ The standard button/link factory. Renders an `<a>` when `href` is given, otherwi
 
 **Kind:** component
 
-**Signature:** `topbar`, `crumb`, `side`, `main`, `status`, `narrow`
+**Signature:** `topbar`, `crumb`, `side`, `main`, `status`, `narrow`, `fullBleed`
 
 ### WorkspaceShell
 
@@ -1871,6 +1871,12 @@ A scroll-snap content carousel with prev/next controls.
 
 **Signature:** `makePage((ctx) => {`
 
+### plugins
+
+**Kind:** const (factory-wrapped)
+
+**Signature:** `makePage((ctx) => {`
+
 ### config
 
 **Kind:** const (factory-wrapped)
@@ -1902,6 +1908,36 @@ A scroll-snap content carousel with prev/next controls.
 **Signature:** `makePage((ctx) => {`
 
 ### chains
+
+**Kind:** const (factory-wrapped)
+
+**Signature:** `makePage((ctx) => {`
+
+### machines
+
+**Kind:** const (factory-wrapped)
+
+**Signature:** `makePage((ctx) => {`
+
+### health
+
+**Kind:** const (factory-wrapped)
+
+**Signature:** `makePage((ctx) => {`
+
+### logs
+
+**Kind:** const (factory-wrapped)
+
+**Signature:** `makePage((ctx) => {`
+
+### debug
+
+**Kind:** const (factory-wrapped)
+
+**Signature:** `makePage((ctx) => {`
+
+### git
 
 **Kind:** const (factory-wrapped)
 
@@ -1968,6 +2004,32 @@ A scroll-snap content carousel with prev/next controls.
 **Kind:** component
 
 **Signature:** `err` _(positional arg)_
+
+## `src/components/dashboard-shell.js`
+
+### renderDashboardShell
+
+**Kind:** component
+
+**Signature:** `active` = `'home'`, `body` = `null`, `routeGroups` = `[]`, `onNavigate`, `sampler` = `{ ok: 0, bad: 0, total: 0, error: false }`, `degraded` = `false`, `error` = `null`, `project` = `'default'`, `toolsCount` = `0`, `skillsCount` = `0`, `ts` = `''`, `fullBleed` = `false`
+
+### buildNavPaletteActions
+
+**Kind:** component
+
+**Signature:** `routes = [], { onNavigate } = {}` _(positional arg)_
+
+### openCommandPalette
+
+**Kind:** component
+
+**Signature:** `actions` = `[]`, `onSelect`
+
+### closeCommandPalette
+
+**Kind:** component
+
+**Signature:** _(no props)_
 
 ## `src/community-app.js`
 
