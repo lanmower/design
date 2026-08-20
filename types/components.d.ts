@@ -6,7 +6,7 @@
 // signature change; `npm run lint:component-types` fails CI when this
 // file is stale.
 //
-// 299 exported symbols across 30 source files.
+// 302 exported symbols across 30 source files.
 
 /** A webjsx virtual node, as returned by every component in this SDK. */
 export type VNode = any;
@@ -3587,6 +3587,47 @@ export declare function getRecentPaths(props?: getRecentPathsProps): VNode;
 export declare function saveRecentPath(path?: any): VNode;
 
 export declare function renderChatMessages(messages?: any, opts?: any): VNode;
+
+export declare function buildNavPaletteActions(routes?: any, arg1?: any): VNode;
+
+/**
+ * Props for {@link renderDashboardSide} (src/components/freddie.js).
+ */
+export interface renderDashboardSideProps {
+    routeGroups?: any;
+    active?: any;
+    onNavigate?: (...args: any[]) => any;
+}
+export declare function renderDashboardSide(props?: renderDashboardSideProps): VNode;
+
+/**
+ * Props for {@link renderDashboardShell} (src/components/freddie.js).
+ */
+export interface renderDashboardShellProps {
+    active?: any;
+    body?: any;
+    routeGroups?: any;
+    onNavigate?: (...args: any[]) => any;
+    /** @default { ok: 0, bad: 0, total: 0, error: false } */
+    sampler?: Record<string, any>;
+    /** @default false */
+    degraded?: boolean;
+    /** @default null */
+    error?: any;
+    /** @default 'default' */
+    project?: string;
+    /** @default '—' */
+    toolsCount?: string;
+    /** @default '—' */
+    skillsCount?: string;
+    /** @default '' */
+    ts?: string;
+    /** @default 'freddie' */
+    brand?: string;
+    /** @default false */
+    fullBleed?: boolean;
+}
+export declare function renderDashboardShell(props?: renderDashboardShellProps): VNode;
 
 // ---- src/components/freddie/runtime.js -------------------------------
 

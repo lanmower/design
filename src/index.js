@@ -120,6 +120,7 @@ export {
     home, chat, voice, sessions, projects, agents, analytics,
     models, cron, skills, config, env, tools, batch, gateway, chains,
     skillLabel, getRecentPaths, saveRecentPath, renderChatMessages,
+    buildNavPaletteActions, renderDashboardSide, renderDashboardShell,
     fmtBytes, fmtFileSize, fmtTime, fmtAgo, fmtDuration
 } from './components.js';
 

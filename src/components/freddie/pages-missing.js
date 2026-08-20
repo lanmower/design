@@ -4,40 +4,59 @@
 
 import { makePage, api, loadingState, errorState, emptyState } from './runtime.js';
 import { Table, PageHeader, Kpi } from '../content.js';
+import { Chip } from '../shell.js';
 import { section, truncSpan, TRUNC_TITLE } from './shared.js';
 
 // ---- terminal ---------------------------------------------------------------
-// Backend: GET /api/terminal (if available) — shows terminal sessions list
+// Backend: GET /api/terminal/status (plugins/gui-terminal) — {available,cwd}
+// probe, not a session list; POST /api/terminal/exec is the actual command
+// runner, invoked from elsewhere (there is no persisted "session" concept).
 
 export const terminal = makePage((ctx) => {
-    async function load() { try { ctx.set({ loading: false, data: await api('/api/terminal').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
+    async function load() { try { ctx.set({ loading: false, data: await api('/api/terminal/status').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
     load();
     return () => {
         const s = ctx.state;
         if (s.loading) return loadingState('loading terminal…');
         if (s.error && !s.data) return errorState(s.error, load);
+        const d = s.data || {};
         return [
-            PageHeader({ title: 'terminal', lede: 'terminal sessions' }),
-            s.data ? section('sessions', Table({ headers: ['id', 'status'], rows: (Array.isArray(s.data) ? s.data : []).map(t => [t.id || '—', t.status || '—']) }))
+            PageHeader({ title: 'terminal', lede: 'terminal status', right: d.available ? Chip({ tone: 'ok', children: 'available' }) : Chip({ tone: 'neutral', children: 'unavailable' }) }),
+            d.available
+                ? section('status', Table({ headers: ['field', 'value'], rows: [['cwd', d.cwd || '—'], ['exec endpoint', 'POST /api/terminal/exec']] }))
                 : emptyState('terminal endpoint not available'),
         ];
     };
 });
 
 // ---- files ----------------------------------------------------------------
-// Backend: GET /api/files?path=... — file browser
+// Backend: GET /api/files/tree?path=... (plugins/gui-files) — returns a
+// nested {path, tree:[{name,type,size,modified,children?}]} tree (first
+// level auto-expanded; deeper levels are lazy-loaded server-side and simply
+// absent here), not a flat file list.
+
+function flattenFileTree(entries, prefix = '') {
+    const rows = [];
+    for (const e of entries || []) {
+        const rel = prefix ? prefix + '/' + e.name : e.name;
+        rows.push([rel, e.type === 'dir' ? '—' : (e.size ?? '—'), e.type || '—']);
+        if (e.children) rows.push(...flattenFileTree(e.children, rel));
+    }
+    return rows;
+}
 
 export const files = makePage((ctx) => {
-    async function load() { try { ctx.set({ loading: false, data: await api('/api/files').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
+    async function load() { try { ctx.set({ loading: false, data: await api('/api/files/tree').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
     load();
     return () => {
         const s = ctx.state;
         if (s.loading) return loadingState('loading files…');
         if (s.error && !s.data) return errorState(s.error, load);
+        const tree = (s.data && s.data.tree) || [];
+        const rows = flattenFileTree(tree);
         return [
-            PageHeader({ title: 'files', lede: 'file browser' }),
-            s.data ? section('files', Table({ headers: ['path', 'size', 'type'], rows: (Array.isArray(s.data) ? s.data : []).map(f => [f.path || '—', f.size ?? '—', f.type || '—']) }))
-                : emptyState('files endpoint not available'),
+            PageHeader({ title: 'files', lede: (s.data && s.data.path) || 'file browser' }),
+            rows.length ? section('files', Table({ headers: ['path', 'size', 'type'], rows })) : emptyState('files endpoint not available'),
         ];
     };
 });
@@ -99,7 +118,9 @@ export const themePage = makePage((ctx) => {
 });
 
 // ---- worktree --------------------------------------------------------------
-// Backend: GET /api/worktree — git worktrees
+// Backend: GET /api/worktree (plugins/gui/gui-worktree) — {cwd, worktrees:
+// [{worktree,head,branch,bare?,detached?}]}, per handler.js parseWorktreeList
+// (git worktree list --porcelain field names, not path/hash).
 
 export const worktree = makePage((ctx) => {
     async function load() { try { ctx.set({ loading: false, data: await api('/api/worktree').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
@@ -108,11 +129,11 @@ export const worktree = makePage((ctx) => {
         const s = ctx.state;
         if (s.loading) return loadingState('loading worktrees…');
         if (s.error && !s.data) return errorState(s.error, load);
-        const trees = Array.isArray(s.data) ? s.data : [];
+        const trees = (s.data && Array.isArray(s.data.worktrees)) ? s.data.worktrees : [];
         return [
-            PageHeader({ title: 'worktrees', lede: 'git worktrees' }),
+            PageHeader({ title: 'worktrees', lede: (s.data && s.data.cwd) || 'git worktrees' }),
             trees.length
-                ? section('worktrees', Table({ headers: ['path', 'branch', 'hash'], rows: trees.map(t => [t.path || '—', t.branch || '—', t.hash || '—']) }))
+                ? section('worktrees', Table({ headers: ['path', 'branch', 'head'], rows: trees.map(t => [t.worktree || '—', t.branch || (t.detached ? '(detached)' : '—'), (t.head || '').slice(0, 8) || '—']) }))
                 : emptyState('no worktrees'),
         ];
     };

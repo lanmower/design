@@ -141,10 +141,27 @@ export const git = makePage((ctx) => {
         const statusFailed = s.status && s.status._err;
         const logFailed = s.log && s.log._err;
         const wtFailed = s.worktrees && s.worktrees._err;
-        const files = statusFailed ? [] : (s.status && s.status.files) || [];
+        // GET /api/git/status (plugins/gui/gui-git/handler.js gitStatus)
+        // returns {cwd,staged:[{file,status}],unstaged:[{file,status}],
+        // untracked:[string,...]} — never a unified .files array. Build the
+        // {path,status,staged} shape GitStatusPanel expects, deduping a file
+        // that appears in both staged and unstaged into one row (staged wins,
+        // since that reflects what would actually be committed).
+        const files = statusFailed ? [] : (() => {
+            const st = s.status || {};
+            const byPath = new Map();
+            for (const f of st.staged || []) byPath.set(f.file, { path: f.file, status: f.status, staged: true });
+            for (const f of st.unstaged || []) if (!byPath.has(f.file)) byPath.set(f.file, { path: f.file, status: f.status, staged: false });
+            for (const p of st.untracked || []) if (!byPath.has(p)) byPath.set(p, { path: p, status: '?', staged: false });
+            return [...byPath.values()];
+        })();
         const commits = logFailed ? [] : (s.log && s.log.commits) || s.log || [];
-        const worktrees = wtFailed ? [] : (s.worktrees && s.worktrees.worktrees) || s.worktrees || [];
-        const current = Array.isArray(worktrees) ? (worktrees.find(w => w.path === s.cwd) || {}).path : undefined;
+        const rawWorktrees = wtFailed ? [] : (s.worktrees && s.worktrees.worktrees) || s.worktrees || [];
+        // parseWorktreeList (plugins/gui/gui-worktree/handler.js) names the
+        // path field `worktree`, not `path` — WorktreeSwitcher expects
+        // {path,branch,current?}, so remap before handing it the list.
+        const worktrees = (Array.isArray(rawWorktrees) ? rawWorktrees : []).map(w => ({ path: w.worktree, branch: w.branch, detached: w.detached }));
+        const current = (worktrees.find(w => w.path === s.cwd) || {}).path;
         return [
             PageHeader({ title: 'git', lede: s.cwd || 'active project' }),
             noteAlert(s.note),
