@@ -1950,6 +1950,11 @@
           "alias": null
         },
         {
+          "name": "id",
+          "default": null,
+          "alias": null
+        },
+        {
           "name": "aicat",
           "default": null,
           "alias": null
@@ -1995,6 +2000,11 @@
           "alias": null
         },
         {
+          "name": "tail",
+          "default": null,
+          "alias": null
+        },
+        {
           "name": "error",
           "default": null,
           "alias": null
@@ -2006,6 +2016,11 @@
         },
         {
           "name": "onToggleReaction",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onAddReaction",
           "default": null,
           "alias": null
         }
@@ -2079,6 +2094,11 @@
         },
         {
           "name": "onDropFiles",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onAttach",
           "default": null,
           "alias": null
         },
@@ -2173,6 +2193,19 @@
         {
           "name": "suggestions",
           "default": "[]",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "TypingIndicator",
+      "file": "components/chat.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "users",
+          "default": null,
           "alias": null
         }
       ],
@@ -4600,6 +4633,21 @@
           "name": "color",
           "default": null,
           "alias": null
+        },
+        {
+          "name": "muted",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "camera",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "videoEl",
+          "default": null,
+          "alias": null
         }
       ],
       "description": ""
@@ -4736,8 +4784,18 @@
           "alias": null
         },
         {
+          "name": "nameColor",
+          "default": null,
+          "alias": null
+        },
+        {
           "name": "status",
           "default": "'online'",
+          "alias": null
+        },
+        {
+          "name": "onClick",
+          "default": null,
           "alias": null
         }
       ],
@@ -4761,6 +4819,79 @@
         {
           "name": "loading",
           "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onSelectMember",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "UserCard",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "identity",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "color",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "bannerUrl",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "status",
+          "default": "'online'",
+          "alias": null
+        },
+        {
+          "name": "statusLabel",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "bio",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "roles",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "joinedAt",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "joinedServerAt",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "serverName",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "actions",
+          "default": "[]",
           "alias": null
         }
       ],
@@ -5089,6 +5220,735 @@
       "description": ""
     },
     {
+      "name": "RoleRow",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "id",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "color",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "memberCount",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "draggable",
+          "default": "true",
+          "alias": null
+        },
+        {
+          "name": "onClick",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDragStart",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDragOver",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDrop",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "RoleList",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "roles",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onSelectRole",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onReorder",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onAddRole",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "saving",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "RoleEditor",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "role",
+          "default": "{}",
+          "alias": null
+        },
+        {
+          "name": "permissions",
+          "default": "{}",
+          "alias": null
+        },
+        {
+          "name": "permissionGroups",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChangeName",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChangeColor",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChangeHoist",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChangeMentionable",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onChangePermission",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onCopyId",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDelete",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSave",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onReset",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "dirty",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "saving",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "BanList",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "bans",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "filterName",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "filterReason",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "onFilterName",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onFilterReason",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onUnban",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "loading",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "InviteList",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "invites",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onCreate",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "canCreate",
+          "default": "true",
+          "alias": null
+        },
+        {
+          "name": "onCopy",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onRevoke",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "loading",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "WebhookList",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "webhooks",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onCreate",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onEdit",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDelete",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "busy",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "WebhookListItem",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "avatarUrl",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "color",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "description",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onEdit",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDelete",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "WebhookEditor",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "name",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "avatarUrl",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "url",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "onNameChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onAvatarChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onCopyUrl",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSave",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDelete",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "saving",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "RoleTabs",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "roles",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "activeId",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PermissionRow",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "description",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "value",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onCycle",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PermissionSection",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "heading",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "permissions",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "values",
+          "default": "{}",
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PermissionsEditor",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "roles",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "activeRoleId",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSelectRole",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "sections",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "values",
+          "default": "{}",
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "dirty",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "saving",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onSave",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onReset",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "PermissionsOverview",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "roles",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "overrideRoleIds",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onSelectDefault",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSelectRole",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "EmojiManagerGrid",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "emoji",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onUpload",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDelete",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "dragOver",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onDragOver",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDragLeave",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onDrop",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "busy",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "SearchBar",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "value",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "placeholder",
+          "default": "'Search…'",
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClear",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSubmit",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "autofocus",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "SearchResults",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "query",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "groups",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "busy",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "emptyText",
+          "default": "'No results'",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "SearchResultMessage",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "author",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "avatarColor",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "text",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "time",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "channelName",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "query",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClick",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "SearchResultEntity",
+      "file": "components/community.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "kind",
+          "default": "'channel'",
+          "alias": null
+        },
+        {
+          "name": "name",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "icon",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "color",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "subtitle",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClick",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
       "name": "PttButton",
       "file": "components/voice.js",
       "kind": "component",
@@ -5359,6 +6219,11 @@
           "alias": null
         },
         {
+          "name": "collapsed",
+          "default": "false",
+          "alias": null
+        },
+        {
           "name": "onMic",
           "default": null,
           "alias": null
@@ -5387,6 +6252,11 @@
           "name": "onLeave",
           "default": null,
           "alias": null
+        },
+        {
+          "name": "onReturn",
+          "default": null,
+          "alias": null
         }
       ],
       "description": ""
@@ -5396,6 +6266,145 @@
       "file": "components/voice.js",
       "kind": "component",
       "props": [],
+      "description": ""
+    },
+    {
+      "name": "SettingsRowGroup",
+      "file": "components/voice.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "children",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "SettingsSection",
+      "file": "components/voice.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "SettingsRow",
+      "file": "components/voice.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "icon",
+          "default": "'blank'",
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "description",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "action",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClick",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "SettingsRowToggle",
+      "file": "components/voice.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "icon",
+          "default": "'blank'",
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "description",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "checked",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onToggle",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "SettingsRowSelect",
+      "file": "components/voice.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "icon",
+          "default": "'blank'",
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "description",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "value",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "options",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "onChange",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "ariaLabel",
+          "default": null,
+          "alias": null
+        }
+      ],
       "description": ""
     },
     {
@@ -7266,6 +8275,44 @@
       "description": ""
     },
     {
+      "name": "MentionAutocomplete",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "open",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "kind",
+          "default": "'user'",
+          "alias": null
+        },
+        {
+          "name": "matches",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "selection",
+          "default": "0",
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onHover",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
       "name": "EmojiPicker",
       "file": "components/overlay-primitives.js",
       "kind": "component",
@@ -7370,6 +8417,49 @@
       "description": ""
     },
     {
+      "name": "SettingsShell",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "title",
+          "default": "'Settings'",
+          "alias": null
+        },
+        {
+          "name": "open",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "groups",
+          "default": "[]",
+          "alias": null
+        },
+        {
+          "name": "activeId",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onSelect",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "children",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
       "name": "AuthModal",
       "file": "components/overlay-primitives.js",
       "kind": "component",
@@ -7430,6 +8520,39 @@
         {
           "name": "src",
           "default": null,
+          "alias": null
+        },
+        {
+          "name": "label",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "open",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "onClose",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "ImageLightbox",
+      "file": "components/overlay-primitives.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "src",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "alt",
+          "default": "''",
           "alias": null
         },
         {
