@@ -535,26 +535,11 @@
   text-transform: lowercase; letter-spacing: 0.02em;
 }
 
-/* Reply-preview bar above the composer: reference is a tinted pill row
-   naming who is being replied to plus a dismiss control — this had zero
-   CSS and rendered as a bare unstyled block above the composer. */
-.cm-composer-wrap { display: flex; flex-direction: column; gap: var(--space-1); }
-.cm-reply-preview {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
-  padding: var(--space-1-75) var(--space-2-75);
-  background: color-mix(in oklab, var(--accent) 10%, var(--bg-2));
-  border: var(--bw-hair) solid color-mix(in oklab, var(--accent) 30%, transparent);
-  border-radius: var(--r-2);
-  font-family: var(--ff-mono); font-size: var(--fs-xs);
-}
-.cm-reply-preview-label { color: var(--fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cm-reply-preview-close {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 22px; height: 22px; flex-shrink: 0;
-  border: 0; border-radius: var(--r-1); background: transparent; color: var(--fg-3); cursor: pointer;
-}
-.cm-reply-preview-close:hover { background: var(--bg-3); color: var(--fg); }
-.cm-reply-preview-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* community-app's reply-in-progress banner now renders via the ReplyBar
+   component (community.css's .cm-rb-* rules) instead of hand-rolled
+   .cm-reply-preview markup — this wrap class is the only piece still used,
+   spacing the reply bar / typing indicator / composer children. */
+.cm-composer-wrap { display: flex; flex-direction: column; width: 100%; gap: var(--space-1); }
 
 /* Add-reaction (+) affordance: for-web shows a low-opacity + chip at the end
    of the reaction row that brightens on hover of the whole row, opening the
@@ -664,25 +649,13 @@
      input at rest, not just gain a ring on focus. A tonal fill makes that
      legible without waiting for :focus-within. */
   background: var(--bg-2);
-  border: var(--bw-hair) solid var(--rule-strong);
-  /* --r-3 (14px), not --r-2 (10px): the reference composer's corners read
-     as a soft-rounded rectangle, not a tight card-radius box - --r-3 is the
-     largest token in the scale short of --r-pill (a stadium, wrong shape
-     entirely for a ~720px-wide multi-row box). */
+  border: none;
   border-radius: var(--r-3);
-  /* A flat hairline box on a flat background is the single most-repeated
-     "looks unfinished" tell in the chat surface - the one control the user
-     types into every turn had no more visual weight than a settings card.
-     --shadow-1 (already defined kit-wide, just unused here) lifts it a hair
-     off the page at rest; the existing focus-within box-shadow overrides it. */
-  box-shadow: var(--shadow-1);
+  box-shadow: none;
   flex-shrink: 0;
-  transition: border-color var(--dur-snap) var(--ease), box-shadow var(--dur-snap) var(--ease);
 }
 .chat-composer:focus-within {
   background: var(--bg);
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 18%, transparent);
 }
 .chat-composer.is-error,
 .chat-composer:has(textarea[aria-invalid="true"]) {
@@ -695,7 +668,7 @@
 .chat-composer textarea {
   flex: 1; min-width: 0; padding: var(--space-2) var(--space-1);
   background: none; color: var(--fg);
-  border: none; border-radius: 0;
+  border: none; border-radius: 0; box-shadow: none; outline: none;
   font-family: inherit; font-size: var(--fs-sm);
   /* 1.5 is the value that actually renders (a later polish block used to
      re-declare it; the sizing block now states the truth). */

@@ -909,22 +909,10 @@
   padding: var(--space-3); background: color-mix(in oklab, var(--fg) 4%, transparent);
 }
 
-/* --- reply-preview banner shown above the composer while replying to a message. --- */
-.cm-composer-wrap { display: flex; flex-direction: column; width: 100%; }
-.cm-reply-preview {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
-  padding: var(--space-1) var(--space-3); border-bottom: var(--bw-hair) solid var(--rule);
-  background: color-mix(in oklab, var(--accent) 6%, transparent);
-  font-family: var(--ff-mono); font-size: var(--fs-tiny); color: var(--fg-2);
-}
-.cm-reply-preview-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cm-reply-preview-close {
-  display: inline-flex; align-items: center; justify-content: center;
-  background: none; border: none; color: var(--fg-3); cursor: pointer; padding: var(--space-1);
-  border-radius: var(--r-1); flex: 0 0 auto;
-}
-.cm-reply-preview-close:hover { color: var(--fg); background: color-mix(in oklab, var(--fg) 8%, transparent); }
-.cm-reply-preview-close:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }
+/* .cm-composer-wrap / the reply-preview banner now live in
+   src/css/app-shell/chat-polish.css (the always-loaded app-shell barrel) so
+   every consumer of either sheet gets one definition instead of two
+   divergent ones cascading against each other. */
 
 /* --- A5: composer context line (agent / model / cwd at point of typing). --- */
 .chat-composer-context {

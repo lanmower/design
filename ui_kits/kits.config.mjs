@@ -9,7 +9,13 @@
 // to bespoke components, non-standard theme wiring) and must stay hand-edited:
 //   blog            -- hand-authored body (topbar/breadcrumb/article), no importmap block
 //   docs            -- hand-authored body (topbar/breadcrumb/sidebar nav), no importmap block
-//   community-app   -- data-theme="ink" on <body> (not <html data-theme="auto">), 5 stylesheets
+//   community-app   -- data-theme="ink" on <body> (not <html data-theme="auto">), 5 stylesheets.
+//                      The sole community/chat-application kit -- demos the real
+//                      mountCommunityApp adapter-driven product (the same function
+//                      zellous consumes). A standalone ui_kits/community kit that
+//                      hand-composed CommunityShell + fake message data was merged
+//                      away here since it only duplicated a subset of this kit's
+//                      real, working reference adapter.
 //   workspace       -- links chat.css + app-surfaces.css (AgentChat), not in this shape
 //   os              -- desktop-shell demo (createDesktopShell + wm + registry), links
 //                      src/kits/os/theme.css + app-panes.css directly, not app-shell.css
@@ -19,8 +25,8 @@
 // Each entry maps 1:1 to the template's {{...}} placeholders. `htmlTheme`
 // controls whether <html> gets data-theme="auto"; `themeColorMetas` controls
 // whether the two theme-color <meta> tags are emitted. These are independent:
-// community omits both, chat omits only the html attr (keeps the metas), and
-// every other thin kit carries both. `stylesheets`
+// chat omits only the html attr (keeps the metas), and every other thin kit
+// carries both. `stylesheets`
 // is the ordered list of extra .css files linked after the base
 // colors_and_type.css + app-shell.css pair (both always present). `seo` is an
 // optional block of extra <meta>/<link> tags emitted between the description
@@ -223,21 +229,5 @@ export const kits = [
       author: '247420 / AnEntrypoint',
       ogSimple: true, // og:type/title/description/url/site_name + robots, no image/twitter
     },
-  },
-  {
-    id: 'community',
-    title: 'Community',
-    description: 'community shell — server rail, channel sidebar, member list, voice strip.',
-    screenLabel: '07 Community',
-    htmlTheme: false, // no data-theme attr — one of two thin kits that omit it
-    themeColorMetas: false, // no theme-color metas either — community omits both
-    // The entire .cm-* shell chrome (server rail, channel sidebar, member
-    // list, voice strip, user panel, chat header) is defined ONLY in
-    // community.css; app-shell.css has no .cm-* rules at all and
-    // app-surfaces.css carries only print-media overrides for them. Without
-    // this link the rail rendered at the container's full width instead of
-    // its authored 72px and every child sat unstyled.
-    stylesheets: ['community.css'],
-    importExtra: ['ds/'],
   },
 ];

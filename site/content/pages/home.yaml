@@ -82,8 +82,7 @@ kits:
     - { code: "14", title: "Gallery",      sub: "Visual grid, tonal cards, lightbox",  desc: "Tiles on shared panel tokens that open into a matching lightbox.", href: "./ui_kits/gallery/", category: "apps" }
     - { code: "15", title: "OS shell",     sub: "Menubar, window manager, taskbar", desc: "A runnable desktop-shell demo with its own window manager and app registry.", href: "./ui_kits/os/", category: "shells" }
     - { code: "16", title: "Buttons",      sub: "Every variant, size, and state",   desc: "Primary, secondary, ghost, link, and danger, plus loading and disabled states.", href: "./ui_kits/buttons/", category: "devtools" }
-    - { code: "17", title: "Community",    sub: "Server rail, channels, members",   desc: "A Discord-style shell: server rail, channel sidebar, member list, voice strip.", href: "./ui_kits/community/", category: "ai-chat" }
-    - { code: "18", title: "Community app", sub: "Full chat app, adapter-driven",   desc: "mountCommunityApp wired to an injected adapter -- the community shell as a working app.", href: "./ui_kits/community-app/", category: "ai-chat" }
+    - { code: "18", title: "Community",    sub: "Discord-style chat app, adapter-driven", desc: "A full server rail / channel sidebar / member list / voice strip community shell: mountCommunityApp wired to an injected adapter.", href: "./ui_kits/community-app/", category: "ai-chat" }
     - { code: "19", title: "Workspace",    sub: "Desktop-class chat-agent product", desc: "The flagship surface: WorkspaceShell, ConversationList, AgentChat, SessionDashboard.", href: "./ui_kits/workspace/", category: "ai-chat" }
 
 decks:

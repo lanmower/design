@@ -2,43 +2,86 @@
 // Each page is a minimal but functional renderer over the existing /api/* endpoints.
 // These fill the gap between sidebar links and the FREDDIE_PAGES registry.
 
+import * as webjsx from '../../../vendor/webjsx/index.js';
 import { makePage, api, loadingState, errorState, emptyState } from './runtime.js';
-import { Table, PageHeader, Kpi } from '../content.js';
+import { Table, PageHeader, TextField } from '../content.js';
+import { Btn } from '../shell.js';
 import { section, truncSpan, TRUNC_TITLE } from './shared.js';
 
-// ---- terminal ---------------------------------------------------------------
-// Backend: GET /api/terminal (if available) — shows terminal sessions list
+const h = webjsx.createElement;
 
 export const terminal = makePage((ctx) => {
-    async function load() { try { ctx.set({ loading: false, data: await api('/api/terminal').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
+    async function load() {
+        try { ctx.set({ loading: false, list: await api('/api/sessions'), error: null }); }
+        catch (e) { ctx.set({ loading: false, error: e }); }
+    }
+    function openTty(id) {
+        try { sessionStorage.setItem('fd_open_session', id); } catch { /* best-effort */ }
+        location.hash = '#fd-chat';
+    }
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState('loading terminal…');
-        if (s.error && !s.data) return errorState(s.error, load);
+        if (s.loading) return loadingState('loading session ttys…');
+        if (s.error && !s.list) return errorState(s.error, load);
+        const list = Array.isArray(s.list) ? s.list : [];
         return [
-            PageHeader({ title: 'terminal', lede: 'terminal sessions' }),
-            s.data ? section('sessions', Table({ headers: ['id', 'status'], rows: (Array.isArray(s.data) ? s.data : []).map(t => [t.id || '—', t.status || '—']) }))
-                : emptyState('terminal endpoint not available'),
+            PageHeader({ title: 'terminal', lede: 'session mux — pick a conversation TTY' }),
+            list.length
+                ? section('sessions', Table({
+                    headers: ['session', 'updated'],
+                    rowLabels: list.map(x => x.title || x.id),
+                    onRowClick: (i) => list[i] && list[i].id && openTty(list[i].id),
+                    rows: list.map(x => [truncSpan(x.title || x.id, TRUNC_TITLE), x.updated_at || x.time || '—']),
+                }))
+                : emptyState('no sessions — open chat to start a mux'),
         ];
     };
 });
 
-// ---- files ----------------------------------------------------------------
-// Backend: GET /api/files?path=... — file browser
-
 export const files = makePage((ctx) => {
-    async function load() { try { ctx.set({ loading: false, data: await api('/api/files').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
+    Object.assign(ctx.state, { dir: '', tree: [], preview: null });
+    async function load(p) {
+        try {
+            const q = p ? ('?path=' + encodeURIComponent(p)) : '';
+            const data = await api('/api/files/tree' + q);
+            ctx.set({ loading: false, dir: data.path, tree: Array.isArray(data.tree) ? data.tree : [], preview: null, error: null });
+        } catch (e) { ctx.set({ loading: false, error: e }); }
+    }
+    async function openFile(filePath) {
+        try {
+            const data = await api('/api/files/read?path=' + encodeURIComponent(filePath));
+            ctx.set({ preview: data });
+        } catch (e) { ctx.set({ preview: { error: String(e.message || e) } }); }
+    }
     load();
     return () => {
         const s = ctx.state;
         if (s.loading) return loadingState('loading files…');
-        if (s.error && !s.data) return errorState(s.error, load);
+        if (s.error && !s.tree.length) return errorState(s.error, () => load(s.dir));
+        const parent = s.dir ? s.dir.replace(/[\\/][^\\/]+$/, '') : '';
         return [
-            PageHeader({ title: 'files', lede: 'file browser' }),
-            s.data ? section('files', Table({ headers: ['path', 'size', 'type'], rows: (Array.isArray(s.data) ? s.data : []).map(f => [f.path || '—', f.size ?? '—', f.type || '—']) }))
-                : emptyState('files endpoint not available'),
-        ];
+            PageHeader({ title: 'files', lede: s.dir || 'file browser' }),
+            parent && parent !== s.dir ? section('up', Btn({ children: 'parent', onClick: () => load(parent) })) : null,
+            section('tree',
+                s.tree.length
+                    ? Table({
+                        headers: ['name', 'type', 'size'],
+                        rowLabels: s.tree.map(f => f.name),
+                        onRowClick: (i) => {
+                            const f = s.tree[i];
+                            if (!f) return;
+                            const fp = f.path || (s.dir + '/' + f.name);
+                            if (f.type === 'dir' || f.children) load(fp);
+                            else openFile(fp);
+                        },
+                        rows: s.tree.map(f => [f.name || '—', f.type || '—', f.size ?? '—']),
+                    })
+                    : emptyState('empty directory')),
+            s.preview ? section('preview',
+                s.preview.error ? errorState(s.preview.error)
+                    : h('pre', { class: 'fd-pre' }, s.preview.binary ? '(binary)' : String(s.preview.content || ''))) : null,
+        ].filter(Boolean);
     };
 });
 

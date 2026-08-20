@@ -103,13 +103,24 @@ export const git = makePage((ctx) => {
         try {
             const proj = await api('/api/projects').catch(() => null);
             const active = proj && proj.active;
-            const cwd = (active && typeof active === 'object' ? active.path : null) || ctx.state.cwd || '';
-            const qs = '?cwd=' + encodeURIComponent(cwd);
-            const [status, log, worktrees] = await Promise.all([
-                api('/api/git/status' + qs).catch((e) => ({ _err: e })),
-                api('/api/git/log' + qs + '&limit=20').catch((e) => ({ _err: e })),
-                api('/api/worktree' + qs).catch((e) => ({ _err: e })),
-            ]);
+            const list = (proj && proj.projects) || [];
+            const preferred = ctx.state.cwd || (active && typeof active === 'object' ? active.path : null) || '';
+            const seen = new Set();
+            const candidates = [];
+            for (const c of [preferred, ...list.map(p => p.path)]) {
+                if (c && !seen.has(c)) { seen.add(c); candidates.push(c); }
+            }
+            let cwd = preferred, status = { _err: new Error('no git cwd') }, log = status, worktrees = status;
+            for (const c of candidates) {
+                const qs = '?cwd=' + encodeURIComponent(c);
+                const st = await api('/api/git/status' + qs).catch((e) => ({ _err: e }));
+                if (!st || st._err) continue;
+                cwd = c;
+                status = st;
+                log = await api('/api/git/log' + qs + '&limit=20').catch((e) => ({ _err: e }));
+                worktrees = await api('/api/worktree' + qs).catch((e) => ({ _err: e }));
+                break;
+            }
             ctx.set({ loading: false, cwd, status, log, worktrees, error: null });
         } catch (e) { ctx.set({ loading: false, error: e }); }
     }

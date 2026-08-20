@@ -34,7 +34,7 @@ function newSessionId() {
 
 // Apply one wire envelope to a messages array (shared by replay rebuild and
 // the live stream). `sendApprove` is only needed for live approval cards.
-function applyEnvelope(msgs, env, sendApprove) {
+function applyEnvelope(msgs, env, sendApprove, sendAnswer) {
     const { event, data } = env;
     const ts = new Date(env.ts).getTime();
     const lastAssistant = () => { for (let i = msgs.length - 1; i >= 0; i--) if (msgs[i].role === 'assistant') return msgs[i]; return null; };
@@ -82,19 +82,62 @@ function applyEnvelope(msgs, env, sendApprove) {
     } else if (event === 'approval.resolved') {
         const a = lastAssistant(); if (a) {
             const p = (a.parts || []).find(p => p.kind === 'approval' && p.id === data.id);
-            if (p) { p.status = data.approved ? 'approved' : 'rejected'; p.always = !!data.always; }
+            if (p) { p.status = data.approved ? 'approved' : 'rejected'; p.always = !!data.always; p.onResolve = null; }
         }
+    } else if (event === 'question.request') {
+        const a = lastAssistant(); if (a) (a.parts || (a.parts = [])).push({ kind: 'question', id: data.id, questions: data.questions || [], status: 'pending', onResolve: sendAnswer ? (d) => sendAnswer(data.id, d) : null });
+    } else if (event === 'question.resolved') {
+        const a = lastAssistant(); if (a) {
+            const p = (a.parts || []).find(p => p.kind === 'question' && p.id === data.id);
+            if (p) { p.status = data.rejected ? 'rejected' : 'answered'; p.answers = data.answers || {}; p.onResolve = null; }
+        }
+    } else if (event === 'session.error') {
+        const a = lastAssistant();
+        const err = data.error || 'session error';
+        if (a && a._live) a.error = err;
+        else msgs.push({ id: 'e' + env.ts, role: 'assistant', content: '', error: err, time: formatTime(ts) });
+    }
+}
+
+function noteTty(st, env) {
+    const event = env.event, data = env.data || {};
+    if (event === 'tool.start') {
+        const args = data.args != null ? ' ' + JSON.stringify(data.args).slice(0, 240) : '';
+        st.tty = [...(st.tty || []), '$ ' + (data.name || 'tool') + args];
+    } else if (event === 'tool.end') {
+        const out = data.denied ? 'denied' : (typeof data.result === 'string' ? data.result : JSON.stringify(data.result ?? ''));
+        st.tty = [...(st.tty || []), String(out).slice(0, 4000)];
     }
 }
 
 export const chat = makePage((ctx) => {
-    Object.assign(ctx.state, { loading: false, messages: [], draft: '', busy: false, error: null, sessionId: null, ws: null, conn: 'closed', sessions: [], staged: [], workspaceFiles: [], stagedFiles: [], searchOpen: false, searchQuery: '' });
+    Object.assign(ctx.state, { loading: false, messages: [], draft: '', busy: false, error: null, sessionId: null, ws: null, conn: 'closed', sessions: [], staged: [], workspaceFiles: [], stagedFiles: [], searchOpen: false, searchQuery: '', searchHit: 0, cwd: '', cwdEditing: false, cwdDraft: '', model: '', models: [], tty: [] });
     let unmounted = false;
+    try {
+        const bootSid = sessionStorage.getItem('fd_open_session');
+        if (bootSid) { ctx.state.sessionId = bootSid; sessionStorage.removeItem('fd_open_session'); }
+    } catch { /* sessionStorage may be unavailable */ }
 
     // Session picker (kimi web's sessions sidebar, compact form): recent
     // conversations from /api/sessions, needsInput badges included. Picking
     // one reconnects the WS under that id and rebuilds from server replay.
     api('/api/sessions').then(rows => { ctx.state.sessions = Array.isArray(rows) ? rows : []; ctx.rerender(); }).catch(() => { /* swallow: picker degrades to new-chat-only */ });
+    Promise.all([api('/api/models/cached').catch(() => ({})), api('/api/config').catch(() => ({}))]).then(([cached, cfg]) => {
+        const models = []; const seen = new Set();
+        for (const p of (cfg.agent && cfg.agent.model_preference) || []) {
+            const id = [p.provider, p.model].filter(Boolean).join('/');
+            if (id && !seen.has(id)) { seen.add(id); models.push({ id, name: id }); }
+        }
+        for (const [prov, rec] of Object.entries(cached || {})) {
+            for (const m of rec.models || []) {
+                const id = prov + '/' + m;
+                if (!seen.has(id)) { seen.add(id); models.push({ id, name: id }); }
+            }
+        }
+        ctx.state.models = models.slice(0, 40);
+        if (!ctx.state.model && models[0]) ctx.state.model = models[0].id;
+        ctx.rerender();
+    });
 
     // @-mention file autocomplete (kimi web parity): workspace file list for
     // the active session's cwd, feeding AgentChat's existing mentionFiles prop.
@@ -206,14 +249,17 @@ export const chat = makePage((ctx) => {
                     // live thread with a reconnect's replay.
                     if (!st.messages.length && f.events && f.events.length) {
                         const msgs = [];
-                        for (const env of f.events) applyEnvelope(msgs, env, null);
-                        // Settled replay: turns are complete, drop the _live marker.
+                        st.tty = [];
+                        for (const env of f.events) { applyEnvelope(msgs, env, null); noteTty(st, env); }
                         for (const m of msgs) delete m._live;
                         st.messages = msgs;
                     }
                     ctx.rerender();
                 } else if (f.type === 'event') {
-                    applyEnvelope(st.messages, f, (id, d) => sendFrame({ type: 'approve', id, approved: d.approved, always: !!d.always }));
+                    applyEnvelope(st.messages, f,
+                        (id, d) => sendFrame({ type: 'approve', id, approved: d.approved, always: !!d.always }),
+                        (id, d) => sendFrame({ type: 'answer', id, answers: d.answers || {}, rejected: !!d.rejected }));
+                    noteTty(st, f);
                     ctx.rerender();
                 } else if (f.type === 'prompt.done') {
                     const c = cur();
@@ -271,7 +317,7 @@ export const chat = makePage((ctx) => {
             return;
         }
 
-        if (!ensureWs() || !sendFrame({ type: 'prompt', text: t, attachments: s().staged.map(f => ({ name: f.name, path: f.path })) })) {
+        if (!ensureWs() || !sendFrame({ type: 'prompt', text: t, cwd: s().cwd || undefined, model: s().model || undefined, attachments: s().staged.map(f => ({ name: f.name, path: f.path })) })) {
             curMsg.error = 'agent workspace connection unavailable';
             delete curMsg._live;
             ctx.set({ busy: false });
@@ -304,6 +350,19 @@ export const chat = makePage((ctx) => {
                 ...st.workspaceFiles.map(f => h('li', { key: 'wf-' + f, class: 'fd-session-files-row', title: f }, f)))) : null;
         if (!staged && !workspace) return h('div', { class: 'fd-session-files fd-session-files-empty' }, 'No files in this session\'s workspace.');
         return h('div', { class: 'fd-session-files' }, staged, workspace);
+    }
+
+    function sessionMuxPanel() {
+        const st = s();
+        const lines = st.tty || [];
+        const sid = (st.sessionId || '').slice(0, 8);
+        const tty = h('div', { key: 'mux', class: 'fd-tty' },
+            h('div', { class: 'fd-tty-head' },
+                h('span', { class: 'fd-tty-title' }, 'mux · ' + (sid || 'session')),
+                h('span', { class: 'fd-tty-status' }, st.busy ? 'live' : 'idle')),
+            h('pre', { class: 'fd-tty-slot fd-pre' },
+                lines.length ? lines.join('\n') : 'waiting for tool I/O on this session…'));
+        return h('div', { class: 'fd-session-mux' }, tty, sessionFilesPanel());
     }
 
     // In-conversation message search (kimi web message-search-dialog parity):
@@ -340,15 +399,25 @@ export const chat = makePage((ctx) => {
             h('input', {
                 class: 'fd-msg-search-input', type: 'text', placeholder: 'search this conversation…',
                 value: st.searchQuery, autofocus: true,
-                oninput: (e) => { st.searchQuery = e.target.value; ctx.rerender(); },
+                oninput: (e) => { st.searchQuery = e.target.value; st.searchHit = 0; ctx.rerender(); },
                 onkeydown: (e) => {
-                    if (e.key === 'Escape') { e.preventDefault(); st.searchOpen = false; st.searchQuery = ''; ctx.rerender(); }
-                    else if (e.key === 'Enter' && matches.length) { e.preventDefault(); scrollToMessage(matches[0]); }
+                    if (e.key === 'Escape') { e.preventDefault(); st.searchOpen = false; st.searchQuery = ''; st.searchHit = 0; ctx.rerender(); }
+                    else if (e.key === 'Enter' && matches.length) {
+                        e.preventDefault();
+                        scrollToMessage(matches[st.searchHit % matches.length]);
+                        st.searchHit = (st.searchHit + 1) % matches.length;
+                    }
                 },
             }),
             h('span', { class: 'fd-msg-search-count' }, st.searchQuery ? (matches.length + ' match' + (matches.length === 1 ? '' : 'es')) : ''),
             h('button', { type: 'button', class: 'fd-msg-search-close', 'aria-label': 'close search', onclick: () => { st.searchOpen = false; st.searchQuery = ''; ctx.rerender(); } }, '×'));
     }
+
+    if (!ctx.state.sessionId) ctx.state.sessionId = newSessionId();
+    ensureWs();
+    loadWorkspaceFiles(ctx.state.sessionId);
+    loadStagedFiles(ctx.state.sessionId);
+    api('/api/terminal/status').then(st => { if (st && st.cwd && !ctx.state.cwd) { ctx.state.cwd = st.cwd; ctx.rerender(); } }).catch(() => { /* cwd optional */ });
 
     return () => {
         const st = s();
@@ -363,7 +432,7 @@ export const chat = makePage((ctx) => {
             stableFrame: true,
             rail: WorkspaceRail({
                 brand: 'freddie',
-                action: { label: 'Dashboard', icon: 'grid', onClick: () => { location.hash = '#fd-home'; } },
+                action: { label: 'Sessions', icon: 'thread', onClick: () => { location.hash = '#fd-sessions'; } },
                 items: [{ key: 'chat', label: 'Chat', icon: 'forum', active: true }],
             }),
             sessions: ConversationList({
@@ -372,7 +441,12 @@ export const chat = makePage((ctx) => {
                 onSelect: (row) => switchSession(row.sid),
                 onNew: () => {
                     try { st.ws && st.ws.close(); } catch { /* already closed */ }
-                    ctx.set({ messages: [], draft: '', error: null, sessionId: null, ws: null, conn: 'closed' });
+                    st.messages = []; st.draft = ''; st.error = null; st.busy = false;
+                    st.ws = null; st.conn = 'closed'; st.sessionId = newSessionId(); st.staged = [];
+                    ensureWs();
+                    loadWorkspaceFiles(st.sessionId);
+                    loadStagedFiles(st.sessionId);
+                    ctx.rerender();
                 },
                 newLabel: 'New chat',
                 emptyText: 'No conversations yet',
@@ -386,6 +460,18 @@ export const chat = makePage((ctx) => {
                     draft: st.draft,
                     status: st.busy ? 'streaming…' : (st.conn === 'open' ? 'ready' : 'connecting…'),
                     agentName: 'freddie',
+                    selectedAgent: 'freddie',
+                    models: st.models,
+                    selectedModel: st.model,
+                    onSelectModel: (v) => { st.model = v; ctx.rerender(); },
+                    cwd: st.cwd,
+                    cwdEditing: st.cwdEditing,
+                    cwdDraft: st.cwdDraft,
+                    onCwdEdit: () => { st.cwdEditing = true; st.cwdDraft = st.cwd; ctx.rerender(); },
+                    onCwdDraft: (v) => { st.cwdDraft = v; },
+                    onCwdSave: () => { st.cwd = (st.cwdDraft || '').trim(); st.cwdEditing = false; ctx.rerender(); },
+                    onCwdCancel: () => { st.cwdEditing = false; ctx.rerender(); },
+                    onCwdClear: () => { st.cwd = ''; st.cwdEditing = false; ctx.rerender(); },
                     placeholder: st.busy ? 'queue a follow-up… (or stop)' : 'message…',
                     mentionFiles: st.workspaceFiles,
                     showMinimap: true,
@@ -395,12 +481,17 @@ export const chat = makePage((ctx) => {
                     onStop: stop,
                     onNewChat: () => {
                         try { st.ws && st.ws.close(); } catch { /* already closed */ }
-                        ctx.set({ messages: [], draft: '', error: null, sessionId: null, ws: null, conn: 'closed' });
+                        st.messages = []; st.draft = ''; st.error = null; st.busy = false;
+                        st.ws = null; st.conn = 'closed'; st.sessionId = newSessionId(); st.staged = []; st.tty = [];
+                        ensureWs();
+                        loadWorkspaceFiles(st.sessionId);
+                        loadStagedFiles(st.sessionId);
+                        ctx.rerender();
                     },
                 }),
             ],
-            pane: sessionFilesPanel(),
-            paneLabel: 'session files',
+            pane: sessionMuxPanel(),
+            paneLabel: 'session mux',
         });
     };
 });
