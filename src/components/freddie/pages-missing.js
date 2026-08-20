@@ -4,40 +4,42 @@
 
 import * as webjsx from '../../../vendor/webjsx/index.js';
 import { makePage, api, loadingState, errorState, emptyState } from './runtime.js';
-import { Table, PageHeader, TextField } from '../content.js';
-import { Btn } from '../shell.js';
+import { Table, PageHeader } from '../content.js';
+import { Chip, Btn } from '../shell.js';
 import { section, truncSpan, TRUNC_TITLE } from './shared.js';
 
 const h = webjsx.createElement;
 
+// ---- terminal ---------------------------------------------------------------
+// Backend: GET /api/terminal/status (plugins/gui-terminal) — {available,cwd}
+// probe, not a session list; POST /api/terminal/exec is the actual command
+// runner, invoked from elsewhere (there is no persisted "session" concept).
+
 export const terminal = makePage((ctx) => {
-    async function load() {
-        try { ctx.set({ loading: false, list: await api('/api/sessions'), error: null }); }
-        catch (e) { ctx.set({ loading: false, error: e }); }
-    }
-    function openTty(id) {
-        try { sessionStorage.setItem('fd_open_session', id); } catch { /* best-effort */ }
-        location.hash = '#fd-chat';
-    }
+    async function load() { try { ctx.set({ loading: false, data: await api('/api/terminal/status').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
     load();
     return () => {
         const s = ctx.state;
-        if (s.loading) return loadingState('loading session ttys…');
-        if (s.error && !s.list) return errorState(s.error, load);
-        const list = Array.isArray(s.list) ? s.list : [];
+        if (s.loading) return loadingState('loading terminal…');
+        if (s.error && !s.data) return errorState(s.error, load);
+        const d = s.data || {};
         return [
-            PageHeader({ title: 'terminal', lede: 'session mux — pick a conversation TTY' }),
-            list.length
-                ? section('sessions', Table({
-                    headers: ['session', 'updated'],
-                    rowLabels: list.map(x => x.title || x.id),
-                    onRowClick: (i) => list[i] && list[i].id && openTty(list[i].id),
-                    rows: list.map(x => [truncSpan(x.title || x.id, TRUNC_TITLE), x.updated_at || x.time || '—']),
-                }))
-                : emptyState('no sessions — open chat to start a mux'),
+            PageHeader({ title: 'terminal', lede: 'terminal status', right: d.available ? Chip({ tone: 'ok', children: 'available' }) : Chip({ tone: 'neutral', children: 'unavailable' }) }),
+            d.available
+                ? section('status', Table({ headers: ['field', 'value'], rows: [['cwd', d.cwd || '—'], ['exec endpoint', 'POST /api/terminal/exec']] }))
+                : emptyState('terminal endpoint not available'),
         ];
     };
 });
+
+// ---- files ----------------------------------------------------------------
+// Backend: GET /api/files/tree?path=... (plugins/gui-files) — returns a
+// nested {path, tree:[{name,type,size,modified,children?}]} tree (first
+// level auto-expanded; deeper levels are lazy-loaded server-side and simply
+// absent here); GET /api/files/read?path=... returns a single file's preview
+// content. Directory navigation reissues /api/files/tree with the clicked
+// path, rather than flattening the whole tree client-side, since deeper
+// levels are lazy-loaded server-side and not present in the first response.
 
 export const files = makePage((ctx) => {
     Object.assign(ctx.state, { dir: '', tree: [], preview: null });
@@ -58,6 +60,10 @@ export const files = makePage((ctx) => {
     return () => {
         const s = ctx.state;
         if (s.loading) return loadingState('loading files…');
+        // A successful, genuinely-empty/unreadable directory (load() resolved,
+        // tree: []) is a different state from the endpoint never having
+        // answered (s.error set) — collapsing both into the same message
+        // would misreport a real empty result as a failure.
         if (s.error && !s.tree.length) return errorState(s.error, () => load(s.dir));
         const parent = s.dir ? s.dir.replace(/[\\/][^\\/]+$/, '') : '';
         return [
@@ -142,7 +148,9 @@ export const themePage = makePage((ctx) => {
 });
 
 // ---- worktree --------------------------------------------------------------
-// Backend: GET /api/worktree — git worktrees
+// Backend: GET /api/worktree (plugins/gui/gui-worktree) — {cwd, worktrees:
+// [{worktree,head,branch,bare?,detached?}]}, per handler.js parseWorktreeList
+// (git worktree list --porcelain field names, not path/hash).
 
 export const worktree = makePage((ctx) => {
     async function load() { try { ctx.set({ loading: false, data: await api('/api/worktree').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
@@ -151,11 +159,11 @@ export const worktree = makePage((ctx) => {
         const s = ctx.state;
         if (s.loading) return loadingState('loading worktrees…');
         if (s.error && !s.data) return errorState(s.error, load);
-        const trees = Array.isArray(s.data) ? s.data : [];
+        const trees = (s.data && Array.isArray(s.data.worktrees)) ? s.data.worktrees : [];
         return [
-            PageHeader({ title: 'worktrees', lede: 'git worktrees' }),
+            PageHeader({ title: 'worktrees', lede: (s.data && s.data.cwd) || 'git worktrees' }),
             trees.length
-                ? section('worktrees', Table({ headers: ['path', 'branch', 'hash'], rows: trees.map(t => [t.path || '—', t.branch || '—', t.hash || '—']) }))
+                ? section('worktrees', Table({ headers: ['path', 'branch', 'head'], rows: trees.map(t => [t.worktree || '—', t.branch || (t.detached ? '(detached)' : '—'), (t.head || '').slice(0, 8) || '—']) }))
                 : emptyState('no worktrees'),
         ];
     };
@@ -182,7 +190,9 @@ export const sessionTree = makePage((ctx) => {
 });
 
 // ---- notifications ---------------------------------------------------------
-// Backend: GET /api/notifications — notification list
+// Backend: GET /api/notifications (plugins/gui-notifications) — array of
+// {id,type,message,severity,timestamp,delivered} per NotificationManager.getAll()
+// (src/agent/notifications.js), not a {time} field.
 
 export const notifications = makePage((ctx) => {
     async function load() { try { ctx.set({ loading: false, data: await api('/api/notifications').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
@@ -195,7 +205,7 @@ export const notifications = makePage((ctx) => {
         return [
             PageHeader({ title: 'notifications', lede: 'alerts & notices' }),
             items.length
-                ? section('notifications', Table({ headers: ['type', 'message', 'time'], rows: items.map(n => [n.type || '—', truncSpan(n.message || '', 100), n.time || '—']) }))
+                ? section('notifications', Table({ headers: ['type', 'severity', 'message', 'time'], rows: items.map(n => [n.type || '—', n.severity || '—', truncSpan(n.message || '', 100), n.timestamp ? new Date(n.timestamp).toLocaleTimeString() : '—']) }))
                 : emptyState('no notifications'),
         ];
     };

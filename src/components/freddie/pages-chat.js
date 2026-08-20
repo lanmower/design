@@ -498,9 +498,10 @@ export const chat = makePage((ctx) => {
 
 export const voice = makePage((ctx) => {
     async function load() {
-        // Probe for a voice backend; the endpoint is optional, so a 404/!ok
-        // means "not wired" rather than an error to surface.
-        try { const v = await api('/api/voice').catch(() => null); ctx.set({ loading: false, voice: v, error: null }); }
+        // GET /api/voice/status (plugins/gui-voice) — the endpoint is
+        // optional, so a 404/!ok means "not wired" rather than an error to
+        // surface. Response shape: {tts:{available,provider}, stt:{available,provider}}.
+        try { const v = await api('/api/voice/status').catch(() => null); ctx.set({ loading: false, voice: v, error: null }); }
         catch (e) { ctx.set({ loading: false, error: e }); }
     }
     load();
@@ -508,12 +509,20 @@ export const voice = makePage((ctx) => {
         const s = ctx.state;
         if (s.loading) return loadingState('loading voice config…');
         const v = s.voice;
-        const enabled = v && (v.enabled || v.transcription || v.tts);
+        const tts = v && v.tts;
+        const stt = v && v.stt;
+        const enabled = !!((tts && tts.available) || (stt && stt.available));
         return [
             PageHeader({ title: 'voice', lede: 'voice surfaces', right: enabled ? Chip({ tone: 'ok', children: 'enabled' }) : Chip({ tone: 'neutral', children: 'not configured' }) }),
             enabled
-                ? section('backends', Table({ headers: ['capability', 'status'], rows: [['transcription', v.transcription ? Chip({ tone: 'ok', children: 'on' }) : Chip({ tone: 'neutral', children: 'off' })], ['tts', v.tts ? Chip({ tone: 'ok', children: 'on' }) : Chip({ tone: 'neutral', children: 'off' })]] }))
-                : section('status', emptyState('no voice backend wired in this build. configure a transcription/tts plugin to enable.')),
+                ? section('backends', Table({
+                    headers: ['capability', 'status', 'provider'],
+                    rows: [
+                        ['transcription (stt)', stt && stt.available ? Chip({ tone: 'ok', children: 'on' }) : Chip({ tone: 'neutral', children: 'off' }), (stt && stt.provider) || 'none'],
+                        ['speech (tts)', tts && tts.available ? Chip({ tone: 'ok', children: 'on' }) : Chip({ tone: 'neutral', children: 'off' }), (tts && tts.provider) || 'none'],
+                    ],
+                }))
+                : section('status', emptyState('no voice backend wired in this build. set OPENAI_API_KEY or ELEVENLABS_API_KEY to enable.')),
         ];
     };
 });

@@ -11,6 +11,17 @@ const applyDiff = webjsx.applyDiff;
 
 // Same-origin JSON fetch helper. Returns parsed JSON or throws with a
 // readable message carrying the HTTP status so page error states can show it.
+let fdPageRootElementDefined = false;
+function ensureFdPageRootElementDefined() {
+    if (fdPageRootElementDefined || typeof customElements === 'undefined') return;
+    if (customElements.get('fd-page-root')) { fdPageRootElementDefined = true; return; }
+    customElements.define('fd-page-root', class extends HTMLElement {
+        disconnectedCallback() { if (this._fdOnDisconnect) this._fdOnDisconnect(); }
+    });
+    fdPageRootElementDefined = true;
+}
+ensureFdPageRootElementDefined();
+
 export async function api(path, opts = {}) {
     const res = await fetch(path, {
         headers: { 'content-type': 'application/json', ...(opts.headers || {}) },
@@ -79,6 +90,7 @@ export function makePage(setup, { initial = {} } = {}) {
             if (!el) { ctx.cleanup(); return; }
             if (elRef === el) return;
             elRef = el;
+            el._fdOnDisconnect = () => ctx.cleanup();
             const r = setup(ctx);
             if (typeof r === 'function') render = r;
             // Paint immediately, then again on the next microtask. Pages whose
@@ -90,7 +102,7 @@ export function makePage(setup, { initial = {} } = {}) {
             ctx.rerender();
             Promise.resolve().then(() => ctx.rerender());
         };
-        return h('div', { class: 'fd-page-root', ref });
+        return h('fd-page-root', { class: 'fd-page-root', ref });
     };
 }
 

@@ -9050,6 +9050,114 @@
       "description": ""
     },
     {
+      "name": "buildNavPaletteActions",
+      "file": "components/freddie.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "routes, { onNavigate } = {}",
+          "positional": true
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "renderDashboardSide",
+      "file": "components/freddie.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "routeGroups",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "active",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onNavigate",
+          "default": null,
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
+      "name": "renderDashboardShell",
+      "file": "components/freddie.js",
+      "kind": "component",
+      "props": [
+        {
+          "name": "active",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "body",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "routeGroups",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "onNavigate",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "sampler",
+          "default": "{ ok: 0, bad: 0, total: 0, error: false }",
+          "alias": null
+        },
+        {
+          "name": "degraded",
+          "default": "false",
+          "alias": null
+        },
+        {
+          "name": "error",
+          "default": "null",
+          "alias": null
+        },
+        {
+          "name": "project",
+          "default": "'default'",
+          "alias": null
+        },
+        {
+          "name": "toolsCount",
+          "default": "'—'",
+          "alias": null
+        },
+        {
+          "name": "skillsCount",
+          "default": "'—'",
+          "alias": null
+        },
+        {
+          "name": "ts",
+          "default": "''",
+          "alias": null
+        },
+        {
+          "name": "brand",
+          "default": "'freddie'",
+          "alias": null
+        },
+        {
+          "name": "fullBleed",
+          "default": "false",
+          "alias": null
+        }
+      ],
+      "description": ""
+    },
+    {
       "name": "makePage",
       "file": "components/freddie/runtime.js",
       "kind": "component",

@@ -139,7 +139,8 @@ export {
     FREDDIE_PAGES,
     home, chat, voice, sessions, projects, agents, analytics,
     models, cron, skills, config, env, tools, batch, gateway, chains,
-    skillLabel, getRecentPaths, saveRecentPath, renderChatMessages
+    skillLabel, getRecentPaths, saveRecentPath, renderChatMessages,
+    buildNavPaletteActions, renderDashboardSide, renderDashboardShell
 } from './components/freddie.js';
 
 export {

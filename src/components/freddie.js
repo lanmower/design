@@ -9,6 +9,7 @@
 // public export surface here is unchanged — no consumer import needs to move.
 
 import { getRecentPaths, saveRecentPath, skillLabel, renderChatMessages } from './freddie/helpers.js';
+import { buildNavPaletteActions, renderDashboardSide, renderDashboardShell } from './freddie/dashboard-shell.js';
 import { home, agents, analytics } from './freddie/pages-overview.js';
 import { chat, voice } from './freddie/pages-chat.js';
 import { sessions, projects, git } from './freddie/pages-workspace.js';
@@ -41,3 +42,5 @@ export {
 };
 
 export { skillLabel, getRecentPaths, saveRecentPath, renderChatMessages };
+
+export { buildNavPaletteActions, renderDashboardSide, renderDashboardShell };
