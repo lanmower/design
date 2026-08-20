@@ -45,7 +45,7 @@ export function renderDashboardSide({ routeGroups, active, onNavigate }) {
     return Side({
         sections: (routeGroups || []).map(g => ({
             group: g.group,
-            items: g.items.map(r => ({
+            items: (g.items || []).map(r => ({
                 glyph: Icon ? Icon(r.icon) : null,
                 label: r.label,
                 href: '#fd-' + r.path,

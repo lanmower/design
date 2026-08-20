@@ -54,9 +54,14 @@ export const files = makePage((ctx) => {
         if (s.error && !s.data) return errorState(s.error, load);
         const tree = (s.data && s.data.tree) || [];
         const rows = flattenFileTree(tree);
+        // A successful, genuinely-empty/unreadable directory (s.data present,
+        // tree: []) is a different state from the endpoint never having
+        // answered (s.data null) — collapsing both into "endpoint not
+        // available" would misreport a real empty result as a failure.
         return [
             PageHeader({ title: 'files', lede: (s.data && s.data.path) || 'file browser' }),
-            rows.length ? section('files', Table({ headers: ['path', 'size', 'type'], rows })) : emptyState('files endpoint not available'),
+            rows.length ? section('files', Table({ headers: ['path', 'size', 'type'], rows }))
+                : emptyState(s.data ? 'no files found' : 'files endpoint not available'),
         ];
     };
 });
@@ -160,7 +165,9 @@ export const sessionTree = makePage((ctx) => {
 });
 
 // ---- notifications ---------------------------------------------------------
-// Backend: GET /api/notifications — notification list
+// Backend: GET /api/notifications (plugins/gui-notifications) — array of
+// {id,type,message,severity,timestamp,delivered} per NotificationManager.getAll()
+// (src/agent/notifications.js), not a {time} field.
 
 export const notifications = makePage((ctx) => {
     async function load() { try { ctx.set({ loading: false, data: await api('/api/notifications').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
@@ -173,7 +180,7 @@ export const notifications = makePage((ctx) => {
         return [
             PageHeader({ title: 'notifications', lede: 'alerts & notices' }),
             items.length
-                ? section('notifications', Table({ headers: ['type', 'message', 'time'], rows: items.map(n => [n.type || '—', truncSpan(n.message || '', 100), n.time || '—']) }))
+                ? section('notifications', Table({ headers: ['type', 'severity', 'message', 'time'], rows: items.map(n => [n.type || '—', n.severity || '—', truncSpan(n.message || '', 100), n.timestamp ? new Date(n.timestamp).toLocaleTimeString() : '—']) }))
                 : emptyState('no notifications'),
         ];
     };
