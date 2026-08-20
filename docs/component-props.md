@@ -2,7 +2,7 @@
 
 Generated from `src/components.js`'s real export barrel + each symbol's real definition in `src/components/*.js`, via `node scripts/generate-component-docs.mjs`. Do not hand-edit -- re-run after any component signature or JSDoc change.
 
-299 exported symbols across 30 source files.
+302 exported symbols across 30 source files.
 
 ---
 
@@ -1930,6 +1930,24 @@ A scroll-snap content carousel with prev/next controls.
 **Kind:** component
 
 **Signature:** `messages = [], opts = {}` _(positional arg)_
+
+### buildNavPaletteActions
+
+**Kind:** component
+
+**Signature:** `routes, { onNavigate } = {}` _(positional arg)_
+
+### renderDashboardSide
+
+**Kind:** component
+
+**Signature:** `routeGroups`, `active`, `onNavigate`
+
+### renderDashboardShell
+
+**Kind:** component
+
+**Signature:** `active`, `body`, `routeGroups`, `onNavigate`, `sampler` = `{ ok: 0, bad: 0, total: 0, error: false }`, `degraded` = `false`, `error` = `null`, `project` = `'default'`, `toolsCount` = `'—'`, `skillsCount` = `'—'`, `ts` = `''`, `brand` = `'freddie'`, `fullBleed` = `false`
 
 ## `src/components/freddie/runtime.js`
 

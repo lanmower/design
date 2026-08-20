@@ -51,7 +51,7 @@ export const config = makePage((ctx) => {
                 Select({ label: 'active skin', value: activeSkin, options: skinList, onChange: (v) => setSkin(v) })
             ) : null,
             section('settings', flat.length ? flat.map(([k, v], i) =>
-                TextField({ key: i, label: k, value: String(ctx.state.edited[k] ?? v ?? ''), onInput: (val) => { ctx.state.edited[k] = val; } })
+                TextField({ key: i, label: k, value: String(ctx.state.edited[k] ?? v ?? ''), onInput: (val) => { ctx.state.edited[k] = val; ctx.rerender(); } })
             ) : emptyState('no scalar config keys')),
             section('raw', h('pre', { class: 'fd-pre' }, JSON.stringify(cfg, null, 2))),
             section('actions',
