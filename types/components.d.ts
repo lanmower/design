@@ -833,6 +833,7 @@ export interface ChatMessageProps {
     time?: any;
     typing?: any;
     key?: string | number;
+    id?: any;
     aicat?: any;
     reactions?: any;
     receipt?: any;
