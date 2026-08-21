@@ -7,6 +7,7 @@ import { makePage, api, loadingState, errorState, emptyState, refreshError } fro
 import { Row, Table, PageHeader, TextField } from '../content.js';
 import { Chip, Btn } from '../shell.js';
 import { ConfirmDialog } from '../files-modals.js';
+import { renderMermaid } from '../../mermaid.js';
 import { section, noteAlert, truncJson } from './shared.js';
 
 const h = webjsx.createElement;
@@ -108,8 +109,35 @@ export const chains = makePage((ctx) => {
 });
 
 export const machines = makePage((ctx) => {
+    Object.assign(ctx.state, { diagrams: null, diagramSvgs: {}, showDiagrams: false });
+    let unmounted = false;
+    ctx.onCleanup(() => { unmounted = true; });
     async function load() { try { ctx.set({ loading: false, data: await api('/api/machines'), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
     load(); ctx.interval(load, 8000);
+    // GET /api/machines/diagrams (plugins/gui/gui-machines/plugin.js ->
+    // stateMachinesSnapshot) returns { diagrams: {<kind>: {states, initial,
+    // mermaid: <mermaid-source-string>}}, active_snapshots }. This data was
+    // fetched by no page in this SDK -- reachable data with no UI. Static
+    // per machine kind (the FSM shape, not live state), so fetched once on
+    // mount, not on the 8s live-machine-census interval above. Render lazily
+    // (behind a toggle) since it costs a CDN mermaid.js load on first open.
+    async function loadDiagrams() {
+        if (ctx.state.diagrams) return;
+        try {
+            const r = await api('/api/machines/diagrams');
+            if (unmounted) return;
+            ctx.set({ diagrams: r.diagrams || {} });
+            for (const [kind, d] of Object.entries(r.diagrams || {})) {
+                if (!d || !d.mermaid) continue;
+                const svg = await renderMermaid(d.mermaid);
+                if (unmounted) return;
+                // renderMermaid fails soft (returns null) on a bad CDN load or
+                // parse error -- the raw mermaid source stays visible as a
+                // fallback in that case rather than an empty pane.
+                if (svg) ctx.set({ diagramSvgs: { ...ctx.state.diagramSvgs, [kind]: svg } });
+            }
+        } catch (e) { if (!unmounted) ctx.set({ diagramsError: e }); }
+    }
     return () => {
         const s = ctx.state;
         if (s.loading) return loadingState('loading machines…');
@@ -123,6 +151,21 @@ export const machines = makePage((ctx) => {
                 headers: ['kind', 'key', 'state'],
                 rows: list.map(m => [m.kind || '—', m.key || m.machine_id || '—', m.state || m.value || truncJson(m)]),
             }) : emptyState('no live machines')),
+            section('diagrams',
+                !s.showDiagrams
+                    ? Btn({ onClick: () => { ctx.set({ showDiagrams: true }); loadDiagrams(); }, children: 'show machine diagrams' })
+                    : [
+                        s.diagramsError ? refreshError(s.diagramsError) : null,
+                        !s.diagrams
+                            ? loadingState('loading diagrams…')
+                            : Object.entries(s.diagrams).map(([kind, dgm]) => h('div', { key: kind, class: 'fd-page' },
+                                h('div', { class: 'ds-skills-group-label' }, kind + ' (initial: ' + ((dgm && dgm.initial) || '—') + ')'),
+                                dgm && dgm.error
+                                    ? h('div', { class: 'dim' }, dgm.error)
+                                    : s.diagramSvgs[kind]
+                                        ? h('div', { dangerouslySetInnerHTML: { __html: s.diagramSvgs[kind] } })
+                                        : h('pre', { class: 'fd-pre' }, (dgm && dgm.mermaid) || ''))),
+                    ].filter(Boolean)),
         ].filter(Boolean);
     };
 });

@@ -6,6 +6,7 @@ import * as webjsx from '../../../vendor/webjsx/index.js';
 import { makePage, api, loadingState, errorState, emptyState } from './runtime.js';
 import { Row, Table, PageHeader, TextField, Select } from '../content.js';
 import { Chip, Btn } from '../shell.js';
+import { ConfirmDialog } from '../files-modals.js';
 import { section, noteAlert, liveRegion } from './shared.js';
 
 const h = webjsx.createElement;
@@ -117,7 +118,7 @@ export const config = makePage((ctx) => {
 });
 
 export const env = makePage((ctx) => {
-    Object.assign(ctx.state, { auth: null, vars: null, draft: {}, busy: '', note: null });
+    Object.assign(ctx.state, { auth: null, vars: null, draft: {}, busy: '', note: null, confirmRemove: null });
     async function load() {
         try {
             // No inner .catch(()=>null) on either call -- that would swallow a
@@ -142,11 +143,16 @@ export const env = makePage((ctx) => {
         catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); }
         ctx.set({ busy: '' });
     }
+    // Removing a stored key is instant and irreversible -- the raw value is
+    // never retrievable once removed (GET /api/auth only ever returns a
+    // masked fingerprint), so the user would have to re-obtain the real key
+    // from wherever they originally got it. Gate behind ConfirmDialog like
+    // the other three destructive actions in this page catalog.
     async function removeKey(provider) {
         ctx.set({ busy: provider, note: null });
         try { await api('/api/auth/' + encodeURIComponent(provider), { method: 'DELETE' }); await load(); ctx.set({ note: { kind: 'success', msg: 'removed ' + provider } }); }
         catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); }
-        ctx.set({ busy: '' });
+        ctx.set({ busy: '', confirmRemove: null });
     }
     load();
     return () => {
@@ -168,9 +174,16 @@ export const env = makePage((ctx) => {
                         a.set ? Chip({ tone: 'ok', children: 'set' }) : Chip({ tone: 'neutral', children: 'unset' }),
                         TextField({ type: 'password', value: s.draft[a.provider] || '', onInput: (v) => { s.draft[a.provider] = v; }, placeholder: 'paste key', 'aria-label': 'key for ' + a.provider }),
                         Btn({ variant: 'primary', disabled: s.busy === a.provider, children: s.busy === a.provider ? '…' : 'save', onClick: () => setKey(a.provider) }),
-                        (a.set && a.source === 'stored') ? Btn({ variant: 'danger', disabled: s.busy === a.provider, children: 'remove', onClick: () => removeKey(a.provider) }) : null),
+                        (a.set && a.source === 'stored') ? Btn({ variant: 'danger', disabled: s.busy === a.provider, children: 'remove', onClick: () => ctx.set({ confirmRemove: a }) }) : null),
                 })) : emptyState('no providers')),
             otherRows.length ? section('other environment', Table({ headers: ['key', 'status'], rows: otherRows })) : null,
+            s.confirmRemove ? ConfirmDialog({
+                title: 'Remove key?',
+                message: 'This removes the stored ' + s.confirmRemove.provider + ' key (' + s.confirmRemove.env + '). The raw value is never retrievable once removed -- you would need to paste it in again from wherever you originally got it.',
+                destructive: true, confirmLabel: 'remove', busy: s.busy === s.confirmRemove.provider, busyLabel: 'removing…',
+                onConfirm: () => removeKey(s.confirmRemove.provider),
+                onCancel: () => ctx.set({ confirmRemove: null }),
+            }) : null,
         ].filter(Boolean);
     };
 });
