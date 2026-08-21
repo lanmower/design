@@ -1262,8 +1262,25 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
    both edges instead of sitting flush like every other row (a Discord/
    stoat/Revolt row-list convention; the claude.ai/code source this variant
    was built for is a single-column reading surface where shrink-to-content
-   doesn't matter). */
-.chat-msg-flat { display: block; width: 100%; max-width: var(--measure); margin-inline: auto; padding: calc(var(--space-3) * var(--density, 1)) var(--space-4); margin-block: 0; background: none; border-radius: var(--r-2); }
+   doesn't matter).
+   Was ALSO carrying max-width:var(--measure); margin-inline:auto -- directly
+   contradicting the comment above (capping+centering the ROW is the opposite
+   of "full-width... flush like every other row"), and redundant with
+   .chat-stack's own max-width:var(--measure) below, which already owns
+   reading-measure line length. On any thread wider than --measure (the
+   common case -- confirmed live on community-app at 1100px vs. --measure's
+   ~714px) this centered the row with large auto margins, visibly breaking
+   the flush-row look the file's own convention calls for. It was also the
+   source of a genuine "message box moves on hover" bug: those auto margins
+   are the ONLY thing in this rule with no explicit non-auto value, so any
+   layout recalculation that touches this row (confirmed live via CDP:
+   identical matched CSS rules and custom-property values before/after
+   hover, yet the flex auto-margin distribution resolved differently) had
+   nothing to anchor it, letting the row visibly jump. Dropping both
+   properties fixes the row width to match the documented Discord-style
+   convention and removes the auto margins entirely, so there is nothing
+   left for any recalculation to disturb. */
+.chat-msg-flat { display: block; width: 100%; padding: calc(var(--space-3) * var(--density, 1)) var(--space-4); margin-block: 0; background: none; border-radius: var(--r-2); }
 /* .chat-msg.you's row-reverse is a messenger-bubble convention (own turns
    flip to the right); a flat message-row list (stoat/Discord/Revolt
    convention) keeps every row's avatar on the same left edge regardless of
@@ -1327,10 +1344,9 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 .chat-spoiler.is-revealed * { opacity: 1; pointer-events: auto; }
 /* Structured tool/code output earns more width than running prose (claude.ai/code
    lets diffs/tables break out wider than the reading measure). A flat turn that
-   contains a tool card or code block widens itself AND its stack past --measure;
-   prose-only turns stay clamped. */
-.chat-msg-flat:has(.chat-tool),
-.chat-msg-flat:has(.chat-bubble.chat-code) { max-width: calc(var(--measure) + 14ch); }
+   contains a tool card or code block widens its stack past --measure; prose-only
+   turns stay clamped. (The row itself has no max-width to widen since the fix
+   above -- only .chat-stack carries the reading-measure cap now.) */
 .chat-msg-flat:has(.chat-tool) .chat-stack,
 .chat-msg-flat:has(.chat-bubble.chat-code) .chat-stack { max-width: calc(var(--measure) + 14ch); }
 /* Hover tint exceeds each role's REST tint so the row gives feedback (and the
