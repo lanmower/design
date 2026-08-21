@@ -1,5 +1,6 @@
 export { createModelBrowser } from './ModelBrowser.js'
 export { ModelPreview, createModelPreviewViewer } from './ModelPreview.js'
+export { createDamageNumbers } from './DamageNumbers.js'
 export {
   initializeModelBrowserPanel,
   fetchModels,
