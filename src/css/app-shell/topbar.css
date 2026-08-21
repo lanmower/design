@@ -466,38 +466,35 @@ body.canvas-host { background: transparent !important; }
 .app-main.full-bleed { padding: 0; overflow: hidden; }
 .app-main.full-bleed > * { flex: 1 1 auto; min-height: 0; }
 /* .narrow means "prose reading measure", not "shrink the whole shell on wide
-   screens". The old clamp(760px, 46vw, 1000px) grew too slowly to track the
-   real available column: at 1920px viewport the .app-body grid's second
-   track (.app width minus --sidebar-width) is ~1556px, but 46vw=883px sat
-   well under the 1000px ceiling, leaving a ~340px dead gutter between the
-   sidebar and the centered narrow column on an ordinary desktop screen (not
-   just ultrawide) -- confirmed live via a real 1920x1080 CDP viewport, a
-   project page (#/p/<slug>). 62vw tracks the actual column growth far closer
-   (1920*0.62=1190px, much nearer the 1556px track than 883px was) while the
-   1200px ceiling still keeps prose from stretching into an unreadable
-   full-bleed line -- sidebar-present narrow pages read the same width class
-   as the no-side variant below instead of visibly starving next to it. */
+   screens". Two vw-based attempts here both undershot on wide screens because
+   vw approximates the grid's second track (.app width minus --sidebar-width)
+   instead of measuring it: at 2560px the 70vw/1440px-ceiling version resolved
+   to only 1440px against a ~2304px track -- a 432px dead gutter on EACH side,
+   confirmed live via CDP (getBoundingClientRect on .app-main.narrow vs
+   .app-body). .app-main is itself the grid's `minmax(0, 1fr)` track
+   (topbar.css's own .app-body rule above), so a percentage max-width on it
+   resolves against that track directly -- no viewport-width approximation,
+   correct at any sidebar width or screen size by construction. 94% keeps a
+   visible side gutter for breathing room; 1600px still caps prose length on
+   very wide screens so paragraphs don't stretch unreadably long. */
 .app-body:not(.no-side) .app-main.narrow {
-  max-width: clamp(var(--measure-narrow), 70vw, 1440px);
+  max-width: min(94%, 1600px);
 }
-/* A shell with no sidebar has no competing column, so the prose clamp there was
-   leaving the whole sidebar's worth of width empty -- 760px of content inside a
-   1413px shell on a real page. Widen the clamp by the space the absent sidebar
-   would have taken so the measure still reads as prose, just not starved.
-   The floor stays a fixed 980px (no-side is still readable narrow); the
-   ceiling grows with viewport instead of staying pinned at 980px forever --
-   on a 2560px ultrawide the old fixed value left over half the shell as dead
-   side margin. 1400px ceiling keeps prose measure sane (nobody wants a
-   2400px-wide paragraph) while letting non-prose content (index rows, meta)
-   actually use the extra room. 60vw sat below the 1016px floor on every
-   viewport under ~1693px, so ordinary desktop widths (1440, 1536) always
-   resolved to the bare floor -- a live CDP measurement at 1440x900 found a
-   ~424px dead gutter (212px each side) around the blog's narrow column,
-   read by users as "not filling the page". 74vw crosses the floor around
-   1373px so real desktop widths actually grow past it, same reasoning as
-   the sidebar variant above. */
+/* A shell with no sidebar has no competing column, so a vw-based clamp here
+   fights the same mismatch as the sidebar variant above: at 2560px the
+   84vw/1680px-ceiling version resolved to only 1680px against the full
+   2560px track -- a 440px dead gutter on EACH side, confirmed live via CDP.
+   .app-main is the grid's sole `minmax(0, 1fr)` track when .no-side removes
+   the sidebar column (topbar.css's own .app-body.no-side rule above), so a
+   percentage max-width resolves against that track directly instead of
+   approximating it from the viewport -- correct at any screen size by
+   construction, same fix as the sidebar variant. 90% (vs. 94% for the
+   sidebar variant) keeps a slightly wider gutter since there is no sidebar
+   edge to visually anchor the column against; 1800px ceiling keeps prose
+   measure sane on very wide screens while letting non-prose content (index
+   rows, meta) use the extra room. */
 .app-body.no-side .app-main.narrow {
-  max-width: clamp(calc(var(--measure-narrow) + var(--sidebar-width)), 84vw, 1680px);
+  max-width: min(90%, 1800px);
 }
 /* Article-body heading rhythm and lede spacing, consumed by flatspace-rendered
    long-form pages (docs, papers) that drop headings/panels directly into .app-main. */

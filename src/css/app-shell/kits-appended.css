@@ -1084,17 +1084,32 @@
    SECONDARY copy annotating the demo above it, so it takes the quiet voice:
    one step down from body, on the --fg-2 ramp, with a comfortable reading
    line-height. It owns only the RHYTHM between its lines; the panel body still
-   owns the inset, so this must not re-pad. */
+   owns the inset, so this must not re-pad.
+   Was `display:flex; flex-direction:column; gap:...`, which only produces
+   the intended one-row-per-<p> stack when every direct child IS a <p>. The
+   docs kit's flatspace-rendered `[!] note` admonition (an external build
+   tool this repo doesn't vendor -- no local markdown source or JS emits its
+   markup) drops its text straight into this div with no <p> wrapper, just a
+   text run mixed with inline <code>. Flex boxes each in-flow child
+   independently -- unlike normal block/inline flow, adjacent bare text runs
+   and inline elements do NOT merge into one anonymous box -- so every
+   "text, <code>, text, <code>, text" segment became its OWN flex item,
+   stretched full width by align-items:stretch: two full-width gray bars
+   (the <code> chips) each alone on their own row, breaking the sentence
+   apart. Confirmed live via CDP -- every <code> in the note rendered
+   `display:block` at the container's full width. Plain block flow has no
+   such requirement (bare text and inline children flow inline regardless of
+   <p> wrapping), so it fixes the unwrapped case for free; the child-margin
+   rule below reproduces the old flex `gap` spacing for the <p>-wrapped
+   consumers with no visual change for them. */
 .ds-pattern-notes {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
   color: var(--fg-2);
   font-size: var(--fs-sm);
   line-height: var(--lh-base);
   max-width: var(--measure);
   min-width: 0;
 }
+.ds-pattern-notes > * + * { margin-top: var(--space-2); }
 .ds-pattern-notes p { margin: 0; overflow-wrap: anywhere; }
 /* Inline literals inside a note read as quoted machinery, not as body copy —
    same tonal chip treatment .chat-bubble code uses. */
@@ -1243,9 +1258,25 @@
    against the surrounding prose, not to match its column. It is a literal
    rather than a new token because it has exactly one consumer — promote it to
    --measure-note the moment a second surface wants the same cap.
-   `margin-right: auto` (not `margin: 0 auto`) keeps the panel left-aligned to
-   the prose it interrupts and preserves .panel's own --space-4 stack margin. */
+   Was `margin-right: auto` alone, on the theory that it flush-left-aligns the
+   panel against the prose column it sits between. Two bugs compounded: (1)
+   .app-main.narrow is a column flex container, and ANY auto cross-axis margin
+   on a flex item disables align-items:stretch (falls back to align-self:start
+   + shrink-to-fit content sizing) — the exact bug .ds-prose was already fixed
+   for above (base.css) via an explicit width:100% "fill-then-cap"; this rule
+   never got the same fix, so it rendered content-width instead of up to its
+   640px cap (measured live at 384.8px on a 1564px-wide .app-main). (2) even
+   with that fixed, flush-left no longer matches "the prose it interrupts" --
+   .ds-prose itself was later changed from flush-left to centered (`margin:
+   auto auto`, base.css comment above) to kill one-sided dead whitespace on
+   wide/no-sidebar pages, so a flush-left note now sits well left of the
+   prose's own (centered) left edge instead of aligning with it. Matching
+   .ds-prose's own centering keeps the two aligned the same way at any
+   .app-main width, with the narrower cap reading as a deliberately indented
+   set-aside block against the wider prose column. */
 .panel.panel-inline-wide {
+  width: 100%;
   max-width: 640px;
+  margin-left: auto;
   margin-right: auto;
 }
