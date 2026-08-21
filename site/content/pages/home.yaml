@@ -6,16 +6,17 @@ showcase:
   lede: "Not a screenshot — the same Btn, Chip, Badge, and Table components every kit page imports, rendered right here from the SDK you'd actually install."
 
 hero:
-  heading: "Design"
+  eyebrow: "design system"
+  heading: "247420"
   subheading: "The 247420 design system"
-  body: "A complete, tokens-driven component system for building consistent, accessible interfaces fast: 19 ready-to-ship kit surfaces (the curated set below), 30 live previews, a slide deck, and a full desktop-shell demo — plus a web component and an SDK. Every panel, row, and form control reads its color, radius, and spacing from one shared token file, so a single theme change updates every surface built on it at once. Automated axe-core scan (WCAG-tagged rules only -- see the a11y report for what that does and doesn't cover) finds 0 blocking violations across all 23 kits in this repo, zero JavaScript bundler required."
+  body: "One token file drives every color, radius, and spacing value across 302 components and {{TOTAL_KITS}} working kits. Change a theme once — every surface updates, with zero component code changes and no JavaScript bundler required."
   badges:
-    - { label: "Design system" }
-    - { label: "Design tokens" }
-    - { label: "WCAG AA" }
+    - { label: "302", desc: "components" }
+    - { label: "{{TOTAL_KITS}}", desc: "kits" }
+    - { label: "0", desc: "blocking a11y violations" }
   ctas:
-    - { label: "GitHub", href: "https://github.com/AnEntrypoint/design", primary: true }
-    - { label: "247420", href: "https://247420.xyz" }
+    - { label: "View on GitHub", href: "https://github.com/AnEntrypoint/design", primary: true }
+    - { label: "Browse kits", href: "#kits" }
 
 sidebar:
   fab:
@@ -57,7 +58,7 @@ tabs:
 
 kits:
   heading: "UI kits"
-  count: "19 surfaces"
+  count: "18 surfaces"
   layout: cards
   categories:
     - { key: "ai-chat",    label: "AI & Chat" }
@@ -82,8 +83,8 @@ kits:
     - { code: "14", title: "Gallery",      sub: "Visual grid, tonal cards, lightbox",  desc: "Tiles on shared panel tokens that open into a matching lightbox.", href: "./ui_kits/gallery/", category: "apps" }
     - { code: "15", title: "OS shell",     sub: "Menubar, window manager, taskbar", desc: "A runnable desktop-shell demo with its own window manager and app registry.", href: "./ui_kits/os/", category: "shells" }
     - { code: "16", title: "Buttons",      sub: "Every variant, size, and state",   desc: "Primary, secondary, ghost, link, and danger, plus loading and disabled states.", href: "./ui_kits/buttons/", category: "devtools" }
-    - { code: "18", title: "Community",    sub: "Discord-style chat app, adapter-driven", desc: "A full server rail / channel sidebar / member list / voice strip community shell: mountCommunityApp wired to an injected adapter.", href: "./ui_kits/community-app/", category: "ai-chat" }
-    - { code: "19", title: "Workspace",    sub: "Desktop-class chat-agent product", desc: "The flagship surface: WorkspaceShell, ConversationList, AgentChat, SessionDashboard.", href: "./ui_kits/workspace/", category: "ai-chat" }
+    - { code: "17", title: "Community",    sub: "Discord-style chat app, adapter-driven", desc: "A full server rail / channel sidebar / member list / voice strip community shell: mountCommunityApp wired to an injected adapter.", href: "./ui_kits/community-app/", category: "ai-chat" }
+    - { code: "18", title: "Workspace",    sub: "Desktop-class chat-agent product", desc: "The flagship surface: WorkspaceShell, ConversationList, AgentChat, SessionDashboard.", href: "./ui_kits/workspace/", category: "ai-chat" }
 
 decks:
   heading: "Decks"
@@ -196,7 +197,7 @@ features:
     - { name: "Readable at a glance",   desc: "A disciplined type system reserves monospace for codes and labels and sans-serif for everything meant to be read, so interfaces stay legible under real workloads.", href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css", cta: "colors_and_type.css" }
     - { name: "Instant status recognition", desc: "Color-coded indicator rails let users scan for status and category at a glance, without relying on borders that add visual noise.", href: "https://github.com/AnEntrypoint/design/blob/main/src/css/app-shell/panel-row.css#L126", cta: "panel-row.css" }
     - { name: "Token-driven retheming, no component edits", desc: "Every surface, type scale, and accent color is driven entirely by design tokens — a light-on-light preset is genuinely quick (8-14 tokens), a real dark theme is a bigger job (~36 tokens, each hand-verified for contrast) until the theme generator in the roadmap ships.", href: "https://github.com/AnEntrypoint/design/blob/main/colors_and_type.css", cta: "colors_and_type.css" }
-    - { name: "Automated accessibility scanning in CI", desc: "Every kit is scanned with axe-core on WCAG-tagged rules (0 blocking violations across all 23 kits) plus shared focus-visible tokens and correct ARIA roles on core components. This covers a real but partial slice of WCAG -- it explicitly excludes best-practice checks like skip links and heading structure, and has no manual screen-reader or keyboard-only pass yet. Read the full report before treating this as a conformance claim.", href: "https://github.com/AnEntrypoint/design/blob/main/docs/a11y-report.md", cta: "a11y-report.md" }
+    - { name: "Automated accessibility scanning in CI", desc: "Every kit is scanned with axe-core on WCAG-tagged rules (0 blocking violations across all {{TOTAL_KITS}} kits) plus shared focus-visible tokens and correct ARIA roles on core components. This covers a real but partial slice of WCAG — it explicitly excludes best-practice checks like skip links and heading structure, and has no manual screen-reader or keyboard-only pass yet. Read the full report before treating this as a conformance claim.", href: "https://github.com/AnEntrypoint/design/blob/main/docs/a11y-report.md", cta: "a11y-report.md" }
 
 status_left:
   - "main"
@@ -207,4 +208,4 @@ status_left:
 # strings below, which only render if that lookup ever fails.
 status_right:
   - "anentrypoint-design"
-  - "19 kits"
+  - "18 kits"

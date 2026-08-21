@@ -922,11 +922,14 @@
   --fs-h1: clamp(38px, 4.8cqi, 58px);
 }
 
-/* Debug grid overlay — 8px mascot grid. Toggle via class on any container. */
+/* Debug grid overlay — 8px mascot grid. Toggle via class on any container.
+   Was a hardcoded rgba(232,75,138,...) literal despite the comment already
+   calling it a "mascot" grid -- color-mix() against the real --mascot token
+   now, same visual intent, no more raw color literal in a component sheet. */
 .with-grid-overlay {
   background-image:
-    linear-gradient(to right, rgba(232,75,138,0.15) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(232,75,138,0.15) 1px, transparent 1px);
+    linear-gradient(to right, color-mix(in oklab, var(--mascot) 15%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--mascot) 15%, transparent) 1px, transparent 1px);
   background-size: 8px 8px;
 }
 

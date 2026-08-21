@@ -112,7 +112,15 @@ export function Side({ sections = [] } = {}) {
         // Each section is a group labelled by its heading, so AT users hear the
         // heading as the group name instead of an orphan heading.
         return h('div', { class: 'app-side-group', key: sec.group, role: 'group', 'aria-labelledby': groupId },
-            h('h2', { class: 'group', id: groupId }, sec.group),
+            // Not a heading: this is a nav-group label, not page content, and
+            // rendering it as h2 put "open"/"bins"/"More" into the page's
+            // content heading outline ahead of the page's own h1 (this
+            // sidebar renders before <main> in DOM order) -- a screen-reader
+            // heading-jump would surface three orphan h2s before ever
+            // reaching real content. role="group" + aria-labelledby already
+            // gives the group its accessible name regardless of what element
+            // groupId points at, so a plain div loses nothing for AT users.
+            h('div', { class: 'group', id: groupId }, sec.group),
             ...sec.items.map((item, i) => {
                 const { glyph, label, href, active, count, color, onClick, ariaLabel } = item;
                 const countLabel = (count != null && count !== 0 && count !== '0') ? ` (${count})` : '';

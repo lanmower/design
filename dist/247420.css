@@ -924,11 +924,14 @@
   --fs-h1: clamp(38px, 4.8cqi, 58px);
 }
 
-/* Debug grid overlay — 8px mascot grid. Toggle via class on any container. */
+/* Debug grid overlay — 8px mascot grid. Toggle via class on any container.
+   Was a hardcoded rgba(232,75,138,...) literal despite the comment already
+   calling it a "mascot" grid -- color-mix() against the real --mascot token
+   now, same visual intent, no more raw color literal in a component sheet. */
 .ds-247420 .with-grid-overlay {
   background-image:
-    linear-gradient(to right, rgba(232,75,138,0.15) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(232,75,138,0.15) 1px, transparent 1px);
+    linear-gradient(to right, color-mix(in oklab, var(--mascot) 15%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--mascot) 15%, transparent) 1px, transparent 1px);
   background-size: 8px 8px;
 }
 
@@ -1520,6 +1523,11 @@
      via a fill difference, not a hairline -- consistent with the
      tonal-surfaces-over-borders principle instead of contradicting it. */
   background: var(--bg-2); overflow-y: auto; min-height: 0;
+  /* Matches .app-main's own bottom clearance below for the same reason: the
+     status bar is fixed/overlaid at the shell's bottom edge, and without
+     this the sidebar's own last row renders half-clipped behind it on any
+     viewport short enough that the sidebar's content reaches that far. */
+  padding-bottom: var(--app-status-h-live, var(--app-status-h));
   scrollbar-width: thin; scrollbar-color: var(--rule-strong) transparent;
   /* Bottom-edge fade: a rail longer than the viewport otherwise shows only
      the thin scrollbar track as its sole "there is more below" cue. Mirrors
@@ -2322,7 +2330,11 @@
    ============================================================ */
 .ds-247420 .row {
   display: grid;
-  grid-template-columns: minmax(80px, 12ch) minmax(0, 1fr) auto;
+  /* Column floor was 80px -- a 2-3 char mono code ("fb"/"os"/"wc"/"api")
+     never needed that much, leaving a wide dead gap before the title on
+     rows with short codes. 44px comfortably fits up to ~4 mono chars;
+     the 12ch ceiling still lets a genuinely longer code grow into it. */
+  grid-template-columns: minmax(44px, 12ch) minmax(0, 1fr) auto;
   gap: var(--space-3);
   align-items: baseline;
   /* App density is the BASE: a list row is quiet working chrome, so it defaults
@@ -2425,7 +2437,7 @@
    multi-line row pattern in this file (.ds-row-detail) already gets a
    dedicated line. */
 .ds-247420 .row:has(.meta.dim):has(.ds-row-arrow) {
-  grid-template-columns: minmax(80px, 12ch) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(44px, 12ch) minmax(0, 1fr) auto;
   grid-template-rows: auto auto;
   row-gap: var(--space-1);
 }

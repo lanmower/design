@@ -1,7 +1,7 @@
-title: "design"
+title: "Design"
 siteName: "247420"
 tagline: "247420 design system"
-description: "the visual paradigm. layered surfaces, monospace labels, loud content inside quiet chrome. consumed by every 247420 surface."
+description: "247420 is a tokens-driven design system: 302 components, 23 working kits, and one CSS file that reskins all of them. Install from npm or a CDN link tag."
 repo: "https://github.com/AnEntrypoint/design"
 url: "https://anentrypoint.github.io/design"
 year: 2026

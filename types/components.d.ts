@@ -484,6 +484,8 @@ export interface SectionProps {
     eyebrow?: any;
     children?: any;
     id?: any;
+    /** @default 2 */
+    headingLevel?: number;
 }
 export declare function Section(props?: SectionProps): VNode;
 
@@ -559,6 +561,7 @@ export interface TableProps {
     /** @default 'asc' */
     sortDir?: 'asc' | 'desc' | (string & {});
     onSort?: (...args: any[]) => any;
+    caption?: any;
 }
 export declare function Table(props?: TableProps): VNode;
 
