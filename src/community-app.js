@@ -176,9 +176,14 @@ export function mountCommunityApp(root, adapter = {}) {
     const railPill = (c, cur, isVoice, s) => {
         const active = cur.id === c.id;
         const inVoice = isVoice && s.voiceConnected && s.voiceChannelName === c.name;
-        const glyph = inVoice ? h('span', { class: 'glyph', 'aria-hidden': 'true' }, h('span', { class: 'ds-dot ds-dot-live' }))
-            : (c.type === 'threaded' ? h('span', { class: 'glyph', 'aria-hidden': 'true' }, Icon('circle-dot', { size: 15 }))
-                : h('span', { class: 'glyph', 'aria-hidden': 'true' }, Icon(CHANNEL_ICON[c.type] || 'hash', { size: 15 })));
+        // Per-type modifier class (glyph-voice/glyph-announcement/...) so
+        // community-app.css can give voice + announcement channels their own
+        // accent instead of every rail icon sitting at the same flat
+        // --fg-3 -- text channels (the majority, and the visual baseline)
+        // keep the neutral tone.
+        const glyph = inVoice ? h('span', { class: 'glyph glyph-voice', 'aria-hidden': 'true' }, h('span', { class: 'ds-dot ds-dot-live' }))
+            : (c.type === 'threaded' ? h('span', { class: 'glyph glyph-threaded', 'aria-hidden': 'true' }, Icon('circle-dot', { size: 15 }))
+                : h('span', { class: 'glyph glyph-' + (c.type || 'text'), 'aria-hidden': 'true' }, Icon(CHANNEL_ICON[c.type] || 'hash', { size: 15 })));
         return h('a', {
             href: '#', class: active ? 'active' : '', 'aria-label': (c.name || c.id) + (inVoice ? ' (in voice)' : ''),
             onclick: (e) => { e.preventDefault(); A.switchChannel && A.switchChannel(c); },
@@ -281,19 +286,46 @@ export function mountCommunityApp(root, adapter = {}) {
         });
     };
 
-    const voiceView = (s) => h('div', { class: 'vx-view' },
-        h('div', { class: 'vx-grid' }, ...(s.voiceParticipants || []).map((p, i) => VoiceUser({ ...p, key: p.identity || p.id || i }))),
-        s.webcamEnabled ? WebcamPreview({ videoStream: s.webcamStream, resolution: s.webcamResolution, fps: s.webcamFps, enabled: true }) : null,
-        s.pttUiMode === 'vad' ? VadMeter({ level: s.micRawLevel || 0, threshold: s.vadThreshold, onThresholdChange: (t) => A.setVadThreshold && A.setVadThreshold(t) }) : null,
-        s.pttUiMode === 'ptt' || s.pttUiMode == null ? PttButton({ state: s.isSpeaking ? 'live' : 'idle', mode: 'ptt', onHoldStart: () => A.pttStart && A.pttStart(), onHoldEnd: () => A.pttStop && A.pttStop() }) : null,
-        VoiceControls({
-            muted: !!s.micMuted, deafened: !!s.voiceDeafened,
-            onMic: () => A.toggleMic && A.toggleMic(),
-            onDeafen: () => A.toggleDeafen && A.toggleDeafen(),
-            onSettings: () => A.openVoiceSettings && A.openVoiceSettings(),
-            onLeave: () => A.leaveVoice && A.leaveVoice(),
-        }),
-    );
+    // Previously: an empty .vx-grid rendered as bare nothing whenever an
+    // adapter had no voiceParticipants yet (before anyone else joins, or
+    // after everyone leaves) -- a silent gap indistinguishable from a
+    // loading/broken state. Named per the .chat-empty precedent (an icon +
+    // title + sub, not just a blank div) so "nobody's here" reads as an
+    // intentional state rather than the app having failed to load anyone.
+    const voiceEmpty = (s) => h('div', { class: 'vx-grid-empty', role: 'status' },
+        Icon('speaker', { size: 28 }),
+        h('p', { class: 'vx-grid-empty-title' }, 'quiet in here'),
+        h('p', { class: 'vx-grid-empty-sub' }, 'no one else is connected to ' + (s.currentChannel && s.currentChannel.name || 'this channel') + ' right now.'));
+
+    // PttButton + VoiceControls used to be two independent flex children of
+    // .vx-view, each carrying its own box (a 120px-square pill stretched
+    // full-width by the column's default align-items:stretch, then a
+    // separately-chromed toolbar bar directly under it) -- which read as
+    // two unrelated floating bars rather than one control cluster. Grouping
+    // them under .vx-dock gives community-app.css one element to center,
+    // cap the width of, and tighten the gap on (see .vx-dock rules there)
+    // without touching PttButton/VoiceControls themselves, which other
+    // mountCommunityApp hosts may lay out differently.
+    const voiceView = (s) => {
+        const participants = s.voiceParticipants || [];
+        return h('div', { class: 'vx-view' },
+            participants.length
+                ? h('div', { class: 'vx-grid' }, ...participants.map((p, i) => VoiceUser({ ...p, key: p.identity || p.id || i })))
+                : voiceEmpty(s),
+            h('div', { class: 'vx-dock' },
+                s.webcamEnabled ? WebcamPreview({ videoStream: s.webcamStream, resolution: s.webcamResolution, fps: s.webcamFps, enabled: true }) : null,
+                s.pttUiMode === 'vad' ? VadMeter({ level: s.micRawLevel || 0, threshold: s.vadThreshold, onThresholdChange: (t) => A.setVadThreshold && A.setVadThreshold(t) }) : null,
+                s.pttUiMode === 'ptt' || s.pttUiMode == null ? PttButton({ state: s.isSpeaking ? 'live' : 'idle', mode: 'ptt', onHoldStart: () => A.pttStart && A.pttStart(), onHoldEnd: () => A.pttStop && A.pttStop() }) : null,
+                VoiceControls({
+                    muted: !!s.micMuted, deafened: !!s.voiceDeafened,
+                    onMic: () => A.toggleMic && A.toggleMic(),
+                    onDeafen: () => A.toggleDeafen && A.toggleDeafen(),
+                    onSettings: () => A.openVoiceSettings && A.openVoiceSettings(),
+                    onLeave: () => A.leaveVoice && A.leaveVoice(),
+                }),
+            ),
+        );
+    };
 
     const view = () => {
         const s = get();

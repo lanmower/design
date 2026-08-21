@@ -817,15 +817,22 @@
    block that also carries the identity strip / suggestions / docs fold --
    margin:auto on that fuller block left too little spare height to move,
    which is why an earlier attempt at this still read top-heavy. This
-   variant renders as its own minimal tree (see aicat/app.js), so centering
-   it here actually has room to work: .app-main's flex-column parent gives
-   this child top/bottom auto margins, and with only two short children the
-   block is small enough to visibly float in the middle of the viewport. */
+   variant renders as its own minimal tree (see aicat/app.js).
+   margin-top/bottom:auto here was dead weight, not a fix: this element also
+   carries .aicat-focus-col, which .app-main's own rule (topbar.css) grants
+   flex:1 1 auto -- flex-grow:1 claims 100% of .app-main's leftover height
+   for ITSELF, so there is no free space left for its own auto margins to
+   distribute. It rendered full-height with its children left stacked at the
+   top (flex-start, the default), which is the exact "floating box in a sea
+   of black with dead space below" bug this was meant to fix -- confirmed
+   live via CDP screenshot before this change. justify-content:center is the
+   correct tool once the item itself is the one filling the full-height
+   region: it centers the children (hero + composer + suggestions) inside
+   the space this box already occupies, instead of trying to move the box. */
 .aicat-empty-canvas {
-  margin-top: auto;
-  margin-bottom: auto;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   /* align-items:center previously left the composer at its shrink-to-fit
      intrinsic width instead of filling the 720px focus column -- .chat-composer
      is display:flex with no explicit width, so centering the flex item
@@ -838,6 +845,22 @@
   align-items: stretch;
   gap: var(--space-4);
 }
+/* Small mascot glyph + lead question grouped as one hero unit above the
+   composer -- gives the empty state a visual anchor besides the bare input
+   (the original complaint: "just a floating input box in a sea of black").
+   Reuses the existing 32px .aicat-face circle (chat-polish.css above) at a
+   slightly larger size rather than inventing a new icon treatment. */
+.aicat-empty-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+.aicat-face-hero {
+  width: 44px;
+  height: 44px;
+  font-size: 12px;
+}
 .aicat-empty-lead {
   font-family: var(--ff-display);
   font-size: var(--fs-xl);
@@ -845,6 +868,16 @@
   color: var(--fg);
   text-align: center;
   margin: 0;
+}
+/* Suggestion chips reuse .chat-suggestions (chat.css) as-is, just tightened
+   here: that component's own padding (--space-6 top/bottom) is tuned for
+   sitting inside a populated transcript below other content, which read as
+   too much extra air stacked on top of .aicat-empty-canvas's own centering
+   gap in the true empty state (three balanced children -- hero, composer,
+   suggestions -- not one CTA block with its own independent spacing). */
+.aicat-empty-canvas .chat-suggestions {
+  padding: 0;
+  max-width: none;
 }
 /* Reference's Projects/General sidebar switcher: a two-pill row sitting
    above the tree, spaced off the tree below it like a real section header,

@@ -50,6 +50,13 @@ const PRESETS = [
     { q: 'tell me a joke about garbage collection', k: 'text' }
 ];
 
+// 4-chip starter subset for the true empty state (see 'main-empty' below) --
+// one representative prompt per reply modality (code / pdf / image / link)
+// rather than all 8 PRESETS, so the empty canvas reads as a few clear
+// starting points instead of a wall of chips competing with the composer.
+const STARTER_KEYS = ['code-react', 'pdf', 'image', 'link'];
+const STARTER_PRESETS = STARTER_KEYS.map((k) => PRESETS.find((p) => p.k === k));
+
 const REPLIES = {
     'code-react': () => ({ parts: [
         { kind: 'text', text: 'sure — here\'s a tiny one:' },
@@ -324,13 +331,30 @@ function App() {
                 // reproduce a page whose ENTIRE canvas is empty but for the
                 // question and the input.
                 h('div', { key: 'main-empty', class: 'ds-app-surface aicat-focus-col aicat-empty-canvas' },
-                    h('p', { class: 'aicat-empty-lead' }, 'what should aicat help with?'),
+                    h('div', { class: 'aicat-empty-hero' },
+                        h('pre', { class: 'aicat-face aicat-face-hero', role: 'img', 'aria-label': 'aicat portrait' }, FACES.idle),
+                        h('p', { class: 'aicat-empty-lead' }, 'what should aicat help with?')
+                    ),
                     ChatComposer({
                         value: state.draft,
                         placeholder: 'ask aicat anything…',
                         disabled: state.thinking,
                         onInput: (v) => { state.draft = v; kit.render(); },
                         onSend: send
+                    }),
+                    // Reachable, clickable starting points -- an empty canvas
+                    // with only a lead question and a bare input reads as
+                    // broken/unfinished with nothing to click; these chips
+                    // give a first-time visitor an obvious way in besides
+                    // typing cold. Reuses the same ChatSuggestions primitive
+                    // (and send()) as the populated state's "or try one of
+                    // these" row below the transcript.
+                    ChatSuggestions({
+                        heading: 'try one of these',
+                        suggestions: STARTER_PRESETS.map((p) => ({
+                            id: p.k, label: truncateAtWord(p.q, 34),
+                            onPick: () => { if (!state.thinking) send(p.q); }
+                        }))
                     })
                 )
             ) : h('div', { key: 'main-populated', class: 'ds-app-surface ds-section-pad aicat-focus-col' },

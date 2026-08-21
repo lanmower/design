@@ -369,7 +369,14 @@ body.canvas-host { background: transparent !important; }
 .app-side .count {
   background: color-mix(in oklab, var(--fg) 10%, transparent);
   color: var(--fg-2);
-  padding: 3px 10px; font-size: var(--fs-micro); font-weight: 700;
+  /* was a hardcoded 3px 10px -- --space-half/--space-2-5 are the exact same
+     computed values (3px/10px at density:1), so this is a token substitution,
+     not a resize. NOTE: sidebar-misc.css declares .app-side .count's padding
+     again at equal specificity and loads later in app-shell.css's @import
+     order, so ITS padding is what actually wins the cascade here -- see the
+     fix (and full explanation) there. Tokenizing this one too so it's
+     correct/harmless if the import order ever changes. */
+  padding: var(--space-half) var(--space-2-5); font-size: var(--fs-micro); font-weight: 700;
   border-radius: var(--r-pill);
 }
 /* Active state is a flat neutral highlight (--bg-3/--fg), not an accent
