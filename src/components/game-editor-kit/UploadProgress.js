@@ -132,7 +132,7 @@ export function createUploadProgress(opts = {}) {
           }
         }, 'Close')
       ])
-    ])
+    ].filter(Boolean))
 
     _container.innerHTML = ''
     _container.appendChild(content)

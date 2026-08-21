@@ -86,7 +86,7 @@ export function UndoHistoryPanel(opts = {}) {
             `
           },
             entry.count ? `${entry.count} changes` : '',
-            entry.timestamp ? ` • ${new Date(entry.timestamp).toLocaleTimeString()}` : ''
+            entry.timestamp ? ` · ${new Date(entry.timestamp).toLocaleTimeString()}` : ''
           )
         )
       )

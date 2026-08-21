@@ -1,4 +1,5 @@
-import { h } from 'anentrypoint-design'
+import { h, components } from 'anentrypoint-design'
+const { Icon } = components
 import { getSharedWM, Btn, Toolbar, SearchInput } from './ui-components.js'
 import { showToast } from './utils.js'
 
@@ -111,7 +112,7 @@ export function createAssetBrowser(opts = {}) {
                 render()
               }
             }
-          }, '✕')
+          }, Icon('x'))
         ])
       ])
     })
@@ -137,7 +138,7 @@ export function createAssetBrowser(opts = {}) {
         h('div', { style: 'flex:1;min-width:0', onClick: () => onAssetSelect?.(asset) }, [
           h('div', { style: 'font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap' }, asset.name),
           asset.tags && asset.tags.length > 0 ? h('div', { style: 'font-size:10px;color:var(--panel-text-3,#999);margin-top:2px' }, asset.tags.join(', ')) : null
-        ]),
+        ].filter(Boolean)),
         h('div', { style: 'display:flex;gap:4px' }, [
           h('button', {
             type: 'button',
@@ -217,7 +218,7 @@ export function createAssetBrowser(opts = {}) {
           }
         }, tag)
       )) : null
-    ])
+    ].filter(Boolean))
 
     const breadcrumbs = renderFolderTree()
     const folderPanel = renderFolderPanel()

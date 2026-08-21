@@ -83,7 +83,7 @@ export function createAssetPickerModal(opts = {}) {
         asset.tags && asset.tags.length > 0 ? h('div', { style: 'font-size:10px;color:var(--fg-2);margin-top:4px' }, asset.tags.join(', ')) : null,
 
         h('div', { style: 'font-size:10px;color:var(--fg-3,#999);margin-top:4px' }, asset.path || '')
-      ])
+      ].filter(Boolean))
     })
 
     return h('div', {

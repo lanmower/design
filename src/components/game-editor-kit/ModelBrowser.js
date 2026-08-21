@@ -1,4 +1,5 @@
-import { h, applyDiff } from 'anentrypoint-design'
+import { h, applyDiff, components } from 'anentrypoint-design'
+const { Icon } = components
 import { showToast } from './utils.js'
 import { getSharedWM, Btn, Toolbar, SearchInput, EmptyState } from './ui-components.js'
 
@@ -118,7 +119,7 @@ export function createModelBrowser(container, opts = {}) {
         ghost: _viewMode !== 'grid',
         onClick: () => { _viewMode = 'grid'; render() },
         title: 'Grid View',
-        children: ['⊞']
+        children: [Icon('grid')]
       }),
       Btn({
         dense: true,
@@ -132,7 +133,7 @@ export function createModelBrowser(container, opts = {}) {
         ghost: true,
         onClick: loadModels,
         title: 'Refresh',
-        children: ['⟳']
+        children: [Icon('refresh')]
       })
     )
     applyDiff(_toolbarHost, [controls])
@@ -237,7 +238,7 @@ export function createModelBrowser(container, opts = {}) {
             class: 'ds-ep-wm-btn',
             style: 'padding:4px 8px;font-size:11px',
             onclick: () => { _previewMode = false; render() }
-          }, '✕')
+          }, Icon('x'))
         ),
         h('div', { style: 'flex:1;min-height:0;display:flex;gap:12px;padding:12px;overflow-y:auto' },
           h('div', { style: 'flex:1;min-width:300px;background:var(--bg-2);border-radius:6px;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;position:relative', id: 'model-preview-container' },
