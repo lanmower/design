@@ -1060,6 +1060,11 @@
           "name": "id",
           "default": null,
           "alias": null
+        },
+        {
+          "name": "headingLevel",
+          "default": "2",
+          "alias": null
         }
       ],
       "description": ""
@@ -1228,6 +1233,11 @@
         },
         {
           "name": "onSort",
+          "default": null,
+          "alias": null
+        },
+        {
+          "name": "caption",
           "default": null,
           "alias": null
         }
