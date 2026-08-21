@@ -1,149 +1,196 @@
+/**
+ * DamageNumbers — Floating damage text rendering in 3D world space.
+ *
+ * Creates animated damage indicators that float above hit points, fade out
+ * over time. Pure UI layer with no backend dependencies — scene/camera are
+ * passed in, no game-state coupling. Compatible with THREE.js.
+ *
+ * Factory pattern: createDamageNumbers(scene, camera, config) returns {
+ *   addNumber(damage, worldPos, options),
+ *   update(deltaTime),
+ *   getActiveNumbers(),
+ *   cleanup()
+ * }
+ */
+
+/**
+ * Create a damage numbers manager.
+ *
+ * @param {THREE.Scene} scene - The THREE.js scene (for container attachment).
+ * @param {THREE.Camera} camera - The THREE.js camera (for projection math).
+ * @param {Object} [config={}] - Configuration object.
+ * @param {HTMLElement} [config.container] - DOM container for text elements. Defaults to document.body.
+ * @param {string} [config.defaultColor='#ff4444'] - Default color for numbers.
+ * @param {number} [config.defaultFontSize=32] - Default font size in pixels.
+ * @param {number} [config.defaultDuration=1500] - Lifetime in milliseconds.
+ * @param {boolean} [config.useLargerFontForBigDamage=true] - Scale font size with damage amount.
+ * @returns {Object} Manager with methods: addNumber, update, getActiveNumbers, cleanup.
+ */
 export function createDamageNumbers(scene, camera, config = {}) {
-  const defaults = {
-    damageNumbersEnabled: true,
-    color: '#ff4444',
-    size: 32,
-    duration: 1500,
-    floatDistance: 2
-  };
-  const settings = { ...defaults, ...config };
-  const activeNumbers = [];
-  let numberGroup = null;
+	const {
+		container = typeof document !== 'undefined' ? document.body : null,
+		defaultColor = '#ff4444',
+		defaultFontSize = 32,
+		defaultDuration = 1500,
+		useLargerFontForBigDamage = true
+	} = config;
 
-  function _ensureGroup() {
-    if (!numberGroup) {
-      numberGroup = document.createElement('div');
-      numberGroup.id = 'damage-numbers-container';
-      numberGroup.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 1000;
-      `;
-      document.body.appendChild(numberGroup);
-    }
-  }
+	const numbers = [];
+	const screenDimensions = { width: 1920, height: 1080 };
 
-  function _worldToScreenCoords(worldPos) {
-    if (!camera) return null;
-    const vec3 = new (window.THREE?.Vector3 || (function() {
-      return function(x, y, z) { this.x = x; this.y = y; this.z = z; };
-    })())(worldPos.x, worldPos.y, worldPos.z);
+	function updateScreenDimensions() {
+		if (container && container !== document.body) {
+			screenDimensions.width = container.clientWidth || 1920;
+			screenDimensions.height = container.clientHeight || 1080;
+		} else if (typeof window !== 'undefined') {
+			screenDimensions.width = window.innerWidth;
+			screenDimensions.height = window.innerHeight;
+		}
+	}
 
-    if (window.THREE?.Vector3 && camera.worldToScreen) {
-      return camera.worldToScreen(vec3);
-    }
+	function normalizePosition(worldPos) {
+		if (!worldPos) return { x: 0, y: 0, z: 0 };
+		if (worldPos.x !== undefined) return { x: worldPos.x, y: worldPos.y, z: worldPos.z };
+		return worldPos;
+	}
 
-    const pos = { x: worldPos.x, y: worldPos.y, z: worldPos.z };
-    const viewport = {
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2,
-      width: window.innerWidth,
-      height: window.innerHeight
-    };
+	function projectToScreen(worldPos) {
+		if (!camera) return null;
 
-    return {
-      x: viewport.x + (pos.x * 50),
-      y: viewport.y - (pos.y * 50)
-    };
-  }
+		const pos = normalizePosition(worldPos);
+		const vector = typeof camera.project === 'function'
+			? camera.project({ x: pos.x, y: pos.y, z: pos.z })
+			: null;
 
-  function addNumber(damage, worldPos, options = {}) {
-    if (!settings.damageNumbersEnabled || !numberGroup) return;
+		if (!vector) return null;
 
-    _ensureGroup();
+		const screenX = (vector.x + 1) / 2 * screenDimensions.width;
+		const screenY = (1 - vector.y) / 2 * screenDimensions.height;
 
-    const startTime = Date.now();
-    const element = document.createElement('div');
-    const color = options.color || (damage > 25 ? '#ff0000' : '#ff4444');
-    const size = options.size || (32 + damage / 10);
-    const screenPos = _worldToScreenCoords(worldPos);
+		return { x: screenX, y: screenY, z: vector.z };
+	}
 
-    if (!screenPos) return;
+	function createElement(damage, screenPos, options) {
+		if (!container) return null;
 
-    element.textContent = Math.ceil(damage);
-    element.style.cssText = `
-      position: absolute;
-      left: ${screenPos.x}px;
-      top: ${screenPos.y}px;
-      color: ${color};
-      font-size: ${size}px;
-      font-weight: bold;
-      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
-      pointer-events: none;
-      user-select: none;
-      white-space: nowrap;
-      transform: translate(-50%, -50%);
-      font-family: system-ui, -apple-system, sans-serif;
-    `;
+		const el = typeof document !== 'undefined' ? document.createElement('div') : null;
+		if (!el) return null;
 
-    numberGroup.appendChild(element);
+		const isLargeNumber = damage > 25;
+		const fontSize = useLargerFontForBigDamage && isLargeNumber
+			? defaultFontSize * (1 + Math.min(damage / 100, 0.5))
+			: defaultFontSize;
 
-    const number = {
-      damage: Math.ceil(damage),
-      element,
-      startTime,
-      duration: options.duration || settings.duration,
-      floatDistance: options.floatDistance || settings.floatDistance,
-      isActive() { return Date.now() - this.startTime < this.duration },
-      getAlpha() {
-        const elapsed = Date.now() - this.startTime;
-        return Math.max(0, 1 - elapsed / this.duration);
-      },
-      getYOffset() {
-        const elapsed = Date.now() - this.startTime;
-        return (elapsed / this.duration) * this.floatDistance;
-      }
-    };
+		const color = options.color || defaultColor;
 
-    activeNumbers.push(number);
-    return number;
-  }
+		el.className = 'ds-damage-number';
+		el.textContent = Math.abs(Math.floor(damage));
+		el.style.cssText = `
+position: fixed;
+left: ${screenPos.x}px;
+top: ${screenPos.y}px;
+transform: translate(-50%, -50%);
+font-size: ${fontSize}px;
+font-weight: bold;
+color: ${color};
+pointer-events: none;
+white-space: nowrap;
+z-index: 10000;
+opacity: 1;
+line-height: 1;
+font-family: system-ui, -apple-system, sans-serif;
+text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+`;
 
-  function update() {
-    const toRemove = [];
+		container.appendChild(el);
+		return el;
+	}
 
-    for (let i = 0; i < activeNumbers.length; i++) {
-      const num = activeNumbers[i];
-      if (!num.isActive()) {
-        if (num.element.parentNode) num.element.parentNode.removeChild(num.element);
-        toRemove.push(i);
-        continue;
-      }
+	function addNumber(damage, worldPos, options = {}) {
+		updateScreenDimensions();
 
-      const alpha = num.getAlpha();
-      const yOffset = num.getYOffset();
-      num.element.style.opacity = alpha;
-      num.element.style.transform = `translate(-50%, calc(-50% - ${yOffset * 30}px))`;
-    }
+		const screenPos = projectToScreen(worldPos);
+		if (!screenPos) return null;
 
-    for (let i = toRemove.length - 1; i >= 0; i--) {
-      activeNumbers.splice(toRemove[i], 1);
-    }
-  }
+		const el = createElement(damage, screenPos, options);
+		if (!el) return null;
 
-  function getActiveNumbers() {
-    return activeNumbers.filter(n => n.isActive());
-  }
+		const duration = options.duration !== undefined ? options.duration : defaultDuration;
+		const floatDistance = options.floatDistance !== undefined ? options.floatDistance : 60;
 
-  function cleanup() {
-    activeNumbers.forEach(n => {
-      if (n.element.parentNode) n.element.parentNode.removeChild(n.element);
-    });
-    activeNumbers.length = 0;
-    if (numberGroup && numberGroup.parentNode) {
-      numberGroup.parentNode.removeChild(numberGroup);
-      numberGroup = null;
-    }
-  }
+		const entry = {
+			damage,
+			worldPos: normalizePosition(worldPos),
+			screenPos,
+			element: el,
+			startTime: Date.now(),
+			duration,
+			floatDistance,
+			isActive: true,
+			destroyPending: false
+		};
 
-  return {
-    addNumber,
-    update,
-    getActiveNumbers,
-    cleanup
-  };
+		numbers.push(entry);
+		return entry;
+	}
+
+	function update(deltaTime = 16) {
+		updateScreenDimensions();
+
+		for (let i = numbers.length - 1; i >= 0; i--) {
+			const entry = numbers[i];
+			if (!entry.isActive) continue;
+
+			const elapsed = Date.now() - entry.startTime;
+			const progress = Math.min(elapsed / entry.duration, 1);
+			const alpha = 1 - progress;
+
+			if (!entry.element) {
+				numbers.splice(i, 1);
+				continue;
+			}
+
+			const floatOffset = progress * entry.floatDistance;
+
+			entry.element.style.opacity = String(alpha);
+			entry.element.style.transform = `translate(-50%, calc(-50% - ${floatOffset}px))`;
+
+			if (progress >= 1) {
+				entry.destroyPending = true;
+				if (entry.element && entry.element.parentNode) {
+					entry.element.parentNode.removeChild(entry.element);
+				}
+				entry.element = null;
+				entry.isActive = false;
+				numbers.splice(i, 1);
+			}
+		}
+	}
+
+	function getActiveNumbers() {
+		return numbers.filter(n => n.isActive).map(n => ({
+			damage: n.damage,
+			worldPos: n.worldPos,
+			screenPos: n.screenPos,
+			elapsed: Date.now() - n.startTime,
+			duration: n.duration,
+			progress: Math.min((Date.now() - n.startTime) / n.duration, 1)
+		}));
+	}
+
+	function cleanup() {
+		for (const entry of numbers) {
+			if (entry.element && entry.element.parentNode) {
+				entry.element.parentNode.removeChild(entry.element);
+			}
+		}
+		numbers.length = 0;
+	}
+
+	return {
+		addNumber,
+		update,
+		getActiveNumbers,
+		cleanup
+	};
 }

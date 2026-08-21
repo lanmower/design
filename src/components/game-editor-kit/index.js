@@ -10,6 +10,9 @@ export {
   getThumbnailGenerationProgress,
   modelCache
 } from './ModelBrowserIntegration.js'
+export { createAssetBrowser } from './AssetBrowser.js'
+export { createUploadProgress } from './UploadProgress.js'
+export { createAssetPickerModal } from './AssetPickerModal.js'
 export { showToast } from './utils.js'
 export { Btn, SearchInput, EmptyState, Toolbar, getSharedWM } from './ui-components.js'
 export { ResetButton } from './ResetButton.js'
