@@ -72,8 +72,14 @@ export const batch = makePage((ctx) => {
     async function run() {
         const prompts = (ctx.state.prompts || '').split('\n').map(x => x.trim()).filter(Boolean);
         if (!prompts.length) { ctx.set({ note: { kind: 'warn', msg: 'enter at least one prompt (one per line)' } }); return; }
+        // `Number(x) || 4` only guards NaN/0 -- a genuine negative number is
+        // still truthy and passes through. src/batch.js clamps this too, but
+        // failing fast here gives the user real feedback instead of a batch
+        // that (pre-clamp) could hang forever with no error.
+        const n = Number(ctx.state.concurrency);
+        if (!Number.isFinite(n) || n <= 0) { ctx.set({ note: { kind: 'warn', msg: 'concurrency must be a positive number' } }); return; }
         ctx.set({ busy: true, note: null, result: null });
-        try { const r = await api('/api/batch', { method: 'POST', body: { prompts, concurrency: Number(ctx.state.concurrency) || 4 } }); ctx.set({ result: r }); }
+        try { const r = await api('/api/batch', { method: 'POST', body: { prompts, concurrency: Math.floor(n) } }); ctx.set({ result: r }); }
         catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); }
         ctx.set({ busy: false });
     }

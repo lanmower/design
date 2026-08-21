@@ -113,8 +113,13 @@ export const debug = makePage((ctx) => {
         const s = ctx.state;
         if (s.loading) return loadingState('loading debug snapshots…');
         if (s.error) return errorState(s.error, load);
-        const d = s.data || {};
-        const subsystems = d.subsystems || Object.keys(d);
+        // GET /api/debug (plugins/gui/gui-debug/plugin.js -> listDebug())
+        // returns a plain ARRAY of subsystem-name strings, never
+        // {subsystems:[...]}. Object.keys(array) yields index strings
+        // ("0","1",...) instead of the real names -- guard the array case
+        // first so this doesn't quietly fall through to the wrong branch.
+        const d = s.data;
+        const subsystems = Array.isArray(d) ? d : (d && d.subsystems) || Object.keys(d || {});
         return [
             PageHeader({ title: 'debug', lede: 'subsystem snapshots & logs' }),
             section('subsystems', subsystems.length ? subsystems.map((name, i) => Row({

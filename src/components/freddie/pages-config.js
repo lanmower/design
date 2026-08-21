@@ -10,6 +10,38 @@ import { section, noteAlert, liveRegion } from './shared.js';
 
 const h = webjsx.createElement;
 
+// POST /api/config (plugins/gui/gui-config/plugin.js) only ever accepts a
+// SINGLE {key, value} dot-path write at a time (it delegates straight to
+// src/config.js::saveConfigValue(dotpath, value), which recursively creates
+// nested objects along the path) -- it does not accept a bulk map body.
+// Recursively flatten nested config OBJECTS (not arrays -- an array like
+// agent.model_preference can't be safely round-tripped through a plain text
+// field) into dot-path leaves so both (a) the save request shape actually
+// matches what the backend accepts, and (b) settings that live one or more
+// levels deep (almost everything in DEFAULT_CONFIG) are actually editable
+// here instead of only true top-level scalars.
+function flattenConfig(obj, prefix = '') {
+    const out = [];
+    for (const [k, v] of Object.entries(obj || {})) {
+        const path = prefix ? prefix + '.' + k : k;
+        if (v !== null && typeof v === 'object' && !Array.isArray(v)) out.push(...flattenConfig(v, path));
+        else out.push([path, v]);
+    }
+    return out;
+}
+
+// TextField.onInput always yields a string; coerce back to the original
+// value's real type before sending, or a numeric/boolean setting silently
+// turns into its string form on save (e.g. agent.approval_timeout_ms
+// becoming "120000" instead of 120000 would break any duration math
+// downstream, and _config_version becoming a string would break the
+// migration-version check that compares it numerically).
+function coerceLike(original, raw) {
+    if (typeof original === 'number') { const n = Number(raw); return Number.isNaN(n) ? original : n; }
+    if (typeof original === 'boolean') return raw === 'true' || raw === true;
+    return raw;
+}
+
 export const config = makePage((ctx) => {
     Object.assign(ctx.state, { edited: {}, busy: false, note: null });
     async function load() {
@@ -18,15 +50,29 @@ export const config = makePage((ctx) => {
             ctx.set({ loading: false, cfg, skins, error: null });
         } catch (e) { ctx.set({ loading: false, error: e }); }
     }
+    async function saveOne(key, value) {
+        return api('/api/config', { method: 'POST', body: { key, value } });
+    }
     async function save() {
+        const entries = Object.entries(ctx.state.edited);
+        if (!entries.length) return;
         ctx.set({ busy: true, note: null });
-        try { await api('/api/config', { method: 'POST', body: ctx.state.edited }); ctx.state.edited = {}; await load(); ctx.set({ note: { kind: 'success', msg: 'saved' } }); }
-        catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); }
+        try {
+            for (const [key, value] of entries) await saveOne(key, value);
+            ctx.state.edited = {};
+            await load();
+            ctx.set({ note: { kind: 'success', msg: 'saved' } });
+        } catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); }
         ctx.set({ busy: false });
     }
     async function setSkin(name) {
         ctx.set({ busy: true, note: null });
-        try { await api('/api/config', { method: 'POST', body: { skin: name } }); await load(); ctx.set({ note: { kind: 'success', msg: 'skin -> ' + name } }); }
+        // The real, canonical path is display.skin -- src/skin/engine.js's
+        // getSkin()/saveSkin() and src/cli/setup.js both read/write exactly
+        // this dot-path. A bare 'skin' key writes to a location the skin
+        // engine never reads, so the picker would "succeed" with zero real
+        // effect on which skin is actually active.
+        try { await saveOne('display.skin', name); await load(); ctx.set({ note: { kind: 'success', msg: 'skin -> ' + name } }); }
         catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); }
         ctx.set({ busy: false });
     }
@@ -36,22 +82,32 @@ export const config = makePage((ctx) => {
         if (s.loading) return loadingState('loading config…');
         if (s.error) return errorState(s.error, load);
         const cfg = s.cfg || {};
-        const flat = Object.entries(cfg).filter(([, v]) => typeof v !== 'object' || v === null);
-        const nested = Object.entries(cfg).filter(([, v]) => typeof v === 'object' && v !== null);
-        const skinList = Array.isArray(s.skins) ? s.skins : (s.skins?.skins || s.skins?.available || []);
-        const activeSkin = cfg.skin || s.skins?.active || '';
+        // _config_version is migration-owned: src/config.js's migrate() runs
+        // on every loadConfig() and unconditionally sets it to
+        // DEFAULT_CONFIG._config_version regardless of what's stored --
+        // editing it here would always silently no-op on the next load, so
+        // don't offer it as an editable field. display.skin is covered by
+        // the dedicated Select below (same real path, better UX) -- exclude
+        // it from the generic list to avoid two controls racing on save.
+        const flat = flattenConfig(cfg).filter(([k, v]) => k !== '_config_version' && k !== 'display.skin' && (v === null || typeof v !== 'object'));
+        const arrayKeys = flattenConfig(cfg).filter(([, v]) => Array.isArray(v)).map(([k]) => k);
+        // GET /api/skins (listBuiltinSkins()) returns a bare array of skin
+        // NAME strings, not {skins,active} -- and the real active-skin value
+        // lives at cfg.display.skin (see setSkin's comment), never cfg.skin.
+        const skinList = Array.isArray(s.skins) ? s.skins : [];
+        const activeSkin = (cfg.display && cfg.display.skin) || 'default';
         return [
             PageHeader({ title: 'config', lede: 'runtime configuration' }),
             noteAlert(s.note),
             liveRegion(s.busy ? 'saving configuration' : ''),
-            nested.length ? h('div', { class: 'ds-alert ds-alert-info', role: 'note' },
+            arrayKeys.length ? h('div', { class: 'ds-alert ds-alert-info', role: 'note' },
                 h('span', { class: 'ds-alert-icon' }, 'i'),
-                h('div', { class: 'ds-alert-content' }, nested.length + ' nested config ' + (nested.length === 1 ? 'object is' : 'objects are') + ' read-only here (' + nested.map(([k]) => k).join(', ') + ') — edit via the config file or raw view below.')) : null,
+                h('div', { class: 'ds-alert-content' }, arrayKeys.length + ' array-valued config ' + (arrayKeys.length === 1 ? 'key is' : 'keys are') + ' read-only here (' + arrayKeys.join(', ') + ') — edit via the config file or raw view below.')) : null,
             skinList.length ? section('skin',
                 Select({ label: 'active skin', value: activeSkin, options: skinList, onChange: (v) => setSkin(v) })
             ) : null,
             section('settings', flat.length ? flat.map(([k, v], i) =>
-                TextField({ key: i, label: k, value: String(ctx.state.edited[k] ?? v ?? ''), onInput: (val) => { ctx.state.edited[k] = val; ctx.rerender(); } })
+                TextField({ key: i, label: k, value: String(ctx.state.edited[k] ?? v ?? ''), onInput: (val) => { ctx.state.edited[k] = coerceLike(v, val); ctx.rerender(); } })
             ) : emptyState('no scalar config keys')),
             section('raw', h('pre', { class: 'fd-pre' }, JSON.stringify(cfg, null, 2))),
             section('actions',

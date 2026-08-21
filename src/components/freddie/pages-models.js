@@ -10,6 +10,8 @@ import { PluginsConfig } from '../plugins-config.js';
 
 export const models = makePage((ctx) => {
     Object.assign(ctx.state, { rebuilding: false, selectedProviderId: null, selectedModel: null });
+    let unmounted = false;
+    ctx.onCleanup(() => { unmounted = true; });
     // GET /api/models/availability — the real per-(provider x model x mode)
     // availability matrix (plugins/gui-models-discover), per freddie's AGENTS.md
     // "Model availability matrix" section. 404 with {error,hint} when the
@@ -19,12 +21,29 @@ export const models = makePage((ctx) => {
         try { ctx.set({ loading: false, data: await api('/api/models/availability'), error: null }); }
         catch (e) { ctx.set({ loading: false, data: null, error: (e && e.body) || e }); }
     }
+    // POST /api/models/availability/rebuild spawns a DETACHED background
+    // process and returns 202 immediately ({ok, pid, jobId}) -- the real
+    // probe sweep (every provider x model x mode cell, up to
+    // PER_CELL_TIMEOUT_MS=15s each per freddie's AGENTS.md) is still running
+    // long after that response lands. Poll the matrix file itself until its
+    // timestamp advances past the moment the rebuild was kicked off, rather
+    // than declaring done the instant the spawn request is acknowledged.
     async function rebuild() {
         if (ctx.state.rebuilding) return;
+        const startedAt = ctx.state.data?.timestamp || null;
         ctx.set({ rebuilding: true, rebuildError: null });
-        try { await api('/api/models/availability/rebuild', { method: 'POST', body: {} }); await load(); }
-        catch (e) { ctx.set({ rebuildError: e }); }
-        ctx.set({ rebuilding: false });
+        try {
+            await api('/api/models/availability/rebuild', { method: 'POST', body: {} });
+            const POLL_MS = 3000, MAX_POLLS = 60; // ~3 minutes ceiling
+            for (let i = 0; i < MAX_POLLS; i++) {
+                await new Promise(r => setTimeout(r, POLL_MS));
+                if (unmounted) return;
+                let fresh;
+                try { fresh = await api('/api/models/availability'); } catch { continue; }
+                if (fresh && fresh.timestamp && fresh.timestamp !== startedAt) { ctx.set({ data: fresh, error: null }); break; }
+            }
+        } catch (e) { ctx.set({ rebuildError: e }); }
+        if (!unmounted) ctx.set({ rebuilding: false });
     }
     load();
     return () => {
@@ -44,6 +63,15 @@ export const models = makePage((ctx) => {
 export const skills = makePage((ctx) => {
     Object.assign(ctx.state, { selected: null, query: '', busyName: null });
     async function load() { try { ctx.set({ loading: false, list: await api('/api/skills'), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
+    // POST /api/skills/:name {enabled} (plugins/gui/gui-skills/plugin.js) is
+    // real and implemented, but nothing here ever called it -- the toggle in
+    // SkillsConfig's detail pane had no onToggle wired at all.
+    async function toggle(skill) {
+        ctx.set({ busyName: skill.name });
+        try { await api('/api/skills/' + encodeURIComponent(skill.name), { method: 'POST', body: { enabled: skill.enabled === false } }); await load(); }
+        catch (e) { ctx.set({ error: e }); }
+        ctx.set({ busyName: null });
+    }
     load();
     return () => {
         const s = ctx.state;
@@ -61,7 +89,12 @@ export const skills = makePage((ctx) => {
             name: sk.name,
             description: sk.description || (sk.frontmatter && sk.frontmatter.description) || '',
             platforms: sk.platforms || (sk.frontmatter && sk.frontmatter.platforms),
-            enabled: skillState[sk.name] !== false,
+            // POST /api/skills/:name stores {enabled: bool} PER skill (see
+            // its handler), not a bare boolean at skillState[name] directly
+            // -- reading skillState[sk.name] itself as the flag makes it an
+            // object, which is always truthy and never === false, so a
+            // disabled skill would always still show as enabled.
+            enabled: (skillState[sk.name] && skillState[sk.name].enabled) !== false,
         }));
         return [
             PageHeader({ title: 'skills', lede: mapped.length + ' skills' }),
@@ -69,6 +102,7 @@ export const skills = makePage((ctx) => {
                 skills: mapped, selected: s.selected, loading: s.loading, error: s.error,
                 busyName: s.busyName, query: s.query, onQuery: (q) => ctx.set({ query: q }),
                 onSelect: (name) => ctx.set({ selected: s.selected === name ? null : name }),
+                onToggle: toggle,
             }),
         ];
     };

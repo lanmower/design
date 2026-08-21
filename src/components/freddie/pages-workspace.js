@@ -22,8 +22,18 @@ export const sessions = makePage((ctx) => {
     }
     async function search(q) {
         if (!q) return load();
-        try { ctx.set({ loading: false, list: await api('/api/search?q=' + encodeURIComponent(q)), error: null }); }
-        catch (e) { ctx.set({ loading: false, error: e }); }
+        try {
+            const hits = await api('/api/search?q=' + encodeURIComponent(q));
+            // GET /api/search (src/sessions.js::search) returns MESSAGE rows
+            // {id, session_id, content} -- not session rows. Remap to the
+            // session-shaped rows the table below renders and open() below
+            // navigates by, so a hit shows its matched text (not a meaningless
+            // message-row id masquerading as a title) and clicking it opens
+            // the real conversation (session_id) instead of a session id that
+            // doesn't exist.
+            const list = (Array.isArray(hits) ? hits : []).map(x => ({ id: x.session_id, title: x.content, platform: null, updated_at: null }));
+            ctx.set({ loading: false, list, error: null });
+        } catch (e) { ctx.set({ loading: false, error: e }); }
     }
     async function refresh() { ctx.set({ refreshing: true }); try { ctx.set({ list: await api('/api/sessions'), error: null }); } catch (e) { ctx.set({ error: e }); } ctx.set({ refreshing: false }); }
     async function open(id) {
@@ -63,9 +73,16 @@ export const projects = makePage((ctx) => {
     }
     async function create() {
         const name = (ctx.state.newName || '').trim();
+        const path = (ctx.state.newPath || '').trim();
         if (!name) { ctx.set({ note: { kind: 'warn', msg: 'name required' } }); return; }
+        // src/projects.js::createProject hard-requires an absolute path
+        // ("name and path are required" / "path must be absolute") -- this
+        // field is not actually optional server-side, so fail the same way
+        // the backend would rather than let a blank submit round-trip to a
+        // generic backend error.
+        if (!path) { ctx.set({ note: { kind: 'warn', msg: 'path required (must be an absolute path)' } }); return; }
         ctx.set({ busy: true, note: null });
-        try { await api('/api/projects', { method: 'POST', body: { name, path: ctx.state.newPath || undefined } }); ctx.state.newName = ''; ctx.state.newPath = ''; await load(); }
+        try { await api('/api/projects', { method: 'POST', body: { name, path } }); ctx.state.newName = ''; ctx.state.newPath = ''; await load(); }
         catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); }
         ctx.set({ busy: false });
     }
@@ -181,7 +198,7 @@ export const git = makePage((ctx) => {
                 WorktreeSwitcher({
                     worktrees: Array.isArray(worktrees) ? worktrees : [],
                     current,
-                    onSwitch: () => {},
+                    onSwitch: (wt) => { if (wt && wt.path) { ctx.state.cwd = wt.path; load(); } },
                     onCreate: () => ctx.set({ showWtForm: !s.showWtForm }),
                 }),
                 s.showWtForm ? h('div', { class: 'fd-row-actions' },

@@ -52,8 +52,9 @@ function surfacesText(surfaces) {
     return surfaces;
 }
 
-function PluginSidebarRow({ plugin, active, busy, onSelect }) {
+function PluginSidebarRow({ key, plugin, active, busy, onSelect }) {
     return h('button', {
+        key,
         type: 'button',
         class: 'ds-plugins-row' + (active ? ' active' : ''),
         onclick: () => onSelect(plugin.name),
@@ -82,14 +83,22 @@ function PluginDetail({ plugin, busy, onToggle, onReload }) {
                 h('span', { class: 'ds-plugins-dot tone-' + statusTone(plugin), 'aria-hidden': 'true' }),
                 h('span', { class: 'name' }, plugin.name),
                 plugin.version ? h('span', { class: 'ds-plugins-version' }, 'v' + plugin.version) : null),
-            h('button', {
-                type: 'button',
-                class: 'ds-plugins-toggle' + (plugin.enabled ? ' on' : ''),
-                disabled: busy ? true : null,
-                onclick: () => onToggle && onToggle(plugin),
-                'aria-pressed': plugin.enabled ? 'true' : 'false',
-                'aria-label': plugin.enabled ? 'Disable plugin' : 'Enable plugin',
-            }, h('span', { class: 'ds-plugins-toggle-knob' }))),
+            // Only render the toggle when a consumer actually wired onToggle
+            // (mirrors the onReload conditional below) -- a consumer with no
+            // real enable/disable backend (freddie's /api/plugins has none;
+            // every plugin is reported enabled:true unconditionally once
+            // loaded) must not show a live, clickable control that silently
+            // does nothing on click.
+            onToggle
+                ? h('button', {
+                    type: 'button',
+                    class: 'ds-plugins-toggle' + (plugin.enabled ? ' on' : ''),
+                    disabled: busy ? true : null,
+                    onclick: () => onToggle(plugin),
+                    'aria-pressed': plugin.enabled ? 'true' : 'false',
+                    'aria-label': plugin.enabled ? 'Disable plugin' : 'Enable plugin',
+                }, h('span', { class: 'ds-plugins-toggle-knob' }))
+                : null),
         h('div', { class: 'ds-plugins-fact-grid' },
             h('div', { class: 'ds-plugins-fact-label' }, 'status'),
             h('div', { class: 'ds-plugins-fact-value tone-text-' + statusTone(plugin) }, statusLabel(plugin)),
@@ -133,13 +142,17 @@ export function PluginsConfig({
                 onClose ? h('button', { type: 'button', class: 'ds-plugins-close', onclick: onClose, 'aria-label': 'Close' }, '×') : null),
             h('div', { class: 'ds-plugins-body' },
                 h('div', { class: 'ds-plugins-sidebar' },
+                    // Distinct `key` per branch -- see skills-config.js's
+                    // identical fix for the live-witnessed failure mode this
+                    // prevents (a stuck "Loading…" text node surviving an
+                    // in-place patch into the real list container).
                     loading
-                        ? h('div', { class: 'ds-plugins-sidebar-status' }, 'Loading…')
+                        ? h('div', { key: 'loading', class: 'ds-plugins-sidebar-status' }, 'Loading…')
                         : error
-                            ? h('div', { class: 'ds-plugins-sidebar-status ds-plugins-status-error' }, error)
+                            ? h('div', { key: 'error', class: 'ds-plugins-sidebar-status ds-plugins-status-error' }, error)
                             : plugins.length === 0
-                                ? h('div', { class: 'ds-plugins-sidebar-status' }, 'No plugins registered')
-                                : h('div', { class: 'ds-plugins-list', role: 'listbox', 'aria-label': 'plugin list' },
+                                ? h('div', { key: 'empty', class: 'ds-plugins-sidebar-status' }, 'No plugins registered')
+                                : h('div', { key: 'list', class: 'ds-plugins-list', role: 'listbox', 'aria-label': 'plugin list' },
                                     ...plugins.map((p) => PluginSidebarRow({
                                         key: p.name,
                                         plugin: p,

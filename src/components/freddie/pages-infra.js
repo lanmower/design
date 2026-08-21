@@ -18,8 +18,15 @@ export const gateway = makePage((ctx) => {
         if (s.loading) return loadingState('loading gateway…');
         if (s.error && !s.data) return errorState(s.error, load);
         const d = s.data || {};
-        const platforms = d.platforms || d;
-        const rows = Object.entries(platforms).map(([k, v]) => [k, typeof v === 'object' ? (v.running || v.up ? Chip({ tone: 'ok', children: 'up' }) : Chip({ tone: 'miss', children: 'down' })) : String(v)]);
+        // GET /api/gateway (plugins/gui/gui-gateway/plugin.js) returns
+        // { platforms: [{name, enabled, note}, ...] } -- an ARRAY, not a map
+        // keyed by platform name. Object.entries(array) would render index
+        // keys ("0","1",...) as the platform column instead of real names.
+        // `enabled` is hardcoded false here (the dashboard process doesn't
+        // run the gateway itself) -- surface the backend's own `note`
+        // explaining that rather than mislabeling it "down" with no context.
+        const platforms = Array.isArray(d.platforms) ? d.platforms : [];
+        const rows = platforms.map(p => [p.name, p.note || (p.enabled ? Chip({ tone: 'ok', children: 'up' }) : Chip({ tone: 'neutral', children: 'not running here' }))]);
         return [
             PageHeader({ title: 'gateway', lede: 'messaging platform status' }),
             s.error && s.data ? refreshError(s.error) : null,
@@ -32,12 +39,17 @@ export const chains = makePage((ctx) => {
     Object.assign(ctx.state, { name: '', links: '', busy: false, note: null });
     async function load() {
         try {
-            const [health, list, cfg] = await Promise.all([
-                api('/api/acptoapi/health').catch(() => null),
-                api('/api/acptoapi/chains').catch(() => null),
-                api('/api/acptoapi/config').catch(() => null),
+            const results = await Promise.allSettled([
+                api('/api/acptoapi/health'),
+                api('/api/acptoapi/chains'),
+                api('/api/acptoapi/config'),
             ]);
-            ctx.set({ loading: false, health, list, cfg, error: null });
+            const [health, list, cfg] = results.map(r => r.status === 'fulfilled' ? r.value : null);
+            // Every sub-fetch failing (acptoapi itself unreachable) is a real
+            // error, not "nothing configured yet" -- report it so the health
+            // chip/empty-state below isn't the only signal.
+            const allFailed = results.every(r => r.status === 'rejected');
+            ctx.set({ loading: false, health, list, cfg, error: allFailed ? (results[0].reason || new Error('acptoapi unreachable')) : null });
         } catch (e) { ctx.set({ loading: false, error: e }); }
     }
     async function create() {
@@ -55,14 +67,21 @@ export const chains = makePage((ctx) => {
         const s = ctx.state;
         if (s.loading) return loadingState('loading chains…');
         if (s.error && !s.cfg && !s.health) return errorState(s.error, load);
-        const chainsList = s.list?.chains || s.list || [];
+        // GET /api/acptoapi/chains (forwarded verbatim from acptoapi's
+        // GET /v1/chains) returns { chains: {<name>: [<model>,...]}, builtin,
+        // runtime } -- `chains` is an OBJECT MAP keyed by name, not an array
+        // of {name,links} rows. Array.isArray on it was always false, so
+        // every real chain (built-in and any just created via the form
+        // below) silently never rendered.
+        const chainsMap = (s.list && s.list.chains && typeof s.list.chains === 'object' && !Array.isArray(s.list.chains)) ? s.list.chains : {};
+        const chainsList = Object.entries(chainsMap).map(([name, links]) => ({ name, links: Array.isArray(links) ? links : [] }));
         const up = s.health && (s.health.ok || s.health.status === 'ok' || s.health.healthy);
         return [
             PageHeader({ title: 'chains', lede: 'acptoapi fallback chains', right: up ? Chip({ tone: 'ok', children: 'acptoapi up' }) : Chip({ tone: 'miss', children: 'acptoapi down' }) }),
             noteAlert(s.note),
-            section('chains', Array.isArray(chainsList) && chainsList.length ? chainsList.map((c, i) => Row({
-                key: i, title: c.name || c, sub: Array.isArray(c.links) ? c.links.join(' -> ') : '',
-                trailing: Btn({ variant: 'danger', children: 'delete', onClick: () => del(c.name || c) }),
+            section('chains', chainsList.length ? chainsList.map((c, i) => Row({
+                key: i, title: c.name, sub: c.links.join(' -> '),
+                trailing: Btn({ variant: 'danger', children: 'delete', onClick: () => del(c.name) }),
             })) : emptyState('no chains defined')),
             section('new chain',
                 TextField({ label: 'name', value: s.name, onInput: (v) => { s.name = v; } }),
@@ -96,11 +115,10 @@ export const machines = makePage((ctx) => {
 export const health = makePage((ctx) => {
     async function load() {
         try {
-            const [health, providers] = await Promise.all([
-                api('/api/health').catch(() => null),
-                api('/api/providers').catch(() => null),
-            ]);
-            ctx.set({ loading: false, health, providers, error: null });
+            const results = await Promise.allSettled([api('/api/health'), api('/api/providers')]);
+            const [health, providers] = results.map(r => r.status === 'fulfilled' ? r.value : null);
+            const allFailed = results.every(r => r.status === 'rejected');
+            ctx.set({ loading: false, health, providers, error: allFailed ? (results[0].reason || new Error('health checks unreachable')) : null });
         } catch (e) { ctx.set({ loading: false, error: e }); }
     }
     load(); ctx.interval(load, 15000);
