@@ -397,6 +397,11 @@
      inventing new values. */
   --border:   var(--rule-control);
   --border-w: var(--bw-hair);
+  /* Same class of bug as --border/--border-w above: consumed for real list-
+     row dividers (ui_kits/blog's .post-index, src/kits/os/theme.css) with
+     no fallback and no definition anywhere -- those dividers never
+     rendered. A visible seam between list rows, not a whisper. */
+  --panel-border: var(--rule-strong);
 
   /* Micro rungs below --r-1 — chips, badges, scrollbar thumbs, tick marks
      genuinely want a tighter corner than the base radius; without these two
@@ -3949,8 +3954,11 @@
   gap: var(--space-2); flex-wrap: wrap;
   padding: var(--space-4) var(--space-3); text-align: center;
 }
-/* Icon size, not type — see .ds-file-cell-media .ds-file-icon above. */
-.ds-247420 .ds-dropzone-glyph { font-size: var(--icon-lg, 24px); color: var(--fg-3); }
+/* Real SVG icon (was a unicode ⇪ text glyph) -- width/height/viewBox live
+   on the element per the shared Icon()/iconMarkup() attribute contract
+   (src/components/shell/icons.js); only color is set here, which the SVG
+   picks up via stroke="currentColor". */
+.ds-247420 .ds-dropzone-glyph { display: block; color: var(--fg-3); }
 .ds-247420 .ds-dropzone-label { font-size: var(--fs-sm); color: var(--fg-3); }
 .ds-247420 .ds-dropzone:not(.dragover):not(.rejected):hover {
   border-color: var(--fg-3);

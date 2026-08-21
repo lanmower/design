@@ -2,7 +2,7 @@
 
 Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs && node scripts/generate-theme-tokens-doc.mjs`. Do not hand-edit -- re-run after any token change.
 
-228 root tokens across 18 groups. Source snapshot: 2026-08-20T20:16:18.808Z.
+229 root tokens across 18 groups. Source snapshot: 2026-08-21T06:39:56.028Z.
 
 ## colors-type
 
@@ -360,7 +360,7 @@ Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs 
 | `--green-deep` | `#133F10` | `src/css/app-shell/primitives.css`, `src/css/app-shell/row-print.css` |
 | `--green-tint` | `#D7E4C2` | `src/css/app-shell/primitives.css` |
 | `--gutter` | `var(--space-4)` | _(unused outside colors_and_type.css)_ |
-| `--icon-lg` | `24px` | `src/css/app-shell/files.css` |
+| `--icon-lg` | `24px` | _(unused outside colors_and_type.css)_ |
 | `--icon-md` | `20px` | `src/css/app-shell/loading-alerts.css` |
 | `--icon-sm` | `16px` | _(unused outside colors_and_type.css)_ |
 | `--icon-xs` | `12px` | `src/css/app-shell/primitives.css` |
@@ -395,6 +395,7 @@ Generated from `colors_and_type.css` via `node scripts/generate-tokens-json.mjs 
 | `--panel-accent-2` | `var(--accent-bright, var(--accent))` | _(unused outside colors_and_type.css)_ |
 | `--panel-bg` | `var(--bg)` | `community.css`, `editor-primitives.css`, `src/css/app-shell/base.css` |
 | `--panel-bg-2` | `var(--bg-2)` | `community.css` |
+| `--panel-border` | `var(--rule-strong)` | _(unused outside colors_and_type.css)_ |
 | `--panel-hover` | `color-mix(in oklab, var(--fg) 4%, var(--panel-1))` | `gm-prose.css`, `src/css/app-shell/base.css`, `src/css/app-shell/states-interactions.css` |
 | `--panel-shadow` | `0 1px 0 color-mix(in oklab, var(--fg) 6%, transparent), 0 4px 14px color-mix(in oklab, var(--fg) 8%, transparent)` | `gm-prose.css`, `src/css/app-shell/panel-row.css` |
 | `--panel-shadow-1` | `0 1px 2px color-mix(in oklab, var(--fg) 4%, transparent)` | `src/css/app-shell/panel-row.css` |

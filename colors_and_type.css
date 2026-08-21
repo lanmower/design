@@ -395,6 +395,11 @@
      inventing new values. */
   --border:   var(--rule-control);
   --border-w: var(--bw-hair);
+  /* Same class of bug as --border/--border-w above: consumed for real list-
+     row dividers (ui_kits/blog's .post-index, src/kits/os/theme.css) with
+     no fallback and no definition anywhere -- those dividers never
+     rendered. A visible seam between list rows, not a whisper. */
+  --panel-border: var(--rule-strong);
 
   /* Micro rungs below --r-1 — chips, badges, scrollbar thumbs, tick marks
      genuinely want a tighter corner than the base radius; without these two
