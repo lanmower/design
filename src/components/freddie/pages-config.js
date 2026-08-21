@@ -120,8 +120,16 @@ export const env = makePage((ctx) => {
     Object.assign(ctx.state, { auth: null, vars: null, draft: {}, busy: '', note: null });
     async function load() {
         try {
-            const [auth, vars] = await Promise.all([api('/api/auth').catch(() => null), api('/api/env').catch(() => null)]);
-            ctx.set({ loading: false, auth, vars, error: null });
+            // No inner .catch(()=>null) on either call -- that would swallow a
+            // real fetch failure before the outer try/catch could see it, so
+            // s.error stayed permanently null and a genuine 500/network error
+            // rendered identically to "no providers configured" (which reads
+            // as "you have no API keys" -- actively misleading for a page
+            // whose whole purpose is showing key status).
+            const results = await Promise.allSettled([api('/api/auth'), api('/api/env')]);
+            const [auth, vars] = results.map(r => r.status === 'fulfilled' ? r.value : null);
+            const allFailed = results.every(r => r.status === 'rejected');
+            ctx.set({ loading: false, auth, vars, error: allFailed ? (results[0].reason || new Error('key/env endpoints unreachable')) : null });
         } catch (e) { ctx.set({ loading: false, error: e }); }
     }
     // Set a provider key through the dashboard (POST /api/auth). The key is sent
