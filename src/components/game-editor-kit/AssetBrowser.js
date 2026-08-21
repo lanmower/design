@@ -99,7 +99,7 @@ export function createAssetBrowser(opts = {}) {
               onFolderRename?.(folderPath, join(parent(folderPath), newName))
               render()
             }
-          }, '✎'),
+          }, '[edit]'),
           h('button', {
             type: 'button',
             title: 'Delete',
@@ -111,7 +111,7 @@ export function createAssetBrowser(opts = {}) {
                 render()
               }
             }
-          }, '✕')
+          }, '[x]')
         ])
       ])
     })
@@ -147,7 +147,7 @@ export function createAssetBrowser(opts = {}) {
               e.stopPropagation()
               showAssetMenu(asset, e.target)
             }
-          }, '⋮')
+          }, "[...]")
         ])
       ])
     })
