@@ -153,3 +153,7 @@ export {
     Calendar, DatePicker, DateRangePicker,
     WEEKDAY_LABELS, buildMonthGrid, formatDate, monthLabel
 } from './components/calendar.js';
+
+export {
+    createDamageNumbers
+} from './components/game-editor-kit.js';
