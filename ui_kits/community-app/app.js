@@ -31,7 +31,7 @@ const state = {
     // Starts empty on purpose: the empty state is what a brand-new channel
     // actually looks like, so it is the kit's default view rather than a
     // branch a reader has to go hunting for.
-    messages: [], chatInputValue: '', phase: 'empty',
+    messages: [], chatInputValue: '', phase: 'empty', replyTarget: null,
     currentUser: { username: 'you' }, userId: 'you',
     isConnected: true,
     voiceConnected: false, voiceChannelName: '', voiceConnectionState: 'connected',
@@ -109,6 +109,8 @@ const adapter = {
         },
         channelContext: () => {}, serverContext: () => {}, memberMenu: () => {},
         resolveProfile: (id) => (id === 'you' ? 'you' : id),
+        startReply: (msg) => { state.replyTarget = msg; notify(); },
+        cancelReply: () => { state.replyTarget = null; notify(); },
     },
 };
 

@@ -43,7 +43,7 @@ import { register } from './debug.js';
 import { Chat, ChatComposer, TypingIndicator } from './components/chat.js';
 import {
     ServerRail, ChannelItem, MemberList, MobileHeader,
-    UserPanel, VoiceStrip, VoiceUser, ThreadPanel, ForumView, PageView, Banner, UserCard,
+    UserPanel, VoiceStrip, VoiceUser, ThreadPanel, ForumView, PageView, Banner, UserCard, ReplyBar,
 } from './components/community.js';
 import { VoiceControls, VoiceSettingsModal, AudioQueue, PttButton, VadMeter, WebcamPreview } from './components/voice.js';
 import { ContextMenu, Dialog } from './components/editor-primitives.js';
@@ -264,10 +264,10 @@ export function mountCommunityApp(root, adapter = {}) {
         const ch = s.currentChannel || {};
         const sub = ch.type === 'voice' ? 'voice' : ch.type === 'forum' ? 'forum' : ch.type === 'page' ? 'page' : ch.type === 'announcement' ? 'announcement' : 'public';
         const rt = s.replyTarget;
-        const replyPreview = rt ? h('div', { class: 'cm-reply-preview', role: 'status' },
-            h('span', { class: 'cm-reply-preview-label' }, 'Replying to ' + (rt.username || 'User')),
-            h('button', { type: 'button', class: 'cm-reply-preview-close', 'aria-label': 'cancel reply', title: 'cancel reply', onclick: (e) => { e.preventDefault(); A.cancelReply && A.cancelReply(); } }, Icon('x', { size: 14 }))
-        ) : null;
+        const replyPreview = rt ? ReplyBar({
+            quotedAuthor: rt.username || 'User', quotedMessage: rt.content || '',
+            onCancel: (e) => { e && e.preventDefault && e.preventDefault(); A.cancelReply && A.cancelReply(); },
+        }) : null;
         const typingBar = TypingIndicator({ users: s.typingUsers || [] });
         return Chat({
             title: ch.name || 'general', sub, messages: mapMessages(s), header: null,

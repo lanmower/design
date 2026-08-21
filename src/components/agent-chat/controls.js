@@ -25,11 +25,13 @@ export function AgentControls({ agents, selectedAgent, models, selectedModel, bu
     // app has no agents configured" (mirrors the models-loading branch below).
     (agentsLoading && !agentOptions.length)
       ? Select({ key: 'agentsel', value: '', placeholder: 'loading agents…', title: 'Loading agents', disabled: true, options: [] })
-      : Select({
-          key: 'agentsel', value: selectedAgent, placeholder: '— agent —',
-          title: 'Select agent', options: agentOptions,
-          onChange: (v) => onSelectAgent && onSelectAgent(v),
-        }),
+      : (agentOptions.length
+          ? Select({
+              key: 'agentsel', value: selectedAgent, placeholder: '— agent —',
+              title: 'Select agent', options: agentOptions,
+              onChange: (v) => onSelectAgent && onSelectAgent(v),
+            })
+          : null),
     // While models load for a freshly-picked agent, show a disabled "loading…"
     // placeholder so the picker doesn't vanish then reappear (a layout flash).
     showModels

@@ -302,7 +302,7 @@ approved proceeding without `gm` for this session only.
     "247" (`COMPONENT_API.md`) figures to 302, and fixed `home.yaml`'s
     self-contradiction (same sentence claiming both "19 ready-to-ship kit
     surfaces" and "verified across all 23 kits") — these are two genuinely
-    different counts (a curated 19-item marketing subset vs. all 24 kits in
+    different counts (a curated 19-item marketing subset vs. all 23 kits in
     the repo, confirmed by reading `home.yaml`'s own `kits.items` list), so
     the fix states both explicitly rather than forcing them to match.
     Figures are still hand-set, not generated from the

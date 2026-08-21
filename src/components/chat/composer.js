@@ -253,7 +253,7 @@ export function ChatComposer({ value, onInput, onSend, onEmoji, onCancel, busy, 
             onEmoji ? h('button', { type: 'button', class: 'composer-btn', onclick: (e) => { e.preventDefault(); onEmoji(e); }, 'aria-label': 'emoji picker', title: 'emoji picker (Ctrl+;)' }, Icon('smile')) : null,
             busy && onCancel
                 ? h('button', { type: 'button', class: 'send cancel', onclick: (e) => { e.preventDefault(); onCancel(e); }, 'aria-label': 'stop generating', title: 'stop generating (Esc)' }, Icon('square'))
-                : h('button', { type: 'button', class: 'send', disabled: disabled || !(value && value.trim()), onclick: send,
+                : h('button', { type: 'button', class: 'send', disabled: !!disabled, onclick: send,
                     'aria-label': disabled && disabledReason ? 'send message (' + disabledReason + ')' : 'send message',
                     title: disabled && disabledReason ? 'send message (' + disabledReason + ')' : 'send message (Enter)' }, Icon('arrow-up'))
         )

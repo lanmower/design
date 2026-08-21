@@ -7,7 +7,7 @@ claim (see "What this does and doesn't cover" below).
 
 ## Current status
 
-`node scripts/a11y-audit.mjs` runs the real axe-core engine against the live rendered DOM of every `ui_kits/*` surface with an `index.html` (a CDP session, not a static-HTML heuristic scan — computed style and contrast only exist post-render). As of this writing: **24/24 kits, 0 blocking (serious/critical) violations**. The full generated report lives at [`a11y-report.md`](./a11y-report.md); the check is a CI gate (the a11y step in `.github/workflows/ci.yml`), not a one-time audit — a regression fails the build.
+`node scripts/a11y-audit.mjs` runs the real axe-core engine against the live rendered DOM of every `ui_kits/*` surface with an `index.html` (a CDP session, not a static-HTML heuristic scan — computed style and contrast only exist post-render). As of this writing: **23/23 kits, 0 blocking (serious/critical) violations**. The full generated report lives at [`a11y-report.md`](./a11y-report.md); the check is a CI gate (the a11y step in `.github/workflows/ci.yml`), not a one-time audit — a regression fails the build.
 
 The baseline is a ratchet: it can only go down. Raising it to pass a new violation is treated the same as disabling a lint.
 

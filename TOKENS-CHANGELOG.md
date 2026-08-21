@@ -114,7 +114,7 @@ surviving a rename.
   (`colors_and_type.css`, `src/shell.js`, `src/css/app-shell/
   kits-appended.css` — 3 real call sites) and updated all of them. Full
   `npm run build && npm run lint && npm run a11y && npm run visual` run
-  clean (17/17 lint checks, 24/24 kits 0 blocking a11y violations, 0 visual
+  clean (17/17 lint checks, 23/23 kits 0 blocking a11y violations, 0 visual
   regressions against refreshed baselines — see PRD for the one real bug
   this surfaced and fixed: the nested-scope guard's first implementation
   used `:not(:is(...))`, which raised the base rule's specificity high

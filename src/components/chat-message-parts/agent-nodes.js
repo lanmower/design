@@ -118,6 +118,67 @@ export function ApprovalNode(p) {
     );
 }
 
+export function QuestionNode(p) {
+    const status = p.status || 'pending'
+    const questions = Array.isArray(p.questions) ? p.questions : []
+    if (!p._sel) p._sel = {}
+    const submit = (e) => {
+        e.preventDefault()
+        if (!p.onResolve) return
+        const answers = {}
+        for (const q of questions) {
+            const v = p._sel[q.question]
+            answers[q.question] = Array.isArray(v) ? v.join(', ') : (v || '')
+        }
+        p.onResolve({ answers })
+    }
+    const skip = (e) => { e.preventDefault(); if (p.onResolve) p.onResolve({ rejected: true }) }
+    const blocks = questions.map((q, qi) => {
+        const qtext = q.question || ''
+        const opts = Array.isArray(q.options) ? q.options : []
+        const multi = !!q.multi_select
+        const kids = []
+        if (q.header) kids.push(h('div', { key: 'h' + qi, class: 'chat-question-header' }, q.header))
+        kids.push(h('div', { key: 't' + qi, class: 'chat-question-text' }, qtext))
+        if (opts.length) {
+            kids.push(h('div', { key: 'o' + qi, class: 'chat-question-opts' },
+                ...opts.map((o, oi) => h('button', {
+                    key: 'ob' + qi + '-' + oi, type: 'button',
+                    class: 'chat-code-copy chat-approval-btn',
+                    onclick: (e) => {
+                        e.preventDefault()
+                        if (multi) {
+                            const cur = new Set(p._sel[qtext] || [])
+                            if (cur.has(o.label)) cur.delete(o.label); else cur.add(o.label)
+                            p._sel[qtext] = [...cur]
+                            e.currentTarget.classList.toggle('is-on')
+                        } else {
+                            p._sel[qtext] = o.label
+                            e.currentTarget.parentNode.querySelectorAll('.chat-approval-btn').forEach((b) => b.classList.remove('is-on'))
+                            e.currentTarget.classList.add('is-on')
+                        }
+                    },
+                }, o.label))))
+        }
+        kids.push(h('input', {
+            key: 'i' + qi, type: 'text', class: 'chat-question-other', placeholder: 'other…',
+            onkeydown: (e) => { if (e.key === 'Enter') { e.preventDefault(); p._sel[qtext] = e.currentTarget.value; submit(e) } },
+        }))
+        return h('div', { key: 'q' + qi, class: 'chat-question-block' }, ...kids)
+    })
+    return h('div', { class: 'chat-bubble chat-tool chat-question tool-' + (status === 'pending' ? 'running' : 'done') },
+        h('div', { class: 'chat-tool-head' },
+            h('span', { class: 'chat-tool-icon', 'aria-hidden': 'true' }, Icon(status === 'pending' ? 'warn' : 'check', { size: 14 })),
+            h('span', { class: 'chat-tool-name' }, 'question'),
+            h('span', { class: 'chat-tool-status' }, status)),
+        h('div', { class: 'chat-tool-body' },
+            status === 'pending'
+                ? [...blocks, h('div', { key: 'act', class: 'chat-approval-actions' },
+                    h('button', { type: 'button', class: 'chat-code-copy chat-approval-btn', onclick: submit }, 'submit'),
+                    h('button', { type: 'button', class: 'chat-code-copy chat-approval-btn', onclick: skip }, 'skip'))]
+                : h('pre', { class: 'chat-tool-pre' }, h('code', {}, JSON.stringify(p.answers || {}, null, 2)))))
+}
+
 export function ThinkingNode(p) {
     if (p.settled) {
         return h('details', { class: 'chat-bubble chat-thinking-settled' },

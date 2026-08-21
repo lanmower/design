@@ -8,7 +8,7 @@ import { STREAM_TAIL_THRESHOLD, STREAM_TAIL_WINDOW } from './thread-behaviour.js
 // A message carries content (text/parts) when it has a non-empty content
 // string OR at least one part. Used for the empty-shell skip + working tail
 // so an interleaved turn (parts-only, no m.content) is not treated as empty.
-export const msgHasBody = (m) => !!(m.content || (Array.isArray(m.parts) && m.parts.length));
+export const msgHasBody = (m) => !!(m.content || m.error || (Array.isArray(m.parts) && m.parts.length));
 
 // Build the visible turn rows. `msgStart` is the window's absolute start index
 // (rows keep their ABSOLUTE index so streaming/caret/actions logic keys off the
