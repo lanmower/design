@@ -71,11 +71,25 @@ The standard button/link factory. Renders an `<a>` when `href` is given, otherwi
 
 ### Glyph
 
+A themeable inline text/character glyph (font-size + optional color from tokens) -- for a real icon shape, use Icon()/iconMarkup() from shell/icons.js instead; Glyph is for short text/character content only. Decorative (aria-hidden) by default; pass `label` to expose it as a real accessible image instead.
+
 **Kind:** component
 
 **Signature:** `children`, `color`, `size` = `'base'`, `label`
 
+**Documented params:**
+
+- `props` _(Object)_
+- `props.children` _(*)_ -- the glyph content (a character/short string).
+- `props.color` _(string)_ -- CSS color value; omit to inherit currentColor.
+- `props.size` _('sm'|'base'|'lg')_
+- `props.label` _(string)_ -- accessible name; when set, renders role="img" instead of aria-hidden.
+
+**Returns:** {*} webjsx vnode
+
 ### Icon
+
+Renders a monochrome line icon from ICON_PATHS as a webjsx vnode. Accepts either call shape: `Icon('search', { size: 20 })` (the primary, historical signature) or `Icon({ name: 'search', size: 20 })` (a single props object, matching every other factory in this kit) -- both resolve through the same iconArgs() normalization below. An out-of-set name renders an empty `<span class="glyph">` rather than throwing.
 
 **Kind:** component
 
@@ -89,9 +103,21 @@ The standard button/link factory. Renders an `<a>` when `href` is given, otherwi
 
 ### Badge
 
+A small count/variant/status marker (unread count, label chip inline with text). Distinct from Chip (a status-tone indicator element in its own right) and Pill (a plain non-interactive tag label) -- see the comments at each below for the three-way split.
+
 **Kind:** component
 
 **Signature:** `children`, `variant` = `'default'`, `tone` = `'neutral'`, `size` = `'md'`
+
+**Documented params:**
+
+- `props` _(Object)_
+- `props.children` _(*)_
+- `props.variant` _(string)_
+- `props.tone` _(string)_ -- semantic tone keyword, applies a `tone-{tone}` class.
+- `props.size` _('sm'|'md'|'lg')_
+
+**Returns:** {*} webjsx vnode
 
 ### Pill
 
