@@ -350,7 +350,7 @@
     appearance: none;
     background: var(--panel-2);
     color: var(--panel-text);
-    border: 1px solid var(--rule);
+    border: 1px solid var(--rule-control);
     border-radius: var(--r-1, 8px);
     padding: var(--space-hair) var(--space-1-75);
     font: var(--fs-tiny, 12px)/1.3 var(--ff-mono, monospace);

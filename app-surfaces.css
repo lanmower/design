@@ -307,7 +307,7 @@
 .ds-247420 .fd-topbar-leaf { display: inline-flex; gap: var(--space-2, 8px); align-items: center; }
 /* Ctrl+K search hint in the topbar. */
 .ds-247420 .fd-search-hint {
-  font-size: var(--fs-pico, 11px); opacity: 0.5;
+  font-size: var(--fs-pico, 0.625rem); opacity: 0.5;
   padding: var(--space-1, 4px) var(--space-2, 8px);
   border: 1px solid var(--rule, currentColor); border-radius: var(--r-0, 4px);
   pointer-events: none;
@@ -319,26 +319,26 @@
   padding: var(--space-2, 8px) var(--space-3, 12px);
 }
 .ds-247420 .fd-chat-attach {
-  font-size: var(--fs-pico, 11px); cursor: pointer; opacity: 0.7;
+  font-size: var(--fs-pico, 0.625rem); cursor: pointer; opacity: 0.7;
   padding: var(--space-1, 4px) var(--space-2, 8px);
   border: 1px solid var(--rule, currentColor); border-radius: var(--r-0, 4px);
 }
 .ds-247420 .fd-chat-attach:hover { opacity: 1; }
 .ds-247420 .fd-chat-staged {
   display: inline-flex; align-items: center; gap: var(--space-1, 4px);
-  font-size: var(--fs-pico, 11px);
+  font-size: var(--fs-pico, 0.625rem);
   padding: var(--space-1, 4px) var(--space-2, 8px);
   border: 1px solid var(--rule, currentColor); border-radius: var(--r-0, 4px);
 }
 .ds-247420 .fd-chat-staged-x {
   cursor: pointer; border: none; background: none; color: inherit;
-  font-size: var(--fs-pico, 11px); line-height: 1; padding: 0;
+  font-size: var(--fs-pico, 0.625rem); line-height: 1; padding: 0;
 }
 /* Session files panel — WorkspaceShell's right pane on the chat page. */
 .ds-247420 .fd-session-files { padding: var(--space-2, 8px) var(--space-3, 12px); }
 .ds-247420 .fd-session-files-empty { opacity: 0.6; font-size: var(--fs-sm, 13px); }
 .ds-247420 .fd-session-files-head {
-  font-size: var(--fs-pico, 11px); opacity: 0.6; margin-bottom: var(--space-2, 8px);
+  font-size: var(--fs-pico, 0.625rem); opacity: 0.6; margin-bottom: var(--space-2, 8px);
 }
 .ds-247420 .fd-session-files-list { list-style: none; margin: 0; padding: 0; }
 .ds-247420 .fd-session-files-row {
@@ -364,7 +364,7 @@
   border: 1px solid var(--rule, currentColor); border-radius: var(--r-0, 4px);
   background: transparent; color: inherit;
 }
-.ds-247420 .fd-msg-search-count { font-size: var(--fs-pico, 11px); opacity: 0.6; white-space: nowrap; }
+.ds-247420 .fd-msg-search-count { font-size: var(--fs-pico, 0.625rem); opacity: 0.6; white-space: nowrap; }
 .ds-247420 .fd-msg-search-close {
   cursor: pointer; border: none; background: none; color: inherit;
   font-size: var(--fs-md, 15px); line-height: 1; padding: 0 var(--space-1, 4px);

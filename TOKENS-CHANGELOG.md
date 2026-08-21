@@ -41,6 +41,104 @@ surviving a rename.
 
 ## History
 
+- **2026-08-20 — token-architecture remediation pass** (full rationale and
+  audit evidence in `PRD-remediation-2026-08-20.md`).
+  **What changed** (old → new / added / removed):
+  - `--acid`/`--acid-deep` → renamed `--brand-green`/`--brand-green-deep`
+    (values unchanged, `#247420`/`#133F10`) — the old name read as "acid
+    lime" (bright yellow-green) for a value that is actually a dark, muted
+    green, misleading anyone reading the token list.
+  - `--live` removed (dead: 0 real consumers, was just `var(--green)`).
+  - Deleted the unused "semantic alias tier" (`--surface-1`, `--surface-2`,
+    `--rail-info`, `--rail-success`, `--rail-warning`, `--rail-error`) — the
+    file's own comment already stated no component referenced them.
+  - Deleted `--grain`, `--grain-blend`, `--grain-opacity` and the consuming
+    `.ds-grain`/`.ds-halftone` CSS rule (`hero-content.css`) — confirmed
+    zero markup applies either class anywhere in the repo.
+  - Added `--rule-control` (alias of `--rule-strong`) for interactive-
+    element boundaries (WCAG 1.4.11's >=3:1 non-text contrast floor, which
+    the 8%-alpha `--rule` "whisper" can't clear).
+  - Added `--border`/`--border-w` — real tokens `chat.css` and
+    `community.css` already consumed (icon buttons, session-confirm-cancel,
+    8 border rules) with **no fallback and no definition anywhere**; those
+    `border:` declarations were guaranteed-invalid CSS. Now alias
+    `--rule-control`/`--bw-hair`.
+  - Added `--ff-sans` primitive; `--ff-display`/`--ff-narrow`/`--ff-body`
+    now alias it instead of independently repeating the identical
+    `system-ui, sans-serif` string three times.
+  - Added `--fs-hero-2xl: clamp(2.5rem, 9cqi, 7.25rem)` (40-116px) — the
+    scale step `.ds-hero-title`'s bespoke inline clamp was filling; that
+    element now reads off the token instead.
+  - `--fs-*`, `--space-*`, `--ctl-*` converted px → rem (WCAG 1.4.4) —
+    every value is the exact rem equivalent of its old px value at the
+    default 16px root, so nothing visually changes at default browser
+    settings.
+  - `--space-*` now scales through `--density` (previously only
+    `--pad-*`/`--gutter`/control heights did, so compact/spacious mode
+    moved half the layout and left inter-element spacing untouched).
+  - `--pad-y`/`--pad-x` were the identical `--space-6`-based formula;
+    `--pad-y` now reads `--space-5` (32px-based), `--pad-x` stays
+    `--space-6` (48px-based) — vertical and horizontal rhythm no longer
+    share one number by coincidence.
+  - `--ctl-sm`/`--ctl-md`/`--ctl-lg`/`--row-height` switched from a scalar
+    `--density` multiplier (`28px * 0.75 = 21px`, `40px * 1.35 = 54px` —
+    off-grid, sub-pixel heights) to discrete per-tier whole-pixel tables via
+    `[data-density="compact"/"spacious"]` overrides.
+  - `[data-theme="ink"/"dark"]` and the `@media (prefers-color-scheme:
+    dark) [data-theme="auto"]` block were two independently
+    hand-maintained, token-for-token-duplicated blocks (the file's own
+    comment already flagged this as future de-drift work). Both now read
+    from a single set of `--dark-*` raw values defined once in `:root`, so
+    the literal colors can no longer drift between them — added
+    `lint-dark-parity` to `npm run lint` to keep it that way (fails if the
+    two blocks ever declare a different token *set*, independent of value).
+  - The `.ds-247420 .ds-247420 { --bg: inherit; ... }` hand-enumerated
+    30-property nested-scope patch is gone. Root cause: the base
+    `.ds-247420` token rule (specificity 0,1,0) was re-matching (and
+    resetting) a nested `.ds-247420`, which the higher-specificity
+    `.ds-247420 .ds-247420` compound (0,2,0) patch had to fight with an
+    explicit `inherit` on every token. Fixed at the source: the base rule
+    is now `:root:not(:where(.ds-247420 .ds-247420))` (`scripts/build.mjs`
+    updated to preserve this trailing pseudo-class chain when prefixing
+    `:root`, which it previously discarded) — `:where()` keeps the guard's
+    own specificity at zero so it doesn't outrank the real
+    `[data-theme="X"]` overrides. A nested scope now just inherits ambient
+    tokens the way CSS custom properties already do by default; nothing to
+    enumerate or forget when a new token ships.
+  - `[data-accent="acid"]`'s dark-theme companion overrides (previously
+    hardcoded literal hex, e.g. `#5CBF52`) now read the same `--dark-green`/
+    `--dark-purple-2` raw values as everywhere else, removing 3 duplicate
+    copies of those literals.
+
+  **Blast radius**: grepped every real (non-`dist/`) consumer of `--acid`
+  (`colors_and_type.css`, `src/shell.js`, `src/css/app-shell/
+  kits-appended.css` — 3 real call sites) and updated all of them. Full
+  `npm run build && npm run lint && npm run a11y && npm run visual` run
+  clean (17/17 lint checks, 24/24 kits 0 blocking a11y violations, 0 visual
+  regressions against refreshed baselines — see PRD for the one real bug
+  this surfaced and fixed: the nested-scope guard's first implementation
+  used `:not(:is(...))`, which raised the base rule's specificity high
+  enough to beat `[data-theme="ink"]` outright and broke dark theme
+  entirely; caught via live CDP verification before shipping, not by
+  inspection). `tokens.json`/`docs/theme-tokens.md`/`preview/theme-map.html`
+  regenerated (`npm run tokens && node scripts/generate-theme-tokens-doc.mjs`)
+  — `tokenCount` 222 → 228. Two of this repo's own regex-based token-sync
+  scripts (`scripts/generate-tokens-json.mjs`, `scripts/generate-tokens-css.mjs`)
+  matched `:root` by exact string equality and silently stopped recognizing
+  the guarded selector; both fixed to also accept the
+  `:root:not(:where(...))` form. `scripts/generate-tokens-css.mjs`'s
+  "auto-fix" mode also has a real, separate bug: it doesn't strip comments
+  before its declaration regex runs, so a comment containing literal
+  `--token-name:` prose (written as inline documentation, a normal thing to
+  do) gets misread as a real declaration and can silently overwrite the
+  real one below it with garbage — it corrupted this file twice during this
+  pass before being caught and hand-reverted; not fixed at the root (out of
+  scope for a token-value change), but every comment in this file was swept
+  for that trigger pattern so it can't recur, and this is flagged here as a
+  real landmine for the next person who runs that script's auto-fix mode
+  after writing a comment that happens to contain a real token name
+  followed by a colon.
+
 Token-level changes prior to this file's creation are recorded in
 `CHANGELOG.md` under their respective feature entries (search for
 `feat(theme)`); the most significant is the 2026 "shadcn-neutral" restyle,

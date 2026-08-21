@@ -146,10 +146,16 @@ function iconArgs(name, size) {
     if (name && typeof name === 'object') ({ name, size = 16 } = name);
     return { name, size };
 }
-// Raw-DOM consumers (no webjsx render in scope) need the SVG as a markup string
-// rather than an h() vnode. Same path table + attr contract as Icon(); use
-// innerHTML = iconMarkup(name). Keeps the icon paths upstream so raw-DOM call
-// sites never reintroduce decorative glyph literals.
+/**
+ * Renders a monochrome line icon from ICON_PATHS as a raw SVG markup string,
+ * for raw-DOM call sites with no webjsx render in scope (e.g. `el.innerHTML
+ * = iconMarkup('pause')`). Same path table and attribute contract as Icon().
+ * Accepts either call shape: `iconMarkup('search', { size: 20 })` or
+ * `iconMarkup({ name: 'search', size: 20 })`. An out-of-set name renders an
+ * empty string (silent by design, matching Icon()'s empty-span fallback) --
+ * extend ICON_PATHS above to add one.
+ * @example iconButton.innerHTML = iconMarkup('play', { size: 14 });
+ */
 export function iconMarkup(name, { size = 16 } = {}) {
     ({ name, size } = iconArgs(name, size));
     const inner = ICON_PATHS[name];
@@ -157,6 +163,16 @@ export function iconMarkup(name, { size = 16 } = {}) {
     const attrs = Object.entries(iconAttrs(name, size)).map(([k, v]) => `${k}="${v}"`).join(' ');
     return `<svg ${attrs}>${inner}</svg>`;
 }
+/**
+ * Renders a monochrome line icon from ICON_PATHS as a webjsx vnode. Accepts
+ * either call shape: `Icon('search', { size: 20 })` (the primary,
+ * historical signature) or `Icon({ name: 'search', size: 20 })` (a single
+ * props object, matching every other factory in this kit) -- both resolve
+ * through the same iconArgs() normalization below. An out-of-set name
+ * renders an empty `<span class="glyph">` rather than throwing.
+ * @example h('button', {}, Icon('settings', { size: 16 }), 'Settings')
+ * @example h('button', {}, Icon({ name: 'settings', size: 16 }), 'Settings')
+ */
 export function Icon(name, { size = 16 } = {}) {
     ({ name, size } = iconArgs(name, size));
     const inner = ICON_PATHS[name];

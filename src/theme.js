@@ -1,12 +1,15 @@
 // 247420 design system — theme controller.
 //
 // Theme modes (data-theme):
-//   'auto'    — follow OS (prefers-color-scheme). Live-updates on OS change.
-//   'paper'   — force light.
-//   'ink'     — force dark.
-//   'thebird' — warm-paper brand preset (named theme).
-// Accents (data-accent): 'green' | 'purple' | 'mascot'.
+//   'auto'        — follow OS (prefers-color-scheme). Live-updates on OS change.
+//   'paper'       — force light.
+//   'ink'/'dark'  — force dark (two names, one CSS block -- see colors_and_type.css).
+//   'thebird'     — warm-paper brand preset (named theme).
+//   'github-dark' — pi-web-derived cool dark preset.
+// Accents (data-accent): 'acid' | 'green' | 'purple' | 'mascot'.
 // Density (data-density): 'compact' | 'comfortable' | 'spacious'.
+// An unrecognised value on any of these warns to console and falls back to
+// the default instead of silently no-opping.
 //
 // Each is one attribute on <html> the canonical theme (colors_and_type.css)
 // reads. Adding a theme = one [data-theme="X"] block in colors_and_type.css
@@ -19,12 +22,25 @@ const DENSITY_KEY = '247420:density';
 const LOCALE_KEY = '247420:locale';
 // 'auto' is a mode, not a [data-theme] preset block — it stays in VALID for the
 // controller but is the OS-follow path. The named presets are the rest.
-const VALID = new Set(['auto', 'paper', 'ink', 'thebird', 'github-dark']);
-const VALID_ACCENT = new Set(['green', 'purple', 'mascot']);
+// 'dark' is a real, CSS-supported alias of 'ink' (colors_and_type.css pairs
+// [data-theme="ink"], [data-theme="dark"] on every dark-context rule) and
+// must be accepted here too, or passing it would silently warn+fall back
+// despite the CSS actually rendering it correctly.
+const VALID = new Set(['auto', 'paper', 'ink', 'dark', 'thebird', 'github-dark']);
+const VALID_ACCENT = new Set(['green', 'purple', 'mascot', 'acid']);
 const VALID_DENSITY = new Set(['compact', 'comfortable', 'spacious']);
 const listeners = new Set();
 let _mq = null;
 let _current = 'auto';
+// Warn (not throw — a bad value degrading to the default should never break
+// the page) exactly once per distinct bad value per controller, instead of
+// silently falling through with no signal at all.
+const _warned = { theme: new Set(), accent: new Set(), density: new Set() };
+function warnOnce(kind, attr, value, fallbackNote) {
+    if (typeof console === 'undefined' || _warned[kind].has(value)) return;
+    _warned[kind].add(value);
+    console.warn(`[247420] unrecognised ${attr}="${value}" -- ${fallbackNote}`);
+}
 
 function isBrowser() {
     return typeof document !== 'undefined' && typeof window !== 'undefined';
@@ -67,7 +83,10 @@ function ensureMq() {
 }
 
 export function applyTheme(mode) {
-    if (!VALID.has(mode)) mode = 'auto';
+    if (!VALID.has(mode)) {
+        warnOnce('theme', 'data-theme', mode, 'falling back to "auto". Valid values: ' + [...VALID].join(', '));
+        mode = 'auto';
+    }
     _current = mode;
     writeAttr(mode);
     writeStored(mode);
@@ -108,7 +127,11 @@ export function applyAccent(accent) {
         document.documentElement.setAttribute('data-accent', accent);
         try { window.localStorage.setItem(ACCENT_KEY, accent); } catch { /* swallow: persistence is best-effort, accent still applies in-memory */ }
     } else {
-        // No accent attribute = the theme's default accent (green).
+        // No accent attribute = the theme's default accent (green). A
+        // truthy-but-unrecognised value (typo, stale name) silently landed
+        // here before with no signal; an intentional reset call passes
+        // undefined/null/'' and stays quiet.
+        if (accent) warnOnce('accent', 'data-accent', accent, 'clearing to the theme default. Valid values: ' + [...VALID_ACCENT].join(', '));
         document.documentElement.removeAttribute('data-accent');
         try { window.localStorage.removeItem(ACCENT_KEY); } catch { /* swallow: persistence is best-effort, accent still applies in-memory */ }
     }
@@ -125,6 +148,8 @@ export function applyDensity(density) {
     if (VALID_DENSITY.has(density)) {
         document.documentElement.setAttribute('data-density', density);
         try { window.localStorage.setItem(DENSITY_KEY, density); } catch { /* swallow: persistence is best-effort, density still applies in-memory */ }
+    } else if (density) {
+        warnOnce('density', 'data-density', density, 'no attribute set, comfortable default applies. Valid values: ' + [...VALID_DENSITY].join(', '));
     }
     return density;
 }

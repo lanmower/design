@@ -12,7 +12,7 @@
 
 const FS = {
     'readme.md': 'the 247420 design system\n\nan editorial component library. run `ls` to look around,\n`help` for the command list.\n',
-    'colors_and_type.css': '/* the token bible: --acid, --ink, --paper, the --fs-* scale */\n',
+    'colors_and_type.css': '/* the token bible: --brand-green, --ink, --paper, the --fs-* scale */\n',
     src: {
         'components.js': '// barrel over src/components/<group>.js\n',
         'bootstrap.js': '// mountKit() -- every kit boots through here\n',

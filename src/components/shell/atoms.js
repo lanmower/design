@@ -60,6 +60,10 @@ export function Chip({ tone = '', size = 'md', tag = false, onRemove, children }
  */
 export function Btn({ href, variant = 'default', size = 'md', children, onClick, 'aria-label': ariaLabel, primary, ghost, danger, disabled, class: className, key }) {
     // Support legacy primary/ghost props for backward compatibility, but prefer variant
+    if ((primary || ghost || danger) && typeof console !== 'undefined') {
+        const used = primary ? 'primary' : (ghost ? 'ghost' : 'danger');
+        console.warn(`[247420] Btn's "${used}" boolean prop is deprecated -- use variant="${used}" instead. No removal version set yet (tracked in MIGRATION_GUIDE.md); both still work.`);
+    }
     const resolvedVariant = variant !== 'default' ? variant : (primary ? 'primary' : (ghost ? 'ghost' : (danger ? 'danger' : 'default')));
     // size: 'sm' | 'md' | 'lg' — md is the base .btn rule (no class); sm/lg add a
     // modifier that snaps height/padding/font to the --ctl-* ladder. Unknown
@@ -114,6 +118,19 @@ export function IconButton({ icon, onClick, title, size = 'base', variant = 'gho
     }, Glyph({ children: icon, size }));
 }
 
+/**
+ * A small count/variant/status marker (unread count, label chip inline with
+ * text). Distinct from Chip (a status-tone indicator element in its own
+ * right) and Pill (a plain non-interactive tag label) -- see the comments at
+ * each below for the three-way split.
+ * @param {Object} props
+ * @param {*} props.children
+ * @param {string} [props.variant='default']
+ * @param {string} [props.tone='neutral'] - semantic tone keyword, applies a `tone-{tone}` class.
+ * @param {'sm'|'md'|'lg'} [props.size='md']
+ * @returns {*} webjsx vnode
+ * @example Badge({ children: '3', tone: 'accent', size: 'sm' })
+ */
 export function Badge({ children, variant = 'default', tone = 'neutral', size = 'md' }) {
     // size: 'sm' | 'md' | 'lg' — md is the base 18px badge.
     const sizeCls = size === 'sm' ? ' ds-badge--sm' : (size === 'lg' ? ' ds-badge--lg' : '');
@@ -130,6 +147,21 @@ export function Pill({ tone = '', children, key } = {}) {
     return h('span', { key, class: 'ds-pill' + (tone ? ' tone-' + tone : '') }, children);
 }
 
+/**
+ * A themeable inline text/character glyph (font-size + optional color from
+ * tokens) -- for a real icon shape, use Icon()/iconMarkup() from
+ * shell/icons.js instead; Glyph is for short text/character content only.
+ * Decorative (aria-hidden) by default; pass `label` to expose it as a real
+ * accessible image instead.
+ * @param {Object} props
+ * @param {*} props.children - the glyph content (a character/short string).
+ * @param {string} [props.color] - CSS color value; omit to inherit currentColor.
+ * @param {'sm'|'base'|'lg'} [props.size='base']
+ * @param {string} [props.label] - accessible name; when set, renders role="img" instead of aria-hidden.
+ * @returns {*} webjsx vnode
+ * @example Glyph({ children: '#', size: 'sm' })
+ * @example Glyph({ children: '*', label: 'Complete', color: 'var(--success)' })
+ */
 export function Glyph({ children, color, size = 'base', label } = {}) {
     // Font-size is var-driven per size class (--glyph-size-{size}) so themes can
     // retune glyph scale; inline fallback keeps sizing if the SDK CSS hasn't

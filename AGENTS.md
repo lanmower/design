@@ -1,10 +1,11 @@
 ## 247420.xyz Portfolio — Unified gh-pages Pattern
 
-Every repo in the 247420.xyz portfolio (33 projects, source-of-truth: C:/dev/247420/lib/projects.js) MUST follow this pattern:
+Every repo in the 247420.xyz portfolio (33 projects; the portfolio list is
+maintained privately, not in this repo) MUST follow this pattern:
 - No package.json in repo root (CI/CD-only build); GitHub Actions runs `npx --yes flatspace@latest build` and deploys `./dist`
 - Site source: flatspace.config.mjs + config/globals/*.yaml + config/pages/*.yaml + src/theme.mjs, rendering via the AnEntrypoint design system SDK (importmap-loaded, `installStyles()` + `class="ds-247420"` on the `#app` div, never `<html>`)
 - SDK pin policy: every consumer (theme.mjs, index.html, importmap, installStyles bootstrap) MUST use `anentrypoint-design@latest` so any CI/CD build picks up the newest published design without redeploying the consumer. Never pin a fixed version in portfolio repos.
-- Replace ANY other framework chrome (Tailwind, etc.) with SDK. EXCEPTION: c:\dev\flatspace-demo stays as-is (Tailwind reference)
+- Replace ANY other framework chrome (Tailwind, etc.) with SDK. EXCEPTION: the maintainer's private local Tailwind-reference demo project stays as-is (not part of this repo)
 - Workflow/deploy-step detail — query rs-learn ("portfolio flatspace gh-pages workflow shape").
 
 ## CRITICAL — no Chrome/Puppeteer/Playwright dependency anywhere in this repo

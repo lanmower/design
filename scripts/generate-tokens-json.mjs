@@ -131,7 +131,11 @@ for (const block of blocks) {
     if (!block.body.includes('--')) continue;
 
     let selectorLabel = sel;
-    if (sel === ':root') selectorLabel = ':root';
+    // `:root` and the nested-scope-guarded `:root:not(:where(.ds-247420
+    // .ds-247420))` (see colors_and_type.css's token-bible/elevation blocks)
+    // are the same logical root for extraction purposes -- the guard only
+    // matters at render time, not to this token inventory.
+    if (sel === ':root' || sel.startsWith(':root:not(')) selectorLabel = ':root';
 
     let m;
     DECL_RE.lastIndex = 0;

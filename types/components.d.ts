@@ -73,17 +73,23 @@ export interface BtnProps {
 export declare function Btn(props?: BtnProps): VNode;
 
 /**
+ * A themeable inline text/character glyph (font-size + optional color from tokens) -- for a real icon shape, use Icon()/iconMarkup() from shell/icons.js instead; Glyph is for short text/character content only. Decorative (aria-hidden) by default; pass `label` to expose it as a real accessible image instead.
+ *
  * Props for {@link Glyph} (src/components/shell.js).
  */
 export interface GlyphProps {
+    /** the glyph content (a character/short string). */
     children?: any;
-    color?: any;
+    /** CSS color value; omit to inherit currentColor. */
+    color?: string;
     /** @default 'base' */
-    size?: 'base' | 'sm' | 'lg' | (string & {});
-    label?: any;
+    size?: 'sm' | 'base' | 'lg';
+    /** accessible name; when set, renders role="img" instead of aria-hidden. */
+    label?: string;
 }
 export declare function Glyph(props?: GlyphProps): VNode;
 
+/** Renders a monochrome line icon from ICON_PATHS as a webjsx vnode. Accepts either call shape: `Icon('search', { size: 20 })` (the primary, historical signature) or `Icon({ name: 'search', size: 20 })` (a single props object, matching every other factory in this kit) -- both resolve through the same iconArgs() normalization below. An out-of-set name renders an empty `<span class="glyph">` rather than throwing. */
 export declare function Icon(name?: any, arg1?: any): VNode;
 
 /**
@@ -103,16 +109,18 @@ export interface IconButtonProps {
 export declare function IconButton(props?: IconButtonProps): VNode;
 
 /**
+ * A small count/variant/status marker (unread count, label chip inline with text). Distinct from Chip (a status-tone indicator element in its own right) and Pill (a plain non-interactive tag label) -- see the comments at each below for the three-way split.
+ *
  * Props for {@link Badge} (src/components/shell.js).
  */
 export interface BadgeProps {
     children?: any;
     /** @default 'default' */
     variant?: string;
-    /** @default 'neutral' */
+    /** semantic tone keyword, applies a `tone-{tone}` class. @default 'neutral' */
     tone?: string;
     /** @default 'md' */
-    size?: 'md' | 'sm' | 'lg' | (string & {});
+    size?: 'sm' | 'md' | 'lg';
 }
 export declare function Badge(props?: BadgeProps): VNode;
 

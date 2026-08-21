@@ -56,12 +56,11 @@
 .ds-hero-stat-l { color: var(--fg-3); font-size: var(--fs-xs); }
 .ds-hero-title {
   font-family: var(--ff-display); font-weight: 700;
-  /* Bespoke display clamp, deliberately off the --fs-* ladder: --fs-hero is
-     clamp(42px,7cqi,96px) and --fs-mega is clamp(56px,11cqi,168px). This lead
-     runs a steeper 9cqi slope with a LOWER 40px floor so a two-line 16ch title
-     still fits a narrow column, and a 116px ceiling between the two tiers.
-     Snapping to either changes the hero's whole optical weight. */
-  font-size: clamp(40px, 9cqi, 116px);
+  /* Was a bespoke inline clamp(40px,9cqi,116px), deliberately off the
+     --fs-* ladder (it sat between --fs-hero's 96px ceiling and --fs-mega's
+     56px floor, with its own lower 40px floor so a two-line 16ch title still
+     fits a narrow column). That gap is now the --fs-hero-2xl scale step. */
+  font-size: var(--fs-hero-2xl);
   /* 0.96 let ascenders/descenders visibly touch between wrapped lines at the
      upper end of this clamp (measured on "the creative department of the
      internet" at the 116px ceiling) -- 1.02 keeps the tight, no-air display
@@ -174,43 +173,39 @@
 }
 
 /* ============================================================
-   Print texture — the signature surface treatment. Opt-in overlay that
-   reads as risograph/newsprint grain, layered above the surface fill but
-   below content. Faint by default so type stays crisp; reduced-data and
-   reduced-motion are unaffected (texture is static).
-   ============================================================ */
-.ds-grain { position: relative; isolation: isolate; }
-.ds-grain::after {
-  content: ''; position: absolute; inset: 0; z-index: var(--z-below);
-  pointer-events: none;
-  background-image: var(--grain);
-  background-size: 160px 160px;
-  opacity: var(--grain-opacity);
-  mix-blend-mode: var(--grain-blend);
-}
-/* ============================================================
    Marquee / ticker — brand kinetic device ("always open 24/7"). The track
    holds two identical runs so the loop is seamless; reduced-motion freezes it
    to a single static run. Editorial, not a decorative flourish.
    ============================================================ */
 .ds-marquee {
+  display: flex; align-items: center; gap: var(--space-2);
   overflow: hidden; width: 100%;
   border-block: var(--bw-hair) solid var(--rule-strong);
   padding: var(--space-2) 0;
   font-family: var(--ff-display); font-weight: 600;
   text-transform: uppercase; letter-spacing: var(--tr-caps);
+}
+.ds-marquee-track {
+  flex: 1; min-width: 0;
+  display: inline-flex; gap: var(--space-5);
+  white-space: nowrap; will-change: transform;
   mask-image: linear-gradient(90deg, transparent 0, var(--fg) 28px, var(--fg) calc(100% - 28px), transparent 100%);
   -webkit-mask-image: linear-gradient(90deg, transparent 0, var(--fg) 28px, var(--fg) calc(100% - 28px), transparent 100%);
 }
-.ds-marquee-track {
-  display: inline-flex; gap: var(--space-5);
-  white-space: nowrap; will-change: transform;
+/* Visible, keyboard-reachable pause control (WCAG 2.2.2) -- see
+   Marquee()'s togglePause in src/components/content/hero.js. */
+.ds-marquee-pause {
+  flex: none; appearance: none; background: transparent; cursor: pointer;
+  border: 1px solid var(--rule-control); border-radius: var(--r-pill);
+  color: var(--fg-2); width: var(--ctl-sm); height: var(--ctl-sm);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: var(--fs-micro); line-height: 1;
 }
+.ds-marquee-pause:hover { color: var(--fg); border-color: var(--accent-ink); }
 @media (prefers-reduced-motion: no-preference) {
   .ds-marquee-track { animation: ds-marquee-run 28s linear infinite; }
-  .ds-marquee:hover .ds-marquee-track,
-  .ds-marquee:focus-within .ds-marquee-track,
-  .ds-marquee:active .ds-marquee-track { animation-play-state: paused; }
+  .ds-marquee.ds-marquee--paused .ds-marquee-track,
+  .ds-marquee:focus-within .ds-marquee-track { animation-play-state: paused; }
 }
 .ds-marquee-run { display: inline-flex; align-items: center; gap: var(--space-5); }
 .ds-marquee-item { display: inline-flex; align-items: center; gap: var(--space-5); }

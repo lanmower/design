@@ -688,12 +688,12 @@
    --fg-2 at 1.18:1, --mascot-deep at 3.13:1 — all failing AA, and all
    invisible on a machine whose browser defaults to a dark color-scheme.
    The tones below are theme-independent and measured on --ink:
-   --paper-3-dark 9.35:1, --paper-2 13.26:1, --acid 15.88:1, and the dark
-   mascot tone 6.67:1. Same FILL-vs-TEXT discipline --accent/--accent-ink
+   --paper-3-dark 9.35:1, --paper-2 13.26:1, --brand-green 15.88:1, and the
+   dark mascot tone 6.67:1. Same FILL-vs-TEXT discipline --accent/--accent-ink
    draws, applied to a surface that never follows the theme. */
 .ds-cli-cmt .cmd { color: var(--paper-3-dark); }
 .ds-cli-out .cmd { color: var(--paper-2); }
-.ds-cli-ok .prompt, .ds-cli-ok .cmd { color: var(--success-on-ink); } /* WCAG-verified 2026 restyle: --acid alone is now a dark neutral and fails on this always-dark .cli surface (npm run a11y) */
+.ds-cli-ok .prompt, .ds-cli-ok .cmd { color: var(--success-on-ink); } /* WCAG-verified: --brand-green alone is a dark neutral and fails on this always-dark .cli surface (npm run a11y) */
 .ds-cli-warn .prompt, .ds-cli-warn .cmd { color: var(--mascot-on-ink); }
 .ds-cli-log .prompt { color: var(--paper-3-dark); }
 .ds-cli-log .cmd { color: var(--paper-2); font-family: var(--ff-mono); }
@@ -756,7 +756,7 @@
   .ds-term-line-copy { opacity: 1; pointer-events: auto; }
 }
 .ds-term-input-row { margin-top: var(--space-1-75); }
-.ds-term-input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; font-family: var(--ff-mono); font-size: var(--fs-micro); color: var(--paper); caret-color: var(--acid); }
+.ds-term-input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; font-family: var(--ff-mono); font-size: var(--fs-micro); color: var(--paper); caret-color: var(--brand-green); }
 .ds-term-input::placeholder { color: var(--paper-3-dark); }
 /* Adding type="text" (for the a11y fix below) makes the global
    input[type="text"] rule in states-interactions.css match this element for
