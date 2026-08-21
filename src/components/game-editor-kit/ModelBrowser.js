@@ -126,7 +126,7 @@ export function createModelBrowser(container, opts = {}) {
         ghost: _viewMode !== 'list',
         onClick: () => { _viewMode = 'list'; render() },
         title: 'List View',
-        children: ['☰']
+        children: [Icon('rows')]
       }),
       Btn({
         dense: true,
