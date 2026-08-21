@@ -132,7 +132,7 @@ export function createModelBrowser(container, opts = {}) {
         ghost: true,
         onClick: loadModels,
         title: 'Refresh',
-        children: ['[↻]']
+        children: ['[r]']
       })
     )
     applyDiff(_toolbarHost, [controls])
