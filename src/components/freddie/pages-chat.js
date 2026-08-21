@@ -95,10 +95,21 @@ function applyEnvelope(msgs, env, sendApprove, sendAnswer) {
             const p = (a.parts || []).find(p => p.kind === 'question' && p.id === data.id);
             if (p) { p.status = data.rejected ? 'rejected' : 'answered'; p.answers = data.answers || {}; p.onResolve = null; }
         }
+    } else if (event === 'session.end') {
+        // Turn-boundary marker, emitted once per completed turn
+        // (src/agent/turn_driver.js's emitTurnEvent) and persisted to the
+        // wire log this function replays. Clearing _live HERE (as the loop
+        // reaches it) rather than only once after the whole loop is what
+        // keeps the message.append merge check above turn-scoped during
+        // replay: without it, a still-`_live`-flagged bubble from an
+        // earlier, already-finished turn would wrongly absorb a LATER
+        // turn's reply (lastAssistant() finds it regardless of how many
+        // intervening user/steer/queue messages sit between them).
+        const a = lastAssistant(); if (a) delete a._live;
     } else if (event === 'session.error') {
         const a = lastAssistant();
         const err = data.error || 'session error';
-        if (a && a._live) a.error = err;
+        if (a && a._live) { a.error = err; delete a._live; }
         else msgs.push({ id: 'e' + env.ts, role: 'assistant', content: '', error: err, time: formatTime(ts) });
     }
 }
@@ -276,7 +287,19 @@ export const chat = makePage((ctx) => {
                         const msgs = [];
                         st.tty = [];
                         for (const env of f.events) { applyEnvelope(msgs, env, sendApprove, sendAnswer); noteTty(st, env); }
-                        for (const m of msgs) delete m._live;
+                        // applyEnvelope's session.end/session.error cases already
+                        // clear _live per completed turn as the loop reaches them
+                        // (see there for why that must happen INSIDE the loop, not
+                        // after it). Do NOT blanket-strip _live here: doing so
+                        // would make lastAssistant()'s merge check above match a
+                        // stale bubble from an earlier turn instead of correctly
+                        // starting a new one. Deliberately NOT inferring st.busy
+                        // from a leftover _live bubble here -- this file has no
+                        // verified guarantee that every turn-termination path
+                        // (e.g. a user-initiated stop()) writes a session.end/
+                        // .error to the wire log, and wrongly forcing busy=true
+                        // with no live turn left to resolve it would permanently
+                        // stick the composer in queue-only mode with no way back.
                         st.messages = msgs;
                     }
                     ctx.rerender();
