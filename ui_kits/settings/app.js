@@ -155,8 +155,22 @@ function RestoreDraftModal({ onRestore, onDismiss }) {
 }
 
 function Field({ label, hint, children }) {
+    // Label voice matches the shared form-primitives Field used by name/email
+    // just above (.ds-field-label -- normal-case, fs-sm) instead of the
+    // .ds-field-eyebrow "eyebrow" motif (uppercase, mono, letter-spaced) that
+    // .ds-slide-eyebrow / .ds-auth-field-label / .ds-lightbox-tag share. That
+    // motif is for category tags sitting above a heading/card, not a form
+    // field's own label -- reusing it here for handle/bio made this one panel
+    // mix two label casings (HANDLE/BIO vs name/email) for no reason tied to
+    // meaning. Picked lowercase over normalizing name/email up to match
+    // signin's password/email fields (which DO use the eyebrow class) because
+    // .t-label, the house label recipe both classes build on, is normal-case
+    // by default -- uppercase there is an auth-screen embellishment, not a
+    // form-field-label convention -- and because it makes handle/bio consistent
+    // with the majority (and more capable: validation-aware) Field usage
+    // already in this same panel.
     return h('label', { class: 'ds-field ds-field-block' },
-        h('span', { class: 'ds-field-eyebrow' }, label),
+        h('span', { class: 'ds-field-label' }, label),
         children,
         hint ? h('span', { class: 'ds-hint-sm' }, hint) : null
     );
@@ -198,6 +212,28 @@ function onSaveClick() {
     kit.render();
 }
 
+// Bio is "one sentence, plain text" (its own hint says so) but the fixed
+// rows:3 box left ~2 empty lines below a real one-line bio -- confirmed live
+// via screenshot. Auto-grow to content instead of a bigger-than-needed fixed
+// box: same technique as ChatComposer's autoGrow (src/components/chat/
+// composer.js) -- reset height to 'auto' then read scrollHeight. The rAF here
+// is load-bearing, not just parity with the composer's own debounce: webjsx's
+// createDOMElement (vendor/webjsx/createDOMElement.js) calls `ref` BEFORE the
+// node is appended to its parent, so a synchronous read on mount hits a
+// still-detached textarea whose scrollHeight is always 0 (confirmed live --
+// the field collapsed to a sliver on first paint). Deferring one frame runs
+// the measurement after the node is actually in the document, on both mount
+// and the oninput-triggered re-render. CSS (.ds-bio-input, kits-appended.css)
+// sets resize:none + max-height so a pasted wall of text scrolls internally
+// instead of growing unbounded.
+function autoGrowBio(el) {
+    if (!el) return;
+    requestAnimationFrame(() => {
+        el.style.height = 'auto';
+        el.style.height = el.scrollHeight + 'px';
+    });
+}
+
 function Profile() {
     // panel-spine (accent left rail, existing lever in panel-row.css) gives
     // this kit's panels a visual identity of their own -- settings otherwise
@@ -220,7 +256,9 @@ function Profile() {
         Field({ label: 'handle', children:
             h('input', { class: 'input', value: state.handle, oninput: (e) => { state.handle = e.target.value; state.dirty = true; saveDraft(); kit.render(); } }) }),
         Field({ label: 'bio', hint: 'one sentence. plain text.', children:
-            h('textarea', { class: 'input', rows: 3, oninput: (e) => { state.bio = e.target.value; state.dirty = true; saveDraft(); kit.render(); } }, state.bio) })
+            h('textarea', { class: 'input ds-bio-input', rows: 2,
+                ref: autoGrowBio,
+                oninput: (e) => { state.bio = e.target.value; state.dirty = true; saveDraft(); autoGrowBio(e.target); kit.render(); } }, state.bio) })
     ) });
 }
 

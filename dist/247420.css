@@ -1120,11 +1120,16 @@
 
 /* .app-main.narrow widens well past prose measure on wide no-sidebar
    viewports on purpose (topbar.css) so full-width siblings like .post-meta/
-   h1/.post-index use the room. .lede/.ds-prose keep their reading-measure
-   caps (38ch/--measure) but stayed left edge-anchored inside that wider
-   column, turning the freed width into one-sided dead whitespace on the
-   right of the article body instead of being absorbed as margin. */
-.ds-247420 .app-main.narrow > .lede, .ds-247420 .app-main.narrow > .t-lede, .ds-247420 .app-main.narrow > .ds-prose {
+   h1/.post-index use the room. .ds-prose keeps its reading-measure cap
+   (--measure) but stayed left edge-anchored inside that wider column,
+   turning the freed width into one-sided dead whitespace on the right of
+   the article body instead of being absorbed as margin. .lede/.t-lede are
+   deliberately excluded here: when a lede is a direct .app-main.narrow
+   child (e.g. blog posts, where it sits next to .post-body rather than
+   inside a .ds-prose wrapper like docs), centering it breaks alignment
+   with the flush-left h1/body -- it should stay start-aligned like docs'
+   in-flow lede. */
+.ds-247420 .app-main.narrow > .ds-prose {
   margin-left: auto; margin-right: auto;
   /* .app-main is a column flex container -- an auto cross-axis margin on a
      flex item disables stretch per spec (align-self resolves to start
@@ -1610,7 +1615,14 @@
 .ds-247420 .app-side .count {
   background: color-mix(in oklab, var(--fg) 10%, transparent);
   color: var(--fg-2);
-  padding: 3px 10px; font-size: var(--fs-micro); font-weight: 700;
+  /* was a hardcoded 3px 10px -- --space-half/--space-2-5 are the exact same
+     computed values (3px/10px at density:1), so this is a token substitution,
+     not a resize. NOTE: sidebar-misc.css declares .app-side .count's padding
+     again at equal specificity and loads later in app-shell.css's @import
+     order, so ITS padding is what actually wins the cascade here -- see the
+     fix (and full explanation) there. Tokenizing this one too so it's
+     correct/harmless if the import order ever changes. */
+  padding: var(--space-half) var(--space-2-5); font-size: var(--fs-micro); font-weight: 700;
   border-radius: var(--r-pill);
 }
 /* Active state is a flat neutral highlight (--bg-3/--fg), not an accent
@@ -5294,15 +5306,22 @@
    block that also carries the identity strip / suggestions / docs fold --
    margin:auto on that fuller block left too little spare height to move,
    which is why an earlier attempt at this still read top-heavy. This
-   variant renders as its own minimal tree (see aicat/app.js), so centering
-   it here actually has room to work: .app-main's flex-column parent gives
-   this child top/bottom auto margins, and with only two short children the
-   block is small enough to visibly float in the middle of the viewport. */
+   variant renders as its own minimal tree (see aicat/app.js).
+   margin-top/bottom:auto here was dead weight, not a fix: this element also
+   carries .aicat-focus-col, which .app-main's own rule (topbar.css) grants
+   flex:1 1 auto -- flex-grow:1 claims 100% of .app-main's leftover height
+   for ITSELF, so there is no free space left for its own auto margins to
+   distribute. It rendered full-height with its children left stacked at the
+   top (flex-start, the default), which is the exact "floating box in a sea
+   of black with dead space below" bug this was meant to fix -- confirmed
+   live via CDP screenshot before this change. justify-content:center is the
+   correct tool once the item itself is the one filling the full-height
+   region: it centers the children (hero + composer + suggestions) inside
+   the space this box already occupies, instead of trying to move the box. */
 .ds-247420 .aicat-empty-canvas {
-  margin-top: auto;
-  margin-bottom: auto;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   /* align-items:center previously left the composer at its shrink-to-fit
      intrinsic width instead of filling the 720px focus column -- .chat-composer
      is display:flex with no explicit width, so centering the flex item
@@ -5315,6 +5334,22 @@
   align-items: stretch;
   gap: var(--space-4);
 }
+/* Small mascot glyph + lead question grouped as one hero unit above the
+   composer -- gives the empty state a visual anchor besides the bare input
+   (the original complaint: "just a floating input box in a sea of black").
+   Reuses the existing 32px .aicat-face circle (chat-polish.css above) at a
+   slightly larger size rather than inventing a new icon treatment. */
+.ds-247420 .aicat-empty-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+.ds-247420 .aicat-face-hero {
+  width: 44px;
+  height: 44px;
+  font-size: 12px;
+}
 .ds-247420 .aicat-empty-lead {
   font-family: var(--ff-display);
   font-size: var(--fs-xl);
@@ -5322,6 +5357,16 @@
   color: var(--fg);
   text-align: center;
   margin: 0;
+}
+/* Suggestion chips reuse .chat-suggestions (chat.css) as-is, just tightened
+   here: that component's own padding (--space-6 top/bottom) is tuned for
+   sitting inside a populated transcript below other content, which read as
+   too much extra air stacked on top of .aicat-empty-canvas's own centering
+   gap in the true empty state (three balanced children -- hero, composer,
+   suggestions -- not one CTA block with its own independent spacing). */
+.ds-247420 .aicat-empty-canvas .chat-suggestions {
+  padding: 0;
+  max-width: none;
 }
 /* Reference's Projects/General sidebar switcher: a two-pill row sitting
    above the tree, spaced off the tree below it like a real section header,
@@ -5518,7 +5563,17 @@
 .ds-247420 .app-side-shell[data-density="spacious"] .app-side a { margin-bottom: var(--space-2); }
 
 .ds-247420 .app-side .count {
-  padding: 1px 8px; font-size: var(--fs-micro); font-weight: 700;
+  /* was a hardcoded "1px 8px" -- 1px matches no rung on the --space-* scale
+     (the smallest, --space-hair, is 2px), and this rule is also the one that
+     actually wins the cascade over topbar.css's own (later-tokenized)
+     .app-side .count padding, since both match at equal specificity and this
+     sheet loads after topbar.css in app-shell.css's @import order. --space-2
+     is an exact match for the 8px side padding already; --space-hair is the
+     nearest real rung for the 1px top/bottom (a 1px visual delta, imperceptible
+     on an 18px-min-width pill) so the badge rides the same token scale as
+     every other spacing value on this row (.app-side a's own gap/padding/
+     margin-bottom all read off --space-* already). */
+  padding: var(--space-hair) var(--space-2); font-size: var(--fs-micro); font-weight: 700;
   font-family: var(--ff-body); letter-spacing: 0.04em;
   min-width: 18px; text-align: center;
 }
@@ -7793,6 +7848,19 @@
 }
 
 /* --- error 404 --------------------------------------------- */
+/* Page-local width cap, not the shell's .app-main.narrow (prose measure) --
+   this page is a centered hero + a route list, not an article, so it wants
+   the --stage-* page-stage vocabulary (see .ds-file-stage in files.css for
+   the same idiom). --stage-ultra (not --stage-wide) because on a real
+   1920x1080 desktop --stage-wide's 1600px cap lands within a few px of what
+   the old narrow clamp already produced (1612px) -- no visible fix. --stage-
+   ultra's 2100px cap actually closes the gap: confirmed live, app-main
+   content width 1612px -> 1843px at 1920x1080 (flanking gutter 154px -> 38px
+   per side), 1210px -> 1382px at 1440x900 (115px -> 29px per side). The
+   centered hero (.ds-err-hero, align-items:center) doesn't stretch with the
+   wider container -- only the route-list panel below gains the real estate,
+   which is the element that actually benefits from it. */
+.ds-247420 .ds-err-page { width: 100%; max-width: var(--stage-ultra); margin: 0 auto; }
 .ds-247420 .ds-err-hero {
   /* 36px/22px clamp ceilings and the 14px gap are off-scale on purpose: this
      hero is centred around a clamp(56px,20vw,120px) numeral and the insets are
@@ -8016,6 +8084,37 @@
    Textareas keep a wider cap since prose genuinely uses the room. */
 .ds-247420 .ds-field-block > .input { max-width: 44ch; width: 100%; }
 .ds-247420 .ds-field-block > textarea.input { max-width: 72ch; }
+/* The sitewide `.input` class is a deliberate hairline-only field (a single
+   bottom rule, near-invisible until focus -- see its own comment in
+   states-interactions.css) that reads fine against signin/search's more
+   stylized surfaces but disappears into this kit's plain panel background at
+   rest, so fields didn't look like inputs until clicked into. Reusing the
+   BOXED tokens the design system's own default bare-control chrome already
+   uses everywhere else (states-interactions.css's `.ds-field input:not(.input)`
+   family and the bare-native-control fallback above it) instead of inventing
+   new border/shadow values: --rule hairline + --rule-strong baseline inset
+   box-shadow, --bg-2 tonal fill, --r-1 corner, thickening to --accent on
+   focus. Scoped to this kit only -- signin/search keep the hairline look. */
+.ds-247420 .ds-settings-body .input {
+  border: 0;
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
+              inset 0 calc(-1 * var(--bw-rule)) 0 var(--rule-strong);
+  border-radius: var(--r-1);
+  background: var(--bg-2);
+}
+.ds-247420 .ds-settings-body .input:hover { background: color-mix(in oklab, var(--fg) 5%, transparent); }
+.ds-247420 .ds-settings-body .input:focus-visible {
+  border: 0;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
+              inset 0 calc(-1 * var(--bw-chunk)) 0 var(--accent);
+}
+/* Bio auto-grows to its content (app.js autoGrowBio) -- resize:none hands
+   height control entirely to that measurement instead of letting a manual
+   drag fight it every keystroke, and the cap keeps a pasted wall of text
+   scrollable in place rather than growing the field unbounded down the page,
+   same shape as ChatComposer's own textarea cap (chat-polish.css). */
+.ds-247420 .ds-bio-input { resize: none; overflow-y: auto; max-height: 220px; transition: height var(--dur-snap) var(--ease); }
 /* .ds-field-eyebrow joins the kit small-label voice above with no overrides. */
 .ds-247420 .ds-hint-sm { font-size: var(--fs-xs); color: var(--panel-text-2); }
 .ds-247420 .ds-note-quiet { margin: 0; color: var(--panel-text-2); }
@@ -8349,7 +8448,26 @@
         against. .ds-chat-detail opts out via align-self so its own sticky
         positioning still works without forcing the row back to content-sized. */
   .ds-247420 .ds-chat-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; grid-template-rows: minmax(0, 1fr); gap: var(--space-4); }
-  .ds-247420 .ds-chat-detail { display: block; position: sticky; top: 0; align-self: start; }
+  /* display:flex + gap (not block + each .panel's own default --space-6
+     margin-bottom) owns the spacing BETWEEN this rail's panels itself, same
+     "container owns the gap" shape as .ds-panel-flush pairs with elsewhere —
+     the rail is a stack of small related panels (room info, participants),
+     not full-width page sections, so it rides the tighter --space-4 rung
+     rather than the page-section --space-6. Each Panel() call in app.js
+     passes class:'panel-flush' to zero its own margin-bottom so the two
+     don't double up.
+     max-height/overflow-y is the same "cap it, let it scroll" treatment
+     .chat-thread and the pattern-notes panel-body already use for the exact
+     same failure mode: align-self:start (needed for sticky, see above) means
+     this item does NOT stretch to the grid row's height, so nothing stops
+     ITS OWN natural content height from exceeding that row and overflowing
+     past the grid, bleeding into the pattern-notes panel below it in the DOM
+     (measured live: rail content taller than the row painted straight
+     through/behind that panel instead of being clipped). A percentage
+     height/max-height on a grid item resolves against the row's definite
+     cross size regardless of align-self, so this caps the rail to exactly
+     the room .ds-chat-layout has without re-introducing either quirk above. */
+  .ds-247420 .ds-chat-detail { display: flex; flex-direction: column; gap: var(--space-4); position: sticky; top: 0; align-self: start; max-height: 100%; overflow-y: auto; }
 }
 
 /* Avatar — generic identity disc primitive (content.js Avatar). Sized
@@ -15693,6 +15811,18 @@
   min-height: 0;
   overflow: hidden;
   padding: 0;
+  /* AppShell's own unrelated `.app-main` (src/css/app-shell/topbar.css)
+     reserves a permanent scrollbar track via `scrollbar-gutter: stable` --
+     meant for its own scrolling route content. This app's `<main>` reuses
+     the bare `.app-main` class name (see the class list in the view()
+     function this file styles) purely for AppShell's base flex/min-height
+     resets, but that stray rule still matches it and was reserving ~10px
+     of dead space down the right edge here regardless of scroll state
+     (this element is `overflow: hidden` above, never scrolls), showing up
+     as a dark seam separate from the actual content. Same collision
+     pattern as the .app-topbar fix above -- reset it back to the default
+     for this component's own composition. */
+  scrollbar-gutter: auto;
 }
 
 /* app topbar — mountCommunityApp's own sole chrome above the chat-head; had
@@ -15774,12 +15904,23 @@
   scrollbar-width: none;
   border-right: 1px solid var(--panel-3, color-mix(in oklab, var(--fg) 10%, transparent));
 }
-/* stoat's ServerList (entryContainer, ServerList.tsx:363-390) keeps the
-   avatar's own radius FIXED and signals hover/active with a separate
-   left-edge pill indicator (::before, 4px radius, 0->16px height on hover,
-   ->32px when selected) instead of morphing the avatar's shape -- match
-   that pattern here (--r-0, this repo's 4px rung) rather than the previous
-   shrink-on-hover radius morph, which had no stoat equivalent. */
+/* Corner-radius standardization (audited across this file + community.css):
+   this app now uses exactly 3 radius tokens --
+     --r-1 (8px)  "sm"   buttons/inputs: app-topbar nav links, rail-channels
+                          items + their group-add-btn, vx-vc-btn toolbar
+                          buttons, cm-member-item.
+     --r-2 (10px) "md"   cards/panels/tiles: this rail's own server-icon
+                          pills below, cm-voice-tile.
+     --r-pill            toggle/status chips + the hold-to-talk mic control
+                          (a toggle-like control, so the pill reading is
+                          appropriate there rather than an inconsistency).
+   The rail's own left-edge active/hover indicator (::before below) is a
+   4px-wide decorative bar, not a button or panel, so it keeps its own small
+   rounded-cap radius (--r-0) outside this 3-token scheme -- same reasoning
+   stoat's ServerList (entryContainer, ServerList.tsx:363-390) uses for that
+   indicator: it signals hover/active with the indicator's own geometry
+   (0->16px height on hover, ->32px when selected) rather than morphing the
+   avatar's shape, so the avatar radius below is unrelated to it. */
 .ds-247420.ds-247420 .ca-rail-servers a {
   position: relative;
   display: flex;
@@ -15884,7 +16025,11 @@
   height: 20px;
   padding: 0;
   border: none;
-  border-radius: var(--r-0);
+  /* r-1 ("sm"), not r-0: see the corner-radius standardization note above
+     .ca-rail-servers a -- r-0 was a fourth, uncoordinated radius alongside
+     this file's other buttons/inputs (app-topbar nav links, vx-vc-btn) all
+     already on r-1, and this rail's own server icons on r-2. */
+  border-radius: var(--r-1);
   background: transparent;
   color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
   cursor: pointer;
@@ -15898,7 +16043,9 @@
   align-items: center;
   gap: 8px;
   padding: 6px 8px;
-  border-radius: var(--r-0);
+  /* r-1 ("sm" bucket) -- was r-0, the same stray fourth radius as
+     .group-add-btn above; standardized alongside it. */
+  border-radius: var(--r-1);
   color: var(--fg-2, color-mix(in oklab, var(--fg) 78%, transparent));
   text-decoration: none;
   font-size: var(--fs-sm, 14px);
@@ -15915,6 +16062,15 @@
   flex-shrink: 0;
   color: var(--fg-3, currentColor);
 }
+/* Visual-density pass: every rail glyph previously sat at the same flat
+   --fg-3 regardless of channel type, reading as a monochrome wireframe list.
+   Voice + announcement rooms get this repo's existing status/accent tokens
+   (same --green community.css's own .cm-channel-item.voice-active already
+   uses for a connected voice room) so the rail carries real signal at a
+   glance; text channels (the majority, and the visual baseline) keep the
+   neutral tone above. */
+.ds-247420.ds-247420 .ca-rail-channels a .glyph-voice { color: var(--presence-online, var(--green)); }
+.ds-247420.ds-247420 .ca-rail-channels a .glyph-announcement { color: var(--accent); }
 .ds-247420.ds-247420 .ca-rail-channels a > span:nth-child(2) { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ds-247420.ds-247420 .ca-rail-channels a .count {
   flex-shrink: 0;
@@ -15955,6 +16111,98 @@
 }
 .ds-247420.ds-247420 .vx-view .vx-grid .cm-voice-tile {
   width: min(280px, 100%);
+}
+
+/* Empty voice grid (no participants yet, or everyone left) -- previously a
+   bare .vx-grid rendered nothing at all here, leaving the whole main area a
+   flat black rectangle with no signal that the view had loaded correctly.
+   Same icon+title+sub shape as .chat-empty (chat.css) so the two "nothing
+   here yet" surfaces in this app read as one consistent pattern. */
+.ds-247420.ds-247420 .vx-view .vx-grid-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: safe center;
+  gap: var(--space-2);
+  flex: 1;
+  min-height: 0;
+  margin: auto;
+  padding: var(--space-5) var(--space-3);
+  color: var(--fg-3);
+  text-align: center;
+}
+.ds-247420.ds-247420 .vx-view .vx-grid-empty svg { color: var(--fg-3); opacity: .7; }
+.ds-247420.ds-247420 .vx-view .vx-grid-empty-title { font-size: var(--fs-lg); font-weight: var(--fw-medium); color: var(--fg-2); margin: 0; }
+.ds-247420.ds-247420 .vx-view .vx-grid-empty-sub { font-size: var(--fs-sm); margin: 0; max-width: var(--measure-narrow, 60ch); }
+
+/* Talk control dock -- groups PttButton + VoiceControls (+ webcam/VAD when
+   present) into one cluster instead of two independently-floating bars.
+   Previously .vx-ptt sat directly in the .vx-view flex column, so the
+   column's default align-items:stretch blew a 120px-square hold-to-talk
+   button up to the FULL width of the main pane (the "giant pill" bug) with
+   the toolbar as an unrelated full-width bar under it. Centering + capping
+   the dock's own width, then centering vx-ptt inside it, fixes both at
+   once: a compact control instead of an edge-to-edge one, sitting directly
+   above a toolbar that now reads as part of the same cluster. */
+.ds-247420.ds-247420 .vx-view .vx-dock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--space-2);
+  width: min(360px, 100%);
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-3) var(--space-4);
+}
+/* Pill rounding stays (this repo's r-pill token) -- it's the one control on
+   this screen where the "toggle/status chip" radius bucket genuinely
+   applies (see the corner-radius standardization note in this file's
+   header). Only the box it's stretched into changes: auto width instead of
+   the 120px-minimum square, so it reads as a real button, not a canvas. */
+.ds-247420.ds-247420 .vx-view .vx-dock .vx-ptt {
+  width: auto;
+  min-width: 200px;
+  min-height: 0;
+  flex-direction: row;
+  gap: var(--space-1-5, 6px);
+  padding: var(--space-2-5, 10px) var(--space-5, 24px);
+}
+.ds-247420.ds-247420 .vx-view .vx-dock .vx-ptt .vx-ptt-icon { font-size: var(--fs-lg); }
+/* The toolbar keeps its own --r-1 "sm" button radius (community.css
+   .vx-vc-btn) -- only its dock-specific chrome (background/border/full
+   width) is reset here so it reads as sitting inside the dock card instead
+   of as a second, separately-styled bar butted up against the pill. */
+.ds-247420.ds-247420 .vx-view .vx-dock .vx-vc {
+  width: auto;
+  border-top: none;
+  background: transparent;
+  padding: 0;
+}
+
+/* Visual-density pass: chat.css's shared .chat-empty (Chat(), used by every
+   kit built on this component -- not just this one) was text-only, no
+   icon/mark, which reads as an empty wireframe rather than a designed
+   state. Adding the mark here rather than in chat.css/threads.js keeps the
+   change scoped to this consumer's own composition instead of touching the
+   shared component other kits also render as-is. CSS-mask (not
+   background-image) so the glyph tracks --accent through theme changes
+   instead of a baked-in color. */
+.ds-247420.ds-247420 .ca-app .chat-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.ds-247420.ds-247420 .ca-app .chat-empty::before {
+  content: '';
+  display: block;
+  width: 30px;
+  height: 30px;
+  margin: 0 auto var(--space-3);
+  background-color: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 15px color-mix(in oklab, var(--accent) 12%, transparent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M21%2011.5a8.38%208.38%200%200%201-.9%203.8%208.5%208.5%200%200%201-7.6%204.7%208.38%208.38%200%200%201-3.8-.9L3%2021l1.9-5.7a8.38%208.38%200%200%201-.9-3.8%208.5%208.5%200%200%201%204.7-7.6%208.38%208.38%200%200%201%203.8-.9h.5a8.48%208.48%200%200%201%208%208v.5z%22/%3E%3C/svg%3E") center / 20px 20px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M21%2011.5a8.38%208.38%200%200%201-.9%203.8%208.5%208.5%200%200%201-7.6%204.7%208.38%208.38%200%200%201-3.8-.9L3%2021l1.9-5.7a8.38%208.38%200%200%201-.9-3.8%208.5%208.5%200%200%201%204.7-7.6%208.38%208.38%200%200%201%203.8-.9h.5a8.48%208.48%200%200%201%208%208v.5z%22/%3E%3C/svg%3E") center / 20px 20px no-repeat;
 }
 
 /* ============================================================

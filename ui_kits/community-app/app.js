@@ -35,6 +35,18 @@ const state = {
     currentUser: { username: 'you' }, userId: 'you',
     isConnected: true,
     voiceConnected: false, voiceChannelName: '', voiceConnectionState: 'connected',
+    // Kit-mock-local, not part of the adapter contract: whether the Lounge's
+    // participant grid should show occupants. Deliberately separate from
+    // voiceConnected (which drives the cross-channel "in voice, click to
+    // return" VoiceStrip banner elsewhere in the app) -- flipping
+    // voiceConnected on every channel switch was found to surface an
+    // unrelated, pre-existing rendering bug in that banner's own controls
+    // (.cm-voice-strip renders its mic/deafen/leave buttons full-width
+    // instead of as compact icons) that nothing in this kit had ever
+    // exercised before, since no prior code path ever set voiceConnected
+    // true. Gating the grid on its own flag keeps the Lounge fix from
+    // dragging in a separate, unrelated bug.
+    loungeConnected: true,
     voiceParticipants: [], micMuted: false, voiceDeafened: false,
     memberCategories: [{ label: 'online — 1', members: [{ identity: 'you', name: 'you', status: 'online', color: color('you') }] }],
     memberListOpen: false,
@@ -52,6 +64,19 @@ const state = {
 // real adapter uses for gateway notices, so loading/error are expressed the
 // same way a live consumer would express them rather than via a bespoke prop.
 const PHASES = ['empty', 'loading', 'ready', 'error'];
+
+// Mock voice-channel occupants for the Lounge -- reuses the same jordan/mai
+// identities + avatarColor() helper the text-channel messages already use,
+// so the Lounge doesn't read as a disconnected demo persona set. jordan is
+// mid-sentence (speaking outline) and mai has muted her mic, giving the
+// participant grid two distinct visual states to show off rather than three
+// identical idle tiles. 'you' is appended live in adapter.get() below (not
+// stored here) so the self-tile's mic icon tracks state.micMuted instead of
+// freezing at whatever it was when the channel was joined.
+const VOICE_PEERS = [
+    { identity: 'jordan', color: color('jordan'), speaking: true },
+    { identity: 'mai', color: color('mai'), muted: true },
+];
 
 const SAMPLE_MESSAGES = [
     { id: 'm1', userId: 'jordan', username: 'jordan', content: 'shipped the community adapter contract. mock lives in the kit, real one lives in the consumer.', timestamp: Date.now() - 600000, delivered: true },
@@ -84,11 +109,27 @@ const subs = new Set();
 const notify = () => subs.forEach(cb => { try { cb(); } catch (_) { /* swallow: a subscriber's error must not block notifying the rest */ } });
 
 const adapter = {
-    get: () => state,
+    // Voice participants are computed here rather than stored on `state`:
+    // the Lounge's tile grid needs jordan+mai (VOICE_PEERS, static) plus a
+    // live 'you' tile whose muted icon must track state.micMuted on every
+    // toggle -- storing a snapshot in state.voiceParticipants would freeze
+    // that icon at whatever it was when the channel was joined.
+    get: () => {
+        const inVoice = !!(state.currentChannel && state.currentChannel.type === 'voice' && state.loungeConnected);
+        if (!inVoice) return state;
+        return { ...state, voiceParticipants: [...VOICE_PEERS, { identity: 'you', color: color('you'), muted: state.micMuted }] };
+    },
     subscribe: (cb) => { subs.add(cb); return () => subs.delete(cb); },
     helpers: { avatarColor: color, initial: (n) => String(n || '?').slice(0, 1).toUpperCase(), formatTime: (t) => new Date(t || Date.now()).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) },
     actions: {
-        switchChannel: (ch) => { state.currentChannel = ch; state.mobileMenuOpen = false; notify(); },
+        switchChannel: (ch) => {
+            state.currentChannel = ch; state.mobileMenuOpen = false;
+            // Re-entering the Lounge after a prior "leave voice" click
+            // reconnects (mirrors the real product: picking the voice
+            // channel again is how you rejoin).
+            if (ch && ch.type === 'voice') state.loungeConnected = true;
+            notify();
+        },
         setInput: (v) => { state.chatInputValue = v; },
         send: (text) => {
             state.messages = [...state.messages, { id: 'm' + Date.now(), userId: 'you', username: 'you', content: text, timestamp: Date.now(), delivered: true }];
@@ -97,7 +138,7 @@ const adapter = {
         },
         toggleMic: () => { state.micMuted = !state.micMuted; notify(); },
         toggleDeafen: () => { state.voiceDeafened = !state.voiceDeafened; notify(); },
-        leaveVoice: () => { state.voiceConnected = false; state.voiceParticipants = []; notify(); },
+        leaveVoice: () => { state.loungeConnected = false; state.voiceParticipants = []; notify(); },
         toggleMembers: () => { state.memberListOpen = !state.memberListOpen; notify(); },
         openMobileMenu: () => { state.mobileMenuOpen = true; notify(); },
         closeMobileMenu: () => { state.mobileMenuOpen = false; notify(); },

@@ -45,12 +45,34 @@ const state = {
     // Which state the listing renders in. FileGrid already owns `loading`
     // (cold-load shimmer) and the empty copy; `error` is a directory-level
     // failure that has to sit above the grid because there is no listing at
-    // all to decorate. Driven by the toolbar buttons below so every state is
-    // reachable rather than only reproducible against a real broken mount.
+    // all to decorate. Driven by the KitControls buttons below so every state
+    // is reachable rather than only reproducible against a real broken mount.
     phase: 'ready'
 };
 
 const PHASES = ['ready', 'loading', 'empty', 'error'];
+
+// Dev/demo state toggles for the listing — reachable reference surface for
+// loading/empty/error, but not part of the toolbar a real FileBrowser would
+// render. Collapsed by default behind a <details> disclosure (see
+// .ds-kit-controls, kits-appended.css) — the same pattern the aicat and
+// dashboard kits use for their reference-state toggles — so this reads as
+// scaffolding around the component, not product chrome inside it.
+function KitControls() {
+    return h('details', { class: 'ds-kit-controls' },
+        h('summary', {}, 'kit controls — listing reference state'),
+        h('div', { class: 'ds-kit-controls-body' },
+            h('div', { class: 'ds-btn-row', 'aria-label': 'listing demo state' },
+                h('span', { class: 'eyebrow' }, 'demo:'),
+                ...PHASES.map((p) => h('button', {
+                    key: 'ph-' + p,
+                    class: state.phase === p ? 'btn btn-primary' : 'btn',
+                    onclick: () => { state.phase = p; render(); }
+                }, p))
+            )
+        )
+    );
+}
 
 // Directory-level failure. Names the problem AND the recovery: a bare "could
 // not load" tells the user nothing they can act on.
@@ -163,10 +185,6 @@ function App() {
     // of the 64px display size, which outweighs the file list it labels.
     const main = h('div', { class: 'ds-files-stack ds-app-surface' },
         h('h1', {}, 'file browser'),
-        h('p', { class: 'lede' },
-            'static demo of the 247420 file-browser primitives. drop files to fake-upload, click rows to preview, ',
-            'try delete or rename — nothing leaves this page.'
-        ),
         BreadcrumbPath({
             segments: state.crumbs,
             root: 'root',
@@ -193,13 +211,6 @@ function App() {
                 }, children: '+ folder' })
             ],
             right: [
-                // State switcher — keeps loading/empty/error one click away so
-                // they are living reference surfaces, not dead code.
-                ...PHASES.map((p) => h('button', {
-                    key: 'ph-' + p,
-                    class: state.phase === p ? 'btn btn-primary' : 'btn',
-                    onclick: () => { state.phase = p; render(); }
-                }, p)),
                 h('span', { class: 'meta ds-meta-mono' },
                     String(state.phase === 'ready' ? state.files.length : 0).padStart(2, '0') + ' items'
                 )
@@ -221,7 +232,8 @@ function App() {
             onAction: rowAction,
             emptyText: 'this folder is empty — drop files on the zone above, or use + folder to start a tree here.',
             emptyAction: Btn({ onClick: pickFiles, children: 'upload a file' })
-        })
+        }),
+        KitControls()
     );
 
     return h('div', {},

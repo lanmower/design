@@ -47,6 +47,18 @@ html.ds-247420 .ca-app > .app-body > .app-main {
   min-height: 0;
   overflow: hidden;
   padding: 0;
+  /* AppShell's own unrelated `.app-main` (src/css/app-shell/topbar.css)
+     reserves a permanent scrollbar track via `scrollbar-gutter: stable` --
+     meant for its own scrolling route content. This app's `<main>` reuses
+     the bare `.app-main` class name (see the class list in the view()
+     function this file styles) purely for AppShell's base flex/min-height
+     resets, but that stray rule still matches it and was reserving ~10px
+     of dead space down the right edge here regardless of scroll state
+     (this element is `overflow: hidden` above, never scrolls), showing up
+     as a dark seam separate from the actual content. Same collision
+     pattern as the .app-topbar fix above -- reset it back to the default
+     for this component's own composition. */
+  scrollbar-gutter: auto;
 }
 
 /* app topbar — mountCommunityApp's own sole chrome above the chat-head; had
@@ -128,12 +140,23 @@ html.ds-247420 .ca-rail-servers {
   scrollbar-width: none;
   border-right: 1px solid var(--panel-3, color-mix(in oklab, var(--fg) 10%, transparent));
 }
-/* stoat's ServerList (entryContainer, ServerList.tsx:363-390) keeps the
-   avatar's own radius FIXED and signals hover/active with a separate
-   left-edge pill indicator (::before, 4px radius, 0->16px height on hover,
-   ->32px when selected) instead of morphing the avatar's shape -- match
-   that pattern here (--r-0, this repo's 4px rung) rather than the previous
-   shrink-on-hover radius morph, which had no stoat equivalent. */
+/* Corner-radius standardization (audited across this file + community.css):
+   this app now uses exactly 3 radius tokens --
+     --r-1 (8px)  "sm"   buttons/inputs: app-topbar nav links, rail-channels
+                          items + their group-add-btn, vx-vc-btn toolbar
+                          buttons, cm-member-item.
+     --r-2 (10px) "md"   cards/panels/tiles: this rail's own server-icon
+                          pills below, cm-voice-tile.
+     --r-pill            toggle/status chips + the hold-to-talk mic control
+                          (a toggle-like control, so the pill reading is
+                          appropriate there rather than an inconsistency).
+   The rail's own left-edge active/hover indicator (::before below) is a
+   4px-wide decorative bar, not a button or panel, so it keeps its own small
+   rounded-cap radius (--r-0) outside this 3-token scheme -- same reasoning
+   stoat's ServerList (entryContainer, ServerList.tsx:363-390) uses for that
+   indicator: it signals hover/active with the indicator's own geometry
+   (0->16px height on hover, ->32px when selected) rather than morphing the
+   avatar's shape, so the avatar radius below is unrelated to it. */
 html.ds-247420 .ca-rail-servers a {
   position: relative;
   display: flex;
@@ -238,7 +261,11 @@ html.ds-247420 .ca-rail-channels .group-add-btn {
   height: 20px;
   padding: 0;
   border: none;
-  border-radius: var(--r-0);
+  /* r-1 ("sm"), not r-0: see the corner-radius standardization note above
+     .ca-rail-servers a -- r-0 was a fourth, uncoordinated radius alongside
+     this file's other buttons/inputs (app-topbar nav links, vx-vc-btn) all
+     already on r-1, and this rail's own server icons on r-2. */
+  border-radius: var(--r-1);
   background: transparent;
   color: var(--fg-3, color-mix(in oklab, var(--fg) 55%, transparent));
   cursor: pointer;
@@ -252,7 +279,9 @@ html.ds-247420 .ca-rail-channels a {
   align-items: center;
   gap: 8px;
   padding: 6px 8px;
-  border-radius: var(--r-0);
+  /* r-1 ("sm" bucket) -- was r-0, the same stray fourth radius as
+     .group-add-btn above; standardized alongside it. */
+  border-radius: var(--r-1);
   color: var(--fg-2, color-mix(in oklab, var(--fg) 78%, transparent));
   text-decoration: none;
   font-size: var(--fs-sm, 14px);
@@ -269,6 +298,15 @@ html.ds-247420 .ca-rail-channels a .glyph {
   flex-shrink: 0;
   color: var(--fg-3, currentColor);
 }
+/* Visual-density pass: every rail glyph previously sat at the same flat
+   --fg-3 regardless of channel type, reading as a monochrome wireframe list.
+   Voice + announcement rooms get this repo's existing status/accent tokens
+   (same --green community.css's own .cm-channel-item.voice-active already
+   uses for a connected voice room) so the rail carries real signal at a
+   glance; text channels (the majority, and the visual baseline) keep the
+   neutral tone above. */
+html.ds-247420 .ca-rail-channels a .glyph-voice { color: var(--presence-online, var(--green)); }
+html.ds-247420 .ca-rail-channels a .glyph-announcement { color: var(--accent); }
 html.ds-247420 .ca-rail-channels a > span:nth-child(2) { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 html.ds-247420 .ca-rail-channels a .count {
   flex-shrink: 0;
@@ -309,6 +347,98 @@ html.ds-247420 .vx-view .vx-grid {
 }
 html.ds-247420 .vx-view .vx-grid .cm-voice-tile {
   width: min(280px, 100%);
+}
+
+/* Empty voice grid (no participants yet, or everyone left) -- previously a
+   bare .vx-grid rendered nothing at all here, leaving the whole main area a
+   flat black rectangle with no signal that the view had loaded correctly.
+   Same icon+title+sub shape as .chat-empty (chat.css) so the two "nothing
+   here yet" surfaces in this app read as one consistent pattern. */
+html.ds-247420 .vx-view .vx-grid-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: safe center;
+  gap: var(--space-2);
+  flex: 1;
+  min-height: 0;
+  margin: auto;
+  padding: var(--space-5) var(--space-3);
+  color: var(--fg-3);
+  text-align: center;
+}
+html.ds-247420 .vx-view .vx-grid-empty svg { color: var(--fg-3); opacity: .7; }
+html.ds-247420 .vx-view .vx-grid-empty-title { font-size: var(--fs-lg); font-weight: var(--fw-medium); color: var(--fg-2); margin: 0; }
+html.ds-247420 .vx-view .vx-grid-empty-sub { font-size: var(--fs-sm); margin: 0; max-width: var(--measure-narrow, 60ch); }
+
+/* Talk control dock -- groups PttButton + VoiceControls (+ webcam/VAD when
+   present) into one cluster instead of two independently-floating bars.
+   Previously .vx-ptt sat directly in the .vx-view flex column, so the
+   column's default align-items:stretch blew a 120px-square hold-to-talk
+   button up to the FULL width of the main pane (the "giant pill" bug) with
+   the toolbar as an unrelated full-width bar under it. Centering + capping
+   the dock's own width, then centering vx-ptt inside it, fixes both at
+   once: a compact control instead of an edge-to-edge one, sitting directly
+   above a toolbar that now reads as part of the same cluster. */
+html.ds-247420 .vx-view .vx-dock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--space-2);
+  width: min(360px, 100%);
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-3) var(--space-4);
+}
+/* Pill rounding stays (this repo's r-pill token) -- it's the one control on
+   this screen where the "toggle/status chip" radius bucket genuinely
+   applies (see the corner-radius standardization note in this file's
+   header). Only the box it's stretched into changes: auto width instead of
+   the 120px-minimum square, so it reads as a real button, not a canvas. */
+html.ds-247420 .vx-view .vx-dock .vx-ptt {
+  width: auto;
+  min-width: 200px;
+  min-height: 0;
+  flex-direction: row;
+  gap: var(--space-1-5, 6px);
+  padding: var(--space-2-5, 10px) var(--space-5, 24px);
+}
+html.ds-247420 .vx-view .vx-dock .vx-ptt .vx-ptt-icon { font-size: var(--fs-lg); }
+/* The toolbar keeps its own --r-1 "sm" button radius (community.css
+   .vx-vc-btn) -- only its dock-specific chrome (background/border/full
+   width) is reset here so it reads as sitting inside the dock card instead
+   of as a second, separately-styled bar butted up against the pill. */
+html.ds-247420 .vx-view .vx-dock .vx-vc {
+  width: auto;
+  border-top: none;
+  background: transparent;
+  padding: 0;
+}
+
+/* Visual-density pass: chat.css's shared .chat-empty (Chat(), used by every
+   kit built on this component -- not just this one) was text-only, no
+   icon/mark, which reads as an empty wireframe rather than a designed
+   state. Adding the mark here rather than in chat.css/threads.js keeps the
+   change scoped to this consumer's own composition instead of touching the
+   shared component other kits also render as-is. CSS-mask (not
+   background-image) so the glyph tracks --accent through theme changes
+   instead of a baked-in color. */
+html.ds-247420 .ca-app .chat-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+html.ds-247420 .ca-app .chat-empty::before {
+  content: '';
+  display: block;
+  width: 30px;
+  height: 30px;
+  margin: 0 auto var(--space-3);
+  background-color: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 15px color-mix(in oklab, var(--accent) 12%, transparent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M21%2011.5a8.38%208.38%200%200%201-.9%203.8%208.5%208.5%200%200%201-7.6%204.7%208.38%208.38%200%200%201-3.8-.9L3%2021l1.9-5.7a8.38%208.38%200%200%201-.9-3.8%208.5%208.5%200%200%201%204.7-7.6%208.38%208.38%200%200%201%203.8-.9h.5a8.48%208.48%200%200%201%208%208v.5z%22/%3E%3C/svg%3E") center / 20px 20px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M21%2011.5a8.38%208.38%200%200%201-.9%203.8%208.5%208.5%200%200%201-7.6%204.7%208.38%208.38%200%200%201-3.8-.9L3%2021l1.9-5.7a8.38%208.38%200%200%201-.9-3.8%208.5%208.5%200%200%201%204.7-7.6%208.38%208.38%200%200%201%203.8-.9h.5a8.48%208.48%200%200%201%208%208v.5z%22/%3E%3C/svg%3E") center / 20px 20px no-repeat;
 }
 
 /* ============================================================

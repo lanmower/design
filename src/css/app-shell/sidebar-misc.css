@@ -18,7 +18,17 @@
 .app-side-shell[data-density="spacious"] .app-side a { margin-bottom: var(--space-2); }
 
 .app-side .count {
-  padding: 1px 8px; font-size: var(--fs-micro); font-weight: 700;
+  /* was a hardcoded "1px 8px" -- 1px matches no rung on the --space-* scale
+     (the smallest, --space-hair, is 2px), and this rule is also the one that
+     actually wins the cascade over topbar.css's own (later-tokenized)
+     .app-side .count padding, since both match at equal specificity and this
+     sheet loads after topbar.css in app-shell.css's @import order. --space-2
+     is an exact match for the 8px side padding already; --space-hair is the
+     nearest real rung for the 1px top/bottom (a 1px visual delta, imperceptible
+     on an 18px-min-width pill) so the badge rides the same token scale as
+     every other spacing value on this row (.app-side a's own gap/padding/
+     margin-bottom all read off --space-* already). */
+  padding: var(--space-hair) var(--space-2); font-size: var(--fs-micro); font-weight: 700;
   font-family: var(--ff-body); letter-spacing: 0.04em;
   min-width: 18px; text-align: center;
 }

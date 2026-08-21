@@ -8,6 +8,7 @@ import { ThemeToggle } from 'ds/components/theme-toggle.js';
 import { mountKit } from 'ds/bootstrap.js';
 import { run as runCommand, complete as completeLine } from 'ds/shell.js';
 import { copyToClipboardWithFeedback } from 'ds/components/chat-message-parts/inline.js';
+import { hasSelectionInside } from 'ds/components/chat/thread-scroll.js';
 const h = webjsx.createElement;
 
 const root = document.getElementById('root');
@@ -95,6 +96,27 @@ const demo = { visible: reduced ? demoScript.slice() : [], looping: !reduced };
 const history = [];
 let historyIdx = -1;
 
+// The scrollback's actual scroll container (.ds-term-body — max-height +
+// overflow-y: auto, see kits-appended.css). webjsx re-invokes this ref on
+// EVERY render (no identity check in vendor/webjsx/utils.js#assignRef), so it
+// must stay a dumb assignment — anything that scrolls from inside it would
+// yank the pane to the bottom on unrelated re-renders too (theme toggle, the
+// demo loop's ~1x/second tick, sidebar phase previews). Scrolling only
+// happens from the explicit call sites below, right after a render that
+// actually appended a new line.
+let liveBodyEl = null;
+
+// Pins the live pane to its newest line after new output lands. A terminal
+// always jumps to the new prompt (unlike the chat convention in
+// thread-scroll.js, which only continues scrolling if the user was already
+// pinned to the bottom) -- so this scrolls unconditionally, guarded only by
+// an active text selection inside the pane (e.g. mid drag-to-copy), the same
+// guard chat/thread-scroll.js uses for the same reason.
+function scrollLiveToBottom() {
+    if (!liveBodyEl || hasSelectionInside(liveBodyEl)) return;
+    liveBodyEl.scrollTop = liveBodyEl.scrollHeight;
+}
+
 // The interpreter's session state. cwd is an array of path segments owned here
 // and mutated in place by `cd`, so the prompt and the shell never disagree
 // about where the session is.
@@ -135,6 +157,7 @@ function recallHistory() {
         if (live.phase !== 'ready') live.phase = 'ready';
         liveTranscript.push({ kind: 'cmt', text: '# nothing in history yet — run a command first' });
         kit.render();
+        scrollLiveToBottom();
         return;
     }
     historyIdx = historyIdx < 0 ? history.length - 1 : Math.max(0, historyIdx - 1);
@@ -256,7 +279,7 @@ function App() {
                     class: 'ds-panel-gap',
                     children: live.phase === 'loading' ? ScrollbackSkeleton()
                     : live.phase === 'error' ? ScrollbackError()
-                    : h('div', { class: 'ds-term-body', role: 'log', 'aria-live': 'polite' },
+                    : h('div', { class: 'ds-term-body', role: 'log', 'aria-live': 'polite', ref: (el) => { liveBodyEl = el; } },
                         live.phase === 'empty' ? ScrollbackEmpty() : liveTranscript.map((l, i) => Line(l, i)),
                         h('div', { class: 'cli ds-term-input-row' },
                             h('span', { class: 'prompt' }, '$'),
@@ -295,6 +318,11 @@ function App() {
                                         // straight back to 'ready'.
                                         if (live.phase !== 'ready' && liveTranscript.length > 0) live.phase = 'ready';
                                         kit.render();
+                                        // render() is synchronous (webjsx.applyDiff
+                                        // runs inline, see bootstrap.js), so the new
+                                        // lines are already in the DOM here -- the
+                                        // pane can be scrolled without waiting a frame.
+                                        scrollLiveToBottom();
                                     } else if (e.key === 'Tab') {
                                         // Completion has to pre-empt the browser's
                                         // focus move, so preventDefault comes first.

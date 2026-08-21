@@ -271,6 +271,19 @@
 }
 
 /* --- error 404 --------------------------------------------- */
+/* Page-local width cap, not the shell's .app-main.narrow (prose measure) --
+   this page is a centered hero + a route list, not an article, so it wants
+   the --stage-* page-stage vocabulary (see .ds-file-stage in files.css for
+   the same idiom). --stage-ultra (not --stage-wide) because on a real
+   1920x1080 desktop --stage-wide's 1600px cap lands within a few px of what
+   the old narrow clamp already produced (1612px) -- no visible fix. --stage-
+   ultra's 2100px cap actually closes the gap: confirmed live, app-main
+   content width 1612px -> 1843px at 1920x1080 (flanking gutter 154px -> 38px
+   per side), 1210px -> 1382px at 1440x900 (115px -> 29px per side). The
+   centered hero (.ds-err-hero, align-items:center) doesn't stretch with the
+   wider container -- only the route-list panel below gains the real estate,
+   which is the element that actually benefits from it. */
+.ds-err-page { width: 100%; max-width: var(--stage-ultra); margin: 0 auto; }
 .ds-err-hero {
   /* 36px/22px clamp ceilings and the 14px gap are off-scale on purpose: this
      hero is centred around a clamp(56px,20vw,120px) numeral and the insets are
@@ -494,6 +507,37 @@
    Textareas keep a wider cap since prose genuinely uses the room. */
 .ds-field-block > .input { max-width: 44ch; width: 100%; }
 .ds-field-block > textarea.input { max-width: 72ch; }
+/* The sitewide `.input` class is a deliberate hairline-only field (a single
+   bottom rule, near-invisible until focus -- see its own comment in
+   states-interactions.css) that reads fine against signin/search's more
+   stylized surfaces but disappears into this kit's plain panel background at
+   rest, so fields didn't look like inputs until clicked into. Reusing the
+   BOXED tokens the design system's own default bare-control chrome already
+   uses everywhere else (states-interactions.css's `.ds-field input:not(.input)`
+   family and the bare-native-control fallback above it) instead of inventing
+   new border/shadow values: --rule hairline + --rule-strong baseline inset
+   box-shadow, --bg-2 tonal fill, --r-1 corner, thickening to --accent on
+   focus. Scoped to this kit only -- signin/search keep the hairline look. */
+.ds-settings-body .input {
+  border: 0;
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
+              inset 0 calc(-1 * var(--bw-rule)) 0 var(--rule-strong);
+  border-radius: var(--r-1);
+  background: var(--bg-2);
+}
+.ds-settings-body .input:hover { background: color-mix(in oklab, var(--fg) 5%, transparent); }
+.ds-settings-body .input:focus-visible {
+  border: 0;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
+              inset 0 calc(-1 * var(--bw-chunk)) 0 var(--accent);
+}
+/* Bio auto-grows to its content (app.js autoGrowBio) -- resize:none hands
+   height control entirely to that measurement instead of letting a manual
+   drag fight it every keystroke, and the cap keeps a pasted wall of text
+   scrollable in place rather than growing the field unbounded down the page,
+   same shape as ChatComposer's own textarea cap (chat-polish.css). */
+.ds-bio-input { resize: none; overflow-y: auto; max-height: 220px; transition: height var(--dur-snap) var(--ease); }
 /* .ds-field-eyebrow joins the kit small-label voice above with no overrides. */
 .ds-hint-sm { font-size: var(--fs-xs); color: var(--panel-text-2); }
 .ds-note-quiet { margin: 0; color: var(--panel-text-2); }
@@ -827,7 +871,26 @@
         against. .ds-chat-detail opts out via align-self so its own sticky
         positioning still works without forcing the row back to content-sized. */
   .ds-chat-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; grid-template-rows: minmax(0, 1fr); gap: var(--space-4); }
-  .ds-chat-detail { display: block; position: sticky; top: 0; align-self: start; }
+  /* display:flex + gap (not block + each .panel's own default --space-6
+     margin-bottom) owns the spacing BETWEEN this rail's panels itself, same
+     "container owns the gap" shape as .ds-panel-flush pairs with elsewhere —
+     the rail is a stack of small related panels (room info, participants),
+     not full-width page sections, so it rides the tighter --space-4 rung
+     rather than the page-section --space-6. Each Panel() call in app.js
+     passes class:'panel-flush' to zero its own margin-bottom so the two
+     don't double up.
+     max-height/overflow-y is the same "cap it, let it scroll" treatment
+     .chat-thread and the pattern-notes panel-body already use for the exact
+     same failure mode: align-self:start (needed for sticky, see above) means
+     this item does NOT stretch to the grid row's height, so nothing stops
+     ITS OWN natural content height from exceeding that row and overflowing
+     past the grid, bleeding into the pattern-notes panel below it in the DOM
+     (measured live: rail content taller than the row painted straight
+     through/behind that panel instead of being clipped). A percentage
+     height/max-height on a grid item resolves against the row's definite
+     cross size regardless of align-self, so this caps the rail to exactly
+     the room .ds-chat-layout has without re-introducing either quirk above. */
+  .ds-chat-detail { display: flex; flex-direction: column; gap: var(--space-4); position: sticky; top: 0; align-self: start; max-height: 100%; overflow-y: auto; }
 }
 
 /* Avatar — generic identity disc primitive (content.js Avatar). Sized

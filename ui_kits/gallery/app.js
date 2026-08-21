@@ -2,7 +2,7 @@ import * as webjsx from 'webjsx';
 // Imported directly from owning submodules, not the ds/components.js barrel
 // -- see aicat/app.js for the measured rationale (200+ serial unbundled
 // module requests when every kit pulls the full 30+-submodule barrel).
-import { Topbar, Crumb, Status, Side, AppShell, Heading, Lede, Chip } from 'ds/components/shell.js';
+import { Topbar, Crumb, Status, Side, AppShell, Heading, Chip } from 'ds/components/shell.js';
 import { Panel } from 'ds/components/content.js';
 import { Carousel } from 'ds/components/carousel.js';
 import { Dialog } from 'ds/components/editor-primitives.js';
@@ -228,11 +228,6 @@ function App() {
         main: [
             h('div', { class: 'ds-section ds-section-pad' },
                 Heading({ level: 1, children: 'gallery' }),
-                // Says what the reader is looking at. The old lede described
-                // the implementation ("no bespoke tile component, no shadows,
-                // no borders") and was contradicted on screen — the tiles lift
-                // with a shadow on hover.
-                Lede({ children: 'twelve ascii specimens on one tonal frame. pick any tile to open it large.' }),
                 Panel({ title: 'tiles', count: state.phase === 'ready' ? items.length : 0, class: 'ds-panel-gap', children: TilesBody() }),
                 Panel({ title: 'swatches', count: swatchTokens.length, class: 'ds-panel-gap', children:
                     h('div', { class: 'ds-swatch-grid' }, ...swatchTokens.map(Swatch))

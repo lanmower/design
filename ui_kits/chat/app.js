@@ -2,7 +2,7 @@ import * as webjsx from 'webjsx';
 // Imported directly from owning submodules, not the ds/components.js barrel
 // -- see aicat/app.js for the measured rationale (200+ serial unbundled
 // module requests when every kit pulls the full 30+-submodule barrel).
-import { Topbar, Crumb, Status, Side, AppShell, IconButton, Icon } from 'ds/components/shell.js';
+import { Topbar, Crumb, Status, Side, AppShell, IconButton, Icon, Chip } from 'ds/components/shell.js';
 import { Panel } from 'ds/components/content.js';
 import { Chat, ChatComposer } from 'ds/components/chat.js';
 import { mountKit } from 'ds/bootstrap.js';
@@ -92,6 +92,31 @@ const dms = [
     { glyph: 'dot', label: 'mai', key: 'mk' },
     { glyph: 'dot', label: 'aicat', key: 'aicat' }
 ];
+// One-line "what this room is for" -- gives the "this room" panel a third
+// line of real content instead of stopping at the member count. DMs have no
+// topic (there's no # room to describe), so state.room keys not listed here
+// simply render no topic line.
+const roomTopics = {
+    general: 'ship talk, release notes, the odd screenshot',
+    design: 'design system proposals and review threads',
+    releases: 'version bumps and changelog links only',
+    lore: 'anything goes'
+};
+
+// Pinned items for the "this room" rail's "pinned" panel -- whatever in the
+// current thread carries a 'pin' reaction (mai's meeting-notes PDF in the
+// seed thread), named by its file if it has one else its text. Derived from
+// live state rather than hardcoded, so it stays accurate if `send()` or a
+// future reaction toggle changes what's pinned.
+function pinnedItems() {
+    return state.messages
+        .filter((m) => (m.reactions || []).some((r) => r.emoji === 'pin'))
+        .map((m) => {
+            const filePart = m.parts.find((p) => p.kind === 'file' || p.kind === 'pdf');
+            const textPart = m.parts.find((p) => p.kind === 'text');
+            return filePart ? filePart.name : (textPart ? textPart.text : 'message');
+        });
+}
 
 const root = document.getElementById('root');
 function timeNow() { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
@@ -114,6 +139,7 @@ function send(text) {
 }
 
 function App() {
+    const pinned = pinnedItems();
     return AppShell({
         topbar: Topbar({ brand: '247420', leaf: 'chat', items: [['index', '../../'], ['aicat', '../aicat/'], ['source', 'https://github.com/AnEntrypoint/design']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: 'chat' }),
@@ -176,28 +202,75 @@ function App() {
                     // the composer stays the last on-screen element there. Dismissible:
                     // the close button and Escape both clear detailOpen, matching every
                     // other dismissible surface in this codebase (Popover's onKey).
-                    state.detailOpen ? h('div', { class: 'ds-chat-detail' },
+                    // tabindex/role/aria-label: the rail can now scroll its own
+                    // overflow (kits-appended.css's .ds-chat-detail max-height +
+                    // overflow-y, added so its content never bleeds into the
+                    // pattern-notes panel below it in the DOM), so it needs the
+                    // same keyboard-reachable-scroll-region treatment as that
+                    // panel's own body and Table's scroll wrapper.
+                    state.detailOpen ? h('div', { class: 'ds-chat-detail', tabindex: '0', role: 'group', 'aria-label': 'room details, scrollable' },
+                        // panel-flush: .ds-chat-detail itself now owns the gap
+                        // between these panels (flex column + --space-4), so each
+                        // panel's own default --space-6 margin-bottom would double
+                        // up on top of that gap -- same pairing .ds-panel-flush
+                        // already uses elsewhere for a gap-owning container.
                         Panel({
                             title: 'this room',
+                            class: 'panel-flush',
                             right: IconButton({
                                 icon: Icon('x', { size: 14 }), size: 'sm', variant: 'ghost',
                                 title: 'close room details',
                                 onClick: () => { state.detailOpen = false; kit.render(); }
                             }),
+                            // topic + pinned are real content (roomTopics below;
+                            // pinnedItems() reads whatever in the thread actually
+                            // carries a 'pin' reaction), not filler -- the rail used
+                            // to end at "N members" with a big stretch of blank space
+                            // down to the sticky rail's own natural-height ceiling.
+                            // Both fold into THIS panel's existing .ds-pattern-notes
+                            // block (cheap: one more ~23px line each) rather than each
+                            // getting its own Panel -- a whole extra Panel's chrome
+                            // (title row + --space-4 padding + --space-6 margin, ~150px)
+                            // for one pinned chip previously pushed the rail's total
+                            // content past the grid row's height and got clipped/
+                            // overlapped by the "pattern notes" panel below the grid.
                             children: h('div', { class: 'ds-pattern-notes' },
                                 h('p', {}, h('strong', {}, '#' + state.room)),
-                                h('p', {}, rooms.find(r => r.key === state.room)?.count ?? dms.find(r => r.key === state.room)?.count ?? 0, ' members')
+                                h('p', {}, rooms.find(r => r.key === state.room)?.count ?? dms.find(r => r.key === state.room)?.count ?? 0, ' members'),
+                                roomTopics[state.room] ? h('p', {}, 'topic: ' + roomTopics[state.room]) : null,
+                                pinned.length
+                                    ? h('p', {}, 'pinned: ', Chip({ size: 'sm', children: pinned[0] }))
+                                    : null
                             )
                         }),
-                        Panel({ title: 'participants', children:
+                        // Single .ds-pattern-notes wrapper (was one per participant,
+                        // each a separate .panel-body child) so consecutive names
+                        // share the same --space-2 line rhythm "this room" and
+                        // "pinned" above already use, instead of falling back to
+                        // .panel-body's own --space-3 default sibling gap -- three
+                        // different spacing rules for three stacked panels of the
+                        // same kind of content read as arbitrary, not as rhythm.
+                        Panel({ title: 'participants', class: 'panel-flush', children: h('div', { class: 'ds-pattern-notes' },
                             [{ glyph: '·', label: 'jordan' }, { glyph: '·', label: 'mai' }].map((p, i) =>
-                                h('div', { key: 'p' + i, class: 'ds-pattern-notes' }, h('p', {}, p.glyph + ' ' + p.label))
+                                h('p', { key: 'p' + i }, p.glyph + ' ' + p.label)
                             )
-                        })
+                        ) })
                     ) : null
                 ),
                 Panel({
                     title: 'pattern notes',
+                    // panel-docs (kits-appended.css) is the system's existing
+                    // "this is a caption ABOUT the UI above it, not the UI
+                    // itself" treatment -- dashed border, quiet tinted fill, a
+                    // "docs ·" title prefix -- built for exactly this problem
+                    // (its own comment cites this kit's sibling, aicat, for
+                    // the same "identical card chrome on both made the
+                    // meta-explanation read as part of the product" issue).
+                    // Was a plain .panel, chrome-identical to Chat's own
+                    // composer/panels above it, so this reference block
+                    // visually fused with the live chat UI instead of reading
+                    // as a separate annotation layer.
+                    class: 'panel-docs',
                     // .panel-body here is capped to 45vh with its own scroll
                     // (kits-appended.css, ".chat-kit-page > .panel > .panel-body")
                     // so the chat surface above it always keeps a usable height

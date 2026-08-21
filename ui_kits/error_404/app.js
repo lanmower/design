@@ -69,11 +69,17 @@ function SuggestBody() {
 
 function App() {
     return AppShell({
-        narrow: true,
+        // NOT narrow: .app-main.narrow's clamp is tuned for prose measure
+        // (--measure-narrow), which is the wrong vocabulary for this page --
+        // a centered hero + a route list, not an article. That clamp left a
+        // ~150-230px dead gutter on each side on real 1440/1920 desktops
+        // (confirmed live via CDP). .ds-err-page below owns its own width
+        // instead, matching the .ds-file-stage idiom (file_browser/app.js)
+        // of a page-local --stage-* cap rather than the shell's prose clamp.
         topbar: Topbar({ brand: '247420', leaf: '404', items: [['index', '../../']] }),
         crumb: Crumb({ trail: ['247420', 'kits'], leaf: '404', right: path ? 'requested: ' + path : '' }),
         main: [
-            h('div', { class: 'ds-app-surface ds-section-pad' },
+            h('div', { class: 'ds-app-surface ds-section-pad ds-err-page' },
                 Panel({ class: 'ds-panel-gap', children: h('div', { class: 'ds-err-hero' },
                     h('div', { class: 'ds-err-numeral' }, '404'),
                     Heading({ level: 1, class: 'ds-m0', children: 'route not found' }),
