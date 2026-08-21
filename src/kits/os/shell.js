@@ -130,7 +130,11 @@ export function createDesktopShell({ root = document.body, wm, registry, brand =
         if (e.key === 'Escape') { closeMenu(); closeDrawer(); }
     });
 
-    function tickClock() { clock.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
+    // hour12:false, not the locale default: every other timestamp in this
+    // system (terminal kit line kinds, dateline strips, presence rows) is
+    // terse 24-hour mono, and en-US's default AM/PM was the one place that
+    // broke from it.
+    function tickClock() { clock.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }); }
     tickClock();
     const clockTimer = setInterval(tickClock, 30000);
 

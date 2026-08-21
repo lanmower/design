@@ -57,10 +57,16 @@ export function PanelFromItems({ heading, items = [], keyPrefix = 'i', count, st
     return Panel({ title: heading, count, style, kind, children: rows });
 }
 
-export function Section({ title, eyebrow, children, id }) {
+export function Section({ title, eyebrow, children, id, headingLevel = 2 }) {
+    // headingLevel matches Panel's own default/override shape above (h2
+    // unless a caller nests this under an existing h2/h3) -- was hardcoded
+    // h3 with no override, which produced an invalid h1->h3 skip wherever a
+    // Section sat directly under the page's own h1 (e.g. the homepage's
+    // first "Live components" section, immediately after the hero h1).
+    const headingTag = 'h' + headingLevel;
     return h('section', { class: 'ds-section', ...(id ? { id } : {}) },
         eyebrow ? h('span', { class: 'eyebrow' }, eyebrow) : null,
-        title ? h('h3', {}, title) : null,
+        title ? h(headingTag, {}, title) : null,
         ...(Array.isArray(children) ? children : [children])
     );
 }

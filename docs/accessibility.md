@@ -1,12 +1,42 @@
 # Accessibility
 
-247420 targets WCAG 2.1 AA across every shipped kit surface, verified live rather than asserted.
+247420 automatically scans every shipped kit surface for axe-core's
+WCAG-tagged rule set, live rather than asserted. That is a real, continuous
+check and a genuinely useful floor -- it is **not** a WCAG 2.1 AA conformance
+claim (see "What this does and doesn't cover" below).
 
 ## Current status
 
-`node scripts/a11y-audit.mjs` runs the real axe-core engine against the live rendered DOM of every `ui_kits/*` surface with an `index.html` (a CDP session, not a static-HTML heuristic scan — computed style and contrast only exist post-render). As of this writing: **23/23 kits, 0 blocking (serious/critical) violations**. The full generated report lives at [`a11y-report.md`](./a11y-report.md); the check is a CI gate (`npm run lint:component-docs` and the a11y step in `.github/workflows/ci.yml`), not a one-time audit — a regression fails the build.
+`node scripts/a11y-audit.mjs` runs the real axe-core engine against the live rendered DOM of every `ui_kits/*` surface with an `index.html` (a CDP session, not a static-HTML heuristic scan — computed style and contrast only exist post-render). As of this writing: **23/23 kits, 0 blocking (serious/critical) violations**. The full generated report lives at [`a11y-report.md`](./a11y-report.md); the check is a CI gate (the a11y step in `.github/workflows/ci.yml`), not a one-time audit — a regression fails the build.
 
 The baseline is a ratchet: it can only go down. Raising it to pass a new violation is treated the same as disabling a lint.
+
+## What this does and doesn't cover
+
+axe-core's automated rules cover a real but partial slice of WCAG success
+criteria -- industry estimates put automated coverage at roughly a third to
+half of all criteria; the rest (focus order making logical sense, whether
+alt text is actually meaningful, keyboard-operability of custom widgets,
+screen-reader announcement quality) needs a human. This scan also runs
+WCAG-tagged rules only, which explicitly excludes some best-practice checks
+-- `bypass` (skip-link presence) and `page-has-heading-one` (a real `<h1>`)
+are not gated here, so a kit can pass this scan with no skip link and no
+`h1`. (`CHANGELOG.md` records a real instance: four kits shipped with no
+`main` landmark or skip link, invisible to this gate by design, caught only
+by a later manual pass.) "0 blocking violations" is accurate and means what
+it says; it is not the same claim as "WCAG AA conformant," and this doc
+should never be read as making that stronger claim. A real conformance
+statement needs the manual passes in the next section, done and logged, not
+just this automated gate.
+
+## Manual verification (not yet done)
+
+Not yet performed as a repeatable, dated, gated process: NVDA/JAWS/VoiceOver
+screen-reader passes, full keyboard-only traversal per kit, focus-return
+verification on every dialog close, 200% text zoom, 400% reflow (WCAG
+1.4.10), target-size audit (2.5.8), and focus-not-obscured checks (2.4.11).
+Until these exist and are logged with a date, treat the automated-only
+result above as a floor, not a ceiling.
 
 ## Color contrast
 

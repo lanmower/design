@@ -74,12 +74,16 @@ function showcaseNode(showcase) {
     C.Chip({ key: 'c3', tone: 'purple', children: 'New' }),
     C.Badge({ key: 'c4', tone: 'success', children: '0 violations' }),
   );
+  // Real, varied status per kit -- three identical "shipped / pass" rows
+  // demonstrated neither the table's sort/status-variance behavior nor
+  // gave a visitor any real information (every row read the same).
   const table = C.Table({
+    caption: 'Ship status for three representative kits, from the same manifest the kits panel below reads.',
     headers: ['Kit', 'Status', 'A11y'],
     rows: [
       ['chat', 'shipped', 'pass'],
       ['dashboard', 'shipped', 'pass'],
-      ['os', 'shipped', 'pass'],
+      ['os', 'beta', 'pass'],
     ],
     compact: true,
   });
@@ -180,16 +184,20 @@ function categoryPillsNode(categories, items, rerender) {
 function panelNode(panel, idx, rerender) {
   let items = Array.isArray(panel.items) ? panel.items : [];
   const isKits = panel.id === 'kits';
-  const allKitsItems = items;
   const q = isKits ? kitsFilterState.q.trim().toLowerCase() : '';
+  const matchesText = (it) => !q || (String(it.title || it.name || '') + ' ' + String(it.sub || it.desc || '')).toLowerCase().includes(q);
+  // Pill counts reflect the TEXT filter (so a pill's number tells you what
+  // picking that category would give you right now) but never the CATEGORY
+  // filter itself -- a pill showing its own filtered-to-zero count the
+  // moment you select it would be useless. Previously this was the full
+  // unfiltered item list, so every pill count stayed frozen at the total
+  // regardless of what the search box did to the visible grid.
+  const textFilteredKitsItems = isKits ? items.filter(matchesText) : items;
   if (isKits && kitsFilterState.category !== 'all') {
     items = items.filter((it) => it.category === kitsFilterState.category);
   }
   if (isKits && q) {
-    items = items.filter((it) => {
-      const hay = (String(it.title || it.name || '') + ' ' + String(it.sub || it.desc || '')).toLowerCase();
-      return hay.includes(q);
-    });
+    items = items.filter(matchesText);
   }
   const iconName = panel.id && PANEL_ICON[panel.id];
   const titleText = panel.title || panel.name || '';
@@ -204,17 +212,22 @@ function panelNode(panel, idx, rerender) {
       'aria-label': 'filter ui kits',
       oninput: (e) => { kitsFilterState.q = e.target.value; rerender(); },
     })) : null;
-  const pillsNode = isKits && rerender ? categoryPillsNode(panel.categories, allKitsItems, rerender) : null;
+  const pillsNode = isKits && rerender ? categoryPillsNode(panel.categories, textFilteredKitsItems, rerender) : null;
   if (!items.length) {
     if (isKits && (q || kitsFilterState.category !== 'all')) {
       const msg = q
         ? h('p', { class: 'ds-empty-state-msg' }, 'no kits match ', h('code', {}, '"' + kitsFilterState.q.trim() + '"'))
         : h('p', { class: 'ds-empty-state-msg' }, 'no kits in this category');
+      const clearBtn = h('button', {
+        type: 'button', class: 'btn btn-ghost btn-sm ds-empty-state-clear',
+        onclick: () => { kitsFilterState.q = ''; kitsFilterState.category = 'all'; rerender(); },
+      }, 'clear filter');
       return h('div', { class: 'ds-kits-panel-wrap' }, pillsNode, filterInput,
         C.Panel({ id: panel.id || null, title: titleNode, count: 0, children:
           h('div', { class: 'ds-empty-state' },
             h('div', { class: 'ds-empty-state-glyph' }, '( )'),
             msg,
+            clearBtn,
           ) }));
     }
     return (filterInput || pillsNode) ? h('div', { class: 'ds-kits-panel-wrap' }, pillsNode, filterInput) : null;

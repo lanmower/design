@@ -91,8 +91,12 @@ export function findTokensDrift() {
     const flat = tokensDoc.tokens || {};
 
     const blanked = blankComments(raw);
+    // `:root` and the nested-scope-guarded `:root:not(:where(.ds-247420
+    // .ds-247420))` (see colors_and_type.css's token-bible/elevation
+    // blocks) are the same logical root for drift-detection purposes.
+    const isRootSelector = (sel) => sel === ':root' || sel.startsWith(':root:not(');
     const blocks = splitBlocks(blanked).filter(
-        (b) => b.selector === ':root' && blanked.slice(b.bodyStart, b.bodyEnd).includes('--')
+        (b) => isRootSelector(b.selector) && blanked.slice(b.bodyStart, b.bodyEnd).includes('--')
     );
 
     const cssEdits = [];

@@ -6,6 +6,28 @@
 // package-boundary round-trip needed).
 
 import { renderPageHtml } from '../src/page-html.js';
+import { readdirSync, existsSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// Real total kit count -- every ui_kits/<name>/index.html, same discovery
+// rule scripts/a11y-audit.mjs's listKits() uses, so this number and the a11y
+// report's "N kit(s) scanned" line can never independently drift apart.
+// Distinct from home.kits.items.length (realCount() below), which is the
+// smaller, curated marketing subset shown as cards on this page -- prose
+// that means "every kit in the repo" (the a11y scan scope) must use THIS
+// count, not that one; conflating the two is exactly the bug a prior
+// version of this file's dead regex patches had (see git history).
+function realTotalKitsCount() {
+  const root = dirname(dirname(fileURLToPath(import.meta.url)));
+  const kitsDir = join(root, 'ui_kits');
+  try {
+    return readdirSync(kitsDir, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .filter((d) => existsSync(join(kitsDir, d.name, 'index.html')))
+      .length;
+  } catch { return 0; }
+}
 
 // A row `code` is a type tag (md, css, fb, os, wc, api), never a position.
 // Bare ordinals carry no information the row order does not already show, so
@@ -86,19 +108,17 @@ export default {
     if (!homeDoc) throw new Error('site/content/pages/home.yaml missing or has no id: home');
     const home = homeDoc;
     const hero = home.hero || null;
-    // hero.body is hand-typed prose that cites the live kit count inline
-    // ("WCAG AA verified across all N kits"). Never let that number drift
-    // from the real array length the kits panel/sidebar counts already
-    // derive from (see realCount()/withRealCounts() above) -- interpolate
-    // the true count here with a targeted replace of just that phrase,
-    // not a blanket digit substitution that could clobber an unrelated
-    // number elsewhere in the copy.
-    const heroBody = hero && hero.body
-      ? hero.body.replace(
-          /WCAG AA verified across all \d+ kits/,
-          'WCAG AA verified across all ' + (home.kits?.items?.length || 0) + ' kits'
-        )
-      : (hero ? hero.body : null);
+    // `{{TOTAL_KITS}}` in any home.yaml prose string is replaced with the
+    // real ui_kits/ folder count. A literal token instead of a regex over
+    // prose wording: the prior version of this file matched a specific
+    // sentence shape ("WCAG AA verified across all N kits") with a regex,
+    // and silently stopped patching anything the moment that sentence was
+    // reworded -- both hero.body and the features-panel row drifted stale
+    // for a full session before anyone noticed. A token can't go stale from
+    // a copy edit; it either exists in the string or it doesn't.
+    const totalKits = realTotalKitsCount();
+    const interpolate = (s) => typeof s === 'string' ? s.replaceAll('{{TOTAL_KITS}}', String(totalKits)) : s;
+    const heroBody = hero && hero.body ? interpolate(hero.body) : (hero ? hero.body : null);
 
     const panels = [
       panel(home.kits, 'kits'),
@@ -111,21 +131,15 @@ export default {
       panel(home.features, 'features'),
     ].filter(Boolean);
 
-    // Same stale-count hazard as hero.body above: the "Accessible by
-    // default" feature card also hand-cites the live kit count ("0 blocking
-    // violations across all N surfaces"). Patch it in place after panel()
-    // has built the row so this stays in sync with home.kits.items.length
-    // without a second hand-typed number to drift.
-    const featuresPanel = panels.find((p) => p && p.id === (home.features?.id || 'features'));
-    if (featuresPanel) {
-      const kitsCount = home.kits?.items?.length || 0;
-      for (const row of featuresPanel.items) {
-        if (row.sub) {
-          row.sub = row.sub.replace(
-            /across all \d+ surfaces/,
-            'across all ' + kitsCount + ' surfaces'
-          );
-        }
+    // Same {{TOTAL_KITS}} token substitution as hero.body above, applied to
+    // every panel row's sub/desc text (the "Accessible by default" feature
+    // card is the one that currently uses it, but this isn't scoped to that
+    // one row -- any future row can cite the real kit count the same way).
+    for (const p of panels) {
+      if (!p || !Array.isArray(p.items)) continue;
+      for (const row of p.items) {
+        if (row.sub) row.sub = interpolate(row.sub);
+        if (row.desc) row.desc = interpolate(row.desc);
       }
     }
 
@@ -135,10 +149,16 @@ export default {
         id: 'previews',
         title: home.previews.heading || 'previews',
         count: home.previews.items.length,
+        // Title-cased, not the raw lowercase-with-hyphens-swapped filename
+        // ("colors-lore" -> "Colors Lore", not "colors lore") -- matches the
+        // Title Case every other row title on this page already uses. The
+        // subtitle used to just repeat the same filename a second time
+        // ("preview · colors-lore.html"), adding no information a visitor
+        // didn't already get from the title and the link itself.
         items: home.previews.items.map((name) => ({
           code: '',
-          title: String(name).replace(/-/g, ' '),
-          sub: 'preview · ' + name + '.html',
+          title: String(name).split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+          sub: 'Component/token reference preview',
           meta: 'open',
           href: base + name + '.html',
         })),
@@ -151,8 +171,12 @@ export default {
       siteName: site.siteName || site.title || '247420',
       navItems: (nav.links || []).map(l => [String(l.label || ''), l.href]),
       hero: hero ? {
+        eyebrow: hero.eyebrow,
         heading: hero.heading, subheading: hero.subheading || site.tagline,
-        body: heroBody, badges: hero.badges,
+        body: heroBody,
+        badges: Array.isArray(hero.badges)
+          ? hero.badges.map((b) => ({ ...b, label: interpolate(b.label), desc: interpolate(b.desc) }))
+          : hero.badges,
         ctas: hero.ctas,
       } : null,
       showcase: home.showcase ? { heading: home.showcase.heading, lede: home.showcase.lede } : null,
@@ -179,7 +203,13 @@ export default {
         twitter: site.twitter || '@AnEntrypoint',
         locale: site.locale || 'en_US',
         lang: site.lang || 'en',
-        image: site.image || (site.url ? site.url.replace(/\/$/, '') + '/og-card.png' : ''),
+        // No fabricated fallback path: an og-card.png has never existed in
+        // this repo, so guessing one at the site root just shipped a 404
+        // og:image/twitter:image tag on every share. renderSeoTags() already
+        // omits both tags cleanly when seo.image is empty -- honest absence
+        // beats a broken link. Set site.image in site.yaml once a real
+        // asset exists.
+        image: site.image || '',
         url: site.url || '',
       },
       faviconGlyph: site.glyph || (site.title ? site.title.trim().charAt(0).toUpperCase() : '2'),

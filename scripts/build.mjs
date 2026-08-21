@@ -228,8 +228,12 @@ const prefixed = (await postcss([
         transform: (prefix, selector, prefixedSelector) => {
             if (!selector || /^@/.test(selector)) return selector;
             // Map :root and html/body to the scope itself so design tokens land
-            // on the consumer's wrapping element.
-            if (/^:root\b/.test(selector)) return prefix;
+            // on the consumer's wrapping element. Preserve any trailing
+            // pseudo-class chain (e.g. `:root:not(:is(.ds-247420 .ds-247420))`,
+            // used to keep a nested scope from re-triggering the base token
+            // rule) instead of discarding it -- a bare `return prefix` here
+            // would silently strip that guard at build time.
+            if (/^:root\b/.test(selector)) return selector.replace(/^:root\b/, prefix);
             // <html class="ds-247420"> — body is a child, needs descendant selector.
             if (/^html\b/.test(selector)) return selector.replace(/^html\b/, prefix);
             if (/^body\b/.test(selector)) return selector.replace(/^body\b/, prefix + ' body');

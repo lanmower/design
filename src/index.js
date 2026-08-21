@@ -51,6 +51,13 @@ export async function installStyles(target) {
 const _mountedRoots = new WeakSet();
 
 export function mount(rootEl, viewFn, { autoScope = true } = {}) {
+    // installStyles() already guards `typeof document === 'undefined'`;
+    // mount() itself didn't, and mount() calling requestAnimationFrame a few
+    // lines below would fail with a cryptic ReferenceError in a non-DOM
+    // environment (SSR, a worker) instead of naming the actual problem.
+    if (typeof document === 'undefined') {
+        throw new Error('mount() requires a DOM environment; use page-html.js\'s renderPageHtml for SSR/static output');
+    }
     if (!rootEl) throw new Error('mount: rootEl required (received ' + (rootEl === null ? 'null' : typeof rootEl) + ')');
     if (typeof viewFn !== 'function') throw new Error('mount: viewFn required');
     if (_mountedRoots.has(rootEl)) {

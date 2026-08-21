@@ -477,8 +477,11 @@
   gap: var(--space-2); flex-wrap: wrap;
   padding: var(--space-4) var(--space-3); text-align: center;
 }
-/* Icon size, not type — see .ds-file-cell-media .ds-file-icon above. */
-.ds-dropzone-glyph { font-size: var(--icon-lg, 24px); color: var(--fg-3); }
+/* Real SVG icon (was a unicode ⇪ text glyph) -- width/height/viewBox live
+   on the element per the shared Icon()/iconMarkup() attribute contract
+   (src/components/shell/icons.js); only color is set here, which the SVG
+   picks up via stroke="currentColor". */
+.ds-dropzone-glyph { display: block; color: var(--fg-3); }
 .ds-dropzone-label { font-size: var(--fs-sm); color: var(--fg-3); }
 .ds-dropzone:not(.dragover):not(.rejected):hover {
   border-color: var(--fg-3);

@@ -136,7 +136,11 @@
    ============================================================ */
 .row {
   display: grid;
-  grid-template-columns: minmax(80px, 12ch) minmax(0, 1fr) auto;
+  /* Column floor was 80px -- a 2-3 char mono code ("fb"/"os"/"wc"/"api")
+     never needed that much, leaving a wide dead gap before the title on
+     rows with short codes. 44px comfortably fits up to ~4 mono chars;
+     the 12ch ceiling still lets a genuinely longer code grow into it. */
+  grid-template-columns: minmax(44px, 12ch) minmax(0, 1fr) auto;
   gap: var(--space-3);
   align-items: baseline;
   /* App density is the BASE: a list row is quiet working chrome, so it defaults
@@ -239,7 +243,7 @@ a.row:hover .meta, .row[role="button"]:hover .meta { color: var(--accent-ink); t
    multi-line row pattern in this file (.ds-row-detail) already gets a
    dedicated line. */
 .row:has(.meta.dim):has(.ds-row-arrow) {
-  grid-template-columns: minmax(80px, 12ch) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(44px, 12ch) minmax(0, 1fr) auto;
   grid-template-rows: auto auto;
   row-gap: var(--space-1);
 }

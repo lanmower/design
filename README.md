@@ -6,9 +6,7 @@ filename `dist/247420.js`/`dist/247420.css` and in a few package.json fields;
 the published npm package name is `anentrypoint-design`. Both names refer to
 the same single system.)
 
-shadcn-neutral: a grayscale accent system on paper or near-black ink, system-font stack (no web-font request), monospace only on real code, tonal surfaces over borders, indicator rails for color-coded separation, centered layout, print texture inert (kept for a future opt-in).
-
-we fart in its general direction.
+shadcn-neutral: a grayscale accent system on paper or near-black ink, system-font stack (no web-font request), monospace only on real code, tonal surfaces over borders, indicator rails for color-coded separation, centered layout.
 
 ## install (the only step)
 
@@ -23,24 +21,35 @@ npm install github:AnEntrypoint/design
 **jsDelivr GitHub CDN** (when you don't, and you don't want one):
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/AnEntrypoint/design@main/dist/247420.css">
-<script type="importmap">
-  { "imports": { "anentrypoint-design": "https://cdn.jsdelivr.net/gh/AnEntrypoint/design@main/dist/247420.js" } }
-</script>
-```
-
-`@main` tracks the default branch — every push updates what this URL serves, deliberately, so consumers always get the newest committed build with no separate publish step. Pin to a specific commit SHA instead if you need reproducibility:
-
-```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/AnEntrypoint/design@<commit-sha>/dist/247420.css">
 <script type="importmap">
   { "imports": { "anentrypoint-design": "https://cdn.jsdelivr.net/gh/AnEntrypoint/design@<commit-sha>/dist/247420.js" } }
 </script>
 ```
 
+Pin to a specific commit SHA (the default above) so your UI only changes when
+you choose to bump it. jsDelivr also serves an unpinned `@main`, which tracks
+the default branch and updates on every push with no separate publish step —
+useful for always-latest experimentation, but it means your consumers' UI can
+change on someone else's push, and jsDelivr's own edge cache for a floating
+branch reference is not instant or fully consistent (a purge does not always
+resolve immediately), so treat it as approximate even for that use case:
+
+```html
+<script type="importmap">
+  { "imports": { "anentrypoint-design": "https://cdn.jsdelivr.net/gh/AnEntrypoint/design@main/dist/247420.js" } }
+</script>
+```
+
+CSP note: both install paths above load `marked`/`DOMPurify`/`Prism` from
+`cdn.jsdelivr.net` at first render (not bundled) -- if you deploy behind a
+strict Content-Security-Policy or air-gapped environment, read the "Network
+dependency" section below before you ship.
+
 Add the scope class on a wrapping element and you are done:
 
 ```html
-<html class="ds-247420" data-theme="light">
+<html class="ds-247420" data-theme="paper">
   <body><div id="app"></div></body>
 </html>
 ```
@@ -133,14 +142,14 @@ onMounted(() => {
 - **multi-agent chat shell** — `WorkspaceShell`, `WorkspaceRail`, `ConversationList`, `AgentChat`, `SessionDashboard` — the flagship desktop-class chat-agent product surface (persistent rail + resizable columns + full turn/tool-call thread + live multi-session dashboard). See `COMPONENT_API.md` for the full prop contract; a runnable mock-data demo lives at `ui_kits/workspace/`; the canonical real-world wiring ships at [`agentgui`](https://github.com/AnEntrypoint/agentgui).
 - **file browser** — `FileRow`, `FileGrid`, `FileToolbar`, `FileIcon`, `DropZone`, `UploadProgress`, `EmptyState`, `BreadcrumbPath`, plus modal pieces `FileViewer`, `FilePreviewMedia`, `FilePreviewCode`, `FilePreviewText`, `ConfirmDialog`, `PromptDialog`
 - **desktop-shell (os kit)** — `createDesktopShell`, `renderWindow`, `renderDock`, plus paint surfaces `renderAboutApp`, `renderBrowserPane`, `renderFilesApp`, `renderMonitorApp`, `renderTerminal`, `createFreddieDashboard` (`src/kits/os/`, package export `ds/kits/os/index.js`). Pure visual/DOM-rendering layer — window-manager state (z-order, focus stack, drag/resize math) and app lifecycle are owned by the consumer. A runnable demo (self-contained window manager + 2 apps) lives at `ui_kits/os/`; the canonical real-world wiring — the full multi-instance web OS (per-instance filesystem/worker/POSIX-shell, the complete app catalog) — ships at [`thebird`](https://github.com/AnEntrypoint/thebird), which vendors this kit via `scripts/refresh-design.mjs`.
-- **ui_kits** — 22 fully-working buildless examples loading the SDK from this repo: `homepage`, `project_page`, `docs`, `blog`, `chat`, `aicat`, `file_browser`, `dashboard`, `settings`, `search`, `terminal`, `gm_inspector`, `workspace`, `community`, `community-app`, `gallery`, `signin`, `error_404`, `slide_deck`, `system_primer`, `os`, `component_explorer`. (`_template` is the scaffold source, not a kit: it holds `index.html.tmpl` — a build input full of `{{VAR}}` placeholders — and deliberately serves no page.) Each kit's stylesheet `<link>` set is declared in `ui_kits/kits.config.mjs` and emitted by the scaffold generator (`npm run generate:ui-kits`) — never hand-edit a kit's generated `index.html`; `npm run lint:ui-kits` checks them against generated output.
-- **component explorer** — an interactive, searchable, buildless alternative to Storybook (`ui_kits/component_explorer/`): lists all 271 exported components, grouped by source file, with a real generated prop table per component and a live-mounted specimen for components already proven safe to render standalone (`Btn`, `Chip`, `Badge`, `Table`). Reads `manifest.json`, generated by `npm run manifest:components` from the same `extractComponentSurface()` model `docs/component-props.md` and `types/*.d.ts` already share — a CI gate (`npm run lint:component-manifest`) fails the build if it drifts from the real signatures.
+- **ui_kits** — 23 fully-working buildless examples loading the SDK from this repo: `homepage`, `project_page`, `docs`, `blog`, `chat`, `aicat`, `file_browser`, `dashboard`, `settings`, `search`, `terminal`, `gm_inspector`, `workspace`, `community-app`, `gallery`, `signin`, `error_404`, `slide_deck`, `system_primer`, `os`, `component_explorer`, `buttons`, `dynamic-accent`. (`_template` is the scaffold source, not a kit: it holds `index.html.tmpl` — a build input full of `{{VAR}}` placeholders — and deliberately serves no page. The standalone `community` kit was folded into `community-app` upstream during this same window — a live example of exactly the count-drift this note warns about.) Each kit's stylesheet `<link>` set is declared in `ui_kits/kits.config.mjs` and emitted by the scaffold generator (`npm run generate:ui-kits`) — never hand-edit a kit's generated `index.html`; `npm run lint:ui-kits` checks them against generated output. This count (like the component count below) is still hand-set in this prose, not generated from a manifest -- verify against `find ui_kits -maxdepth 1 -type d ! -name _template | wc -l` if it looks stale.
+- **component explorer** — an interactive, searchable, buildless alternative to Storybook (`ui_kits/component_explorer/`): lists all 302 exported components, grouped by source file, with a real generated prop table per component and a live-mounted specimen for the 4 components already proven safe to render standalone (`Btn`, `Chip`, `Badge`, `Table`) -- not yet a live specimen for all 302; that gap is tracked in `PRD-remediation-2026-08-20.md`. Reads `manifest.json`, generated by `npm run manifest:components` from the same `extractComponentSurface()` model `docs/component-props.md` and `types/*.d.ts` already share — a CI gate (`npm run lint:component-manifest`) fails the build if it drifts from the real signatures.
 
 The file-browser surface (rails by file type, drop-zone upload, modal preview) ships its canonical real-world wiring at [`fsbrowse`](https://github.com/AnEntrypoint/fsbrowse) — Express + busboy backend, the SDK frontend.
 
 ## use it from a buildless flatspace project
 
-A canonical example lives at `c:\dev\flatspace-demo`. It has **no `package.json`**. It has a `flatspace.config.mjs`, YAML pages under `config/`, and a `src/theme.mjs` that turns each page into HTML at build-time. CI runs `npx --yes flatspace@latest build` and deploys `dist/`.
+A "buildless flatspace project" in this sense has **no `package.json`**. It has a `flatspace.config.mjs`, YAML pages under `config/`, and a `src/theme.mjs` that turns each page into HTML at build-time. CI runs `npx --yes flatspace@latest build` and deploys `dist/`.
 
 To plug 247420 into that shape, do exactly three things:
 
@@ -149,7 +158,7 @@ To plug 247420 into that shape, do exactly three things:
 ```js
 export default function render({ site, page }) {
   return `<!doctype html>
-<html lang="en" class="ds-247420" data-theme="light">
+<html lang="en" class="ds-247420" data-theme="paper">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -321,7 +330,7 @@ The system runs entirely on CSS custom properties under `.ds-247420`. To rebrand
 </div>
 ```
 
-The full token list lives in `colors_and_type.css`; `THEME.md` documents the taxonomy and the `data-theme`/`data-accent`/`data-density`/`data-typescale` attribute contract. The voice rules and the storytelling pass live in `SKILL.md`.
+The full token list lives in `colors_and_type.css`; `THEME.md` documents the taxonomy and the `data-theme`/`data-accent`/`data-density`/`data-typescale` attribute contract. The voice rules and the storytelling pass live in `SKILL.md`. `docs/usage-guidelines.md` covers primitive selection, layout composition, form patterns, and error/empty-state patterns.
 
 Layout primitives worth knowing: `.ds-app-surface` is the Operate-mode page root that switches a kit onto the app typescale (without it, page titles render at the marketing display ceiling), and `.ds-panel-trio` / `.ds-panel-duo` / `.ds-panel-flush` are panel-row grids that step down on container width.
 

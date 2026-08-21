@@ -10,13 +10,24 @@ queries, consistent with the rest of the codebase's CSS.
 |---|---|---|
 | `xs` | `max-width: 360px` | smallest phones; tightest chrome, hide secondary controls |
 | `mobile` | `max-width: 480px` | phone breakpoint; single-column layouts, collapsed navigation, hamburger/bottom-sheet chrome |
-| `tablet` | `min-width: 481px` and `max-width: 1024px` | tablet / narrow-desktop band; adjusted grid columns, condensed rails |
-| `narrow-desktop` | `max-width: 768px` | secondary narrow cutoff used by a subset of kits for row/stack behavior |
+| `tablet` | `min-width: 768px` and `max-width: 1024px` | tablet / narrow-desktop band; adjusted grid columns, condensed rails. **Not 481px** — `responsive.css`'s own comment records 481px as a near-miss already realigned to 768px; this table previously still said 481px and had drifted from the code. |
 | `workspace-md` | `max-width: 900px` | workspace shell: hides desktop-only toggles, collapses resizers |
 | `workspace-lg` | `max-width: 1100px` | workspace shell: hides session-pane resizer |
 | `workspace-xl` | `max-width: 1480px` | workspace shell: hides pane resizer, adjusts pane toggle visibility |
 | `desktop` | `min-width: 1025px` | default desktop layout, multi-column grids |
 | `wide` | `min-width: 1920px` | ultra-wide displays; expanded workspace spacing |
+
+This table is the *canonical* set — the one to reach for in new work. It is
+not yet the *complete* set: a live grep across `chat.css`, `community.css`,
+`editor-primitives.css`, and the app-shell responsive sheets also turns up
+360, 400, 420, 500, 600, 640, 720, 760, 767/1023, 1100, 1400, 1440, 1500, and
+1600px `@media` values that predate this table and haven't been migrated or
+folded in yet. `colors_and_type.css`'s own comment above `--pad-y` flags
+this same fragmentation. Consolidating those into one non-overlapping scale
+and generating the `@media` rules from real tokens (media queries can't
+reference CSS custom properties directly, so this needs a build-time step —
+`postcss-custom-media` is a reasonable off-the-shelf fit) is tracked as
+backlog in `PRD-remediation-2026-08-20.md` (#43/#44), not done in this pass.
 
 Two additional media features are used alongside width breakpoints:
 

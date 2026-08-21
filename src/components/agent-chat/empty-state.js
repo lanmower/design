@@ -12,9 +12,9 @@ const h = webjsx.createElement;
 // copy rather than blank panel or invitational framing.
 export function AgentEmptyState({ name, selectedAgent, suggestions, onSuggestionClick, installHint }) {
   return h('div', { class: 'agentchat-empty', role: 'status' },
-    h('p', { class: 'agentchat-empty-title' }, selectedAgent ? name + ' is ready.' : 'Select an agent to start.'),
+    h('p', { class: 'agentchat-empty-title' }, (selectedAgent || name) ? (selectedAgent || name) + ' is ready.' : 'Select an agent to start.'),
     h('p', { class: 'agentchat-empty-sub' },
-      selectedAgent ? 'Type a message below.' : 'Pick an agent from the selector above, then send a message.'),
+      (selectedAgent || name) ? 'Type a message below.' : 'Pick an agent from the selector above, then send a message.'),
     (suggestions && suggestions.length)
       ? h('div', { class: 'agentchat-empty-suggestions' },
           ...suggestions.map((s, i) => h('button', {

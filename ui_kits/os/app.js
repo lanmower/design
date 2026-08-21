@@ -52,11 +52,31 @@ canvas.classList.add('wm-root', 'ds-app-surface');
 
 const wm = createDemoWm(canvas);
 
+// renderAboutApp() defaults to a sibling project's ("thebird") own brand,
+// tagline, bullets, and source link -- this kit's two call sites used to
+// pass no overrides at all, so the "about" window showed thebird's content
+// under a menubar reading "247420 / os", two different products described
+// in one screen. Real content for this kit's own demo, not a leftover
+// generic default.
+const ABOUT_CONTENT = {
+    brand: '247420 / os',
+    tagline: 'browser-native desktop-shell demo for the 247420 design system. window manager, taskbar, and menubar -- no server.',
+    bullets: [
+        '302 components across 23 working kits',
+        'One token file drives every surface',
+        'axe-core WCAG-tagged scan gated in CI',
+        'webjsx + custom elements, no framework',
+        'buildless: plain HTML + an import map',
+    ],
+    footer: 'click apps menu for more.',
+    links: [{ href: 'https://github.com/AnEntrypoint/design', text: 'source' }],
+};
+
 const registry = createDemoRegistry([
     {
-        id: 'about', name: 'about', icon: 'info', defaultSize: { w: 420, h: 280 },
+        id: 'about', name: 'about', icon: 'info', defaultSize: { w: 420, h: 320 },
         factory() {
-            return { node: renderAboutApp({}).node };
+            return { node: renderAboutApp(ABOUT_CONTENT).node };
         },
     },
     {
@@ -67,7 +87,7 @@ const registry = createDemoRegistry([
                     getStats: () => ({
                         instanceId: 'demo', frames: 0, shells: 0,
                         windows: wm.count, appsRegistered: registry.list().length,
-                        time: new Date().toLocaleTimeString(),
+                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
                     }),
                 }).node,
             };
@@ -78,4 +98,4 @@ const registry = createDemoRegistry([
 createDesktopShell({ root: document.body, wm, registry, brand: '247420 / os', themeUrl });
 
 // Open one window on load so the demo isn't a blank desktop.
-wm.open({ title: 'about', body: renderAboutApp({}).node, width: 420, height: 280, x: 80, y: 80 });
+wm.open({ title: 'about', body: renderAboutApp(ABOUT_CONTENT).node, width: 420, height: 320, x: 80, y: 80 });

@@ -27,11 +27,18 @@ while being invisible to both these gates and to any consumer that `<link>`s
 2. **Semantic surfaces** — what the palette *means* in context. `--bg`,
    `--bg-2`, `--bg-3` (surfaces), `--fg`, `--fg-2`, `--fg-3` (text), `--accent`,
    `--accent-fg`, `--accent-bright`, `--accent-tint`, `--danger`, `--success`,
-   `--warn`, `--rule`, `--rule-strong`. A theme rebinds these; components read
-   them. Also: `--on-accent` / `--on-color` (foreground on a saturated fill),
-   `--scrim` / `--scrim-strong` / `--scrim-media` (overlay backdrops),
-   `--cat-green`...`--cat-sky` (category color-coding), `--shadow-1..3` /
-   `--shadow-overlay` (elevation).
+   `--warn`, `--rule` (8% currentColor, ambient dividers only), `--rule-strong`
+   (28%, a visible seam), `--rule-control` (alias of `--rule-strong` --
+   interactive-element boundaries need >=3:1, WCAG 1.4.11, which `--rule`
+   alone can't clear), `--border`/`--border-w` (aliases of `--rule-control`/
+   `--bw-hair` -- real tokens some component sheets already consumed with no
+   fallback and no definition anywhere; now defined). A theme rebinds these;
+   components read them. Also: `--on-accent` / `--on-color` (foreground on a
+   saturated fill), `--scrim` / `--scrim-strong` / `--scrim-media` (overlay
+   backdrops), `--cat-green`...`--cat-sky` (category color-coding),
+   `--shadow-1..3` / `--shadow-overlay` (elevation, derived from `--fg` via
+   `color-mix()` so it retints automatically per theme rather than needing
+   separate per-theme shadow tokens).
 3. **Component tokens** — namespaced aliases a subsystem reads, themselves bound
    to semantic tokens. e.g. the OS shell's `--os-bg-0: var(--bg)`,
    `--os-accent: var(--accent)`. Never bound to a literal.
@@ -59,14 +66,17 @@ the rung whose meaning matches; if none does, add a rung rather than a literal.
 The root element (`<html class="ds-247420">` or the SDK render root) carries
 attributes that select tokens. All are independent and composable:
 
-| Attribute        | Values                                  | Effect |
-|------------------|-----------------------------------------|--------|
-| `data-theme`     | `auto` `paper` `ink` `thebird`          | Surface theme. `auto` follows OS `prefers-color-scheme`. |
-| `data-accent`    | `green` `purple` `mascot`               | Accent hue. Absent = theme default (green). |
-| `data-density`   | `compact` `comfortable` `spacious`      | Scales `--density` -> padding/gutters. |
-| `data-typescale` | `sm` `lg`                               | Bumps body/lg/xl reading sizes. |
+| Attribute        | Values                                              | Effect |
+|------------------|------------------------------------------------------|--------|
+| `data-theme`     | `auto` `paper` `ink` `dark` `thebird` `github-dark`   | Surface theme. `auto` follows OS `prefers-color-scheme`. `dark` is a full alias of `ink` (same CSS block, both names accepted for it). `light` is **not** a valid value -- it has never existed and silently no-ops to the root default (which happens to look like `paper`); use `paper`. |
+| `data-accent`    | `acid` `green` `purple` `mascot`                      | Accent hue. Absent = theme default (green). |
+| `data-density`   | `compact` `comfortable` `spacious`                    | Scales `--density` -> padding/gutters/spacing, and switches control heights to a discrete per-tier px table. |
+| `data-typescale` | `sm` `lg`                                             | Bumps body/lg/xl reading sizes. |
 
 `color-scheme` is set per theme so native form controls and scrollbars match.
+An unrecognised value on any of these logs a `console.warn` naming the bad
+value and the fallback applied (see `src/theme.js`) instead of silently
+no-opping.
 
 ## Driving themes from JS
 
@@ -92,29 +102,57 @@ A ready-made `ThemeToggle()` component (segmented auto/light/dark, or
 
 A theme is **one `[data-theme="X"]` block** in `colors_and_type.css` that
 overrides only the semantic surface tokens — never component rules, never a raw
-literal in a component sheet. Copy `[data-theme="paper"]`, rename the attribute,
-retune the ~8 tokens:
+literal in a component sheet. Copy the nearest existing preset and rename the
+attribute. The retune count genuinely depends on which kind of theme:
+
+- A **light-on-light preset** (`[data-theme="paper"]`, `[data-theme="thebird"]`)
+  retunes 8-14 tokens — this is the small, quick case.
+- A **real dark theme** (`[data-theme="ink"]`, mirrored by
+  `[data-theme="auto"]` under `prefers-color-scheme: dark`) retunes **~36**
+  tokens: `--bg/-2/-3`, `--fg/-2/-3`, every `--panel-*`, `--accent/-fg/-ink/
+  -bright/-tint`, `--danger`/`--flame`/`--amber`/`--warn`/`--warn-fg`/`--sky`,
+  `--mascot-deep`, `--purple-2`, `--green`, both `--cat-*-ink` pairs, and all
+  five `--code-*` syntax tokens. Every one of those needs its own AA-contrast
+  check against the new dark surface, not just the four in the example below.
+  `lint-dark-parity` (run by `npm run lint`) fails the build if the
+  `[data-theme="ink"/"dark"]` block and the `[data-theme="auto"]` dark-scheme
+  block ever declare a different set of tokens, so a real dark theme can't
+  ship half-retuned without the CI catching it.
 
 ```css
 [data-theme="dusk"] {
   color-scheme: dark;
-  --bg: #1a1626; --bg-2: #241d33; --bg-3: #2e2540;
+  --bg: #1a1626; --bg-2: #241d33; --bg-3: #2e2630;
   --fg: #efe9f5; --fg-2: #c9c0d6; --fg-3: #8f86a0;
   --accent: var(--mascot); --accent-fg: var(--ink);
+  /* ...and the other ~31 dark-context tokens listed above, each hand-verified
+     against this specific --bg/--bg-2/--bg-3, not copied from --ink's values. */
 }
 ```
 
-Then add `'dusk'` to the `VALID` set in `src/theme.js`. That is the entire
-change — every component re-skins automatically because they read the semantics.
+Then add `'dusk'` to the `VALID` set in `src/theme.js`. There is currently no
+generator or CI validator that authors this for you from just a surface +
+brand hue — every dark theme today is hand-tuned and hand-measured (tracked
+as backlog in `TOKENS-CHANGELOG.md`).
 
-`thebird` is the worked example: a warm-paper brand preset that overrides
-`--paper` (and the surfaces derived from it) without globally mutating the base
-theme for other consumers.
+`thebird` is the worked *light-preset* example: a warm-paper brand preset
+that overrides `--paper` (and the surfaces derived from it) without globally
+mutating the base theme for other consumers. `[data-theme="ink"]` is the
+worked *dark-theme* example — read that block directly for the real token
+list and its measured contrast ratios.
 
 ## Adding an accent
 
 One `[data-accent="X"]` block setting `--accent`, `--accent-bright`,
-`--accent-fg`, `--panel-accent`. Add the name to `VALID_ACCENT` in `theme.js`.
+`--accent-fg`, `--panel-accent`. Add the name to `VALID_ACCENT` in `theme.js`
+(`acid`/`green`/`purple`/`mascot` today — `theme.js`'s own list previously
+omitted `acid` despite the CSS defining it, so setting that accent silently
+cleared back to default instead of applying; fixed).
+An accent preset that hardcodes a light-tuned fill needs its own
+`[data-theme="ink"][data-accent="X"]` (and `[data-theme="dark"][data-accent="X"]`)
+companion too — see the comment above those blocks in `colors_and_type.css`
+for why (a light fill can drop under the 3:1 non-text contrast floor on a
+dark page).
 
 ## Stamp vs badge vs rail
 
@@ -146,14 +184,13 @@ one-off mark, is a sign the wrong primitive was picked.
 ## Typography scale exceptions
 
 Component type should snap to a `--fs-*` step from `preview/type-scale.html` /
-`preview/type-display.html`. One documented exception: `.ds-hero-title`
-(`src/css/app-shell/hero-content.css`) runs a bespoke `clamp(40px, 9cqi,
-116px)` display size instead of `--fs-hero` / `--fs-mega`, because neither
-scale step's slope/floor fits a two-line 16ch title in a narrow column at
-this element's specific optical weight — see the comment above
-`.ds-hero-title` for the measured rationale. Any future off-scale value needs
-the same kind of inline comment explaining why the nearest scale step doesn't
-work, not a silent bespoke number.
+`preview/type-display.html`. `.ds-hero-title` used to run a bespoke
+`clamp(40px, 9cqi, 116px)` outside the ladder because neither `--fs-hero` nor
+`--fs-mega`'s slope/floor fit a two-line 16ch title in a narrow column — that
+gap between the two is now the `--fs-hero-2xl` scale step, so `.ds-hero-title`
+reads off the token like everything else. If a future off-scale value shows
+up, that is how it should be resolved: add the missing scale step, not leave
+a bespoke inline clamp with a comment explaining why.
 
 ## Reduced-motion and reduced-transparency
 

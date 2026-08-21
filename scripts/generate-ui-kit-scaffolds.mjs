@@ -74,18 +74,16 @@ function postIconBlock(kit) {
   lines.push(`  <meta property="og:description" content="${kit.description}">`);
   lines.push(`  <meta property="og:url" content="${canonical}">`);
   lines.push(`  <meta property="og:site_name" content="247420 / design">`);
-  if (seo.ogImage) {
-    lines.push(`  <meta property="og:image" content="https://anentrypoint.github.io/design/og-card.png">`);
-    lines.push(`  <meta property="og:image:width" content="1200">`);
-    lines.push(`  <meta property="og:image:height" content="630">`);
-    lines.push(`  <meta property="og:image:alt" content="247420 design system">`);
-    lines.push(`  <meta property="og:locale" content="en_US">`);
-  }
+  // og-card.png has never existed in this repo -- seo.ogImage used to emit
+  // og:image/twitter:image tags pointing at it unconditionally, so every
+  // social share of these 2 kits rendered with a 404 card image. Dropped
+  // the image-specific tags until a real asset exists; og:locale moved out
+  // from under the dead `if` so it still ships.
+  lines.push(`  <meta property="og:locale" content="en_US">`);
   if (seo.twitter) {
-    lines.push(`  <meta name="twitter:card" content="summary_large_image">`);
+    lines.push(`  <meta name="twitter:card" content="summary">`);
     lines.push(`  <meta name="twitter:title" content="${title}">`);
     lines.push(`  <meta name="twitter:description" content="${kit.description}">`);
-    lines.push(`  <meta name="twitter:image" content="https://anentrypoint.github.io/design/og-card.png">`);
     lines.push(`  <meta name="twitter:site" content="@AnEntrypoint">`);
   }
   lines.push(`  <meta name="robots" content="index, follow">`);

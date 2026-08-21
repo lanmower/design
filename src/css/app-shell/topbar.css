@@ -282,6 +282,11 @@ body.canvas-host { background: transparent !important; }
      via a fill difference, not a hairline -- consistent with the
      tonal-surfaces-over-borders principle instead of contradicting it. */
   background: var(--bg-2); overflow-y: auto; min-height: 0;
+  /* Matches .app-main's own bottom clearance below for the same reason: the
+     status bar is fixed/overlaid at the shell's bottom edge, and without
+     this the sidebar's own last row renders half-clipped behind it on any
+     viewport short enough that the sidebar's content reaches that far. */
+  padding-bottom: var(--app-status-h-live, var(--app-status-h));
   scrollbar-width: thin; scrollbar-color: var(--rule-strong) transparent;
   /* Bottom-edge fade: a rail longer than the viewport otherwise shows only
      the thin scrollbar track as its sole "there is more below" cue. Mirrors

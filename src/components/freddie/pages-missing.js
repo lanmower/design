@@ -2,10 +2,13 @@
 // Each page is a minimal but functional renderer over the existing /api/* endpoints.
 // These fill the gap between sidebar links and the FREDDIE_PAGES registry.
 
+import * as webjsx from '../../../vendor/webjsx/index.js';
 import { makePage, api, loadingState, errorState, emptyState } from './runtime.js';
-import { Table, PageHeader, Kpi } from '../content.js';
-import { Chip } from '../shell.js';
+import { Table, PageHeader } from '../content.js';
+import { Chip, Btn } from '../shell.js';
 import { section, truncSpan, TRUNC_TITLE } from './shared.js';
+
+const h = webjsx.createElement;
 
 // ---- terminal ---------------------------------------------------------------
 // Backend: GET /api/terminal/status (plugins/gui-terminal) — {available,cwd}
@@ -33,36 +36,58 @@ export const terminal = makePage((ctx) => {
 // Backend: GET /api/files/tree?path=... (plugins/gui-files) — returns a
 // nested {path, tree:[{name,type,size,modified,children?}]} tree (first
 // level auto-expanded; deeper levels are lazy-loaded server-side and simply
-// absent here), not a flat file list.
-
-function flattenFileTree(entries, prefix = '') {
-    const rows = [];
-    for (const e of entries || []) {
-        const rel = prefix ? prefix + '/' + e.name : e.name;
-        rows.push([rel, e.type === 'dir' ? '—' : (e.size ?? '—'), e.type || '—']);
-        if (e.children) rows.push(...flattenFileTree(e.children, rel));
-    }
-    return rows;
-}
+// absent here); GET /api/files/read?path=... returns a single file's preview
+// content. Directory navigation reissues /api/files/tree with the clicked
+// path, rather than flattening the whole tree client-side, since deeper
+// levels are lazy-loaded server-side and not present in the first response.
 
 export const files = makePage((ctx) => {
-    async function load() { try { ctx.set({ loading: false, data: await api('/api/files/tree').catch(() => null), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
+    Object.assign(ctx.state, { dir: '', tree: [], preview: null });
+    async function load(p) {
+        try {
+            const q = p ? ('?path=' + encodeURIComponent(p)) : '';
+            const data = await api('/api/files/tree' + q);
+            ctx.set({ loading: false, dir: data.path, tree: Array.isArray(data.tree) ? data.tree : [], preview: null, error: null });
+        } catch (e) { ctx.set({ loading: false, error: e }); }
+    }
+    async function openFile(filePath) {
+        try {
+            const data = await api('/api/files/read?path=' + encodeURIComponent(filePath));
+            ctx.set({ preview: data });
+        } catch (e) { ctx.set({ preview: { error: String(e.message || e) } }); }
+    }
     load();
     return () => {
         const s = ctx.state;
         if (s.loading) return loadingState('loading files…');
-        if (s.error && !s.data) return errorState(s.error, load);
-        const tree = (s.data && s.data.tree) || [];
-        const rows = flattenFileTree(tree);
-        // A successful, genuinely-empty/unreadable directory (s.data present,
+        // A successful, genuinely-empty/unreadable directory (load() resolved,
         // tree: []) is a different state from the endpoint never having
-        // answered (s.data null) — collapsing both into "endpoint not
-        // available" would misreport a real empty result as a failure.
+        // answered (s.error set) — collapsing both into the same message
+        // would misreport a real empty result as a failure.
+        if (s.error && !s.tree.length) return errorState(s.error, () => load(s.dir));
+        const parent = s.dir ? s.dir.replace(/[\\/][^\\/]+$/, '') : '';
         return [
-            PageHeader({ title: 'files', lede: (s.data && s.data.path) || 'file browser' }),
-            rows.length ? section('files', Table({ headers: ['path', 'size', 'type'], rows }))
-                : emptyState(s.data ? 'no files found' : 'files endpoint not available'),
-        ];
+            PageHeader({ title: 'files', lede: s.dir || 'file browser' }),
+            parent && parent !== s.dir ? section('up', Btn({ children: 'parent', onClick: () => load(parent) })) : null,
+            section('tree',
+                s.tree.length
+                    ? Table({
+                        headers: ['name', 'type', 'size'],
+                        rowLabels: s.tree.map(f => f.name),
+                        onRowClick: (i) => {
+                            const f = s.tree[i];
+                            if (!f) return;
+                            const fp = f.path || (s.dir + '/' + f.name);
+                            if (f.type === 'dir' || f.children) load(fp);
+                            else openFile(fp);
+                        },
+                        rows: s.tree.map(f => [f.name || '—', f.type || '—', f.size ?? '—']),
+                    })
+                    : emptyState('empty directory')),
+            s.preview ? section('preview',
+                s.preview.error ? errorState(s.preview.error)
+                    : h('pre', { class: 'fd-pre' }, s.preview.binary ? '(binary)' : String(s.preview.content || ''))) : null,
+        ].filter(Boolean);
     };
 });
 

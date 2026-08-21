@@ -6,7 +6,7 @@ import * as webjsx from '../../../vendor/webjsx/index.js';
 import { Icon, Chip } from '../shell.js';
 const h = webjsx.createElement;
 
-export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothing here yet', rowLabels, striped = false, compact = false, sortable = false, sortKey, sortDir = 'asc', onSort }) {
+export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothing here yet', rowLabels, striped = false, compact = false, sortable = false, sortKey, sortDir = 'asc', onSort, caption }) {
     if (!rows || rows.length === 0) return h('div', { class: 'empty' }, emptyText);
     // rowLabels lets callers supply a plain-text label per row when the first
     // cell is a vnode (so the aria-label is meaningful, not the literal 'row').
@@ -66,6 +66,13 @@ export function Table({ headers = [], rows = [], onRowClick, emptyText = 'nothin
         role: 'group',
         'aria-label': 'table, scrollable',
     }, h('table', {},
+        // A <caption> is the correct accessible name for a table's purpose —
+        // a visually-adjacent label (e.g. an eyebrow reading "TABLE") is not
+        // programmatically associated with the table element at all, so a
+        // screen-reader user landing inside the table has no way to hear
+        // what it's for. Purely additive: omitted at every existing call
+        // site keeps byte-identical output to before this prop existed.
+        caption ? h('caption', {}, caption) : null,
         h('thead', {}, h('tr', {}, ...headers.map((hd, i) => thFor(hd, i, numericCols[i])))),
         h('tbody', {}, ...rows.map((row, i) => h('tr', {
             key: i,

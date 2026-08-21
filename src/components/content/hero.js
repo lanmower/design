@@ -6,6 +6,7 @@
 // Marquee (the signature ticker) and Manifesto (long-form prose block).
 
 import * as webjsx from '../../../vendor/webjsx/index.js';
+import { Icon, iconMarkup } from '../shell/icons.js';
 const h = webjsx.createElement;
 
 export function Hero({ eyebrow, title, body, accent, actions, badges }) {
@@ -108,7 +109,31 @@ export function Marquee({ items = [], sep = '/' }) {
         h('span', { class: 'ds-marquee-item', key: `${runKey}-i${i}` }, it),
         h('span', { class: 'ds-marquee-sep', key: `${runKey}-s${i}`, 'aria-hidden': 'true' }, sep),
     ]);
-    return h('div', { class: 'ds-marquee', role: 'marquee' },
+    // WCAG 2.2.2 (Pause, Stop, Hide): the previous hover/focus-within-only
+    // pause left keyboard users (marquee items had no tabindex, so
+    // :focus-within could never fire) and touch users with no way to pause
+    // the auto-scroll. A real, always-visible, keyboard-reachable button
+    // toggles a class read by the CSS animation-play-state rule -- mutating
+    // the DOM directly (not re-rendering through webjsx) is deliberate here:
+    // it needs to work identically whether or not this component's owner
+    // re-renders around it.
+    const togglePause = (e) => {
+        const btn = e.currentTarget;
+        const root = btn.closest('.ds-marquee');
+        const paused = root.classList.toggle('ds-marquee--paused');
+        btn.setAttribute('aria-pressed', String(paused));
+        btn.setAttribute('aria-label', paused ? 'Play ticker' : 'Pause ticker');
+        btn.innerHTML = iconMarkup(paused ? 'play' : 'pause', { size: 14 });
+    };
+    // `role="marquee"` is not a real ARIA role (would expose as unknown to
+    // assistive tech) -- `region` + a label is the correct landmark shape
+    // for a piece of live, auto-updating content.
+    return h('div', { class: 'ds-marquee', role: 'region', 'aria-label': 'Announcements ticker' },
+        h('button', {
+            type: 'button', class: 'ds-marquee-pause',
+            'aria-pressed': 'false', 'aria-label': 'Pause ticker',
+            onclick: togglePause,
+        }, Icon('pause', { size: 14 })),
         h('div', { class: 'ds-marquee-track' },
             h('span', { class: 'ds-marquee-run ds-marquee-run-a' }, ...run('a')),
             h('span', { class: 'ds-marquee-run ds-marquee-run-b', 'aria-hidden': 'true' }, ...run('b')),

@@ -16,7 +16,13 @@ const ERROR_RATE_DANGER_PCT = 1;
 
 const kpis = [
     ['24,891', 'requests · 24h', { delta: '+12.4%', tone: 'up',   spark: [8, 11, 9, 14, 16, 15, 19, 22, 20, 24] }],
-    ['184ms',  'avg latency · p50', { delta: '-6.1%', tone: 'up',  spark: [220, 210, 205, 198, 190, 188, 184, 186, 182, 184] }],
+    // tone was hardcoded 'up' despite a negative delta -- the arrow pointed
+    // the wrong way relative to the -6.1% figure beside it. tone now
+    // follows the real arithmetic sign (down), and invert:true marks
+    // latency as a "lower is better" metric (same pattern as error rate
+    // below) so a falling latency still renders in the good/success color,
+    // not the down/bad one the raw arrow direction alone would imply.
+    ['184ms',  'avg latency · p50', { delta: '-6.1%', tone: 'down', invert: true, spark: [220, 210, 205, 198, 190, 188, 184, 186, 182, 184] }],
     // tone follows delta's own arithmetic sign (the arrow direction always
     // matches the figure: error rate rose, so the arrow points up), but this
     // is a "lower is better" metric — a rising error rate isn't automatically
