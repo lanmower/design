@@ -6,7 +6,7 @@
 // signature change; `npm run lint:component-types` fails CI when this
 // file is stale.
 //
-// 302 exported symbols across 30 source files.
+// 310 exported symbols across 32 source files.
 
 /** A webjsx virtual node, as returned by every component in this SDK. */
 export type VNode = any;
@@ -196,6 +196,7 @@ export interface AppShellProps {
     main?: any;
     status?: any;
     narrow?: any;
+    fullBleed?: any;
 }
 export declare function AppShell(props?: AppShellProps): VNode;
 
@@ -3070,7 +3071,7 @@ export declare function FocusTrap(props?: FocusTrapProps): VNode;
 export interface ToastProps {
     message?: any;
     /** @default 'info' */
-    kind?: string;
+    kind?: 'info' | 'error' | (string & {});
     /** @default 3000 */
     duration?: number;
     onClose?: (...args: any[]) => any;
@@ -3083,7 +3084,7 @@ export declare function Toast(props?: ToastProps): VNode;
 export interface toastProps {
     message?: any;
     /** @default 'info' */
-    kind?: string;
+    kind?: 'info' | 'error' | (string & {});
     /** @default 3000 */
     duration?: number;
     actionLabel?: any;
@@ -3574,6 +3575,8 @@ export declare const cron: (...args: any[]) => VNode;
 
 export declare const skills: (...args: any[]) => VNode;
 
+export declare const plugins: (...args: any[]) => VNode;
+
 export declare const config: (...args: any[]) => VNode;
 
 export declare const env: (...args: any[]) => VNode;
@@ -3585,6 +3588,16 @@ export declare const batch: (...args: any[]) => VNode;
 export declare const gateway: (...args: any[]) => VNode;
 
 export declare const chains: (...args: any[]) => VNode;
+
+export declare const machines: (...args: any[]) => VNode;
+
+export declare const health: (...args: any[]) => VNode;
+
+export declare const logs: (...args: any[]) => VNode;
+
+export declare const debug: (...args: any[]) => VNode;
+
+export declare const git: (...args: any[]) => VNode;
 
 export declare function skillLabel(input?: any): VNode;
 
@@ -3653,6 +3666,25 @@ export declare function errorState(err?: any, onRetry?: any): VNode;
 export declare function emptyState(text?: any, glyph?: any): VNode;
 
 export declare function refreshError(err?: any): VNode;
+
+// ---- src/components/dashboard-shell.js -------------------------------
+
+/**
+ * Props for {@link openCommandPalette} (src/components/dashboard-shell.js).
+ */
+export interface openCommandPaletteProps {
+    /** @default [] */
+    actions?: any[];
+    onSelect?: (...args: any[]) => any;
+}
+export declare function openCommandPalette(props?: openCommandPaletteProps): VNode;
+
+/**
+ * Props for {@link closeCommandPalette} (src/components/dashboard-shell.js).
+ */
+export interface closeCommandPaletteProps {}
+
+export declare function closeCommandPalette(props?: closeCommandPaletteProps): VNode;
 
 // ---- src/community-app.js --------------------------------------------
 
@@ -3745,4 +3777,7 @@ export declare function buildMonthGrid(monthDate?: any): VNode;
 export declare function formatDate(d?: any, locale?: any): VNode;
 
 export declare function monthLabel(monthDate?: any, locale?: any): VNode;
+
+// ---- drift warnings from the shared extraction -------------------
+// ! 'createDamageNumbers' exported by components.js but no definition found in src/components/game-editor-kit.js
 

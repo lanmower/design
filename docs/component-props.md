@@ -2,7 +2,7 @@
 
 Generated from `src/components.js`'s real export barrel + each symbol's real definition in `src/components/*.js`, via `node scripts/generate-component-docs.mjs`. Do not hand-edit -- re-run after any component signature or JSDoc change.
 
-302 exported symbols across 30 source files.
+310 exported symbols across 32 source files. **1 drift warning(s) found -- see bottom of file.**
 
 ---
 
@@ -153,7 +153,7 @@ A small count/variant/status marker (unread count, label chip inline with text).
 
 **Kind:** component
 
-**Signature:** `topbar`, `crumb`, `side`, `main`, `status`, `narrow`
+**Signature:** `topbar`, `crumb`, `side`, `main`, `status`, `narrow`, `fullBleed`
 
 ### WorkspaceShell
 
@@ -1897,6 +1897,12 @@ A scroll-snap content carousel with prev/next controls.
 
 **Signature:** `makePage((ctx) => {`
 
+### plugins
+
+**Kind:** const (factory-wrapped)
+
+**Signature:** `makePage((ctx) => {`
+
 ### config
 
 **Kind:** const (factory-wrapped)
@@ -1928,6 +1934,36 @@ A scroll-snap content carousel with prev/next controls.
 **Signature:** `makePage((ctx) => {`
 
 ### chains
+
+**Kind:** const (factory-wrapped)
+
+**Signature:** `makePage((ctx) => {`
+
+### machines
+
+**Kind:** const (factory-wrapped)
+
+**Signature:** `makePage((ctx) => {`
+
+### health
+
+**Kind:** const (factory-wrapped)
+
+**Signature:** `makePage((ctx) => {`
+
+### logs
+
+**Kind:** const (factory-wrapped)
+
+**Signature:** `makePage((ctx) => {`
+
+### debug
+
+**Kind:** const (factory-wrapped)
+
+**Signature:** `makePage((ctx) => {`
+
+### git
 
 **Kind:** const (factory-wrapped)
 
@@ -2012,6 +2048,20 @@ A scroll-snap content carousel with prev/next controls.
 **Kind:** component
 
 **Signature:** `err` _(positional arg)_
+
+## `src/components/dashboard-shell.js`
+
+### openCommandPalette
+
+**Kind:** component
+
+**Signature:** `actions` = `[]`, `onSelect`
+
+### closeCommandPalette
+
+**Kind:** component
+
+**Signature:** _(no props)_
 
 ## `src/community-app.js`
 
@@ -2118,4 +2168,12 @@ Trigger button that opens a Popover hosting a range-mode Calendar.
 **Kind:** component
 
 **Signature:** `monthDate, locale` _(positional arg)_
+
+---
+
+## Drift warnings
+
+Found by the generator while cross-checking components.js's export list against real source definitions and (where present) JSDoc @param names against the real destructured signature. These indicate the barrel, the source file, or a JSDoc comment disagree with each other and should be reconciled by hand.
+
+- 'createDamageNumbers' exported by components.js but no definition found in src/components/game-editor-kit.js
 
