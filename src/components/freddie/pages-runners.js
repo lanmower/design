@@ -6,12 +6,13 @@ import * as webjsx from '../../../vendor/webjsx/index.js';
 import { makePage, api, loadingState, errorState, emptyState } from './runtime.js';
 import { Row, Table, Kpi, PageHeader, SearchInput, TextField } from '../content.js';
 import { Chip, Btn, Icon } from '../shell.js';
+import { ConfirmDialog } from '../files-modals.js';
 import { section, noteAlert, trunc, truncSpan, TRUNC_SUB, TRUNC_OUTPUT, TRUNC_DESC, TRUNC_PROMPT } from './shared.js';
 
 const h = webjsx.createElement;
 
 export const cron = makePage((ctx) => {
-    Object.assign(ctx.state, { expr: '', prompt: '', busy: false, note: null });
+    Object.assign(ctx.state, { expr: '', prompt: '', busy: false, note: null, confirmDelete: null });
     async function load() { try { ctx.set({ loading: false, list: await api('/api/cron'), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
     async function add() {
         const expr = (ctx.state.expr || '').trim(); const prompt = (ctx.state.prompt || '').trim();
@@ -21,7 +22,15 @@ export const cron = makePage((ctx) => {
         catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); }
         ctx.set({ busy: false });
     }
-    async function del(id) { ctx.set({ busy: true }); try { await api('/api/cron/' + id, { method: 'DELETE' }); await load(); } catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); } ctx.set({ busy: false }); }
+    // A cron job delete is instant and irreversible (hard DELETE, no undo) --
+    // gate it behind ConfirmDialog (an existing, already-shared primitive)
+    // rather than firing on a single click.
+    async function del(job) {
+        ctx.set({ busy: true });
+        try { await api('/api/cron/' + job.id, { method: 'DELETE' }); await load(); }
+        catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); }
+        ctx.set({ busy: false, confirmDelete: null });
+    }
     load();
     return () => {
         const s = ctx.state;
@@ -33,13 +42,20 @@ export const cron = makePage((ctx) => {
             noteAlert(s.note),
             section('jobs', list.length ? list.map((j, i) => Row({
                 key: i, code: j.enabled ? Icon('play') : Icon('pause'), title: j.cron, sub: trunc(j.prompt, TRUNC_SUB).text,
-                trailing: Btn({ variant: 'danger', children: 'delete', onClick: () => del(j.id) }),
+                trailing: Btn({ variant: 'danger', children: 'delete', onClick: () => ctx.set({ confirmDelete: j }) }),
             })) : emptyState('no cron jobs')),
             section('new job',
                 TextField({ label: 'cron expression', value: s.expr, onInput: (v) => { s.expr = v; }, placeholder: '0 9 * * *' }),
                 TextField({ label: 'prompt', value: s.prompt, multiline: true, onInput: (v) => { s.prompt = v; }, placeholder: 'what to run…' }),
                 Btn({ variant: 'primary', disabled: s.busy, children: s.busy ? 'working…' : 'add job', onClick: add })),
-        ];
+            s.confirmDelete ? ConfirmDialog({
+                title: 'Delete cron job?',
+                message: 'This permanently removes "' + s.confirmDelete.cron + '" -- ' + trunc(s.confirmDelete.prompt, TRUNC_SUB).text + '. This cannot be undone.',
+                destructive: true, confirmLabel: 'delete', busy: s.busy, busyLabel: 'deleting…',
+                onConfirm: () => del(s.confirmDelete),
+                onCancel: () => ctx.set({ confirmDelete: null }),
+            }) : null,
+        ].filter(Boolean);
     };
 });
 

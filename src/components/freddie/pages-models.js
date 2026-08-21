@@ -35,13 +35,22 @@ export const models = makePage((ctx) => {
         try {
             await api('/api/models/availability/rebuild', { method: 'POST', body: {} });
             const POLL_MS = 3000, MAX_POLLS = 60; // ~3 minutes ceiling
+            let landed = false;
             for (let i = 0; i < MAX_POLLS; i++) {
                 await new Promise(r => setTimeout(r, POLL_MS));
                 if (unmounted) return;
                 let fresh;
                 try { fresh = await api('/api/models/availability'); } catch { continue; }
-                if (fresh && fresh.timestamp && fresh.timestamp !== startedAt) { ctx.set({ data: fresh, error: null }); break; }
+                if (fresh && fresh.timestamp && fresh.timestamp !== startedAt) { ctx.set({ data: fresh, error: null }); landed = true; break; }
             }
+            // The poll ceiling elapsing is NOT the same as "nothing happened" --
+            // the rebuild is a detached background process that keeps running
+            // past this loop's ~3 minute window regardless. Say so explicitly
+            // rather than silently reverting the button to idle, which would
+            // read as "rebuild had no effect" when it may simply still be
+            // running (or may have genuinely failed server-side with nothing
+            // for this poll to observe).
+            if (!landed) ctx.set({ rebuildError: new Error('still running after 3 min of polling -- the rebuild continues in the background; refresh this page in a bit to check for a newer result') });
         } catch (e) { ctx.set({ rebuildError: e }); }
         if (!unmounted) ctx.set({ rebuilding: false });
     }

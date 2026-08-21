@@ -6,6 +6,7 @@ import * as webjsx from '../../../vendor/webjsx/index.js';
 import { makePage, api, loadingState, errorState, emptyState, refreshError } from './runtime.js';
 import { Row, Table, PageHeader, TextField } from '../content.js';
 import { Chip, Btn } from '../shell.js';
+import { ConfirmDialog } from '../files-modals.js';
 import { section, noteAlert, truncJson } from './shared.js';
 
 const h = webjsx.createElement;
@@ -36,7 +37,7 @@ export const gateway = makePage((ctx) => {
 });
 
 export const chains = makePage((ctx) => {
-    Object.assign(ctx.state, { name: '', links: '', busy: false, note: null });
+    Object.assign(ctx.state, { name: '', links: '', busy: false, note: null, confirmDelete: null });
     async function load() {
         try {
             const results = await Promise.allSettled([
@@ -61,7 +62,14 @@ export const chains = makePage((ctx) => {
         catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); }
         ctx.set({ busy: false });
     }
-    async function del(name) { ctx.set({ busy: true }); try { await api('/api/acptoapi/chains/' + encodeURIComponent(name), { method: 'DELETE' }); await load(); } catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); } ctx.set({ busy: false }); }
+    // A fallback chain delete is instant and irreversible (unregisterChain,
+    // no undo) -- gate it behind ConfirmDialog rather than a single click.
+    async function del(name) {
+        ctx.set({ busy: true });
+        try { await api('/api/acptoapi/chains/' + encodeURIComponent(name), { method: 'DELETE' }); await load(); }
+        catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); }
+        ctx.set({ busy: false, confirmDelete: null });
+    }
     load();
     return () => {
         const s = ctx.state;
@@ -81,13 +89,20 @@ export const chains = makePage((ctx) => {
             noteAlert(s.note),
             section('chains', chainsList.length ? chainsList.map((c, i) => Row({
                 key: i, title: c.name, sub: c.links.join(' -> '),
-                trailing: Btn({ variant: 'danger', children: 'delete', onClick: () => del(c.name) }),
+                trailing: Btn({ variant: 'danger', children: 'delete', onClick: () => ctx.set({ confirmDelete: c }) }),
             })) : emptyState('no chains defined')),
             section('new chain',
                 TextField({ label: 'name', value: s.name, onInput: (v) => { s.name = v; } }),
                 TextField({ label: 'links (comma-separated models)', value: s.links, onInput: (v) => { s.links = v; }, placeholder: 'mistral/large, openrouter/auto' }),
                 Btn({ variant: 'primary', disabled: s.busy, children: s.busy ? 'working…' : 'create chain', onClick: create })),
             s.cfg ? section('config', h('pre', { class: 'fd-pre' }, JSON.stringify(s.cfg, null, 2))) : null,
+            s.confirmDelete ? ConfirmDialog({
+                title: 'Delete chain?',
+                message: 'This permanently removes "' + s.confirmDelete.name + '" (' + s.confirmDelete.links.join(' -> ') + '). This cannot be undone.',
+                destructive: true, confirmLabel: 'delete', busy: s.busy, busyLabel: 'deleting…',
+                onConfirm: () => del(s.confirmDelete.name),
+                onCancel: () => ctx.set({ confirmDelete: null }),
+            }) : null,
         ].filter(Boolean);
     };
 });

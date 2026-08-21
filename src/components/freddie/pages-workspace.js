@@ -10,6 +10,7 @@ import { ChatMessage } from '../chat.js';
 import { fmtTime, fmtAgo } from '../sessions.js';
 import { GitStatusPanel, GitDiffView } from '../git-status.js';
 import { WorktreeSwitcher } from '../worktree-switcher.js';
+import { ConfirmDialog } from '../files-modals.js';
 import { section, noteAlert, refreshBtn, truncSpan, TRUNC_TITLE, TRUNC_SUB } from './shared.js';
 
 const h = webjsx.createElement;
@@ -66,7 +67,7 @@ export const sessions = makePage((ctx) => {
 });
 
 export const projects = makePage((ctx) => {
-    Object.assign(ctx.state, { newName: '', newPath: '', busy: false, note: null });
+    Object.assign(ctx.state, { newName: '', newPath: '', busy: false, note: null, confirmDelete: null });
     async function load() {
         try { ctx.set({ loading: false, data: await api('/api/projects'), error: null }); }
         catch (e) { ctx.set({ loading: false, error: e }); }
@@ -87,7 +88,17 @@ export const projects = makePage((ctx) => {
         ctx.set({ busy: false });
     }
     async function activate(name) { ctx.set({ busy: true }); try { await api('/api/projects/active', { method: 'POST', body: { name } }); await load(); } catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); } ctx.set({ busy: false }); }
-    async function del(name) { ctx.set({ busy: true }); try { await api('/api/projects/' + encodeURIComponent(name), { method: 'DELETE' }); await load(); } catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); } ctx.set({ busy: false }); }
+    // Removing a project is instant with no undo affordance in this UI (it
+    // only drops the registry entry -- src/projects.js::deleteProject does
+    // NOT delete the project's files on disk -- but re-adding it later still
+    // needs the user to remember/re-enter its real path). Gate behind
+    // ConfirmDialog rather than a single click.
+    async function del(name) {
+        ctx.set({ busy: true });
+        try { await api('/api/projects/' + encodeURIComponent(name), { method: 'DELETE' }); await load(); }
+        catch (e) { ctx.set({ note: { kind: 'error', msg: String(e.message || e) } }); }
+        ctx.set({ busy: false, confirmDelete: null });
+    }
     load();
     return () => {
         const s = ctx.state;
@@ -104,12 +115,19 @@ export const projects = makePage((ctx) => {
                     active: p.name === activeName,
                     trailing: h('span', { class: 'fd-row-actions' },
                         p.name !== activeName ? Btn({ children: 'activate', onClick: () => activate(p.name) }) : Chip({ tone: 'ok', children: 'active' }),
-                        p.name !== 'default' ? Btn({ variant: 'danger', children: 'delete', onClick: () => del(p.name) }) : null),
+                        p.name !== 'default' ? Btn({ variant: 'danger', children: 'delete', onClick: () => ctx.set({ confirmDelete: p }) }) : null),
                 })) : emptyState('no projects')),
             section('new project',
                 TextField({ label: 'name', value: s.newName, onInput: (v) => { s.newName = v; }, placeholder: 'my-project' }),
-                TextField({ label: 'path (optional)', value: s.newPath, onInput: (v) => { s.newPath = v; }, placeholder: 'C:/path/to/dir' }),
+                TextField({ label: 'path (absolute)', value: s.newPath, onInput: (v) => { s.newPath = v; }, placeholder: 'C:/path/to/dir' }),
                 Btn({ variant: 'primary', disabled: s.busy, children: s.busy ? 'working…' : 'create', onClick: create })),
+            s.confirmDelete ? ConfirmDialog({
+                title: 'Remove project?',
+                message: 'This removes "' + s.confirmDelete.name + '" from the project list (does not delete its files on disk at ' + (s.confirmDelete.path || '?') + ').',
+                destructive: true, confirmLabel: 'remove', busy: s.busy, busyLabel: 'removing…',
+                onConfirm: () => del(s.confirmDelete.name),
+                onCancel: () => ctx.set({ confirmDelete: null }),
+            }) : null,
         ].filter(Boolean);
     };
 });
