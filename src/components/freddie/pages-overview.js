@@ -23,7 +23,9 @@ export const home = makePage((ctx) => {
                 needSkills ? api('/api/skills').catch(() => null) : Promise.resolve(null),
             ]);
             const toolsCount = needTools ? (Array.isArray(toolsList) ? toolsList.length : (toolsList?.tools?.length ?? null)) : null;
-            const skillsCount = needSkills ? (Array.isArray(skillsList) ? skillsList.length : (skillsList?.skills?.length ?? null)) : null;
+            // GET /api/skills returns { home, bundled, skillState } -- never
+            // a bare array or a `.skills` key.
+            const skillsCount = needSkills ? (skillsList ? (skillsList.home?.length || 0) + (skillsList.bundled?.length || 0) : null) : null;
             const sessFailed = sessions && sessions._err;
             ctx.set({ loading: false, health, agents, sessions: Array.isArray(sessions) ? sessions : [], sessFailed, toolsCount, skillsCount, error: null });
         } catch (e) { ctx.set({ loading: false, error: e }); }
@@ -94,14 +96,17 @@ export const analytics = makePage((ctx) => {
         const s = ctx.state;
         if (s.loading) return loadingState('loading analytics…');
         if (s.error && !s.sampler && !s.avail) return errorState(s.error, load);
-        const samp = s.sampler?.status ? Object.values(s.sampler.status) : [];
-        const ok = samp.filter(x => x && x.available !== false).length;
+        // GET /api/models/sampler returns { status: [{provider, ok, failCount,
+        // nextCheckIn}, ...] } -- an ARRAY keyed by nothing, not a map keyed
+        // by provider name, and the health field is `ok`, not `available`.
+        const samp = Array.isArray(s.sampler?.status) ? s.sampler.status : [];
+        const ok = samp.filter(x => x && x.ok !== false).length;
         const sum = s.avail?.summary || {};
         return [
             PageHeader({ title: 'analytics', lede: 'provider availability & sampler health' }),
             s.error && (s.sampler || s.avail) ? refreshError(s.error) : null,
             Kpi({ items: [[ok + '/' + samp.length, 'providers up'], [sum.total_models ?? '—', 'models'], [sum.usable_in_any_mode ?? '—', 'usable']] }),
-            section('sampler', samp.length ? Table({ headers: ['provider', 'available', 'fails'], rows: Object.entries(s.sampler.status).map(([k, v]) => [k, v.available === false ? 'no' : 'yes', String(v.failCount ?? 0)]) }) : emptyState('no sampler data')),
+            section('sampler', samp.length ? Table({ headers: ['provider', 'available', 'fails'], rows: samp.map(v => [v.provider, v.ok === false ? 'no' : 'yes', String(v.failCount ?? 0)]) }) : emptyState('no sampler data')),
         ].filter(Boolean);
     };
 });

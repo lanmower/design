@@ -66,8 +66,9 @@ function matchesQuery(skill, query) {
         (skill.description || '').toLowerCase().includes(q);
 }
 
-function SkillSidebarRow({ skill, active, busy, onSelect }) {
+function SkillSidebarRow({ key, skill, active, busy, onSelect }) {
     return h('button', {
+        key,
         type: 'button',
         class: 'ds-plugins-row' + (active ? ' active' : ''),
         onclick: () => onSelect(skill.name),
@@ -95,14 +96,18 @@ function SkillDetail({ skill, busy, onToggle }) {
             h('div', { class: 'ds-plugins-detail-title' },
                 h('span', { class: 'ds-plugins-dot tone-' + statusTone(skill), 'aria-hidden': 'true' }),
                 h('span', { class: 'name' }, skill.name)),
-            h('button', {
-                type: 'button',
-                class: 'ds-plugins-toggle' + (skill.enabled !== false ? ' on' : ''),
-                disabled: busy ? true : null,
-                onclick: () => onToggle && onToggle(skill),
-                'aria-pressed': skill.enabled !== false ? 'true' : 'false',
-                'aria-label': skill.enabled !== false ? 'Disable skill' : 'Enable skill',
-            }, h('span', { class: 'ds-plugins-toggle-knob' }))),
+            // Only render when a consumer actually wired onToggle -- an
+            // unwired toggle is a live-looking control that silently no-ops.
+            onToggle
+                ? h('button', {
+                    type: 'button',
+                    class: 'ds-plugins-toggle' + (skill.enabled !== false ? ' on' : ''),
+                    disabled: busy ? true : null,
+                    onclick: () => onToggle(skill),
+                    'aria-pressed': skill.enabled !== false ? 'true' : 'false',
+                    'aria-label': skill.enabled !== false ? 'Disable skill' : 'Enable skill',
+                }, h('span', { class: 'ds-plugins-toggle-knob' }))
+                : null),
         skill.description
             ? h('div', { class: 'ds-skills-description' }, skill.description)
             : null,
@@ -152,13 +157,25 @@ export function SkillsConfig({
     const otherCats = [...byCategory.keys()].filter((c) => !CATEGORY_ORDER.includes(c)).sort();
     const orderedCats = [...CATEGORY_ORDER.filter((c) => byCategory.has(c)), ...otherCats];
 
+    // Each branch gets a distinct `key` -- without it, a transition between
+    // branches (loading -> list is the common one, on the very first data
+    // arrival) reuses the same DOM node in place at this tree position, and
+    // webjsx's diff was observed live leaving the old branch's TEXT content
+    // ("Loading…") stuck in the DOM while patching the wrapper's class/role/
+    // aria-label attributes to the new (list) branch's — i.e. the skills page
+    // rendered a correctly-labeled `.ds-plugins-list[role=listbox]` container
+    // that still displayed "Loading…" with none of the real, already-fetched
+    // skill rows visible. Distinct keys force a clean unmount/remount across
+    // branches instead of an in-place patch, which a same-shaped list (this
+    // one, going from a lone text child to N mapped element children) cannot
+    // safely resolve as effectively-in-place attribute patch.
     const sidebarBody = loading
-        ? h('div', { class: 'ds-plugins-sidebar-status' }, 'Loading…')
+        ? h('div', { key: 'loading', class: 'ds-plugins-sidebar-status' }, 'Loading…')
         : error
-            ? h('div', { class: 'ds-plugins-sidebar-status ds-plugins-status-error' }, error)
+            ? h('div', { key: 'error', class: 'ds-plugins-sidebar-status ds-plugins-status-error' }, error)
             : filtered.length === 0
-                ? h('div', { class: 'ds-plugins-sidebar-status' }, skills.length === 0 ? 'No skills found' : 'No skills match your search')
-                : h('div', { class: 'ds-plugins-list', role: 'listbox', 'aria-label': 'skill list' },
+                ? h('div', { key: 'empty', class: 'ds-plugins-sidebar-status' }, skills.length === 0 ? 'No skills found' : 'No skills match your search')
+                : h('div', { key: 'list', class: 'ds-plugins-list', role: 'listbox', 'aria-label': 'skill list' },
                     ...orderedCats.map((cat) => h('div', { key: 'grp-' + cat, class: 'ds-skills-group' },
                         h('div', { class: 'ds-skills-group-label' }, cat),
                         ...byCategory.get(cat).map((s) => SkillSidebarRow({

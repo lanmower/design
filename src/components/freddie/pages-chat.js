@@ -51,10 +51,14 @@ function applyEnvelope(msgs, env, sendApprove, sendAnswer) {
     if (event === 'message.append') {
         if (data.role === 'user') { if (!isDupUser(data.content)) msgs.push({ id: 'u' + msgs.length + env.ts, role: 'user', content: data.content || '', time: formatTime(ts) }); }
         else if (data.role === 'assistant') {
-            const last = msgs[msgs.length - 1];
             // A new assistant turn starts after a user message; consecutive
-            // assistant appends within one turn update the SAME bubble.
-            if (last && last.role === 'assistant' && last._live) { if (data.content) last.content = data.content; }
+            // assistant appends within one turn update the SAME bubble. Scan
+            // back to the last ASSISTANT message rather than assuming it's
+            // literally last in the array -- a mid-turn queue/steer push
+            // appends a user message after the live bubble, and array-end
+            // would then miss it and spawn a duplicate, orphaned bubble.
+            const last = lastAssistant();
+            if (last && last._live) { if (data.content) last.content = data.content; }
             else msgs.push({ id: 'a' + msgs.length + env.ts, role: 'assistant', content: data.content || '', parts: [], time: formatTime(ts), _live: true });
         }
     } else if (event === 'steer.append') {
@@ -91,10 +95,21 @@ function applyEnvelope(msgs, env, sendApprove, sendAnswer) {
             const p = (a.parts || []).find(p => p.kind === 'question' && p.id === data.id);
             if (p) { p.status = data.rejected ? 'rejected' : 'answered'; p.answers = data.answers || {}; p.onResolve = null; }
         }
+    } else if (event === 'session.end') {
+        // Turn-boundary marker, emitted once per completed turn
+        // (src/agent/turn_driver.js's emitTurnEvent) and persisted to the
+        // wire log this function replays. Clearing _live HERE (as the loop
+        // reaches it) rather than only once after the whole loop is what
+        // keeps the message.append merge check above turn-scoped during
+        // replay: without it, a still-`_live`-flagged bubble from an
+        // earlier, already-finished turn would wrongly absorb a LATER
+        // turn's reply (lastAssistant() finds it regardless of how many
+        // intervening user/steer/queue messages sit between them).
+        const a = lastAssistant(); if (a) delete a._live;
     } else if (event === 'session.error') {
         const a = lastAssistant();
         const err = data.error || 'session error';
-        if (a && a._live) a.error = err;
+        if (a && a._live) { a.error = err; delete a._live; }
         else msgs.push({ id: 'e' + env.ts, role: 'assistant', content: '', error: err, time: formatTime(ts) });
     }
 }
@@ -221,7 +236,11 @@ export const chat = makePage((ctx) => {
     });
 
     const s = () => ctx.state;
-    const cur = () => s().messages[s().messages.length - 1];
+    // The "current" message for turn-lifecycle handlers (prompt.done/error/
+    // onclose/stop) is the live assistant bubble, not literally the array's
+    // last element -- a mid-turn queue/steer push appends a user message
+    // after it, and array-end would then target the wrong message (or none).
+    const cur = () => { const msgs = s().messages; for (let i = msgs.length - 1; i >= 0; i--) if (msgs[i].role === 'assistant') return msgs[i]; return null; };
 
     function sendFrame(obj) {
         const ws = s().ws;
@@ -230,6 +249,14 @@ export const chat = makePage((ctx) => {
         if (ws.readyState === 0) { ws.addEventListener('open', () => ws.send(JSON.stringify(obj)), { once: true }); return true; }
         return false;
     }
+
+    // Built once so both the replay rebuild and the live event stream wire up
+    // the SAME resolve behavior -- a replayed approval.request/question.request
+    // with no matching .resolved later in the same replay is a genuinely
+    // still-pending decision (e.g. the page reloaded mid-turn), and its
+    // Approve/Reject/Submit buttons must actually work, not silently no-op.
+    const sendApprove = (id, d) => { ensureWs(); return sendFrame({ type: 'approve', id, approved: d.approved, always: !!d.always }); };
+    const sendAnswer = (id, d) => { ensureWs(); return sendFrame({ type: 'answer', id, answers: d.answers || {}, rejected: !!d.rejected }); };
 
     function ensureWs() {
         if (unmounted) return null;
@@ -240,8 +267,17 @@ export const chat = makePage((ctx) => {
             const proto = location.protocol === 'https:' ? 'wss' : 'ws';
             const ws = new WebSocket(proto + '://' + location.host + '/api/agent/stream?sessionId=' + encodeURIComponent(st.sessionId));
             st.ws = ws;
-            ws.onopen = () => { st.conn = 'open'; ctx.rerender(); };
+            // switchSession/onNew/onNewChat close the old socket then install a
+            // new one synchronously; close() is async, so the OLD socket's
+            // onclose/onopen/onmessage/onerror can still fire after a newer
+            // socket already replaced it in state. Every handler below bails
+            // out if it's no longer the socket ctx.state actually holds, so a
+            // late event from a superseded connection can't corrupt the
+            // current session's busy/conn/message state.
+            const isCurrent = () => s().ws === ws;
+            ws.onopen = () => { if (!isCurrent()) return; st.conn = 'open'; ctx.rerender(); };
             ws.onmessage = (e) => {
+                if (!isCurrent()) return;
                 let f; try { f = JSON.parse(e.data); } catch { return; }
                 if (f.type === 'replay') {
                     // Rebuild from the server's wire log only when the local
@@ -250,15 +286,25 @@ export const chat = makePage((ctx) => {
                     if (!st.messages.length && f.events && f.events.length) {
                         const msgs = [];
                         st.tty = [];
-                        for (const env of f.events) { applyEnvelope(msgs, env, null); noteTty(st, env); }
-                        for (const m of msgs) delete m._live;
+                        for (const env of f.events) { applyEnvelope(msgs, env, sendApprove, sendAnswer); noteTty(st, env); }
+                        // applyEnvelope's session.end/session.error cases already
+                        // clear _live per completed turn as the loop reaches them
+                        // (see there for why that must happen INSIDE the loop, not
+                        // after it). Do NOT blanket-strip _live here: doing so
+                        // would make lastAssistant()'s merge check above match a
+                        // stale bubble from an earlier turn instead of correctly
+                        // starting a new one. Deliberately NOT inferring st.busy
+                        // from a leftover _live bubble here -- this file has no
+                        // verified guarantee that every turn-termination path
+                        // (e.g. a user-initiated stop()) writes a session.end/
+                        // .error to the wire log, and wrongly forcing busy=true
+                        // with no live turn left to resolve it would permanently
+                        // stick the composer in queue-only mode with no way back.
                         st.messages = msgs;
                     }
                     ctx.rerender();
                 } else if (f.type === 'event') {
-                    applyEnvelope(st.messages, f,
-                        (id, d) => sendFrame({ type: 'approve', id, approved: d.approved, always: !!d.always }),
-                        (id, d) => sendFrame({ type: 'answer', id, answers: d.answers || {}, rejected: !!d.rejected }));
+                    applyEnvelope(st.messages, f, sendApprove, sendAnswer);
                     noteTty(st, f);
                     ctx.rerender();
                 } else if (f.type === 'prompt.done') {
@@ -272,11 +318,12 @@ export const chat = makePage((ctx) => {
                     api('/api/sessions').then(rows => { ctx.state.sessions = Array.isArray(rows) ? rows : []; ctx.rerender(); }).catch(() => { /* swallow: picker refresh is best-effort */ });
                 } else if (f.type === 'error') {
                     const c = cur();
-                    if (c && c.role === 'assistant') c.error = f.error;
+                    if (c && c.role === 'assistant') { c.error = f.error; delete c._live; }
                     ctx.set({ busy: false });
                 }
             };
             ws.onclose = () => {
+                if (!isCurrent()) return;
                 st.conn = 'closed';
                 if (st.busy) {
                     const c = cur();
@@ -285,7 +332,7 @@ export const chat = makePage((ctx) => {
                 }
                 ctx.rerender();
             };
-            ws.onerror = () => { st.conn = 'closed'; };
+            ws.onerror = () => { if (!isCurrent()) return; st.conn = 'closed'; };
             return ws;
         } catch { return null; }
     }
@@ -327,9 +374,15 @@ export const chat = makePage((ctx) => {
     }
 
     function stop() {
-        sendFrame({ type: 'cancel' });
-        const c = cur();
-        if (c && c.role === 'assistant') c.stopped = true;
+        ensureWs();
+        const sent = sendFrame({ type: 'cancel' });
+        // Only claim "stopped" when the cancel frame actually went out --
+        // otherwise the bubble falsely reads as stopped while the turn (and
+        // busy state) keeps running server-side with no cancel ever received.
+        if (sent) {
+            const c = cur();
+            if (c && c.role === 'assistant') c.stopped = true;
+        }
         ctx.rerender();
     }
 
