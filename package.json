@@ -39,6 +39,11 @@
     "./components/overlay-primitives.js": "./src/components/overlay-primitives.js",
     "./components/git-status.js": "./src/components/git-status.js",
     "./components/worktree-switcher.js": "./src/components/worktree-switcher.js",
+    "./components/game-editor-kit": {
+      "import": "./src/components/game-editor-kit/index.js",
+      "default": "./src/components/game-editor-kit/index.js"
+    },
+    "./components/game-editor-kit/*": "./src/components/game-editor-kit/*",
     "./web-components/ds-chat.js": "./src/web-components/ds-chat.js",
     "./web-components/freddie-chat.js": "./src/web-components/freddie-chat.js",
     "./lint": {
@@ -76,11 +81,6 @@
       "default": "./src/kits/slides/index.js"
     },
     "./kits/slides/deck-stage.js": "./src/kits/slides/deck-stage.js",
-    "./components/game-editor-kit": {
-      "import": "./src/components/game-editor-kit/index.js",
-      "default": "./src/components/game-editor-kit/index.js"
-    },
-    "./components/game-editor-kit/*": "./src/components/game-editor-kit/*",
     "./kits/spoint": {
       "import": "./src/kits/spoint/index.js",
       "default": "./src/kits/spoint/index.js"

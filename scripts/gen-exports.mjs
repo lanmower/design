@@ -56,6 +56,13 @@ const ROOT_EXTRAS = {
     './components/overlay-primitives.js': './src/components/overlay-primitives.js',
     './components/git-status.js': './src/components/git-status.js',
     './components/worktree-switcher.js': './src/components/worktree-switcher.js',
+    // game-editor-kit ships its own multi-file public surface (AssetBrowser,
+    // ModelBrowser, UploadProgress, etc.) meant to be reachable as individual
+    // subpaths, same intent as the `spoint` KIT_WILDCARD kit below -- just
+    // rooted under src/components/ instead of src/kits/, so it is declared
+    // here rather than picked up by walkKit().
+    './components/game-editor-kit': { import: './src/components/game-editor-kit/index.js', default: './src/components/game-editor-kit/index.js' },
+    './components/game-editor-kit/*': './src/components/game-editor-kit/*',
     './web-components/ds-chat.js': './src/web-components/ds-chat.js',
     './web-components/freddie-chat.js': './src/web-components/freddie-chat.js',
     './lint': { import: './src/lint.js', default: './src/lint.js' },
@@ -117,6 +124,18 @@ function genExports() {
     const out = {};
 
     for (const [key, value] of Object.entries(ROOT_EXTRAS)) {
+        // A trailing `/*` target is a glob subpath (game-editor-kit's own
+        // per-file surface, same intent as KIT_WILDCARD below) -- it maps to
+        // a directory, not a single file, so `exists()` doesn't apply; only
+        // check that the directory itself is there.
+        if (key.endsWith('/*') && typeof value === 'string' && value.endsWith('/*')) {
+            const dir = value.slice(0, -2);
+            if (!exists(dir)) {
+                throw new Error(`[gen-exports] ROOT_EXTRAS wildcard entry "${key}" -> "${dir}" directory does not exist on disk`);
+            }
+            out[key] = value;
+            continue;
+        }
         const targets = typeof value === 'string' ? [value] : Object.values(value);
         for (const t of targets) {
             if (!exists(t)) {
