@@ -257,7 +257,7 @@ function syncAppSide(el) {
     }
 }
 
-export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
+export function AppShell({ topbar, crumb, side, main, status, narrow, fullBleed } = {}) {
     const hasSide = Boolean(side);
     const sideNode = hasSide ? side : h('aside', { class: 'app-side', 'aria-hidden': 'true' });
     // Topbar and crumb used to stack as two separate chrome bars — a "double
@@ -305,7 +305,7 @@ export function AppShell({ topbar, crumb, side, main, status, narrow } = {}) {
             // without a pointer. 0 keeps the skip-link target working AND
             // puts the region in the tab order. <main> is a landmark, so it
             // is already named for assistive tech without an aria-label.
-            h('main', { class: 'app-main' + (narrow ? ' narrow' : ''), id: 'app-main', tabindex: '0' }, ...(Array.isArray(main) ? main : [main]))
+            h('main', { class: 'app-main' + (narrow ? ' narrow' : '') + (fullBleed ? ' full-bleed' : ''), id: 'app-main', tabindex: '0' }, ...(Array.isArray(main) ? main : [main]))
         ),
         status || null
     );

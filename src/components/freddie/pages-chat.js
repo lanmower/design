@@ -32,6 +32,20 @@ function newSessionId() {
     return (crypto.randomUUID ? crypto.randomUUID() : 's' + Date.now().toString(36) + Math.random().toString(16).slice(2));
 }
 
+// Persist the active chat session id across a page reload. Without this, a
+// refresh always minted a brand-new random sessionId (newSessionId() has no
+// memory of what came before), so "a refresh mid-turn loses nothing" — this
+// module's own header comment — was never actually true: the WS replay this
+// page relies on to rebuild the transcript only has anything to replay when
+// it reconnects under the SAME id the prior page load was using.
+const CHAT_SESSION_KEY = 'fd-chat-session-id';
+function readStoredSessionId() {
+    try { return localStorage.getItem(CHAT_SESSION_KEY) || null; } catch { return null; }
+}
+function storeSessionId(id) {
+    try { if (id) localStorage.setItem(CHAT_SESSION_KEY, id); } catch { /* persistence is best-effort */ }
+}
+
 // Apply one wire envelope to a messages array (shared by replay rebuild and
 // the live stream). `sendApprove` is only needed for live approval cards.
 function applyEnvelope(msgs, env, sendApprove, sendAnswer) {
@@ -126,7 +140,7 @@ function noteTty(st, env) {
 }
 
 export const chat = makePage((ctx) => {
-    Object.assign(ctx.state, { loading: false, messages: [], draft: '', busy: false, error: null, sessionId: null, ws: null, conn: 'closed', sessions: [], staged: [], workspaceFiles: [], stagedFiles: [], searchOpen: false, searchQuery: '', searchHit: 0, cwd: '', cwdEditing: false, cwdDraft: '', model: '', models: [], tty: [] });
+    Object.assign(ctx.state, { loading: false, messages: [], draft: '', busy: false, error: null, sessionId: readStoredSessionId(), ws: null, conn: 'closed', sessions: [], staged: [], workspaceFiles: [], stagedFiles: [], searchOpen: false, searchQuery: '', searchHit: 0, cwd: '', cwdEditing: false, cwdDraft: '', model: '', models: [], tty: [] });
     let unmounted = false;
     try {
         const bootSid = sessionStorage.getItem('fd_open_session');
@@ -200,6 +214,7 @@ export const chat = makePage((ctx) => {
         if (!id || id === st.sessionId) return;
         try { st.ws && st.ws.close(); } catch { /* already closed */ }
         ctx.set({ sessionId: id, messages: [], ws: null, conn: 'closed', busy: false, error: null });
+        storeSessionId(id);
         ensureWs();
         loadWorkspaceFiles(id);
         loadStagedFiles(id);
@@ -262,6 +277,7 @@ export const chat = makePage((ctx) => {
         if (unmounted) return null;
         const st = s();
         if (!st.sessionId) st.sessionId = newSessionId();
+        storeSessionId(st.sessionId);
         if (st.ws && (st.ws.readyState === 1 || st.ws.readyState === 0)) return st.ws;
         try {
             const proto = location.protocol === 'https:' ? 'wss' : 'ws';
@@ -466,7 +482,13 @@ export const chat = makePage((ctx) => {
             h('button', { type: 'button', class: 'fd-msg-search-close', 'aria-label': 'close search', onclick: () => { st.searchOpen = false; st.searchQuery = ''; ctx.rerender(); } }, '×'));
     }
 
-    if (!ctx.state.sessionId) ctx.state.sessionId = newSessionId();
+    // Connect proactively on mount (this module's own header comment: "the
+    // socket can subscribe BEFORE the first prompt") rather than lazily on
+    // first send/switch -- this is also what makes the persisted sessionId
+    // (readStoredSessionId() above) actually resume anything: replay only
+    // has something to rebuild from once the WS reconnects under that id.
+    // ensureWs() itself mints a sessionId if one wasn't persisted/restored,
+    // so it's guaranteed set by the time the file/cwd loads below run.
     ensureWs();
     loadWorkspaceFiles(ctx.state.sessionId);
     loadStagedFiles(ctx.state.sessionId);

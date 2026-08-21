@@ -134,11 +134,26 @@ export const projects = makePage((ctx) => {
 
 export const git = makePage((ctx) => {
     Object.assign(ctx.state, { cwd: null, status: null, log: null, worktrees: null, diff: null, activeFile: null, diffLoading: false, note: null });
-    async function load() {
+    async function load(explicitCwd) {
         try {
             const proj = await api('/api/projects').catch(() => null);
             const active = proj && proj.active;
             const list = (proj && proj.projects) || [];
+            if (explicitCwd) {
+                // An explicit switch (WorktreeSwitcher's onSwitch below) must land
+                // on THAT cwd or show an error for it -- falling into the
+                // multi-candidate fallback below would let "switch worktree"
+                // silently redirect to a different project's git state instead of
+                // surfacing a real failure for the one the user actually picked.
+                const qs = '?cwd=' + encodeURIComponent(explicitCwd);
+                const [status, log, worktrees] = await Promise.all([
+                    api('/api/git/status' + qs).catch((e) => ({ _err: e })),
+                    api('/api/git/log' + qs + '&limit=20').catch((e) => ({ _err: e })),
+                    api('/api/worktree' + qs).catch((e) => ({ _err: e })),
+                ]);
+                ctx.set({ loading: false, cwd: explicitCwd, status, log, worktrees, error: null });
+                return;
+            }
             const preferred = ctx.state.cwd || (active && typeof active === 'object' ? active.path : null) || '';
             const seen = new Set();
             const candidates = [];
@@ -216,7 +231,14 @@ export const git = makePage((ctx) => {
                 WorktreeSwitcher({
                     worktrees: Array.isArray(worktrees) ? worktrees : [],
                     current,
-                    onSwitch: (wt) => { if (wt && wt.path) { ctx.state.cwd = wt.path; load(); } },
+                    // No backend "switch active worktree" verb exists (gui-worktree
+                    // is list/create/delete only) — switching here means pointing
+                    // this page's own git calls at the picked worktree's cwd, the
+                    // same client-side cwd override `load()`/`openDiff()` already
+                    // thread through every /api/git/* and /api/worktree call.
+                    // Clearing activeFile/diff avoids showing a stale diff from the
+                    // PREVIOUS worktree while the new one's status is still loading.
+                    onSwitch: (wt) => { if (wt && wt.path) { ctx.set({ activeFile: null, diff: null }); load(wt.path); } },
                     onCreate: () => ctx.set({ showWtForm: !s.showWtForm }),
                 }),
                 s.showWtForm ? h('div', { class: 'fd-row-actions' },

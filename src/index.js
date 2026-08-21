@@ -125,9 +125,11 @@ export { renderHostJoinLobby } from './kits/spoint/host-join-lobby.js';
 export {
     FREDDIE_PAGES,
     home, chat, voice, sessions, projects, agents, analytics,
-    models, cron, skills, config, env, tools, batch, gateway, chains,
+    models, cron, skills, plugins, config, env, tools, batch, gateway, chains,
+    machines, health, logs, git,
     skillLabel, getRecentPaths, saveRecentPath, renderChatMessages,
     buildNavPaletteActions, renderDashboardSide, renderDashboardShell,
+    openCommandPalette, closeCommandPalette,
     fmtBytes, fmtFileSize, fmtTime, fmtAgo, fmtDuration
 } from './components.js';
 
