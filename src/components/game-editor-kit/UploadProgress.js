@@ -1,4 +1,5 @@
-import { h } from 'anentrypoint-design'
+import * as webjsx from '../../../vendor/webjsx/index.js'
+const h = webjsx.createElement
 
 export function createUploadProgress(opts = {}) {
   const onCancel = opts.onCancel || (() => {})

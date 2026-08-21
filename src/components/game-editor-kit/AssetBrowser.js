@@ -1,5 +1,6 @@
-import { h, components } from 'anentrypoint-design'
-const { Icon } = components
+import * as webjsx from '../../../vendor/webjsx/index.js'
+import { Icon } from '../../components.js'
+const h = webjsx.createElement
 import { getSharedWM, Btn, Toolbar, SearchInput } from './ui-components.js'
 import { showToast } from './utils.js'
 

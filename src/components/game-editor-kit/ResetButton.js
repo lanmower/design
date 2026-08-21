@@ -1,4 +1,5 @@
-import { h } from 'anentrypoint-design'
+import * as webjsx from '../../../vendor/webjsx/index.js'
+const h = webjsx.createElement
 import { Btn } from './ui-components.js'
 
 export function ResetButton(opts = {}) {

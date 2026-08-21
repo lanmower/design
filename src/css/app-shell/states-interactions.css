@@ -440,14 +440,16 @@ hr.rule-double {
    solid line, which is exactly what preview/rules.html's report caught live. */
 hr.rule-dotted { border-top: 2px dotted var(--rule-strong); }
 
-/* Hairline-only text input — no full box, no permanent fill. A single bottom
-   rule that thickens to 2px on focus, matching the row/rule zero-border
-   aesthetic instead of a browser-default boxed field. A completely flat,
-   static hairline reads as a static label rather than an editable control
-   at a glance (no cue at rest, nothing on hover) -- the very faint permanent
-   wash plus a stronger hover tint below signal "this is a field" without
-   reverting to the boxed/filled chrome the hairline design deliberately
-   moved away from. */
+/* Hairline text input. Was a single bottom-only rule (thickening to 2px on
+   focus) with none on the other three sides -- a one-sided border, the same
+   idiom .ds-settings-body's own override already moved away from (kits-
+   appended.css) once it read as an underline rather than a field edge. A
+   thin rule on all four sides keeps the same "not a browser-default boxed
+   field" hairline weight the original comment wanted, with no asymmetric
+   edge. The permanent tonal wash below (plus the stronger hover tint) is
+   what actually signals "this is a field" at rest -- the hairline is a
+   secondary cue either way, so evening it out costs nothing that comment
+   was relying on. */
 .input {
   display: block; width: 100%; box-sizing: border-box;
   /* appearance:none alone is not enough: with color-scheme:dark set on the
@@ -459,7 +461,7 @@ hr.rule-dotted { border-top: 2px dotted var(--rule-strong); }
      dark styling, and zero box-shadow explicitly so nothing survives. */
   appearance: none; -webkit-appearance: none;
   color-scheme: normal;
-  border: 0; border-bottom: 1px solid var(--rule-strong);
+  border: 1px solid var(--rule-strong);
   border-radius: var(--r-0);
   background: color-mix(in oklab, var(--fg) 2.5%, transparent);
   box-shadow: none;
@@ -481,8 +483,8 @@ hr.rule-dotted { border-top: 2px dotted var(--rule-strong); }
 .input::placeholder { color: var(--fg-3); }
 .input:focus-visible {
   outline: none;
-  border-bottom-width: 2px;
-  border-bottom-color: var(--accent-ink);
+  border-width: 2px;
+  border-color: var(--accent-ink);
 }
 
 /* Switch primitive (form-primitives.js Toggle) -- track + sliding knob.

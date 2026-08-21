@@ -521,10 +521,16 @@
    new border/shadow values: --rule hairline + --rule-strong baseline inset
    box-shadow, --bg-2 tonal fill, --r-1 corner, thickening to --accent on
    focus. Scoped to this kit only -- signin/search keep the hairline look. */
+/* Was two stacked inset shadows -- a faint hairline on all four sides plus a
+   ~3.5x-stronger one bottom-only (an underline emphasis, same idiom as the
+   sitewide .input's border-bottom default this override exists to replace).
+   Still read as a one-sided border at a glance: the bottom edge is the only
+   one actually visible, the other three fade into the fill. A single uniform
+   inset shadow keeps the field visible at rest (the concern the comment
+   above was solving) without an asymmetric edge. */
 .ds-settings-body .input {
   border: 0;
-  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
-              inset 0 calc(-1 * var(--bw-rule)) 0 var(--rule-strong);
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule-strong);
   border-radius: var(--r-1);
   background: var(--bg-2);
 }
@@ -532,8 +538,7 @@
 .ds-settings-body .input:focus-visible {
   border: 0;
   background: var(--bg);
-  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
-              inset 0 calc(-1 * var(--bw-chunk)) 0 var(--accent);
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--accent);
 }
 /* Bio auto-grows to its content (app.js autoGrowBio) -- resize:none hands
    height control entirely to that measurement instead of letting a manual
