@@ -256,9 +256,12 @@
 }
 /* DELIBERATE accent spine — this modifier's only job is to mark the emphasized
    half of a split slide (see ui_kits/slide_deck/app.js), so the rule is the
-   whole component, not decoration on a card. Routed through the house
-   .panel-spine idiom (::before rail at --bw-chunk, squared leading corners)
-   instead of an off-scale 3px border-left. */
+   whole component, not decoration on a card: an editorial signal a real
+   slide deck genuinely needs, unlike the settings kit's since-removed
+   .panel-spine (an accent rail repeated on every panel for "visual
+   identity" alone, which is the generic AI-dashboard tell -- see
+   panel-row.css history). Uses a ::before rail at --bw-chunk with squared
+   leading corners instead of an off-scale 3px border-left. */
 .ds-slide-split-cell--accent {
   position: relative;
   padding-left: calc(var(--space-3-5) + var(--bw-chunk));

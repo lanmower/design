@@ -161,9 +161,14 @@
 .ds-session-row-devcnt { color: var(--warn); font-weight: var(--fw-medium, 500); }
 .ds-session-row-span { font-size: var(--fs-micro); color: var(--fg-3); }
 
-/* DevRow */
+/* DevRow — was background + accent border-left stacked together (the
+   left rule was redundant: --danger-surface's own tint plus the "strong"
+   warn-colored label below already carry the signal, so the stripe was
+   pure decoration reading as the generic AI-callout tell). Tonal fill
+   alone is the established pattern this file's own --danger-surface
+   comment describes. */
 .ds-dev-row {
-  background: var(--danger-surface); border-left: var(--bw-chunk) solid var(--warn);
+  background: var(--danger-surface);
   padding: var(--space-2) var(--space-2-75); margin: var(--space-1) 0; border-radius: var(--r-hair); font-size: var(--fs-tiny);
 }
 .ds-dev-row strong { color: var(--warn); }

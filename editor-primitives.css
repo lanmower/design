@@ -851,13 +851,6 @@
     background: var(--panel-1, var(--panel-bg));
     color: var(--panel-text, var(--fg-text));
     border: 1px solid var(--rule);
-    /* DELIBERATE accent spine (same intent as .panel-spine, expressed as a
-       border because a toast has no free ::before — the host stacks them and
-       .has-action reflows the box). Load-bearing, not decoration: this edge is
-       the ONLY channel carrying toast severity — .kind-success/.kind-warn/
-       .kind-error below recolour border-left-color and nothing else. Do not
-       demote to a hairline; that would erase the status signal. */
-    border-left: var(--bw-chunk) solid var(--accent);
     border-radius: var(--r-1, 8px);
     padding: var(--space-2) var(--space-2-75);
     box-shadow: var(--shadow-3);
@@ -865,9 +858,16 @@
     opacity: 1;
     transition: opacity 180ms ease, transform 180ms ease;
 }
-.ds-ep-toast.kind-success { border-left-color: var(--success); }
-.ds-ep-toast.kind-warn    { border-left-color: var(--warn); }
-.ds-ep-toast.kind-error   { border-left-color: var(--danger); }
+/* Was a one-sided accent-colored border-left carrying severity alone (the
+   generic "AI callout" tell, and the ONLY visual channel .kind-* had — see
+   toast.js, no per-kind icon exists). Replaced with the same tonal-surface
+   idiom data-density.css's --danger-surface already establishes: a full,
+   symmetric background/border tint keyed to the kind's color instead of one
+   accent edge. Carries the same at-a-glance distinction with no one-sided
+   border anywhere on the box. */
+.ds-ep-toast.kind-success { background: color-mix(in oklab, var(--success) 14%, var(--panel-1, var(--panel-bg))); border-color: color-mix(in oklab, var(--success) 40%, var(--rule)); }
+.ds-ep-toast.kind-warn    { background: color-mix(in oklab, var(--warn) 14%, var(--panel-1, var(--panel-bg))); border-color: color-mix(in oklab, var(--warn) 40%, var(--rule)); }
+.ds-ep-toast.kind-error   { background: color-mix(in oklab, var(--danger) 14%, var(--panel-1, var(--panel-bg))); border-color: color-mix(in oklab, var(--danger) 40%, var(--rule)); }
 .ds-ep-toast.leaving { opacity: 0; transform: translateY(-6px); }
 .ds-ep-toast.has-action {
     display: flex; align-items: center; gap: var(--space-2);

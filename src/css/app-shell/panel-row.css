@@ -36,17 +36,6 @@
   border: var(--bw-hair) solid var(--rule);
   box-shadow: var(--panel-shadow-1);
 }
-/* Editorial accent spine — an opt-in printed-ink rule down the left edge that
-   reads as a magazine pull-quote bar, not a glow card. */
-.panel.panel-spine {
-  border-radius: 0 var(--r-2) var(--r-2) 0;
-  padding-left: calc(var(--space-3) + var(--bw-chunk));
-}
-.panel.panel-spine::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-  width: var(--bw-chunk); background: var(--accent);
-  border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
-}
 /* PilotDeck's composer is the ONE element with a visible edge on an
    otherwise flat canvas — a faint 1px border, no tonal fill. */
 .panel.panel-inline { background: transparent; border: var(--bw-hair) solid var(--rule); padding: var(--space-3) var(--space-3); }

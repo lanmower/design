@@ -217,7 +217,16 @@ h3 + .lede, h3 + .t-lede,
 .ds-prose blockquote {
   margin: var(--space-5) 0;
   padding: var(--space-3) var(--space-4);
-  border-left: var(--bw-chunk, 3px) solid var(--panel-accent);
+  /* Was an accent-colored --bw-chunk rule -- the generic "AI callout" tell
+     (a colored stripe standing in for "this box matters"). .chat-bubble.chat-md
+     blockquote (chat-polish.css) already made this exact call for the chat
+     surface's own <blockquote>: a real markdown quote reads by its left rule
+     as standard quotation typography, not a semantic alert, so the rule must
+     carry no accent color, just a slimmed neutral tone off currentColor. Same
+     fix here for prose's own blockquote -- the tonal background (panel-hover)
+     already does the "this is set apart" job the accent color was redundantly
+     also trying to do. */
+  border-left: var(--bw-rule) solid color-mix(in oklab, currentColor 30%, transparent);
   background: var(--panel-hover);
   border-radius: var(--r-1);
   color: var(--panel-text-2);
