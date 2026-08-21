@@ -97,7 +97,12 @@ export function ApprovalNode(p) {
     const status = p.status || 'pending';
     const argsText = typeof p.args === 'string' ? p.args : JSON.stringify(p.args || {}, null, 2);
     const iconName = status === 'pending' ? 'warn' : (status === 'approved' ? 'check' : 'warn');
-    const decide = (decision) => (e) => { e.preventDefault(); if (p.onResolve) p.onResolve(decision); };
+    // Clear onResolve immediately on click, before the round trip to the
+    // server settles the card's status -- otherwise the buttons stay live
+    // (they only hide once status stops being 'pending') and a fast double
+    // click, or clicking two different decisions in a row, sends two
+    // decision frames for the same approval id.
+    const decide = (decision) => (e) => { e.preventDefault(); const fn = p.onResolve; if (fn) { p.onResolve = null; fn(decision); } };
     return h('div', { class: 'chat-bubble chat-tool chat-approval tool-' + (status === 'pending' ? 'running' : status) },
         h('div', { class: 'chat-tool-head' },
             h('span', { class: 'chat-tool-icon', 'aria-hidden': 'true' }, Icon(iconName, { size: 14 })),
@@ -124,15 +129,17 @@ export function QuestionNode(p) {
     if (!p._sel) p._sel = {}
     const submit = (e) => {
         e.preventDefault()
-        if (!p.onResolve) return
+        const fn = p.onResolve
+        if (!fn) return
+        p.onResolve = null
         const answers = {}
         for (const q of questions) {
             const v = p._sel[q.question]
             answers[q.question] = Array.isArray(v) ? v.join(', ') : (v || '')
         }
-        p.onResolve({ answers })
+        fn({ answers })
     }
-    const skip = (e) => { e.preventDefault(); if (p.onResolve) p.onResolve({ rejected: true }) }
+    const skip = (e) => { e.preventDefault(); const fn = p.onResolve; if (fn) { p.onResolve = null; fn({ rejected: true }) } }
     const blocks = questions.map((q, qi) => {
         const qtext = q.question || ''
         const opts = Array.isArray(q.options) ? q.options : []
