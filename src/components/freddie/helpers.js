@@ -10,21 +10,6 @@
 import * as webjsx from '../../../vendor/webjsx/index.js';
 const h = webjsx.createElement;
 
-// The ONE eyebrow on the freddie surface, and it earns it by being the only
-// label that varies: `freddie · <id>` names the specific unimplemented route,
-// which is the whole point of a stub — the reader needs to know WHICH page
-// failed to resolve, and the <h2> below only shows a human title. The real
-// freddie pages (src/components/freddie.js) deliberately carry NO eyebrow:
-// there, the kicker was the constant string 'freddie' on all 22 headers, which
-// named nothing the topbar/crumb did not already say. Do not add siblings.
-export function renderPageStub({ id, title }) {
-    return h('div', { class: 'ds-freddie-stub' },
-        h('span', { class: 'eyebrow' }, 'freddie · ' + id),
-        h('h2', {}, title || id),
-        h('p', { class: 'dim' }, 'this page renderer is a stub. consumers override it on their own freddie router.')
-    );
-}
-
 // pre() / form() — small raw-DOM helpers used by the OS kit's freddie pages
 // (JSON dumps, quick add-forms) that don't need the full component barrel.
 export function pre(obj) {
