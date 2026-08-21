@@ -42,6 +42,12 @@ const SCAN_EXT = new Set(['.js', '.mjs', '.html']);
 // counting it in the ratchet would freeze generator debt as a hand-editable
 // budget and make the baseline undrivable from the file it names.
 const SKIP_DIRS = new Set(['node_modules', 'vendor', 'dist']);
+// src/components/game-editor-kit is exempt as a tree: these are self-contained
+// CDN-served components whose layout must survive with zero host-sheet context
+// (they render inside spoint and other consumers that own no ds-* sheets), so
+// they carry their full layout inline with token fallbacks by design. Counting
+// them would freeze nearly every kit line as unfixable-from-the-file debt.
+const SKIP_FILES_RE = /^src\/components\/game-editor-kit\//;
 
 // Layout properties banned inside style= attribute strings.
 const LAYOUT_RE = /grid-template|display:\s*grid|display:\s*flex|width:|height:|padding:|margin:|font-size:/;
@@ -70,6 +76,7 @@ export function findInlineStyleViolations() {
     const files = walkManyDirs(SCAN_DIRS.map((d) => path.join(root, d)), SCAN_EXT, { skipDirs: SKIP_DIRS });
     for (const file of files) {
         const rel = path.relative(root, file).split(path.sep).join('/');
+        if (SKIP_FILES_RE.test(rel)) continue;
         const src = fs.readFileSync(file, 'utf8');
         src.split(/\r?\n/).forEach((line, i) => {
             for (const m of line.matchAll(STYLE_ATTR_RE)) {

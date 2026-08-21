@@ -1180,7 +1180,16 @@
 .ds-247420 .ds-prose blockquote {
   margin: var(--space-5) 0;
   padding: var(--space-3) var(--space-4);
-  border-left: var(--bw-chunk, 3px) solid var(--panel-accent);
+  /* Was an accent-colored --bw-chunk rule -- the generic "AI callout" tell
+     (a colored stripe standing in for "this box matters"). .chat-bubble.chat-md
+     blockquote (chat-polish.css) already made this exact call for the chat
+     surface's own <blockquote>: a real markdown quote reads by its left rule
+     as standard quotation typography, not a semantic alert, so the rule must
+     carry no accent color, just a slimmed neutral tone off currentColor. Same
+     fix here for prose's own blockquote -- the tonal background (panel-hover)
+     already does the "this is set apart" job the accent color was redundantly
+     also trying to do. */
+  border-left: var(--bw-rule) solid color-mix(in oklab, currentColor 30%, transparent);
   background: var(--panel-hover);
   border-radius: var(--r-1);
   color: var(--panel-text-2);
@@ -1712,38 +1721,35 @@
 .ds-247420 .app-main.full-bleed { padding: 0; overflow: hidden; }
 .ds-247420 .app-main.full-bleed > * { flex: 1 1 auto; min-height: 0; }
 /* .narrow means "prose reading measure", not "shrink the whole shell on wide
-   screens". The old clamp(760px, 46vw, 1000px) grew too slowly to track the
-   real available column: at 1920px viewport the .app-body grid's second
-   track (.app width minus --sidebar-width) is ~1556px, but 46vw=883px sat
-   well under the 1000px ceiling, leaving a ~340px dead gutter between the
-   sidebar and the centered narrow column on an ordinary desktop screen (not
-   just ultrawide) -- confirmed live via a real 1920x1080 CDP viewport, a
-   project page (#/p/<slug>). 62vw tracks the actual column growth far closer
-   (1920*0.62=1190px, much nearer the 1556px track than 883px was) while the
-   1200px ceiling still keeps prose from stretching into an unreadable
-   full-bleed line -- sidebar-present narrow pages read the same width class
-   as the no-side variant below instead of visibly starving next to it. */
+   screens". Two vw-based attempts here both undershot on wide screens because
+   vw approximates the grid's second track (.app width minus --sidebar-width)
+   instead of measuring it: at 2560px the 70vw/1440px-ceiling version resolved
+   to only 1440px against a ~2304px track -- a 432px dead gutter on EACH side,
+   confirmed live via CDP (getBoundingClientRect on .app-main.narrow vs
+   .app-body). .app-main is itself the grid's `minmax(0, 1fr)` track
+   (topbar.css's own .app-body rule above), so a percentage max-width on it
+   resolves against that track directly -- no viewport-width approximation,
+   correct at any sidebar width or screen size by construction. 94% keeps a
+   visible side gutter for breathing room; 1600px still caps prose length on
+   very wide screens so paragraphs don't stretch unreadably long. */
 .ds-247420 .app-body:not(.no-side) .app-main.narrow {
-  max-width: clamp(var(--measure-narrow), 70vw, 1440px);
+  max-width: min(94%, 1600px);
 }
-/* A shell with no sidebar has no competing column, so the prose clamp there was
-   leaving the whole sidebar's worth of width empty -- 760px of content inside a
-   1413px shell on a real page. Widen the clamp by the space the absent sidebar
-   would have taken so the measure still reads as prose, just not starved.
-   The floor stays a fixed 980px (no-side is still readable narrow); the
-   ceiling grows with viewport instead of staying pinned at 980px forever --
-   on a 2560px ultrawide the old fixed value left over half the shell as dead
-   side margin. 1400px ceiling keeps prose measure sane (nobody wants a
-   2400px-wide paragraph) while letting non-prose content (index rows, meta)
-   actually use the extra room. 60vw sat below the 1016px floor on every
-   viewport under ~1693px, so ordinary desktop widths (1440, 1536) always
-   resolved to the bare floor -- a live CDP measurement at 1440x900 found a
-   ~424px dead gutter (212px each side) around the blog's narrow column,
-   read by users as "not filling the page". 74vw crosses the floor around
-   1373px so real desktop widths actually grow past it, same reasoning as
-   the sidebar variant above. */
+/* A shell with no sidebar has no competing column, so a vw-based clamp here
+   fights the same mismatch as the sidebar variant above: at 2560px the
+   84vw/1680px-ceiling version resolved to only 1680px against the full
+   2560px track -- a 440px dead gutter on EACH side, confirmed live via CDP.
+   .app-main is the grid's sole `minmax(0, 1fr)` track when .no-side removes
+   the sidebar column (topbar.css's own .app-body.no-side rule above), so a
+   percentage max-width resolves against that track directly instead of
+   approximating it from the viewport -- correct at any screen size by
+   construction, same fix as the sidebar variant. 90% (vs. 94% for the
+   sidebar variant) keeps a slightly wider gutter since there is no sidebar
+   edge to visually anchor the column against; 1800px ceiling keeps prose
+   measure sane on very wide screens while letting non-prose content (index
+   rows, meta) use the extra room. */
 .ds-247420 .app-body.no-side .app-main.narrow {
-  max-width: clamp(calc(var(--measure-narrow) + var(--sidebar-width)), 84vw, 1680px);
+  max-width: min(90%, 1800px);
 }
 /* Article-body heading rhythm and lede spacing, consumed by flatspace-rendered
    long-form pages (docs, papers) that drop headings/panels directly into .app-main. */
@@ -2249,17 +2255,6 @@
   background: var(--panel-1, var(--bg-2));
   border: var(--bw-hair) solid var(--rule);
   box-shadow: var(--panel-shadow-1);
-}
-/* Editorial accent spine — an opt-in printed-ink rule down the left edge that
-   reads as a magazine pull-quote bar, not a glow card. */
-.ds-247420 .panel.panel-spine {
-  border-radius: 0 var(--r-2) var(--r-2) 0;
-  padding-left: calc(var(--space-3) + var(--bw-chunk));
-}
-.ds-247420 .panel.panel-spine::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-  width: var(--bw-chunk); background: var(--accent);
-  border-radius: var(--bw-chunk) 0 0 var(--bw-chunk);
 }
 /* PilotDeck's composer is the ONE element with a visible edge on an
    otherwise flat canvas — a faint 1px border, no tonal fill. */
@@ -6133,14 +6128,16 @@
    solid line, which is exactly what preview/rules.html's report caught live. */
 .ds-247420 hr.rule-dotted { border-top: 2px dotted var(--rule-strong); }
 
-/* Hairline-only text input — no full box, no permanent fill. A single bottom
-   rule that thickens to 2px on focus, matching the row/rule zero-border
-   aesthetic instead of a browser-default boxed field. A completely flat,
-   static hairline reads as a static label rather than an editable control
-   at a glance (no cue at rest, nothing on hover) -- the very faint permanent
-   wash plus a stronger hover tint below signal "this is a field" without
-   reverting to the boxed/filled chrome the hairline design deliberately
-   moved away from. */
+/* Hairline text input. Was a single bottom-only rule (thickening to 2px on
+   focus) with none on the other three sides -- a one-sided border, the same
+   idiom .ds-settings-body's own override already moved away from (kits-
+   appended.css) once it read as an underline rather than a field edge. A
+   thin rule on all four sides keeps the same "not a browser-default boxed
+   field" hairline weight the original comment wanted, with no asymmetric
+   edge. The permanent tonal wash below (plus the stronger hover tint) is
+   what actually signals "this is a field" at rest -- the hairline is a
+   secondary cue either way, so evening it out costs nothing that comment
+   was relying on. */
 .ds-247420 .input {
   display: block; width: 100%; box-sizing: border-box;
   /* appearance:none alone is not enough: with color-scheme:dark set on the
@@ -6152,7 +6149,7 @@
      dark styling, and zero box-shadow explicitly so nothing survives. */
   appearance: none; -webkit-appearance: none;
   color-scheme: normal;
-  border: 0; border-bottom: 1px solid var(--rule-strong);
+  border: 1px solid var(--rule-strong);
   border-radius: var(--r-0);
   background: color-mix(in oklab, var(--fg) 2.5%, transparent);
   box-shadow: none;
@@ -6174,8 +6171,8 @@
 .ds-247420 .input::placeholder { color: var(--fg-3); }
 .ds-247420 .input:focus-visible {
   outline: none;
-  border-bottom-width: 2px;
-  border-bottom-color: var(--accent-ink);
+  border-width: 2px;
+  border-color: var(--accent-ink);
 }
 
 /* Switch primitive (form-primitives.js Toggle) -- track + sliding knob.
@@ -7549,9 +7546,14 @@
 .ds-247420 .ds-session-row-devcnt { color: var(--warn); font-weight: var(--fw-medium, 500); }
 .ds-247420 .ds-session-row-span { font-size: var(--fs-micro); color: var(--fg-3); }
 
-/* DevRow */
+/* DevRow — was background + accent border-left stacked together (the
+   left rule was redundant: --danger-surface's own tint plus the "strong"
+   warn-colored label below already carry the signal, so the stripe was
+   pure decoration reading as the generic AI-callout tell). Tonal fill
+   alone is the established pattern this file's own --danger-surface
+   comment describes. */
 .ds-247420 .ds-dev-row {
-  background: var(--danger-surface); border-left: var(--bw-chunk) solid var(--warn);
+  background: var(--danger-surface);
   padding: var(--space-2) var(--space-2-75); margin: var(--space-1) 0; border-radius: var(--r-hair); font-size: var(--fs-tiny);
 }
 .ds-247420 .ds-dev-row strong { color: var(--warn); }
@@ -7841,9 +7843,12 @@
 }
 /* DELIBERATE accent spine — this modifier's only job is to mark the emphasized
    half of a split slide (see ui_kits/slide_deck/app.js), so the rule is the
-   whole component, not decoration on a card. Routed through the house
-   .panel-spine idiom (::before rail at --bw-chunk, squared leading corners)
-   instead of an off-scale 3px border-left. */
+   whole component, not decoration on a card: an editorial signal a real
+   slide deck genuinely needs, unlike the settings kit's since-removed
+   .panel-spine (an accent rail repeated on every panel for "visual
+   identity" alone, which is the generic AI-dashboard tell -- see
+   panel-row.css history). Uses a ::before rail at --bw-chunk with squared
+   leading corners instead of an off-scale 3px border-left. */
 .ds-247420 .ds-slide-split-cell--accent {
   position: relative;
   padding-left: calc(var(--space-3-5) + var(--bw-chunk));
@@ -8103,10 +8108,16 @@
    new border/shadow values: --rule hairline + --rule-strong baseline inset
    box-shadow, --bg-2 tonal fill, --r-1 corner, thickening to --accent on
    focus. Scoped to this kit only -- signin/search keep the hairline look. */
+/* Was two stacked inset shadows -- a faint hairline on all four sides plus a
+   ~3.5x-stronger one bottom-only (an underline emphasis, same idiom as the
+   sitewide .input's border-bottom default this override exists to replace).
+   Still read as a one-sided border at a glance: the bottom edge is the only
+   one actually visible, the other three fade into the fill. A single uniform
+   inset shadow keeps the field visible at rest (the concern the comment
+   above was solving) without an asymmetric edge. */
 .ds-247420 .ds-settings-body .input {
   border: 0;
-  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
-              inset 0 calc(-1 * var(--bw-rule)) 0 var(--rule-strong);
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule-strong);
   border-radius: var(--r-1);
   background: var(--bg-2);
 }
@@ -8114,8 +8125,7 @@
 .ds-247420 .ds-settings-body .input:focus-visible {
   border: 0;
   background: var(--bg);
-  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--rule),
-              inset 0 calc(-1 * var(--bw-chunk)) 0 var(--accent);
+  box-shadow: inset 0 0 0 var(--bw-hair, 1px) var(--accent);
 }
 /* Bio auto-grows to its content (app.js autoGrowBio) -- resize:none hands
    height control entirely to that measurement instead of letting a manual
@@ -8669,17 +8679,32 @@
    SECONDARY copy annotating the demo above it, so it takes the quiet voice:
    one step down from body, on the --fg-2 ramp, with a comfortable reading
    line-height. It owns only the RHYTHM between its lines; the panel body still
-   owns the inset, so this must not re-pad. */
+   owns the inset, so this must not re-pad.
+   Was `display:flex; flex-direction:column; gap:...`, which only produces
+   the intended one-row-per-<p> stack when every direct child IS a <p>. The
+   docs kit's flatspace-rendered `[!] note` admonition (an external build
+   tool this repo doesn't vendor -- no local markdown source or JS emits its
+   markup) drops its text straight into this div with no <p> wrapper, just a
+   text run mixed with inline <code>. Flex boxes each in-flow child
+   independently -- unlike normal block/inline flow, adjacent bare text runs
+   and inline elements do NOT merge into one anonymous box -- so every
+   "text, <code>, text, <code>, text" segment became its OWN flex item,
+   stretched full width by align-items:stretch: two full-width gray bars
+   (the <code> chips) each alone on their own row, breaking the sentence
+   apart. Confirmed live via CDP -- every <code> in the note rendered
+   `display:block` at the container's full width. Plain block flow has no
+   such requirement (bare text and inline children flow inline regardless of
+   <p> wrapping), so it fixes the unwrapped case for free; the child-margin
+   rule below reproduces the old flex `gap` spacing for the <p>-wrapped
+   consumers with no visual change for them. */
 .ds-247420 .ds-pattern-notes {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
   color: var(--fg-2);
   font-size: var(--fs-sm);
   line-height: var(--lh-base);
   max-width: var(--measure);
   min-width: 0;
 }
+.ds-247420 .ds-pattern-notes > * + * { margin-top: var(--space-2); }
 .ds-247420 .ds-pattern-notes p { margin: 0; overflow-wrap: anywhere; }
 /* Inline literals inside a note read as quoted machinery, not as body copy —
    same tonal chip treatment .chat-bubble code uses. */
@@ -8828,10 +8853,26 @@
    against the surrounding prose, not to match its column. It is a literal
    rather than a new token because it has exactly one consumer — promote it to
    --measure-note the moment a second surface wants the same cap.
-   `margin-right: auto` (not `margin: 0 auto`) keeps the panel left-aligned to
-   the prose it interrupts and preserves .panel's own --space-4 stack margin. */
+   Was `margin-right: auto` alone, on the theory that it flush-left-aligns the
+   panel against the prose column it sits between. Two bugs compounded: (1)
+   .app-main.narrow is a column flex container, and ANY auto cross-axis margin
+   on a flex item disables align-items:stretch (falls back to align-self:start
+   + shrink-to-fit content sizing) — the exact bug .ds-prose was already fixed
+   for above (base.css) via an explicit width:100% "fill-then-cap"; this rule
+   never got the same fix, so it rendered content-width instead of up to its
+   640px cap (measured live at 384.8px on a 1564px-wide .app-main). (2) even
+   with that fixed, flush-left no longer matches "the prose it interrupts" --
+   .ds-prose itself was later changed from flush-left to centered (`margin:
+   auto auto`, base.css comment above) to kill one-sided dead whitespace on
+   wide/no-sidebar pages, so a flush-left note now sits well left of the
+   prose's own (centered) left edge instead of aligning with it. Matching
+   .ds-prose's own centering keeps the two aligned the same way at any
+   .app-main width, with the narrower cap reading as a deliberately indented
+   set-aside block against the wider prose column. */
 .ds-247420 .panel.panel-inline-wide {
+  width: 100%;
   max-width: 640px;
+  margin-left: auto;
   margin-right: auto;
 }
 /* ============================================================
@@ -10960,14 +11001,26 @@
 .ds-247420 .cm-forum-search:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent-ink); }
 
 /* ---------- mobile header ---------- */
+/* Was unconditional display:flex with no width gate anywhere in the
+   codebase (confirmed: this selector has exactly one rule, here). Renders
+   at every viewport width, stacked directly under the real .app-topbar --
+   two navbars on desktop, doing overlapping jobs (channel name, hamburger
+   for a drawer that only exists below 900px, member-list toggle already in
+   the topbar/chat-head). Mobile-only by name and by every other piece of
+   this same drawer idiom (community-app.css's .ca-rail collapse, right
+   above, keys off the same 900px breakpoint) -- this rule just never
+   picked it up. Hidden by default, shown only under the drawer breakpoint. */
 .ds-247420 .cm-mobile-header {
-  display: flex;
+  display: none;
   align-items: center;
   gap: var(--space-2);
   height: calc(48px + env(safe-area-inset-top));
   padding: env(safe-area-inset-top) max(var(--space-2), env(safe-area-inset-right)) 0 max(var(--space-2), env(safe-area-inset-left));
   background: var(--bg-2);
   border-bottom: 1px solid var(--panel-3);
+}
+@media (max-width: 900px) {
+  .ds-247420 .cm-mobile-header { display: flex; }
 }
 .ds-247420 .cm-mh-btn {
   flex: none;
@@ -13407,8 +13460,25 @@
    both edges instead of sitting flush like every other row (a Discord/
    stoat/Revolt row-list convention; the claude.ai/code source this variant
    was built for is a single-column reading surface where shrink-to-content
-   doesn't matter). */
-.ds-247420 .chat-msg-flat { display: block; width: 100%; max-width: var(--measure); margin-inline: auto; padding: calc(var(--space-3) * var(--density, 1)) var(--space-4); margin-block: 0; background: none; border-radius: var(--r-2); }
+   doesn't matter).
+   Was ALSO carrying max-width:var(--measure); margin-inline:auto -- directly
+   contradicting the comment above (capping+centering the ROW is the opposite
+   of "full-width... flush like every other row"), and redundant with
+   .chat-stack's own max-width:var(--measure) below, which already owns
+   reading-measure line length. On any thread wider than --measure (the
+   common case -- confirmed live on community-app at 1100px vs. --measure's
+   ~714px) this centered the row with large auto margins, visibly breaking
+   the flush-row look the file's own convention calls for. It was also the
+   source of a genuine "message box moves on hover" bug: those auto margins
+   are the ONLY thing in this rule with no explicit non-auto value, so any
+   layout recalculation that touches this row (confirmed live via CDP:
+   identical matched CSS rules and custom-property values before/after
+   hover, yet the flex auto-margin distribution resolved differently) had
+   nothing to anchor it, letting the row visibly jump. Dropping both
+   properties fixes the row width to match the documented Discord-style
+   convention and removes the auto margins entirely, so there is nothing
+   left for any recalculation to disturb. */
+.ds-247420 .chat-msg-flat { display: block; width: 100%; padding: calc(var(--space-3) * var(--density, 1)) var(--space-4); margin-block: 0; background: none; border-radius: var(--r-2); }
 /* .chat-msg.you's row-reverse is a messenger-bubble convention (own turns
    flip to the right); a flat message-row list (stoat/Discord/Revolt
    convention) keeps every row's avatar on the same left edge regardless of
@@ -13472,10 +13542,9 @@
 .ds-247420 .chat-spoiler.is-revealed * { opacity: 1; pointer-events: auto; }
 /* Structured tool/code output earns more width than running prose (claude.ai/code
    lets diffs/tables break out wider than the reading measure). A flat turn that
-   contains a tool card or code block widens itself AND its stack past --measure;
-   prose-only turns stay clamped. */
-.ds-247420 .chat-msg-flat:has(.chat-tool),
-.ds-247420 .chat-msg-flat:has(.chat-bubble.chat-code) { max-width: calc(var(--measure) + 14ch); }
+   contains a tool card or code block widens its stack past --measure; prose-only
+   turns stay clamped. (The row itself has no max-width to widen since the fix
+   above -- only .chat-stack carries the reading-measure cap now.) */
 .ds-247420 .chat-msg-flat:has(.chat-tool) .chat-stack,
 .ds-247420 .chat-msg-flat:has(.chat-bubble.chat-code) .chat-stack { max-width: calc(var(--measure) + 14ch); }
 /* Hover tint exceeds each role's REST tint so the row gives feedback (and the
@@ -14641,13 +14710,6 @@
     background: var(--panel-1, var(--panel-bg));
     color: var(--panel-text, var(--fg-text));
     border: 1px solid var(--rule);
-    /* DELIBERATE accent spine (same intent as .panel-spine, expressed as a
-       border because a toast has no free ::before — the host stacks them and
-       .has-action reflows the box). Load-bearing, not decoration: this edge is
-       the ONLY channel carrying toast severity — .kind-success/.kind-warn/
-       .kind-error below recolour border-left-color and nothing else. Do not
-       demote to a hairline; that would erase the status signal. */
-    border-left: var(--bw-chunk) solid var(--accent);
     border-radius: var(--r-1, 8px);
     padding: var(--space-2) var(--space-2-75);
     box-shadow: var(--shadow-3);
@@ -14655,9 +14717,16 @@
     opacity: 1;
     transition: opacity 180ms ease, transform 180ms ease;
 }
-.ds-247420 .ds-ep-toast.kind-success { border-left-color: var(--success); }
-.ds-247420 .ds-ep-toast.kind-warn    { border-left-color: var(--warn); }
-.ds-247420 .ds-ep-toast.kind-error   { border-left-color: var(--danger); }
+/* Was a one-sided accent-colored border-left carrying severity alone (the
+   generic "AI callout" tell, and the ONLY visual channel .kind-* had — see
+   toast.js, no per-kind icon exists). Replaced with the same tonal-surface
+   idiom data-density.css's --danger-surface already establishes: a full,
+   symmetric background/border tint keyed to the kind's color instead of one
+   accent edge. Carries the same at-a-glance distinction with no one-sided
+   border anywhere on the box. */
+.ds-247420 .ds-ep-toast.kind-success { background: color-mix(in oklab, var(--success) 14%, var(--panel-1, var(--panel-bg))); border-color: color-mix(in oklab, var(--success) 40%, var(--rule)); }
+.ds-247420 .ds-ep-toast.kind-warn    { background: color-mix(in oklab, var(--warn) 14%, var(--panel-1, var(--panel-bg))); border-color: color-mix(in oklab, var(--warn) 40%, var(--rule)); }
+.ds-247420 .ds-ep-toast.kind-error   { background: color-mix(in oklab, var(--danger) 14%, var(--panel-1, var(--panel-bg))); border-color: color-mix(in oklab, var(--danger) 40%, var(--rule)); }
 .ds-247420 .ds-ep-toast.leaving { opacity: 0; transform: translateY(-6px); }
 .ds-247420 .ds-ep-toast.has-action {
     display: flex; align-items: center; gap: var(--space-2);

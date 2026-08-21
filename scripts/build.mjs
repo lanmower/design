@@ -311,6 +311,10 @@ try {
         outdir: dist,
         entryNames: '247420.[name]',
         bundle: true,
+        // game-editor-kit modules import the kit by its bare specifier; alias
+        // that to the source entry so bundling resolves instead of recursing
+        // through the published dist file.
+        alias: { 'anentrypoint-design': path.join(root, 'src/index.js') },
         format: 'esm',
         platform: 'browser',
         target: ['es2022'],

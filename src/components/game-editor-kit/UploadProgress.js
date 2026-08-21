@@ -113,6 +113,7 @@ export function createUploadProgress(opts = {}) {
         h('img', { src: _uploadState.thumbnail, style: 'max-width:100%;max-height:128px;border-radius:4px;border:1px solid var(--panel-border,#ddd)' })
       ]) : null,
 
+
       h('div', { style: 'display:flex;gap:8px;justify-content:flex-end' }, [
         (_uploadState.status === 'uploading' || _uploadState.status === 'idle') && h('button', {
           type: 'button',

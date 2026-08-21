@@ -120,6 +120,15 @@ export { renderLoadingScreen } from './kits/spoint/loading-screen.js';
 export { renderGameHud, Crosshair, AmmoCounter, HealthBar, BoostIndicator } from './kits/spoint/game-hud.js';
 export { renderHostJoinLobby } from './kits/spoint/host-join-lobby.js';
 
+// Game editor kit (spoint game editor UI). Exported individually here so the
+// dist bundle carries the kit's CDN-deliverable surface; components with
+// external-URL imports (ModelPreview) stay importable via the kit's own
+// src entry path instead.
+export { createDamageNumbers } from './components/game-editor-kit/DamageNumbers.js';
+export { ResetButton } from './components/game-editor-kit/ResetButton.js';
+export { UndoHistoryPanel } from './components/game-editor-kit/UndoHistoryPanel.js';
+export { LivePreviewControls } from './components/game-editor-kit/LivePreviewControls.js';
+
 // Re-export freddie helpers so consumers can `import { FREDDIE_PAGES } from
 // 'anentrypoint-design'` directly.
 export {
