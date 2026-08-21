@@ -118,21 +118,38 @@ export const skills = makePage((ctx) => {
 });
 
 export const plugins = makePage((ctx) => {
-    Object.assign(ctx.state, { selected: null });
+    Object.assign(ctx.state, { selected: null, busyName: null });
     // GET /api/plugins — flat {name,version,surfaces,requires,source,enabled}
     // list, per plugins/gui-plugins-list/plugin.js (distinct from
     // /api/plugin-graph's D3 {nodes,edges} shape built for the dependency
     // visualization, not a flat list UI).
     async function load() { try { ctx.set({ loading: false, list: await api('/api/plugins'), error: null }); } catch (e) { ctx.set({ loading: false, error: e }); } }
+    // POST /api/plugins/:name {enabled} (plugins/gui/gui-plugins-list/plugin.js)
+    // is real: it drives host.disablePlugin()/host.enablePlugin() (immediate
+    // tool/route/hook unregister-or-reregister, persisted via flags.js so a
+    // restart honors it) -- same wiring shape as skills' toggle() above.
+    async function toggle(plugin) {
+        ctx.set({ busyName: plugin.name });
+        try { await api('/api/plugins/' + encodeURIComponent(plugin.name), { method: 'POST', body: { enabled: !plugin.enabled } }); await load(); }
+        catch (e) { ctx.set({ error: e }); }
+        ctx.set({ busyName: null });
+    }
     load();
     return () => {
         const s = ctx.state;
         const list = Array.isArray(s.list) ? s.list : (s.list?.plugins || []);
+        // list now includes disabled plugins alongside loaded ones (see
+        // plugins/gui/gui-plugins-list/plugin.js) so a bare "N loaded" lede
+        // would overcount once any plugin is disabled.
+        const enabledCount = list.filter((p) => p.enabled).length;
+        const lede = enabledCount === list.length ? list.length + ' plugins loaded' : enabledCount + ' of ' + list.length + ' plugins enabled';
         return [
-            PageHeader({ title: 'plugins', lede: list.length + ' plugins loaded' }),
+            PageHeader({ title: 'plugins', lede }),
             PluginsConfig({
                 plugins: list, selected: s.selected, loading: s.loading, error: s.error,
+                busyName: s.busyName,
                 onSelect: (name) => ctx.set({ selected: s.selected === name ? null : name }),
+                onToggle: toggle,
                 onReload: load,
             }),
         ];
