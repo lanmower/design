@@ -375,3 +375,53 @@
   0% { background: var(--accent-soft, var(--accent, currentColor)); }
   100% { background: transparent; }
 }
+
+/* ============================================================
+   Freddie dashboard page-stretch + terminal-widget utilities
+   Migrated from freddie's src/web/index.html inline <style> block --
+   consumer HTML is reset-only, real component CSS lives in the SDK.
+   ============================================================ */
+/* Desktop: stretch page/panel/table/KPI to the main pane (measured 988px
+   table in a 1664px .app-main at 1920x1080 -- a leftover content-sized
+   island). */
+.ds-247420 .fd-page,
+.ds-247420 .fd-page-root,
+.ds-247420 .fd-page-inner {
+  width: 100%; max-width: none; box-sizing: border-box;
+}
+.ds-247420 .fd-page-inner {
+  display: flex; flex-direction: column; align-items: stretch;
+}
+.ds-247420 .app-main > .fd-page { align-self: stretch; width: 100%; }
+.ds-247420 .fd-page .panel { width: 100%; max-width: none; box-sizing: border-box; }
+.ds-247420 .fd-page .ds-table-wrap,
+.ds-247420 .fd-page table { width: 100%; }
+.ds-247420 .fd-page .kpi {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  width: 100%; gap: var(--space-2);
+}
+.ds-247420 .fd-page .kpi-card { width: 100%; max-width: none; }
+/* Freddie's session-terminal widget (tool-output tty panes). */
+.ds-247420 .fd-tty {
+  display: flex; flex-direction: column; min-height: 12rem;
+  background: var(--bg); color: var(--fg); font-family: var(--ff-mono, ui-monospace, monospace);
+  border: 1px solid var(--rule, currentColor);
+}
+.ds-247420 .fd-tty-head {
+  display: flex; justify-content: space-between; gap: var(--space-2);
+  padding: var(--space-1) var(--space-2); font-size: var(--fs-nano); text-transform: lowercase;
+  border-bottom: 1px solid var(--rule, currentColor);
+}
+.ds-247420 .fd-tty-slot {
+  flex: 1; min-height: 8rem; margin: 0; padding: var(--space-2);
+  overflow: auto; white-space: pre-wrap; word-break: break-word;
+}
+.ds-247420 .fd-session-mux { display: flex; flex-direction: column; gap: var(--space-2-75); min-width: 0; }
+/* Freddie's dense app-chrome variant of the chat composer: no border/shadow
+   chrome around the input (pi-web's flatter, denser feel). */
+.ds-247420 .chat-composer,
+.ds-247420 .chat-composer textarea,
+.ds-247420 .agentchat-main-col .chat-composer {
+  box-shadow: none; border: none; outline: none;
+}
+.ds-247420 .chat-composer textarea { background: none; }
