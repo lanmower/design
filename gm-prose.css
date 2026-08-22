@@ -23,6 +23,7 @@
   --article-toc-rail-w: 256px;
   --article-toc-gutter-nonrhythm: 44px;
   --article-toc-header-gap: 16px;
+  --article-measure-wide: min(96%, 1600px);
 }
 #ds-article-host.has-toc {
   display: flex;
@@ -38,6 +39,16 @@
   flex: 1 1 0;
   min-width: 0;
   max-width: var(--measure);
+}
+/* .wide opt-in: widens the reading column past the default measure cap for
+   articles whose content (tables, code, diagrams) benefits from more
+   horizontal room than plain prose. Never the default -- a page opts in by
+   adding the class, per-page, alongside has-toc. */
+#ds-article-host.has-toc.wide {
+  max-width: calc(var(--article-toc-rail-w) + var(--article-toc-gutter-nonrhythm) + var(--article-measure-wide));
+}
+#ds-article-host.has-toc.wide > .article-col {
+  max-width: var(--article-measure-wide);
 }
 #ds-article-host.has-toc > .toc {
   flex: 0 0 var(--article-toc-rail-w);
