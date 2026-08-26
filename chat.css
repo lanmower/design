@@ -1415,6 +1415,14 @@ button.chat-composer-context:focus-visible { outline: var(--focus-w) solid var(-
 .chat-tool-pre { margin: 0; padding: var(--space-2); background: var(--bg-2); border-radius: var(--r-1); font-family: var(--ff-mono); font-size: var(--fs-tiny); line-height: 1.45; overflow-x: auto; max-height: 320px; overflow-y: auto; }
 .chat-tool-pre.is-error { color: var(--flame); }
 .chat-tool-pre.chat-tool-empty { color: var(--fg-3); }
+/* Nested fold for an args/result body past LONG_BODY_THRESHOLD (agent-nodes.js)
+   -- collapsed by default so a huge result's <pre> never enters the DOM until
+   the user expands it, independent of the outer card's own open/closed state. */
+.chat-tool-longbody { margin: 0; }
+.chat-tool-longbody > .chat-tool-pre { margin-top: var(--space-1); }
+.chat-tool-longbody-summary { cursor: pointer; font-size: var(--fs-tiny); color: var(--fg-3); padding: var(--space-1) 0; user-select: none; }
+.chat-tool-longbody-summary:hover { color: var(--fg-2); }
+.chat-tool-longbody[open] > .chat-tool-longbody-summary { color: var(--fg-2); }
 
 /* Fenced-code language tab on every rendered-markdown block (not just the
    structured CodeNode). injectCodeCopy reads the language- class. */
