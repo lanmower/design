@@ -16229,7 +16229,12 @@
   gap: var(--space-2);
   width: min(360px, 100%);
   margin: 0 auto;
-  padding: var(--space-3) var(--space-3) var(--space-4);
+  /* .ca-app (unlike .cm-shell above) never applies env(safe-area-inset-*),
+     so on a notched/gesture-bar phone in portrait this dock -- the only
+     bottom-edge interactive chrome in the voice view -- sat flush against
+     the unsafe zone: the home-indicator bar could visually sit on top of
+     the mic/leave buttons with no inset to push them clear. */
+  padding: var(--space-3) var(--space-3) max(var(--space-4), env(safe-area-inset-bottom));
 }
 /* Pill rounding stays (this repo's r-pill token) -- it's the one control on
    this screen where the "toggle/status chip" radius bucket genuinely
